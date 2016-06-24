@@ -1,6 +1,13 @@
-# czechidm client
+# CzechIdM frontend
 
-* [Introduction](./docs/Introduction.md)
+Javascript client for CzechIdM.
+
+## Modules
+* core
+  * components
+  * services
+  * redux
+  * ...
 
 ## Basic Components
 

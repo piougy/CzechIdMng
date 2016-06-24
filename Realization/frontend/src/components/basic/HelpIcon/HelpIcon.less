@@ -1,0 +1,100 @@
+@import '../../variables.less';
+
+.help-icon-container {
+  display: inline-block;
+  font-size: 16px;
+  line-height: 26px;
+  vertical-align: middle;
+
+  a.help-icon {
+    display: inline-block;
+    color: @brand-success;
+
+    &:hover {
+      color: darken(@brand-success, 10%);
+    }
+  }
+}
+
+.help-icon-modal {
+  .modal-header {
+    h1 {
+      .glyphicon {
+        font-size: 0.85em;
+      }
+    }
+  }
+  .modal-body {
+    h1 {
+      line-height: 1;
+      margin: 0 -15px @idm-base-padding -15px;
+      padding: 0 15px @idm-base-padding 15px;
+      border-bottom: 1px solid @idm-border-color;
+    }
+
+    &.markdown-body {
+      font-family: 'Open Sans', sans-serif;
+      font-style: normal;
+
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+      }
+
+      h1 {
+        font-size: 26px; line-height: 30px;
+      }
+
+      h1 small {
+        font-size: 18px;
+      }
+
+      h2 {
+        font-size: 24px;
+        line-height: 36px;
+      }
+
+      h2 small {
+        font-size: 18px;
+      }
+
+      h3 {
+        font-size: 16px;
+        line-height: 22px;
+      }
+
+      h3 small {
+        font-size: 14px;
+      }
+
+      h4,
+      h5,
+      h6 {
+        line-height: 18px;
+      }
+
+      h4 {
+        font-size: 14px;
+        padding-top:5px;
+        padding-bottom: 5px;
+      }
+
+      h4 small {
+        font-size: 12px;
+      }
+
+      h5 {
+        font-size: 12px;
+      }
+
+      h6 {
+        font-size: 11px;
+        color: #999999;
+        text-transform: uppercase;
+      }
+
+      .btn[disabled], fieldset[disabled] .btn {
+        opacity: 1;
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+/**
+* Forms
+*/
+.required {
+  label:after {
+    content:" *"; color: red;
+  }
+  input {
+    // background-color: #FFC;
+  }
+}
+
+.form-horizontal {
+  .form-group {
+    margin-bottom: 7px;
+
+    &.last {
+      margin-bottom: 0;
+    }
+
+    &.has-error {
+      label.control-label {
+        color: #333; // @panel-default-text;
+      }
+    }
+    .form-text {
+      margin-top: 6px;
+      margin-left: 2px;
+    }
+  }
+
+  .checkbox {
+    padding-top: 2px;
+  }
+}
+
+.abstract-form {
+  background-color: #FDFDFD;
+}
+
+.panel {
+  .abstract-form {
+    padding-top: 15px;
+    padding-bottom: 8px;
+  }
+}
+.panel{
+  .abstract-form{
+    .inner-form {
+      padding-top: 0px;
+      padding-bottom: 0px;
+    }
+  }
+}

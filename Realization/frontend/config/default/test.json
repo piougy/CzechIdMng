@@ -1,0 +1,15 @@
+{
+  "env": "TEST",
+  "serverUrl": "http://localhost:8080",
+  "locales": "locales",
+  "theme": "modules/core/themes/default",
+  "crtEncrytpEnable": false,
+  "crtSigningEnable": true,
+  "roles": {
+    "superAdminRole": "superAdminRole",
+    "managerRole": "garant"
+  },
+  "logger": {
+    "level": "INFO"
+  }
+}

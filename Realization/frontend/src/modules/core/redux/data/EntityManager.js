@@ -1,0 +1,686 @@
+'use strict';
+
+import merge from 'object-assign';
+import _ from 'lodash';
+import { routeActions } from 'react-router-redux';
+//
+import { AbstractService, LocalizationService } from '../../services';
+import FlashMessagesManager from '../flash/FlashMessagesManager';
+import * as Utils from '../../utils';
+
+/**
+ * action types
+ */
+export const REQUEST_ENTITIES = 'REQUEST_ENTITIES';
+export const RECEIVE_ENTITIES = 'RECEIVE_ENTITIES';
+export const REQUEST_ENTITY = 'REQUEST_ENTITY';
+export const RECEIVE_ENTITY = 'RECEIVE_ENTITY';
+export const DELETED_ENTITY = 'DELETED_ENTITY';
+export const RECEIVE_ERROR = 'RECEIVE_ERROR';
+export const CLEAR_ENTITIES = 'CLEAR_ENTITIES';
+export const START_BULK_ACTION = 'START_BULK_ACTION';
+export const PROCESS_BULK_ACTION = 'PROCESS_BULK_ACTION';
+export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
+
+/**
+ * Encapsulate redux action for entity type
+ */
+export default class EntityManager {
+
+  constructor () {
+    if (this.getService === undefined) {
+      throw new TypeError('Must override method getService()');
+    }
+    this.flashMessagesManager = new FlashMessagesManager();
+  }
+
+  /**
+   * Resource name
+   *
+   * @return {string}
+   */
+  getEntityType() {
+    return 'Entity';
+  }
+
+  /**
+   * Resources name (collection)
+   *
+   * @return {string}
+   */
+  getCollectionType() {
+    return 'entites';
+  }
+
+  /**
+   * Textual entity reprezentation (~entity.toString())
+   *
+   * @param  {entity} entity
+   * @return {string]}
+   */
+  getNiceLabel(entity) {
+    if (!entity) {
+      return null;
+    }
+    return this.getService().getNiceLabel(entity);
+  }
+
+  /**
+   * Textual entities reprezentation (~entity.toString())
+   *
+   * @param  {array[entity]} entities
+   * @return {array[string]}
+   */
+  getNiceLabels(entities) {
+    return entities.map(entity => {
+      return this.getNiceLabel(entity);
+    })
+  }
+
+  getSelfLink(entityId) {
+    if (!entityId) {
+      return null;
+    }
+    return this.getService().getAbsoluteApiPath() + `/${entityId}`;
+  }
+
+  /**
+   * Returns localized message
+   * - for supported options see http://i18next.com/pages/doc_features.html
+   *
+   * @param  {string} key     localization key
+   * @param  {object} options parameters
+   * @return {string}         localized message
+   */
+  i18n(key, options) {
+    return LocalizationService.i18n(key, options);
+  }
+
+  /**
+   * Returns default uiKey by entity type, if given uiKey is not defined
+   * This ui key can be used for check state of entities fetching etc.
+   *
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {string|number} id - Entity identifier
+   * @return {string} - Returns uiKey
+   */
+  resolveUiKey(uiKey = null, id = null) {
+    if (uiKey) {
+      return uiKey;
+    }
+    if (id !== undefined && id !== null) {
+      return `${this.getEntityType()}-${id}`;
+    }
+    return this.getEntityType();
+  }
+
+  /**
+   * Returns default searchParameters for current entity type
+   *
+   * @return {object} searchParameters
+   */
+  getDefaultSearchParameters() {
+    return this.getService().getDefaultSearchParameters();
+  }
+
+  /**
+   * Returns given searchParameters or default, if searchParameters is not defined.
+   * Fills range and sort, if is not defined in  given searchParameters
+   *
+   * @param  {object} searchParameters
+   * @return {object} searchParameters
+   */
+  getSearchParameters(searchParameters) {
+    return searchParameters || this.getDefaultSearchParameters();
+  }
+
+  /**
+   * Merge search parameters - second sp has higher priority
+   *
+   * @param  {object} previousSearchParameters
+   * @param  {object} newSearchParameters
+   * @return {object} resultSearchParameters
+   */
+  mergeSearchParameters(previousSearchParameters, newSearchParameters) {
+    return this.getService().mergeSearchParameters(previousSearchParameters, newSearchParameters);
+  }
+
+  /**
+   * Load data from server
+   */
+  fetchEntities(searchParameters = null, uiKey = null, cb = null) {
+    searchParameters = this.getSearchParameters(searchParameters);
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntities(searchParameters, uiKey));
+      this.getService().search(searchParameters)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (json){
+          if (!json.error){
+            dispatch(this.receiveEntities(searchParameters, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError({}, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError({}, uiKey, error, cb));
+      });
+    }
+  }
+
+  /*
+  * Request data
+  */
+  requestEntities(searchParameters, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return {
+      type: REQUEST_ENTITIES,
+      searchParameters,
+      uiKey
+    };
+  }
+
+  /*
+  * Receive data
+  */
+  receiveEntities(searchParameters, json, uiKey = null, cb = null) {
+    if (cb) {
+      cb(json, null);
+    }
+    uiKey = this.resolveUiKey(uiKey);
+    let data = json._embedded[this.getCollectionType()] || [];
+    return {
+      type: RECEIVE_ENTITIES,
+      entityType: this.getEntityType(),
+      entities: data,
+      total: json.page ? json.page.totalElements : data.length,
+      searchParameters,
+      uiKey
+    };
+  }
+
+  /**
+   * Load entity by id from server
+   *
+   * @param  {string|number} id - Entity identifier
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is fetched
+   * @return {object} - action
+   */
+  fetchEntity(id, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(id, uiKey));
+      this.getService().getById(id)
+      .then(response => {
+        // 404, 403 simple redirect, TODO: overlay to preserve url?
+        if (response.status === 403) {
+          dispatch(routeActions.push('/error/403'));
+          return null;
+        }
+        if (response.status === 404) {
+          dispatch(routeActions.push(`/error/404?id=${id}`));
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (json) {
+          if (!json.error){
+            dispatch(this.receiveEntity(id, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError(id, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError(id, uiKey, error, cb));
+      });
+    }
+  }
+
+  /**
+   * Patch entity
+   *
+   * @param  {object} entity - Entity to patch
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is patched or error occured
+   * @return {object} - action
+   */
+  patchEntity(entity, uiKey = null, cb = null) {
+    if (!entity) {
+      return;
+    }
+    uiKey = this.resolveUiKey(uiKey, entity.id);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(entity.id, uiKey));
+      this.getService().patchById(entity.id, entity)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (json) {
+          if (!json.error){
+            dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError(entity, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError(entity, uiKey, error, cb));
+      });
+    }
+  }
+
+  /**
+   * Create new entity
+   *
+   * @param  {object} entity - Entity to patch
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is patched or error occured
+   * @return {object} - action
+   */
+  createEntity(entity, uiKey = null, cb = null) {
+    if (!entity) {
+      return;
+    }
+    uiKey = this.resolveUiKey(uiKey, '[new]');
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity('[new]', uiKey));
+      this.getService().create(entity)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (json) {
+          if (!json.error){
+            dispatch(this.receiveEntity(json.id, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError(entity, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError(entity, uiKey, error, cb));
+      });
+    }
+  }
+
+  /**
+   * Delete entity
+   *
+   * @param  {object} entity - Entity to delete
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is deleted or error occured
+   * @return {object} - action
+   */
+  deleteEntity(entity, uiKey = null, cb = null) {
+    if (!entity) {
+      return;
+    }
+    uiKey = this.resolveUiKey(uiKey, entity.id);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(entity.id, uiKey));
+      this.getService().deleteById(entity.id)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (json) {
+          if (!json.error){
+            dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
+          } else {
+            dispatch(this.receiveError(entity, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError(entity, uiKey, error, cb));
+      });
+    }
+  }
+
+  /**
+   * Delete entities - bulk action
+   *
+   * @param  {array[object]} entities - Entities to delete
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entities are deleted or error occured
+   * @return {object} - action
+   */
+  deleteEntities(entities, uiKey = null, cb = null) {
+    return ((dispatch, getState) => {
+      dispatch(
+        this.startBulkAction(
+          {
+            name: 'delete',
+            title: this.i18n(`action.delete.header`, { count: entities.length })
+          },
+          entities.length
+        )
+      );
+      let successEntities = [];
+      entities.reduce((sequence, entity) => {
+        return sequence.then(() => {
+          return this.getService().deleteById(entity.id);
+        }).then(response => {
+          if (response.status === 204) {
+            return {};
+          }
+          return response.json();
+        }).then(json => {
+          if (!json.error) {
+            dispatch(this.updateBulkAction());
+            successEntities.push(entity);
+            // new entity to redux store
+            dispatch(this.deletedEntity(entity.id, entity, uiKey));
+          } else {
+            dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, json.error));
+            throw new Error(json.error);
+          }
+        }).catch(error => {
+          throw error;
+        });
+      }, Promise.resolve())
+      .catch((error) => {
+        // nothing - message is propagated before
+        // catch is before then - we want execute nex then clausule
+        return error;
+      })
+      .then((error) => {
+        if (successEntities.length > 0) {
+          dispatch(this.flashMessagesManager.addMessage({
+            level: successEntities.length === entities.length ? 'success' : 'info',
+            message: this.i18n(`action.delete.success`, { count: successEntities.length, records: this.getNiceLabels(successEntities).join(', '), record: this.getNiceLabel(successEntities[0]) })
+          }));
+        }
+        dispatch(this.stopBulkAction());
+        if (cb) {
+          cb(null, error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Request entity by id from server
+   *
+   * @param  {string|number} id    - Entity identifier
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @return {object}              - action
+   */
+  requestEntity(id, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    return {
+      type: REQUEST_ENTITY,
+      id,
+      entityType: this.getEntityType(),
+      uiKey
+    };
+  }
+
+  /**
+   * Receive entity by id from server
+   *
+   * @param  {string|number} id - entity identifier
+   * @param  {object} entity - received entity. If entity is null, then will be removed from state
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {func} cb - callback after operation
+   * @return {object} - action
+   */
+  receiveEntity(id, entity, uiKey = null, cb = null) {
+    if (!id && !entity) { // nothing was recieved
+      return null;
+    }
+    //
+    if (!id) {
+      id = entity.id;
+    }
+    uiKey = this.resolveUiKey(uiKey, id);
+    if (cb) {
+      cb(entity, null);
+    }
+    return {
+      type: RECEIVE_ENTITY,
+      id: id,
+      entityType: this.getEntityType(),
+      entity: entity,
+      uiKey
+    };
+  }
+
+  /**
+   * Receive entity was deleted by id from server
+   *
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {func} cb - callback after operation
+   * @return {object} - action
+   */
+  deletedEntity(id, entity, uiKey = null, cb = null) {
+    if (!id) { // nothing was recieved
+      return null;
+    }
+    uiKey = this.resolveUiKey(uiKey, id);
+    if (cb) {
+      cb(entity, null);
+    }
+    return {
+      type: DELETED_ENTITY,
+      id: id,
+      entityType: this.getEntityType(),
+      uiKey
+    };
+  }
+
+  /**
+   * Receive error from server call
+   *
+   * @param  {string|number} id - entity identifier (could be null)
+   * @param  {object} entity - received entity
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {object} error - received error
+   * @return {object} - action
+   */
+  receiveError(entity, uiKey = null, error = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, entity.id);
+    return (dispatch, getState) => {
+      if (cb) {
+        cb(null, error);
+      } else {
+        dispatch(this.flashMessagesManager.addErrorMessage({
+          level: 'error',
+          key: 'error-' + this.getEntityType()
+        }, error));
+      }
+      dispatch({
+        type: RECEIVE_ERROR,
+        id: entity.id,
+        uiKey,
+        error
+      });
+    };
+  }
+
+  /**
+   * Pagination - reuse saved searchparameters in state preserves entered sorts and filters
+   *
+   * @param  {number} page  - current page (counted from zero)
+   * @param  {number} size  - page size
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {action}       - action
+   */
+  handlePagination(page, size, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch, getState) => {
+      let searchParameters = this.getSearchParameters(getState().data.ui[uiKey].searchParameters);
+      searchParameters = searchParameters.setSize(size).setPage(page);
+      dispatch(this.fetchEntities(searchParameters, uiKey));
+    };
+  }
+
+  /**
+  * Data sorting
+  */
+  handleSort(property, order, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch, getState) => {
+      let searchParameters = this.getSearchParameters(getState().data.ui[uiKey].searchParameters);
+      searchParameters = searchParameters.clearSort().setSort(property, 'DESC' !== order)
+      dispatch(this.fetchEntities(searchParameters , uiKey));
+    };
+  }
+
+  /**
+   * Check if is ui key present
+   */
+  containsUiKey(state, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    if (!state || !state.data || !state.data.ui || !state.data.ui[uiKey] || !state.data.ui[uiKey].items) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Read entities associarted by given uiKey items from ui store
+   *
+   * @param  {state} state [description]
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {array[entity]}
+   */
+  getEntities(state, uiKey = null) {
+    return Utils.Ui.getEntities(state, this.resolveUiKey(uiKey));
+  }
+
+  /**
+   * Returns entity, if entity is contained in applicateion state.
+   * Can be used in select state.
+   *
+   * @param  {state} state - application state
+   * @param  {string|number} id - entity identifier
+   * @return {object} - entity
+   */
+  getEntity(state, id) {
+    return Utils.Entity.getEntity(state, this.getEntityType(), id);
+  }
+
+  /**
+   *	Returns entities by ids, if entities are contained in applicateion state.
+   *
+   * @param  {state} state [description]
+   * @param  {array[string|number]} ids  entity ids
+   * @return {array[object]}
+   */
+  getEntitiesByIds(state, ids = []) {
+    return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids);
+  }
+
+  /**
+   * Returns true, when loading for given uiKey proceed
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {boolean} - true, when loading for given uiKey proceed
+   */
+  isShowLoading(state, uiKey = null) {
+    return Utils.Ui.isShowLoading(state, this.resolveUiKey(uiKey));
+  }
+
+  /**
+   * Returns true, when entity by given id is not contained in state and loading does not processing
+   *
+   * @param  {state}  state - application state
+   * @param  {string|number} id - entity identifier
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {boolean} - true, when entity is not contained in state and loading does not processing
+   */
+  fetchEntityIsNeeded(state, id, uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey. id);
+    // entity is saved in state
+    if (this.getEntity(state, id)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Loads requested entity by given id, if entity is not in application state and entity loading does not processing
+   *
+   * @param  {store}  store - application store
+   * @param  {string|number} id - entity identofoer
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   */
+  fetchEntityIfNeeded(id, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey, id);
+    return (dispatch, getState) => {
+      if (this.fetchEntityIsNeeded(getState(), id, uiKey)) {
+        dispatch(this.fetchEntity(id, uiKey, cb));
+      } else if (cb) {
+        cb(this.getEntity(getState(), id), null);
+      }
+    }
+  }
+
+  /**
+   * Clears all entities by type from application state
+   *
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {action} - action
+   */
+  clearEntities(uiKey = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return {
+      type: CLEAR_ENTITIES,
+      entityType: this.getEntityType(),
+      uiKey
+    };
+  }
+
+  /**
+   * Start global bulk action
+   *
+   * @param  {object} bulkAction { name, title }
+   * @param  {number} size bulk action size
+   * @return {action}  action
+   */
+  startBulkAction(bulkAction, size) {
+    return {
+      type: START_BULK_ACTION,
+      action: bulkAction,
+      size: size
+    };
+  }
+
+  /**
+   * Update globally processed bulk action
+   *
+   * @param  {number} counterIncrement counter increment
+   * @return {action} action
+   */
+  updateBulkAction(counterIncrement = 1) {
+    return {
+      type: PROCESS_BULK_ACTION,
+      counterIncrement
+    };
+  }
+
+  /**
+   * Stop global bulk action
+   *
+   * @return {action} action
+   */
+  stopBulkAction() {
+    return {
+      type: STOP_BULK_ACTION
+    };
+  }
+}

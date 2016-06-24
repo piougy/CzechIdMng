@@ -1,0 +1,31 @@
+'use strict';
+
+import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+//
+import * as Basic from '../../basic';
+
+export default class FilterEnumSelectBox extends Basic.EnumSelectBox {
+
+}
+
+FilterEnumSelectBox.propTypes = {
+  ...Basic.EnumSelectBox.propTypes,
+  /**
+   * Field name - if is not set, then ref is used
+   * @type {[type]}
+   */
+  field: PropTypes.string,
+  /**
+   * Filter relation
+   * TODO: enumeration
+   */
+  relation: PropTypes.oneOf(['EQ', 'NEQ'])
+};
+const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.EnumSelectBox.defaultProps; // labelSpan etc. override
+FilterEnumSelectBox.defaultProps = {
+  ...otherDefaultProps,
+  relation: 'EQ',
+  labelSpan: 'col-lg-4',
+  componentSpan: 'col-lg-8'
+};

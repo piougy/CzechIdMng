@@ -1,0 +1,41 @@
+/**
+* Alert customization
+*/
+.panel {
+  * > .alert {
+    margin: 15px;
+
+    &.last {
+      margin-bottom: 0px !important;
+    }
+  }  
+}
+
+.panel-body > .alert {
+  margin: 0 0 15px 0;
+}
+
+.alert-title {
+  font-weight: bold;
+}
+
+.alert {
+  margin-bottom: 15px;
+
+  .alert-icon {
+    display: table-cell;
+    padding-right: 5px;
+  }
+
+  .alert-desc {
+    display: table-cell;
+  }
+
+  &.last {
+    margin-bottom: 0px;
+  }
+
+  &.no-margin {
+    margin: 0 0 15px 0 !important;
+  }
+}

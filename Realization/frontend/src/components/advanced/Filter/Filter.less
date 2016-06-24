@@ -1,0 +1,58 @@
+@import '../../variables.less';
+
+.advanced-filter {
+
+  border-bottom: @idm-border-color 1px solid;
+
+  .abstract-form {
+    padding: 10px 15px !important;
+  }
+
+  .form-horizontal {
+    .form-group {
+      width: 100%;
+
+      input[type="text"] {
+        width: 100%;
+      }
+    }
+
+    .btn {
+      margin-top: 0;
+    }
+  }
+
+  .row {
+    &.last{
+      .form-group {
+        margin-bottom: 0px;
+      }
+    }
+  }
+}
+
+.basic-toolbar {
+
+  .advanced-filter {
+    margin: 10px -15px -10px -15px;
+    border-top: @idm-border-color 1px solid;
+    border-bottom: none;
+  }
+}
+
+.panel {
+  &.no-border {
+    > .loader-container > .advanced-table > .basic-toolbar {
+
+      .advanced-filter {
+        margin-left: 0px;
+        margin-right: 0px;
+
+        .abstract-form {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+      }
+    }
+  }
+}

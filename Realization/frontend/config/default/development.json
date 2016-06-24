@@ -1,0 +1,27 @@
+{
+  "env": "development",
+  "serverUrl": "http://localhost:8080/idm/api",
+  "locales": "dist/locales",
+  "theme": "modules/core/themes/default",
+  "crtEncrytpEnable": false,
+  "crtSigningEnable": true,
+  "overrideModuleDescriptor": {
+    "core":{
+      "navigation": {
+        "items": [
+          {
+            "id": "tasks",
+            "disabled": false
+          }
+        ]
+      }
+    }
+  },
+  "roles": {
+    "superAdminRole": "superAdminRole",
+    "managerRole": "garant"
+  },
+  "logger": {
+    "level": "DEBUG"
+  }
+}

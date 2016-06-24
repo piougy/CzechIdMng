@@ -1,0 +1,46 @@
+'use strict';
+
+import EntityManager from './EntityManager';
+import { IdentityWorkingPositionService, IdentityService } from '../../services';
+
+const service = new IdentityWorkingPositionService();
+const identityService = new IdentityService();
+
+export default class IdentityWorkingPositionManager extends EntityManager {
+
+  constructor () {
+    super();
+  }
+
+  getService() {
+    return service;
+  }
+
+  getEntityType() {
+    return 'IdentityWorkingPosition'; // TODO: constant or enumeration
+  }
+
+  getCollectionType() {
+    return 'workingPositions';
+  }
+
+  fetchWorkingPositions(username, uiKey = null, cb = null) {
+    uiKey = this.resolveUiKey(uiKey);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntities(null, uiKey));
+      identityService.getWorkingPositions(username)
+      .then(json => {
+        if (json){
+          if (!json.error){
+            dispatch(this.receiveEntities(null, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError({}, uiKey, json.error, cb));
+          }
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError({}, uiKey, error, cb));
+      });
+    }
+  }
+}

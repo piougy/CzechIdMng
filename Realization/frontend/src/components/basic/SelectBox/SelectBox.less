@@ -1,0 +1,35 @@
+@import "../../../../node_modules/react-select/less/default.less";
+@import '../../variables.less';
+
+@select-primary-color: @idm-base-color;
+
+.colorDefs(@c1: #222) {
+    @select-primary-color: @c1;
+}
+
+.has-error {
+	.Select-control{
+		border-color: #a94442;
+	}
+}
+.has-feedback{
+	.Select-arrow{
+		margin-left: -27px;
+	}
+}
+.has-feedback{
+  .is-loading{
+	   .Select-arrow{
+		     display: none;
+	 }
+  }
+}
+.has-error {
+		.is-focused{
+				.Select-control{
+					.colorDefs(#a94442);
+						border-color: @select-primary-color;
+						box-shadow: 0px 0px 5px 0px rgba(193, 66, 66, 0.7);
+		}
+	}
+}

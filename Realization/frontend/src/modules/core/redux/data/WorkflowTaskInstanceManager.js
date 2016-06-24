@@ -1,0 +1,55 @@
+'use strict'
+
+import EntityManager from './EntityManager';
+import { WorkflowTaskInstanceService } from '../../services';
+
+export default class WorkflowTaskInstanceManager extends EntityManager {
+
+  constructor () {
+    super();
+    this.service = new WorkflowTaskInstanceService();
+  }
+
+  getService() {
+    return this.service;
+  }
+
+  getEntityType() {
+    return 'WorkflowTaskInstance';
+  }
+
+  getCollectionType() {
+    return 'resources';
+  }
+
+  completeTask(task, formData, uiKey = null, cb = null) {
+    if (!task || !formData) {
+      return;
+    }
+      uiKey = this.resolveUiKey(uiKey, task.id);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(task.id, uiKey));
+      this.getService().completeTask(task.id, formData)
+      .then(response => {
+        if (response.status === 200) {
+          return null;
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (json) {
+          if (!json.error){
+            dispatch(this.receiveEntity(task.id, json, uiKey, cb));
+          } else {
+            dispatch(this.receiveError(task, uiKey, json.error, cb));
+          }
+        }else {
+          cb(task, null);
+        }
+      })
+      .catch(error => {
+        dispatch(this.receiveError(task, uiKey, error, cb));
+      });
+    }
+  }
+}

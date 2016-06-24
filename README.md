@@ -5,7 +5,7 @@
   * jdbc db (primary PostgreSQL)
   * Hibernate ORM
   * Spring (data, data rest, hateoas, security, integration)
-  * Activiti
+  * Activiti (workflow)
 
 * Frontend (javascript)
   * React

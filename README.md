@@ -14,8 +14,8 @@
 
 ## Instalation
 
-* [Frontend](./frontend/README.md)
-* [Backend](./backend/README.md)
+* [Frontend](./Realization/frontend/README.md)
+* [Backend](./Realization/backend/README.md)
 
 ## License
 

@@ -1,4 +1,4 @@
-# czechidm client
+# CzechIdM frontend
 
 
 ## Usage

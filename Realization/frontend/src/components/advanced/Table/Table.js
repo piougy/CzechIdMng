@@ -46,7 +46,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
    */
   _mergeSearchParameters(searchParameters) {
     const { defaultSearchParameters, forceSearchParameters, manager } = this.props;
-    return manager.mergeSearchParameters(searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), forceSearchParameters);
+    let _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override pagination
+    return manager.mergeSearchParameters(searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters);
   }
 
   fetchEntities(searchParameters) {

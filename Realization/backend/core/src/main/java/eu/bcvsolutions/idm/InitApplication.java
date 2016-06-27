@@ -139,7 +139,6 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				this.organizationRepository.save(organization2);
 				//
 				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();
-				
 				identityWorkingPosition.setIdentity(identityAdmin);
 				identityWorkingPosition.setPosition("vedoucí");
 				identityWorkingPosition.setManager(identity2);
@@ -147,6 +146,15 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
+				//
+				for (int i = 0; i < 100; i++) {
+					IdmIdentity bulkIdentity = new IdmIdentity();
+					bulkIdentity.setUsername("rt_" + i);
+					bulkIdentity.setPassword("heslo".getBytes());
+					bulkIdentity.setFirstName("F");
+					bulkIdentity.setLastName("L");
+					this.identityRepository.save(bulkIdentity);
+				}
 			}
 			//
 		} finally {

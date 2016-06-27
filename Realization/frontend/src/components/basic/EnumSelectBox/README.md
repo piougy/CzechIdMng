@@ -9,7 +9,7 @@ All parameters form parent component (AbstractFormComponent).
 <br><br>Extra component parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | enum  | Array of symbols   | Array of symbols and niceLabel function|  |
 | options | Array of custom objects (each item must have value and niceLabel field ) | If you want use custom data, then you can use options field | |
 | fieldLabel  | string   | Field use for show string representation of item in select box| 'niceLabel' this is automatic added field from service for item |

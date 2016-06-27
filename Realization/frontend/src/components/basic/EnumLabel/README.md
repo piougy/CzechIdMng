@@ -7,8 +7,8 @@ Non editable component for show localized enum item as label. Extended from Abst
 All parameters from AbstractFormComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
-| enum  | object  | Enumeration | - | |
+| --- | :--- | :--- | :--- |
+| enum  | object  | Enumeration | --- | |
 
 
 ## Usage

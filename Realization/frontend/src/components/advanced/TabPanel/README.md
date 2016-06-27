@@ -5,7 +5,7 @@ Renders navigation items as detail tabs. Navigation is built from module descrip
 ## Parameters
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | parentId | string  |  which navigation parent wil be rendered - sub menus to render  |  | |
 
 ## Usage

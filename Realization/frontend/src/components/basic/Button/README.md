@@ -7,7 +7,7 @@ Standard button as react component. Supports all standard button properties and 
 All parameters from AbstractComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | level | PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'link', 'primary'])  |  Control css / color  |   'default' |
 | hidden  | bool | adds css hidden | false |
 | showLoadingIcon  | bool | When showLoading is true, then showLoadingIcon is shown | false |

@@ -1,4 +1,4 @@
-# Backend
+# CzechIdM backend
 
 Java application deployable to Tomcat 8 application server.
 

@@ -5,7 +5,7 @@ Information about identity.
 ## Parameters
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | identity | instanceOf(Identity)  |  identity  |  |
 | username | string  |  Selected identity's username - identity will be loaded automatically  |  | |
 

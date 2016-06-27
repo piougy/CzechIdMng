@@ -1,4 +1,4 @@
-# czechidm client
+# CzechIdM frontend
 
 
 ## Usage
@@ -60,6 +60,8 @@ __For run with specific profile and stage:__
 When you are done, create a production ready version of the JS bundle:
 
 `gulp build -p koop -s test` (default values of profile and stage arguments are default/development)
+
+### [Docs](./docs/README.md)
 
 
 ### npm link for components development (draft)

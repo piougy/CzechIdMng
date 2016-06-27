@@ -5,7 +5,7 @@ Encapsulates all features for filter. Filter works nice together with advanced t
 ## Child components:
 
 | Component | Description |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | FilterButtons | Renders buttons for use and clear filter |
 | ToogleFilterButton | Renders button for filter collapsing |
 | FilterTextField | Text input. Default operator LIKE |

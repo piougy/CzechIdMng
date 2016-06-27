@@ -3,7 +3,7 @@
 Component for view tree of entities. Using EntityManager.
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | manager | object.isRequired | EntityManager for fetching entities in tree | |
 | rootNode | object.isRequired | Key for save data to redux store | |
 | uiKey | string.isRequired | Define attribute in entity which will be used for show name of node | |

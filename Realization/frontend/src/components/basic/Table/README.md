@@ -6,7 +6,7 @@ Table of records, features
 * ...
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | data | array[json]    | Array of json objects (e.q. response from rest service)   |  |
 | showLoading  | bool   | Shows loading overlay | false |
 | onRowClick  | func   | Callback that is called when a row is clicked |  |
@@ -16,7 +16,7 @@ Table of records, features
 # Column Component
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | property | string | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | header | string, node or function | Header cell value | by property |
 | cell | string, node or function | Body cell value |   |
@@ -27,7 +27,7 @@ Table of records, features
 Adds pagination support to table data
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | total | string | Total records count | |
 | from | string | First record index |  |
 | size | string | Page size | |
@@ -77,7 +77,7 @@ Or static:
 ### Prepared cell types for column renrering:
 
 | Cell |  Description  |
-| - | :- | :- |
+| --- | :--- | :--- |
 | TextCell | Renders cell with text content. |
 | LinkCell | Renders cell with link and text content. |
 | DateCell | Renders cell with date content with given format |

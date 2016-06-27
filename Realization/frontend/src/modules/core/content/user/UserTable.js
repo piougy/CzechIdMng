@@ -11,6 +11,7 @@ import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
 import { FormManager, OrganizationManager } from '../../../../modules/core/redux';
+import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../../../components/advanced/Filter/README_cs.md';
 

@@ -79,7 +79,11 @@ export default class EntityUtils {
     if (!entity) {
       return false;
     }
-    if (moment().isBefore(entity.validFrom) || moment().isAfter(entity.validTill)) {
+    // entity does not support validable
+    if (entity.validFrom === undefined && entity.validTill === undefined) {
+      return true;
+    }
+    if ((entity.validFrom !== null && moment().isBefore(entity.validFrom)) || (entity.validTill !== null && moment().isAfter(entity.validTill))) {
       return false;
     }
     return true;

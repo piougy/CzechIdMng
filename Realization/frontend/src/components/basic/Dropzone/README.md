@@ -3,7 +3,7 @@
 Component for select files.
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | onDrop | func.isRequired | Function call after droped or selected any files | |
 | multiple | bool | Can be select multiple files | true |
 | accept | string | Define accepted file extension | |

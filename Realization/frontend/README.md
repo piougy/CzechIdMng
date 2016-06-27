@@ -61,6 +61,8 @@ When you are done, create a production ready version of the JS bundle:
 
 `gulp build -p koop -s test` (default values of profile and stage arguments are default/development)
 
+### [Docs](./docs/README.md)
+
 
 ### npm link for components development (draft)
 * create module: https://docs.npmjs.com/getting-started/creating-node-modules

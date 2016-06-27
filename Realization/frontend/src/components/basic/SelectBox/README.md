@@ -8,7 +8,7 @@ Component supported single select and multi select mode.
 All parameters from AbstractFormComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | service  | instanceOf(AbstractService)   | Implementation of service (extended from AbstractService) for entity type where we want search |  |
 | searchInFields  | arrayOf(string)   | Fields in which we want search|  |
 | fieldLabel  | string   | Field use for show string representation of item in select box| 'niceLabel' this is automatic added field from service for item |

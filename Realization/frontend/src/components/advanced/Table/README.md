@@ -3,7 +3,7 @@
 Encapsulates all features from BasicTable component.
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | manager | object.isRequired | EntityManager subclass, which provides data fetching | |
 | uiKey | string  | optional table identifier - it's used as key in store  | if isn't filled, then manager.getEntityType() is used |
 | pagination | bool | If pagination is shown | true |
@@ -25,7 +25,7 @@ Encapsulates all features from BasicTable component.
 Header text is automatically resolved by entity and column property. Advanced column supports different data types defined by face property.
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | property | string.isRequired | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | sort | bool | Column supports sorting | false |
 | width | string | Pixel or percent width of table. | |
@@ -36,7 +36,7 @@ Header text is automatically resolved by entity and column property. Advanced co
 All parameters from AdvancedColumn are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | to | string.isRequired  | React router links "to". Parameters can be used and theirs value is propagated from data[rowIndex].property | | |
 
 

@@ -7,7 +7,7 @@ Shows alert box
 All parameters from AbstractComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | level | oneOf(['success', 'warning', 'info', 'danger'])  |  Control css / color  |   'info' |
 | icon  | string   | glyphicon suffix name | if empty, then isn't rendered |
 | title  | oneOfType([string, node])  | Alert strong title content | if empty, then isn't rendered |

@@ -7,7 +7,7 @@ Is extended from AbstractFormComponent.
 All parameters from AbstractFormComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | labelSpan  | string | Defined span for label | col-sm-offset-3 |
 | tooltip  | string | Tooltip show on hover| | |
 

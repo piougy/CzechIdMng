@@ -7,7 +7,7 @@ Shows label (highlighted text)
 All parameters from AbstractComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | level | oneOf(['default', 'success', 'warning', 'info', 'danger', 'error', 'primary'])  |  Control css / color  |   'info' |
 | text  | string   | Label text | ||
 

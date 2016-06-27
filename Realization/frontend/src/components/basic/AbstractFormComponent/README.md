@@ -7,7 +7,7 @@ This component is not designed for separate usage. Use children components (etc.
 ## Common parameters
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | value  | object |  |  |
 | label  | string |  |  |
 | disabled  | bool |  | false |

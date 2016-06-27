@@ -7,7 +7,7 @@ Component for select date and time. Extended from AbstractFormComponent.
 All parameters from AbstractFormComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
-| - | :- | :- | :- |
+| --- | :--- | :--- | :--- |
 | mode  | oneOf(['date', 'time', 'datetime'])   | Defined mode of component (can be 'date' or 'time' or nothing for datetime)| 'datetime' |
 | dateFormat | string   | Defined input date format (use moment.js)  | DD.MM.YYYY |
 | timeFormat | string   | Defined input time format (use moment.js)  | HH:mm |

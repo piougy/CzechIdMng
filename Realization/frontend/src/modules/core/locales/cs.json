@@ -472,7 +472,9 @@
           "createdDate": "Úkol vytvořen",
           "applicantFullName": "Jméno žadatele",
           "applicant": "Žadatele",
-          "successComplete": "Úkol {{name}} byl úspěšně vyřešen."
+          "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
+          "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
+          "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?"
         },
         "DefaultTaskDetail": {
           "applicant": "Žadatel",

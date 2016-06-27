@@ -38,7 +38,7 @@ class DecisionButtons extends Basic.AbstractContent {
                     <Basic.Button
                       type="button"
                       level={decision.level}
-                      onClick={this._onClick.bind(this,decision.id)}
+                      onClick={this._onClick.bind(this,decision)}
                       showLoading={showLoading}
                       tooltip={decision.tooltip}>
                         {this.i18n(decision.label)}

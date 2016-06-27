@@ -51,16 +51,30 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     return result;
   }
 
-  _completeTask(decision){
+  _validateAndCompleteTask(decision){
     if (!this.refs.form.isFormValid()) {
       return;
     }
     if (!this.refs.formData.isFormValid()) {
       return;
     }
+    if (decision.showWarning){
+      this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle')).then(result => {
+        this.setState({
+          showLoading: true
+        });
+        this._completeTask(decision);
+      }, function(err) {
+        return;
+      });
+    }else {
+        this._completeTask(decision);
+    }
+  }
+  _completeTask(decision){
     let formDataValues = this.refs.formData.getData();
     const task = this.refs.form.getData();
-    let formData = {'decision': decision, 'formData': this._toFormData(formDataValues, task.formData)};
+    let formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
     const { taskManager, uiKey } = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, `${uiKey}`, this._afterComplete.bind(this)));
 
@@ -73,6 +87,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('successComplete', { name: task.name }) });
+    this.setState({
+      showLoading: false
+    });
     this.context.router.goBack();
   }
 
@@ -170,7 +187,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>
-            <DecisionButtons task={task} onClick={this._completeTask.bind(this)}/>
+            <DecisionButtons task={task} onClick={this._validateAndCompleteTask.bind(this)}/>
           </Basic.PanelFooter>
         </Basic.Panel>
       </div>

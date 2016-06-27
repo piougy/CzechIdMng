@@ -126,6 +126,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity2.setFirstName("Vít");
 				identity2.setPassword("heslo".getBytes());
 				identity2.setLastName("Švanda");
+				identity2.setEmail("vit.svanda@bcvsolutions.eu");
 				identity2 = this.identityRepository.save(identity2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//

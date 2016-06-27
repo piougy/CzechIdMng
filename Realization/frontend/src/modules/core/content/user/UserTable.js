@@ -150,9 +150,6 @@ export class UserTable extends Basic.AbstractContent {
     const { uiKey, identityManager, columns } = this.props;
     const { filterOpened } = this.state;
 
-    let forceSearchParameters = new SearchParameters();
-    forceSearchParameters = forceSearchParameters.setFilter('text', 'rt_');
-
     return (
       <div>
         <Basic.Confirm ref="confirm-deactivate" level="danger"/>
@@ -165,7 +162,6 @@ export class UserTable extends Basic.AbstractContent {
           onRowDoubleClick={this.onRowDoubleClick.bind(this)}
           showRowSelection={true}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-          forceSearchParameters={forceSearchParameters}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">

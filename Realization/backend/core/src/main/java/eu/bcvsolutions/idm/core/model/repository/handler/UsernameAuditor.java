@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.model.repository.handler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.core.security.service.SecurityService;
 

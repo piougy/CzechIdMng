@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.security.domain;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 /**
  * 	Default implementation of granted authority
  *

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.exception;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 
 /**

@@ -16,7 +16,7 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 
 	@Override
 	public void execute(ActivityExecution execution) {
-		
+		logger.debug("MailActiviti executeId "+execution.getId());
 		leave(execution);
 	}
 

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.workflow.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
 /**

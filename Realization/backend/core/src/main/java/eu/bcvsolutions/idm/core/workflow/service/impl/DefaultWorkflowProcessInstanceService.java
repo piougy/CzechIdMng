@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
@@ -22,7 +21,6 @@ import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskDefinitionDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 
@@ -43,9 +41,6 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Autowired
 	private WorkflowTaskDefinitionService taskDefinitionService;
-
-	@Autowired
-	private WorkflowProcessDefinitionService workflowProcessDefinitionService;
 
 	@Autowired
 	private IdmIdentityService identityService;

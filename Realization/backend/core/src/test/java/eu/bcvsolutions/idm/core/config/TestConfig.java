@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.config;
+package eu.bcvsolutions.idm.core.config;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.test.ActivitiRule;

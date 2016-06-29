@@ -201,7 +201,7 @@ class DateTimePicker extends AbstractFormComponent {
           {(disabled || readOnly) 
             ?
             <div style={{marginTop: '7px', marginLeft: '13px'}}>
-              {value}
+              {value && value._isAMomentObject ? this._format(value) : value}
             </div>
             :
             (

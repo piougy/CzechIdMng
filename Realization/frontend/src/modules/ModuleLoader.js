@@ -21,9 +21,9 @@ export default class ModuleLoader {
 
   /**
    * Returns ids of all enabled modules
-   * TODO: use static config.json - some modules can be used as internal dependency 
+   * TODO: use static config.json - some modules can be used as internal dependency
    */
-  getEnabledModuleNames() {
+  getEnabledModuleIds() {
     return this.getModuleDescriptors().map(moduleDescriptor => {
       return moduleDescriptor.id;
     });

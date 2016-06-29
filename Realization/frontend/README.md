@@ -39,9 +39,9 @@ or locally:
 or better
 `npm run test-watch`
 
-__ Test via gulp:__
+__ Test via gulp (for profile "specprofile" and stage "test"):__
 
-`gulp test -p koop -s test` (profile and stage arguments are supported)
+`gulp test -p specprofile -s test` (profile and stage arguments are supported)
 
 or for livereload (check src and test dir)
 
@@ -51,15 +51,15 @@ or for livereload (check src and test dir)
 
 `gulp`
 
-__For run with specific profile and stage:__
+__For run with specific profile (for example "specprofile") and stage:__
 
-`gulp -p koop -s test` (default values of profile and stage arguments are default/development)
+`gulp -p specprofile -s test` (default values of profile and stage arguments are default/development)
 
 ### Build
 
 When you are done, create a production ready version of the JS bundle:
 
-`gulp build -p koop -s test` (default values of profile and stage arguments are default/development)
+`gulp build -p specprofile -s test` (default values of profile and stage arguments are default/development)
 
 ### [Docs](./docs/README.md)
 

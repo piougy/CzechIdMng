@@ -39,7 +39,7 @@ or locally:
 or better
 `npm run test-watch`
 
-__ Test via gulp (for profile "specprofile" and stage "test"):__
+__ Test via gulp (for profile "specprofile" and stage "test". Profiles could be defined in [configuration](./config)):__
 
 `gulp test -p specprofile -s test` (profile and stage arguments are supported)
 
@@ -57,9 +57,11 @@ __For run with specific profile (for example "specprofile") and stage:__
 
 ### Build
 
-When you are done, create a production ready version of the JS bundle:
+When you are done, a production ready version of the JS bundle can be created:
 
 `gulp build -p specprofile -s test` (default values of profile and stage arguments are default/development)
+
+Builded application will be located in `dist` folder. Application could be deployed to any http server (e.g. Apache).
 
 ### [Docs](./docs/README.md)
 

@@ -118,6 +118,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	@Override
 	public IdmIdentity get(Long id) {
 		IdmIdentity entity = identityRepository.findOne(id);
+		entity.getRoles();
 		return entity;
 	}
 

@@ -9,13 +9,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+
 /**
  * Test deploy and run process with groovy script
  * @author svandav
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class DeployAndRunProcessTest extends AbstractSpringTest {
+public class DeployAndRunProcessTest extends AbstractWorkflowTest {
 
 	private static final String PROCESS_KEY = "testDeployAndRun";
 

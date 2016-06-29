@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,21 +41,21 @@ public class ExceptionControllerAdvice {
 	ResponseEntity<RestErrors> handle(IdmAuthenticationException ex) {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.AUTH_FAILED, new Object[]{ }); // source exception message is shown only in log 
 		log.warn("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	ResponseEntity<RestErrors> handle(HttpRequestMethodNotSupportedException ex) {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ ex.getMethod(), MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods(), ", ")) });
 		log.warn("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	ResponseEntity<RestErrors> handle(HttpMessageNotReadableException ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.BAD_REQUEST, ex.getMessage(), new Object[]{ });
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ });
 		log.warn("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	@ExceptionHandler(RepositoryConstraintViolationException.class)
@@ -79,17 +80,25 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new RestErrors(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 	
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	ResponseEntity<RestErrors> handle(DataIntegrityViolationException ex) {		
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMessage());
+		log.error("[" + errorModel.getId() + "] ", ex);
+		return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
+    }
+	
+	
 	@ExceptionHandler(CoreException.class)
 	ResponseEntity<RestErrors> handle(CoreException ex) {	
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage(), ex.getDetails());
 		log.error("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<RestErrors> handle(Exception ex) {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 		log.error("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 }

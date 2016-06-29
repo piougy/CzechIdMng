@@ -1101,6 +1101,9 @@
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",
       "message": "Role s daným názvem již existuje"
+    },
+    "CONFLICT": {
+      "title": "Záznam koliduje s jiným unikátním záznamem"
     }
   },
   "validationError": {

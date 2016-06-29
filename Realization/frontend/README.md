@@ -39,7 +39,7 @@ or locally:
 or better
 `npm run test-watch`
 
-__ Test via gulp (for profile "specprofile" and stage "test". Profiles could be defined in [configuration](./config)):__
+__Test via gulp (for profile "specprofile" and stage "test". Profiles could be defined in [configuration](./config)):__
 
 `gulp test -p specprofile -s test` (profile and stage arguments are supported)
 

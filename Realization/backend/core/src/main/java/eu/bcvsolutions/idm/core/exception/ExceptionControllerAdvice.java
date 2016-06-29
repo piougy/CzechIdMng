@@ -45,7 +45,7 @@ public class ExceptionControllerAdvice {
 	
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	ResponseEntity<RestErrors> handle(HttpRequestMethodNotSupportedException ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ ex.getMethod(), MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods())) });
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ ex.getMethod(), MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods(), ", ")) });
 		log.warn("[" + errorModel.getId() + "] ", ex);
         return new ResponseEntity<>(new RestErrors(errorModel), new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED);
     }

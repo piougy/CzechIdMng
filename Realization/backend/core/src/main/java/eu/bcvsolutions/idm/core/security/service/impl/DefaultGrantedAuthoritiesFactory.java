@@ -65,7 +65,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
 		authenticationDto.setExpiration(authentication.getExpiration());
-		if (authentication instanceof Collection<?>) {
+		if (authentication.getAuthorities() instanceof Collection<?>) {
 			Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
 					.getAuthorities();
 			List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();

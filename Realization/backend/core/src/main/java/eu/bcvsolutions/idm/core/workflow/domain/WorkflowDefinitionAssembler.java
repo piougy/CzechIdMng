@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.workflow.rest.WorkflowDefinitionController;
  * @author svandav
  *
  */
+@SuppressWarnings("rawtypes")
 public class WorkflowDefinitionAssembler
 		extends ResourceAssemblerSupport<WorkflowProcessDefinitionDto, ResourceWrapper> {
 

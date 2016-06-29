@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 
 /**
  * Initialize application
@@ -46,9 +45,6 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 	
 	@Autowired
 	private IdmOrganizationRepository organizationRepository;
-	
-	@Autowired
-	private SecurityService securityService;
 	
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;

@@ -58,21 +58,24 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return authentication;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IdmJwtAuthenticationDto getIdmJwtAuthenticationDto(IdmJwtAuthentication authentication) {
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
 		authenticationDto.setExpiration(authentication.getExpiration());
-		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
-				.getAuthorities();
-		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
-		if (authorities != null) {
-			for (DefaultGrantedAuthority a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getRoleName(), a.getAuthority()));
+		if (authentication instanceof Collection<?>) {
+			Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
+					.getAuthorities();
+			List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
+			if (authorities != null) {
+				for (DefaultGrantedAuthority a : authorities) {
+					grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getRoleName(), a.getAuthority()));
+				}
 			}
+			authenticationDto.setAuthorities(grantedAuthorities);
 		}
-		authenticationDto.setAuthorities(grantedAuthorities);
 		return authenticationDto;
 	}
 }

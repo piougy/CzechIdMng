@@ -2,12 +2,6 @@ package eu.bcvsolutions.idm.core.security.dto;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
 
 public class IdmJwtAuthenticationDto {
 

@@ -7,11 +7,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.Deployment;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
 
 /**
  * Test deploy and run process with groovy script
@@ -21,7 +17,6 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DeployAndRunProcessTest extends AbstractSpringTest {
 
-	private static final Logger log = LoggerFactory.getLogger(DefaultLoginService.class);
 	private static final String PROCESS_KEY = "testDeployAndRun";
 
 

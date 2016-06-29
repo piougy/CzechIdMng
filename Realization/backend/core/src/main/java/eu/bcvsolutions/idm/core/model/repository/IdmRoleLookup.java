@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 @Component
 public class IdmRoleLookup extends EntityLookupSupport<IdmRole>{
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleLookup.class);
+	//private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleLookup.class);
 	
 	@Autowired
 	private IdmRoleRepository roleRepository;

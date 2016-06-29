@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.workflow.rest;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -81,10 +81,10 @@ public class DefaultLoginService implements LoginService {
 	private boolean validate(String username, String password) {
 		IdmIdentity identity = idmIdentityRepository.findOneByUsername(username);
 		if (identity == null) {			
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity {0} either doesn't exist or is deleted.", username));
+			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
 		}
 		if (identity.isDisabled()) {
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity {0} is disabled.",  username ));
+			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.",  username ));
 		}
 
 		if (password.equals(new String(identity.getPassword()))) {

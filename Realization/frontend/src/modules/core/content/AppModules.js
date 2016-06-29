@@ -41,9 +41,9 @@ class AppModules extends Basic.AbstractContent {
         <Basic.PageHeader text={this.i18n('header')}/>
 
         {
-          this.configService.getEnabledModuleNames().sort().map(moduleName => {
-            const moduleDescriptor = this.configService.getModuleDescriptor(moduleName);
-            const componentDescriptor = this.componentService.getComponentDescriptor(moduleName);
+          this.configService.getEnabledModuleIds().sort().map(moduleId => {
+            const moduleDescriptor = this.configService.getModuleDescriptor(moduleId);
+            const componentDescriptor = this.componentService.getComponentDescriptor(moduleId);
             //
             return (
               <Basic.Panel>

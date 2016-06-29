@@ -54,31 +54,31 @@ export default class ConfigService {
   }
 
   /**
-   * Returns enabled module names
+   * Returns enabled module ids
    *
    * @return {array[string]}
    */
-  getEnabledModuleNames() {
-    return moduleLoader.getEnabledModuleNames();
+  getEnabledModuleIds() {
+    return moduleLoader.getEnabledModuleIds();
   }
 
   /**
-   * Returns Module descriptor for given module nameForUser
+   * Returns Module descriptor for given module id
    *
-   * @param  {string} moduleName
+   * @param  {string} moduleId
    * @return {ModuleDescriptor} json object
    */
-  getModuleDescriptor(moduleName){
-    const loaderModuleDescriptor = moduleLoader.getModuleDescriptor(moduleName);
-    const configModuleDescriptor = this._getConfigModuleDescriptor(moduleName);
+  getModuleDescriptor(moduleId){
+    const loaderModuleDescriptor = moduleLoader.getModuleDescriptor(moduleId);
+    const configModuleDescriptor = this._getConfigModuleDescriptor(moduleId);
     //
     //Merge module descriptor with override values from configuration
     return _.mergeWith(loaderModuleDescriptor, configModuleDescriptor, this._overrideModuleDescriptorMerge.bind(this));
   }
 
-  _getConfigModuleDescriptor(moduleName){
+  _getConfigModuleDescriptor(moduleId){
     if (config.overrideModuleDescriptor){
-      return config.overrideModuleDescriptor[moduleName];
+      return config.overrideModuleDescriptor[moduleId];
     }
     return {};
   }
@@ -116,8 +116,8 @@ export default class ConfigService {
    * Append module navigation to items
    * - works with order, priority etc
    */
-  _resolveNavigation(navigationItems, moduleName) {
-    const moduleDescriptor = this.getModuleDescriptor(moduleName);
+  _resolveNavigation(navigationItems, moduleId) {
+    const moduleDescriptor = this.getModuleDescriptor(moduleId);
 
     if (!moduleDescriptor.navigation) {
       return this._navigationItems;
@@ -175,8 +175,8 @@ export default class ConfigService {
       [ConfigService.NAVIGATION_BY_ID]: Immutable.Map({}),
       [ConfigService.NAVIGATION_BY_PATH]: Immutable.Map({})
     });
-    moduleLoader.getEnabledModuleNames().map(moduleName => {
-        navigationItems = this._resolveNavigation(navigationItems, moduleName);
+    moduleLoader.getEnabledModuleIds().map(moduleId => {
+        navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order
     navigationItems = navigationItems.set(

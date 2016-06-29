@@ -42,10 +42,10 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 		String usernameFromToken = idmJwtAuthentication.getName();
 		IdmIdentity identity = idmIdentityRepository.findOneByUsername(usernameFromToken);
 		if (identity == null) {
-			throw new IdmAuthenticationException("Identity " + usernameFromToken + " not found!");
+			throw new IdmAuthenticationException("Identity [" + usernameFromToken + "] not found!");
 		}
 		if (identity.isDisabled()) {
-			throw new IdmAuthenticationException("Identity " + usernameFromToken + " is disabled!");
+			throw new IdmAuthenticationException("Identity [" + usernameFromToken + "] is disabled!");
 		}
 
 		return authentication;

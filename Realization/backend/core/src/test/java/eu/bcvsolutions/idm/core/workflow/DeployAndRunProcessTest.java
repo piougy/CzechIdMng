@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.workflow;
+package eu.bcvsolutions.idm.core.workflow;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,7 +26,7 @@ public class DeployAndRunProcessTest extends AbstractSpringTest {
 
 
 	@Test
-	@Deployment(resources = { "eu/bcvsolutions/idm/workflow/testDeployAndRun.bpmn20.xml" })
+	@Deployment(resources = { "eu/bcvsolutions/idm/core/workflow/testDeployAndRun.bpmn20.xml" })
 	public void deployAndRunScript() {
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);

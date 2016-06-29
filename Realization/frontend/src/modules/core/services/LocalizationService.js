@@ -29,7 +29,7 @@ export default class LocalizationService {
         fallbackLng: 'cs',
 
         // have a common namespace used around the full app
-        ns: configService.getEnabledModuleNames(),
+        ns: configService.getEnabledModuleIds(),
         defaultNS: 'core',
 
         debug: false,

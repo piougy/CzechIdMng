@@ -16,7 +16,7 @@ export default class NavigationItem extends Basic.AbstractComponent {
   }
 
   render () {
-    const { id, className, to, icon, active, title, titlePlacement, text, rendered, showLoading, ...others } = this.props;
+    const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading, ...others } = this.props;
     const itemClassNames = classnames(className, { active: active });
     const linkClassNames = classnames({ active: active });
     //
@@ -28,7 +28,7 @@ export default class NavigationItem extends Basic.AbstractComponent {
       <li className={itemClassNames} {...others}>
         <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title} delayShow={200}>
           <Link to={to} className={linkClassNames}>
-            <Basic.Icon icon={icon ? icon : showLoading ? 'refresh' : null} showLoading={showLoading}/>
+            <Basic.Icon icon={showLoading ? 'refresh' : icon ? icon : 'fa:circle-o'} color={iconColor} showLoading={showLoading}/>
             {text}
           </Link>
         </Basic.Tooltip>

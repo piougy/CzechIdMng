@@ -127,7 +127,7 @@ module.exports = {
         'id': 'organizations',
         'labelKey': 'content.organizations.header',
         'titleKey': 'content.organizations.title',
-        'icon': 'fa:group',
+        'icon': 'fa:building',
         'order': 50,
         'path': '/organizations',
         'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
@@ -137,6 +137,7 @@ module.exports = {
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
+        // 'iconColor': '#d9534f',
         'order': 35,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]

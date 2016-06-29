@@ -25,7 +25,7 @@ class TaskInstances extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems('tasks');
+    this.selectNavigationItem('tasks');
   }
 
   render() {

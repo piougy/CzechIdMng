@@ -124,6 +124,7 @@ export class Navigation extends Basic.AbstractContextComponent {
             title={this.i18n(item.titleKey, { defaultValue: item.title })}
             titlePlacement={titlePlacement}
             icon={item.icon}
+            iconColor={item.iconColor}
             active={activeItem === item.id}
             text={this._resolveNavigationItemText(item, userContext)}/>
         );

@@ -118,24 +118,20 @@ class VpnTable extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     });
-    let promises = vpnRecordManager.getService().updateById(vpnRecord.id, vpnRecord);
-    promises.then(response => {
+    let promise = vpnRecordManager.getService().updateById(vpnRecord.id, vpnRecord);
+    promises.then((json) => {
+      this.setState({
+        showLoading: false
+      }, () => {
+        this.context.store.dispatch(vpnRecordManager.fetchEntity(json.id));
+        this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('vpnRequestSaved')});
+        this.refs.vpnRecordsTable.getWrappedInstance().reload();
+        this._closeModal();
+      });      
+    }).catch(ex => {
       this.setState({
         showLoading: false
       });
-      return response.json();
-    }).then((json) => {
-      if (json) {
-        if (!json.error) {
-          this.context.store.dispatch(vpnRecordManager.fetchEntity(json.id));
-          this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('vpnRequestSaved')});
-          this.refs.vpnRecordsTable.getWrappedInstance().reload();
-          this._closeModal();
-        }else {
-          this.addError(json.error);
-        }
-      }
-    }).catch(ex => {
       this.addError(ex);
     });
   }

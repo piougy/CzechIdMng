@@ -4,6 +4,7 @@ import _ from 'lodash';
 //
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
+import * as Utils from '../utils';
 
 /**
  * Contains basic CRUD + search operation
@@ -42,27 +43,96 @@ export default class AbstractService {
    * @return {Promise} promise with response
    */
   getById(id) {
-    return RestApiService.get(this.getApiPath() + `/${id}`);
+    return RestApiService
+      .get(this.getApiPath() + `/${id}`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   create(json) {
-    return RestApiService.post(this.getApiPath(), json);
+    return RestApiService
+      .post(this.getApiPath(), json)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   upload(formData) {
-    return RestApiService.upload(this.getApiPath(), formData);
+    return RestApiService
+      .upload(this.getApiPath(), formData)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   deleteById(id) {
-    return RestApiService.delete(this.getApiPath() + `/${id}`);
+    return RestApiService
+      .delete(this.getApiPath() + `/${id}`)
+      .then(response => {
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   updateById(id, json) {
-    return RestApiService.put(this.getApiPath() + `/${id}`, json);
+    return RestApiService
+      .put(this.getApiPath() + `/${id}`, json)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   patchById(id, json) {
-    return RestApiService.patch(this.getApiPath() + `/${id}`, json);
+    return RestApiService
+      .patch(this.getApiPath() + `/${id}`, json)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   search(searchParameters) {
@@ -75,11 +145,17 @@ export default class AbstractService {
       console.log('Search parameters is not instance of SearchParameters - using default', searchParameters);
       searchParameters = this.getDefaultSearchParameters();
     }
-    return RestApiService.get(this.getApiPath() + searchParameters.toUrl());
-  }
-
-  bulkSave(json) {
-    return RestApiService.put(this.getApiPath(), json);
+    return RestApiService
+      .get(this.getApiPath() + searchParameters.toUrl())
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 
   /**

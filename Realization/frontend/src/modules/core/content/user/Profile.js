@@ -84,23 +84,13 @@ class Profile extends Basic.AbstractContent {
     const { userID } = this.props.params;
     let result = _.merge({}, json);
 
-    identityManager.getService().patchById(userID, result).then(response => {
-      return response.json();
-    }).then((json) => {
-      if (json) {
-        if (!json.error) {
-          this.context.store.dispatch(identityManager.fetchEntity(userID));
-          if (!deactive) {
-            this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: userID }) });
-          } else {
-            this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.deactivated', { username: userID }) });
-          }
-        } else {
-          this.transformData(null, json.error, ApiOperationTypeEnum.UPDATE);
-          this.setState({
-            showLoading: false
-          });
-        }
+    identityManager.getService().patchById(userID, result)
+    .then((json) => {
+      this.context.store.dispatch(identityManager.fetchEntity(userID));
+      if (!deactive) {
+        this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: userID }) });
+      } else {
+        this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.deactivated', { username: userID }) });
       }
     }).catch(ex => {
       this.transformData(null, ex, ApiOperationTypeEnum.UPDATE);

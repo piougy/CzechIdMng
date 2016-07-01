@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+
 /**
  * Universal operation result response
  * 
@@ -52,4 +54,18 @@ public interface ResultModel {
 	 * @return
 	 */
 	String getModule();
+	
+	/**
+	 * http status code
+	 * 
+	 * @return
+	 */
+	int getStatusCode();
+	
+	/**
+	 * textual http status code 
+	 * 
+	 * @return
+	 */
+	HttpStatus getStatus();
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 import RestApiService from './RestApiService';
+import * as Utils from '../utils';
 
 const authPath = '/authentication';
 
@@ -15,9 +16,14 @@ export default class AuthenticateService {
       password: password
     };
     return RestApiService
-    .post(authPath, json, false) // false - we don't want to append auth token 
+    .post(authPath, json, false) // false - we don't want to append auth token
     .then(response => {
       return response.json();
+    }).then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
     });
   }
 

@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.exception;
 
 import org.springframework.http.HttpStatus;
 
+import eu.bcvsolutions.idm.core.model.dto.ResultModels;
+
 /**
  * This error class propagates exception into front end. It contains a message and HTTP status code and unique id.
  * Every error has it's unique id under which you can find it in log.
@@ -15,7 +17,7 @@ public final class RestApplicationException extends CoreException {
 	/**
 	 * This object holds information about this exception (a HTTP status code defined by RFC 2616, an exception message).
 	 */
-	private RestErrors error;
+	private ResultModels resultModels;
 	
 	private RestApplicationException(String message, Throwable throwable) {
 		super(message, throwable);
@@ -59,19 +61,19 @@ public final class RestApplicationException extends CoreException {
 	
 	public RestApplicationException(ErrorModel resultModel, Throwable throwable) {
 		this(resultModel.getMessage(), throwable);
-		this.error = new RestErrors(resultModel);
+		this.resultModels = new ResultModels(resultModel);
 	}
 		
-	public RestErrors getError() {
-		return this.error;
+	public ResultModels getError() {
+		return this.resultModels;
 	}
 	
 	public HttpStatus getStatus() {
-		return this.getError().getError().getStatus();
+		return this.getError().getErrors().get(0).getStatus();
 	}
 		
 	public String getId() {
-		return this.getError().getError().getId();
+		return this.getError().getErrors().get(0).getId();
 	}
 	
 	@Override	

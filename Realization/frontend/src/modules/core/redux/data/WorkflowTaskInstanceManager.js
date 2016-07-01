@@ -2,6 +2,7 @@
 
 import EntityManager from './EntityManager';
 import { WorkflowTaskInstanceService } from '../../services';
+import * as Utils from '../../utils';
 
 export default class WorkflowTaskInstanceManager extends EntityManager {
 
@@ -37,13 +38,15 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
         return response.json();
       })
       .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      })
+      .then(json => {
         if (json) {
-          if (!json.error){
-            dispatch(this.receiveEntity(task.id, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError(task, uiKey, json.error, cb));
-          }
-        }else {
+          dispatch(this.receiveEntity(task.id, json, uiKey, cb));
+        } else {
           cb(task, null);
         }
       })

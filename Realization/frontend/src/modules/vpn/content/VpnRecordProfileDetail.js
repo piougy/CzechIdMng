@@ -68,22 +68,15 @@ class VpnRecordProfileDetail extends Basic.AbstractContent {
       showLoading: true
     });
     let promises = vpnRecordManager.getService().create(vpnRecord);
-    promises.then(response => {
+    promises.then((json) => {
       this.setState({
         showLoading: false
+      }, () => {
+        this.context.store.dispatch(vpnRecordManager.fetchEntity(json.id));
+        this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('vpnRequestCreated')});
+        this.refs.vpnRecordsTable.getWrappedInstance().reload();
+        this._closeModal();
       });
-      return response.json();
-    }).then((json) => {
-      if (json) {
-        if (!json.error) {
-          this.context.store.dispatch(vpnRecordManager.fetchEntity(json.id));
-          this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('vpnRequestCreated')});
-          this.refs.vpnRecordsTable.getWrappedInstance().reload();
-          this._closeModal();
-        }else {
-          this.addError(json.error);
-        }
-      }
     }).catch(ex => {
       this.addError(ex);
     });

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -34,6 +35,15 @@ public class DefaultResultModel implements ResultModel {
 	
 	private String module;
 	
+	/**
+	 * Http status code
+	 */
+	private int statusCode;
+	/**
+	 * Http status name
+	 */
+	private HttpStatus status;
+	
 	public DefaultResultModel() {
 		this.id = UUID.randomUUID().toString();
 		this.creation = new Date();
@@ -41,6 +51,14 @@ public class DefaultResultModel implements ResultModel {
 	
 	public DefaultResultModel(ResultCode resultCode, Object[] parameters) {
 		this(resultCode, null, parameters);
+	}
+	
+	public DefaultResultModel(ResultCode resultCode) {
+		this(resultCode, null, null);
+	}
+	
+	public DefaultResultModel(ResultCode resultCode, String message) {
+		this(resultCode, message, null);
 	}
 	
 	/**
@@ -53,6 +71,8 @@ public class DefaultResultModel implements ResultModel {
 		this();
 		this.statusEnum = resultCode.getCode();
 		this.module = resultCode.getModule();
+		this.status = resultCode.getStatus();
+		this.statusCode = resultCode.getStatus().value();
 		String messageFormat = (StringUtils.isEmpty(message)) ? resultCode.getMessage() : message;
 		try {
 			this.message = String.format(messageFormat, parameters);
@@ -112,5 +132,21 @@ public class DefaultResultModel implements ResultModel {
 	
 	public void setModule(String module) {
 		this.module = module;
+	}
+	
+	public HttpStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(HttpStatus status) {
+		this.status = status;
+	}
+	
+	public int getStatusCode() {
+		return statusCode;
+	}
+	
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 }

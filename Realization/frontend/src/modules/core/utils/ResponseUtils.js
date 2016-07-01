@@ -24,7 +24,7 @@ export default class ResponseUtils {
     const content = responseJson;
     // no content = no error
     if (!content) {
-      return false;
+      return null;
     }
     // one error
     if (content.error) {

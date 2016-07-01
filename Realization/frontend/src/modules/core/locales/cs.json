@@ -526,7 +526,7 @@
           "header_5": "$t(content.users.action.activate.header_2)",
           "message_1": "Opravdu chcete aktivovat vybraného uživatele <strong>{{username}}</strong>?",
           "message_2": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybrané uživatele?",
-          "message_5": "$t(content.users.action.activate.message_2)",
+          "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
           "error": "Při aktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
         },

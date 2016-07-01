@@ -8,6 +8,7 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../../components/basic';
+import * as Utils from '../../utils';
 import { IdentityService } from '../../../../modules/core/services';
 import { SettingManager } from '../../../../redux';
 import { SecurityManager } from '../../../../modules/core/redux';
@@ -117,31 +118,33 @@ class PasswordChange extends Basic.AbstractContent {
       return response.json();
     })
     .then(json => {
-      if (!json.error) {
-        let resources = (requestData.idm) ? 'czechidm' : '';
-        if (requestData.resources.length > 0 && resources) {
-          resources += ', '
-        }
-        resources += requestData.resources.join();
-
-        this.addMessage({
-          message: this.i18n('message.success', { resources: resources, username: userID })
-        });
-        // new token has to be set to security to prevent user logout
-        this.context.store.dispatch(securityManager.reloadToken());
-        //
-        this.refs.form.processEnded();
-        /*
-        // TODO: do we want reset password input after change?
-        this.refs.form.setData({
-          resources: formData.resources,
-          oldPassword: null,
-          newPassword: null,
-          newPasswordAgain: null
-        });*/
-      } else {
-        this.addError(json.error);
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
       }
+      return json;
+    })
+    .then(json => {
+      let resources = (requestData.idm) ? 'czechidm' : '';
+      if (requestData.resources.length > 0 && resources) {
+        resources += ', '
+      }
+      resources += requestData.resources.join();
+
+      this.addMessage({
+        message: this.i18n('message.success', { resources: resources, username: userID })
+      });
+      // new token has to be set to security to prevent user logout
+      this.context.store.dispatch(securityManager.reloadToken());
+      //
+      this.refs.form.processEnded();
+      /*
+      // TODO: do we want reset password input after change?
+      this.refs.form.setData({
+        resources: formData.resources,
+        oldPassword: null,
+        newPassword: null,
+        newPasswordAgain: null
+      });*/
     })
     .catch(error => {
       this.addError(error);

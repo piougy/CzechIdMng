@@ -27,26 +27,22 @@ class Definition extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    console.log('here');
     const { definitionId } = this.props.params;
-    let promises = this.workflowDefinitionService.getById(definitionId);
     this.setState({
       showLoading: true
     });
-    promises.then(response => {
+    let promise = this.workflowDefinitionService.getById(definitionId);
+    promise.then((json) => {
+      this.setState({
+        showLoading: false,
+        definition: json
+      });
+      this.refs.form.setData(json);
+    }).catch(ex => {
       this.setState({
         showLoading: false
       });
-      return response.json();
-    }).then((json) => {
-      if (json) {
-        if (!json.error) {
-          this.setState({definition: json});
-          this.refs.form.setData(json);
-        }else {
-          this.addError(json.error);
-        }
-      }
-    }).catch(ex => {
       this.addError(ex);
     });
     this.selectNavigationItem('workflow-definitions');
@@ -61,7 +57,7 @@ class Definition extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.PageHeader>
 
-        <Basic.Panel>
+        <Basic.Panel showLoading={showLoading}>
           <Basic.AbstractForm ref="form" readOnly>
             <Basic.TextField ref="key" label={this.i18n('key')}/>
             <Basic.TextField ref="name" label={this.i18n('name')}/>

@@ -9,7 +9,7 @@ import _ from 'lodash';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import { OrganizationManager } from '../../../modules/core/redux';
-import * as Utils from '../../../modules/core/utils';
+import * as Utils from '../utils';
 
 const uiKey = 'organization_table';
 

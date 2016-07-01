@@ -78,13 +78,11 @@ class Profile extends Basic.AbstractContent {
     delete result.generatePassword;
     // TODO: transform to redux
     identityManager.getService().create(result)
-    .then(response => {
+    .then(json => {
       this.setState({
         showLoading: false
-      },this.refs.form.processEnded());
-      return response.json();
-    }).then(json => {
-      if (!json.error){
+      }, () => {
+        this.refs.form.processEnded();
         this.addMessage({
           message: this.i18n('content.user.create.message.success', { username: json.username})
         });
@@ -102,11 +100,14 @@ class Profile extends Basic.AbstractContent {
             this.context.router.push(`users`);
           }
         }
-      } else {
-        this.transformData(null, json.error, ApiOperationTypeEnum.UPDATE);
-      }
-    }).catch(ex => {
-      this.transformData(null, ex, ApiOperationTypeEnum.UPDATE);
+      });
+    }).catch(error => {
+      this.setState({
+        showLoading: false
+      }, () => {
+        this.refs.form.processEnded();
+        this.transformData(null, error, ApiOperationTypeEnum.UPDATE);
+      });
     });
   }
 

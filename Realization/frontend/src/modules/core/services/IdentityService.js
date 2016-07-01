@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import Immutable from 'immutable';
 //
+import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
@@ -122,6 +123,12 @@ class IdentityService extends AbstractService {
     .get(this.getApiPath() + `/${username}/roles`, token)
     .then(response => {
       return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
     });
   }
 
@@ -214,6 +221,12 @@ class IdentityService extends AbstractService {
     .get(this.getApiPath() + `/${username}/workingPositions`, token)
     .then(response => {
       return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
     });
   }
 }

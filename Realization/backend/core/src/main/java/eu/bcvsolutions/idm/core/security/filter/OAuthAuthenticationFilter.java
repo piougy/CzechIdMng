@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
-import eu.bcvsolutions.idm.core.exception.RestErrors;
+import eu.bcvsolutions.idm.core.model.dto.ResultModels;
 import eu.bcvsolutions.idm.core.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
@@ -120,6 +120,6 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 		log.error("[" + errorModel.getId() + "] ", ex);
 		httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		httpResponse.setStatus(errorModel.getStatus().value());
-		httpResponse.getWriter().print(jsonMapper.writeValueAsString(new RestErrors(errorModel)));
+		httpResponse.getWriter().print(jsonMapper.writeValueAsString(new ResultModels(errorModel)));
 	}
 }

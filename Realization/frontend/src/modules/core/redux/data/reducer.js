@@ -130,7 +130,10 @@ export function data(state = INITIAL_STATE, action) {
       const entityTypes =  merge({}, state.entity, {
         [entityType]: entities
       });
-      let items = state.ui[uiKey].items || [];
+      let items = [];
+      if (state.ui[uiKey] && state.ui[uiKey].items) {
+        items = state.ui[uiKey].items;
+      }
       if (!_.includes(items, action.id)) {
         items = _.slice(items);
         items.push(action.id);

@@ -107,30 +107,23 @@ class CrtIdentityDetail extends AbstractContent {
     merge(result, {vpnCertTypeState:CrtIdentityRoleStateEnum.findKeyBySymbol(this.state.vpnCertType.state)});
 
     let dataFunc = this.transformData;
-    crtIdentityManager.getService().updateById(userID, result).then(response => {
-      return response.json();
-    }).then(json => {
-      if (json){
-        if (!json.error) {
-          // TODO: only signCertTypeState is supported now
-          if (json.signCertTypeState === CrtIdentityRoleStateEnum.findKeyBySymbol(CrtIdentityRoleStateEnum.APPROVED)) {
-            this.addMessage({
-              title: this.i18n('request.message.added.title'),
-              message: this.i18n('request.message.added.message', { certificateType: CertificateTypeEnum.getNiceLabel(CertificateTypeEnum.findKeyBySymbol(CertificateTypeEnum.SIGNING)) })
-            });
-          } else {
-            this.addMessage({
-              title: this.i18n('request.message.requested.title'),
-              message: this.i18n('request.message.requested.message', { certificateType: CertificateTypeEnum.getNiceLabel(CertificateTypeEnum.findKeyBySymbol(CertificateTypeEnum.SIGNING)) })
-            });
-          }
-          this.context.store.dispatch(crtIdentityManager.fetchEntities({'filter':{'filters': [{'field':'name', 'value':userID}]}}));
-        } else {
-          dataFunc(null, json.error, ApiOperationTypeEnum.UPDATE);
-        }
+    crtIdentityManager.getService().updateById(userID, result)
+    .then(json => {
+      // TODO: only signCertTypeState is supported now
+      if (json.signCertTypeState === CrtIdentityRoleStateEnum.findKeyBySymbol(CrtIdentityRoleStateEnum.APPROVED)) {
+        this.addMessage({
+          title: this.i18n('request.message.added.title'),
+          message: this.i18n('request.message.added.message', { certificateType: CertificateTypeEnum.getNiceLabel(CertificateTypeEnum.findKeyBySymbol(CertificateTypeEnum.SIGNING)) })
+        });
+      } else {
+        this.addMessage({
+          title: this.i18n('request.message.requested.title'),
+          message: this.i18n('request.message.requested.message', { certificateType: CertificateTypeEnum.getNiceLabel(CertificateTypeEnum.findKeyBySymbol(CertificateTypeEnum.SIGNING)) })
+        });
       }
-    }).catch(ex => {
-      dataFunc(null, ex, ApiOperationTypeEnum.UPDATE);
+      this.context.store.dispatch(crtIdentityManager.fetchEntities({'filter':{'filters': [{'field':'name', 'value':userID}]}}));
+    }).catch(error => {
+      dataFunc(null, error, ApiOperationTypeEnum.UPDATE);
     })
   }
 
@@ -435,38 +428,27 @@ _callCreateCrtTask(userID, crtFormResult){
   this.setState({progressBar:progressBar});
 
   //call create task api
-  crtCertificateTaskManager.getService().create(task).then(response => {
-    return response.json();
-  }).then(json => {
-
-    if (json){
-      if (!json.error){
-        if (json.state === CertificateTaskStateEnum.findKeyBySymbol(CertificateTaskStateEnum.IN_PROGRESS)){
-          let progressBarNext = {showProcessing: true, counter: 2, max: maxRefreshCount, label: this.i18n('newCrtProgressBarRefresh')};
-          //we try refresh 4x
-          this.setState({progressBar:progressBarNext}, function () {
-            this._onTaskRefresh(json);
-          }.bind(this));
-        } else if (json.state === CertificateTaskStateEnum.findKeyBySymbol(CertificateTaskStateEnum.ERROR)) {
-          this.addMessage({message:this.i18n('task.createTaskNotSuccess', {error:json.description}), level: 'error'});
-          this.setState({progressBar:progressBarDefault});
-          //hide loading
-          this._addCertificateFormDisabled(false);
-          this._refreshTables();
-        } else {
-          this.addMessage({message:this.i18n('task.createTaskSuccess'), level: 'success'});
-          this.setState({showModal:false, progressBar:progressBarDefault});
-          //hide loading
-          this._addCertificateFormDisabled(false);
-          this._refreshTables();
-        }
-      }else {
-        this._addCertificateFormDisabled(false);
+  crtCertificateTaskManager.getService().create(task).then(json => {
+      if (json.state === CertificateTaskStateEnum.findKeyBySymbol(CertificateTaskStateEnum.IN_PROGRESS)){
+        let progressBarNext = {showProcessing: true, counter: 2, max: maxRefreshCount, label: this.i18n('newCrtProgressBarRefresh')};
+        //we try refresh 4x
+        this.setState({progressBar:progressBarNext}, function () {
+          this._onTaskRefresh(json);
+        }.bind(this));
+      } else if (json.state === CertificateTaskStateEnum.findKeyBySymbol(CertificateTaskStateEnum.ERROR)) {
+        this.addMessage({message:this.i18n('task.createTaskNotSuccess', {error:json.description}), level: 'error'});
         this.setState({progressBar:progressBarDefault});
-        this.addError(json.error);
+        //hide loading
+        this._addCertificateFormDisabled(false);
+        this._refreshTables();
+      } else {
+        this.addMessage({message:this.i18n('task.createTaskSuccess'), level: 'success'});
+        this.setState({showModal:false, progressBar:progressBarDefault});
+        //hide loading
+        this._addCertificateFormDisabled(false);
         this._refreshTables();
       }
-    }}).catch(ex => {
+    }).catch(ex => {
       //hide loading
       this._addCertificateFormDisabled(false);
       this.setState({progressBar:progressBarDefault});

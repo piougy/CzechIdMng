@@ -5,7 +5,7 @@ import { routeActions } from 'react-router-redux';
 //
 import { AuthenticateService, ConfigService, IdentityService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
-
+import * as Utils from '../../utils';
 
 /**
  * action types
@@ -45,23 +45,17 @@ export default class SecurityManager {
       //
       authenticateService.login(username, password)
       .then(json => {
-        if (json) {
-          if (!json.error) {
-            // resolve roles from auth
-            const roles = json.authentication.authorities.map(authority => { return authority.authority });
-            // construct logged user context
-            const userContext = {
-              username: json.username,
-              isAuthenticated: true,
-              tokenCIDMST: json.token,
-              tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-              roles: roles
-            };
-            dispatch(this.receiveLogin(userContext, redirect));
-          } else {
-            dispatch(this.receiveLoginError(json.error, redirect));
-          }
-        }
+        // resolve roles from auth
+        const roles = json.authentication.authorities.map(authority => { return authority.authority });
+        // construct logged user context
+        const userContext = {
+          username: json.username,
+          isAuthenticated: true,
+          tokenCIDMST: json.token,
+          tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
+          roles: roles
+        };
+        dispatch(this.receiveLogin(userContext, redirect));
       })
       .catch(error => {
         dispatch(this.receiveLoginError(error, redirect));
@@ -77,21 +71,16 @@ export default class SecurityManager {
       if (userContext && userContext.isAuthenticated) {
         identityService.getRoles(userContext.username, userContext.tokenCSRF)
         .then(json => {
-          if (json) {
-            if (!json.error) {
-              userContext.roles = json;
-              dispatch(this.flashMessagesManager.removeAllMessages());
-              dispatch(this.receiveLogin(userContext, redirect));
-            } else {
-              authenticateService.logout();
-              userContext.isAuthenticated = false;
-              dispatch(this.flashMessagesManager.addErrorMessage({ position: 'tc' }, json.error));
-              // we need to set usercontext, when this error happens - redirect to login page with error
-              dispatch(this.receiveLogin(userContext, redirect));
-            }
-          }
+          userContext.roles = json;
+          dispatch(this.flashMessagesManager.removeAllMessages());
+          dispatch(this.receiveLogin(userContext, redirect));
         })
         .catch(error => {
+          authenticateService.logout();
+          userContext.isAuthenticated = false;
+          dispatch(this.flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
+          // we need to set usercontext, when this error happens - redirect to login page with error
+          dispatch(this.receiveLogin(userContext, redirect));
           dispatch(this.receiveLoginError(error, redirect));
         });
       } else {

@@ -30,13 +30,7 @@ export default class IdentityRoleManager extends EntityManager {
       dispatch(this.requestEntities(null, uiKey));
       identityService.getRoles(username)
       .then(json => {
-        if (json){
-          if (!json.error){
-            dispatch(this.receiveEntities(null, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError({}, uiKey, json.error, cb));
-          }
-        }
+        dispatch(this.receiveEntities(null, json, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError({}, uiKey, error, cb));

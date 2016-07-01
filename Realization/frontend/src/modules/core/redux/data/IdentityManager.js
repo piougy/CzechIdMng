@@ -77,19 +77,13 @@ export default class IdentityManager extends EntityManager {
           } else {
             return this.getService().deactivate(username);
           }
-        }).then(response => {
-          return response.json();
         }).then(json => {
-          if (!json.error) {
-            dispatch(this.updateBulkAction());
-            successUsernames.push(username);
-            // new entity to redux store
-            dispatch(this.receiveEntity(username, json));
-          } else {
-            dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.users.action.${bulkActionName}.error`, { username: username }) }, json.error));
-            throw new Error(json.error);
-          }
+          dispatch(this.updateBulkAction());
+          successUsernames.push(username);
+          // new entity to redux store
+          dispatch(this.receiveEntity(username, json));
         }).catch(error => {
+          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.users.action.${bulkActionName}.error`, { username: username }) }, error));
           throw error;
         });
       }, Promise.resolve())

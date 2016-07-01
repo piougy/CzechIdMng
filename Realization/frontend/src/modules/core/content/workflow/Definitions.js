@@ -34,24 +34,19 @@ class Definitions extends Basic.AbstractContent {
    * Load all active and last version workflow definitions
    */
   _loadDefinitions(){
-    let promises = this.workflowDefinitionService.getAllDefinitions();
+    let promise = this.workflowDefinitionService.getAllDefinitions();
     this.setState({
       showLoading: true
     });
-    promises.then(response => {
+    promise.then((json) => {
+      this.setState({
+        showLoading: false,
+        definitions: json['_embedded'].resources
+      });
+    }).catch(ex => {
       this.setState({
         showLoading: false
       });
-      return response.json();
-    }).then((json) => {
-      if (json) {
-        if (!json.error) {
-          this.setState({definitions: json['_embedded'].resources});
-        }else {
-          this.addError(json.error);
-        }
-      }
-    }).catch(ex => {
       this.addError(ex);
     });
   }
@@ -77,22 +72,20 @@ class Definitions extends Basic.AbstractContent {
     formData.append( 'fileName', file.name);
     formData.append( 'data', file );
     this.workflowDefinitionService.upload(formData)
-    .then(response => {
+    .then(json => {
       this.setState({
         showLoading: false
-      });
-      return response.json();
-    }).then(json => {
-      if (!json.error) {
+      }, () => {
         this.addMessage({
           message: this.i18n('fileUploded', {name: file.name})
         });
         this._loadDefinitions();
-      } else {
-        this.addError(json.error);
-      }
+      });
     })
     .catch(error => {
+      this.setState({
+        showLoading: false
+      });
       this.addError(error);
     });
   }
@@ -115,7 +108,7 @@ class Definitions extends Basic.AbstractContent {
   }
 
   render() {
-    const {definitions, showLoading} = this.state;
+    const { definitions, showLoading } = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -124,7 +117,7 @@ class Definitions extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.Table ref="table" data={definitions}>
+          <Basic.Table ref="table" data={definitions} showLoading={showLoading}>
             <Basic.Column property="key"  header={this.i18n('key')} width="10%"
               cell={<Basic.LinkCell property="key"  to="workflow/definitions/:key"/>}/>
             <Basic.Column property="name" header={this.i18n('name')} width="20%"/>

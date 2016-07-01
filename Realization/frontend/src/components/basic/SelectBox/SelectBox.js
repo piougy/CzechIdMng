@@ -36,7 +36,7 @@ class SelectBox extends AbstractFormComponent {
     const searchParameters = manager.getDefaultSearchParameters().setSize(10).setFilter('text', input); // TODO: configurable search properties
     //
     this.context.store.dispatch(manager.fetchEntities(searchParameters, null, (json, error) => {
-      if (!json.error) {
+      if (!error) {
         let result = json;
         let data = null;
         let results = result['_embedded'][manager.getCollectionType()];
@@ -135,7 +135,7 @@ class SelectBox extends AbstractFormComponent {
       return null;
     }
     this.context.store.dispatch(manager.fetchEntityIfNeeded(value, null, (json, error) => {
-      if (!json.error) {
+      if (!error) {
         this.itemRenderer(json, '');
         let result = json;
         if (isArray === true) {
@@ -150,7 +150,7 @@ class SelectBox extends AbstractFormComponent {
         }
         this.setState({value: result, isLoading: false}, this.validate);
       } else {
-        this.addError(json.error);
+        this.addError(error);
         state({value: null, isLoading: false});
       }
     }));

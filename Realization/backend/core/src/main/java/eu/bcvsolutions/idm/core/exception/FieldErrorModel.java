@@ -7,6 +7,8 @@ import org.springframework.validation.FieldError;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.model.dto.DefaultResultModel;
+
 /**
  * Form field validation error
  * 

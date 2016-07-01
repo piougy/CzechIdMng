@@ -77,6 +77,12 @@ export default class EntityManager {
     })
   }
 
+  /**
+   * Somethimes is useful to construct self link for entity identification without whole entity. We know entity id + endpoint knows entityManager.
+   *
+   * @param  {number|string} entityId
+   * @return {string} uri
+   */
   getSelfLink(entityId) {
     if (!entityId) {
       return null;
@@ -154,17 +160,8 @@ export default class EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntities(searchParameters, uiKey));
       this.getService().search(searchParameters)
-      .then(response => {
-        return response.json();
-      })
       .then(json => {
-        if (json){
-          if (!json.error){
-            dispatch(this.receiveEntities(searchParameters, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError({}, uiKey, json.error, cb));
-          }
-        }
+        dispatch(this.receiveEntities(searchParameters, json, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError({}, uiKey, error, cb));
@@ -216,28 +213,21 @@ export default class EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
-      .then(response => {
-        // 404, 403 simple redirect, TODO: overlay to preserve url?
-        if (response.status === 403) {
+      .then(json => {
+        dispatch(this.receiveEntity(id, json, uiKey, cb));
+      })
+      .catch(error => {
+        // 404, 403 simple redirect,
+        // TODO: overlay to preserve url?
+        // TODO: sub error class
+        if (error.message === '403') {
           dispatch(routeActions.push('/error/403'));
           return null;
         }
-        if (response.status === 404) {
+        if (error.message === '404') {
           dispatch(routeActions.push(`/error/404?id=${id}`));
           return null;
         }
-        return response.json();
-      })
-      .then(json => {
-        if (json) {
-          if (!json.error){
-            dispatch(this.receiveEntity(id, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError(id, uiKey, json.error, cb));
-          }
-        }
-      })
-      .catch(error => {
         dispatch(this.receiveError(id, uiKey, error, cb));
       });
     }
@@ -259,17 +249,8 @@ export default class EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().patchById(entity.id, entity)
-      .then(response => {
-        return response.json();
-      })
       .then(json => {
-        if (json) {
-          if (!json.error){
-            dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError(entity, uiKey, json.error, cb));
-          }
-        }
+        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
@@ -293,17 +274,8 @@ export default class EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntity('[new]', uiKey));
       this.getService().create(entity)
-      .then(response => {
-        return response.json();
-      })
       .then(json => {
-        if (json) {
-          if (!json.error){
-            dispatch(this.receiveEntity(json.id, json, uiKey, cb));
-          } else {
-            dispatch(this.receiveError(entity, uiKey, json.error, cb));
-          }
-        }
+        dispatch(this.receiveEntity(json.id, json, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
@@ -327,20 +299,8 @@ export default class EntityManager {
     return (dispatch, getState) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().deleteById(entity.id)
-      .then(response => {
-        if (response.status === 204) {
-          return {};
-        }
-        return response.json();
-      })
       .then(json => {
-        if (json) {
-          if (!json.error){
-            dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
-          } else {
-            dispatch(this.receiveError(entity, uiKey, json.error, cb));
-          }
-        }
+        dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
@@ -371,22 +331,13 @@ export default class EntityManager {
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
           return this.getService().deleteById(entity.id);
-        }).then(response => {
-          if (response.status === 204) {
-            return {};
-          }
-          return response.json();
         }).then(json => {
-          if (!json.error) {
-            dispatch(this.updateBulkAction());
-            successEntities.push(entity);
-            // new entity to redux store
-            dispatch(this.deletedEntity(entity.id, entity, uiKey));
-          } else {
-            dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, json.error));
-            throw new Error(json.error);
-          }
+          dispatch(this.updateBulkAction());
+          successEntities.push(entity);
+          // new entity to redux store
+          dispatch(this.deletedEntity(entity.id, entity, uiKey));
         }).catch(error => {
+          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
           throw error;
         });
       }, Promise.resolve())

@@ -118,12 +118,21 @@ module.exports = {
         {
           path: 'definitions',
           component: require('./content/workflow/Definitions')
+        },
+        {
+          path: 'history/processes',
+          component: require('./content/workflow/HistoricProcessInstances')
         }
       ]
     },
     {
       path: 'workflow/definitions/:definitionId',
       component: require('./content/workflow/Definition'),
+      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+    },
+    {
+      path: 'workflow/history/processes/:historicProcessInstanceId',
+      component: require('./content/workflow/HistoricProcessInstanceDetail'),
       access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
     },
     {

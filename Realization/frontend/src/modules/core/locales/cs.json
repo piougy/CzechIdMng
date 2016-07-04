@@ -111,7 +111,9 @@
       "logout": "Odhlásit",
       "system": "Systém",
       "workflow": {
-        "definitions": "Workflow definice"
+        "definitions": "Workflow definice",
+        "historicProcess": "Workflow historie",
+        "title": "Workflow"
       }
     }
   },
@@ -916,6 +918,12 @@
         "filesRejected": "Soubor/y s definicí workflow musí mít příponu bpmn20.xml!",
         "fileUploded": "Definice ({{name}}) byla úspěšně nahrána.",
         "id":"$t(content.workflow.definition.id)"
+      },
+      "history":{
+        "processes":{
+          "title": "Historie workflow procesů",
+          "header": "Historie workflow procesů"
+        }
       }
     }
   },
@@ -1036,6 +1044,16 @@
       "taskDescription": "Název úkolu",
       "taskCreated": "Datum vytvoření",
       "id": "ID"
+    },
+    "WorkflowHistoricProcessInstance": {
+      "name": "Název",
+      "startTime": "Datum vytvoření",
+      "endTime": "Datum ukončení",
+      "startActivityId": "Zahájeno aktivitou",
+      "deleteReason": "Důvod smazání",
+      "superProcessInstanceId": "ID nadřízeného procesu",
+      "id": "ID",
+      "applicant": "Žadatel"
     }
   },
   "error": {

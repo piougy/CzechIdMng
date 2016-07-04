@@ -26,7 +26,7 @@ class TextArea extends AbstractFormComponent {
   }
 
   getBody(feedback){
-    const { ref, labelSpan, label, componentSpan, placeholder, style, required } = this.props;
+    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -42,7 +42,6 @@ class TextArea extends AbstractFormComponent {
           !label
           ||
           <label
-            for={ref}
             className={labelClassName}>
             {label}
           </label>

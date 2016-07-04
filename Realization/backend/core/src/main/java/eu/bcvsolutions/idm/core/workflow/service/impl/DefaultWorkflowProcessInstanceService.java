@@ -18,9 +18,11 @@ import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.service.SecurityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskDefinitionDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 
@@ -41,6 +43,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Autowired
 	private WorkflowTaskDefinitionService taskDefinitionService;
+	
+	@Autowired
+	private WorkflowProcessDefinitionService  processDefinitionService;
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -66,13 +71,15 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				builder.addVariable(key, variables.get(key));
 			}
 		}
-
+		
+		WorkflowProcessDefinitionDto definitionDto = processDefinitionService.get(definitionKey);
+		builder.processInstanceName(definitionDto.getName());
 		return builder.start();
 
 	}
 
 	@Override
-	public ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowInstanceFilterDto filter) {
+	public ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter) {
 		String processDefinitionId = filter.getProcessDefinitionId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
@@ -95,8 +102,11 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		// check security ... only involved user or applicant can work with
 		// process instance
-		//query.involvedUser(securityService.getUsername()).or().variableValueEquals(
-			//	WorkflowProcessInstanceService.APPLICANT_USERNAME, securityService.getOriginalUsername());
+		query.or();
+		query.involvedUser(securityService.getUsername());
+		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
+				securityService.getOriginalUsername());
+		query.endOr();
 
 		query.orderByProcessDefinitionId();
 		query.desc();
@@ -128,7 +138,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			return null;
 		}
 		if(deleteReason == null){
-			deleteReason = "Delete by "+securityService.getUsername();
+			deleteReason = "Deleted by "+securityService.getUsername();
 		}
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
 		query.processInstanceId(processInstanceId);

@@ -48,11 +48,11 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 	 * Find last version process definition by key
 	 */
 	@Override
-	public WorkflowProcessDefinitionDto get(String definitionId) {
+	public WorkflowProcessDefinitionDto get(String definitionKey) {
 		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
 		query.active();
 		query.latestVersion();
-		query.processDefinitionKey(definitionId);
+		query.processDefinitionKey(definitionKey);
 		ProcessDefinition result = query.singleResult();
 		if (result != null) {
 			return convertToDto(result);

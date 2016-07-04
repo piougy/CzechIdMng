@@ -5,7 +5,7 @@ import java.util.Map;
 import org.activiti.engine.runtime.ProcessInstance;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 
 public interface WorkflowProcessInstanceService {
@@ -17,7 +17,7 @@ public interface WorkflowProcessInstanceService {
 	ProcessInstance startProcess(String definitionKey, String objectType, String objectIdentifier,
 			Map<String, Object> variables);
 
-	ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowInstanceFilterDto filter);
+	ResourcesWrapper<WorkflowProcessInstanceDto> search(WorkflowFilterDto filter);
 
 	WorkflowProcessInstanceDto delete(String processInstanceId, String deleteReason);
 

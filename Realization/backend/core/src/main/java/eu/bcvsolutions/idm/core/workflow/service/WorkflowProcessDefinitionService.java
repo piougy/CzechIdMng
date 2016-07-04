@@ -8,7 +8,7 @@ public interface WorkflowProcessDefinitionService {
 
 	List<WorkflowProcessDefinitionDto> findAllProcessDefinitions();
 
-	WorkflowProcessDefinitionDto get(String definitionId);
+	WorkflowProcessDefinitionDto get(String processDefinitionKey);
 
 	String getProcessDefinitionId(String processDefinitionKey);
 

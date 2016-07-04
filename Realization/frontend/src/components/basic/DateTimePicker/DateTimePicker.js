@@ -163,7 +163,6 @@ class DateTimePicker extends AbstractFormComponent {
   getBody(feedback) {
     const {
       mode,
-      ref,
       labelSpan,
       label,
       componentSpan,
@@ -192,13 +191,12 @@ class DateTimePicker extends AbstractFormComponent {
           !label
           ||
           <label
-            for={ref}
             className={labelClassName}>
             {label}
           </label>
         }
         <div className={componentSpan}>
-          {(disabled || readOnly) 
+          {(disabled || readOnly)
             ?
             <div style={{marginTop: '7px', marginLeft: '13px'}}>
               {value && value._isAMomentObject ? this._format(value) : value}
@@ -207,7 +205,6 @@ class DateTimePicker extends AbstractFormComponent {
             (
               <div className="btn-group input-group" style={{whiteSpace: 'nowrap', display: 'inline-flex'}}>
                 <Datetime
-                  id={ref}
                   ref="input"
                   onChange={this.onChange}
                   disabled={disabled}

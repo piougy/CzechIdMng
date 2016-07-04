@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
@@ -42,7 +42,7 @@ public class WorkflowProcessInstanceController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "search/")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessInstanceDto>>> search(
-			@RequestBody WorkflowInstanceFilterDto filter) {
+			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowProcessInstanceDto> result = workflowProcessInstanceService.search(filter);;
 		List<WorkflowProcessInstanceDto> processes = (List<WorkflowProcessInstanceDto>) result.getResources();
 		List<ResourceWrapper<WorkflowProcessInstanceDto>> wrappers = new ArrayList<>();
@@ -61,7 +61,7 @@ public class WorkflowProcessInstanceController {
 			@RequestParam int size, @RequestParam int page, @RequestParam String sort,  @RequestParam String identity,  @RequestParam String processDefinitionKey) {
 		
 		IdmIdentity idmIdentity = idmIdentityRepository.findOneByUsername(identity);
-		WorkflowInstanceFilterDto filter = new WorkflowInstanceFilterDto();
+		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.getEqualsVariables().put("identityIdentifier", idmIdentity.getId());
 		filter.setProcessDefinitionKey(processDefinitionKey);
 		filter.setPageNumber(page);

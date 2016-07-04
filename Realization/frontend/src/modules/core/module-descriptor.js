@@ -17,6 +17,7 @@ module.exports = {
         'title': 'Můj profil',
         'titleKey': 'navigation.menu.profile.title',
         'icon': 'user',
+        'iconColor': '#428BCA',
         'order': 10,
         'priority': 0,
         'path': '/user/:loggedUsername/profile',
@@ -129,6 +130,7 @@ module.exports = {
         'titleKey': 'content.organizations.title',
         'icon': 'fa:building',
         'order': 50,
+        'iconColor': '#eb9316',
         'path': '/organizations',
         'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
       },
@@ -137,7 +139,7 @@ module.exports = {
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
-        // 'iconColor': '#d9534f',
+        'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
@@ -148,6 +150,7 @@ module.exports = {
         'icon': 'cog',
         'order': 1000,
         'path': '/setting',
+        'iconColor': '#c12e2a',
         'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ],
         'items': [
           {
@@ -215,11 +218,27 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
           },
           {
-            'id': 'workflow-definitions',
-            'labelKey': 'navigation.menu.workflow.definitions',
+            'id': 'workflow',
+            'labelKey': 'navigation.menu.workflow.title',
+            'icon': 'fa:sitemap',
             'order': 40,
-            'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+            'iconColor': '#428BCA',
+            'items': [
+              {
+                'id': 'workflow-definitions',
+                'labelKey': 'navigation.menu.workflow.definitions',
+                'order': 40,
+                'path': '/workflow/definitions',
+                'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+              },
+              {
+                'id': 'workflow-historic-processes',
+                'labelKey': 'navigation.menu.workflow.historicProcess',
+                'order': 35,
+                'path': '/workflow/history/processes',
+                'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+              }
+            ]
           }
         ]
       },

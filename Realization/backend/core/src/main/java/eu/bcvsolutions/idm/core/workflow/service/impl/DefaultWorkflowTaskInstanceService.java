@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.workflow.domain.formtype.DecisionFormType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
@@ -51,7 +51,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
 
 	@Override
-	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowInstanceFilterDto filter) {
+	public ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter) {
 
 		String processDefinitionId = filter.getProcessDefinitionId();
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();

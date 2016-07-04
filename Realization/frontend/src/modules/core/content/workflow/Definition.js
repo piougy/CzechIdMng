@@ -27,7 +27,6 @@ class Definition extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    console.log('here');
     const { definitionId } = this.props.params;
     this.setState({
       showLoading: true
@@ -81,7 +80,7 @@ class Definition extends Basic.AbstractContent {
 }
 
 Definition.propTypes = {
-  definitionId: PropTypes.string.isRequired
+  definition: PropTypes.string.isRequired
 }
 Definition.defaultProps = {
 

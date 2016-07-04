@@ -7,12 +7,12 @@ module.exports = {
   'name': 'Core',
   'description': 'Components for Core module',
   'components': [
-    {
-      'id': 'assigned-task-dashboard',
-      'component': require('./content/dashboards/AssignedTaskDashboard'),
-      'type': 'dashboard',
-      'order': 50,
-      'span': 6
-    }
+    // {
+    //   'id': 'assigned-task-dashboard',
+    //   'component': require('./content/dashboards/AssignedTaskDashboard'),
+    //   'type': 'dashboard',
+    //   'order': 50,
+    //   'span': 6
+    // }
   ]
 }

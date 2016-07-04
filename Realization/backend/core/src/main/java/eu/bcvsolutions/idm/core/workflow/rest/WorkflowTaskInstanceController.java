@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 
@@ -39,7 +39,7 @@ public class WorkflowTaskInstanceController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "search/")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> search(
-			@RequestBody WorkflowInstanceFilterDto filter) {
+			@RequestBody WorkflowFilterDto filter) {
 
 		ResourcesWrapper<WorkflowTaskInstanceDto> result = workflowTaskInstanceService.search(filter);
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) result.getResources();
@@ -58,7 +58,7 @@ public class WorkflowTaskInstanceController {
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> searchQuick(
 			@RequestParam int size, @RequestParam int page, @RequestParam String sort) {
 		
-		WorkflowInstanceFilterDto filter = new WorkflowInstanceFilterDto();
+		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setPageNumber(page);
 		filter.setPageSize(size);
 		return this.search(filter);
@@ -66,7 +66,7 @@ public class WorkflowTaskInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> getAll() {
-		return this.search(new WorkflowInstanceFilterDto());
+		return this.search(new WorkflowFilterDto());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "{taskId}")

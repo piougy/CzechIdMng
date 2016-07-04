@@ -3,13 +3,23 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WorkflowInstanceFilterDto {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+public class WorkflowFilterDto {
+	
+	public static final String ORDER_ASC = "asc";
+	public static final String ORDER_DESC = "desc";
+	
 	private int pageNumber = 0;
 	private int pageSize = 20;
+	private boolean sortAsc = false;
+	private boolean sortDesc = false;
+	private String sortByFields;
+	
 	private Map<String, Object> equalsVariables;
 	private String processDefinitionId;
 	private String processDefinitionKey;
+	private String id;
 
 	public Map<String, Object> getEqualsVariables() {
 		if (equalsVariables == null) {
@@ -53,5 +63,55 @@ public class WorkflowInstanceFilterDto {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
+
+	public boolean isSortAsc() {
+		return sortAsc;
+	}
+
+	public void setSortAsc(boolean sortAsc) {
+		this.sortAsc = sortAsc;
+	}
+
+	public boolean isSortDesc() {
+		return sortDesc;
+	}
+
+	public void setSortDesc(boolean sortDesc) {
+		this.sortDesc = sortDesc;
+	}
+
+	public String getSortByFields() {
+		return sortByFields;
+	}
+
+	public void setSortByFields(String sortByFields) {
+		this.sortByFields = sortByFields;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	@JsonIgnore
+	public void initSort(String sort) {
+		String[] sorts = sort.split(",");
+		if(sorts != null && sorts.length > 1){
+			this.setSortByFields(sorts[0]);
+			String order = sorts[sorts.length-1];
+			if(order.equals(WorkflowFilterDto.ORDER_ASC)){
+				this.setSortAsc(true);
+			}
+			if(order.equals(WorkflowFilterDto.ORDER_DESC)){
+				this.setSortDesc(true);
+			}
+		}
+		
+	}
+	
+	
 
 }

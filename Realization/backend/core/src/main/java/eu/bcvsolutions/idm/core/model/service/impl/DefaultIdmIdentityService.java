@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
@@ -99,7 +99,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 * @param filter
 	 */
 	private void checkDuplicationWorkflow(IdmIdentity identity, IdmRole role, Map<String, Object> variables) {
-		WorkflowInstanceFilterDto filter = new WorkflowInstanceFilterDto();
+		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessDefinitionKey(ADD_ROLE_TO_IDENTITY_WORKFLOW);
 		filter.getEqualsVariables().putAll(variables);
 

@@ -157,7 +157,7 @@ export class Navigation extends Basic.AbstractContextComponent {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
             <a href="#">
-              <Basic.Icon icon={levelItem.icon}/>
+              <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
               {this._resolveNavigationItemText(levelItem, userContext)}
               <span className="fa arrow"></span>
             </a>

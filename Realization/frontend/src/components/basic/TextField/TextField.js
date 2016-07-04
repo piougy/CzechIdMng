@@ -33,7 +33,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, ref, labelSpan, label, componentSpan, placeholder, style, required, help } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required, help } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -47,7 +47,6 @@ class TextField extends AbstractFormComponent {
         ref="input"
         type={type}
         className={className}
-        id={ref}
         disabled={this.state.disabled}
         placeholder={placeholder}
         onChange={this.onChange.bind(this)}
@@ -62,7 +61,6 @@ class TextField extends AbstractFormComponent {
           !label
           ||
           <label
-            for={ref}
             className={labelClassName}>
             {label}
           </label>

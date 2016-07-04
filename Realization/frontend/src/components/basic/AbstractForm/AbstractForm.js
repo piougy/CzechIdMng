@@ -30,6 +30,9 @@ class AbstractForm extends AbstractContextComponent {
     if (nextProps.showLoading && nextProps.showLoading !== this.props.showLoading){
       this.setState({showLoading: nextProps.showLoading});
     }
+    if (nextProps.data != null) {
+      this.setData(nextProps.data);
+    }
   }
 
   componentDidMount(){
@@ -224,7 +227,8 @@ AbstractForm.contextTypes = {
 
 AbstractForm.propTypes = {
   showLoading: React.PropTypes.bool,
-  readOnly: React.PropTypes.bool
+  readOnly: React.PropTypes.bool,
+  data: React.PropTypes.object
 };
 
 export default AbstractForm;

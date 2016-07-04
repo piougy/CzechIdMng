@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.workflow.service;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowInstanceFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 
 public interface WorkflowTaskInstanceService {
@@ -18,6 +18,6 @@ public interface WorkflowTaskInstanceService {
 
 	void completeTask(String taskId, String decision, Map<String, String> map);
 
-	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowInstanceFilterDto filter);
+	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter);
 
 }

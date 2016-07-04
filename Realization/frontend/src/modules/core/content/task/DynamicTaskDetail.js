@@ -81,7 +81,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   _afterComplete(task, error) {
-    if (error) {
+    if (error){
       this.refs.form.processEnded();
       this.addError(error);
       return;

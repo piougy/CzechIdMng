@@ -14,5 +14,5 @@ public interface IdmIdentityService {
 
 	boolean addRole(IdmIdentityRole identityRole, boolean startApproveWorkflow);
 	
-	boolean addRole(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow);
+	boolean addRoleByDto(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow);
 }

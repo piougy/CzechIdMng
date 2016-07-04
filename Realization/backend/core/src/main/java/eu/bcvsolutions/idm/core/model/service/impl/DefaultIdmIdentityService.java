@@ -64,8 +64,9 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		// request author is in approvers)
 		return false;
 	}
-
-	public boolean addRole(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow) {
+	
+	@Override
+	public boolean addRoleByDto(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow) {
 		return addRole(toEntity(identityRoleDto), startApproveWorkflow);
 	}
 

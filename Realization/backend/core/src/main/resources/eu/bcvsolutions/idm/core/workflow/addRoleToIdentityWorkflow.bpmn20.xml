@@ -60,7 +60,7 @@
     <sequenceFlow id="flow10" sourceRef="exclusivegateway1" targetRef="endevent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="addRole" name="Add role to Identity" activiti:expression="#{defaultIdmIdentityService.addRole(newIdmIdentityRole, false)}"></serviceTask>
+    <serviceTask id="addRole" name="Add role to Identity" activiti:expression="#{defaultIdmIdentityService.addRoleByDto(newIdmIdentityRole, false)}"></serviceTask>
     <sequenceFlow id="flow12" sourceRef="addRole" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow13" sourceRef="exclusivegateway2" targetRef="managerTask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("backToManager")}]]></conditionExpression>

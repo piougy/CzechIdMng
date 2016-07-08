@@ -45,10 +45,24 @@ class Definition extends Basic.AbstractContent {
       this.addError(ex);
     });
     this.selectNavigationItem('workflow-definitions');
+    this.workflowDefinitionService.downloadDiagram(definitionId, this.reciveDiagram.bind(this));
+  }
+
+  reciveDiagram(blob){
+    var objectURL = URL.createObjectURL(blob);
+    this.setState({diagramUrl:objectURL})
+  }
+
+  _showFullDiagram(){
+    this.setState({showModalDiagram:true});
+  }
+
+  _closeModalDiagram(){
+    this.setState({showModalDiagram:false});
   }
 
   render() {
-    const {showLoading, definition} = this.state;
+    const {showLoading, definition, showModalDiagram, diagramUrl} = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -74,16 +88,36 @@ class Definition extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
+        <Basic.Panel showLoading={!diagramUrl}>
+          <Basic.PanelHeader>
+            {this.i18n('diagram')}
+            <div className="pull-right">
+              <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
+                <Basic.Icon icon="fullscreen"/>
+              </Basic.Button>
+            </div>
+          </Basic.PanelHeader>
+          <div style={{textAlign:'center'}}>
+            <img style={{maxWidth:'70%'}} src={diagramUrl}/>
+          </div>
+        </Basic.Panel>
+        <Basic.Modal show={showModalDiagram} dialogClassName='modal-large' onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
+          <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
+          <Basic.Modal.Body style={{overflow: 'scroll'}}>
+            <img src={diagramUrl}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
       </div>
     );
   }
 }
 
 Definition.propTypes = {
-  definition: PropTypes.string.isRequired
 }
 Definition.defaultProps = {
-
 }
 
 function select(state, component) {

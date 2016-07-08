@@ -1,11 +1,22 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.ActivitiIllegalArgumentException;
+import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.image.ProcessDiagramGenerator;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,15 +70,50 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Find last version of process definition by key and return his ID
+	 * 
 	 * @param processDefinitionKey
-	 * @return 
+	 * @return
 	 */
 	@Override
-	public String getProcessDefinitionId(String processDefinitionKey){
-		return repositoryService.createProcessDefinitionQuery().processDefinitionKey(processDefinitionKey).latestVersion().singleResult().getId();
+	public String getProcessDefinitionId(String processDefinitionKey) {
+		return repositoryService.createProcessDefinitionQuery().processDefinitionKey(processDefinitionKey)
+				.latestVersion().singleResult().getId();
+	}
+
+	@Override
+	/**
+	 * Generate diagram for process definition.
+	 */
+	public InputStream getDiagram(String definitionId) {
+		if (definitionId == null) {
+			throw new ActivitiIllegalArgumentException("No process definition id provided");
+		}
+		ProcessDefinitionEntity pde = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
+				.getDeployedProcessDefinition(definitionId);
+
+		if (pde != null && pde.isGraphicalNotationDefined()) {
+			BpmnModel bpmnModel = repositoryService.getBpmnModel(pde.getId());
+			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
+			InputStream resource = diagramGenerator.generatePngDiagram(bpmnModel);
+			return resource;
+
+		} else {
+			throw new ActivitiException("Process definition with id " + definitionId + " has no graphic description");
+		}
+	}
+
+	@Override
+	/**
+	 * Generate diagram for process definition.
+	 */
+	public InputStream getDiagramByKey(String definitionKey) {
+		if (definitionKey == null) {
+			throw new ActivitiIllegalArgumentException("No process definition key provided");
+		}
+		return getDiagram(this.getProcessDefinitionId(definitionKey));
 	}
 
 	private WorkflowProcessDefinitionDto convertToDto(ProcessDefinition processDefinition) {

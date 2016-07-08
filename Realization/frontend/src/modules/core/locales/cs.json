@@ -904,7 +904,9 @@
         "diagramResourceName": "Název schéma",
         "deploymentId": "ID deploymentu",
         "resourceName": "Název zdroje",
-        "id":"Identifikátor"
+        "id":"Identifikátor",
+        "diagram": "Náhled procesu",
+        "fullscreenDiagram": "Diagram procesu"
       },
       "definitions": {
         "title": "Správa workflow definic",
@@ -923,6 +925,20 @@
         "processes":{
           "title": "Historie workflow procesů",
           "header": "Historie workflow procesů"
+        },
+        "process":{
+          "title": "Historie workflow procesu",
+          "header": "Historie workflow procesu",
+          "diagram": "Náhled procesu",
+          "fullscreenDiagram": "Diagram procesu",
+          "startTime": "$t(entity.WorkflowHistoricProcessInstance.startTime)",
+          "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
+          "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
+          "name": "$t(entity.WorkflowHistoricProcessInstance.name)",
+          "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
+          "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
+          "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
+          "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)"
         }
       }
     }

@@ -29,27 +29,10 @@
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="managerTask1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="managerTask1" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="superAdminTask" name="Schválení administrátorem" activiti:candidateUsers="admin">
-      <documentation>Schválení přiřazení role ${defaultIdmRoleService.get(roleIdentifier).name} administrátorem pro uživatele ${defaultIdmIdentityService.get(identityIdentifier).getUsername()}.</documentation>
-      <extensionElements>
-        <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="backToManager" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="roleName" name="Název schvalované role" type="textField" expression="${defaultIdmRoleService.get(roleIdentifier).name}" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost role od" type="date" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost role do" type="date" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="privateDescription" name="Soukromá poznámka" type="textArea">
-          <activiti:value id="placeholder" name="Soukromá poznámka viditelná pouze pro schvalovatele"></activiti:value>
-        </activiti:formProperty>
-        <activiti:formProperty id="description" name="Poznámka žadatele" type="textArea" writable="false">
-          <activiti:value id="placeholder" name="Poznámka vyplněná žadatelem při založení žádosti"></activiti:value>
-        </activiti:formProperty>
-      </extensionElements>
-    </userTask>
-    <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="superAdminTask">
+    <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="receivetask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow5" sourceRef="superAdminTask" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow5" sourceRef="receivetask1" targetRef="exclusivegateway2"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow7" sourceRef="exclusivegateway2" targetRef="scripttaskCreateIdentityRole">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decision.equals("approve")}]]></conditionExpression>
@@ -109,9 +92,6 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="370.0" y="110.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="superAdminTask" id="BPMNShape_superAdminTask">
-        <omgdc:Bounds height="67.0" width="105.0" x="520.0" y="14.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
         <omgdc:Bounds height="40.0" width="40.0" x="790.0" y="27.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -128,16 +108,6 @@
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="306.0" y="130.0"></omgdi:waypoint>
         <omgdi:waypoint x="370.0" y="130.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
-        <omgdi:waypoint x="390.0" y="110.0"></omgdi:waypoint>
-        <omgdi:waypoint x="390.0" y="47.0"></omgdi:waypoint>
-        <omgdi:waypoint x="520.0" y="47.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="625.0" y="47.0"></omgdi:waypoint>
-        <omgdi:waypoint x="772.0" y="47.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="47.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
         <omgdi:waypoint x="810.0" y="67.0"></omgdi:waypoint>

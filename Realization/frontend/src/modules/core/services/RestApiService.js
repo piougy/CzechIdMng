@@ -45,6 +45,16 @@ export default class RestApiService {
     });
   }
 
+  static download(path){
+    return fetch(this.getUrl(path), {
+      method: 'get',
+      headers: {
+        'CIDMST': AuthenticateService.getTokenCIDMST()
+      },
+      credentials: 'include'
+    });
+  }
+
   static getUrl(path) {
     if (path.lastIndexOf('http', 0) === 0) {
       return path;

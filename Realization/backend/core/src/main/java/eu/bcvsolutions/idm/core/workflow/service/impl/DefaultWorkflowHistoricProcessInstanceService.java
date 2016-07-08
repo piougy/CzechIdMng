@@ -1,12 +1,27 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.engine.ActivitiException;
+import org.activiti.engine.ActivitiIllegalArgumentException;
+import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.pvm.PvmTransition;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.image.ProcessDiagramGenerator;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +46,13 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private RuntimeService runtimeService;
+	
+	@Autowired
+	private RepositoryService repositoryService;
+
 
 	@Override
 	public ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter) {
@@ -99,7 +121,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 				filter.getPageNumber(), filter.getPageSize());
 		return result;
 	}
-	
+
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
@@ -107,6 +129,96 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		filter.setSortAsc(true);
 		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> resource = this.search(filter);
 		return resource.getResources() != null ? resource.getResources().iterator().next() : null;
+	}
+
+	@Override
+	/**
+	 * Generate diagram for process instance. Highlight historic path (activity and flows)
+	 */
+	public InputStream getDiagram(String processInstanceId) {
+		if (processInstanceId == null) {
+			throw new ActivitiIllegalArgumentException("No process instance id provided");
+		}
+
+		HistoricProcessInstance pi = historyService.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId).singleResult();
+
+		if (pi == null) {
+			throw new ActivitiObjectNotFoundException(
+					"Process instance with id " + processInstanceId + " could not be found", ProcessInstance.class);
+		}
+
+		ProcessDefinitionEntity pde = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
+				.getDeployedProcessDefinition(pi.getProcessDefinitionId());
+
+		if (pde != null && pde.isGraphicalNotationDefined()) {
+			BpmnModel bpmnModel = repositoryService.getBpmnModel(pde.getId());
+			List<String> historicActivityInstanceList = new ArrayList<String>();
+			List<String> highLightedFlows = new ArrayList<String>();
+			historicActivityInstanceList = getHighLightedFlows(pde, processInstanceId, historicActivityInstanceList,
+					highLightedFlows);
+
+			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
+
+			InputStream resource = diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList,
+					highLightedFlows);
+			return resource;
+
+		} else {
+			throw new ActivitiException(
+					"Process instance with id " + processInstanceId + " has no graphic description");
+		}
+	}
+
+	private List<String> getHighLightedFlows(ProcessDefinitionEntity processDefinition, String processInstanceId,
+			List<String> historicActivityInstanceList, List<String> highLightedFlows) {
+
+		List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery()
+				.processInstanceId(processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
+
+		for (HistoricActivityInstance hai : historicActivityInstances) {
+			historicActivityInstanceList.add(hai.getActivityId());
+		}
+
+		// Check if is process still active
+		boolean isProcessActive = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId)
+				.active().count() > 0;
+		List<String> currentHighLightedActivities = null;
+		if (isProcessActive) {
+			// add current activities to list
+			currentHighLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
+			historicActivityInstanceList.addAll(currentHighLightedActivities);
+		}
+		// activities and their sequence-flows
+		getHighLightedFlows(processDefinition.getActivities(), historicActivityInstanceList, highLightedFlows);
+
+		if (isProcessActive) {
+			return currentHighLightedActivities;
+		}
+		return historicActivityInstanceList;
+	}
+
+	private void getHighLightedFlows(List<ActivityImpl> activityList, List<String> historicActivityInstanceList,
+			List<String> highLightedFlows) {
+		ActivityImpl prevActivity = null;
+		for (String activityId : historicActivityInstanceList) {
+			ActivityImpl currentActivity = null;
+			for (ActivityImpl activity : activityList) {
+				if (activityId.equals(activity.getId())) {
+					currentActivity = activity;
+				}
+			}
+
+			List<PvmTransition> pvmTransitionList = currentActivity.getIncomingTransitions();
+			for (PvmTransition pvmTransition : pvmTransitionList) {
+				String destinationFlowId = pvmTransition.getSource().getId();
+				if (prevActivity != null && destinationFlowId.equals(prevActivity.getId())) {
+					highLightedFlows.add(pvmTransition.getId());
+				}
+			}
+
+			prevActivity = currentActivity;
+		}
 	}
 
 	private WorkflowHistoricProcessInstanceDto toResource(HistoricProcessInstance instance) {

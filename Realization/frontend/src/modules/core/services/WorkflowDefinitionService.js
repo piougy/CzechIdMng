@@ -37,6 +37,26 @@ class WorkflowDefinitionService extends AbstractService {
         return json;
       });
   }
+
+  /**
+   * Generate and download diagram of process as PNG image
+   */
+  downloadDiagram(id, cb) {
+    return RestApiService
+      .download(this.getApiPath() + `/${id}/diagram`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        cb(blob);
+      });
+  }
 }
 
 export default WorkflowDefinitionService;

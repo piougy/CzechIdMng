@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.service;
 
+import java.io.InputStream;
+
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -12,4 +14,5 @@ public interface WorkflowHistoricProcessInstanceService {
 
 	WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId);
 
+	InputStream getDiagram(String processInstanceId);
 }

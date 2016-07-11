@@ -18,6 +18,15 @@
 
 	<developers>
 		<developer>
+			<id>ZB</id>
+			<name>Zdeněk Burda</name>
+			<roles>
+				<role>Analyst</role>
+				<role>Product Owner</role>
+			</roles>
+			<email>zdenek.burda@bcvsolutions.eu</email>
+		</developer>
+		<developer>
 			<id>VS</id>
 			<name>Vít Švanda</name>
 			<roles>

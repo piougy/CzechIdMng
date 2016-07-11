@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import org.springframework.validation.FieldError;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.model.dto.DefaultResultModel;
@@ -25,11 +26,10 @@ public class FieldErrorModel extends DefaultErrorModel {
 	private final String code;
 	
 	public FieldErrorModel(String objectName, String field, String code, String message) {
-		super(CoreResultCode.BAD_VALUE, message);
+		super(CoreResultCode.BAD_VALUE, message, ImmutableMap.of("objectName", objectName, "field", field, "code", code));
 		this.objectName = objectName;
 		this.field = field;
 		this.code = code;
-		setParameters(Lists.newArrayList(objectName, field, code));
 	}
 	
 	public FieldErrorModel(FieldError fieldError) {

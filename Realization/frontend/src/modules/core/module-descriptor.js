@@ -5,7 +5,7 @@ import config from '../../../config.json';
 module.exports = {
   'id': 'core',
   'name': 'Core',
-  'description': 'Core functionality. Defines basic navigation structure, routes etc.. Has lowest prioryty for overriding.',
+  'description': 'Core functionallity. Defines basic navigation structure, routes etc. Has lowest priority, could be overriden.',
   'navigation': {
     'items': [
       {

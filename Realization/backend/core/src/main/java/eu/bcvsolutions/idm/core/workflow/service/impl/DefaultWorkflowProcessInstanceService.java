@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
@@ -157,7 +159,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (processInstance == null) {
 			throw new RestApplicationException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for delete process instance with ID: %s !",
-					new Object[] { processInstance, });
+					ImmutableMap.of("processInstanceId",  processInstanceId ));
 		}
 		runtimeService.deleteProcessInstance(processInstance.getId(), deleteReason);
 

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
@@ -39,7 +41,7 @@ public class IdmIdentityController {
 	public ResponseEntity<Void> passwordChange(@PathVariable String identityId, @RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		IdmIdentity identity = (IdmIdentity)identityLookup.lookupEntity(identityId);
 		if (identity == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND, new Object[]{ identityId });
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		// TODO: settingResource + superAdminRole
 		if (!securityService.hasAnyRole("superAdminRole") && !StringUtils.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {

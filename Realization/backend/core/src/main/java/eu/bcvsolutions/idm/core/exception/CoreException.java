@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.exception;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Basic exception
+ * Basic exception with named parameters
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
@@ -9,38 +13,36 @@ package eu.bcvsolutions.idm.core.exception;
 public class CoreException extends RuntimeException {
 
 	private static final long serialVersionUID = 9124558345493748993L;
-	private Object[] details;
+	private final Map<String, Object> details = new HashMap<>();
 	
 	public CoreException() {
 	}
 
 	public CoreException(Throwable cause) {
-		super(cause);
+		this(null, null, cause);
 	}
 
 	public CoreException(String message, Throwable cause) {
-		super(message, cause);
+		this(message, null, cause);
 	}
 
 	public CoreException(String message) {
-		super(message);
+		this(message, null, null);
 	}
 	
-	public CoreException(String message, Object[] details) {
-		super(message);
-		this.details = details;
+	public CoreException(String message, Map<String, Object> details) {
+		this(message, details, null);
 	}
 	
-	public CoreException(String message, Object[] details, Throwable cause) {
+	public CoreException(String message, Map<String, Object> details, Throwable cause) {
 		super(message, cause);
-		this.details = details;
+		if (details != null) {
+			this.details.putAll(details);
+		}
 	}
 
-	public Object[] getDetails() {
-		return details;
+	public Map<String, Object> getDetails() {
+		return Collections.unmodifiableMap(details);
 	}
 
-	public void setDetails(Object[] details) {
-		this.details = details;
-	}
 }

@@ -15,6 +15,10 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.InitApplication;
 import eu.bcvsolutions.idm.core.model.dto.ResultModels;
@@ -40,21 +44,25 @@ public class ExceptionControllerAdvice {
 	
 	@ExceptionHandler(IdmAuthenticationException.class)
 	ResponseEntity<ResultModels> handle(IdmAuthenticationException ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.AUTH_FAILED, new Object[]{ }); // source exception message is shown only in log 
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.AUTH_FAILED);
+		 // source exception message is shown only in log 
 		log.warn("[" + errorModel.getId() + "] ", ex);
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	ResponseEntity<ResultModels> handle(HttpRequestMethodNotSupportedException ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ ex.getMethod(), MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods(), ", ")) });
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(),
+				ImmutableMap.of( //
+						"errorMethod", ex.getMethod(), //
+						"supportedMethods", MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods(), ", "))));
 		log.warn("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
-    }
+		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+	}
 	
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	ResponseEntity<ResultModels> handle(HttpMessageNotReadableException ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(), new Object[]{ });
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage());
 		log.warn("[" + errorModel.getId() + "] ", ex);
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
@@ -96,10 +104,12 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
+	@ResponseBody
 	@ExceptionHandler(Exception.class)
-	ResponseEntity<ResultModels> handle(Exception ex) {
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	ResultModels handle(Exception ex) {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 		log.error("[" + errorModel.getId() + "] ", ex);
-        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+        return new ResultModels(errorModel);
     }
 }

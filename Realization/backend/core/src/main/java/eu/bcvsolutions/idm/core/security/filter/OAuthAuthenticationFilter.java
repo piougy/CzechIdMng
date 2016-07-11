@@ -90,11 +90,11 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 
 			Authentication newAuthentication = authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
 			SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-		} catch (RestApplicationException ex) {
+		} catch (RestApplicationException ex) {			
 			sendErrorModel(httpRequest, httpResponse, ex.getError().getError(), ex);
 			return;
 		} catch (AuthenticationException | InvalidSignatureException ex) {
-			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.AUTH_FAILED, new Object[]{ }); // source exception message will be shown only in log
+			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.AUTH_FAILED); // source exception message will be shown only in log
 			sendErrorModel(httpRequest, httpResponse, errorModel, ex);
 			return;
 		} catch (JsonParseException | IllegalArgumentException ex) {

@@ -5,12 +5,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 import eu.bcvsolutions.idm.core.security.filter.OAuthAuthenticationFilter;
 import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
@@ -41,8 +44,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 			.authorizeRequests()
 			.antMatchers("/api/**")
-			.fullyAuthenticated();    	 
+			.fullyAuthenticated()
+			.and()
+			.anonymous()
+			.disable();    	 
     }
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		// public controllers
+		web.ignoring().antMatchers( //
+				"/api", // endpoint with supported services list
+				"/api/authentication" // login / out
+			);
+	}
    
 	@Bean
 	public OAuthAuthenticationManager oAuthAuthenticationManager() {

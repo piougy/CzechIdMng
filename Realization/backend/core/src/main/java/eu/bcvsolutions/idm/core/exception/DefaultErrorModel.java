@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.exception;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -17,7 +19,7 @@ public class DefaultErrorModel extends DefaultResultModel implements ErrorModel 
 		this(resultCode, null, null);
 	}
 	
-	public DefaultErrorModel(ResultCode resultCode, Object[] parameters) {
+	public DefaultErrorModel(ResultCode resultCode, Map<String, Object> parameters) {
 		this(resultCode, null, parameters);
 	}
 	
@@ -25,7 +27,7 @@ public class DefaultErrorModel extends DefaultResultModel implements ErrorModel 
 		this(resultCode, message, null);
 	}
 	
-	public DefaultErrorModel(ResultCode resultCode, String message, Object[] parameters) {
+	public DefaultErrorModel(ResultCode resultCode, String message, Map<String, Object> parameters) {
 		super(resultCode, message, parameters);
 	}
 	

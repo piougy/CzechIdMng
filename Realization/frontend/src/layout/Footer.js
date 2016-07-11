@@ -31,10 +31,11 @@ class Footer extends Basic.AbstractContextComponent {
     return (
       <footer>
         <div className="pull-left">
-          <span title={this.i18n('app.version.backend') + ': ' + backendVersion}>
+          {/* TODO: about page - #74 */}
+          <span title={this.i18n('app.version.backend') + ': ' + backendVersion} className="hidden">
             {this.i18n('app.version.frontend')} {packageInfo.version}
           </span>
-          <span style={{margin: '0 10px'}}>|</span>
+          <span style={{margin: '0 10px'}} className="hidden">|</span>
           &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
           <a href="http://www.bcvsolutions.eu" target="_blank">{this.i18n('app.author')}</a>
           <span style={{margin: '0 10px'}}>|</span>

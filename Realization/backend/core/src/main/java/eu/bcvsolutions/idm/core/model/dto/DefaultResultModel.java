@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -114,5 +115,10 @@ public class DefaultResultModel implements ResultModel {
 	
 	public int getStatusCode() {
 		return statusCode;
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("[{1}:{2}:{0}] {3} ({4})", id, module, statusEnum, message, parameters);
 	}
 }

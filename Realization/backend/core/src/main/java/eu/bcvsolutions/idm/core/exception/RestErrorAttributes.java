@@ -49,6 +49,7 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
         }
         errorAttributes.clear();
         errorAttributes.put("error", errorModel);
+		log.warn(errorModel.toString());
         return errorAttributes;	            
     }
 }

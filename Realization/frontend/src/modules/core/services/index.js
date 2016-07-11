@@ -14,6 +14,7 @@ import IdentityRoleService from './IdentityRoleService';
 import IdentityWorkingPositionService from './IdentityWorkingPositionService';
 import WorkflowProcessInstanceService from './WorkflowProcessInstanceService';
 import WorkflowHistoricProcessInstanceService from './WorkflowHistoricProcessInstanceService';
+import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceService';
 
 const ServiceRoot = {
   RestApiService: RestApiService,
@@ -29,7 +30,8 @@ const ServiceRoot = {
   IdentityRoleService: IdentityRoleService,
   IdentityWorkingPositionService: IdentityWorkingPositionService,
   WorkflowProcessInstanceService: WorkflowProcessInstanceService,
-  WorkflowHistoricProcessInstanceService: WorkflowHistoricProcessInstanceService
+  WorkflowHistoricProcessInstanceService: WorkflowHistoricProcessInstanceService,
+  WorkflowHistoricTaskInstanceService: WorkflowHistoricTaskInstanceService
 };
 
 ServiceRoot.version = '0.0.1';

@@ -51,15 +51,15 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		}
 		Map<String, Object> variables = new HashMap<>();
 		variables.put("roleIdentifier", role.getId());
-		variables.put("identityIdentifier", identity.getId());
 		variables.put("validFrom", validFrom);
 		variables.put("validTill", validTill);
+		variables.put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identity.getId());
 
 		// Check on exist duplication workflow
 		checkDuplicationWorkflow(identity, role, variables);
 
 		workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(),
-				identity.getId().toString(), variables);
+				identity.getUsername(), identity.getId(), variables);
 		// TODO: if role is approved imediatelly, then return true (e.g. if
 		// request author is in approvers)
 		return false;

@@ -56,11 +56,12 @@ public class WorkflowTaskInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort) {
+			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String processInstanceId) {
 		
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setPageNumber(page);
 		filter.setPageSize(size);
+		filter.setProcessInstanceId(processInstanceId);
 		return this.search(filter);
 	}
 

@@ -101,7 +101,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.ColumnLink property="name" to="workflow/history/processes/:id" sort={false} face="text" rendered={_.includes(columns, 'name')}/>
             <Advanced.Column
-              property="processVariables.APPLICANT_USERNAME"
+              property="processVariables.applicantUsername"
               header={this.i18n('entity.WorkflowHistoricProcessInstance.applicant')}
               sort={false}
               face="text"/>

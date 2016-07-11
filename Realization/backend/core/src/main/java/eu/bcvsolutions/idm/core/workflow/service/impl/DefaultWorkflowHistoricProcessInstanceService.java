@@ -57,7 +57,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 	@Override
 	public ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter) {
 		String processDefinitionId = filter.getProcessDefinitionId();
-		String processInstanceId = filter.getId();
+		String processInstanceId = filter.getProcessInstanceId();
 
 		Map<String, Object> equalsVariables = filter.getEqualsVariables();
 
@@ -125,7 +125,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 	@Override
 	public WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setId(historicProcessInstanceId);
+		filter.setProcessInstanceId(historicProcessInstanceId);
 		filter.setSortAsc(true);
 		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> resource = this.search(filter);
 		return resource.getResources() != null ? resource.getResources().iterator().next() : null;

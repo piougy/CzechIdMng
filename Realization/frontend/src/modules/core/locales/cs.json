@@ -938,7 +938,20 @@
           "startActivityId": "$t(entity.WorkflowHistoricProcessInstance.startActivityId)",
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
-          "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)"
+          "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
+          "tasks": "Úživatelské úkoly procesu"
+        },
+        "task":{
+          "title": "Úživatelské úkoly procesu",
+          "header": "Úživatelské úkoly procesu",
+          "startTime": "$t(entity.WorkflowHistoricTaskInstance.startTime)",
+          "endTime": "$t(entity.WorkflowHistoricTaskInstance.endTime)",
+          "deleteReason": "$t(entity.WorkflowHistoricTaskInstance.deleteReason)",
+          "name": "$t(entity.WorkflowHistoricTaskInstance.name)",
+          "priority": "$t(entity.WorkflowHistoricTaskInstance.priority)",
+          "createTime": "$t(entity.WorkflowHistoricTaskInstance.createTime)",
+          "id": "$t(entity.WorkflowHistoricTaskInstance.id)",
+          "assignee": "$t(entity.WorkflowHistoricTaskInstance.assignee)"
         }
       }
     }
@@ -1070,6 +1083,16 @@
       "superProcessInstanceId": "ID nadřízeného procesu",
       "id": "ID",
       "applicant": "Žadatel"
+    },
+    "WorkflowHistoricTaskInstance": {
+      "name": "Název",
+      "startTime": "Datum vytvoření",
+      "endTime": "Datum ukončení",
+      "assignee": "Přiřazení",
+      "deleteReason": "Způsob ukončení",
+      "id": "ID",
+      "priority": "Priorita",
+      "createTime": "Úkol vytvořen"
     }
   },
   "error": {

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.exception;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 
 import eu.bcvsolutions.idm.core.model.dto.ResultModels;
@@ -31,11 +33,11 @@ public final class RestApplicationException extends CoreException {
 		this(resultCode, (String) null, throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, Object[] parameters, Throwable throwable) {
+	public RestApplicationException (ResultCode resultCode, Map<String, Object> parameters, Throwable throwable) {
 		this(new DefaultErrorModel(resultCode, parameters), throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, Object[] parameters) {
+	public RestApplicationException (ResultCode resultCode, Map<String, Object> parameters) {
 		this(new DefaultErrorModel(resultCode, parameters));
 	}
 	
@@ -47,11 +49,11 @@ public final class RestApplicationException extends CoreException {
 		this(new DefaultErrorModel(resultCode, message, null), throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message, Object[] parameters) {
+	public RestApplicationException (ResultCode resultCode, String message, Map<String, Object> parameters) {
 		this(new DefaultErrorModel(resultCode, message, parameters));
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message, Object[] parameters, Throwable throwable) {
+	public RestApplicationException (ResultCode resultCode, String message, Map<String, Object> parameters, Throwable throwable) {
 		this(new DefaultErrorModel(resultCode, message, parameters), throwable);
 	}
 	

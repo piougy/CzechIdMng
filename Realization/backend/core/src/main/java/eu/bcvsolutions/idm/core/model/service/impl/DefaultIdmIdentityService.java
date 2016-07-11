@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
@@ -107,7 +109,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		if (result != null && result.getResources() != null && !result.getResources().isEmpty()) {
 			throw new RestApplicationException(CoreResultCode.CONFLICT,
 					"For role %s and identity %s approve workflow already exist!",
-					new Object[] { identity.getUsername(), role.getName() });
+					ImmutableMap.of("identity", identity.getUsername(), "role", role.getName()));
 		}
 	}
 

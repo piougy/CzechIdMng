@@ -10,6 +10,8 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -58,7 +60,7 @@ public class IdmIdentityWorkingPositionHandler {
 		}
 		IdmRole managerRole = roleRepository.findOneByName(ROLE_MANAGER);
 		if (managerRole == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  "Role ["+ROLE_MANAGER+"] not found", new Object[]{ ROLE_MANAGER });
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  "Role ["+ROLE_MANAGER+"] not found", ImmutableMap.of("role", ROLE_MANAGER));
 		}
 		List<IdmIdentityRole> existIdentityRoles = identityRoleRepository.findAllByIdentityAndRole(identityWorkingPosition.getManager(), managerRole);
 		if(existIdentityRoles.isEmpty()) {

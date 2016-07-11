@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.IllegalFormatException;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ public class DefaultResultModel implements ResultModel {
 	/**
 	 * Parameters - for localization etc.
 	 */
-	private List<Object> parameters;
+	private final Map<String, Object> parameters = new HashMap<>();
 	
 	private String module;
 	
@@ -49,7 +49,7 @@ public class DefaultResultModel implements ResultModel {
 		this.creation = new Date();
 	}
 	
-	public DefaultResultModel(ResultCode resultCode, Object[] parameters) {
+	public DefaultResultModel(ResultCode resultCode, Map<String, Object> parameters) {
 		this(resultCode, null, parameters);
 	}
 	
@@ -67,7 +67,7 @@ public class DefaultResultModel implements ResultModel {
 	 * @param message Overrides automatic resultCode message
 	 * @param parameters
 	 */
-	public DefaultResultModel(ResultCode resultCode, String message, Object[] parameters) {
+	public DefaultResultModel(ResultCode resultCode, String message, Map<String, Object> parameters) {
 		this();
 		this.statusEnum = resultCode.getCode();
 		this.module = resultCode.getModule();
@@ -79,8 +79,8 @@ public class DefaultResultModel implements ResultModel {
 		} catch(IllegalFormatException ex) {
 			this.message = messageFormat;
 		}
-		if(parameters != null) {
-			this.parameters = new ArrayList<>(Arrays.asList(parameters));
+		if(parameters != null) {			
+			this.parameters.putAll(parameters);
 		}
 	}
 
@@ -88,65 +88,31 @@ public class DefaultResultModel implements ResultModel {
 		return message;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
 	public Date getCreation() {
 		return creation;
 	}
-
-	public void setCreation(Date creation) {
-		this.creation = creation;
-	}
-
-	public void setParameters(List<Object> parameters) {
-		this.parameters = parameters;
-	}
 	
-	public List<Object> getParameters() {
-		if (parameters == null) {
-			parameters = new ArrayList<>();
-		}
-		return parameters;
+	public Map<String, Object> getParameters() {
+		return Collections.unmodifiableMap(this.parameters);
 	}
 
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
 	public String getStatusEnum() {
 		return statusEnum;
-	}
-	
-	public void setStatusEnum(String statusEnum) {
-		this.statusEnum = statusEnum;
 	}
 	
 	public String getModule() {
 		return module;
 	}
 	
-	public void setModule(String module) {
-		this.module = module;
-	}
-	
 	public HttpStatus getStatus() {
 		return status;
-	}
-
-	public void setStatus(HttpStatus status) {
-		this.status = status;
 	}
 	
 	public int getStatusCode() {
 		return statusCode;
-	}
-	
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
 	}
 }

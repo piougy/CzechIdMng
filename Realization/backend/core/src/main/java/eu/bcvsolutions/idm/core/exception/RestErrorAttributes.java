@@ -5,6 +5,8 @@ import java.util.Map;
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes;
 import org.springframework.web.context.request.RequestAttributes;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * We want return the same error everywhere. This class overrides default spring errors (4xx)
  * 
@@ -23,20 +25,20 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
         	int status = (int)errorAttributes.get("status");
             switch(status) {
             	case 401: {
-            		errorModel = new DefaultErrorModel(CoreResultCode.LOG_IN, new Object[]{errorAttributes.get("path")});
+            		errorModel = new DefaultErrorModel(CoreResultCode.LOG_IN, ImmutableMap.of("path", errorAttributes.get("path")));
             		break;
             	}
             	case 403: {
-            		errorModel = new DefaultErrorModel(CoreResultCode.FORBIDDEN, new Object[]{errorAttributes.get("path"), errorAttributes.get("message")});
+            		errorModel = new DefaultErrorModel(CoreResultCode.FORBIDDEN, ImmutableMap.of("path", errorAttributes.get("path"), "message", errorAttributes.get("message")));
             		break;
             	}
             	case 404: {
-            		errorModel = new DefaultErrorModel(CoreResultCode.ENDPOINT_NOT_FOUND, new Object[]{errorAttributes.get("path"), errorAttributes.get("message")});
+            		errorModel = new DefaultErrorModel(CoreResultCode.ENDPOINT_NOT_FOUND, ImmutableMap.of("path", errorAttributes.get("path"), "message", errorAttributes.get("message")));
             		break;
             	}
             	case 400:
             	case 405: {
-            		errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, new Object[]{errorAttributes.get("path"), errorAttributes.get("message")});
+            		errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ImmutableMap.of("path", errorAttributes.get("path"), "message", errorAttributes.get("message")));
             		break;
             	}
             }     

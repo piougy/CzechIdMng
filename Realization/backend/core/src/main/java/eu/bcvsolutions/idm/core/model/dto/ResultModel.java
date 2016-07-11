@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
@@ -46,7 +46,7 @@ public interface ResultModel {
 	 * 
 	 * @return
 	 */
-	List<Object> getParameters();
+	Map<String, Object> getParameters();
 	
 	/**
 	 * Module identifier (core, ... etc)

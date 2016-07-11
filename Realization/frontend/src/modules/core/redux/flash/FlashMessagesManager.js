@@ -58,9 +58,20 @@ export default class FlashMessagesManager {
       if (error.statusEnum) { // our error message
         // automatic localization
         const messageTitle = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.title', this._prepareParams(error.parameters, `${error.statusEnum} (${error.statusCode}:${error.id})`));
-        let defaultMessage = error.parameters.reduce((result, parameter) => {
-          return result += ': ' + parameter;
-        }, error.message);
+        let defaultMessage = error.message;
+        if (!_.isEmpty(error.parameters)) {
+          defaultMessage += ' (';
+          let first = true;
+          for (let parameterKey in error.parameters) {
+            if (!first) {
+              defaultMessage += ', ';
+            } else {
+              first = false;
+            }
+            defaultMessage += `${parameterKey}:${error.parameters[parameterKey]}`;
+          }
+          defaultMessage += ')';
+        }
         const messageText = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.message', this._prepareParams(error.parameters, defaultMessage));
         //
         errorMessage = _.merge({}, {
@@ -104,7 +115,7 @@ export default class FlashMessagesManager {
         });
       } else if (this._isPasswordChangeError(error)) {
         dispatch(this._logoutImmediatelly());
-        const username = error.parameters[0];
+        const username = error.parameters.identity;
         dispatch(routeActions.push(`/password/change?name=${username}`));
       } else {
         dispatch(this.addMessage(errorMessage));
@@ -167,15 +178,12 @@ export default class FlashMessagesManager {
   }
 
   _prepareParams(params, defaultMessage) {
-    let results = [];
+    let results = {};
     if (params) {
-      results = params.reduce((result, value, index) => {
-        result[index] = value;
-        return result;
-      }, {});
+      results = _.merge({}, params);
     }
     if (defaultMessage) {
-      results['defaultValue'] = defaultMessage;
+      results.defaultValue = defaultMessage;
     }
     return results;
   }

@@ -45,9 +45,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Autowired
 	private WorkflowTaskDefinitionService taskDefinitionService;
-	
+
 	@Autowired
-	private WorkflowProcessDefinitionService  processDefinitionService;
+	private WorkflowProcessDefinitionService processDefinitionService;
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -56,24 +56,29 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	 * Start new workflow process
 	 */
 	@Override
-	public ProcessInstance startProcess(String definitionKey, String objectType, String objectIdentifier,
-			Map<String, Object> variables) {
+	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
+			Long objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(objectType, "Definition key cannot be null!");
-		IdmIdentity applicant = identityService.getByUsername(securityService.getUsername());
+
+		IdmIdentity applicantIdentity = null;
+		if (applicant != null) {
+			applicantIdentity = identityService.getByUsername(applicant);
+		}
 
 		ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
 				.processDefinitionKey(definitionKey)//
 				.addVariable(WorkflowProcessInstanceService.OBJECT_TYPE, objectType)
 				.addVariable(WorkflowProcessInstanceService.OBJECT_IDENTIFIER, objectIdentifier)
-				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, securityService.getUsername())
-				.addVariable(WorkflowProcessInstanceService.APPLICANT_FULL_NAME,
-						identityService.getNiceLabel(applicant));
+				.addVariable(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, securityService.getUsername())
+				.addVariable(WorkflowProcessInstanceService.APPLICANT_USERNAME, applicant)
+				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
+						applicantIdentity != null ? applicantIdentity.getId() : null);
 		if (variables != null) {
 			for (String key : variables.keySet()) {
 				builder.addVariable(key, variables.get(key));
 			}
 		}
-		
+
 		WorkflowProcessDefinitionDto definitionDto = processDefinitionService.get(definitionKey);
 		builder.processInstanceName(definitionDto.getName());
 		return builder.start();
@@ -102,12 +107,13 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				query.variableValueEquals(key, equalsVariables.get(key));
 			}
 		}
-		// check security ... only involved user or applicant can work with
+		// check security ... only involved user or applicant or implementer can work with
 		// process instance
+		String loggedUser = securityService.getUsername();
 		query.or();
 		query.involvedUser(securityService.getUsername());
-		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
-				securityService.getOriginalUsername());
+		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUser);
+		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUser);
 		query.endOr();
 
 		query.orderByProcessDefinitionId();
@@ -136,11 +142,11 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Override
 	public WorkflowProcessInstanceDto delete(String processInstanceId, String deleteReason) {
-		if(processInstanceId == null){
+		if (processInstanceId == null) {
 			return null;
 		}
-		if(deleteReason == null){
-			deleteReason = "Deleted by "+securityService.getUsername();
+		if (deleteReason == null) {
+			deleteReason = "Deleted by " + securityService.getUsername();
 		}
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
 		query.processInstanceId(processInstanceId);
@@ -156,7 +162,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 					ImmutableMap.of("processInstanceId",  processInstanceId ));
 		}
 		runtimeService.deleteProcessInstance(processInstance.getId(), deleteReason);
-		
+
 		return toResource(processInstance);
 	}
 

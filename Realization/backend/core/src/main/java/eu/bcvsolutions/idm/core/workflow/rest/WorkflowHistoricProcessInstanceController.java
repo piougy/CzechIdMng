@@ -19,14 +19,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
-import eu.bcvsolutions.idm.core.exception.ResultCode;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 
 /**
@@ -41,9 +38,6 @@ public class WorkflowHistoricProcessInstanceController {
 
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
-
-	@Autowired
-	private WorkflowDeploymentService workflowDeploymentService;
 
 	/**
 	 * Search historic instances of processes with same variables and for logged
@@ -96,7 +90,7 @@ public class WorkflowHistoricProcessInstanceController {
 	 * @param historicProcessInstanceId
 	 * @return
 	 */
-	@RequestMapping(value = "{historicProcessInstanceId}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@RequestMapping(value = "{historicProcessInstanceId}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getDiagram(@PathVariable String historicProcessInstanceId) {
 		// check rights

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.FormService;
+import org.activiti.engine.IdentityService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.AbstractFormType;
 import org.activiti.engine.form.FormProperty;
@@ -46,6 +47,9 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Autowired
 	private FormService formService;
+	
+	@Autowired
+	private IdentityService identityService;
 
 	@Autowired
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
@@ -110,15 +114,19 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Override
 	public void completeTask(String taskId, String decision) {
-		taskService.setAssignee(taskId, securityService.getUsername());
-		taskService.complete(taskId, Collections.singletonMap(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision));
+		completeTask(taskId, decision, null);
 	}
 
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData) {
+		String loggedUser = securityService.getUsername();
+		identityService.setAuthenticatedUserId(loggedUser);
+		taskService.setAssignee(taskId, loggedUser);
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
-		properties.putAll(formData);
+		if(formData != null){
+			properties.putAll(formData);
+		}
 		formService.submitTaskFormData(taskId, properties);
 	}
 
@@ -138,14 +146,10 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		Map<String, Object> taksVariables = task.getTaskLocalVariables();
 		Map<String, Object> processVariables = task.getProcessVariables();
 		
-		// Add applicant username and full name to task dto (for easier work)
+		// Add applicant username to task dto (for easier work)
 		if (processVariables != null
 				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_USERNAME)) {
 			dto.setApplicant((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_USERNAME));
-		}
-		if (processVariables != null
-				&& processVariables.containsKey(WorkflowProcessInstanceService.APPLICANT_FULL_NAME)) {
-			dto.setApplicantFullName((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_FULL_NAME));
 		}
 
 		convertToDtoVariables(dto, taksVariables);

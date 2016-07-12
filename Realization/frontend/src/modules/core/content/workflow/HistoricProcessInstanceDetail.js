@@ -7,13 +7,15 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import { WorkflowHistoricProcessInstanceManager } from '../../redux';
+import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 import _ from 'lodash';
 
 /**
 * Workflow process historic detail
 */
 const workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
+const workflowHistoricTaskInstanceManager = new WorkflowHistoricTaskInstanceManager();
 
 class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
@@ -46,10 +48,18 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.setState({showModalDiagram:false});
   }
 
+  _showTaskDetail(entity) {
+
+  }
+
   render() {
     const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
+    const { historicProcessInstanceId } = this.props.params;
+
     let showLoadingInternal = showLoading || !_historicProcess;
+    let force = new SearchParameters();
+    force = force.setFilter('processInstanceId', historicProcessInstanceId);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -71,10 +81,44 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
+        <Basic.Panel>
+          <Basic.PanelHeader>
+            {this.i18n('tasks')}
+          </Basic.PanelHeader>
+          <Advanced.Table
+            ref="tableTasks"
+            uiKey="table-tasks"
+            forceSearchParameters={force}
+            manager={workflowHistoricTaskInstanceManager}>
+            <Advanced.Column
+              property="name"
+              sort={false}
+              face="text"/>
+            <Advanced.Column
+              property="assignee"
+              sort={false}
+              face="text"/>
+            <Advanced.Column
+              property="deleteReason"
+              sort={false}
+              face="text"/>
+            <Advanced.Column
+              property="priority"
+              sort={false}
+              face="text"/>
+            <Advanced.Column
+              property="startTime"
+              sort={false}
+              face="date"/>
+            <Advanced.Column
+              property="endTime"
+              sort={false}
+              face="date"/>
+          </Advanced.Table>
+        </Basic.Panel>
         <Basic.Panel showLoading={!diagramUrl}>
           <Basic.PanelHeader>
-            {this.i18n('diagram')}
-            <div className="pull-right">
+            {this.i18n('diagram')}  <div className="pull-right">
               <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
                 <Basic.Icon icon="fullscreen"/>
               </Basic.Button>

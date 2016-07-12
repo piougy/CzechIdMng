@@ -7,6 +7,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceD
 public interface WorkflowHistoricTaskInstanceService {
 
 	public static final String SORT_BY_CREATE_TIME = "createTime";
+	public static final String SORT_BY_END_TIME = "endTime";
 
 	ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter);
 

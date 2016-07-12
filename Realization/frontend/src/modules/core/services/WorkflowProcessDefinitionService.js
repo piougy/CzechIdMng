@@ -8,7 +8,7 @@ import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import AuthenticateService from './AuthenticateService';
 
-class WorkflowDefinitionService extends AbstractService {
+class WorkflowProcessDefinitionService extends AbstractService {
 
   getApiPath(){
     return '/workflow/definitions/';
@@ -59,4 +59,4 @@ class WorkflowDefinitionService extends AbstractService {
   }
 }
 
-export default WorkflowDefinitionService;
+export default WorkflowProcessDefinitionService;

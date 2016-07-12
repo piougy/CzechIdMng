@@ -939,7 +939,13 @@
           "superProcessInstanceId": "$t(entity.WorkflowHistoricProcessInstance.superProcessInstanceId)",
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
-          "tasks": "Úživatelské úkoly procesu"
+          "tasks": "Úživatelské úkoly procesu",
+          "filter": {
+            "processDefinition":{
+              "label": "Definice",
+              "placeholder": "Definice workflow"
+            }
+          }
         },
         "task":{
           "title": "Úživatelské úkoly procesu",
@@ -1088,11 +1094,11 @@
       "name": "Název",
       "startTime": "Datum vytvoření",
       "endTime": "Datum ukončení",
-      "assignee": "Přiřazení",
+      "assignee": "Přiřazeno (vyřešil)",
       "deleteReason": "Způsob ukončení",
       "id": "ID",
       "priority": "Priorita",
-      "createTime": "Úkol vytvořen"
+      "createTime": "Datum vytvoření"
     }
   },
   "error": {

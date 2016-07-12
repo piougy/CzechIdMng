@@ -140,6 +140,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         filter.values = filledValues;
       } else {*/
         let filledValue = filterValues[property];
+        if (filledValue === null){
+          continue;
+        }
         if (filterComponent.props.enum) { // enumeration
           filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
         }

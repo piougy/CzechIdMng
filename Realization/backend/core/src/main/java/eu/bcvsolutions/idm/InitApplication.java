@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
@@ -152,6 +153,25 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 					bulkIdentity.setLastName("L");
 					this.identityRepository.save(bulkIdentity);
 				}
+				
+				//Users for JUnit testing
+				IdmIdentity testUser1 = new IdmIdentity();
+				testUser1.setUsername(TestUtils.TEST_USER_1);
+				testUser1.setPassword("heslo".getBytes());
+				testUser1.setFirstName("Test");
+				testUser1.setLastName("First User");
+				testUser1 = this.identityRepository.save(testUser1);
+				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));
+				this.identityRepository.save(testUser1);
+				
+				IdmIdentity testUser2 = new IdmIdentity();
+				testUser2.setUsername(TestUtils.TEST_USER_2);
+				testUser2.setPassword("heslo".getBytes());
+				testUser2.setFirstName("Test");
+				testUser2.setLastName("Second User");
+				testUser2 = this.identityRepository.save(testUser2);
+				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
+				this.identityRepository.save(testUser2);
 			}
 			//
 		} finally {

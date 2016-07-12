@@ -7,7 +7,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager } from '../../redux';
+import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager} from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import _ from 'lodash';
 
@@ -48,10 +48,6 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.setState({showModalDiagram:false});
   }
 
-  _showTaskDetail(entity) {
-
-  }
-
   render() {
     const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
@@ -90,56 +86,37 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             uiKey="table-tasks"
             forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
-            <Advanced.Column
-              property="name"
-              sort={false}
-              face="text"/>
-            <Advanced.Column
-              property="assignee"
-              sort={false}
-              face="text"/>
-            <Advanced.Column
-              property="deleteReason"
-              sort={false}
-              face="text"/>
-            <Advanced.Column
-              property="priority"
-              sort={false}
-              face="text"/>
-            <Advanced.Column
-              property="startTime"
-              sort={false}
-              face="date"/>
-            <Advanced.Column
-              property="endTime"
-              sort={false}
-              face="date"/>
+            <Advanced.Column property="name" sort={false} face="text"/>
+            <Advanced.Column property="assignee" sort={false} face="text"/>
+            <Advanced.Column property="createTime" sort={true} face="datetime"/>
+            <Advanced.Column property="endTime" sort={true} face="datetime"/>
+            <Advanced.Column property="deleteReason" sort={false} face="text"/>
           </Advanced.Table>
         </Basic.Panel>
         <Basic.Panel showLoading={!diagramUrl}>
           <Basic.PanelHeader>
             {this.i18n('diagram')}  <div className="pull-right">
-              <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
-                <Basic.Icon icon="fullscreen"/>
-              </Basic.Button>
-            </div>
-          </Basic.PanelHeader>
-          <div style={{textAlign:'center'}}>
-            <img style={{maxWidth:'70%'}} src={diagramUrl}/>
+            <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
+              <Basic.Icon icon="fullscreen"/>
+            </Basic.Button>
           </div>
-        </Basic.Panel>
-        <Basic.Modal show={showModalDiagram} dialogClassName='modal-large' onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
-          <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
-          <Basic.Modal.Body style={{overflow: 'scroll'}}>
-            <img src={diagramUrl}/>
-          </Basic.Modal.Body>
-          <Basic.Modal.Footer>
-            <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>
-          </Basic.Modal.Footer>
-        </Basic.Modal>
-      </div>
-    );
-  }
+        </Basic.PanelHeader>
+        <div style={{textAlign:'center'}}>
+          <img style={{maxWidth:'70%'}} src={diagramUrl}/>
+        </div>
+      </Basic.Panel>
+      <Basic.Modal show={showModalDiagram} dialogClassName='modal-large' onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
+        <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
+        <Basic.Modal.Body style={{overflow: 'scroll'}}>
+          <img src={diagramUrl}/>
+        </Basic.Modal.Body>
+        <Basic.Modal.Footer>
+          <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>
+        </Basic.Modal.Footer>
+      </Basic.Modal>
+    </div>
+  );
+}
 }
 
 HistoricProcessInstanceDetail.propTypes = {

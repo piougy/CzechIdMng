@@ -5,9 +5,8 @@
   "theme": "modules/core/themes/default",
   "crtEncrytpEnable": false,
   "crtSigningEnable": true,
-  "roles": {
-    "superAdminRole": "superAdminRole",
-    "managerRole": "garant"
+  "authorities": {
+    "superAdminAuthority": "SYSTEM_ADMIN"
   },
   "logger": {
     "level": "WARN"

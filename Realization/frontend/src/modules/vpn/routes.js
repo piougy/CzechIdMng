@@ -20,6 +20,6 @@ module.exports = {
     {
       path: 'vpns',
       component: require('./content/Vpns'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole, 'vpnAdmin'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'roles': [config.authorities.superAdminAuthority, 'vpnAdmin'] } ]
     }]
   };

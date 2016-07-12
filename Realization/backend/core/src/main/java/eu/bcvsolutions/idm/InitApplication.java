@@ -10,11 +10,16 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.model.domain.CustomBasePermission;
+import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
@@ -52,7 +57,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		// TODO: runAs
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("superAdminRole");
+		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
 		//
 		try {
@@ -62,7 +67,22 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				//
 				superAdminRole = new IdmRole();
 				superAdminRole.setName("superAdminRole");
-				superAdminRole.setApprovable(true);
+				superAdminRole.setApprovable(true);				
+				IdmRoleAuthority privilege3 = new IdmRoleAuthority();
+				privilege3.setRole(superAdminRole);
+				privilege3.setTarget(IdmGroupPermission.USER);
+				privilege3.setAction(IdmBasePermission.READ);
+				superAdminRole.getAuthorities().add(privilege3);
+				IdmRoleAuthority privilege2 = new IdmRoleAuthority();
+				privilege2.setRole(superAdminRole);
+				privilege2.setTarget(IdmGroupPermission.USER);
+				privilege2.setAction(CustomBasePermission.ADMIN);
+				superAdminRole.getAuthorities().add(privilege2);
+				IdmRoleAuthority privilege = new IdmRoleAuthority();
+				privilege.setRole(superAdminRole);
+				privilege.setTarget(CustomGroupPermission.SYSTEM);
+				privilege.setAction(CustomBasePermission.ADMIN);
+				superAdminRole.getAuthorities().add(privilege);
 				superAdminRole = this.roleRepository.save(superAdminRole);
 				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
 				//

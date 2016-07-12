@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  */
 @Component
-@PreAuthorize("hasAuthority('superAdminRole')")
+@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
 @RepositoryEventHandler(IdmIdentityWorkingPosition.class)
 public class IdmIdentityWorkingPositionHandler {
 

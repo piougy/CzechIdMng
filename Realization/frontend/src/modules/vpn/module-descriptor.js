@@ -24,7 +24,7 @@ module.exports = {
         'icon': 'fa:key',
         'order': 50,
         'path': '/vpns',
-        'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole, 'vpnAdmin'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority, 'vpnAdmin'] } ]
       },
     ]
   }

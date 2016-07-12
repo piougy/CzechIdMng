@@ -28,7 +28,7 @@ module.exports = {
     {
       path: 'user/new',
       component: require('./content/user/Create'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole, config.roles.managerRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority ] } ]
     },
     {
       path: 'user/:userID/',
@@ -71,7 +71,7 @@ module.exports = {
     {
       path: 'users',
       component: require('./content/user/Users'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'users/password/reset',
@@ -80,12 +80,12 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./content/Organizations'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'roles',
       component: require('./content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'tasks/:userID',
@@ -103,17 +103,17 @@ module.exports = {
     {
       path: 'setting',
       component: require('./content/Setting'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'app-modules',
       component: require('./content/AppModules'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'workflow',
       component: 'div',
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
       childRoutes: [
         {
           path: 'definitions',
@@ -128,12 +128,12 @@ module.exports = {
     {
       path: 'workflow/definitions/:definitionId',
       component: require('./content/workflow/Definition'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',
       component: require('./content/workflow/HistoricProcessInstanceDetail'),
-      access: [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'audit/',
@@ -142,17 +142,17 @@ module.exports = {
         {
           path: 'log',
           component: require('./content/audit/AuditLog'),
-          access: [{ type: 'DENY_ALL', roles: ['auditor', config.roles.superAdminRole] }]
+          access: [{ type: 'DENY_ALL' }]
         },
         {
           path: 'object',
           component: require('./content/audit/AuditLogForObject'),
-          access: [{ type: 'DENY_ALL', roles: ['auditor', config.roles.superAdminRole] }]
+          access: [{ type: 'DENY_ALL' }]
         },
         {
           path: 'email-log',
           component: require('./content/audit/EmailLog'),
-          access: [{ type: 'DENY_ALL', roles: ['auditor', config.roles.superAdminRole] }]
+          access: [{ type: 'DENY_ALL' }]
         }
       ]
     },

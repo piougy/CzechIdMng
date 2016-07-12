@@ -17,9 +17,8 @@
       }
     }
   },
-  "roles": {
-    "superAdminRole": "superAdminRole",
-    "managerRole": "garant"
+  "authorities": {
+    "superAdminAuthority": "SYSTEM_ADMIN"
   },
   "logger": {
     "level": "DEBUG"

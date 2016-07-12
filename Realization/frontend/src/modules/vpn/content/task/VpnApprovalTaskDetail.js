@@ -162,7 +162,7 @@ class VpnApprovalTaskDetail extends Basic.AbstractContent {
     if (taskState){
       readOnlyInternal = TaskStateEnum.findSymbolByKey(taskState) === TaskStateEnum.PENDING ? readOnlyInternal : true;
     }
-    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasRole(null,VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
+    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasAuthority(null,VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.task')} />

@@ -99,7 +99,7 @@ class VpnRecordProfileDetail extends Basic.AbstractContent {
       value: userID,
     }];
 
-    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasRole(VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
+    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasAuthority(VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
 
     return (
       <div>

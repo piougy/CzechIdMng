@@ -117,7 +117,11 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 	 */
 	private void sendErrorModel(HttpServletRequest httpRequest, HttpServletResponse httpResponse, ErrorModel errorModel, Exception ex) 
 			throws JsonGenerationException, JsonMappingException, IOException {
-		log.error("[" + errorModel.getId() + "] ", ex);
+		if (errorModel.getStatus().is5xxServerError()) {
+			log.error("[" + errorModel.getId() + "] ", ex);
+		} else {
+			log.warn("[" + errorModel.getId() + "] ", ex);
+		}
 		httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		httpResponse.setStatus(errorModel.getStatus().value());
 		httpResponse.getWriter().print(jsonMapper.writeValueAsString(new ResultModels(errorModel)));

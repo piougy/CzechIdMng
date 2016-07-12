@@ -56,7 +56,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.accounts',
             'order': 40,
             'path': '/user/:userID/accounts',
-            'access': [ { 'type': 'DENY_ALL', 'roles': [config.roles.superAdminRole] } ]
+            'access': [ { 'type': 'DENY_ALL' } ]
           },
           {
             'id': 'profile-approve',
@@ -64,7 +64,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.approve',
             'order': 40,
             'path': '/user/:userID/approve',
-            'access': [ { 'type': 'DENY_ALL', 'roles': ['superAdminRole2'] } ]
+            'access': [ { 'type': 'DENY_ALL' } ]
           },
           {
             'id': 'profile-subordinates',
@@ -122,7 +122,7 @@ module.exports = {
         'icon': 'user',
         'order': 40,
         'path': '/users',
-        'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
       },
       {
         'id': 'organizations',
@@ -132,7 +132,7 @@ module.exports = {
         'order': 50,
         'iconColor': '#eb9316',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
       },
       {
         'id': 'roles',
@@ -142,13 +142,13 @@ module.exports = {
         'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
-        'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
       },
       {
         'id': 'workflow',
         'labelKey': 'navigation.menu.workflow.title',
         'icon': 'fa:sitemap',
-        'order': 60,
+        'order': 40,
         'iconColor': '#428BCA',
         'items': [
           {
@@ -156,14 +156,14 @@ module.exports = {
             'labelKey': 'navigation.menu.workflow.definitions',
             'order': 40,
             'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           },
           {
             'id': 'workflow-historic-processes',
             'labelKey': 'navigation.menu.workflow.historicProcess',
             'order': 35,
             'path': '/workflow/history/processes',
-            'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           }
         ]
       },
@@ -174,7 +174,7 @@ module.exports = {
         'order': 1000,
         'path': '/setting',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
           {
             'id': 'audit',
@@ -184,7 +184,7 @@ module.exports = {
             'access': [
               {
                 'type': 'DENY_ALL',
-                'roles': [ 'auditor', 'superAdminRole2' ]
+                'authorities': [ 'auditor', 'superAdminAuthority2' ]
               }
             ],
             'items': [
@@ -195,8 +195,8 @@ module.exports = {
                 'path': '/audit/object',
                 'access': [
                   {
-                    'type': 'HAS_ANY_ROLE',
-                    'roles': [ 'auditor', 'superAdminRole2' ]
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
                   }
                 ]
               },
@@ -207,8 +207,8 @@ module.exports = {
                 'path': '/audit/log',
                 'access': [
                   {
-                    'type': 'HAS_ANY_ROLE',
-                    'roles': [ 'auditor', 'superAdminRole2' ]
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
                   }
                 ]
               },
@@ -219,8 +219,8 @@ module.exports = {
                 'path': '/audit/email-log',
                 'access': [
                   {
-                    'type': 'HAS_ANY_ROLE',
-                    'roles': [ 'auditor', 'superAdminRole2' ]
+                    'type': 'HAS_ANY_AUTHORITY',
+                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
                   }
                 ]
               }
@@ -231,14 +231,14 @@ module.exports = {
             'labelKey': 'navigation.menu.setting',
             'order': 20,
             'path': '/setting',
-            'access': [ { 'type': 'DENY_ALL', 'roles': [config.roles.superAdminRole] } ]
+            'access': [ { 'type': 'DENY_ALL', 'authorities': [config.authorities.superAdminAuthority] } ]
           },
           {
             'id': 'system-modules',
             'labelKey': 'content.system.app-modules.title',
             'order': 30,
             'path': '/app-modules',
-            'access': [ { 'type': 'HAS_ANY_ROLE', 'roles': [config.roles.superAdminRole] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           }
         ]
       },

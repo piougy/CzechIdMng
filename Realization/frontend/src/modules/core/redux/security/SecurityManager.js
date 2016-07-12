@@ -45,47 +45,23 @@ export default class SecurityManager {
       //
       authenticateService.login(username, password)
       .then(json => {
-        // resolve roles from auth
-        const roles = json.authentication.authorities.map(authority => { return authority.authority });
+        getState().logger.debug('logged user', json);
+        // resolve authorities from auth
+        const authorities = json.authentication.authorities.map(authority => { return authority.authority });
+        getState().logger.debug('logged user authorities', authorities);
         // construct logged user context
         const userContext = {
           username: json.username,
           isAuthenticated: true,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          roles: roles
+          authorities: authorities
         };
         dispatch(this.receiveLogin(userContext, redirect));
       })
       .catch(error => {
         dispatch(this.receiveLoginError(error, redirect));
       });
-    }
-  }
-
-  /**
-   * Load user roles
-   */
-  loadRoles(userContext, redirect) {
-    return dispatch => {
-      if (userContext && userContext.isAuthenticated) {
-        identityService.getRoles(userContext.username, userContext.tokenCSRF)
-        .then(json => {
-          userContext.roles = json;
-          dispatch(this.flashMessagesManager.removeAllMessages());
-          dispatch(this.receiveLogin(userContext, redirect));
-        })
-        .catch(error => {
-          authenticateService.logout();
-          userContext.isAuthenticated = false;
-          dispatch(this.flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
-          // we need to set usercontext, when this error happens - redirect to login page with error
-          dispatch(this.receiveLogin(userContext, redirect));
-          dispatch(this.receiveLoginError(error, redirect));
-        });
-      } else {
-        dispatch(this.receiveLoginError(null, redirect));
-      }
     }
   }
 
@@ -197,9 +173,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    // TODO: move admin role name to settings
-
-    return SecurityManager.hasRole(userContext, configService.getConfig('roles').superAdminRole);
+    return SecurityManager.hasAuthority(userContext, configService.getConfig('authorities').superAdminAuthority);
   }
 
   /**
@@ -219,23 +193,23 @@ export default class SecurityManager {
   }
 
   /**
-   * Returns true, if user has given role
+   * Returns true, if user has given authority
    */
-  static hasRole(userContext = null, roleName) {
+  static hasAuthority(userContext = null, authority) {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.roles || !roleName) {
+    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
-    return _.includes(userContext.roles, roleName);
+    return _.includes(userContext.authorities, authority);
   }
 
-  static hasAnyRole(userContext, roleNames) {
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.roles || !roleNames) {
+  static hasAnyAuthority(userContext, authority) {
+    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
-    return _.intersection(userContext.roles, roleNames).length > 0;
+    return _.intersection(userContext.authorities, authority).length > 0;
   }
 
   /**
@@ -271,8 +245,8 @@ export default class SecurityManager {
               return true;
             }
           }
-          case 'HAS_ANY_ROLE': {
-            return SecurityManager.hasAnyRole(userContext, accessItem.roles);
+          case 'HAS_ANY_AUTHORITY': {
+            return SecurityManager.hasAnyAuthority(userContext, accessItem.authorities);
           }
         }
       }

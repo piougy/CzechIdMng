@@ -127,7 +127,7 @@ class VpnTable extends Basic.AbstractContent {
         this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('vpnRequestSaved')});
         this.refs.vpnRecordsTable.getWrappedInstance().reload();
         this._closeModal();
-      });      
+      });
     }).catch(ex => {
       this.setState({
         showLoading: false
@@ -237,7 +237,7 @@ class VpnTable extends Basic.AbstractContent {
   render() {
     const { forceSearchParameters, uiKey, showColumnOwner, filterOpened} = this.props;
     const { showLoading, newVpnRecord, editVpnRecord, showModalEdit} = this.state;
-    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasRole(VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
+    let isImplementer = SecurityManager.isAdmin(null) || SecurityManager.hasAuthority(VpnRecordProfileDetail.IMPLEMENTER_ROLE_NAME);
     return (
       <div>
         <Basic.Confirm ref="confirm"/>

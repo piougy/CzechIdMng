@@ -2,13 +2,16 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
@@ -16,6 +19,7 @@ import eu.bcvsolutions.idm.core.security.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.core.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.core.utils.EntityUtils;
 
 /**
  * @author svandav
@@ -28,20 +32,22 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 
 	@Override
 	public List<DefaultGrantedAuthority> getGrantedAuthorities(String username) {
-
-		List<DefaultGrantedAuthority> grantedAuthorities = new ArrayList<>();
-
 		IdmIdentity identity = idmIdentityRepository.findOneByUsername(username);
 		if (identity == null) {
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
 		}
 
-		List<IdmIdentityRole> roles = identity.getRoles();
-		for (IdmIdentityRole ir : roles) {
-			grantedAuthorities.add(new DefaultGrantedAuthority(ir.getRole().getName()));
-		}
-
-		return grantedAuthorities;
+		// unique set of permissions
+		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
+		identity.getRoles().stream() //
+				.filter(EntityUtils::isValid) //
+				.filter(ir -> !ir.getRole().isDisabled()) //
+				.forEach(ir -> {
+					ir.getRole().getAuthorities().forEach(roleAuthority -> {
+						grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.toAuthority()));
+					});
+				});
+		return Lists.newArrayList(grantedAuthorities);
 	}
 
 	@Override
@@ -50,7 +56,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		List<DefaultGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		if (authorities != null) {
 			for (DefaultGrantedAuthorityDto a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthority(a.getRoleName()));
+				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
 			}
 		}
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(dto.getCurrentUsername(),
@@ -58,8 +64,8 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return authentication;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public IdmJwtAuthenticationDto getIdmJwtAuthenticationDto(IdmJwtAuthentication authentication) {
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
@@ -70,7 +76,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
 		if (authorities != null) {
 			for (DefaultGrantedAuthority a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getRoleName(), a.getAuthority()));
+				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getAuthority()));
 			}
 		}
 		authenticationDto.setAuthorities(grantedAuthorities);

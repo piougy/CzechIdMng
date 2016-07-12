@@ -7,15 +7,14 @@ import { REQUEST_LOGIN, RECEIVE_LOGIN, RECEIVE_LOGIN_EXPIRED, RECEIVE_LOGIN_ERRO
 
 // TODO: integrate immutable map with redux-localstorage
 const INITIAL_STATE = {
-  userContext: {          // logged userContext {username, token, isGuest etc .}
+  userContext: { // logged userContext {username, token, isGuest etc .}
     showLoading: false,
     isExpired: false,
     username: null,
     isAuthenticated: false,
     tokenCSRF: null,
     tokenCIDMST: null,
-    roles: [],             // user roles (with all subroles) - contains role names
-    permissions: []        // todo
+    authorities: [], // user aauthorities
   }
 }
 

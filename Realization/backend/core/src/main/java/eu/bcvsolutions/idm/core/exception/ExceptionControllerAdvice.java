@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.exception;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,7 @@ public class ExceptionControllerAdvice {
 		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.METHOD_NOT_ALLOWED, ex.getMessage(),
 				ImmutableMap.of( //
 						"errorMethod", ex.getMethod(), //
-						"supportedMethods", MessageFormat.format("Supported methods are: {0}", StringUtils.join(ex.getSupportedMethods(), ", "))));
+						"supportedMethods", StringUtils.join(ex.getSupportedMethods(), ", ")));
 		log.warn("[" + errorModel.getId() + "] ", ex);
 		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
 	}

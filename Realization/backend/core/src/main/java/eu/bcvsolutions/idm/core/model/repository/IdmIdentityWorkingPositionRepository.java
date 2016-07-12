@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 
-@PreAuthorize("hasAuthority('superAdminRole')")
+@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
 @RepositoryRestResource(//
 		collectionResourceRel = "workingPositions", //
 		path = "workingPositions", //

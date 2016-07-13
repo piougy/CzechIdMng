@@ -62,7 +62,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 		this.target = target;
 	}
 	
-	public void setTarget(GroupPermission group) {
+	public void setTargetPermission(GroupPermission group) {
 		this.target = group == null ? null : group.getName();
 	}
 
@@ -74,7 +74,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 		this.action = action;
 	}
 	
-	public void setAction(BasePermission permission) {
+	public void setActionPermission(BasePermission permission) {
 		this.action = permission == null ? null : permission.getName();
 	}
 	

@@ -37,11 +37,11 @@ log4js.configure({
   appenders: [
     {
       type: 'console',
-      /*
       layout: {
         type: 'pattern',
-        pattern: '%d{ISO8601} [%-5p%] %c %m'
-      }*/
+        //pattern: '%d{ISO8601} [%-5p%] %c %m'
+        pattern: '[%p] %m'
+      }
     }
   ],
   // replaceConsole: true

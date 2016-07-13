@@ -10,6 +10,7 @@ import _ from 'lodash';
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
+import RoleTypeEnum from '../../enums/RoleTypeEnum';
 
 /**
 * Table of roles
@@ -52,6 +53,8 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
+    this.getLogger().debug('show entity', entity);
+    //
     this.setState({
       detail: {
         show: true,
@@ -81,6 +84,9 @@ export class RoleTable extends Basic.AbstractContent {
       return;
     }
     const entity = this.refs.form.getData();
+    // TODO: is this transformation nesessary? Maybe enum selectbox component shoul make transformation itself, when input value is string.
+    entity.roleType = RoleTypeEnum.findKeyBySymbol(entity.roleType);
+    this.getLogger().debug('save entity', entity);
     const { roleManager, uiKey } = this.props;
     //
     if (entity.id === undefined) {
@@ -187,6 +193,7 @@ export class RoleTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Advanced.Column property="name" sort={true} face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column property="roleType" sort={true} face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
           <Advanced.Column property="disabled" sort={true} face="bool" rendered={_.includes(columns, 'disabled')}/>
           <Advanced.Column property="approvable" sort={true} face="bool" rendered={_.includes(columns, 'approvable')}/>
         </Advanced.Table>
@@ -207,6 +214,11 @@ export class RoleTable extends Basic.AbstractContent {
                   ref="name"
                   label={this.i18n('entity.Role.name')}
                   required/>
+                <Basic.EnumSelectBox
+                  ref="roleType"
+                  label={this.i18n('entity.Role.roleType')}
+                  enum={RoleTypeEnum}
+                  />
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.Role.disabled')}/>
@@ -249,7 +261,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'disabled', 'approvable'],
+  columns: ['name', 'roleType', 'disabled', 'approvable'],
   filterOpened: false,
   _showLoading: false
 };

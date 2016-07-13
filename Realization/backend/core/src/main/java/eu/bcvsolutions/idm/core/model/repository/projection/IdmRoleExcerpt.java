@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.repository.projection;
 
 import org.springframework.data.rest.core.config.Projection;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -18,4 +19,6 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	boolean isDisabled();
 	
 	boolean isApprovable();
+	
+	IdmRoleType getRoleType();
 }

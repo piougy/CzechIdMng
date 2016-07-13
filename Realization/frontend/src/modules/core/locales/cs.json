@@ -184,6 +184,11 @@
       "GET" : "Načíst",
       "DELETE" : "Smazat"
     },
+    "RoleTypeEnum": {
+      "SYSTEM": "Systémová",
+      "BUSINESS": "Business",
+      "TECHNICAL": "Technická"
+    },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",
       "WAIT_ASSIGN": "Nepřiřazena (čeká na přiřazení)",
@@ -977,6 +982,7 @@
     "Role": {
       "_type": "Role",
       "name": "Název role",
+      "roleType": "Typ role",
       "disabled": "Neaktivní",
       "approvable": "Schalovaná"
     },

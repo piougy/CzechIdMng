@@ -58,8 +58,11 @@ class EnumSelectBox extends SelectBox {
     let item;
     if (enumItem && enumItem.value && !enumItem[SelectBox.ITEM_FULL_KEY]){
       item = enumItem;
-      merge(item,{[SelectBox.NICE_LABEL]:enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLable(enumItem.value), [SelectBox.ITEM_FULL_KEY] : enumItem.value})
-    }else {
+      merge(item, {
+        [SelectBox.NICE_LABEL]: enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLabel(enumItem.value),
+        [SelectBox.ITEM_FULL_KEY]: enumItem.value
+      });
+    } else {
       item = {value: enumItem}
       let niceLabel;
       if (this.props.enum) {
@@ -81,17 +84,31 @@ class EnumSelectBox extends SelectBox {
     }
   }
 
-  _findNiceLable(value){
-    if (value){
+  _findNiceLabel(value) {
+    if (!value) {
+      return null;
+    }
+    let rawValue;
+    if (typeof value == 'symbol') {
+      rawValue = this._findKeyBySymbol(value);
+    } else {
+      rawValue = value;
+    }
+    //
+    if (this.props.enum) {
+      return this.props.enum.getNiceLabel(rawValue);
+    }
+    if (this.props.options) {
       for (let item in this.props.options) {
-        if (this.props.options[item].value === value){
-            return this.props.options[item].niceLabel;
+        if (this.props.options[item].value === rawValue){
+          return this.props.options[item].niceLabel;
         }
       }
     }
+    return null;
   }
 
-  normalizeValue(value){
+  normalizeValue(value) {
    if (value){
       //value is array ... enum multiselect
       if (value instanceof Array && this.props.multiSelect === true && typeof value[0] == 'symbol'){
@@ -140,7 +157,7 @@ class EnumSelectBox extends SelectBox {
       copyValue.push((this._deletePrivateField(merge({},item))).value);
     }
     return copyValue;
-  }else {
+  } else {
     //value is not array
     let copyValue = merge({},this.state.value);
     this._deletePrivateField(copyValue);

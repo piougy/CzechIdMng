@@ -138,12 +138,12 @@ class DemoContent extends Basic.AbstractContent {
                       required/>
 
                     <Basic.EnumSelectBox
-                        ref="enumSelectBox"
-                        label="Enum select"
-                        placeholder="Vyberte enumeraci ..."
-                        multiSelect={false}
-                        value={ApiOperationTypeEnum.DELETE}
-                        enum={ApiOperationTypeEnum}
+                      ref="enumSelectBox"
+                      label="Enum select"
+                      placeholder="Vyberte enumeraci ..."
+                      multiSelect={false}
+                      value={ApiOperationTypeEnum.DELETE}
+                      enum={ApiOperationTypeEnum}
                     />
 
                     <Basic.EnumSelectBox
@@ -156,13 +156,13 @@ class DemoContent extends Basic.AbstractContent {
                       required/>
 
                     <Basic.EnumSelectBox
-                        ref="anySelectBoxMulti"
-                        label="Any select multi"
-                        placeholder="Vyberte něco ..."
-                        multiSelect={true}
-                        value={['item1','item2']}
-                        options={[{value: 'item1', niceLabel: 'NiceItem1'},{value: 'item2', niceLabel: 'NiceItem2'}, {value: 'item3', niceLabel: 'NiceItem3'}]}
-                        required/>
+                      ref="anySelectBoxMulti"
+                      label="Any select multi"
+                      placeholder="Vyberte něco ..."
+                      multiSelect={true}
+                      value={['item1','item2']}
+                      options={[{value: 'item1', niceLabel: 'NiceItem1'},{value: 'item2', niceLabel: 'NiceItem2'}, {value: 'item3', niceLabel: 'NiceItem3'}]}
+                      required/>
 
                   </Basic.PanelBody>
                 </div>

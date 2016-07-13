@@ -126,6 +126,11 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		return entity;
 	}
 	
+	/**
+	 * Find all identities usernames by assigned role
+	 * @param roleId
+	 * @return String with all found usernames separate with comma 
+	 */
 	public String findAllByRole(Long roleId){
 		List<IdmIdentity> identities =  identityRepository.findAllByRole(roleId);
 		if(identities == null){

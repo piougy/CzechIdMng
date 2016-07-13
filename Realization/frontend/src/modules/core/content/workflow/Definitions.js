@@ -7,7 +7,7 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import { WorkflowDefinitionService } from '../../services';
+import { WorkflowProcessDefinitionService } from '../../services';
 import _ from 'lodash';
 
 /**
@@ -18,7 +18,7 @@ class Definitions extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {};
-    this.workflowDefinitionService = new WorkflowDefinitionService();
+    this.workflowDefinitionService = new WorkflowProcessDefinitionService();
   }
 
   getContentKey() {

@@ -41,6 +41,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 @Service
 public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHistoricProcessInstanceService {
 
+	private static final String DEFINITION_ID_DELIMITER = ":";
+	
 	@Autowired
 	private HistoryService historyService;
 
@@ -72,7 +74,11 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			query.processDefinitionId(processDefinitionId);
 		}
 		if (filter.getProcessDefinitionKey() != null) {
-			query.processDefinitionKey(filter.getProcessDefinitionKey());
+			//For case when we have only process id, we will convert him to key
+			query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
+		}
+		if (filter.getName() != null){
+			query.processInstanceNameLikeIgnoreCase(filter.getName());
 		}
 		if (equalsVariables != null) {
 			for (String key : equalsVariables.keySet()) {
@@ -84,7 +90,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		query.or();
 		query.involvedUser(securityService.getUsername());
 		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
-				securityService.getOriginalUsername());
+				securityService.getUsername());
 		query.endOr();
 
 		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(filter.getSortByFields())) {
@@ -128,7 +134,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		filter.setProcessInstanceId(historicProcessInstanceId);
 		filter.setSortAsc(true);
 		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> resource = this.search(filter);
-		return resource.getResources() != null ? resource.getResources().iterator().next() : null;
+		return resource.getResources() != null && !resource.getResources().isEmpty() ? resource.getResources().iterator().next() : null;
 	}
 
 	@Override
@@ -168,6 +174,18 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			throw new ActivitiException(
 					"Process instance with id " + processInstanceId + " has no graphic description");
 		}
+	}
+	
+	/**
+	 * Convert process definition ID to process definition KEY.
+	 * @param processId
+	 * @return
+	 */
+	private String convertProcessIdToKey(String processId){
+		if(processId == null || !processId.contains(DEFINITION_ID_DELIMITER)){
+			return processId;
+		}
+		return processId.split(DEFINITION_ID_DELIMITER)[0];
 	}
 
 	private List<String> getHighLightedFlows(ProcessDefinitionEntity processDefinition, String processInstanceId,

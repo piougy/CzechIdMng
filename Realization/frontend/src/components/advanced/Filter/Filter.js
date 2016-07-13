@@ -9,6 +9,7 @@ import FilterButtons from './FilterButtons';
 import FilterTextField from './FilterTextField';
 import FilterBooleanSelectBox from './FilterBooleanSelectBox';
 import FilterEnumSelectBox from './FilterEnumSelectBox';
+import FilterSelectBox from './FilterSelectBox';
 import FilterDateTimePicker from './FilterDateTimePicker';
 
 // TODO: Move to better place and use in child components
@@ -58,4 +59,5 @@ Filter.FilterButtons = FilterButtons;
 Filter.TextField = FilterTextField;
 Filter.BooleanSelectBox = FilterBooleanSelectBox;
 Filter.EnumSelectBox = FilterEnumSelectBox;
+Filter.SelectBox = FilterSelectBox;
 Filter.DateTimePicker = FilterDateTimePicker;

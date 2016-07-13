@@ -145,6 +145,29 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
       },
       {
+        'id': 'workflow',
+        'labelKey': 'navigation.menu.workflow.title',
+        'icon': 'fa:sitemap',
+        'order': 40,
+        'iconColor': '#428BCA',
+        'items': [
+          {
+            'id': 'workflow-definitions',
+            'labelKey': 'navigation.menu.workflow.definitions',
+            'order': 40,
+            'path': '/workflow/definitions',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          },
+          {
+            'id': 'workflow-historic-processes',
+            'labelKey': 'navigation.menu.workflow.historicProcess',
+            'order': 35,
+            'path': '/workflow/history/processes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          }
+        ]
+      },
+      {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
@@ -216,29 +239,6 @@ module.exports = {
             'order': 30,
             'path': '/app-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
-          },
-          {
-            'id': 'workflow',
-            'labelKey': 'navigation.menu.workflow.title',
-            'icon': 'fa:sitemap',
-            'order': 40,
-            'iconColor': '#428BCA',
-            'items': [
-              {
-                'id': 'workflow-definitions',
-                'labelKey': 'navigation.menu.workflow.definitions',
-                'order': 40,
-                'path': '/workflow/definitions',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
-              },
-              {
-                'id': 'workflow-historic-processes',
-                'labelKey': 'navigation.menu.workflow.historicProcess',
-                'order': 35,
-                'path': '/workflow/history/processes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
-              }
-            ]
           }
         ]
       },

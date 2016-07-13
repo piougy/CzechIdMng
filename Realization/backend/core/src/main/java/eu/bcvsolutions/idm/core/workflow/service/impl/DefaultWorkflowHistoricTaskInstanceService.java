@@ -32,7 +32,6 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 	@Autowired
 	private SecurityService securityService;
 
-
 	@Override
 	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {
 		String processDefinitionId = filter.getProcessDefinitionId();
@@ -56,15 +55,16 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		String loggedUsername = securityService.getUsername();
 		query.or();
 		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-		//TODO When I use two OR than is fault count
+		// TODO When I use two OR then is count wrong
 		//query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-		query.taskInvolvedUser(loggedUsername);
-		//TODO admin
+		// query.taskInvolvedUser(loggedUsername);
+		// TODO admin
 		query.endOr();
 
-		
 		if (WorkflowHistoricTaskInstanceService.SORT_BY_CREATE_TIME.equals(filter.getSortByFields())) {
 			query.orderByTaskCreateTime();
+		} else if (WorkflowHistoricTaskInstanceService.SORT_BY_END_TIME.equals(filter.getSortByFields())) {
+			query.orderByHistoricTaskInstanceEndTime();
 		} else {
 			query.orderByProcessDefinitionId();
 		}
@@ -104,7 +104,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> resource = this.search(filter);
 		return resource.getResources() != null ? resource.getResources().iterator().next() : null;
 	}
-	
+
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {
 		if (instance == null) {
 			return null;

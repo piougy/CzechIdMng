@@ -10,6 +10,7 @@ import IdentityWorkingPositionManager from './IdentityWorkingPositionManager';
 import WorkflowProcessInstanceManager from './WorkflowProcessInstanceManager';
 import WorkflowHistoricProcessInstanceManager from './WorkflowHistoricProcessInstanceManager';
 import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceManager';
+import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager';
 
 const ManagerRoot = {
   FormManager: FormManager,
@@ -21,7 +22,8 @@ const ManagerRoot = {
   IdentityWorkingPositionManager: IdentityWorkingPositionManager,
   WorkflowProcessInstanceManager: WorkflowProcessInstanceManager,
   WorkflowHistoricProcessInstanceManager: WorkflowHistoricProcessInstanceManager,
-  WorkflowHistoricTaskInstanceManager: WorkflowHistoricTaskInstanceManager
+  WorkflowHistoricTaskInstanceManager: WorkflowHistoricTaskInstanceManager,
+  WorkflowProcessDefinitionManager: WorkflowProcessDefinitionManager
 };
 
 ManagerRoot.version = '0.0.1';

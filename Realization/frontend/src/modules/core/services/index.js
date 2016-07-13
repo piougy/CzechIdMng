@@ -5,7 +5,7 @@ import AbstractService from './AbstractService';
 import AuthenticateService from './AuthenticateService';
 import ConfigService from './ConfigService';
 import IdentityService from './IdentityService';
-import WorkflowDefinitionService from './WorkflowDefinitionService';
+import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
 import OrganizationService from './OrganizationService';
 import LocalizationService from './LocalizationService';
 import RoleService from './RoleService';
@@ -22,7 +22,7 @@ const ServiceRoot = {
   AuthenticateService: AuthenticateService,
   ConfigService: ConfigService,
   IdentityService: IdentityService,
-  WorkflowDefinitionService: WorkflowDefinitionService,
+  WorkflowProcessDefinitionService: WorkflowProcessDefinitionService,
   OrganizationService: OrganizationService,
   LocalizationService: LocalizationService,
   RoleService: RoleService,

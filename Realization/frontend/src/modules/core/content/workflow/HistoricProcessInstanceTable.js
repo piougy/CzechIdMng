@@ -9,7 +9,10 @@ import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
+import {WorkflowProcessDefinitionManager} from '../../redux';
 
+
+const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of historic processes
 */
@@ -72,6 +75,47 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
     });
   }
 
+  _filter() {
+   return(  <Advanced.Filter onSubmit={this._useFilter.bind(this)}>
+      <Basic.AbstractForm ref="filterForm">
+        <Basic.Row className="last">
+          <div className="col-lg-4">
+            <Advanced.Filter.TextField
+              ref="name"
+              placeholder={this.i18n('entity.Organization.name')}
+              value=""
+              label={this.i18n('entity.Organization.name')}/>
+          </div>
+          <div className="col-lg-5">
+            <Advanced.Filter.SelectBox
+              ref="processDefinition"
+              label={this.i18n('filter.processDefinition.label')}
+              placeholder={this.i18n('filter.processDefinition.placeholder')}
+              multiSelect={false}
+              manager={workflowProcessDefinitionManager}/>
+          </div>
+          <div className="col-lg-3 text-right">
+            <Advanced.Filter.FilterButtons cancelFilter={this._cancelFilter.bind(this)}/>
+          </div>
+        </Basic.Row>
+      </Basic.AbstractForm>
+    </Advanced.Filter>)
+  }
+
+  _useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+  }
+
+  _cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   render() {
     const { uiKey, workflowHistoricProcessInstanceManager, columns, _showLoading } = this.props;
     const { filterOpened, detail } = this.state;
@@ -83,6 +127,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           uiKey={uiKey}
           manager={workflowHistoricProcessInstanceManager}
           showRowSelection={false}
+          filter={this._filter()}
           filterOpened={filterOpened}>
 
           <Advanced.Column

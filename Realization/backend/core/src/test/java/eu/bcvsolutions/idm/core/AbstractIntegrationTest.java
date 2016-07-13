@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core;
 
+import org.activiti.engine.IdentityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,13 +39,19 @@ import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
 	DirtiesContextTestExecutionListener.class }
 )
 public class AbstractIntegrationTest extends AbstractTestNGSpringContextTests {
+	
+	
+	@Autowired
+	private IdentityService workflowIdentityService;
 
 	public void login(String username){
 		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("superAdminRole");
 		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(username, null, Lists.newArrayList(superAdminRoleAuthority)));
+		workflowIdentityService.setAuthenticatedUserId(username);
 	}
 	
 	public void logout(){
 		SecurityContextHolder.clearContext();
+		workflowIdentityService.setAuthenticatedUserId(null);
 	}
 }

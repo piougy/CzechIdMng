@@ -55,11 +55,13 @@ public class HistoryProcessAndTaskTest extends AbstractIntegrationTest {
 
 	@Test(priority = 1)
 	public void deployAndRunProcess() {
+		//Deploy process
 		InputStream is = this.getClass().getClassLoader()
 				.getResourceAsStream("eu/bcvsolutions/idm/core/workflow/history/testHistoryProcessAndTask.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "test.bpmn20.xml", is);
 		assertNotNull(deploymentDto);
 
+		//Start instance of process
 		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, TestUtils.TEST_USER_1, null,
 				null);
 		assertEquals(PROCESS_KEY, instance.getName());

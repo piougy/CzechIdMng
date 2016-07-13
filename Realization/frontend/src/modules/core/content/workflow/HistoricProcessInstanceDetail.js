@@ -84,6 +84,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
           <Advanced.Table
             ref="tableTasks"
             uiKey="table-tasks"
+            pagination={false}
             forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
             <Advanced.Column property="name" sort={false} face="text"/>

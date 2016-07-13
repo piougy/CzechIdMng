@@ -9,7 +9,7 @@ import * as Basic from '../../basic';
 /**
  * Single navigation item
  */
-export default class NavigationItem extends Basic.AbstractComponent {
+export default class NavigationItem extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -24,13 +24,20 @@ export default class NavigationItem extends Basic.AbstractComponent {
       return null;
     }
 
+    if (!to) {
+      this.getLogger().error(`Navigation item [${id}] in module descriptor has to be repaired. Target link is undefined and will be hidden.`);
+      return null;
+    }
+
     return (
       <li className={itemClassNames} {...others}>
         <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title} delayShow={200}>
-          <Link to={to} className={linkClassNames}>
-            <Basic.Icon icon={showLoading ? 'refresh' : icon ? icon : 'fa:circle-o'} color={iconColor} showLoading={showLoading}/>
-            {text}
-          </Link>
+          {
+            <Link to={to} className={linkClassNames}>
+              <Basic.Icon icon={showLoading ? 'refresh' : icon ? icon : 'fa:circle-o'} color={iconColor} showLoading={showLoading}/>
+              {text}
+            </Link>
+          }
         </Basic.Tooltip>
       </li>
     );

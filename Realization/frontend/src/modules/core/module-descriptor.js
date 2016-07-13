@@ -150,6 +150,7 @@ module.exports = {
         'icon': 'fa:sitemap',
         'order': 40,
         'iconColor': '#428BCA',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
           {
             'id': 'workflow-definitions',

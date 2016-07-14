@@ -34,6 +34,7 @@ class Button extends AbstractComponent {
       rendered,
       title,
       titlePlacement,
+      titleDelayShow,
        ...others
     } = this.props;
     //
@@ -53,7 +54,7 @@ class Button extends AbstractComponent {
     }
     //
     return (
-      <Tooltip placement={titlePlacement} value={title}>
+      <Tooltip placement={titlePlacement} value={title} delayShow={titleDelayShow}>
         <button
           type={type ? type : 'button'}
           disabled={disabled || showLoading}
@@ -102,9 +103,13 @@ Button.propTypes = {
    */
   showLoadingText: PropTypes.string,
   /**
-   * Help icon title position
+   * Title position
    */
-  titlePlacement: PropTypes.oneOf(['top', 'bottom', 'right', 'left'])
+  titlePlacement: PropTypes.oneOf(['top', 'bottom', 'right', 'left']),
+  /**
+   * Title show delay
+   */
+  titleDelayShow: PropTypes.number
 };
 Button.defaultProps = {
   ...AbstractComponent.defaultProps,

@@ -34,18 +34,18 @@ public interface SecurityService {
 	String getOriginalUsername();
 	
 	/**
-	 * Returns currently logged identity's role names
+	 * Returns currently logged identity's authorities
 	 * 
-	 * @return role names
+	 * @return authorities names
 	 */
-	Set<String> getAllRoleNames();
+	Set<String> getAllAuthorities();
 
 	/**
-	 * Returns true, if currently logged identity has at least one of given roles
+	 * Returns true, if currently logged identity has at least one of given authority
 	 * 
-	 * @param roleNames
-	 * @return true, if currently logged identity has at least one of given roles
+	 * @param authorities
+	 * @return true, if currently logged identity has at least one of given authority
 	 */
-	boolean hasAnyRole(String... roleNames);
+	boolean hasAnyAuthority(String... authorities);
 
 }

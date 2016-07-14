@@ -234,6 +234,31 @@ export default class EntityManager {
   }
 
   /**
+   * Update entity
+   *
+   * @param  {object} entity - Entity to update
+   * @param  {string} uiKey = null - ui key for loading indicator etc
+   * @param  {func} cb - function will be called after entity is updated or error occured
+   * @return {object} - action
+   */
+  updateEntity(entity, uiKey = null, cb = null) {
+    if (!entity) {
+      return;
+    }
+    uiKey = this.resolveUiKey(uiKey, entity.id);
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(entity.id, uiKey));
+      this.getService().updateById(entity.id, entity)
+      .then(json => {
+        dispatch(this.receiveEntity(entity.id, json, uiKey, cb));
+      })
+      .catch(error => {
+        dispatch(this.receiveError(entity, uiKey, error, cb));
+      });
+    }
+  }
+
+  /**
    * Patch entity
    *
    * @param  {object} entity - Entity to patch
@@ -442,7 +467,7 @@ export default class EntityManager {
    * @return {object} - action
    */
   receiveError(entity, uiKey = null, error = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, entity.id);
+    uiKey = this.resolveUiKey(uiKey, entity ? entity.id : null);
     return (dispatch, getState) => {
       if (cb) {
         cb(null, error);
@@ -454,7 +479,7 @@ export default class EntityManager {
       }
       dispatch({
         type: RECEIVE_ERROR,
-        id: entity.id,
+        id: entity ? entity.id : null,
         uiKey,
         error
       });

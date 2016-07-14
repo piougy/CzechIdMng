@@ -40,6 +40,7 @@ log4js.configure({
       layout: {
         type: 'pattern',
         //pattern: '%d{ISO8601} [%-5p%] %c %m'
+        //pattern: '%d{ISO8601} [%p] %n%m',
         pattern: '[%p] %m'
       }
     }

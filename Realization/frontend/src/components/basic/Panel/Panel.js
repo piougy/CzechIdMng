@@ -116,7 +116,7 @@ export class PanelBody extends AbstractComponent {
   }
 
   render() {
-    const { className, rendered, ...other } = this.props;
+    const { className, rendered, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -126,7 +126,7 @@ export class PanelBody extends AbstractComponent {
     );
 
     return (
-      <div className={classNames}>
+      <div className={classNames} {...others}>
         <Loading showLoading={this.props.showLoading}>
           {this.props.children}
         </Loading>

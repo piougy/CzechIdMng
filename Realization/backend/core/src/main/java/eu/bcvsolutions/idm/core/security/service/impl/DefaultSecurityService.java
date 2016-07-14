@@ -47,27 +47,27 @@ class DefaultSecurityService implements SecurityService {
 	}
 
 	@Override
-	public Set<String> getAllRoleNames() {
-		Set<String> roleNames = new HashSet<>();
+	public Set<String> getAllAuthorities() {
+		Set<String> authorities = new HashSet<>();
 		Authentication authentication = getAuthentication();		
 		if (!authentication.isAuthenticated()) {
-			return roleNames;
+			return authorities;
 		}
 		for (GrantedAuthority authority : getAuthentication().getAuthorities()) {
-			roleNames.add(authority.getAuthority());
+			authorities.add(authority.getAuthority());
 		}
-		return roleNames;
+		return authorities;
 	}
 
 	@Override
-	public boolean hasAnyRole(String... roleNames) {
-		if (roleNames == null || roleNames.length == 0) {
+	public boolean hasAnyAuthority(String... authorities) {
+		if (authorities == null || authorities.length == 0) {
 			return false;
 		}
-		Set<String> requiredRoleNames = new HashSet<>(Arrays.asList(roleNames));
-		Set<String> allRoleNames = getAllRoleNames();
+		Set<String> requiredAuthorities = new HashSet<>(Arrays.asList(authorities));
+		Set<String> allAuthorities = getAllAuthorities();
 
-		return CollectionUtils.containsAny(requiredRoleNames, allRoleNames);
+		return CollectionUtils.containsAny(requiredAuthorities, allAuthorities);
 	}
 
 }

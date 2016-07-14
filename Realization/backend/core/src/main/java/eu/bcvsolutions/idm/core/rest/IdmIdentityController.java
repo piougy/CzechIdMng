@@ -43,8 +43,8 @@ public class IdmIdentityController {
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		// TODO: settingResource + superAdminRole
-		if (!securityService.hasAnyRole("superAdminRole") && !StringUtils.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
+		// TODO: settingResource + SYSTEM_ADMIN
+		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
 			throw new RestApplicationException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}
 		identity.setPassword(passwordChangeDto.getNewPassword());

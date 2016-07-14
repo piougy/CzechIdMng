@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -73,17 +75,19 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				privilege3.setRole(superAdminRole);
 				privilege3.setTargetPermission(IdmGroupPermission.USER);
 				privilege3.setActionPermission(IdmBasePermission.READ);
-				superAdminRole.getAuthorities().add(privilege3);
+				List<IdmRoleAuthority> authorities = new ArrayList<>();
+				authorities.add(privilege3);
 				IdmRoleAuthority privilege2 = new IdmRoleAuthority();
 				privilege2.setRole(superAdminRole);
 				privilege2.setTargetPermission(IdmGroupPermission.USER);
 				privilege2.setActionPermission(CustomBasePermission.ADMIN);
-				superAdminRole.getAuthorities().add(privilege2);
+				authorities.add(privilege2);
 				IdmRoleAuthority privilege = new IdmRoleAuthority();
 				privilege.setRole(superAdminRole);
 				privilege.setTargetPermission(CustomGroupPermission.SYSTEM);
 				privilege.setActionPermission(CustomBasePermission.ADMIN);
-				superAdminRole.getAuthorities().add(privilege);
+				authorities.add(privilege);
+				superAdminRole.setAuthorities(authorities);
 				superAdminRole = this.roleRepository.save(superAdminRole);
 				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
 				//

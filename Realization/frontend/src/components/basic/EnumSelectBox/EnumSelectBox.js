@@ -13,6 +13,7 @@ class EnumSelectBox extends SelectBox {
 
   constructor(props) {
     super(props);
+    this.useSymbol= true;
   }
 
   getOptions (input, callback) {
@@ -109,61 +110,93 @@ class EnumSelectBox extends SelectBox {
   }
 
   normalizeValue(value) {
-   if (value){
+    if (value){
       //value is array ... enum multiselect
       if (value instanceof Array && this.props.multiSelect === true && typeof value[0] == 'symbol'){
         let valueArray = [];
         for (let item of value) {
-         if (typeof item == 'symbol') {
+          if (typeof item == 'symbol') {
             //value is symbol
             let objectItem = this.itemRenderer(item, this._findKeyBySymbol(item));
             //add item to array
             valueArray.push(objectItem);
-         }
-       }
-       return valueArray;
-     }else if (typeof value == 'symbol') {
+          }
+        }
+        return valueArray;
+      } else if (typeof value == 'symbol') {
         //value is symbol
         return this.itemRenderer(value, this._findKeyBySymbol(value));
-     }else if (typeof value == 'string') {
+      } else if (typeof value == 'string') {
         //value is string any selectBox
+        this.useSymbol = false;
         return this.itemRenderer({value: value});
-     }else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] == 'string'){
-       //value is string array ... any multiselect
-         let valueArray = [];
-         for (let item of value) {
+      } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] == 'string') {
+        //value is string array ... any multiselect
+        this.useSymbol = false;
+        let valueArray = [];
+        for (let item of value) {
           if (typeof item == 'string') {
-             //value is string
-             let objectItem =   this.itemRenderer({value: item});
-             //add item to array
-             valueArray.push(objectItem);
+            //value is string
+            let objectItem =   this.itemRenderer({value: item});
+            //add item to array
+            valueArray.push(objectItem);
           }
         }
         return valueArray;
       }
-   }
-   return value;
- }
-
- getValue(){
-   if (!this.state.value){
-     return null;
-   }
-
-   //value is array ... multiselect
-  if (this.state.value instanceof Array && this.props.multiSelect === true){
-    let copyValue = [];
-    for (let item of this.state.value) {
-      copyValue.push((this._deletePrivateField(merge({},item))).value);
     }
-    return copyValue;
-  } else {
-    //value is not array
-    let copyValue = merge({},this.state.value);
-    this._deletePrivateField(copyValue);
-    return copyValue.value;
+    return value;
   }
- }
+
+  getValue(){
+    if (!this.state.value){
+      return null;
+    }
+
+    //value is array ... multiselect
+    if (this.state.value instanceof Array && this.props.multiSelect === true) {
+      let copyValue = [];
+      for (let item of this.state.value) {
+        copyValue.push(this._convertValue((this._deletePrivateField(merge({},item))).value));
+      }
+      return copyValue;
+    } else {
+      //value is not array
+      let copyValue = merge({},this.state.value);
+      this._deletePrivateField(copyValue);
+      return this._convertValue(copyValue.value);
+    }
+  }
+
+  /**
+   * Converts value to / from symbol - is dependent on input - when input is string - results is string. Enum property has to be setted.
+   *
+   * @param  {[type]} value selected value
+   * @return {string|symbol}
+   */
+  _convertValue(value) {
+    if (!value) {
+      // nothing to convert
+      return value;
+    }
+    if (!this.props.enum) {
+      // Enum property has to be setted - when option props is given, then nothing can be done.
+      return value;
+    }
+    //
+    let convertedValue = value;
+    if (this.useSymbol) {
+      if (typeof value != 'symbol') {
+        convertedValue = this.props.enum.findSymbolByKey(value);
+      }
+    } else {
+      if (typeof value == 'symbol') {
+        convertedValue = this.props.enum.findKeyBySymbol(value);
+      }
+    }
+    this.getLogger().trace('[Basic.EnumSelectBox] converted value:', convertedValue);
+    return convertedValue;
+  }
 
   getSelectComponent(){
     const { ref, labelSpan, label, componentSpan, placeholder, style, readOnly, required, multiSelect, fieldLabel } = this.props;

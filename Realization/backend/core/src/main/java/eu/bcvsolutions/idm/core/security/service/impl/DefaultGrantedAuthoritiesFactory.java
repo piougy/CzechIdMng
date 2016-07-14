@@ -44,7 +44,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 				.filter(ir -> !ir.getRole().isDisabled()) //
 				.forEach(ir -> {
 					ir.getRole().getAuthorities().forEach(roleAuthority -> {
-						grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.toAuthority()));
+						grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
 					});
 				});
 		return Lists.newArrayList(grantedAuthorities);

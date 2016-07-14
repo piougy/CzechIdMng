@@ -16,6 +16,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
@@ -43,7 +45,8 @@ public class IdmRole extends AbstractEntity {
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
 	
-	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleAuthority> authorities;
 
 	public String getName() {
@@ -86,6 +89,12 @@ public class IdmRole extends AbstractEntity {
 	}
 
 	public void setAuthorities(List<IdmRoleAuthority> authorities) {
-		this.authorities = authorities;
+		// workaround - orphan removal needs to preserve original list reference
+		if (this.authorities == null) {
+	        this.authorities = authorities;
+	    } else {
+	        this.authorities.clear();
+	        this.authorities.addAll(authorities);
+	    }
 	}
 }

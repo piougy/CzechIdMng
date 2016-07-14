@@ -10,6 +10,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import eu.bcvsolutions.idm.core.model.domain.BasePermission;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.GroupPermission;
@@ -28,6 +30,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	public static final String TARGET_ACTION_SEPARATOR = "_";
 
 	@NotNull
+	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
 	private IdmRole role;
@@ -78,7 +81,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 		this.action = permission == null ? null : permission.getName();
 	}
 	
-	public String toAuthority() {
+	public String getAuthority() {
 		return target + TARGET_ACTION_SEPARATOR + action;
 	}
 }

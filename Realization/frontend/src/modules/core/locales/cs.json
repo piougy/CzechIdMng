@@ -580,6 +580,25 @@
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
         "currentActivity": "Stav žádosti"
+      },
+      "setting": {
+        "basic": {
+          "header": "Základní nastavení role"
+        },
+        "system": {
+          "info": "Systémové role jsou určeny pro procesy samotné aplikace. U systémové role lze měnit pouze nastavení nezávislé na aplikační logice."
+        },
+        "authority": {
+          "header": "Přidělená oprávnění <small>kategorie</small>",
+          "select": {
+            "none": "Odebrat všechna nastavená oprávnění v dané kategorii",
+            "all": "Přidat všechna oprávnění v dané kategorii"
+          },
+          "group": {
+            "hide": "Skrýt nastavení základních oprávnění v dané kategorii",
+            "show": "Zobrazit nastavení základních oprávnění v dané kategorii"
+          }
+        }
       }
     },
     "user": {

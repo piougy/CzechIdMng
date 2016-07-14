@@ -15,6 +15,10 @@ export default class RoleTypeEnum extends AbstractEnum {
     return super.findKeyBySymbol(this, sym);
   }
 
+  static findSymbolByKey(key) {
+    return super.findSymbolByKey(this, key);
+  }
+
   static getLevel(key) {
     if (!key) {
       return null;

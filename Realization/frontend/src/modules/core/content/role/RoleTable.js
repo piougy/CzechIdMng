@@ -11,6 +11,8 @@ import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
+//
+import authorityHelp from './Authority_cs.md';
 
 /**
 * Table of roles
@@ -21,6 +23,8 @@ export class RoleTable extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       filterOpened: this.props.filterOpened,
+      selectedAuthorities: null,
+      openedAuthorities: new Immutable.Set(),
       detail: {
         show: false,
         entity: {}
@@ -53,18 +57,61 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    this.getLogger().debug('show entity', entity);
+    const { roleManager, uiKey } = this.props;
+    const { detail, openedAuthorities } = this.state;
     //
+    this.getLogger().debug(`[RoleTable] load entity detail [id:${entity.name}]`);
     this.setState({
       detail: {
-        show: true,
-        showLoading: false,
-        entity: entity
+        ...detail,
+        showLoading: true,
+        show: true
       }
-    }, () => {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
     });
+    //
+    if (Utils.Entity.isNew(entity)) {
+      this._setSelectedAuthorities(entity);
+    } else {
+      this.context.store.dispatch(roleManager.fetchEntity(entity.name, `${uiKey}-${entity.name}`, (loadedEntity, error) => {
+        if (error) {
+          this.addError(error);
+        } else {
+          this._setSelectedAuthorities(loadedEntity);
+        }
+      }));
+    }
+  }
+
+  _setSelectedAuthorities(entity) {
+    const { roleManager } = this.props;
+    //
+    this.context.store.dispatch(roleManager.fetchAvailableAuthorities((availableAuthorities) => {
+      // fill selected authorities
+      const roleAuthorities = !entity || !entity.authorities ? [] : entity.authorities.map(roleAuthority => {
+        return roleAuthority.authority;
+      });
+      let selectedAuthorities = new Immutable.OrderedMap();
+      availableAuthorities.forEach(authorityGroup => {
+        let permissions = new Immutable.OrderedMap();
+        authorityGroup.permissions.forEach(permission => {
+          permissions = permissions.set(permission, _.includes(roleAuthorities, `${authorityGroup.name}_${permission}`));
+        });
+        selectedAuthorities = selectedAuthorities.set(authorityGroup.name, permissions);
+      });
+      //
+      this.getLogger().debug(`[RoleTable] loaded entity detail [id:${entity.name}]`, entity);
+      this.setState({
+        selectedAuthorities: selectedAuthorities,
+        detail: {
+          show: true,
+          showLoading: false,
+          entity: entity
+        }
+      }, () => {
+        this.refs.form.setData(entity);
+        this.refs.name.focus();
+      });
+    }));
   }
 
   closeDetail() {
@@ -83,10 +130,21 @@ export class RoleTable extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const entity = this.refs.form.getData();
-    // TODO: is this transformation nesessary? Maybe enum selectbox component shoul make transformation itself, when input value is string.
-    entity.roleType = RoleTypeEnum.findKeyBySymbol(entity.roleType);
-    this.getLogger().debug('save entity', entity);
+    let entity = this.refs.form.getData();
+    // append selected authorities
+    entity.authorities = [];
+    this.state.selectedAuthorities.forEach((permissions, authorityGroupName) => {
+      permissions.forEach((selected, permission) => {
+        if (selected) {
+          entity.authorities.push({
+            target: authorityGroupName,
+            action: permission
+          });
+        }
+      });
+    });
+    //
+    this.getLogger().debug('[RoleTable] save entity', entity);
     const { roleManager, uiKey } = this.props;
     //
     if (entity.id === undefined) {
@@ -127,9 +185,53 @@ export class RoleTable extends Basic.AbstractContent {
     });
   }
 
+  onPermissionSelect(authorityGroup, permission, event) {
+    this.setState({
+      selectedAuthorities: this.state.selectedAuthorities.setIn([authorityGroup, permission], event.currentTarget.checked)
+    });
+  }
+
+  onAuthorityGroupToogle(authorityGroup, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    let { openedAuthorities } = this.state;
+    this.setState({
+      openedAuthorities: openedAuthorities.has(authorityGroup) ? openedAuthorities.delete(authorityGroup) : openedAuthorities.clear().add(authorityGroup)
+    });
+  }
+
+  isAllAuthorityGroupSelected(authorityGroup) {
+    const { selectedAuthorities } = this.state;
+    return selectedAuthorities.get(authorityGroup).reduce((result, selected) => { return result && selected }, true);
+  }
+
+  isSomeAuthorityGroupSelected(authorityGroup) {
+    const { selectedAuthorities } = this.state;
+    return selectedAuthorities.get(authorityGroup).reduce((result, selected) => { return result || selected }, false);
+  }
+
+  onBulkAuthorityGroupSelect(authorityGroup) {
+    let { selectedAuthorities } = this.state;
+    const isSomeSelected = this.isSomeAuthorityGroupSelected(authorityGroup);
+    selectedAuthorities.get(authorityGroup).forEach((selected, permission) => {
+      selectedAuthorities = selectedAuthorities.setIn([authorityGroup, permission], !isSomeSelected);
+    });
+    this.setState({
+      selectedAuthorities: selectedAuthorities
+    });
+  }
+
+  isDisabledSystemRole(entity) {
+    if (Utils.Entity.isNew(entity)) {
+      return false;
+    }
+    return entity.roleType === RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.SYSTEM);
+  }
+
   render() {
     const { uiKey, roleManager, columns, _showLoading } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { filterOpened, detail, selectedAuthorities, openedAuthorities } = this.state;
 
     return (
       <div>
@@ -170,7 +272,7 @@ export class RoleTable extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
+              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) })}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -199,34 +301,117 @@ export class RoleTable extends Basic.AbstractContent {
         </Advanced.Table>
 
         <Basic.Modal
-          bsSize="default"
+          bsSize="large"
           show={detail.show}
+          showLoading={detail.showLoading}
           onHide={this.closeDetail.bind(this)}
           backdrop="static"
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined }/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
-                <Basic.TextField
-                  ref="name"
-                  label={this.i18n('entity.Role.name')}
-                  required/>
-                <Basic.EnumSelectBox
-                  ref="roleType"
-                  label={this.i18n('entity.Role.roleType')}
-                  enum={RoleTypeEnum}
-                  />
-                <Basic.Checkbox
-                  ref="disabled"
-                  label={this.i18n('entity.Role.disabled')}/>
-                <Basic.Checkbox
-                  ref="approvable"
-                  label={this.i18n('entity.Role.approvable')}
-                  className="last"/>
-              </Basic.AbstractForm>
+              <Basic.Loading showLoading={_showLoading}>
+                <Basic.Alert icon="info-sign" rendered={this.isDisabledSystemRole(detail.entity)} text={this.i18n('setting.system.info')}>
+
+                </Basic.Alert>
+                <Basic.Row>
+                  <div className="col-lg-8">
+                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
+                    <Basic.AbstractForm ref="form">
+                      <Basic.TextField
+                        ref="name"
+                        label={this.i18n('entity.Role.name')}
+                        required
+                        disabled={this.isDisabledSystemRole(detail.entity)}/>
+                      <Basic.EnumSelectBox
+                        ref="roleType"
+                        label={this.i18n('entity.Role.roleType')}
+                        enum={RoleTypeEnum}
+                        required
+                        disabled={this.isDisabledSystemRole(detail.entity)}/>
+                      <Basic.Checkbox
+                        ref="disabled"
+                        label={this.i18n('entity.Role.disabled')}
+                        disabled={this.isDisabledSystemRole(detail.entity)}/>
+                      <Basic.Checkbox
+                        ref="approvable"
+                        label={this.i18n('entity.Role.approvable')}
+                        className="last"/>
+                    </Basic.AbstractForm>
+                  </div>
+                  <div className="col-lg-4">
+                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
+                      <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
+                      <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
+                      <div className="clearfix"/>
+                    </h3>
+                    {
+                      !selectedAuthorities
+                      ||
+                      selectedAuthorities.map((permissions, authorityGroupName) => {
+                        return (
+                          <div>
+                            <Basic.Panel style={{ marginBottom: 2 }}>
+                              <Basic.PanelHeader style={{ padding: '0 10px 0 0' }}>
+                                <div className="pull-left">
+                                  <Basic.Button
+                                    level="link"
+                                    onClick={ this.onBulkAuthorityGroupSelect.bind(this, authorityGroupName) }
+                                    style={{ color: '#333', textDecoration: 'none' }}
+                                    title={ this.isSomeAuthorityGroupSelected(authorityGroupName) ? this.i18n('setting.authority.select.none') : this.i18n('setting.authority.select.all') }
+                                    titlePlacement="left"
+                                    titleDelayShow={1000}
+                                    disabled={this.isDisabledSystemRole(detail.entity)}>
+                                    <Basic.Icon value="fa:check-square-o" rendered={ this.isAllAuthorityGroupSelected(authorityGroupName) }/>
+                                    <Basic.Icon value="fa:minus-square-o" rendered={ this.isSomeAuthorityGroupSelected(authorityGroupName) && !this.isAllAuthorityGroupSelected(authorityGroupName) }/>
+                                    <Basic.Icon value="fa:square-o" rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
+                                    {' '}
+                                    { authorityGroupName }
+                                  </Basic.Button>
+                                </div>
+                                <div className="pull-right">
+                                  <Basic.Button
+                                    className="btn-xs"
+                                    onClick={this.onAuthorityGroupToogle.bind(this, authorityGroupName)}
+                                    style={{ display: 'inline-block', marginTop: 6 }}
+                                    title={openedAuthorities.has(authorityGroupName) ? this.i18n('setting.authority.group.hide') : this.i18n('setting.authority.group.show') }
+                                    titleDelayShow={ 500 }>
+                                    <Basic.Icon value={openedAuthorities.has(authorityGroupName) ? 'fa:angle-double-up' : 'fa:angle-double-down'}/>
+                                  </Basic.Button>
+                                </div>
+                                <div className="clearfix"></div>
+                              </Basic.PanelHeader>
+                              <Basic.Collapse in={openedAuthorities.has(authorityGroupName)}>
+                                <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                  {
+                                    permissions.map((selected, permission) => {
+                                      return (
+                                        <div className="checkbox">
+                                          <label>
+                                            <input
+                                              type="checkbox"
+                                              onChange={this.onPermissionSelect.bind(this, authorityGroupName, permission)}
+                                              style={{ marginBottom: 0 }}
+                                              checked={selected}
+                                              disabled={this.isDisabledSystemRole(detail.entity)}/>
+                                              {permission}
+                                          </label>
+                                        </div>
+                                      );
+                                    })
+                                  }
+                                </Basic.PanelBody>
+                              </Basic.Collapse>
+                            </Basic.Panel>
+                          </div>
+                        );
+                      })
+                    }
+                  </div>
+                </Basic.Row>
+              </Basic.Loading>
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

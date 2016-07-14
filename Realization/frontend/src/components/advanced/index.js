@@ -19,7 +19,6 @@ var Components = {
   ColumnLink: ColumnLink,
   IdentityInfo: IdentityInfo,
   Navigation: Navigation,
-  _NavigationItem: NavigationItem,
   TabPanel: TabPanel,
   Filter: Filter,
   _ToogleButton: Filter.ToogleButton,

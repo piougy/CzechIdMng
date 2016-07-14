@@ -25,7 +25,7 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
     }
 
     if (!to) {
-      this.getLogger().error(`Navigation item [${id}] in module descriptor has to be repaired. Target link is undefined and will be hidden.`);
+      this.getLogger().error(`[Advanced.NavigationItem] item [${id}] in module descriptor has to be repaired. Target link is undefined and will be hidden.`);
       return null;
     }
 

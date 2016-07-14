@@ -1,7 +1,9 @@
 'use strict';
 
 import AbstractService from './AbstractService';
+import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
+import * as Utils from '../utils';
 
 class RoleService extends AbstractService {
 
@@ -23,6 +25,20 @@ class RoleService extends AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
+  }
+
+  getAvailableAuthorities() {
+    return RestApiService
+    .get(RestApiService.getUrl('/authorities/available'))
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
   }
 }
 

@@ -88,4 +88,14 @@ export default class EntityUtils {
     }
     return true;
   }
+
+  /**
+   * Returns true, if entity does not contain id (respectively entity._links.self)
+   *
+   * @param  {object}  entity
+   * @return {Boolean}
+   */
+  static isNew(entity) {
+    return !entity || !entity._links || !entity._links.self;
+  }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
@@ -37,17 +38,32 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
 		}
 
-		// unique set of permissions
+		// unique set of permissions from all active identity roles and subroles
 		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
 		identity.getRoles().stream() //
 				.filter(EntityUtils::isValid) //
-				.filter(identityRole -> !identityRole.getRole().isDisabled()) //
 				.forEach(identityRole -> {
-					identityRole.getRole().getAuthorities().forEach(roleAuthority -> {
-						grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
-					});
+					grantedAuthorities.addAll(getActiveRoleAuthorities(identityRole.getRole(), new HashSet<>()));
 				});
 		return Lists.newArrayList(grantedAuthorities);
+	}
+	
+	private Set<DefaultGrantedAuthority> getActiveRoleAuthorities(IdmRole role, Set<IdmRole> processedRoles) {
+		processedRoles.add(role);
+		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
+		if (role.isDisabled()) {
+			return grantedAuthorities;
+		}
+		role.getAuthorities().forEach(roleAuthority -> {
+			grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
+		});
+		// sub roles
+		role.getSubRoles().forEach(subRole -> {
+			if (!processedRoles.contains(subRole.getSubRole())) {
+				grantedAuthorities.addAll(getActiveRoleAuthorities(subRole.getSubRole(), processedRoles));
+			}
+		});
+		return grantedAuthorities;
 	}
 
 	@Override

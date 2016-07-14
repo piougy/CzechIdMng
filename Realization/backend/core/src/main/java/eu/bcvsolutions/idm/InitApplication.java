@@ -17,12 +17,14 @@ import eu.bcvsolutions.idm.core.model.domain.CustomBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
@@ -70,6 +72,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				//
 				superAdminRole = new IdmRole();
 				superAdminRole.setName("superAdminRole");
+				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
 				superAdminRole.setApprovable(true);				
 				IdmRoleAuthority privilege3 = new IdmRoleAuthority();
 				privilege3.setRole(superAdminRole);
@@ -98,6 +101,9 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				//			
 				IdmRole role2 = new IdmRole();
 				role2.setName("customRole");
+				List<IdmRoleComposition> subRoles = new ArrayList<>();
+				subRoles.add(new IdmRoleComposition(role2, role1));
+				role2.setSubRoles(subRoles);
 				role2 = this.roleRepository.save(role2);
 				log.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//

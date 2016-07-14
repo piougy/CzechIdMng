@@ -2,9 +2,9 @@
 
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import merge from 'object-assign';
 import Select from 'react-select';
 import Joi from 'joi';
+import _ from 'lodash';
 //
 import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
@@ -29,7 +29,6 @@ class SelectBox extends AbstractFormComponent {
     }
     return Joi.object().required();
   }
-
 
   getOptions (input, callback) {
     const { manager } =  this.props;
@@ -63,14 +62,18 @@ class SelectBox extends AbstractFormComponent {
 
     //value is array ... multiselect
     if (this.state.value instanceof Array && this.props.multiSelect === true) {
-      let copyValue = [];
+      let copyValues = [];
       for (let item of this.state.value) {
-        copyValue.push((this._deletePrivateField(merge({},item))).id);
+        // TODO: original ids could be in array - we dont want him - repair _searchAndSetById - setState async
+        let entityId = (this._deletePrivateField(_.merge({},item))).id;
+        if (entityId) {
+          copyValues.push(entityId);
+        }
       }
-      return copyValue;
+      return copyValues;
     } else {
       //value is not array
-      let copyValue = merge({},this.state.value);
+      let copyValue = _.merge({},this.state.value);
       this._deletePrivateField(copyValue);
       return copyValue.id;
     }
@@ -102,17 +105,23 @@ class SelectBox extends AbstractFormComponent {
       }, () => {
         //value is array ... multiselect
         if (value instanceof Array && this.props.multiSelect === true){
-          for (let item of value) {
-            if (item instanceof Object && !item.itemFullKey) {
-              //value is object but doesn't have itemFullKey attribute
-              this.itemRenderer(item,'');
-              this.setState({isLoading: false});
-            }else if (typeof item == 'string') {
-              //value is string, we try load entity by id
-              this._searchAndSetById(item, true);
-            }else {
-              this.setState({isLoading: false});
+          if (_.isEmpty(value)) {
+            this.setState({
+              isLoading: false
+            });
+          } else {
+            for (let item of _.clone(value)) {
+              if (item instanceof Object && !item.itemFullKey) {
+                //value is object but doesn't have itemFullKey attribute
+                this.itemRenderer(item,'');
+              } else if ((typeof item == 'string') || (typeof item == 'number')) {
+                //value is string, we try load entity by id
+                this._searchAndSetById(item, true);
+              }
             }
+            this.setState({
+              isLoading: false
+            });
           }
         } else if (value instanceof Object && !value.itemFullKey){
           //value is object but doesn't have itemFullKey attribute
@@ -139,19 +148,21 @@ class SelectBox extends AbstractFormComponent {
         this.itemRenderer(json, '');
         let result = json;
         if (isArray === true) {
+          // TODO: tohle funguje jen dilem nahody - valueArray naprimo modifikuje stav pres referenci ... pres setState by se to cyklilo z duvodu async - volani dispatch v cyklu vne tyhle metody
           let valueArray = this.state.value;
           //if is value null or if contains string (not Object) we create new array
-          if (!valueArray || typeof valueArray[0] == 'string'){
+          if (!valueArray) {
             valueArray = [];
           }
           //add item to array
           valueArray.push(json);
           result = valueArray;
-        }
-        this.setState({value: result, isLoading: false}, this.validate);
+        }// else {
+        //  this.setState({value: result, isLoading: false}, this.validate);
+      //  }
       } else {
         this.addError(error);
-        state({value: null, isLoading: false});
+        this.setState({value: null, isLoading: false});
       }
     }));
   }
@@ -194,7 +205,7 @@ class SelectBox extends AbstractFormComponent {
         }
       }
     }
-    merge(item,{[NICE_LABEL]:niceLabel, [ITEM_FULL_KEY] : itemFullKey})
+    _.merge(item,{[NICE_LABEL]:niceLabel, [ITEM_FULL_KEY] : itemFullKey})
   }
 
   getBody(feedback){
@@ -239,6 +250,14 @@ class SelectBox extends AbstractFormComponent {
     );
   }
 
+  _getPlaceholder(placeholder) {
+    if (placeholder !== null && placeholder !== undefined) {
+      return placeholder
+    }
+    // default placeholder
+    return this.i18n('label.select', { defaultValue: 'Select ...' });
+  }
+
   getSelectComponent() {
     const { ref, labelSpan, label, componentSpan, placeholder, style, readOnly, required, fieldLabel, multiSelect} = this.props;
     return <Select.Async
@@ -254,7 +273,7 @@ class SelectBox extends AbstractFormComponent {
       valueKey={ITEM_FULL_KEY}
       labelKey={fieldLabel}
       noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-      placeholder={placeholder}
+      placeholder={this._getPlaceholder(placeholder)}
       searchingText={this.i18n('component.basic.SelectBox.searchingText')}
       searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
       loadOptions={this.getOptions}/>

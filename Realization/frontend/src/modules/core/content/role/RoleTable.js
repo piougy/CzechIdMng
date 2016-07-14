@@ -76,6 +76,14 @@ export class RoleTable extends Basic.AbstractContent {
         if (error) {
           this.addError(error);
         } else {
+          // transform subroles to array of identifiers
+          loadedEntity.subRoles = loadedEntity.subRoles.map(subRole => {
+            return subRole._embedded.subRole.id;
+          });
+          // transform superiorRoles
+          loadedEntity.superiorRoles = loadedEntity.superiorRoles.map(superiorRole => {
+            return superiorRole._embedded.superiorRole.id;
+          });
           this._setSelectedAuthorities(loadedEntity);
         }
       }));
@@ -124,6 +132,8 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   save(event) {
+    const { roleManager, uiKey } = this.props;
+    //
     if (event) {
       event.preventDefault();
     }
@@ -143,9 +153,16 @@ export class RoleTable extends Basic.AbstractContent {
         }
       });
     });
+    // append subroles
+    entity.subRoles = entity.subRoles.map(subRoleId => {
+      return {
+        subRole: roleManager.getSelfLink(subRoleId)
+      }
+    });
+    // delete superior roles - cant be saved
+    delete entity.superiorRoles;
     //
     this.getLogger().debug('[RoleTable] save entity', entity);
-    const { roleManager, uiKey } = this.props;
     //
     if (entity.id === undefined) {
       this.context.store.dispatch(roleManager.createEntity(entity, `${uiKey}-detail`, (entity, error) => {
@@ -324,13 +341,25 @@ export class RoleTable extends Basic.AbstractContent {
                         ref="name"
                         label={this.i18n('entity.Role.name')}
                         required
-                        disabled={this.isDisabledSystemRole(detail.entity)}/>
+                        readOnly={this.isDisabledSystemRole(detail.entity)}/>
                       <Basic.EnumSelectBox
                         ref="roleType"
                         label={this.i18n('entity.Role.roleType')}
                         enum={RoleTypeEnum}
                         required
-                        disabled={this.isDisabledSystemRole(detail.entity)}/>
+                        readOnly={this.isDisabledSystemRole(detail.entity)}/>
+                      <Basic.SelectBox
+                        ref="superiorRoles"
+                        label={this.i18n('entity.Role.superiorRoles')}
+                        manager={roleManager}
+                        multiSelect={true}
+                        readOnly={true}
+                        placeholder=""/>
+                      <Basic.SelectBox
+                        ref="subRoles"
+                        label={this.i18n('entity.Role.subRoles')}
+                        manager={roleManager}
+                        multiSelect={true}/>
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}

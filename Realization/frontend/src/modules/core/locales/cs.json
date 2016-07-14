@@ -30,7 +30,8 @@
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
     "validFrom": "Platnost od",
-    "validTill": "Platnost do"
+    "validTill": "Platnost do",
+    "select": "Vyberte ..."
   },
   "button": {
     "add": "Přidat",
@@ -1009,7 +1010,10 @@
       "name": "Název role",
       "roleType": "Typ role",
       "disabled": "Neaktivní",
-      "approvable": "Schalovaná"
+      "approvable": "Schalovaná",
+      "superiorRoles": "Nadřazené role",
+      "subRoles": "Podřazené role",
+      "authorities": "Oprávnění"
     },
     "Setting": {
       "key": "Klíč",

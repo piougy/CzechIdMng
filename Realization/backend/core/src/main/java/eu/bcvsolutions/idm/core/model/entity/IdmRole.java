@@ -17,6 +17,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
@@ -48,6 +50,14 @@ public class IdmRole extends AbstractEntity {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleAuthority> authorities;
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "superiorRole", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<IdmRoleComposition> subRoles;
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@OneToMany(mappedBy = "subRole")
+	private List<IdmRoleComposition> superiorRoles;
 
 	public String getName() {
 		return name;
@@ -96,5 +106,33 @@ public class IdmRole extends AbstractEntity {
 	        this.authorities.clear();
 	        this.authorities.addAll(authorities);
 	    }
+	}
+	
+	public List<IdmRoleComposition> getSubRoles() {
+		if (subRoles == null) {
+			subRoles = new ArrayList<>();
+		}
+		return subRoles;
+	}
+	
+	public void setSubRoles(List<IdmRoleComposition> subRoles) {
+		// workaround - orphan removal needs to preserve original list reference
+		if (this.subRoles == null) {
+	        this.subRoles = subRoles;
+	    } else {
+	        this.subRoles.clear();
+	        this.subRoles.addAll(subRoles);
+	    }
+	}
+	
+	public List<IdmRoleComposition> getSuperiorRoles() {
+		if (superiorRoles == null) {
+			superiorRoles = new ArrayList<>();
+		}
+		return superiorRoles;
+	}
+	
+	public void setSuperiorRoles(List<IdmRoleComposition> superiorRoles) {
+		this.superiorRoles = superiorRoles;
 	}
 }

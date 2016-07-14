@@ -123,7 +123,6 @@ class Definitions extends Basic.AbstractContent {
             <Basic.Column property="name" header={this.i18n('name')} width="20%"/>
             <Basic.Column property="resourceName" header={this.i18n('resourceName')}  width="20%"/>
             <Basic.Column property="description" header={this.i18n('description')}  width="35%"/>
-            <Basic.Column property="id" header={this.i18n('id')}  />
             <Basic.Column property="version" header={this.i18n('version')}  width="5%"/>
           </Basic.Table>
         </Basic.Panel>

@@ -54,16 +54,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    this.setState({
-      detail: {
-        show: true,
-        showLoading: false,
-        entity: entity
-      }
-    }, () => {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    });
+    this.context.router.push('workflow/history/processes/'+entity.id)
   }
 
   closeDetail() {

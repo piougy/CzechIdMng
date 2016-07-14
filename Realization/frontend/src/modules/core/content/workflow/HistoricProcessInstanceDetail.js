@@ -84,6 +84,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
           <Advanced.Table
             ref="tableTasks"
             uiKey="table-tasks"
+            pagination={false}
             forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
             <Advanced.Column property="name" sort={false} face="text"/>
@@ -101,7 +102,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             </Basic.Button>
           </div>
         </Basic.PanelHeader>
-        <div style={{textAlign:'center'}}>
+        <div style={{textAlign:'center', marginBottom:'40px'}}>
           <img style={{maxWidth:'70%'}} src={diagramUrl}/>
         </div>
       </Basic.Panel>

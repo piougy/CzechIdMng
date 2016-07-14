@@ -32,6 +32,7 @@ public class WorkflowTaskInstanceDto {
 	private String applicant;
 	private String applicantFullName;
 	private List<IdentityLinkDto> identityLinks;
+	private String processInstanceId;
 
 	public String getId() {
 		return id;
@@ -140,6 +141,13 @@ public class WorkflowTaskInstanceDto {
 	public void setIdentityLinks(List<IdentityLinkDto> identityLinks) {
 		this.identityLinks = identityLinks;
 	}
-	
+
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
 
 }

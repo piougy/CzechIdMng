@@ -179,7 +179,7 @@ class Roles extends Basic.AbstractContent {
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', userID);
-    force = force.setFilter('processDefinitionKey', 'addRoleToIdentityWorkflow');
+    force = force.setFilter('processDefinitionKey', 'approveRoleBySuperAdminRole');
 
     //
     // sort entities by role name

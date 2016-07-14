@@ -21,6 +21,7 @@ public class WorkflowFilterDto {
 	private String processDefinitionKey;
 	private String processInstanceId;
 	private String name;
+	private String id;
 
 	public Map<String, Object> getEqualsVariables() {
 		if (equalsVariables == null) {
@@ -103,6 +104,14 @@ public class WorkflowFilterDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	@JsonIgnore

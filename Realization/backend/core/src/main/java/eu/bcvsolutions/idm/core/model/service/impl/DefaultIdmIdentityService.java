@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		// Check on exist duplication workflow
 		checkDuplicationWorkflow(identity, role, variables);
 
-		workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(),
+		workflowProcessInstanceService.startProcess("approveRoleBySuperAdminRole", IdmIdentity.class.getSimpleName(),
 				identity.getUsername(), identity.getId(), variables);
 		// TODO: if role is approved imediatelly, then return true (e.g. if
 		// request author is in approvers)
@@ -102,7 +103,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 */
 	private void checkDuplicationWorkflow(IdmIdentity identity, IdmRole role, Map<String, Object> variables) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessDefinitionKey(ADD_ROLE_TO_IDENTITY_WORKFLOW);
+		filter.setProcessDefinitionKey("approveRoleBySuperAdminRole");
 		filter.getEqualsVariables().putAll(variables);
 
 		ResourcesWrapper<WorkflowProcessInstanceDto> result = workflowProcessInstanceService.search(filter);
@@ -123,6 +124,24 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		IdmIdentity entity = identityRepository.findOne(id);
 		entity.getRoles();
 		return entity;
+	}
+	
+	/**
+	 * Find all identities usernames by assigned role
+	 * @param roleId
+	 * @return String with all found usernames separate with comma 
+	 */
+	public String findAllByRole(Long roleId){
+		List<IdmIdentity> identities =  identityRepository.findAllByRole(roleId);
+		if(identities == null){
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		for(IdmIdentity i : identities){
+			sb.append(i.getUsername());
+			sb.append(",");
+		}
+		return sb.toString();
 	}
 
 	@Override

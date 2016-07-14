@@ -40,7 +40,10 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		HistoricTaskInstanceQuery query = historyService.createHistoricTaskInstanceQuery();
 
 		query.includeProcessVariables();
-
+		
+		if (filter.getId() != null){
+			query.taskId(filter.getId());
+		}
 		if (processInstanceId != null) {
 			query.processInstanceId(processInstanceId);
 		}
@@ -57,7 +60,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
 		// TODO When I use two OR then is count wrong
 		//query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
-		// query.taskInvolvedUser(loggedUsername);
+		query.taskInvolvedUser(loggedUsername);
 		// TODO admin
 		query.endOr();
 
@@ -97,12 +100,12 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 	}
 
 	@Override
-	public WorkflowHistoricTaskInstanceDto get(String historicProcessInstanceId) {
+	public WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessInstanceId(historicProcessInstanceId);
+		filter.setId(historicTaskInstanceId);
 		filter.setSortAsc(true);
 		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> resource = this.search(filter);
-		return resource.getResources() != null ? resource.getResources().iterator().next() : null;
+		return resource.getResources() != null && !resource.getResources().isEmpty() ? resource.getResources().iterator().next() : null;
 	}
 
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {

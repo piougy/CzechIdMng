@@ -11,6 +11,6 @@ public interface WorkflowHistoricTaskInstanceService {
 
 	ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter);
 
-	WorkflowHistoricTaskInstanceDto get(String historicProcessInstanceId);
+	WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId);
 
 }

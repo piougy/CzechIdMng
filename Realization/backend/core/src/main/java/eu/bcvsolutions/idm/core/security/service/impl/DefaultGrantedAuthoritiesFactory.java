@@ -41,9 +41,9 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
 		identity.getRoles().stream() //
 				.filter(EntityUtils::isValid) //
-				.filter(ir -> !ir.getRole().isDisabled()) //
-				.forEach(ir -> {
-					ir.getRole().getAuthorities().forEach(roleAuthority -> {
+				.filter(identityRole -> !identityRole.getRole().isDisabled()) //
+				.forEach(identityRole -> {
+					identityRole.getRole().getAuthorities().forEach(roleAuthority -> {
 						grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
 					});
 				});

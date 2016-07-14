@@ -47,9 +47,6 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Autowired
 	private FormService formService;
-	
-	@Autowired
-	private IdentityService identityService;
 
 	@Autowired
 	private WorkflowTaskDefinitionService workflowTaskDefinitionService;
@@ -120,7 +117,6 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData) {
 		String loggedUser = securityService.getUsername();
-		identityService.setAuthenticatedUserId(loggedUser);
 		taskService.setAssignee(taskId, loggedUser);
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
@@ -142,6 +138,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		dto.setAssignee(task.getAssignee());
 		dto.setName(task.getName());
 		dto.setDescription(task.getDescription());
+		dto.setProcessInstanceId(task.getProcessInstanceId());
 
 		Map<String, Object> taksVariables = task.getTaskLocalVariables();
 		Map<String, Object> processVariables = task.getProcessVariables();
@@ -160,7 +157,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 		TaskFormData taskFormData = formService.getTaskFormData(task.getId());
 		
-		//Add form data (it means form properties and value form WF)
+		//Add form data (it means form properties and value from WF)
 		List<FormProperty> formProperties = taskFormData.getFormProperties();
 		if (formProperties != null && !formProperties.isEmpty()) {
 			for (FormProperty property : formProperties) {

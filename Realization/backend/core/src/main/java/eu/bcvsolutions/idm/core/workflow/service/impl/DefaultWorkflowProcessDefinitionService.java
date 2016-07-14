@@ -40,7 +40,7 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 			return processDefinitionDtos;
 		}
 		for (ProcessDefinition p : processDefinitions) {
-			processDefinitionDtos.add(convertToDto(p));
+			processDefinitionDtos.add(toResource(p));
 		}
 		return processDefinitionDtos;
 
@@ -57,7 +57,7 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		query.processDefinitionKey(definitionKey);
 		ProcessDefinition result = query.singleResult();
 		if (result != null) {
-			return convertToDto(result);
+			return toResource(result);
 		}
 		return null;
 	}
@@ -96,10 +96,10 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		return getDiagram(this.getProcessDefinitionId(definitionKey));
 	}
 
-	private WorkflowProcessDefinitionDto convertToDto(ProcessDefinition processDefinition) {
+	private WorkflowProcessDefinitionDto toResource(ProcessDefinition processDefinition) {
 
 		WorkflowProcessDefinitionDto dto = new WorkflowProcessDefinitionDto();
-		dto.setId(processDefinition.getId());
+		dto.setId(processDefinition.getKey());
 		dto.setCategory(processDefinition.getCategory());
 		dto.setDeploymentId(processDefinition.getDeploymentId());
 		dto.setDescription(processDefinition.getDescription());

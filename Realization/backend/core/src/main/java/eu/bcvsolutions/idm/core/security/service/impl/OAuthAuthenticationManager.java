@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.security.service.impl;
 
 import java.util.Date;
 
+import org.activiti.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,10 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 
 	@Autowired
 	private IdmIdentityRepository idmIdentityRepository;
+	
+	@Autowired
+	private IdentityService workflowIdentityService;
+	
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -46,6 +51,8 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException("Identity [" + usernameFromToken + "] is disabled!");
 		}
+		//Set logged user to workflow engine
+		workflowIdentityService.setAuthenticatedUserId(identity.getUsername());
 
 		return authentication;
 	}

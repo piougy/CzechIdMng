@@ -11,7 +11,7 @@ import Immutable from 'immutable';
 import * as Basic from '../../../../components/basic'
 import { IdentityService } from '../../../../modules/core/services';
 import { SettingManager } from '../../../../redux';
-import { SecurityManager, FormManager, IdentityManager } from '../../../../modules/core/redux';
+import { SecurityManager, DataManager, IdentityManager } from '../../redux';
 
 const RESOURCE_IDM = 'czechidm';
 
@@ -399,7 +399,7 @@ PasswordReset.defaultProps = {
 
 function select(state) {
   return {
-    usernames: FormManager.getData(state, 'selected-usernames') || []
+    usernames: DataManager.getData(state, 'selected-usernames') || []
   }
 }
 

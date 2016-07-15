@@ -7,12 +7,14 @@ import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import { RoleService } from '../../services';
+import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager } from '../../redux';
+import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager } from '../../redux';
+import AuthoritiesPanel from '../role/AuthoritiesPanel';
+import authorityHelp from '../role/AuthoritiesPanel_cs.md';
 
-const uiKey = 'identity-delegates';
-const roleService = new RoleService();
+const uiKey = 'identity-roles';
+const uiKeyAuthorities = 'identity-roles';
 const roleManager = new RoleManager();
 const identityRoleManager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
@@ -38,6 +40,7 @@ class Roles extends Basic.AbstractContent {
     this.selectSidebarItem('profile-roles');
     const { userID } = this.props.params;
     this.context.store.dispatch(identityRoleManager.fetchRoles(userID, `${uiKey}-${userID}`));
+    this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
   }
 
   componentWillReceiveProps(nextProps){
@@ -120,6 +123,8 @@ class Roles extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
+    const { userID } = this.props.params;
+    this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
     this.closeDetail();
   }
 
@@ -135,6 +140,7 @@ class Roles extends Basic.AbstractContent {
       this.context.store.dispatch(identityRoleManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('delete.success', { role: deletedEntity._embedded.role.name, username: userID }) });
+          this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
         } else {
           this.addError(error);
         }
@@ -175,7 +181,7 @@ class Roles extends Basic.AbstractContent {
 
   render() {
     const { userID } = this.props.params;
-    const { _entities, _showLoading } = this.props;
+    const { _entities, _showLoading, authorities } = this.props;
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', userID);
@@ -193,74 +199,93 @@ class Roles extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
         <Helmet title={this.i18n('title')} />
 
-        <Basic.Panel style={{ marginTop: 15 }}>
-          <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
-          {
-            _showLoading
-            ?
-            <Basic.Loading showLoading={true} className="static"/>
-            :
-            <div>
-              <Basic.Toolbar>
-                <div className="pull-right">
-                  <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
-                    <Basic.Icon value="fa:plus"/>
-                    {' '}
-                    {this.i18n('button.add')}
-                  </Basic.Button>
-                </div>
-                <div className="clearfix"></div>
-              </Basic.Toolbar>
-              <Basic.Table
-                data={entities}
-                showRowSelection={false}>
-                <Basic.Column
-                  header=""
-                  className="detail-button"
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <Advanced.DetailButton
-                          title={this.i18n('button.detail')}
-                          onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                      );
-                    }
-                  }
-                  sort={false}/>
-                <Basic.Column
-                  header={this.i18n('entity.IdentityRole.role')}
-                  property="_embedded.role.name"
-                  />
-                <Basic.Column
-                  property="validFrom"
-                  header={this.i18n('label.validFrom')}
-                  cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-                  />
-                <Basic.Column
-                  property="validTill"
-                  header={this.i18n('label.validTill')}
-                  cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-                <Basic.Column
-                  header={this.i18n('label.action')}
-                  className="action"
-                  cell={
-                    ({rowIndex, data, property, ...props}) => {
-                      return (
-                        <Basic.Button
-                          level="danger"
-                          onClick={this.onDelete.bind(this, data[rowIndex])}
-                          className="btn-xs"
-                          title={this.i18n('button.delete', { delegate: data[rowIndex]._embedded.role.name })}
-                          titlePlacement="bottom">
-                          <Basic.Icon icon="trash"/>
-                        </Basic.Button>
-                      );
-                    }
-                  }/>
-                </Basic.Table>
-              </div>
-            }
-          </Basic.Panel>
+        <Basic.Row>
+          <div className="col-lg-8">
+            <Basic.Panel style={{ marginTop: 15 }}>
+              <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
+              {
+                _showLoading
+                ?
+                <Basic.Loading showLoading={true} className="static"/>
+                :
+                <div>
+                  <Basic.Toolbar>
+                    <div className="pull-right">
+                      <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
+                        <Basic.Icon value="fa:plus"/>
+                        {' '}
+                        {this.i18n('button.add')}
+                      </Basic.Button>
+                    </div>
+                    <div className="clearfix"></div>
+                  </Basic.Toolbar>
+                  <Basic.Table
+                    data={entities}
+                    showRowSelection={false}>
+                    <Basic.Column
+                      header=""
+                      className="detail-button"
+                      cell={
+                        ({ rowIndex, data }) => {
+                          return (
+                            <Advanced.DetailButton
+                              title={this.i18n('button.detail')}
+                              onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                          );
+                        }
+                      }
+                      sort={false}/>
+                    <Basic.Column
+                      header={this.i18n('entity.IdentityRole.role')}
+                      property="_embedded.role.name"
+                      />
+                    <Basic.Column
+                      property="validFrom"
+                      header={this.i18n('label.validFrom')}
+                      cell={<Basic.DateCell format={this.i18n('format.date')}/>}
+                      />
+                    <Basic.Column
+                      property="validTill"
+                      header={this.i18n('label.validTill')}
+                      cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+                    <Basic.Column
+                      header={this.i18n('label.action')}
+                      className="action"
+                      cell={
+                        ({rowIndex, data, property, ...props}) => {
+                          return (
+                            <Basic.Button
+                              level="danger"
+                              onClick={this.onDelete.bind(this, data[rowIndex])}
+                              className="btn-xs"
+                              title={this.i18n('button.delete', { delegate: data[rowIndex]._embedded.role.name })}
+                              titlePlacement="bottom">
+                              <Basic.Icon icon="trash"/>
+                            </Basic.Button>
+                          );
+                        }
+                      }/>
+                    </Basic.Table>
+                  </div>
+                }
+              </Basic.Panel>
+            </div>
+
+            <div className="col-lg-4">
+              <Basic.Panel  style={{ marginTop: 15 }}>
+                <Basic.PanelHeader help={authorityHelp}>
+                  <h3><span dangerouslySetInnerHTML={{ __html: 'Přidělená oprávnění <small>dle přiřazných rolí</small>' }}/></h3>
+                </Basic.PanelHeader>
+                <Basic.PanelBody>
+                  <AuthoritiesPanel
+                    roleManager={roleManager}
+                    authorities={authorities}
+                    disabled={true}/>
+                </Basic.PanelBody>
+              </Basic.Panel>
+            </div>
+          </Basic.Row>
+
           <Basic.Panel>
             <Basic.PanelHeader text=  {this.i18n('addRoleProcesse.header')}/>
             <Advanced.Table
@@ -370,11 +395,13 @@ class Roles extends Basic.AbstractContent {
 
   Roles.propTypes = {
     _showLoading: PropTypes.bool,
-    _entities: PropTypes.arrayOf(React.PropTypes.object)
+    _entities: PropTypes.arrayOf(React.PropTypes.object),
+    authorities: PropTypes.arrayOf(React.PropTypes.object)
   }
   Roles.defaultProps = {
     _showLoading: true,
-    _entities: []
+    _entities: [],
+    authorities: []
   }
 
   function select(state, component) {
@@ -386,7 +413,8 @@ class Roles extends Basic.AbstractContent {
     return {
       _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.userID}`),
       _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.userID}`),
-      _addRoleProcessIds: addRoleProcessIds
+      _addRoleProcessIds: addRoleProcessIds,
+      authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`)
     };
   }
 

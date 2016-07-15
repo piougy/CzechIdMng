@@ -1,6 +1,6 @@
 'use strict';
 
-import FormManager from './FormManager';
+import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import OrganizationManager from './OrganizationManager';
 import RoleManager from './RoleManager';
@@ -13,7 +13,7 @@ import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceM
 import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager';
 
 const ManagerRoot = {
-  FormManager: FormManager,
+  DataManager: DataManager,
   IdentityManager: IdentityManager,
   OrganizationManager: OrganizationManager,
   RoleManager: RoleManager,

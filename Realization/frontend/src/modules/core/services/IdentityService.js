@@ -216,9 +216,23 @@ class IdentityService extends AbstractService {
    * @param token {string}
    * @return {Promise}
    */
-  getWorkingPositions(username, token = null) {
+  getWorkingPositions(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/workingPositions`, token)
+    .get(this.getApiPath() + `/${username}/workingPositions`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  getAuthorities(username) {
+    return RestApiService
+    .get(this.getApiPath() + `/${username}/authorities`)
     .then(response => {
       return response.json();
     })

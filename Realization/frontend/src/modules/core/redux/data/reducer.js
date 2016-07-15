@@ -21,16 +21,10 @@ import {
 } from './EntityManager';
 
 import {
-  CACHE_ITEMS,
-  EDIT_ITEM,
-  CANCEL_EDIT_ITEM,
-  APPLY_EDIT_ITEM,
-  CANCEL_FORM,
-  ADD_ITEM,
-  REMOVE_ITEM,
-  STORE_DATA,
+  REQUEST_DATA,
+  RECEIVE_DATA,
   CLEAR_DATA
-} from './FormManager';
+} from './DataManager';
 
 const INITIAL_STATE = {
   entity: {
@@ -40,7 +34,7 @@ const INITIAL_STATE = {
   ui: {
     // uiKeys are stored as object with structure:
     /*
-    identity_table: {
+    {
       items: [], // reference to identities
       showLoading: true,
       total: null
@@ -53,9 +47,8 @@ const INITIAL_STATE = {
       error: null
     }
     */
-    forms: {},
-    forms_editing: {}
   },
+  // ui: Immutable.Map({}),
   // bulk actions modal progress bar
   bulk: {
     action: {
@@ -111,6 +104,7 @@ export function data(state = INITIAL_STATE, action) {
         ui: merge({}, state.ui, ui)
       });
     }
+    case REQUEST_DATA:
     case REQUEST_ENTITY: {
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
@@ -213,73 +207,6 @@ export function data(state = INITIAL_STATE, action) {
       });
 
     }
-    case CACHE_ITEMS: {
-      let entities = {};
-      let formsMap = {};
-
-      action.items.map(entity => {
-        merge(entities, {[entity.id]: entity});
-      });
-
-      merge(formsMap, {[action.key] : entities});
-
-      return merge({}, state, {ui: merge({}, state.ui, {forms: merge({}, state.ui.forms,formsMap)})});
-    }
-    case EDIT_ITEM: {
-      let forms = {};
-      let entityId = {};
-      merge(entityId, {id: action.id});
-      merge(forms, {[action.key]: entityId});
-      return merge({}, state, {ui: merge({}, state.ui, {forms_editing: merge({}, state.ui.forms_editing,forms)})});
-    }
-    case ADD_ITEM: {
-      let forms = {};
-      let entityId = {};
-      merge(entityId, {id: action.uuid, operationAdd: true});
-      merge(forms, {[action.key]: entityId});
-      const newState = merge({}, state,
-        {
-          ui: merge({}, state.ui, {
-            forms_editing: merge({}, state.ui.forms_editing, forms)}
-          )
-        });
-      return newState;
-    }
-    case REMOVE_ITEM: {
-      let newState =  merge({}, state);
-      delete newState.ui.forms[action.key][action.id];
-      return newState;
-    }
-    case CANCEL_EDIT_ITEM: {
-      let forms = {};
-      let entityId = {};
-      merge(entityId, {id: action.id});
-      merge(forms, {[action.key]: entityId});
-
-      if (state.ui.forms_editing && state.ui.forms_editing[action.key] && state.ui.forms_editing[action.key].id === action.id){
-        delete state.ui.forms_editing[action.key].id;
-      }
-
-      return merge({}, state);
-    }
-    case APPLY_EDIT_ITEM: {
-      let newState =  merge({}, state);
-      newState.ui.forms[action.key][action.id] = action.data;
-      if (newState.ui.forms_editing[action.key]){
-        delete newState.ui.forms_editing[action.key];
-      }
-      return newState;
-    }
-    case CANCEL_FORM: {
-      let newState =  merge({}, state);
-      if (newState.ui.forms[action.key]){
-        delete newState.ui.forms[action.key];
-      }
-      if (newState.ui.forms_editing[action.key]){
-        delete newState.ui.forms_editing[action.key];
-      }
-      return newState;
-    }
     case LOGOUT: {
       // clear whole state except setting
       const newState = INITIAL_STATE;
@@ -290,9 +217,15 @@ export function data(state = INITIAL_STATE, action) {
         })
       });
     }
-    case STORE_DATA: {
+    case RECEIVE_DATA: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          showLoading: false
+        })
+      });
       return merge({}, state, {
-        data: state.data.set(uiKey, action.data)
+        data: state.data.set(uiKey, action.data),
+        ui: merge({}, state.ui, ui)
       });
     }
     case CLEAR_DATA: {

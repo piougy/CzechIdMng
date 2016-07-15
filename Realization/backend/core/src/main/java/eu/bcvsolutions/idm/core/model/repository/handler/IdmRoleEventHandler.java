@@ -20,11 +20,11 @@ public class IdmRoleEventHandler {
 
 	@HandleBeforeSave
 	public void handleBeforeSave(IdmRole role) {		
-		log.debug("Role [{}] will be saved", role);
-	}	
+		log.debug("1 Role [{}] will be saved", role);
+	}
 	
 	@HandleBeforeCreate
 	public void handleBeforeCreate(IdmRole role) {		
-		log.debug("Role [{}] will be created", role);
+		log.debug("1 Role [{}] will be created", role);
 	}	
 }

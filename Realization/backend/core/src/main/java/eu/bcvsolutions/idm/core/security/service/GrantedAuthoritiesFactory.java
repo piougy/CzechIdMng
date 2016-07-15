@@ -12,6 +12,12 @@ import eu.bcvsolutions.idm.core.security.dto.IdmJwtAuthenticationDto;
  */
 public interface GrantedAuthoritiesFactory {
 
+	/**
+	 * Returns unique set authorities by assigned active roles to given identity
+	 * 
+	 * @param username
+	 * @return
+	 */
 	List<DefaultGrantedAuthority> getGrantedAuthorities(String username);
 
 	IdmJwtAuthentication getIdmJwtAuthentication(IdmJwtAuthenticationDto dto);

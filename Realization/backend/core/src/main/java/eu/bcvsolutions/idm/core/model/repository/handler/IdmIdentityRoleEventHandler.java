@@ -27,8 +27,13 @@ public class IdmIdentityRoleEventHandler {
 	@HandleBeforeSave
 	public void handleBeforeSave(IdmIdentityRole identityRole) {		
 		log.warn("IdentityRole [{}] will be saved  (TODO: implemenent change approval ...)", identityRole);
-	}	
+	}
 	
+	/**
+	 * When role is assigned to user, then workflow is started if needed
+	 * 
+	 * @param identityRole
+	 */
 	@HandleBeforeCreate
 	public void handleBeforeCreate(IdmIdentityRole identityRole) {	
 		log.debug("Checking, if role [{}] for identity [{}] has to be approved first", identityRole.getRole(), identityRole.getIdentity());

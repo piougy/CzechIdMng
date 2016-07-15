@@ -38,7 +38,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
 		}
 
-		// unique set of permissions from all active identity roles and subroles
+		// unique set of authorities from all active identity roles and subroles
 		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
 		identity.getRoles().stream() //
 				.filter(EntityUtils::isValid) //
@@ -48,6 +48,13 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		return Lists.newArrayList(grantedAuthorities);
 	}
 	
+	/**
+	 * Returns authorities from active role and active role's subRoles 
+	 * 
+	 * @param role
+	 * @param processedRoles
+	 * @return
+	 */
 	private Set<DefaultGrantedAuthority> getActiveRoleAuthorities(IdmRole role, Set<IdmRole> processedRoles) {
 		processedRoles.add(role);
 		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();

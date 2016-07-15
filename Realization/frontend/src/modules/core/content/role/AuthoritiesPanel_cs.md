@@ -1,8 +1,6 @@
 # Přidělená oprávnění
 
-Základní oprávnění jsou rozdělena do kategorií. Po přiřazení role získá uživatel přiřazená oprávnění, která jsou vyhodnocována v různých částech aplikace.
-
-Je možné roli přidělit všechna oprávnění v dané kategorie kliknutím na název kategorie.
+Základní oprávnění jsou rozdělena do kategorií. Po přiřazení aktivní role získá uživatel přiřazená oprávnění (dle platnosti přiřazení), která jsou vyhodnocována v různých částech aplikace.
 
 Checkbox u názvu kategorie znázorňuje, zda-li jsou některé základní oprávnění v dané kategorii přidělena:
 

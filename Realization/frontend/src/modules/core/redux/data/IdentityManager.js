@@ -5,6 +5,7 @@ import Immutable from 'immutable';
 import EntityManager from './EntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { ConfigService, IdentityService } from '../../services';
+import DataManager from './DataManager';
 
 /**
  * Manager for identity fetching
@@ -15,6 +16,7 @@ export default class IdentityManager extends EntityManager {
     super();
     this.identityService = new IdentityService();
     this.configService = new ConfigService();
+    this.dataManager = new DataManager();
   }
 
   getService() {
@@ -99,5 +101,25 @@ export default class IdentityManager extends EntityManager {
         dispatch(this.stopBulkAction());
       });
     });
+  }
+
+  /**
+   * Load username authorities from BE
+   *
+   * @param  {string} username
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchAuthorities(username, uiKey) {
+    return (dispatch, getState) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getAuthorities(username)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    }
   }
 }

@@ -10,7 +10,7 @@ import { Confirm, Loading, ProgressBar, AbstractForm, Alert, Modal, Toolbar, Lab
 import { AuthenticateService, ConfigService } from '../../../modules/core/services';
 import { CrtIdentityManager, CrtCertificateManager, CrtCertificateTaskManager } from '../redux/data';
 import { AttachmentManager } from '../../../redux';
-import { SecurityManager, FormManager, IdentityManager } from '../../../modules/core/redux';
+import { SecurityManager, IdentityManager } from '../../../modules/core/redux';
 import ApiOperationTypeEnum from '../../../modules/core/enums/ApiOperationTypeEnum';
 import CrtIdentityRoleStateEnum from '../enums/CrtIdentityRoleStateEnum';
 import CertificateTaskStateEnum from '../enums/CertificateTaskStateEnum';
@@ -25,7 +25,6 @@ let identityManager = new IdentityManager();
 let crtCertificateManager = new CrtCertificateManager();
 let crtCertificateTaskManager = new CrtCertificateTaskManager();
 let attachmentManager = new AttachmentManager();
-let formManager = new FormManager();
 let maxRefreshCount = 4;
 let configService = new ConfigService();
 
@@ -133,8 +132,6 @@ class CrtIdentityDetail extends AbstractContent {
       result =  merge({},json);
     }
     this.refs.identityCertForm.setData(result, error, operationType);
-    //cancle edit form
-    this.context.store.dispatch(formManager.cancelForm('UserRoles'));
   }
 
   _roleRequestButton(key){

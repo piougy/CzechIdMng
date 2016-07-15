@@ -25,6 +25,9 @@ public class IdmIdentityProcessor implements ResourceProcessor<Resource<IdmIdent
 		Link passwordChangeLink = linkTo(methodOn(IdmIdentityController.class)
 				.passwordChange(String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent())), null)).withRel("password-change");
 		resource.add(passwordChangeLink);
+		Link authoritiesLink = linkTo(methodOn(IdmIdentityController.class)
+				.getGrantedAuthotrities(String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent())))).withRel("authorities");
+		resource.add(authoritiesLink);
 		return resource;
 	}
 

@@ -10,7 +10,7 @@ import _ from 'lodash';
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
-import { FormManager, OrganizationManager } from '../../../../modules/core/redux';
+import { DataManager, OrganizationManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../../../components/advanced/Filter/README_cs.md';
@@ -25,7 +25,7 @@ export class UserTable extends Basic.AbstractContent {
     this.state = {
       filterOpened: this.props.filterOpened
     }
-    this.formManager = new FormManager();
+    this.dataManager = new DataManager();
     this.organizationManager = new OrganizationManager();
   }
 
@@ -111,7 +111,7 @@ export class UserTable extends Basic.AbstractContent {
 
   onReset(bulkActionValue, usernames) {
     // push state to redux
-    this.context.store.dispatch(this.formManager.storeData('selected-usernames', usernames));
+    this.context.store.dispatch(this.dataManager.storeData('selected-usernames', usernames));
     // redirect to reset page
     this.context.router.push(`/users/password/reset`);
   }

@@ -1,4 +1,4 @@
-'use strict';
+
 
 import EntityManager from './EntityManager';
 import { IdentityRoleService, IdentityService } from '../../services';

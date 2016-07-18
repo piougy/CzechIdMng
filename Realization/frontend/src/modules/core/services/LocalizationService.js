@@ -1,4 +1,4 @@
-'use strict';
+
 
 import ConfigService from '../services/ConfigService';
 import i18next from 'i18next';

@@ -1,4 +1,4 @@
-'use strict';
+
 
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';

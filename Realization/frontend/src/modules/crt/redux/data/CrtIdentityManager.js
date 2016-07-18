@@ -1,4 +1,4 @@
-'use strict';
+
 
 import EntityManager from '../../../../modules/core/redux/data/EntityManager';
 import { CrtIdentityService } from '../../services';

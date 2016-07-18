@@ -27,7 +27,7 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
     if (!task || !formData) {
       return;
     }
-      uiKey = this.resolveUiKey(uiKey, task.id);
+    uiKey = this.resolveUiKey(uiKey, task.id);
     return (dispatch, getState) => {
       dispatch(this.requestEntity(task.id, uiKey));
       this.getService().completeTask(task.id, formData)

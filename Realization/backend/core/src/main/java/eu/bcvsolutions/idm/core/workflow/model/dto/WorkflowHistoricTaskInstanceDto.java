@@ -23,7 +23,7 @@ public class WorkflowHistoricTaskInstanceDto {
 	 * @see IdentityService#setAuthenticatedUserId(String)
 	 */
 	private String startUserId;
-	/** The start activity. */
+	/** Obtains the reason for the process instance's deletion. */
 	private String deleteReason;
 	private int priority;
 	private String assignee;

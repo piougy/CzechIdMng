@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
-import * as Basic from '../../basic'
+import * as Basic from '../../basic';
 
 /**
- * Detail button for advaced table row 
+ * Detail button for advaced table row
  */
 class DetailButton extends Basic.AbstractContextComponent {
 
@@ -21,7 +21,7 @@ class DetailButton extends Basic.AbstractContextComponent {
       );
     }
     // default detail title
-    const _title = title || this.i18n('button.detail') ;
+    const _title = title || this.i18n('button.detail');
 
     return (
       <Basic.Button

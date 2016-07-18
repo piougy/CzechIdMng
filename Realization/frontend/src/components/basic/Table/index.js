@@ -1,4 +1,4 @@
-'use strict';
+
 
 import _ from 'lodash';
 import Table from './Table';

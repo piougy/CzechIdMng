@@ -1,12 +1,9 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import marked from 'marked';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
-import Alert from '../Alert/Alert';
 import Modal from '../Modal/Modal';
 import Tooltip from '../Tooltip/Tooltip';
 
@@ -27,7 +24,7 @@ export default class HelpIcon extends AbstractContextComponent {
     super(props, context);
     this.state = {
       showModal: false
-    }
+    };
   }
 
   close() {
@@ -42,7 +39,7 @@ export default class HelpIcon extends AbstractContextComponent {
   }
 
   getHeaderText(content) {
-    var lines = content.split('\n');
+    let lines = content.split('\n');
     if (lines[0].lastIndexOf('# ', 0) === 0) { // startsWith - this work even in ie
       return lines[0].substr('# '.length);
     }
@@ -50,7 +47,7 @@ export default class HelpIcon extends AbstractContextComponent {
   }
 
   getContentText(content) {
-    var lines = content.split('\n');
+    let lines = content.split('\n');
     if (lines[0].lastIndexOf('# ', 0) === 0) { // startsWith - this work even in ie
       lines.shift();
       return lines.join('\n');
@@ -59,7 +56,7 @@ export default class HelpIcon extends AbstractContextComponent {
   }
 
   render() {
-    const { content, rendered, showLoading, titlePlacement,  ...others } = this.props;
+    const { content, rendered, showLoading, titlePlacement, ...others } = this.props;
     if (!rendered || !content) {
       return null;
     }
@@ -96,9 +93,9 @@ HelpIcon.propTypes = {
    * Help icon title position
    */
   titlePlacement: PropTypes.oneOf(['top', 'bottom', 'right', 'left'])
-}
+};
 
 HelpIcon.defaultProps = {
   ...AbstractContextComponent.defaultProps,
   titlePlacement: 'bottom'
-}
+};

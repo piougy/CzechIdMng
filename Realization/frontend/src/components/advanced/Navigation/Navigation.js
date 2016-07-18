@@ -1,16 +1,14 @@
-'use strict';
+
 
 import React, { PropTypes } from 'react';
-import { Link }  from 'react-router';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import merge from 'object-assign';
 import classnames from 'classnames';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
 import { SettingManager } from '../../../redux';
 import { SecurityManager } from '../../../modules/core/redux';
-import { getNavigationItems, resolveNavigationParameters, selectNavigationItems } from '../../../redux/Layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
 import NavigationItem from './NavigationItem';
 
 const settingManager = new SettingManager();
@@ -34,7 +32,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   initSideMenu() {
-    if (typeof $ == undefined) {
+    if (typeof $ === undefined) {
       return;
     }
     const sideMenu = $('#side-menu');
@@ -47,21 +45,21 @@ export class Navigation extends Basic.AbstractContextComponent {
     });
 
     $(window).bind('load resize', function() {
-        let topOffset = 50;
-        let width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
-        if (width < 768) {
-            $('div.navbar-collapse').addClass('collapse');
-            topOffset = 100; // 2-row-menu
-        } else {
-            $('div.navbar-collapse').removeClass('collapse');
-        }
+      let topOffset = 50;
+      let width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+      if (width < 768) {
+        $('div.navbar-collapse').addClass('collapse');
+        topOffset = 100; // 2-row-menu
+      } else {
+        $('div.navbar-collapse').removeClass('collapse');
+      }
 
-        let height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
-        height = height - topOffset;
-        if (height < 1) height = 1;
-        if (height > topOffset) {
-            $('#content-wrapper').css('min-height', (height) + 'px');
-        }
+      let height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+      height = height - topOffset;
+      if (height < 1) height = 1;
+      if (height > topOffset) {
+        $('#content-wrapper').css('min-height', (height) + 'px');
+      }
     });
     /*
     TODO: default menu collapse by url? Now is setted by react
@@ -75,7 +73,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   renderNavigationItems(section = 'main') {
-    const { navigation, environment, userContext, selectedNavigationItems } = this.props;
+    const { navigation, userContext, selectedNavigationItems } = this.props;
     const items = getNavigationItems(navigation, null, section, userContext);
     return this._renderNavigationItems(items, userContext, selectedNavigationItems);
   }
@@ -88,7 +86,7 @@ export class Navigation extends Basic.AbstractContextComponent {
     for (let item of items) {
       let renderedItem = this.renderNavigationItem(item, userContext, selectedNavigationItems[0]);
       if (renderedItem) { // can be null
-        renderedItems.push(renderedItem)
+        renderedItems.push(renderedItem);
       }
     }
     return renderedItems;
@@ -142,7 +140,7 @@ export class Navigation extends Basic.AbstractContextComponent {
 
   // TODO: refator all sibedars (react component, drop original sibebar = detailTabs)
   renderSidebarItems(parentId = null, level = 0) {
-    const { navigation, environment, userContext, selectedNavigationItems } = this.props;
+    const { navigation, userContext, selectedNavigationItems } = this.props;
     level = level + 1;
     const levelItems = getNavigationItems(navigation, parentId, 'main', userContext);
     if (!levelItems || levelItems.length === 0) {
@@ -207,7 +205,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { environment, userContext, activeItem } = this.props;
+    const { environment, userContext } = this.props;
 
     let environmentLabel = null;
     if (environment) {
@@ -215,7 +213,7 @@ export class Navigation extends Basic.AbstractContextComponent {
         'label',
         {'label-success': environment === 'development'},
         {'label-warning': environment !== 'development'},
-        {'hidden' : environment === 'production'}
+        {'hidden': environment === 'production'}
       );
       environmentLabel = (
         <p className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title')}>
@@ -224,7 +222,7 @@ export class Navigation extends Basic.AbstractContextComponent {
             <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short')}</span>
           </span>
         </p>
-      )
+      );
     }
 
     const mainItems = this.renderNavigationItems('main');
@@ -243,7 +241,7 @@ export class Navigation extends Basic.AbstractContextComponent {
                 <span className="icon-bar"></span>
               </button>
               <Link to="/" title="Úvodní stránka" className="home">
-                &#160;
+                {' '}
               </Link>
             </div>
             <div id="navbar" className="navbar-collapse">
@@ -275,7 +273,7 @@ export class Navigation extends Basic.AbstractContextComponent {
           </nav>
         </header>
       </div>
-    )
+    );
   }
 }
 
@@ -296,7 +294,7 @@ Navigation.defaultProps = {
 Navigation.contextTypes = {
   ...Basic.AbstractContextComponent.contextTypes,
   router: PropTypes.object.isRequired
-}
+};
 
 function select(state) {
   let environment = settingManager.getValue(state, 'environment.stage');
@@ -306,9 +304,9 @@ function select(state) {
   return {
     navigation: state.layout.get('navigation'),
     selectedNavigationItems: state.layout.get('selectedNavigationItems'),
-    environment: environment,
+    environment,
     userContext: state.security.userContext
-  }
+  };
 }
 
-export default connect(select)(Navigation)
+export default connect(select)(Navigation);

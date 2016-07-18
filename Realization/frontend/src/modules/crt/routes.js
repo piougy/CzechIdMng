@@ -1,4 +1,4 @@
-'use strict';
+
 
 import User from '../core/content/user/User';
 import CrtIdentityDetail from './content/CrtIdentityDetail';

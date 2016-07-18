@@ -1,7 +1,4 @@
-'use strict';
-
-import React, { PropTypes } from 'react';
-import classNames from 'classnames';
+import React from 'react';
 //
 import * as Basic from '../../basic';
 
@@ -33,11 +30,11 @@ class DateValue extends Basic.AbstractContextComponent {
 
 DateValue.propTypes = {
   ...Basic.DateValue.propTypes
-}
+};
 
 DateValue.defaultProps = {
   ...Basic.DateValue.defaultProps
-}
+};
 
 
 export default DateValue;

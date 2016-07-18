@@ -1,4 +1,4 @@
-'use strict';
+
 
 import VpnRecordProfileDetail from './content/VpnRecordProfileDetail'
 import User from '../core/content/user/User';

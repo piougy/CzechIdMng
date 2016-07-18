@@ -28,7 +28,7 @@ export default class MyPage extends Basic.AbstractContent {
 ## Content skeleton
 
 ```javascript
-'use strict';
+
 
 import React from 'react';
 import Helmet from 'react-helmet';

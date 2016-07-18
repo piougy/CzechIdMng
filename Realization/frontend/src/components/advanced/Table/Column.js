@@ -1,5 +1,5 @@
-import React, { Component, PropTypes } from 'react';
-import { AbstractComponent } from '../../basic'
+import React, { PropTypes } from 'react';
+import { AbstractComponent } from '../../basic';
 
 /**
  * Component that defines the attributes of table column.

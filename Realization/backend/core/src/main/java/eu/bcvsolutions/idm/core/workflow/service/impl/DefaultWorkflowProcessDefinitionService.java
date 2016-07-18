@@ -26,10 +26,10 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 	@Autowired
 	private RepositoryService repositoryService;
 
-	@Override
 	/**
 	 * Find all last version and active process definitions
 	 */
+	@Override
 	public List<WorkflowProcessDefinitionDto> findAllProcessDefinitions() {
 		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
 		query.active();
@@ -74,10 +74,10 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 				.latestVersion().singleResult().getId();
 	}
 
-	@Override
 	/**
 	 * Generate diagram for process definition.
 	 */
+	@Override
 	public InputStream getDiagram(String definitionId) {
 		if (definitionId == null) {
 			throw new ActivitiIllegalArgumentException("No process definition id provided");
@@ -85,10 +85,10 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		return repositoryService.getProcessDiagram(definitionId);
 	}
 
-	@Override
 	/**
 	 * Generate diagram for process definition.
 	 */
+	@Override
 	public InputStream getDiagramByKey(String definitionKey) {
 		if (definitionKey == null) {
 			throw new ActivitiIllegalArgumentException("No process definition key provided");

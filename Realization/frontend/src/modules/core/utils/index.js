@@ -1,4 +1,4 @@
-'use strict';
+
 
 import EntityUtils from './EntityUtils';
 import UiUtils from './UiUtils';

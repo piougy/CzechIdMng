@@ -77,10 +77,12 @@ public class HistoryProcessAndTaskTest extends AbstractIntegrationTest {
 
 		this.logout();
 		this.login(TestUtils.TEST_USER_1);
+		
+		completeTasksAndCheckHistory();
 	}
 
-	@Test(priority = 2)
-	public void completeTasksAndCheckHistory() {
+	
+	private void completeTasksAndCheckHistory() {
 
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessDefinitionKey(PROCESS_KEY);

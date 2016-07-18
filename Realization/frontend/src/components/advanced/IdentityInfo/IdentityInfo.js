@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -128,6 +126,6 @@ IdentityInfo.defaultProps = {
 function select(state, component) {
   return {
     _identity: identityManager.getEntity(state, component.username)
-  }
+  };
 }
-export default connect(select)(IdentityInfo)
+export default connect(select)(IdentityInfo);

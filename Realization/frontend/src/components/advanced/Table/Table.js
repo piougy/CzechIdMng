@@ -1,11 +1,7 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
 import _ from 'lodash';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
 import Filter from '../Filter/Filter';
@@ -20,7 +16,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.state = {
       filterOpened: this.props.filterOpened,
       selectedRows: this.props.selectedRows
-    }
+    };
   }
 
   componentDidMount() {
@@ -62,11 +58,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           level: 'error',
           key: 'error-' + manager.getEntityType() + '-load'
         }, error);
-      }
       // remove selection for unpresent records
-      else if (json && json._embedded) {
+      } else if (json && json._embedded) {
         const { selectedRows } = this.state;
-        let newSelectedRows = [];
+        const newSelectedRows = [];
         if (json._embedded[manager.getCollectionType()]) {
           json._embedded[manager.getCollectionType()].forEach(entity => {
             if (_.includes(selectedRows, entity.id)) { // TODO: custom identifier - move to manager
@@ -92,14 +87,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   _resolveColumns() {
-    let children = [];
+    const children = [];
     //
-    React.Children.forEach(this.props.children, (child, index) => {
+    React.Children.forEach(this.props.children, (child) => {
       if (child == null) {
         return;
       }
       invariant(
-        //child.type.__TableColumnGroup__ ||
+        // child.type.__TableColumnGroup__ ||
         child.type.__TableColumn__ ||
         child.type.__AdvancedColumn__ || child.type.__AdvancedColumnLink__,
         'child type should be <TableColumn /> or ' +
@@ -112,9 +107,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilter(filterForm) {
-    const { uiKey, manager, _searchParameters } = this.props;
+    const { _searchParameters } = this.props;
     //
-    let filters = [];
+    const filters = [];
     const filterValues = filterForm.getData();
     for (let property in filterValues) {
       const filterComponent = filterForm.getComponent(property);
@@ -128,26 +123,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }*/
       const field = filterComponent.props.field || property;
       //
-      let filter = {
-        field: field,
-        //relation: relation
+      const filter = {
+        field,
+        // relation: relation
       };
-      /*if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
+      /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
         let filledValues = filterValues[property];
         if (filterComponent.props.enum) { // enumeration
           filledValues = filledValues.map(value => { return filterComponent.props.enum.findKeyBySymbol(value); })
         }
         filter.values = filledValues;
       } else {*/
-        let filledValue = filterValues[property];
-        if (filledValue === null){
-          continue;
-        }
-        if (filterComponent.props.enum) { // enumeration
-          filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
-        }
-        filter.value = filledValue;
-      //}
+      let filledValue = filterValues[property];
+      if (filledValue === null) {
+        continue;
+      }
+      if (filterComponent.props.enum) { // enumeration
+        filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
+      }
+      filter.value = filledValue;
+      // }
       filters.push(filter);
     }
     let userSearchParameters = _searchParameters;
@@ -162,11 +157,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     const { manager, _searchParameters } = this.props;
     //
     const filterValues = filterForm.getData();
-    for (let property in filterValues) {
+    for (const property in filterValues) {
       if (!filterValues[property]) {
         continue;
       }
-      const filterComponent = filterForm.getComponent(property).setState(
+      filterForm.getComponent(property).setState(
         { value: null }
       );
     }
@@ -234,11 +229,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       range = {
         page: _searchParameters.getPage(),
         size: _searchParameters.getSize()
-      }
+      };
     }
-    let renderedColumns = [];
+    const renderedColumns = [];
     for (let i = 0; i < columns.length; i++) {
-      let column = columns[i];
+      const column = columns[i];
       // basic column support
       if (column.type.__TableColumn__) {
         // add cloned elemet with data provided
@@ -247,9 +242,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }
       // common props to all column faces
       const commonProps = {
-        //title: column.props.title,
+        // title: column.props.title,
         className: `column-face-${column.props.face}`
-      }
+      };
       // construct basic column from advanced column definition
       let header = column.props.header;
       if (!header && column.props.property) {
@@ -265,39 +260,44 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         );
       }
 
-      let key = 'column_' + i;
+      const key = 'column_' + i;
       let cell = null;
       if (column.props.cell) {
         cell = column.props.cell;
       } else if (column.type.__AdvancedColumnLink__) {
         cell = (
           <Basic.BasicTable.LinkCell to={column.props.to} {...commonProps}/>
-        )
-      } else switch (column.props.face) {
-        case 'date': {
-          cell = (
-            <Basic.BasicTable.DateCell format={this.i18n('format.date')} {...commonProps}/>
-          )
-          break;
-        }
-        case 'datetime': {
-          cell = (
-            <Basic.BasicTable.DateCell format={this.i18n('format.datetime')} {...commonProps}/>
-          )
-          break;
-        }
-        case 'bool':
-        case 'boolean': {
-          cell = (
-            <Basic.BasicTable.BooleanCell {...commonProps}/>
-          )
-          break;
-        }
-        case 'enum': {
-          cell = (
-            <Basic.BasicTable.EnumCell enumClass={column.props.enumClass} {...commonProps}/>
-          )
-          break;
+        );
+      } else {
+        switch (column.props.face) {
+          case 'date': {
+            cell = (
+              <Basic.BasicTable.DateCell format={this.i18n('format.date')} {...commonProps}/>
+            );
+            break;
+          }
+          case 'datetime': {
+            cell = (
+              <Basic.BasicTable.DateCell format={this.i18n('format.datetime')} {...commonProps}/>
+            );
+            break;
+          }
+          case 'bool':
+          case 'boolean': {
+            cell = (
+              <Basic.BasicTable.BooleanCell {...commonProps}/>
+            );
+            break;
+          }
+          case 'enum': {
+            cell = (
+              <Basic.BasicTable.EnumCell enumClass={column.props.enumClass} {...commonProps}/>
+            );
+            break;
+          }
+          default: {
+            this.getLogger().error('[AdvancedTable] Unimplemented column face [' + column.props.face + ']');
+          }
         }
       }
       // add target column with cell by data type
@@ -472,7 +472,7 @@ AdvancedTable.propTypes = {
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _total: PropTypes.number,
   _searchParameters: PropTypes.object
-}
+};
 AdvancedTable.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   _showLoading: true,
@@ -485,13 +485,13 @@ AdvancedTable.defaultProps = {
   selectedRows: [],
   filterCollapsible: true,
   actions: []
-}
+};
 
 function select(state, component) {
   const uiKey = component.manager.resolveUiKey(component.uiKey);
   const ui = state.data.ui[uiKey];
   if (!ui) {
-    return {}
+    return {};
   }
   return {
     _showLoading: ui.showLoading,
@@ -499,8 +499,7 @@ function select(state, component) {
     _total: ui.total,
     _searchParameters: ui.searchParameters,
     _error: ui.error,
-  }
-
+  };
 }
 
-export default connect(select, null, null, { withRef: true})(AdvancedTable)
+export default connect(select, null, null, { withRef: true})(AdvancedTable);

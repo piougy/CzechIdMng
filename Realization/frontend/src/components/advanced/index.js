@@ -1,4 +1,4 @@
-'use strict';
+
 
 import Table from './Table/Table';
 import Column from './Table/Column';

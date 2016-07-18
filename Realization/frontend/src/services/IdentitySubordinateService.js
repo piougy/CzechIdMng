@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { RestApiService, IdentityService } from '../modules/core/services/';
 

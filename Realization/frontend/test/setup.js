@@ -13,7 +13,7 @@ if (typeof document === 'undefined') {
   console.log('test document init ... done');
 }
 
-
+/*
 function existsSync(filePath) {
   try {
     fs.statSync(filePath);
@@ -24,9 +24,10 @@ function existsSync(filePath) {
   }
   return true;
 }
+*/
 
-//if (!existsSync(path.resolve(__dirname, '../config.json'))) {
-  console.log('test config init ... begin');
-  fs.copySync(path.resolve(__dirname, '../config/default/development.json'), path.resolve(__dirname, '../config.json'));
-  console.log('test config init ... done');
-//}
+// if (!existsSync(path.resolve(__dirname, '../config.json'))) {
+console.log('test config init ... begin');
+fs.copySync(path.resolve(__dirname, '../config/default/development.json'), path.resolve(__dirname, '../config.json'));
+console.log('test config init ... done');
+// }

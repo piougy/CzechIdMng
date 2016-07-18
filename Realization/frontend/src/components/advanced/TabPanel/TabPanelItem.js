@@ -1,7 +1,5 @@
-'use strict';
-
-import React, { PropTypes } from 'react'
-import { Link }  from 'react-router';
+import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -12,11 +10,11 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
     super(props, context);
   }
 
-  render () {
+  render() {
     const { className, to, active, ...others } = this.props;
     const itemClassNames = classnames(
       { 'list-group-item': false },
-      { active: active },
+      { active },
       className
     );
     return (
@@ -33,4 +31,4 @@ TabPanelItem.propTypes = {
   to: PropTypes.string,
   title: PropTypes.string,
   active: PropTypes.bool
-}
+};

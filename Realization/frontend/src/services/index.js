@@ -1,4 +1,4 @@
-'use strict';
+
 
 import SettingService from './SettingService';
 import IdentityAccountService from './IdentityAccountService';

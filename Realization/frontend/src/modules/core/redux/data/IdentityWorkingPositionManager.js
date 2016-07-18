@@ -1,4 +1,4 @@
-'use strict';
+
 
 import EntityManager from './EntityManager';
 import { IdentityWorkingPositionService, IdentityService } from '../../services';

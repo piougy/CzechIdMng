@@ -75,12 +75,13 @@ public class HistoryProcessAndTaskTest extends AbstractIntegrationTest {
 		WorkflowHistoricProcessInstanceDto historicProcessDto2 = historicProcessService.get(instance.getId());
 		assertNull(historicProcessDto2);
 
-		this.logout();
-		this.login(TestUtils.TEST_USER_1);
+		completeTasksAndCheckHistory();
 	}
 
-	@Test(priority = 2)
-	public void completeTasksAndCheckHistory() {
+	private void completeTasksAndCheckHistory() {
+		
+		this.logout();
+		this.login(TestUtils.TEST_USER_1);
 
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessDefinitionKey(PROCESS_KEY);

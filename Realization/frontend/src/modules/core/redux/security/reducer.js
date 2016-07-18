@@ -14,7 +14,7 @@ const INITIAL_STATE = {
     isAuthenticated: false,
     tokenCSRF: null,
     tokenCIDMST: null,
-    authorities: [], // user aauthorities
+    authorities: [], // user authorities
   }
 }
 

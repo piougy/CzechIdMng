@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.security.service.SecurityService;
  *
  */
 @Service
-class DefaultSecurityService implements SecurityService {
+public class DefaultSecurityService implements SecurityService {
 
 	@Override
 	public String getUsername() {

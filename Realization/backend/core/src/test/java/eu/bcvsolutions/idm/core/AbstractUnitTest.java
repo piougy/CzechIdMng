@@ -1,7 +1,14 @@
 package eu.bcvsolutions.idm.core;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
@@ -14,4 +21,24 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractUnitTest {
 
+	/**
+	 * Verifies that all mocks had only interactions specified by test.
+	 * 
+	 * @throws Exception if something is broken
+	 */
+	@After
+	public void verifyMocks() throws Exception {
+		List<Object> mocks = new ArrayList<>();
+		for(Field field : getClass().getDeclaredFields()) {
+			field.setAccessible(true);
+			
+			if(field.isAnnotationPresent(Mock.class)) {
+				mocks.add(field.get(this));
+			}
+		}
+		
+		if(!mocks.isEmpty()) {
+			Mockito.verifyNoMoreInteractions(mocks.toArray());
+		}
+	}
 }

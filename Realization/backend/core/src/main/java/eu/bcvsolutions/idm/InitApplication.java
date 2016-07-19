@@ -73,7 +73,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				superAdminRole = new IdmRole();
 				superAdminRole.setName("superAdminRole");
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
-				superAdminRole.setApprovable(true);				
+				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");				
 				IdmRoleAuthority privilege3 = new IdmRoleAuthority();
 				privilege3.setRole(superAdminRole);
 				privilege3.setTargetPermission(IdmGroupPermission.USER);
@@ -105,6 +105,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
 				role2 = this.roleRepository.save(role2);
+				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				log.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
 				IdmRole roleManager = new IdmRole();

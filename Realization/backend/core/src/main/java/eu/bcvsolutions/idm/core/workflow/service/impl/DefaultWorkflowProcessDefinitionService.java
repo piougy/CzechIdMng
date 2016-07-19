@@ -61,6 +61,20 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		}
 		return null;
 	}
+	
+	/**
+	 * Find last version process definition by key
+	 */
+	@Override
+	public WorkflowProcessDefinitionDto getById(String definitionId) {
+		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
+		query.processDefinitionId(definitionId);
+		ProcessDefinition result = query.singleResult();
+		if (result != null) {
+			return toResource(result);
+		}
+		return null;
+	}
 
 	/**
 	 * Find last version of process definition by key and return his ID

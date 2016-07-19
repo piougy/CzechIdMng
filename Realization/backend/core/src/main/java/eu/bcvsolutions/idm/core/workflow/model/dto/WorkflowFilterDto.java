@@ -20,6 +20,7 @@ public class WorkflowFilterDto {
 	private String processDefinitionId;
 	private String processDefinitionKey;
 	private String processInstanceId;
+	private String superProcessInstanceId;
 	private String name;
 	private String id;
 
@@ -112,6 +113,14 @@ public class WorkflowFilterDto {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getSuperProcessInstanceId() {
+		return superProcessInstanceId;
+	}
+
+	public void setSuperProcessInstanceId(String superProcessInstanceId) {
+		this.superProcessInstanceId = superProcessInstanceId;
 	}
 
 	@JsonIgnore

@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -54,6 +55,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 	
 	@Autowired
 	private RepositoryService repositoryService;
+	
+	@Autowired
+	private WorkflowProcessDefinitionService definitionService;
 
 
 	@Override
@@ -72,6 +76,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		}
 		if (processDefinitionId != null) {
 			query.processDefinitionId(processDefinitionId);
+		}
+		if (filter.getSuperProcessInstanceId() != null) {
+			query.superProcessInstanceId(filter.getSuperProcessInstanceId());
 		}
 		if (filter.getProcessDefinitionKey() != null) {
 			//For case when we have only process id, we will convert him to key
@@ -243,10 +250,16 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		if (instance == null) {
 			return null;
 		}
+		String instanceName = null;
+		if(instance.getName() == null){
+			instanceName = definitionService.getById(instance.getProcessDefinitionId()).getName();
+		}else{
+			instanceName = instance.getName();
+		}
 
 		WorkflowHistoricProcessInstanceDto dto = new WorkflowHistoricProcessInstanceDto();
 		dto.setId(instance.getId());
-		dto.setName(instance.getName());
+		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
 		dto.setProcessVariables(instance.getProcessVariables());
 		dto.setDeleteReason(instance.getDeleteReason());

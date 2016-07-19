@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,17 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.SecurityService;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
 
 @RestController
 @RequestMapping(value = "/api/identities/")
@@ -42,6 +48,12 @@ public class IdmIdentityController {
 	
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	
+	@Autowired
+	private IdmIdentityService idmIdentityService;
+	
+	@Autowired
+	private WorkflowTaskInstanceController workflowTaskInstanceController;
 
 	/**
 	 * Changes identity password
@@ -77,6 +89,20 @@ public class IdmIdentityController {
 	@RequestMapping(value = "{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
+	}
+	
+	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
+	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
+		IdmIdentity identity = (IdmIdentity)identityLookup.lookupEntity(identityId);
+		if (identity == null) {
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+		}
+		ProcessInstance processInstance = idmIdentityService.changePermissions(identity);
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(processInstance.getId());
+		filter.setId(processInstance.getActivityId());
+		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController.search(filter).getBody().getResources();
+		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);
 	}
 
 }

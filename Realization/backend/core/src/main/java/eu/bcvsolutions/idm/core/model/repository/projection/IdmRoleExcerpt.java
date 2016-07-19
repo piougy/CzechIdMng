@@ -18,7 +18,7 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	
 	boolean isDisabled();
 	
-	boolean isApprovable();
+//	boolean isApprovable();
 	
 	IdmRoleType getRoleType();
 }

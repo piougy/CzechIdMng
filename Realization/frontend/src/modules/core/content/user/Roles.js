@@ -48,7 +48,7 @@ class Roles extends Basic.AbstractContent {
     if (_addRoleProcessIds && _addRoleProcessIds !== this.props._addRoleProcessIds){
       for (let idProcess of _addRoleProcessIds) {
         let processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
-        if (processEntity && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.roleIdentifier}`)){
+        if (processEntity && processEntity.processVariables.roleIdentifier && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.roleIdentifier}`)){
           this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.roleIdentifier, `role-${processEntity.processVariables.roleIdentifier}`));
         }
       }
@@ -179,13 +179,33 @@ class Roles extends Basic.AbstractContent {
     return null;
   }
 
+  _changePermissions(){
+    const { userID } = this.props.params;
+    this.setState({
+      showLoading: true
+    });
+    let promise = identityManager.getService().changePermissions(userID)
+    promise.then((json) => {
+      this.setState({
+        showLoading: false
+      });
+      this.context.router.push(`/task/${json.id}`);
+    }).catch(ex => {
+      this.setState({
+        showLoading: false
+      });
+      this.addError(ex);
+      this.refs.tableProcesses.getWrappedInstance().reload();
+    });
+  }
+
   render() {
     const { userID } = this.props.params;
     const { _entities, _showLoading, authorities } = this.props;
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', userID);
-    force = force.setFilter('processDefinitionKey', 'approveRoleBySuperAdminRole');
+    force = force.setFilter('processDefinitionKey', 'changeIdentityRoles');
 
     //
     // sort entities by role name
@@ -201,6 +221,16 @@ class Roles extends Basic.AbstractContent {
 
         <Basic.Row>
           <div className="col-lg-8">
+            <div style={{margin: 'auto auto', width:'200px', marginTop: '25px'}}>
+              <Basic.Button
+                className="btn"
+                style={{display:'block'}}
+                level="warning"
+                onClick={this._changePermissions.bind(this)}>
+                <Basic.Icon type="fa" icon="key"/>
+                {' '+this.i18n('changePermissions')}
+              </Basic.Button>
+            </div>
             <Basic.Panel style={{ marginTop: 15 }}>
               <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
               {
@@ -285,7 +315,6 @@ class Roles extends Basic.AbstractContent {
               </Basic.Panel>
             </div>
           </Basic.Row>
-
           <Basic.Panel>
             <Basic.PanelHeader text=  {this.i18n('addRoleProcesse.header')}/>
             <Advanced.Table

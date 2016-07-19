@@ -18,7 +18,9 @@
     "chai"
   ],
   "scripts": {
-    "test": "mocha --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
+    "test": "npm run tests-set",
+    "test-lint": "npm run lint && npm run tests-set",
+    "tests-set": "mocha --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
     "lint": "eslint ./",
     "test-watch": "mocha --watch --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
   },

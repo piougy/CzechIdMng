@@ -4,7 +4,7 @@
     <documentation>Workflow pro změnu opravnění (změna přiřazených rolí) pro konkrétní identitu.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
-    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:assignee=" ${applicantUsername}">
+    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Vytvoření žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -14,7 +14,7 @@
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
         <activiti:formProperty id="addRoles" name="Přidat role" type="textArea"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea" writable="false">
+        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
         </activiti:formProperty>
@@ -23,7 +23,7 @@
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="applicantTask"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="applicantTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="admin" activiti:formKey="changeIdentityRoles">
+    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="admin" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Schválení žádosti vedoucím</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -63,7 +63,7 @@
         <activiti:formProperty id="validTill" name="Platnost změn do" type="date">
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea" writable="false">
+        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
         </activiti:formProperty>

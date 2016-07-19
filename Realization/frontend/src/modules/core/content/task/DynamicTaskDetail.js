@@ -6,14 +6,8 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
-import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager } from '../../../../modules/core/redux';
-import { ApprovalTaskService} from '../../../../services';
 import * as Advanced from '../../../../components/advanced';
-import ApiOperationTypeEnum from '../../../../modules/core/enums/ApiOperationTypeEnum';
 import DecisionButtons from './DecisionButtons';
-
-
-const identityManager = new IdentityManager();
 
 class DynamicTaskDetail extends Basic.AbstractContent {
 
@@ -23,9 +17,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { task, taskManager } = this.props;
+    const { task} = this.props;
     this.refs.form.setData(task);
-    let formDataValues = this._toFormDataValues(task.formData);
+    const formDataValues = this._toFormDataValues(task.formData);
     this.refs.formData.setData(formDataValues);
   }
 
@@ -33,55 +27,54 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     return 'content.task.instance';
   }
 
-  _toFormDataValues(formDatas){
-    let result = {};
-    for (let formData of formDatas) {
+  _toFormDataValues(formDatas) {
+    const result = {};
+    for (const formData of formDatas) {
       result[formData.id] = formData.value;
     }
     return result;
   }
 
-  _toFormData(formDataValues, formDatas){
-    let result = _.merge({}, formDataValues);
-    for (let formData of formDatas) {
-      if (!formData.writable && !formData.required){
+  _toFormData(formDataValues, formDatas) {
+    const result = _.merge({}, formDataValues);
+    for (const formData of formDatas) {
+      if (!formData.writable && !formData.required) {
         delete result[formData.id];
       }
     }
     return result;
   }
 
-  _validateAndCompleteTask(decision){
+  _validateAndCompleteTask(decision) {
     if (!this.refs.form.isFormValid()) {
       return;
     }
     if (!this.refs.formData.isFormValid()) {
       return;
     }
-    if (decision.showWarning){
-      this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle')).then(result => {
+    if (decision.showWarning) {
+      this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))
+      .then(() => {
         this.setState({
           showLoading: true
         });
         this._completeTask(decision);
-      }, function(err) {
-        return;
       });
-    }else {
-        this._completeTask(decision);
+    } else {
+      this._completeTask(decision);
     }
   }
-  _completeTask(decision){
-    let formDataValues = this.refs.formData.getData();
+
+  _completeTask(decision) {
+    const formDataValues = this.refs.formData.getData();
     const task = this.refs.form.getData();
-    let formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
+    const formData = {'decision': decision.id, 'formData': this._toFormData(formDataValues, task.formData)};
     const { taskManager, uiKey } = this.props;
     this.context.store.dispatch(taskManager.completeTask(task, formData, `${uiKey}`, this._afterComplete.bind(this)));
-
   }
 
   _afterComplete(task, error) {
-    if (error){
+    if (error) {
       this.refs.form.processEnded();
       this.addError(error);
       return;
@@ -93,15 +86,15 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     this.context.router.goBack();
   }
 
-  _getFormDataComponents(task){
-    if (!task){
+  _getFormDataComponents(task) {
+    if (!task) {
       return null;
     }
-    let formDatas =  task.formData;
-    let formDataComponents = [];
-    for (let formData of formDatas) {
+    const formDatas = task.formData;
+    const formDataComponents = [];
+    for (const formData of formDatas) {
       switch (formData.type) {
-        case 'textField':{
+        case 'textField': {
           formDataComponents.push(
             <Basic.TextField
               key={formData.id}
@@ -114,7 +107,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
-        case 'date':{
+        case 'date': {
           formDataComponents.push(
             <Basic.DateTimePicker
               key={formData.id}
@@ -128,7 +121,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
-        case 'checkbox':{
+        case 'checkbox': {
           formDataComponents.push(
             <Basic.Checkbox
               key={formData.id}
@@ -141,7 +134,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
-        case 'textArea':{
+        case 'textArea': {
           formDataComponents.push(
             <Basic.TextArea
               key={formData.id}
@@ -154,16 +147,27 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
+        default: {
+          formDataComponents.push(
+            <Basic.TextField
+              key={formData.id}
+              ref={formData.id}
+              readOnly={!formData.writable}
+              required={formData.required}
+              tooltip={formData.tooltip}
+              placeholder={formData.placeholder}
+              label={this.i18n(formData.name)}/>
+          );
+        }
       }
     }
     return formDataComponents;
   }
 
   render() {
-    const {task, readOnly, taskManager} = this.props;
+    const {task, taskManager} = this.props;
     const { showLoading} = this.state;
-    let showLoadingInternal = task ? showLoading : true;
-    let readOnlyInternal = readOnly;
+    const showLoadingInternal = task ? showLoading : true;
 
     return (
       <div>
@@ -191,7 +195,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           </Basic.PanelFooter>
         </Basic.Panel>
       </div>
-    )
+    );
   }
 }
 
@@ -199,21 +203,11 @@ DynamicTaskDetail.propTypes = {
   task: PropTypes.object,
   readOnly: PropTypes.bool,
   taskManager: PropTypes.object.isRequired
-}
+};
 
 DynamicTaskDetail.defaultProps = {
   task: null,
   readOnly: false
-}
+};
 
-function select(state, component) {
-  //
-  // const { taskID, taskManager } = component;
-  // let task = taskManager.getEntity(state, taskID);
-  // return {
-  //   task: task
-  // }
-  return {}
-}
-
-export default connect(select)(DynamicTaskDetail);
+export default DynamicTaskDetail;

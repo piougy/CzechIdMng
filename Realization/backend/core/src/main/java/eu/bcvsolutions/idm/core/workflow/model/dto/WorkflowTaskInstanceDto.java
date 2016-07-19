@@ -33,6 +33,10 @@ public class WorkflowTaskInstanceDto {
 	private String applicantFullName;
 	private List<IdentityLinkDto> identityLinks;
 	private String processInstanceId;
+	/*
+	 * From key defined custom UI component use for rendered detail this task
+	 */
+	private String formKey;
 
 	public String getId() {
 		return id;
@@ -148,6 +152,14 @@ public class WorkflowTaskInstanceDto {
 
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+
+	public String getFormKey() {
+		return formKey;
+	}
+
+	public void setFormKey(String formKey) {
+		this.formKey = formKey;
 	}
 
 }

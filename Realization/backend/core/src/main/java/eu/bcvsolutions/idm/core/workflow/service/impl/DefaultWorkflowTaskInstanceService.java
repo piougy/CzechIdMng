@@ -135,6 +135,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		WorkflowTaskInstanceDto dto = new WorkflowTaskInstanceDto();
 		dto.setId(task.getId());
 		dto.setCreated(task.getCreateTime());
+		dto.setFormKey(task.getFormKey());
 		dto.setAssignee(task.getAssignee());
 		dto.setName(task.getName());
 		dto.setDescription(task.getDescription());

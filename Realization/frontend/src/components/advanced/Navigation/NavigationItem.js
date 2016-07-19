@@ -1,7 +1,5 @@
-'use strict';
-
-import React, { PropTypes } from 'react'
-import { Link }  from 'react-router';
+import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
@@ -15,10 +13,10 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
     super(props, context);
   }
 
-  render () {
+  render() {
     const { id, className, to, icon, iconColor, active, title, titlePlacement, text, rendered, showLoading, ...others } = this.props;
-    const itemClassNames = classnames(className, { active: active });
-    const linkClassNames = classnames({ active: active });
+    const itemClassNames = classnames(className, { active });
+    const linkClassNames = classnames({ active });
     //
     if (!rendered) {
       return null;
@@ -51,10 +49,10 @@ NavigationItem.propTypes = {
   title: PropTypes.string,
   icon: PropTypes.string,
   active: PropTypes.bool
-}
+};
 
 NavigationItem.defaultProps = {
   ...Basic.AbstractComponent.defaultProps,
   active: false,
   icon: null
-}
+};

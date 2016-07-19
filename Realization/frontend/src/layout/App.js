@@ -1,7 +1,4 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import Footer from './Footer';
 import * as Basic from '../components/basic';
@@ -47,7 +44,7 @@ export class App extends Basic.AbstractContent {
     // console.log('router', this.context.router);
     // console.log('location', this.props.location);
     // check if is user logged, if not will do redirect to login page
-    /*if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
+    /* if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
       this.context.router.replace('/login');
     }*/
   }
@@ -71,9 +68,9 @@ export class App extends Basic.AbstractContent {
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          (1 !== 1 &&(!setting || setting.isEmpty()) && location.pathname !== '/unavailable')
+          (1 !== 1 && (!setting || setting.isEmpty()) && location.pathname !== '/unavailable')
           ?
-          <Basic.Loading className="global" showLoading={true}/>
+          <Basic.Loading className="global" showLoading/>
           :
           <div>
             <Advanced.Navigation />
@@ -158,13 +155,13 @@ App.propTypes = {
    * Globally bulk action
    */
   bulk: React.PropTypes.object
-}
+};
 
 App.defaultProps = {
   setting: null,
   userContext: null,
   bulk: { action: {} },
-}
+};
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
@@ -173,7 +170,7 @@ function select(state) {
     userContext: state.security.userContext,
     setting: state.data.entity.Setting,
     bulk: state.data.bulk
-  }
+  };
 }
 
 // Wrap the component to inject dispatch and state into it

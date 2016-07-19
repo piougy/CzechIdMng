@@ -1,4 +1,4 @@
-'use strict';
+
 
 import VpnRecordService from './VpnRecordService';
 import VpnActivityService from './VpnActivityService';

@@ -1,11 +1,6 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import invariant from 'invariant';
 import _ from 'lodash';
-import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
 import {Treebeard, decorators} from 'react-treebeard';
@@ -20,7 +15,7 @@ class Tree extends Basic.AbstractContextComponent {
     super(props, context);
     this.state = {
       data: props.rootNode
-    }
+    };
   }
 
   /**
@@ -32,7 +27,7 @@ class Tree extends Basic.AbstractContextComponent {
 
   componentDidMount() {
     const {rootNode} = this.props;
-    if (rootNode && rootNode.toggled){
+    if (rootNode && rootNode.toggled) {
       this._onToggle(rootNode, rootNode.toggled);
     }
   }
@@ -191,10 +186,10 @@ class Tree extends Basic.AbstractContextComponent {
               decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading /*, Toggle: customDecorators.Toggle*/}}
               />
           )
-          :''}
+          : ''}
         </div>
       );
-    }
+  }
 }
 
 Tree.propTypes = {
@@ -246,23 +241,23 @@ Tree.propTypes = {
   * Can be use for override header decorator
   */
   headerDecorator: PropTypes.func
-}
+};
 
 Tree.defaultProps = {
   rendered: true,
   showLoading: false
-}
+};
 
-function select(state, component) {
-  let wrappedInstance = this ? this.getWrappedInstance() : null;
-  if (wrappedInstance && wrappedInstance.state.cursor){
+function select(state) {
+  const wrappedInstance = this ? this.getWrappedInstance() : null;
+  if (wrappedInstance && wrappedInstance.state.cursor) {
     let cursor = wrappedInstance.state.cursor;
-    let haveData = wrappedInstance._loadNode(cursor, state);
-    //we need new instance ... we create clone
+    wrappedInstance._loadNode(cursor, state);
+    // we need new instance ... we create clone
     cursor = _.merge({}, cursor);
-    return{
-      cursor: cursor
-    }
+    return {
+      cursor
+    };
   }
   return {};
 }

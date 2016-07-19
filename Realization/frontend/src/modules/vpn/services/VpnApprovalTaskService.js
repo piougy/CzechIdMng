@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { RestApiService } from '../../../modules/core/services/';
 import { ApprovalTaskService } from '../../../services/';

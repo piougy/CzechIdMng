@@ -1,4 +1,4 @@
-'use strict';
+
 /**
  *
  * This file will be generated manually from gulp - browserify doesn't suppord dynamic modules

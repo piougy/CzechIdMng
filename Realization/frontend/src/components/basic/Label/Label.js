@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
@@ -38,7 +36,7 @@ class Label extends AbstractComponent {
         {
           showLoading
           ?
-          <Icon type="fa" icon="refresh" showLoading={true}/>
+          <Icon type="fa" icon="refresh" showLoading/>
           :
           text
         }
@@ -57,11 +55,11 @@ Label.propTypes = {
    * Label text content
    */
   text: PropTypes.string
-}
+};
 
 Label.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'default'
-}
+};
 
 export default Label;

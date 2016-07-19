@@ -1,7 +1,4 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
 
@@ -52,11 +49,11 @@ ModalProgressBar.propTypes = {
    * Size / maximum
    */
   count: PropTypes.number
-}
+};
 ModalProgressBar.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   show: false,
   counter: 0,
   count: 0,
   text: 'Probíhá zpracování' // TODO: locale
-}
+};

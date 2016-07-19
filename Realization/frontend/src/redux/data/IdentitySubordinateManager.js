@@ -1,4 +1,4 @@
-'use strict';
+
 
 import IdentityManager from '../../modules/core/redux/data/IdentityManager';
 import { IdentitySubordinateService } from '../../services';

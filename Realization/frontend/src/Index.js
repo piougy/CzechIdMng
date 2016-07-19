@@ -1,19 +1,16 @@
-'use strict';
-
 // global babel polyfill - IE Symbol support, Object.assign etc.
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 // https://github.com/rackt/react-router/blob/master/upgrade-guides/v2.0.0.md#changes-to-thiscontext
 // TODO: serving static resources requires different approach - https://github.com/rackt/react-router/blob/master/docs/guides/basics/Histories.md#createbrowserhistory
-import { Router, Route, browserHistory, hashHistory } from 'react-router';
+import { Router, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import merge from 'object-assign';
 import Immutable from 'immutable';
 import { combineReducers, compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise';
-import _ from 'lodash';
 import Promise from 'es6-promise';
 import log4js from 'log4js';
 //
@@ -39,8 +36,8 @@ log4js.configure({
       type: 'console',
       layout: {
         type: 'pattern',
-        //pattern: '%d{ISO8601} [%-5p%] %c %m'
-        //pattern: '%d{ISO8601} [%p] %n%m',
+        // pattern: '%d{ISO8601} [%-5p%] %c %m'
+        // pattern: '%d{ISO8601} [%p] %n%m',
         pattern: '[%p] %m'
       }
     }
@@ -96,7 +93,7 @@ const reducersApp = combineReducers({
   data,
   security,
   routing: routeReducer,
-  logger: (state = logger, action) => {
+  logger: (state = logger) => {
     // TODO: can be moved to separate redecuer and
     return state;
   }
@@ -106,12 +103,12 @@ const reducersApp = combineReducers({
 const reducer = compose(
   mergePersistedState((initialState, persistedState) => {
     // constuct immutable maps
-    let result = merge({}, initialState, persistedState);
-    let messages = Immutable.OrderedMap({});
+    const result = merge({}, initialState, persistedState);
+    let composedMessages = new Immutable.OrderedMap({});
     persistedState.messages.messages.map(message => {
-      messages = messages.set(message.id, message);
+      composedMessages = composedMessages.set(message.id, message);
     });
-    result.messages.messages = messages;
+    result.messages.messages = composedMessages;
     //
     return result;
   })
@@ -142,13 +139,13 @@ reduxRouterMiddleware.listenForReplays(store);
 // application routes root
 import Root from './layout/Root';
 import App from './layout/App';
-let routes = {
+const routes = {
   component: Root,
   childRoutes: [
     {
       path: '/',
       getComponent: (location, cb) => {
-        cb(null, { app: App })
+        cb(null, { app: App });
       },
       indexRoute: {
         component: require('./layout/Dashboard'),
@@ -160,7 +157,7 @@ let routes = {
       ]
     }
   ]
-}
+};
 
 // fills default onEnter on all routes
 // TODO: implement route overriding with priority

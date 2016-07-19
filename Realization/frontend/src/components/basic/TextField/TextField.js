@@ -1,12 +1,8 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import merge from 'object-assign';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import Icon from '../Icon/Icon';
 import HelpIcon from '../HelpIcon/HelpIcon';
 import Tooltip from '../Tooltip/Tooltip';
 
@@ -16,7 +12,7 @@ class TextField extends AbstractFormComponent {
     super(props);
   }
 
-  getRequiredValidationSchema(){
+  getRequiredValidationSchema() {
     return Joi.string().required();
   }
 
@@ -27,7 +23,7 @@ class TextField extends AbstractFormComponent {
     this.refs.input.focus();
   }
 
-  onChange(event){
+  onChange(event) {
     super.onChange(event);
     this.refs.popover.show();
   }
@@ -38,7 +34,7 @@ class TextField extends AbstractFormComponent {
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && !this.state.value){
+    if (required && !this.state.value) {
       showAsterix = true;
     }
     let title = this.getValidationResult() != null ? this.getValidationResult().message : null;
@@ -55,7 +51,7 @@ class TextField extends AbstractFormComponent {
         readOnly={this.state.readOnly}/>
     );
 
-    let render =  (
+    let render = (
       <div className={showAsterix ? 'has-feedback' : ''}>
         {
           !label
@@ -69,7 +65,7 @@ class TextField extends AbstractFormComponent {
           <Tooltip ref="popover" placement="right" value={title}>
             <span>
               {component}
-              {feedback != null ? feedback : showAsterix ? (<span className="form-control-feedback" style={{color: 'red', zIndex : 0}}>*</span>):''}
+              {feedback != null ? feedback : showAsterix ? (<span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>) : ''}
             </span>
           </Tooltip>
           <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
@@ -82,14 +78,14 @@ class TextField extends AbstractFormComponent {
 
 TextField.propTypes = {
   ...AbstractFormComponent.propTypes,
-  type: React.PropTypes.string,
-  placeholder: React.PropTypes.string,
-  help: React.PropTypes.string
-}
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  help: PropTypes.string
+};
 
 TextField.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   type: 'text'
-}
+};
 
 export default TextField;

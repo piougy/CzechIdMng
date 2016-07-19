@@ -1,8 +1,6 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 //
-import { AbstractComponent } from '../../basic'
+import { AbstractComponent } from '../../basic';
 import AdvancedColumn from './Column';
 
 /**
@@ -28,9 +26,9 @@ class AdvancedColumnLink extends AbstractComponent {
 AdvancedColumnLink.propTypes = {
   ...AdvancedColumn.propTypes,
   to: PropTypes.string.isRequired
-}
+};
 AdvancedColumnLink.defaultProps = {
-}
+};
 AdvancedColumnLink.__AdvancedColumnLink__ = true;
 
 export default AdvancedColumnLink;

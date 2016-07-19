@@ -88,10 +88,10 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 				.latestVersion().singleResult().getId();
 	}
 
-	@Override
 	/**
 	 * Generate diagram for process definition.
 	 */
+	@Override
 	public InputStream getDiagram(String definitionId) {
 		if (definitionId == null) {
 			throw new ActivitiIllegalArgumentException("No process definition id provided");

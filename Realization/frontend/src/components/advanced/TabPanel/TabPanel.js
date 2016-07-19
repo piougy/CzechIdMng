@@ -1,10 +1,6 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Link }  from 'react-router';
-import Immutable from 'immutable';
 //
 import TabPanelItem from './TabPanelItem';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
@@ -20,7 +16,7 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    //window.addEventListener('resize', this.handleResize);
+    // window.addEventListener('resize', this.handleResize);
     this.handleResize();
   }
 
@@ -29,13 +25,13 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   componentWillUnmount() {
-    //window.removeEventListener('resize', this.handleResize);
+    // window.removeEventListener('resize', this.handleResize);
   }
 
-  handleResize(e) {
-    if (typeof $ != 'undefined') {
-      let tabPanelSidebar = $(ReactDOM.findDOMNode(this.refs.tabPanelSidebar));
-      let tabPanelContent = $(ReactDOM.findDOMNode(this.refs.tabPanelContent));
+  handleResize() {
+    if (typeof $ !== undefined) {
+      const tabPanelSidebar = $(ReactDOM.findDOMNode(this.refs.tabPanelSidebar));
+      const tabPanelContent = $(ReactDOM.findDOMNode(this.refs.tabPanelContent));
       tabPanelSidebar.css({
         height: tabPanelContent.height()
       });
@@ -43,13 +39,13 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   getNavigationItems() {
-    const { navigation, environment, userContext, activeItem, activeNavigationItem, parentId } = this.props;
+    const { navigation, userContext, activeItem, activeNavigationItem, parentId } = this.props;
     const { userID } = this.props.params;
 
-    const params = { userID: userID };
+    const params = { userID };
 
     return getNavigationItems(navigation, parentId || activeNavigationItem, null, userContext, params).map(item => {
-      let labelParams = resolveNavigationParameters(userContext, params);
+      const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
       //
       switch (item.type) {
@@ -73,17 +69,13 @@ class TabPanel extends Basic.AbstractContextComponent {
           );
         }
         default: {
-          console.log('WARNING: navigation: ' + item.type + ' type not implemeted for item id [' + item.id + ']');
+          this.getLogger().error('WARNING: navigation: ' + item.type + ' type not implemeted for item id [' + item.id + ']');
         }
       }
     });
   }
 
   render() {
-    var items = [];
-    const { userID } = this.props.params;
-    const { userContext, activeItem } = this.props;
-
     const navigationItems = this.getNavigationItems();
 
     return (
@@ -108,24 +100,24 @@ TabPanel.propTypes = {
    * which navigation parent wil be rendered - sub menus to render
    */
   parentId: PropTypes.string
-}
+};
 TabPanel.defaultProps = {
   navigation: null,
   activeNavigationItem: null,
   activeItem: null,
   userContext: null
-}
+};
 
 function select(state) {
   const selectedNavigationItems = state.layout.get('selectedNavigationItems');
-  const activeNavigationItem = (selectedNavigationItems.length > 0 ? selectedNavigationItems[0]: null);
-  const selectedSidebarItem = (selectedNavigationItems.length > 1 ? selectedNavigationItems[1]: null);
+  const activeNavigationItem = (selectedNavigationItems.length > 0 ? selectedNavigationItems[0] : null);
+  const selectedSidebarItem = (selectedNavigationItems.length > 1 ? selectedNavigationItems[1] : null);
   return {
     navigation: state.layout.get('navigation'),
-    activeNavigationItem: activeNavigationItem,
+    activeNavigationItem,
     activeItem: selectedSidebarItem,
     userContext: state.security.userContext
-  }
+  };
 }
 
 export default connect(select)(TabPanel);

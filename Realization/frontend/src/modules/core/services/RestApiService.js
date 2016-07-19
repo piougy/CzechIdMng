@@ -1,4 +1,4 @@
-'use strict';
+
 
 import Fetch from 'isomorphic-fetch';
 //

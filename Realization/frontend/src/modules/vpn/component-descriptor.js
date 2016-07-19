@@ -1,4 +1,4 @@
-'use strict';
+
 
 import config from '../../../config.json'
 import VpnApprovalTaskDetail from './content/task/VpnApprovalTaskDetail';

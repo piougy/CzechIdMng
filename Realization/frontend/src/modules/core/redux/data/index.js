@@ -1,4 +1,4 @@
-'use strict';
+
 
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';

@@ -1,4 +1,4 @@
-'use strict';
+
 
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';

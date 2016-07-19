@@ -1,7 +1,4 @@
-'use strict';
-
-import React, { PropTypes } from 'react';
-import classNames from 'classnames';
+import { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 

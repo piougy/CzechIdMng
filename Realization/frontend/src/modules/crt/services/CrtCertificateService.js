@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { AbstractService, RestApiService, AuthenticateService } from '../../../modules/core/services';
 

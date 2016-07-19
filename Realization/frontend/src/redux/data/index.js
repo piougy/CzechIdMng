@@ -1,4 +1,4 @@
-'use strict';
+
 
 import IdentityAccountManager from './IdentityAccountManager';
 import SettingManager from './SettingManager';

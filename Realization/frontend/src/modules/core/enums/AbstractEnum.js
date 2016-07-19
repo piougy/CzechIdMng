@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { i18n } from '../services/LocalizationService';
 

@@ -19,7 +19,6 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 * Commas last,
 * 2 spaces for indentation
 * Prefer `'` over `"`
-* `'use strict';`
 * 80 character line length
 * Do not use the optional parameters of `setTimeout` and `setInterval`
 * Use JSDoc for documentation https://developers.google.com/closure/compiler/docs/js-for-compiler

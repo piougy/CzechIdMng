@@ -1,4 +1,4 @@
-'use strict';
+
 
 // http://rackt.org/redux/docs/advanced/AsyncActions.html
 // https://www.npmjs.com/package/immutable

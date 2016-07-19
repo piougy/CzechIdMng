@@ -1,7 +1,4 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import classNames from 'classnames';
 //
 import * as Basic from '../../basic';
 import ToogleFilterButton from './ToogleFilterButton';
@@ -47,10 +44,10 @@ Filter.propTypes = {
    * Submit function
    */
   onSubmit: PropTypes.func.isRequired
-}
+};
 Filter.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-}
+};
 
 Filter.DEFAUT_RELATION = DEFAUT_RELATION;
 Filter.DEFAUT_ENUM_RELATION = DEFAUT_ENUM_RELATION;

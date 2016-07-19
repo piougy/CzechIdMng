@@ -1,4 +1,4 @@
-'use strict';
+
 
 import { formatPattern, getParamNames } from 'react-router/lib/PatternUtils';
 import Immutable from 'immutable';

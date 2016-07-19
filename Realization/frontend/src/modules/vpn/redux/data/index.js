@@ -1,4 +1,4 @@
-'use strict';
+
 
 import VpnRecordManager from './VpnRecordManager';
 import VpnActivityManager from './VpnActivityManager';

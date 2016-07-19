@@ -1,4 +1,4 @@
-'use strict';
+
 
 import AbstractComponent from './AbstractComponent/AbstractComponent';
 import AbstractContextComponent from './AbstractContextComponent/AbstractContextComponent';

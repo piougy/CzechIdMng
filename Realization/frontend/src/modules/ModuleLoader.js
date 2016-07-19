@@ -1,4 +1,4 @@
-'use strict';
+
 
 import Immutable from 'immutable';
 import { moduleDescriptors } from './modules';

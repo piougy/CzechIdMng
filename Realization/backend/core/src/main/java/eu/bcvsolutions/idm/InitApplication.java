@@ -175,7 +175,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
-				//
+				/*
 				for (int i = 0; i < 100; i++) {
 					IdmIdentity bulkIdentity = new IdmIdentity();
 					bulkIdentity.setUsername("rt_" + i);
@@ -184,7 +184,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 					bulkIdentity.setLastName("L");
 					this.identityRepository.save(bulkIdentity);
 				}
-				
+				*/
 				//Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
 				testUser1.setUsername(TestUtils.TEST_USER_1);

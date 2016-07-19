@@ -1,4 +1,4 @@
-'use strict';
+
 
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
@@ -205,11 +205,11 @@ export default class SecurityManager {
     return _.includes(userContext.authorities, authority);
   }
 
-  static hasAnyAuthority(userContext, authority) {
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authority) {
+  static hasAnyAuthority(userContext, authorities) {
+    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
-    return _.intersection(userContext.authorities, authority).length > 0;
+    return _.intersection(userContext.authorities, authorities).length > 0;
   }
 
   /**

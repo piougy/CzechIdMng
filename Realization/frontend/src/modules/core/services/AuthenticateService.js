@@ -1,4 +1,4 @@
-'use strict';
+
 
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';

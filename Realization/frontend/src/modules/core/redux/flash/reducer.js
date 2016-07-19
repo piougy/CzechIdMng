@@ -1,4 +1,4 @@
-'use strict';
+
 
 import merge from 'object-assign';
 import Immutable from 'immutable';

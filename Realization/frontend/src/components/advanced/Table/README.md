@@ -42,7 +42,7 @@ All parameters from AdvancedColumn are supported. Added parameters:
 
 ## Usage
 ```javascript
-'use strict';
+
 
 import React from 'react';
 import Helmet from 'react-helmet';

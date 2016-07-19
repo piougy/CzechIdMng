@@ -17,4 +17,6 @@ public interface WorkflowProcessDefinitionService {
 
 	InputStream getDiagramByKey(String definitionKey);
 
+	WorkflowProcessDefinitionDto getById(String definitionId);
+
 }

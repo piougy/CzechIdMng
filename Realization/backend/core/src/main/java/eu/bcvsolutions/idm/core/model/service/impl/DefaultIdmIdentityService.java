@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 @Service
 public class DefaultIdmIdentityService implements IdmIdentityService {
-	public static String ADD_ROLE_TO_IDENTITY_WORKFLOW = "addRoleToIdentityWorkflow";
+	public static String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -43,34 +44,22 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 
 	@Override
 	public boolean addRole(IdmIdentityRole identityRole, boolean startApproveWorkflow) {
-		IdmIdentity identity = identityRole.getIdentity();
-		IdmRole role = identityRole.getRole();
-		Date validFrom = identityRole.getValidFrom();
-		Date validTill = identityRole.getValidTill();
-
-		if (!startApproveWorkflow || !role.isApprovable()) {
-			identityRoleRepository.save(identityRole);
-			return true;
-		}
-		Map<String, Object> variables = new HashMap<>();
-		variables.put("roleIdentifier", role.getId());
-		variables.put("validFrom", validFrom);
-		variables.put("validTill", validTill);
-		variables.put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identity.getId());
-
-		// Check on exist duplication workflow
-		checkDuplicationWorkflow(identity, role, variables);
-
-		workflowProcessInstanceService.startProcess("approveRoleBySuperAdminRole", IdmIdentity.class.getSimpleName(),
-				identity.getUsername(), identity.getId(), variables);
-		// TODO: if role is approved imediatelly, then return true (e.g. if
-		// request author is in approvers)
-		return false;
+		identityRoleRepository.save(identityRole);
+		return true;
 	}
 	
 	@Override
 	public boolean addRoleByDto(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow) {
 		return addRole(toEntity(identityRoleDto), startApproveWorkflow);
+	}
+	
+	@Override
+	public ProcessInstance changePermissions(IdmIdentity identity){
+		Map<String, Object> variables = new HashMap<>();
+		variables.put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identity.getId());
+		//check duplication
+		checkDuplicationWorkflow(identity, variables);
+		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), variables);	
 	}
 
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto) {
@@ -101,16 +90,16 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 * @param role
 	 * @param filter
 	 */
-	private void checkDuplicationWorkflow(IdmIdentity identity, IdmRole role, Map<String, Object> variables) {
+	private void checkDuplicationWorkflow(IdmIdentity identity, Map<String, Object> variables) {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessDefinitionKey("approveRoleBySuperAdminRole");
+		filter.setProcessDefinitionKey(ADD_ROLE_TO_IDENTITY_WORKFLOW);
 		filter.getEqualsVariables().putAll(variables);
 
 		ResourcesWrapper<WorkflowProcessInstanceDto> result = workflowProcessInstanceService.search(filter);
 		if (result != null && result.getResources() != null && !result.getResources().isEmpty()) {
 			throw new RestApplicationException(CoreResultCode.CONFLICT,
-					"For role %s and identity %s approve workflow already exist!",
-					ImmutableMap.of("identity", identity.getUsername(), "role", role.getName()));
+					"For identity %s change permission workflow already exist!",
+					ImmutableMap.of("identity", identity.getUsername()));
 		}
 	}
 

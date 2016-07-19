@@ -34,14 +34,14 @@ public class IdmIdentityRoleEventHandler {
 	 * 
 	 * @param identityRole
 	 */
-	@HandleBeforeCreate
-	public void handleBeforeCreate(IdmIdentityRole identityRole) {	
-		log.debug("Checking, if role [{}] for identity [{}] has to be approved first", identityRole.getRole(), identityRole.getIdentity());
-		if (identityRole.getRole().isApprovable()) {
-			if (!identityService.addRole(identityRole, true)) {
-				// TODO: better event - it's not "error".
-				throw new RestApplicationException(CoreResultCode.ACCEPTED, "Request was accepted. Role has to be approved first.");
-			}
-		}
-	}	
+//	@HandleBeforeCreate
+//	public void handleBeforeCreate(IdmIdentityRole identityRole) {	
+//		log.debug("Checking, if role [{}] for identity [{}] has to be approved first", identityRole.getRole(), identityRole.getIdentity());
+//		if (identityRole.getRole().isApprovable()) {
+//			if (!identityService.addRole(identityRole, true)) {
+//				// TODO: better event - it's not "error".
+//				throw new RestApplicationException(CoreResultCode.ACCEPTED, "Request was accepted. Role has to be approved first.");
+//			}
+//		}
+//	}	
 }

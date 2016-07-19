@@ -39,13 +39,15 @@ public class IdmRole extends AbstractEntity {
 	private boolean disabled = false;
 	
 	@NotNull
-	@Column(name = "approvable", nullable = false)
-	private boolean approvable = false;
-	
-	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
+
+	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
+	private String approveAddWorkflow;
+	
+	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
+	private String approveRemoveWorkflow;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -73,14 +75,6 @@ public class IdmRole extends AbstractEntity {
 
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
-	}
-
-	public boolean isApprovable() {
-		return approvable;
-	}
-
-	public void setApprovable(boolean approvable) {
-		this.approvable = approvable;
 	}
 	
 	public void setRoleType(IdmRoleType roleType) {
@@ -135,4 +129,21 @@ public class IdmRole extends AbstractEntity {
 	public void setSuperiorRoles(List<IdmRoleComposition> superiorRoles) {
 		this.superiorRoles = superiorRoles;
 	}
+
+	public String getApproveAddWorkflow() {
+		return approveAddWorkflow;
+	}
+
+	public void setApproveAddWorkflow(String approveAddWorkflow) {
+		this.approveAddWorkflow = approveAddWorkflow;
+	}
+
+	public String getApproveRemoveWorkflow() {
+		return approveRemoveWorkflow;
+	}
+
+	public void setApproveRemoveWorkflow(String approveRemoveWorkflow) {
+		this.approveRemoveWorkflow = approveRemoveWorkflow;
+	}
+
 }

@@ -67,12 +67,13 @@ public class WorkflowHistoricProcessInstanceController {
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> searchQuick(
 			@RequestParam int size, @RequestParam int page, @RequestParam String sort,
-			@RequestParam(required = false) String name, @RequestParam(required = false) String processDefinition) {
+			@RequestParam(required = false) String name, @RequestParam(required = false) String processDefinition, @RequestParam(required = false) String superProcessInstanceId) {
 
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setPageNumber(page);
 		filter.setPageSize(size);
 		filter.setProcessDefinitionKey(processDefinition);
+		filter.setSuperProcessInstanceId(superProcessInstanceId);
 		filter.setName(name != null && !name.isEmpty() ? name : null);
 		filter.initSort(sort);
 

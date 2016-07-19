@@ -175,7 +175,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		dto.setId(instance.getId());
 		dto.setActivityId(instance.getActivityId());
 		dto.setBusinessKey(instance.getBusinessKey());
-		dto.setName(instance.getName());
+		dto.setName(instance.getName() != null ? instance.getName() : instance.getProcessDefinitionName());
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
 		dto.setProcessDefinitionKey(instance.getProcessDefinitionKey());
 		dto.setProcessDefinitionName(instance.getProcessDefinitionName());

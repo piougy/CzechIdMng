@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<logger name="eu.bcvsolutions" level="DEBUG">
+		<appender-ref ref="DB_ASYNC" />
+	</logger>
+	<logger name="org.springframework" level="INFO"/>
+	<logger name="org.springframework.web" level="DEBUG"/>
+	<logger name="org.hibernate.SQL" level="DEBUG"/>
+	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+</included>

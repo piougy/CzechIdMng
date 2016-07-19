@@ -111,7 +111,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     //
     const filters = [];
     const filterValues = filterForm.getData();
-    for (let property in filterValues) {
+    for (const property in filterValues) {
+      if (!filterValues.hasOwnProperty(property)) {
+        continue;
+      }
       const filterComponent = filterForm.getComponent(property);
       /*
       let relation = filterComponent.props.relation;
@@ -188,8 +191,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (actionItem.action) {
       actionItem.action(actionItem.value, this.state.selectedRows);
     } else {
-      // TODO: jen log, informace na podporu aplikace?
-      alert('Omlouváme se, tato operace nebyla prozatím naimplementována.');
+      this.addMessage({ level: 'info', message: 'Omlouváme se, tato operace nebyla prozatím naimplementována.' });
     }
   }
 
@@ -296,7 +298,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             break;
           }
           default: {
-            this.getLogger().error('[AdvancedTable] Unimplemented column face [' + column.props.face + ']');
+            this.getLogger().trace('[AdvancedTable] usind default for column face [' + column.props.face + ']');
           }
         }
       }

@@ -9,6 +9,7 @@ import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager} from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import HistoricProcessInstanceTable from './HistoricProcessInstanceTable'
 import _ from 'lodash';
 
 /**
@@ -56,6 +57,8 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     let showLoadingInternal = showLoading || !_historicProcess;
     let force = new SearchParameters();
     force = force.setFilter('processInstanceId', historicProcessInstanceId);
+    let forceSubprocess = new SearchParameters();
+    forceSubprocess = forceSubprocess.setFilter('superProcessInstanceId', historicProcessInstanceId);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -67,6 +70,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
           <Basic.AbstractForm ref="form" data={_historicProcess} readOnly>
             <Basic.TextField ref="name" label={this.i18n('name')}/>
             <Basic.TextField ref="id" label={this.i18n('id')}/>
+            <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>
             <Basic.DateTimePicker ref="startTime" label={this.i18n('startTime')}/>
             <Basic.DateTimePicker ref="endTime" label={this.i18n('endTime')}/>
             <Basic.TextArea ref="deleteReason" label={this.i18n('deleteReason')}/>
@@ -93,6 +97,15 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             <Advanced.Column property="endTime" sort={true} face="datetime"/>
             <Advanced.Column property="deleteReason" sort={false} face="text"/>
           </Advanced.Table>
+        </Basic.Panel>
+        <Basic.Panel>
+          <Basic.PanelHeader>
+            {this.i18n('subprocesses')}
+          </Basic.PanelHeader>
+          <HistoricProcessInstanceTable uiKey='historic_subprocess_instance_table'
+             workflowHistoricProcessInstanceManager={workflowHistoricProcessInstanceManager}
+             forceSearchParameters={forceSubprocess}
+             filterOpened={false}/>
         </Basic.Panel>
         <Basic.Panel showLoading={!diagramUrl}>
           <Basic.PanelHeader>

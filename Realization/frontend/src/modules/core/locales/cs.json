@@ -686,6 +686,7 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
+        "changePermissions": "Změnit oprávnění",
         "addRoleProcesse": {
           "header": "Žádosti o přiřazení nových rolí",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o přiřazení nové role?",
@@ -965,6 +966,7 @@
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "Úživatelské úkoly procesu",
+          "subprocesses": "Podřízené procesy",
           "filter": {
             "processDefinition":{
               "label": "Definice",
@@ -1013,7 +1015,9 @@
       "approvable": "Schalovaná",
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
-      "authorities": "Oprávnění"
+      "authorities": "Oprávnění",
+      "approveAddWorkflow": "Přiřazení role schválit pomocí WF",
+      "approveRemoveWorkflow": "Odebrání role schválit pomocí WF"
     },
     "Setting": {
       "key": "Klíč",

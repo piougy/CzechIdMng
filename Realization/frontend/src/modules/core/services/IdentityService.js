@@ -243,6 +243,29 @@ class IdentityService extends AbstractService {
       return json;
     });
   }
+
+  /**
+   * Start workflow for change permissions
+   * @param  id Identity id
+   * @return Promise  task instance
+   */
+  changePermissions(id){
+    return RestApiService.put(this.getApiPath() + `/${id}/change-permissions`, null).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }
 
 export default IdentityService;

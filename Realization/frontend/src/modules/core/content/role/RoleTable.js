@@ -14,7 +14,10 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 //
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
+import {WorkflowProcessDefinitionManager} from '../../redux';
 
+
+const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of roles
 */
@@ -288,10 +291,16 @@ export class RoleTable extends Basic.AbstractContent {
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>
-                      <Basic.Checkbox
-                        ref="approvable"
-                        label={this.i18n('entity.Role.approvable')}
-                        className="last"/>
+                      <Basic.SelectBox
+                        ref="approveAddWorkflow"
+                        label={this.i18n('entity.Role.approveAddWorkflow')}
+                        multiSelect={false}
+                        manager={workflowProcessDefinitionManager}/>
+                      <Basic.SelectBox
+                        ref="approveRemoveWorkflow"
+                        label={this.i18n('entity.Role.approveRemoveWorkflow')}
+                        multiSelect={false}
+                        manager={workflowProcessDefinitionManager}/>
                     </Basic.AbstractForm>
                   </div>
                   <div className="col-lg-4">

@@ -157,9 +157,9 @@ class SelectBox extends AbstractFormComponent {
           //add item to array
           valueArray.push(json);
           result = valueArray;
-        }// else {
-        //  this.setState({value: result, isLoading: false}, this.validate);
-      //  }
+        } else {
+          this.setState({value: result, isLoading: false}, this.validate);
+        }
       } else {
         this.addError(error);
         this.setState({value: null, isLoading: false});

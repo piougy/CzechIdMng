@@ -108,7 +108,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, workflowHistoricProcessInstanceManager, columns, _showLoading } = this.props;
+    const { uiKey, workflowHistoricProcessInstanceManager, columns, _showLoading, forceSearchParameters } = this.props;
     const { filterOpened, detail } = this.state;
 
     return (
@@ -116,6 +116,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
+          forceSearchParameters={forceSearchParameters}
           manager={workflowHistoricProcessInstanceManager}
           showRowSelection={false}
           filter={this._filter()}
@@ -157,7 +158,8 @@ HistoricProcessInstanceTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   workflowHistoricProcessInstanceManager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  forceSearchParameters: PropTypes.object
 };
 
 HistoricProcessInstanceTable.defaultProps = {

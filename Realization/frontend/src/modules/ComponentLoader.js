@@ -18,7 +18,7 @@ export default class ComponentLoader {
   }
 
   getComponent(componentId) {
-    if (this._components.get(componentId)){
+    if (this._components.get(componentId)) {
       return this._components.get(componentId).component;
     }
     return null;
@@ -39,8 +39,8 @@ export default class ComponentLoader {
       .sortBy(item => item.order);
   }
 
-  _fillComponents(componentDescriptor){
-    for (let component of componentDescriptor.components) {
+  _fillComponents(componentDescriptor) {
+    for (const component of componentDescriptor.components) {
       if (!this._components.has(component.id) || (this._components.get(component.id).priority || 0) < (component.priority || 0)) {
         component.module = componentDescriptor.id;
         this._components = this._components.set(component.id, component);

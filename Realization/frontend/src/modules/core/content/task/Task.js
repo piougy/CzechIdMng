@@ -1,19 +1,15 @@
 
 
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../../components/basic';
-import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager } from '../../../../modules/core/redux';
-import * as Advanced from '../../../../components/advanced';
+import {WorkflowTaskInstanceManager } from '../../../../modules/core/redux';
 import DynamicTaskDetail from './DynamicTaskDetail';
 import ComponentService from '../../../../services/ComponentService';
 
-const identityManager = new IdentityManager();
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const componentService = new ComponentService();
-let detailComponent;
 
 class Task extends Basic.AbstractContent {
 
@@ -37,45 +33,48 @@ class Task extends Basic.AbstractContent {
   }
 
   render() {
-    const { taskID } = this.props.params;
     const { readOnly, task} = this.props;
-    // let DetailComponent;
-    // if (task){
-    //   DetailComponent = componentService.getComponent(task['_type']+'ApprovalTaskDetail');
-    //   if (!DetailComponent){
-    //       this.addMessage({title: this.i18n('message.task.detailNotFound'), level:'warning'});
-    //       this.context.router.goBack();
-    //       return null;
-    //   }
-    // }
+    let DetailComponent;
+    if (task && task.formKey) {
+      DetailComponent = componentService.getComponent(task.formKey);
+      if (!DetailComponent) {
+        this.addMessage({title: this.i18n('message.task.detailNotFound'), level: 'warning'});
+        this.context.router.goBack();
+        return null;
+      }
+    }
+    if (!DetailComponent) {
+      DetailComponent = DynamicTaskDetail;
+    }
     return (
         <div>
           {task ?
-          <DynamicTaskDetail task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
+          <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
           :
-          <Basic.Well showLoading={true}/>
+          <Basic.Well showLoading/>
           }
         </div>
-    )
+    );
   }
 }
 
 Task.propTypes = {
   task: PropTypes.object,
   readOnly: PropTypes.bool
-}
+};
+
 Task.defaultProps = {
   task: null,
   readOnly: false
-}
+};
 
 function select(state, component) {
   const { taskID } = component.params;
-  let task = workflowTaskInstanceManager.getEntity(state, taskID);
+  const task = workflowTaskInstanceManager.getEntity(state, taskID);
 
   return {
-    task: task
-  }
+    task
+  };
 }
 
 export default connect(select)(Task);

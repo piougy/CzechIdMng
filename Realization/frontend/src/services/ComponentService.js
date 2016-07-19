@@ -1,6 +1,4 @@
 
-
-import Immutable from 'immutable';
 import ComponentLoader from '../modules/ComponentLoader';
 
 const componentLoader = new ComponentLoader();

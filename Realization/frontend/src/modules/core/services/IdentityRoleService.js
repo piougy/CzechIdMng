@@ -1,11 +1,20 @@
 
-
 import AbstractService from './AbstractService';
+import SearchParameters from '../domain/SearchParameters';
 
 class IdentityRoleService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/identityRoles';
+  }
+
+  /**
+  * Returns default searchParameters for current entity type
+  *
+  * @return {object} searchParameters
+  */
+  getDefaultSearchParameters() {
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK);
   }
 }
 

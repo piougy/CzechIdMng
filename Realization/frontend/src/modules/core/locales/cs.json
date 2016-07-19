@@ -482,7 +482,10 @@
           "applicant": "Žadatele",
           "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
           "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
-          "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?"
+          "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
+          "role": {
+            "currentRoles": "Aktuálně přiřazená oprávnění"
+          }
         },
         "DefaultTaskDetail": {
           "applicant": "Žadatel",

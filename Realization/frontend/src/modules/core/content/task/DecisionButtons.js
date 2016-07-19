@@ -1,17 +1,9 @@
 
 
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../../components/basic';
-import { SecurityManager, IdentityManager, WorkflowTaskInstanceManager } from '../../../../modules/core/redux';
-import * as Advanced from '../../../../components/advanced';
-import ComponentService from '../../../../services/ComponentService';
-
-const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
-const componentService = new ComponentService();
-let detailComponent;
 
 class DecisionButtons extends Basic.AbstractContent {
 
@@ -27,18 +19,18 @@ class DecisionButtons extends Basic.AbstractContent {
     return 'content.task.DecisionButton';
   }
 
-  _onClick(decision){
+  _onClick(decision) {
     this.props.onClick(decision);
   }
 
-  _getDecisionsButton(decisions, showLoading){
-    let buttons = [];
-    for (let decision of decisions) {
+  _getDecisionsButton(decisions, showLoading) {
+    const buttons = [];
+    for (const decision of decisions) {
       buttons.push(
                     <Basic.Button
                       type="button"
                       level={decision.level}
-                      onClick={this._onClick.bind(this,decision)}
+                      onClick={this._onClick.bind(this, decision)}
                       showLoading={showLoading}
                       tooltip={decision.tooltip}>
                         {this.i18n(decision.label)}
@@ -50,11 +42,12 @@ class DecisionButtons extends Basic.AbstractContent {
   }
 
   render() {
-    const { readOnly, task, showLoading} = this.props;
+    const {task, showLoading} = this.props;
     let decisions;
-    if (task){
+    if (task) {
       decisions = task.decisions;
     }
+
     return (
         <div>
           {decisions ?
@@ -64,24 +57,25 @@ class DecisionButtons extends Basic.AbstractContent {
               {this._getDecisionsButton(decisions, showLoading)}
             </div>
           :
-          <Basic.Well showLoading={true}/>
+          <Basic.Well showLoading/>
           }
         </div>
-    )
+    );
   }
 }
 
 DecisionButtons.propTypes = {
   task: PropTypes.object,
   readOnly: PropTypes.bool
-}
+};
+
 DecisionButtons.defaultProps = {
   task: null,
   readOnly: false
-}
+};
 
-function select(state, component) {
-  return {}
+function select() {
+  return {};
 }
 
 export default connect(select)(DecisionButtons);

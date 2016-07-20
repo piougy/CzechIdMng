@@ -221,6 +221,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-test</artifactId>
+		    <scope>test</scope>
+		</dependency>				
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
@@ -307,7 +312,7 @@
 			</dependencies>
 		</profile>
 		<profile>
-			<id>devel</id>
+			<id>dev</id>
 			<properties>
 				<spring.profiles.active>devel</spring.profiles.active>
 			</properties>

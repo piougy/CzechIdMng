@@ -53,7 +53,7 @@ public class DefaultSecurityService implements SecurityService {
 		if (!authentication.isAuthenticated()) {
 			return authorities;
 		}
-		for (GrantedAuthority authority : getAuthentication().getAuthorities()) {
+		for (GrantedAuthority authority : authentication.getAuthorities()) {
 			authorities.add(authority.getAuthority());
 		}
 		return authorities;

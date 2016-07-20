@@ -1,3 +1,6 @@
 /target/
 /.xml/
 /test-output/
+/.classpath
+/.project
+/.settings/

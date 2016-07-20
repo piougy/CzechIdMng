@@ -1,9 +1,4 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
-import Immutable from 'immutable';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -31,7 +26,7 @@ export class RoleTable extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -60,7 +55,7 @@ export class RoleTable extends Basic.AbstractContent {
 
   showDetail(entity) {
     const { roleManager, uiKey } = this.props;
-    const { detail, openedAuthorities } = this.state;
+    const { detail } = this.state;
     //
     this.getLogger().debug(`[RoleTable] load entity detail [id:${entity.name}]`);
     this.setState({
@@ -98,7 +93,7 @@ export class RoleTable extends Basic.AbstractContent {
       detail: {
         show: true,
         showLoading: false,
-        entity: entity
+        entity
       }
     }, () => {
       this.refs.form.setData(entity);
@@ -124,7 +119,7 @@ export class RoleTable extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    let entity = this.refs.form.getData();
+    const entity = this.refs.form.getData();
     // append selected authorities
     entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
     // append subroles
@@ -132,7 +127,7 @@ export class RoleTable extends Basic.AbstractContent {
       entity.subRoles = entity.subRoles.map(subRoleId => {
         return {
           subRole: roleManager.getSelfLink(subRoleId)
-        }
+        };
       });
     }
     // delete superior roles - we dont want to save them (they are ignored on BE anyway)
@@ -141,8 +136,8 @@ export class RoleTable extends Basic.AbstractContent {
     this.getLogger().debug('[RoleTable] save entity', entity);
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(roleManager.createEntity(entity, `${uiKey}-detail`, (entity, error) => {
-        this._afterSave(entity, error);
+      this.context.store.dispatch(roleManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this._afterSave(createdEntity, error);
         if (!error) {
           this.refs.table.getWrappedInstance().reload();
         }
@@ -169,18 +164,18 @@ export class RoleTable extends Basic.AbstractContent {
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: roleManager.getNiceLabel(selectedEntities[0]), records: roleManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: roleManager.getNiceLabels(selectedEntities).join(', ') })
-    ).then(result => {
-      this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, (data, error) => {
+    ).then(() => {
+      this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, () => {
         this.refs.table.getWrappedInstance().reload();
       }));
-    }, (error) => {
+    }, () => {
       // nothing
     });
   }
 
   render() {
     const { uiKey, roleManager, columns, _showLoading } = this.props;
-    const { filterOpened, detail, selectedAuthorities, openedAuthorities, authorities } = this.state;
+    const { filterOpened, detail } = this.state;
 
     return (
       <div>
@@ -190,10 +185,9 @@ export class RoleTable extends Basic.AbstractContent {
           ref="table"
           uiKey={uiKey}
           manager={roleManager}
-          showRowSelection={false}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
-          showRowSelection={true}
+          showRowSelection
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm">
@@ -243,10 +237,10 @@ export class RoleTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="name" sort={true} face="text" rendered={_.includes(columns, 'name')}/>
-          <Advanced.Column property="roleType" sort={true} face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
-          <Advanced.Column property="disabled" sort={true} face="bool" rendered={_.includes(columns, 'disabled')}/>
-          <Advanced.Column property="approvable" sort={true} face="bool" rendered={_.includes(columns, 'approvable')}/>
+          <Advanced.Column property="name" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column property="roleType" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+          <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column property="approvable" sort face="bool" rendered={_.includes(columns, 'approvable')}/>
         </Advanced.Table>
 
         <Basic.Modal
@@ -280,14 +274,14 @@ export class RoleTable extends Basic.AbstractContent {
                         ref="superiorRoles"
                         label={this.i18n('entity.Role.superiorRoles')}
                         manager={roleManager}
-                        multiSelect={true}
-                        readOnly={true}
+                        multiSelect
+                        readOnly
                         placeholder=""/>
                       <Basic.SelectBox
                         ref="subRoles"
                         label={this.i18n('entity.Role.subRoles')}
                         manager={roleManager}
-                        multiSelect={true}/>
+                        multiSelect/>
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>
@@ -329,7 +323,7 @@ export class RoleTable extends Basic.AbstractContent {
                 type="submit"
                 level="success"
                 showLoading={_showLoading}
-                showLoadingIcon={true}
+                showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}
               </Basic.Button>

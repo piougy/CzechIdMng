@@ -1,12 +1,9 @@
-
-
 import React, { PropTypes } from 'react';
 import Immutable from 'immutable';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
 import { DataManager } from '../../redux';
 
@@ -28,12 +25,12 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     this.state = {
       openedAuthorities: new Immutable.Set(),
       filledAuthorities: this.prepareFilledAuthorities(this.props.authorities, this.props.availableAuthorities)
-    }
+    };
   }
 
   componentWillReceiveProps(nextProps) {
     const { authorities, availableAuthorities } = nextProps;
-    //cursor is different
+    // cursor is different
     if (availableAuthorities) {
       this.setState({
         filledAuthorities: this.prepareFilledAuthorities(authorities, availableAuthorities)
@@ -68,7 +65,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     if (event) {
       event.preventDefault();
     }
-    let { openedAuthorities } = this.state;
+    const { openedAuthorities } = this.state;
     this.setState({
       openedAuthorities: openedAuthorities.has(authorityGroup) ? openedAuthorities.delete(authorityGroup) : openedAuthorities.clear().add(authorityGroup)
     });
@@ -76,12 +73,12 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
 
   isAllAuthorityGroupSelected(authorityGroup) {
     const { filledAuthorities } = this.state;
-    return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result && selected }, true);
+    return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result && selected; }, true);
   }
 
   isSomeAuthorityGroupSelected(authorityGroup) {
     const { filledAuthorities } = this.state;
-    return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result || selected }, false);
+    return filledAuthorities.get(authorityGroup).reduce((result, selected) => { return result || selected; }, false);
   }
 
   onBulkAuthorityGroupSelect(authorityGroup) {
@@ -91,7 +88,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
       filledAuthorities = filledAuthorities.setIn([authorityGroup, permission], !isSomeSelected);
     });
     this.setState({
-      filledAuthorities: filledAuthorities
+      filledAuthorities
     });
   }
 
@@ -103,7 +100,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
   getSelectedAuthorities() {
     const { filledAuthorities } = this.state;
     //
-    let selectedAuthorities = [];
+    const selectedAuthorities = [];
     filledAuthorities.forEach((permissions, authorityGroupName) => {
       permissions.forEach((selected, permission) => {
         if (selected) {
@@ -130,7 +127,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
         {
           (_showLoading || showLoading)
           ?
-          <Basic.Loading showLoading={true} isStatic/>
+          <Basic.Loading showLoading isStatic/>
           :
           !filledAuthorities
           ||
@@ -213,7 +210,7 @@ AuthoritiesPanel.defaultProps = {
   disabled: false
 };
 
-function select(state, component) {
+function select(state) {
   return {
     availableAuthorities: DataManager.getData(state, AVAILABLE_AUTHORITIES_UIKEY),
     _showLoading: Utils.Ui.isShowLoading(state, AVAILABLE_AUTHORITIES_UIKEY)

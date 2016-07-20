@@ -690,6 +690,7 @@
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
         "changePermissions": "Změnit oprávnění",
+        "authorities": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
         "addRoleProcesse": {
           "header": "Žádosti o přiřazení nových rolí",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o přiřazení nové role?",

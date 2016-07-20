@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
@@ -7,7 +5,6 @@ import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager } from '../../redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
@@ -29,7 +26,7 @@ class Roles extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -43,12 +40,12 @@ class Roles extends Basic.AbstractContent {
     this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
   }
 
-  componentWillReceiveProps(nextProps){
-    const {_addRoleProcessIds} = nextProps;
-    if (_addRoleProcessIds && _addRoleProcessIds !== this.props._addRoleProcessIds){
-      for (let idProcess of _addRoleProcessIds) {
-        let processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
-        if (processEntity && processEntity.processVariables.roleIdentifier && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.roleIdentifier}`)){
+  componentWillReceiveProps(nextProps) {
+    const { _addRoleProcessIds } = nextProps;
+    if (_addRoleProcessIds && _addRoleProcessIds !== this.props._addRoleProcessIds) {
+      for (const idProcess of _addRoleProcessIds) {
+        const processEntity = workflowProcessInstanceManager.getEntity(this.context.store.getState(), idProcess);
+        if (processEntity && processEntity.processVariables.roleIdentifier && !roleManager.isShowLoading(this.context.store.getState(), `role-${processEntity.processVariables.roleIdentifier}`)) {
           this.context.store.dispatch(roleManager.fetchEntityIfNeeded(processEntity.processVariables.roleIdentifier, `role-${processEntity.processVariables.roleIdentifier}`));
         }
       }
@@ -136,7 +133,7 @@ class Roles extends Basic.AbstractContent {
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete.message`, { count: 1, record: entity._embedded.role.name }),
       this.i18n(`action.delete.header`, { count: 1 })
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(identityRoleManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('delete.success', { role: deletedEntity._embedded.role.name, username: userID }) });
@@ -145,8 +142,8 @@ class Roles extends Basic.AbstractContent {
           this.addError(error);
         }
       }));
-    }, (err) => {
-      //Rejected
+    }, () => {
+      // Rejected
     });
   }
 
@@ -154,11 +151,10 @@ class Roles extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { userID } = this.props.params;
     this.refs['confirm-delete'].show(
       this.i18n('content.user.roles.addRoleProcesse.deleteConfirm', {'processId': entity.id}),
       this.i18n(`action.delete.header`, { count: 1 })
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(workflowProcessInstanceManager.deleteEntity(entity, null, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('content.user.roles.addRoleProcesse.deleteSuccess', {'processId': entity.id})});
@@ -166,25 +162,25 @@ class Roles extends Basic.AbstractContent {
           this.addError(error);
         }
       }));
-    }, (err) => {
-      //Rejected
+    }, () => {
+      // Rejected
     });
   }
 
-  _roleNameCell({rowIndex, data, property, ...props}) {
+  _roleNameCell({ rowIndex, data }) {
     const role = roleManager.getEntity(this.context.store.getState(), data[rowIndex].processVariables.roleIdentifier);
-    if (role){
+    if (role) {
       return role.name;
     }
     return null;
   }
 
-  _changePermissions(){
+  _changePermissions() {
     const { userID } = this.props.params;
     this.setState({
       showLoading: true
     });
-    let promise = identityManager.getService().changePermissions(userID)
+    const promise = identityManager.getService().changePermissions(userID);
     promise.then((json) => {
       this.setState({
         showLoading: false
@@ -221,27 +217,25 @@ class Roles extends Basic.AbstractContent {
 
         <Basic.Row>
           <div className="col-lg-8">
-            <div style={{margin: 'auto auto', width:'200px', marginTop: '25px'}}>
-              <Basic.Button
-                className="btn"
-                style={{display:'block'}}
-                level="warning"
-                onClick={this._changePermissions.bind(this)}>
-                <Basic.Icon type="fa" icon="key"/>
-                {' '+this.i18n('changePermissions')}
-              </Basic.Button>
-            </div>
             <Basic.Panel style={{ marginTop: 15 }}>
               <Basic.PanelHeader text={this.i18n('navigation.menu.roles.title')}/>
               {
                 _showLoading
                 ?
-                <Basic.Loading showLoading={true} className="static"/>
+                <Basic.Loading showLoading className="static"/>
                 :
                 <div>
                   <Basic.Toolbar>
                     <div className="pull-right">
-                      <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
+                      <Basic.Button
+                        style={{display: 'block'}}
+                        level="warning"
+                        onClick={this._changePermissions.bind(this)}>
+                        <Basic.Icon type="fa" icon="key"/>
+                        {' '}
+                        { this.i18n('changePermissions') }
+                      </Basic.Button>
+                      <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={false}>
                         <Basic.Icon value="fa:plus"/>
                         {' '}
                         {this.i18n('button.add')}
@@ -282,7 +276,7 @@ class Roles extends Basic.AbstractContent {
                       header={this.i18n('label.action')}
                       className="action"
                       cell={
-                        ({rowIndex, data, property, ...props}) => {
+                        ({ rowIndex, data }) => {
                           return (
                             <Basic.Button
                               level="danger"
@@ -302,21 +296,21 @@ class Roles extends Basic.AbstractContent {
             </div>
 
             <div className="col-lg-4">
-              <Basic.Panel  style={{ marginTop: 15 }}>
+              <Basic.Panel style={{ marginTop: 15 }}>
                 <Basic.PanelHeader help={authorityHelp}>
-                  <h3><span dangerouslySetInnerHTML={{ __html: 'Přidělená oprávnění <small>dle přiřazných rolí</small>' }}/></h3>
+                  <h3><span dangerouslySetInnerHTML={{ __html: this.i18n('authorities') }}/></h3>
                 </Basic.PanelHeader>
                 <Basic.PanelBody>
                   <AuthoritiesPanel
                     roleManager={roleManager}
                     authorities={authorities}
-                    disabled={true}/>
+                    disabled/>
                 </Basic.PanelBody>
               </Basic.Panel>
             </div>
           </Basic.Row>
           <Basic.Panel>
-            <Basic.PanelHeader text=  {this.i18n('addRoleProcesse.header')}/>
+            <Basic.PanelHeader text={this.i18n('addRoleProcesse.header')}/>
             <Advanced.Table
               ref="tableProcesses"
               uiKey="table-processes"
@@ -356,7 +350,7 @@ class Roles extends Basic.AbstractContent {
                 header={this.i18n('label.action')}
                 className="action"
                 cell={
-                  ({rowIndex, data, property, ...props}) => {
+                  ({ rowIndex, data }) => {
                     return (
                       <Basic.Button
                         level="danger"
@@ -410,7 +404,7 @@ class Roles extends Basic.AbstractContent {
                   type="submit"
                   level="success"
                   showLoading={_showLoading}
-                  showLoadingIcon={true}
+                  showLoadingIcon
                   showLoadingText={this.i18n('button.saving')}>
                   {this.i18n('button.save')}
                 </Basic.Button>
@@ -419,32 +413,32 @@ class Roles extends Basic.AbstractContent {
           </Basic.Modal>
         </div>
       );
-    }
+  }
+}
+
+Roles.propTypes = {
+  _showLoading: PropTypes.bool,
+  _entities: PropTypes.arrayOf(React.PropTypes.object),
+  authorities: PropTypes.arrayOf(React.PropTypes.object)
+};
+Roles.defaultProps = {
+  _showLoading: true,
+  _entities: [],
+  authorities: []
+};
+
+function select(state, component) {
+  let addRoleProcessIds;
+  if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items) {
+    addRoleProcessIds = state.data.ui['table-processes'].items;
   }
 
-  Roles.propTypes = {
-    _showLoading: PropTypes.bool,
-    _entities: PropTypes.arrayOf(React.PropTypes.object),
-    authorities: PropTypes.arrayOf(React.PropTypes.object)
-  }
-  Roles.defaultProps = {
-    _showLoading: true,
-    _entities: [],
-    authorities: []
-  }
+  return {
+    _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.userID}`),
+    _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.userID}`),
+    _addRoleProcessIds: addRoleProcessIds,
+    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`)
+  };
+}
 
-  function select(state, component) {
-    let addRoleProcessIds;
-    if (state.data.ui['table-processes'] && state.data.ui['table-processes'].items){
-      addRoleProcessIds = state.data.ui['table-processes'].items;
-    }
-
-    return {
-      _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.userID}`),
-      _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.userID}`),
-      _addRoleProcessIds: addRoleProcessIds,
-      authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`)
-    };
-  }
-
-  export default connect(select)(Roles);
+export default connect(select)(Roles);

@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Unit test will use mockito and junit test framework
@@ -19,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @Ignore
 @RunWith(MockitoJUnitRunner.class)
+@ActiveProfiles("test")
 public abstract class AbstractUnitTest {
 
 	/**

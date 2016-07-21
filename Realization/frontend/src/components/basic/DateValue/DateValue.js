@@ -1,10 +1,7 @@
-
-
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
 import moment from 'moment';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Simple date formatter
@@ -49,11 +46,11 @@ DateValue.propTypes = {
    * Date time format
    */
   format: PropTypes.string
-}
+};
 
 DateValue.defaultProps = {
   rendered: true
-}
+};
 
 
 export default DateValue;

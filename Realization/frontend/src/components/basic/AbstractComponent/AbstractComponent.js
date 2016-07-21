@@ -1,5 +1,3 @@
-
-
 import React, {PropTypes} from 'react';
 
 const PROPERTY_RENDERED = 'rendered';
@@ -11,7 +9,7 @@ const PROPERTY_SHOW_LOADING = 'showLoading';
 export default class AbstractComponent extends React.Component {
 
   constructor(props, context) {
-     super(props, context);
+    super(props, context);
   }
 
   /**
@@ -22,9 +20,9 @@ export default class AbstractComponent extends React.Component {
    * @return {bool}
    */
   static supportsProperty(component, supportedProperty) {
-    for (let property in component.propTypes) {
+    for (const property in component.propTypes) {
       if (property === supportedProperty) {
-        return true
+        return true;
       }
     }
     return false;
@@ -32,7 +30,7 @@ export default class AbstractComponent extends React.Component {
 
   /**
    * Returs true, if given component supports rendered property (by propTypes)
-   * 
+   *
    * @param  {AbstractComponent} component
    * @return {bool}
    */
@@ -60,9 +58,9 @@ AbstractComponent.propTypes = {
    * If component is rendered on page
    */
   [PROPERTY_RENDERED]: PropTypes.bool
-}
+};
 
 AbstractComponent.defaultProps = {
   [PROPERTY_SHOW_LOADING]: false,
   [PROPERTY_RENDERED]: true
-}
+};

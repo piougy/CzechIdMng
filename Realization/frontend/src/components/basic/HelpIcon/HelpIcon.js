@@ -39,7 +39,7 @@ export default class HelpIcon extends AbstractContextComponent {
   }
 
   getHeaderText(content) {
-    let lines = content.split('\n');
+    const lines = content.split('\n');
     if (lines[0].lastIndexOf('# ', 0) === 0) { // startsWith - this work even in ie
       return lines[0].substr('# '.length);
     }
@@ -47,7 +47,7 @@ export default class HelpIcon extends AbstractContextComponent {
   }
 
   getContentText(content) {
-    let lines = content.split('\n');
+    const lines = content.split('\n');
     if (lines[0].lastIndexOf('# ', 0) === 0) { // startsWith - this work even in ie
       lines.shift();
       return lines.join('\n');
@@ -60,8 +60,8 @@ export default class HelpIcon extends AbstractContextComponent {
     if (!rendered || !content) {
       return null;
     }
-    let headerText = this.getHeaderText(content);
-    let markedContent = marked(this.getContentText(content));
+    const headerText = this.getHeaderText(content);
+    const markedContent = marked(this.getContentText(content));
 
     return (
       <span className="help-icon-container" {...others}>

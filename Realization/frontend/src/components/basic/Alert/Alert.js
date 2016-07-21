@@ -1,6 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -18,7 +16,7 @@ class Alert extends AbstractComponent {
     super(props);
     this.state = {
       closed: false
-    }
+    };
   }
 
   _onClose(event) {
@@ -48,7 +46,7 @@ class Alert extends AbstractComponent {
     if (showLoading) {
       return (
         <div className={classNames} {...others}>
-          <Icon type="fa" icon="refresh" showLoading={true}/>
+          <Icon type="fa" icon="refresh" showLoading/>
         </div>
       );
     }
@@ -107,12 +105,12 @@ Alert.propTypes = {
    * Close function - if it's set, then close icon is shown and this method is called on icon click
    */
   onClose: PropTypes.func
-}
+};
 
 Alert.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'info',
   onClose: null
-}
+};
 
 export default Alert;

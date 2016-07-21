@@ -1,10 +1,8 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 import _ from 'lodash';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 export const TYPE_GLYPHICON = 'glyph';
 export const TYPE_FONT_AWESOME = 'fa'; // https://fortawesome.github.io/Font-Awesome/examples/
@@ -75,7 +73,7 @@ class Icon extends AbstractComponent {
         className,
       );
     }
-    let _style = _.merge({}, style);
+    const _style = _.merge({}, style);
     if (color) {
       _style.color = color;
     }
@@ -100,11 +98,11 @@ Icon.propTypes = {
    * @type {string}
    */
   value: PropTypes.string
-}
+};
 
 Icon.defaultProps = {
   ...AbstractComponent.defaultProps,
   type: TYPE_GLYPHICON
-}
+};
 
 export default Icon;

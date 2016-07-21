@@ -1,6 +1,3 @@
-
-
-import Immutable from 'immutable';
 import { moduleDescriptors } from './modules';
 
 export default class ModuleLoader {

@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
@@ -33,7 +31,7 @@ class ContentHeader extends AbstractComponent {
             {
               showLoading
               ?
-              <Icon type="fa" icon="refresh" showLoading={true} className="icon-loading"/>
+              <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
               :
               <span>
                 {text}
@@ -64,10 +62,10 @@ ContentHeader.propTypes = {
    * @type {[type]}
    */
   help: PropTypes.string
-}
+};
 
 ContentHeader.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 export default ContentHeader;

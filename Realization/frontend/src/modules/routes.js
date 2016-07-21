@@ -9,8 +9,8 @@
 module.exports = {
   component: 'div',
   childRoutes: [
-    //require('./crt/routes'),
-    //require('./vpn/routes'),
+    // require('./crt/routes'),
+    // require('./vpn/routes'),
     require('./core/routes')
   ]
-}
+};

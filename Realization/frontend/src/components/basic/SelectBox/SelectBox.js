@@ -250,7 +250,7 @@ class SelectBox extends AbstractFormComponent {
     );
   }
 
-  _getPlaceholder(placeholder) {
+  getPlaceholder(placeholder) {
     if (placeholder !== null && placeholder !== undefined) {
       return placeholder
     }
@@ -273,7 +273,7 @@ class SelectBox extends AbstractFormComponent {
       valueKey={ITEM_FULL_KEY}
       labelKey={fieldLabel}
       noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-      placeholder={this._getPlaceholder(placeholder)}
+      placeholder={this.getPlaceholder(placeholder)}
       searchingText={this.i18n('component.basic.SelectBox.searchingText')}
       searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
       loadOptions={this.getOptions}/>

@@ -1,7 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
-import { Link }  from 'react-router';
+import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -45,7 +42,7 @@ class Button extends AbstractComponent {
     const classNames = classnames(
       'btn',
       'btn-' + level,
-      { 'hidden': hidden },
+      { hidden },
       className
     );
     let _showLoadingText = children;
@@ -66,7 +63,7 @@ class Button extends AbstractComponent {
               {
                 showLoadingIcon
                 ?
-                <Icon type="fa" icon="refresh" showLoading={true}/>
+                <Icon type="fa" icon="refresh" showLoading/>
                 :
                 null
               }
@@ -114,12 +111,11 @@ Button.propTypes = {
 Button.defaultProps = {
   ...AbstractComponent.defaultProps,
   type: 'button',
-  level : 'default',
-  hidden : false,
+  level: 'default',
+  hidden: false,
   showLoadingIcon: false,
   showLoadingText: null,
   titlePlacement: 'right'
-}
-
+};
 
 export default Button;

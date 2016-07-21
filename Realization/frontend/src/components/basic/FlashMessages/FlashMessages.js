@@ -1,11 +1,9 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import NotificationSystem from 'react-notification-system';
 import merge from 'object-assign';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import { FlashMessagesManager } from '../../../modules/core/redux';
 import { i18n } from '../../../modules/core/services/LocalizationService';
 
@@ -21,7 +19,7 @@ const _DEFAULT_MESSAGE = {
   action: null,
   hidden: false,
   date: new Date()
-}
+};
 
 export class FlashMessages extends AbstractComponent {
 
@@ -31,7 +29,7 @@ export class FlashMessages extends AbstractComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    let unprocessedMessages = this._getUnproccessedMessages(nextProps.messages, this.props.messages);
+    const unprocessedMessages = this._getUnproccessedMessages(nextProps.messages, this.props.messages);
     unprocessedMessages.added.map(message => {
       this._showMessage(message);
     });
@@ -45,7 +43,7 @@ export class FlashMessages extends AbstractComponent {
   */
   _getUnproccessedMessages(newMessages, oldMessages) {
     let added = [];
-    let hidden = [];
+    const hidden = [];
     if (!oldMessages || !oldMessages.length) {
       added = newMessages;
     } else {
@@ -59,9 +57,9 @@ export class FlashMessages extends AbstractComponent {
       });
     }
     return {
-      added: added,
-      hidden: hidden
-    }
+      added,
+      hidden
+    };
   }
 
   _hideMessage(message) {
@@ -87,10 +85,10 @@ export class FlashMessages extends AbstractComponent {
       message = i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
     }
     if (typeof message === 'string') {
-      message = merge({}, _DEFAULT_MESSAGE, {message: message});
+      message = merge({}, _DEFAULT_MESSAGE, { message });
     }
     // errors are shown centered by default
-    if (message.level && (message.level === 'error' /*|| message.level === 'warning'*/) && !message.position) {
+    if (message.level && (message.level === 'error' /* || message.level === 'warning' */) && !message.position) {
       message.position = 'tc';
     }
     // add default
@@ -114,7 +112,7 @@ export class FlashMessages extends AbstractComponent {
     if (!options) {
       return;
     }
-    let message = FlashMessages.getMessage(options);
+    const message = FlashMessages.getMessage(options);
     //
     if (message.hidden) {
       // skip hidden messages
@@ -167,7 +165,7 @@ export class FlashMessages extends AbstractComponent {
         },
 
         success: { // Applied only to the success notification item
-          //color: 'red'
+          // color: 'red'
         }
       },
       ActionWrapper: {
@@ -175,7 +173,7 @@ export class FlashMessages extends AbstractComponent {
           textAlign: 'right'
         }
       }
-    }
+    };
     return styles;
   }
 
@@ -190,24 +188,24 @@ export class FlashMessages extends AbstractComponent {
 }
 
 FlashMessages.propTypes = {
-  messages: React.PropTypes.array,
-  maxShown: React.PropTypes.number
-}
+  messages: PropTypes.array,
+  maxShown: PropTypes.number
+};
 FlashMessages.defaultProps = {
   maxShown: 3
-}
+};
 FlashMessages.contextTypes = {
-  store: React.PropTypes.object.isRequired
-}
+  store: PropTypes.object.isRequired
+};
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
 function select(state) {
   return {
     messages: state.messages.messages.toArray()
-  }
+  };
 }
 
 // Wrap the component to inject dispatch and state into it
 // this.refs.form.getWrappedInstance().submit() - could call connected instance
-export default connect(select)(FlashMessages)
+export default connect(select)(FlashMessages);

@@ -1,9 +1,7 @@
-
-
-import React from 'react';
+import { PropTypes } from 'react';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
-import { selectNavigationItems, selectNavigationItem, selectSidebarItem } from '../../../redux/Layout/layoutActions';
+import { selectNavigationItems, selectNavigationItem } from '../../../redux/Layout/layoutActions';
 
 /**
 * Basic content = page representation
@@ -75,13 +73,13 @@ export default class AbstractContent extends AbstractContextComponent {
 
 AbstractContent.propTypes = {
   ...AbstractContextComponent.propTypes
-}
+};
 
 AbstractContent.defaultProps = {
   ...AbstractContextComponent.defaultProps
-}
+};
 
 AbstractContent.contextTypes = {
   ...AbstractContextComponent.contextTypes,
-  router:  React.PropTypes.object//.isRequired
-}
+  router: PropTypes.object // .isRequired
+};

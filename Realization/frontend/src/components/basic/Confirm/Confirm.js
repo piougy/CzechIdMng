@@ -1,10 +1,7 @@
-
-
 import React, { PropTypes } from 'react';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Modal from '../Modal/Modal';
-import Alert from '../Alert/Alert';
 import Button from '../Button/Button';
 
 class Confirm extends AbstractContextComponent {
@@ -17,22 +14,22 @@ class Confirm extends AbstractContextComponent {
   }
 
   confirm() {
-    let continu = true;
-    if (this.state.func){
-        continu = this.state.func('confirm',this);
+    let canContinue = true;
+    if (this.state.func) {
+      canContinue = this.state.func('confirm', this);
     }
-    if (continu){
+    if (canContinue) {
       this.state.dispatch(true);
       this.closeModal();
     }
   }
 
   reject() {
-    let continu = true;
-    if (this.state.func){
-        continu = this.state.func('reject',this);
+    let canContinue = true;
+    if (this.state.func) {
+      canContinue = this.state.func('reject', this);
     }
-    if (continu){
+    if (canContinue) {
       this.state.dispatch(false);
       this.closeModal();
     }
@@ -45,22 +42,22 @@ class Confirm extends AbstractContextComponent {
   }
 
   show(message, title, func) {
-   var promise = new Promise(function(resolve, reject) {
+    const promise = new Promise((resolve, reject) => {
       this.setState({
-        dispatch: function (result) {
-          if (result){
+        dispatch: (result) => {
+          if (result) {
             resolve('confirmed');
           } else {
             reject('rejected');
           }
         }
       });
-    }.bind(this));
+    });
     this.setState({
       show: true,
-      message: message,
-      title: title,
-      func: func
+      message,
+      title,
+      func
     });
     return promise;
   }
@@ -97,12 +94,12 @@ Confirm.propTypes = {
    */
   show: PropTypes.bool,
   level: Button.propTypes.level
-}
+};
 
 Confirm.defaultProps = {
   ...AbstractContextComponent.defaultProps,
   show: false,
   level: 'success'
-}
+};
 
 export default Confirm;

@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import { Collapse } from 'react-bootstrap';
 //
@@ -19,7 +17,7 @@ export default class BasicCollapse extends AbstractComponent {
         {
           showLoading
           ?
-          <Loading isStatic showLoading={true}/>
+          <Loading isStatic showLoading/>
           :
           children
         }
@@ -38,9 +36,9 @@ BasicCollapse.propTypes = {
   /**
    * ... and other react bootstap collapse props
    */
-}
+};
 
 BasicCollapse.defaultProps = {
   ...AbstractComponent.defaultProps,
   in: false
-}
+};

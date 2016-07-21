@@ -1,5 +1,3 @@
-
-
 import Immutable from 'immutable';
 import { componentDescriptors } from './components';
 
@@ -47,5 +45,4 @@ export default class ComponentLoader {
       }
     }
   }
-
 }

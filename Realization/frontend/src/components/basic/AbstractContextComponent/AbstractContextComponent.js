@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -14,8 +12,8 @@ import { i18n } from '../../../modules/core/services/LocalizationService';
 class AbstractContextComponent extends AbstractComponent {
 
   constructor(props, context) {
-     super(props, context);
-     this.flashMessagesManager = new FlashMessagesManager();
+    super(props, context);
+    this.flashMessagesManager = new FlashMessagesManager();
   }
 
   /**
@@ -86,7 +84,7 @@ class AbstractContextComponent extends AbstractComponent {
     let result = i18n(key, options);
     // escape html
     if (options && options.escape === false && key !== result) {
-      result = <span dangerouslySetInnerHTML={{__html: i18n(key, options)}}/>
+      result = (<span dangerouslySetInnerHTML={{__html: i18n(key, options)}}/>);
     }
     return result;
   }

@@ -1,10 +1,6 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { SplitButton } from 'react-bootstrap';
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
-import classnames from 'classnames';
-
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 class BasicSplitButton extends AbstractComponent {
 
@@ -32,8 +28,8 @@ BasicSplitButton.propTypes = {
 };
 BasicSplitButton.defaultProps = {
   ...AbstractComponent.defaultProps,
-  level : 'default'
-}
+  level: 'default'
+};
 
 
 export default BasicSplitButton;

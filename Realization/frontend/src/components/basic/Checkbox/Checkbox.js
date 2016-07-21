@@ -1,8 +1,5 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import merge from 'object-assign';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
@@ -14,7 +11,7 @@ class Checkbox extends AbstractFormComponent {
     super(props);
   }
 
-  onChange(event){
+  onChange(event) {
     if (this.props.onChange) {
       this.props.onChange(event);
     }
@@ -32,14 +29,14 @@ class Checkbox extends AbstractFormComponent {
     this.refs.checkbox.focus();
   }
 
-  getRequiredValidationSchema(){
+  getRequiredValidationSchema() {
     return Joi.boolean().valid(true);
   }
 
-  getBody(feedback) {
-    const { ref, labelSpan, label, componentSpan, tooltip } = this.props;
+  getBody() {
+    const { labelSpan, label, componentSpan, tooltip } = this.props;
     const { value, readOnly, disabled } = this.state;
-    const title = this.getValidationResult() && this.getValidationResult().message ? this.getValidationResult().message +' ('+tooltip+')' : tooltip;
+    const title = this.getValidationResult() && this.getValidationResult().message ? this.getValidationResult().message + ' (' + tooltip + ')' : tooltip;
     const className = classNames(
       labelSpan,
       componentSpan
@@ -49,7 +46,7 @@ class Checkbox extends AbstractFormComponent {
       <div className={className}>
         <div className="checkbox">
           {/* focus can not be added for checkbox - event colision when checkbox  */}
-          <Tooltip trigger={['click', 'hover']} ref='popover' placement="left" value={title}>
+          <Tooltip trigger={['click', 'hover']} ref="popover" placement="left" value={title}>
             <label>
               <input
                 type="checkbox"
@@ -72,13 +69,12 @@ class Checkbox extends AbstractFormComponent {
 
 Checkbox.propTypes = {
   ...AbstractFormComponent.propTypes
-}
+};
 
-const { labelSpan, ...otherDefaultProps } = AbstractFormComponent.defaultProps; // labelSpan override
 Checkbox.defaultProps = {
-  ...otherDefaultProps,
+  ...AbstractFormComponent.defaultProps,
   labelSpan: 'col-sm-offset-3'
-}
+};
 
 
 export default Checkbox;

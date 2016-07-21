@@ -1,11 +1,4 @@
-
-
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
-import invariant from 'invariant';
-import _ from 'lodash';
-import Immutable from 'immutable';
 import ReactDropzone from 'react-dropzone';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
@@ -19,18 +12,16 @@ class Dropzone extends AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {}
+    this.state = {};
   }
 
-
   render() {
-    const { data } = this.state;
-    const {onDrop, multiple, accept, style, styleActive, styleReject, showLoading, rendered } = this.props;
-    if (!rendered){
+    const { onDrop, multiple, accept, style, styleActive, styleReject, showLoading, rendered } = this.props;
+    if (!rendered) {
       return null;
     }
-    if (showLoading){
-      return  <Well showLoading={true}/>;
+    if (showLoading) {
+      return <Well showLoading/>;
     }
     return (
       <div>
@@ -40,7 +31,7 @@ class Dropzone extends AbstractContextComponent {
           rejectStyle={styleReject ? styleReject : defaultStyle.styleReject}
           multiple={multiple}
           accept={accept}
-          disablePreview={true}
+          disablePreview
           onDrop={onDrop}>
           <div style={{color: '#777'}}>{this.i18n('component.basic.Dropzone.infoText')}</div>
         </ReactDropzone>
@@ -83,13 +74,13 @@ Dropzone.propTypes = {
   * Object with styles for reject state (when are files rejected)
   */
   styleReject: PropTypes.object,
-}
+};
 
 Dropzone.defaultProps = {
   rendered: true,
   showLoading: false,
   multiple: true
-}
+};
 
 
 export default Dropzone;

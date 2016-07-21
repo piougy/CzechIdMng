@@ -5,3 +5,5 @@ lib/**
 node_modules/**
 tmp-bower-repo/**
 tmp-docs-repo/**
+src/modules/crt/**
+src/modules/vpn/**

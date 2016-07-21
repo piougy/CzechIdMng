@@ -314,7 +314,7 @@
 		<profile>
 			<id>dev</id>
 			<properties>
-				<spring.profiles.active>devel</spring.profiles.active>
+				<spring.profiles.active>dev</spring.profiles.active>
 			</properties>
 			<dependencies>
 				<dependency>

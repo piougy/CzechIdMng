@@ -1,10 +1,8 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import classnames from 'classnames';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Wrapped bootstrap Tabbs
@@ -20,8 +18,8 @@ export default class BasicTabs extends AbstractComponent {
     }
 
     const classNames = classnames(
-      {'tab-horizontal' : !position || position === 'top'},
-      {'tab-vertical' : position && position === 'left'},
+      {'tab-horizontal': !position || position === 'top'},
+      {'tab-vertical': position && position === 'left'},
       className
     );
 

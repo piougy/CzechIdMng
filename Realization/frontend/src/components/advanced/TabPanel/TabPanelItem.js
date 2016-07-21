@@ -11,7 +11,7 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { className, to, active, ...others } = this.props;
+    const { className, to, active, icon, iconColor, ...others } = this.props;
     const itemClassNames = classnames(
       { 'list-group-item': false },
       { active },
@@ -20,6 +20,7 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
     return (
       <li className={itemClassNames}>
         <Link to={to} {...others}>
+          <Basic.Icon value={ icon || 'fa:circle-o' } color={ iconColor }/>
           {this.props.children}
         </Link>
       </li>

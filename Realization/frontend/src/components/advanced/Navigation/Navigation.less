@@ -110,12 +110,15 @@ header {
   }
 }
 
+.sidebar ul li a {
+  border-left-style: solid;
+  border-left-width: 3px;
+  border-left-color: transparent;
+}
+
 .sidebar ul li a.active {
   background-color: #eee;
-  //color: @idm-link-color-hover;
-  border-right-width: 3px;
-  border-right-style: solid;
-  border-right-color: @idm-base-color;
+  border-left-color: @idm-base-color;
 }
 
 .sidebar ul li a:focus,

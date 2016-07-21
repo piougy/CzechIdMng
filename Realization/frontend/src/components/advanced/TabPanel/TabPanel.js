@@ -56,6 +56,8 @@ class TabPanel extends Basic.AbstractContextComponent {
               id={`nav-item-${item.id}`}
               key={`nav-item-${item.id}`}
               to={item.to}
+              icon={item.icon}
+              iconColor={item.iconColor}
               title={this.i18n(item.titleKey, { defaultValue: item.title })}
               active={activeItem === item.id}>
               {

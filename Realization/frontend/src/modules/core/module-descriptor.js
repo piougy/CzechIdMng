@@ -29,7 +29,8 @@ module.exports = {
             'labelKey': 'content.user.sidebar.profile',
             'order': 10,
             'priority': 0,
-            'path': '/user/:userID/profile'
+            'path': '/user/:userID/profile',
+            'icon': 'user'
           },
           {
             'id': 'profile-password',
@@ -38,6 +39,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.password',
             'order': 20,
             'path': '/user/:userID/password',
+            'icon': 'lock',
             'conditions': [
               'userID === userContext.username'
             ]
@@ -48,6 +50,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.roles',
             'order': 30,
             'path': '/user/:userID/roles',
+            'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
@@ -80,6 +83,7 @@ module.exports = {
             'labelKey': 'entity.IdentityWorkingPosition._type',
             'order': 50,
             'path': '/user/:userID/workingPositions',
+            'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
@@ -286,4 +290,4 @@ module.exports = {
       }
     ]
   }
-}
+};

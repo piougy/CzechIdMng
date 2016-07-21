@@ -1,6 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 
@@ -18,7 +16,7 @@ class Pagination extends AbstractContextComponent {
       currentPage: this.props.page,
       changePage: this.props.page + 1,
       currentSize: this.props.size
-    }
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -26,7 +24,7 @@ class Pagination extends AbstractContextComponent {
       currentPage: nextProps.page,
       changePage: nextProps.page + 1,
       currentSize: nextProps.size
-    }
+    };
   }
 
   next(event) {
@@ -50,7 +48,8 @@ class Pagination extends AbstractContextComponent {
   hasNext() {
     const { total } = this.props;
     const { currentPage, currentSize } = this.state;
-    let newFrom = (currentPage * currentSize) + currentSize;
+    //
+    const newFrom = (currentPage * currentSize) + currentSize;
     return newFrom < total;
   }
 
@@ -77,7 +76,7 @@ class Pagination extends AbstractContextComponent {
     if (page === currentPage) {
       return;
     }
-    let newFrom = currentSize * page;
+    const newFrom = currentSize * page;
     if (newFrom < 0) {
       // first page
       this.setPage(0);
@@ -95,7 +94,7 @@ class Pagination extends AbstractContextComponent {
     }
   }
 
-  _changePage(event){
+  _changePage(event) {
     this.setState({
       changePage: event.currentTarget.value
     });
@@ -105,12 +104,12 @@ class Pagination extends AbstractContextComponent {
     if (event) {
       event.preventDefault();
     }
-    this.setPage(parseInt(this.state.changePage) - 1);
+    this.setPage(parseInt(this.state.changePage, 10) - 1);
   }
 
   _changeSize(event) {
     const { paginationHandler } = this.props;
-    let size = parseInt(event.currentTarget.value);
+    const size = parseInt(event.currentTarget.value, 10);
     this.setState({
       currentPage: 0,
       currentSize: size
@@ -123,10 +122,10 @@ class Pagination extends AbstractContextComponent {
   /**
    * Jump to page top
    */
-  jumpTop(event) {
-		$('html, body').animate({
-			scrollTop: 0
-		}, 'fast');
+  jumpTop() {
+    $('html, body').animate({
+      scrollTop: 0
+    }, 'fast');
   }
 
   renderPagination() {
@@ -138,7 +137,7 @@ class Pagination extends AbstractContextComponent {
       return null;
     }
     // pages - max 5 pages
-    let pages = [];
+    const pages = [];
     let startPage = currentPage - 2;
     if ((this.getMaxPage() - 4) < startPage) {
       startPage = this.getMaxPage() - 4;
@@ -147,17 +146,16 @@ class Pagination extends AbstractContextComponent {
       startPage = 0;
     }
     for (let page = startPage; page <= (this.getMaxPage()) && page < (startPage + 5); page++) {
-      let active = currentPage === page;
-      let key = 'page-' + page;
+      const active = currentPage === page;
       pages.push(
-        <li key={key} className={active ? 'active' : ''}>
+        <li key={`page-${page}`} className={active ? 'active' : ''}>
           <a href="#" onClick={this.setPage.bind(this, page)} title={this.i18n(active ? '' : 'component.basic.Table.Pagination.page.select', { page: page + 1 })}>{ page + 1 }</a>
         </li>
       );
     }
     //
-    let prev = [];
-    let activePrev = this.hasPrev();
+    const prev = [];
+    const activePrev = this.hasPrev();
     prev.push(
       <li key="page-first" className={activePrev ? '' : 'disabled'}>
         <a ref="page-first" href="#" aria-label="First" onClick={this.setPage.bind(this, 0)}>
@@ -173,8 +171,8 @@ class Pagination extends AbstractContextComponent {
       </li>
     );
     //
-    let next = [];
-    let activeNext = this.hasNext();
+    const next = [];
+    const activeNext = this.hasNext();
     next.push(
       <li key="page-next" className={activeNext ? '' : 'disabled'}>
         <a ref="page-next" href="#" aria-label="Next" onClick={this.next.bind(this)}>
@@ -182,10 +180,9 @@ class Pagination extends AbstractContextComponent {
         </a>
       </li>
     );
-    let maxPage = this.getMaxPage();
     next.push(
       <li key="page-last" className={activeNext ? '' : 'disabled'}>
-        <a ref="page-last" href="#" aria-label="Last" onClick={this.setPage.bind(this, maxPage)}>
+        <a ref="page-last" href="#" aria-label="Last" onClick={this.setPage.bind(this, this.getMaxPage())}>
           <span aria-hidden="true">&raquo;&raquo;</span>
         </a>
       </li>
@@ -207,7 +204,7 @@ class Pagination extends AbstractContextComponent {
   renderPages() {
     const { total, paginationHandler } = this.props;
     const { changePage, currentSize } = this.state;
-    let maxPage = this.getMaxPage();
+    const maxPage = this.getMaxPage();
     if (!paginationHandler || !maxPage || total <= currentSize) {
       return null;
     }
@@ -226,7 +223,7 @@ class Pagination extends AbstractContextComponent {
 
   renderRecords() {
     const { total, paginationHandler, sizeOptions } = this.props;
-    let { currentPage, currentSize } = this.state;
+    const { currentPage, currentSize } = this.state;
     //
     let minRecord = 0;
     let maxRecord = 0;
@@ -243,17 +240,15 @@ class Pagination extends AbstractContextComponent {
         maxRecord = total;
       }
     }
-    const maxPage = this.getMaxPage();
-    let sizes = [];
+    const sizes = [];
     sizeOptions.map(availableSize => {
-      let key = 'size-' + availableSize
-      sizes.push(<option key={key} value={availableSize}>{availableSize}</option>)
+      sizes.push(<option key={`size-${availableSize}`} value={availableSize}>{availableSize}</option>);
     });
 
     return (
       <div>
         <div className="record-info">
-          {this.i18n('component.basic.Table.Pagination.recordInfo', { minRecord: minRecord, maxRecord: maxRecord, totalRecords: totalRecords, escape: false })}
+          { this.i18n('component.basic.Table.Pagination.recordInfo', { minRecord, maxRecord, totalRecords, escape: false }) }
         </div>
         {
           totalRecords && paginationHandler && sizeOptions[0] < totalRecords
@@ -274,7 +269,7 @@ class Pagination extends AbstractContextComponent {
   }
 
   render() {
-    const { paginationHandler, page, size } = this.props;
+    const { paginationHandler } = this.props;
     const pages = this.renderPages();
     const pagination = this.renderPagination();
     const records = this.renderRecords();
@@ -308,27 +303,27 @@ Pagination.propTypes = {
   /**
    * Total records count
    */
-  total: React.PropTypes.number,
+  total: PropTypes.number,
   /**
    * Current page
    */
-  page: React.PropTypes.number,
+  page: PropTypes.number,
   /**
    * Page size
    */
-  size: React.PropTypes.number,
+  size: PropTypes.number,
   /**
    * Callback action for data pagination
 
    * @param number page
    * @param number size
    */
-  paginationHandler: React.PropTypes.func,
+  paginationHandler: PropTypes.func,
   /**
    * Available Page sizes
    */
-  sizeOptions: React.PropTypes.array,
-}
+  sizeOptions: PropTypes.array,
+};
 
 Pagination.defaultProps = {
   total: null,
@@ -336,6 +331,6 @@ Pagination.defaultProps = {
   size: 10,
   paginationHandler: null,
   sizeOptions: [10, 25, 50, 100]
-}
+};
 
 export default Pagination;

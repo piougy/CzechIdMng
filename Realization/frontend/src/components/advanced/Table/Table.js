@@ -380,7 +380,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <Basic.BasicTable.Pagination
               ref="pagination"
               paginationHandler={pagination ? this._handlePagination.bind(this) : null}
-              total={_total} {...range} />
+              total={ pagination ? _total : _entities.length } {...range} />
           </div>
         }
       </div>

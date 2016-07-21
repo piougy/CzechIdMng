@@ -315,7 +315,8 @@ class Roles extends Basic.AbstractContent {
               ref="tableProcesses"
               uiKey="table-processes"
               forceSearchParameters={force}
-              manager={workflowProcessInstanceManager}>
+              manager={workflowProcessInstanceManager}
+              pagination={false}>
               <Advanced.Column
                 property="detail"
                 cell={<Advanced.DetailButton

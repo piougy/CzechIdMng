@@ -1,19 +1,16 @@
-
-
 import React, { PropTypes } from 'react';
 import invariant from 'invariant';
 import Immutable from 'immutable';
 import _ from 'lodash';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
-import Icon from '../Icon/Icon';
 import Alert from '../Alert/Alert';
 import Row from './Row';
 import DefaultCell from './DefaultCell';
 
 const HEADER = 'header';
-const FOOTER = 'footer';
+// const FOOTER = 'footer';
 const CELL = 'cell';
 
 /**
@@ -24,26 +21,26 @@ class Table extends AbstractComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRows: this.props.selectedRows ? Immutable.Set(this.props.selectedRows) : Immutable.Set()
-    }
+      selectedRows: this.props.selectedRows ? new Immutable.Set(this.props.selectedRows) : new Immutable.Set()
+    };
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
-      selectedRows: nextProps.selectedRows ? Immutable.Set(nextProps.selectedRows) : Immutable.Set()
+      selectedRows: nextProps.selectedRows ? new Immutable.Set(nextProps.selectedRows) : new Immutable.Set()
     });
   }
 
   _resolveColumns() {
-    let children = [];
+    const children = [];
     //
     if (this.props.children) {
-      React.Children.forEach(this.props.children, (child, index) => {
+      React.Children.forEach(this.props.children, (child) => {
         if (child == null) {
           return;
         }
         invariant(
-          //child.type.__TableColumnGroup__ ||
+          // child.type.__TableColumnGroup__ ||
           !child.type || child.type.__TableColumn__,
           'child type should be <TableColumn /> or ' +
           '<TableColumnGroup />'
@@ -63,7 +60,10 @@ class Table extends AbstractComponent {
       if (data && data.length !== 0) {
         // we can not use just first object, because first row could not contain all properties filled
         data.map(row => {
-          for (let property in row) {
+          for (const property in row) {
+            if (!row.hasOwnProperty(property)) {
+              continue;
+            }
             properties = this._appendProperty(properties, property, row[property], '');
           }
         });
@@ -94,8 +94,11 @@ class Table extends AbstractComponent {
           properties = properties.filter(p => { return p !== propertyPrefix; });
         }
         // recursion
-        for (let nestedProperty in propertyValue) {
-          properties = this._appendProperty(properties, nestedProperty, propertyValue[nestedProperty], propertyPrefix + property + '.')
+        for (const nestedProperty in propertyValue) {
+          if (!propertyValue.hasOwnProperty(nestedProperty)) {
+            continue;
+          }
+          properties = this._appendProperty(properties, nestedProperty, propertyValue[nestedProperty], propertyPrefix + property + '.');
         }
       } else {
         properties.push(propertyPrefix + property);
@@ -105,13 +108,13 @@ class Table extends AbstractComponent {
   }
 
   _selectColumnElement(columns, type) {
-    let newColumns = [];
+    const newColumns = [];
     for (let i = 0; i < columns.length; ++i) {
-      let column = columns[i];
+      const column = columns[i];
       newColumns.push(React.cloneElement(
         column,
         {
-          cell: type ?  column.props[type] : column.props[CELL]
+          cell: type ? column.props[type] : column.props[CELL]
         }
       ));
     }
@@ -173,7 +176,7 @@ class Table extends AbstractComponent {
   }
 
   renderHeader(columns) {
-    const { showLoading, showRowSelection, data } = this.props;
+    const { showLoading, showRowSelection } = this.props;
     const headerColumns = this._selectColumnElement(columns, HEADER);
     return (
       <thead>
@@ -205,7 +208,6 @@ class Table extends AbstractComponent {
 
   renderRow(columns, rowIndex) {
     const { onRowClick, onRowDoubleClick, showRowSelection, rowClass } = this.props;
-    const headerColumns = this._selectColumnElement(columns, CELL);
     const key = 'row_' + rowIndex;
     return (
        <Row
@@ -236,16 +238,15 @@ class Table extends AbstractComponent {
       if (this.props.showLoading) {
         return (
           <div className="basic-table">
-            <Loading showLoading={true} className="static"/>
-          </div>
-        );
-      } else {
-        return (
-          <div className="basic-table">
-            <Alert text={noData}/>
+            <Loading showLoading className="static"/>
           </div>
         );
       }
+      return (
+        <div className="basic-table">
+          <Alert text={noData}/>
+        </div>
+      );
     }
 
     const columns = this._resolveColumns();
@@ -306,13 +307,13 @@ Table.propTypes = {
    * @type {string}
    */
   noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
-}
+};
 Table.defaultProps = {
   ...AbstractComponent.defaultProps,
   data: [],
   selectedRows: [],
   showRowSelection: false,
   noData: 'Nenalezeny žádné záznamy'
-}
+};
 
 export default Table;

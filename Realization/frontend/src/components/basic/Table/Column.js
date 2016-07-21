@@ -1,6 +1,5 @@
-import React, { Component, PropTypes } from 'react';
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
-import Loading from '../Loading/Loading';
+import React, { PropTypes } from 'react';
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Component that defines the attributes of table column.
@@ -92,7 +91,7 @@ Column.propTypes = {
 };
 Column.defaultProps = {
   rendered: true
-}
+};
 Column.__TableColumn__ = true;
 
 export default Column;

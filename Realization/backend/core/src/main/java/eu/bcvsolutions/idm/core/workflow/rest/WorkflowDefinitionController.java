@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;

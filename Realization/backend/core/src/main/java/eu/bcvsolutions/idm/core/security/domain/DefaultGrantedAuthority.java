@@ -5,8 +5,6 @@ import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
-
 /**
  * 	Default implementation of granted authority
  *

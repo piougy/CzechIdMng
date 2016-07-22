@@ -14,6 +14,7 @@
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
         <activiti:formProperty id="addRoles" name="Přidat role" type="textArea"></activiti:formProperty>
+        <activiti:formProperty id="customText" name="Šíleně složitý číslo" type="textField" required="true"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
@@ -129,7 +130,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_changeIdentityRoles">
     <bpmndi:BPMNPlane bpmnElement="changeIdentityRoles" id="BPMNPlane_changeIdentityRoles">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="70.0" y="124.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="71.0" y="124.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
         <omgdc:Bounds height="35.0" width="35.0" x="1217.0" y="313.0"></omgdc:Bounds>
@@ -162,7 +163,7 @@
         <omgdc:Bounds height="55.0" width="155.0" x="650.0" y="303.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
-        <omgdi:waypoint x="105.0" y="141.0"></omgdi:waypoint>
+        <omgdi:waypoint x="106.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="180.0" y="141.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">

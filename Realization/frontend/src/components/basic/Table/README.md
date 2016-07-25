@@ -11,7 +11,8 @@ Table of records, features
 | showLoading  | bool   | Shows loading overlay | false |
 | onRowClick  | func   | Callback that is called when a row is clicked |  |
 | onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
-| rowClass | oneOfType([string,func]) | ccs class added for row || |
+| rowClass | oneOfType([string,func]) | ccs class added for row ||
+| hover | bool | Activate table hover (highligth selected row) | true | |
 
 # Column Component
 

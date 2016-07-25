@@ -8,6 +8,7 @@ import Loading from '../Loading/Loading';
 import Alert from '../Alert/Alert';
 import Row from './Row';
 import DefaultCell from './DefaultCell';
+import classNames from 'classnames';
 
 const HEADER = 'header';
 // const FOOTER = 'footer';
@@ -228,7 +229,7 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading } = this.props;
+    const { data, noData, rendered, showLoading, hover } = this.props;
     if (!rendered) {
       return null;
     }
@@ -253,11 +254,14 @@ class Table extends AbstractComponent {
     const header = this.renderHeader(columns);
     const body = this.renderBody(columns);
     const footer = this.renderFooter();
+    const classNamesTable = classNames(
+      { 'table': true },
+      { 'table-hover': hover});
 
     return (
       <div className="basic-table">
         <Loading showLoading={showLoading}>
-          <table className="table table-hover">
+          <table className={classNamesTable}>
             { header }
             { body }
             { footer }
@@ -313,7 +317,8 @@ Table.defaultProps = {
   data: [],
   selectedRows: [],
   showRowSelection: false,
-  noData: 'Nenalezeny žádné záznamy'
+  noData: 'Nenalezeny žádné záznamy',
+  hover: true
 };
 
 export default Table;

@@ -26,6 +26,7 @@
     "notImplemented": "Operace není zatím podporována"
   },
   "label": {
+    "id": "Identifikátor",
     "action": "Akce",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
@@ -922,7 +923,14 @@
     "system": {
       "app-modules": {
         "header": "Aplikační moduly a komponenty",
-        "title": "Moduly a komponenty"
+        "title": "Moduly a komponenty",
+        "components": {
+          "header": "Komponenty",
+          "priority": "Priorita",
+          "type": "Typ",
+          "order": "Pořadí",
+          "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
+        }
       }
     },
     "workflow" : {

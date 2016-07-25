@@ -7,11 +7,10 @@ Encapsulates all features from BasicTable component.
 | manager | object.isRequired | EntityManager subclass, which provides data fetching | |
 | uiKey | string  | optional table identifier - it's used as key in store  | if isn't filled, then manager.getEntityType() is used |
 | pagination | bool | If pagination is shown | true |
-| forceSearchParameters | object | "Hard filter" - sometimes is useful show just some data (e.q. data filtered by logged user) |   |
 | onRowClick  | func   | Callback that is called when a row is clicked |  |
 | onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
-| forceSearchParameters | object | "Hard filter" - its useful for data filtering by internal parameter , see usage ||
 | defaultSearchParameters | object | "Default filter" - its useful for default sorting etc. ||
+| forceSearchParameters | object | "Hard filter" - sometimes is useful show just some data (e.q. data filtered by logged user) |   |
 | rowClass | oneOfType([string,func]) | ccs class added for row ||
 | filter | element | Filter definition ||
 | filterOpened | bool | If filter is opened by default | false |
@@ -90,14 +89,6 @@ class Team extends Basic.AbstractContent {
 
   render() {
     const { identities, total, showLoading, searchParameters} = this.props;
-    const forceFilters = {
-      filters: [
-        {
-          field: 'identityType',
-          value: 'USER'
-        }
-      ]
-    };
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.subordinates.label')} />
@@ -107,7 +98,6 @@ class Team extends Basic.AbstractContent {
             ref="table"
             uiKey="identity_table"
             manager={identityManager}
-            forceSearchParameters={{filter: forceFilters}}
             onRowClick={this.onRowClick.bind(this)}
             onRowDoubleClick={this.onRowDoubleClick.bind(this)}
             rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}

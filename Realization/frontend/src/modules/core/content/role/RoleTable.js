@@ -11,7 +11,6 @@ import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
-
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of roles
@@ -199,7 +198,10 @@ export class RoleTable extends Basic.AbstractContent {
                       label={this.i18n('entity.Role.name')}/>
                   </div>
                   <div className="col-lg-4">
-
+                    <Basic.EnumSelectBox
+                      ref="roleType"
+                      label={this.i18n('entity.Role.roleType')}
+                      enum={RoleTypeEnum}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

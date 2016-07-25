@@ -68,7 +68,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
 
   _filter() {
    return(  <Advanced.Filter onSubmit={this._useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm">
+      <Basic.AbstractForm ref="filterForm" className="form-horizontal">
         <Basic.Row className="last">
           <div className="col-lg-4">
             <Advanced.Filter.TextField

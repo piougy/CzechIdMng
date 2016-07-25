@@ -98,7 +98,7 @@ export class App extends Basic.AbstractContent {
                   <Basic.Modal.Body>
                     <Basic.Loading showLoading={userContext.showLoading}>
                       <Basic.Alert text={this.i18n('error.LOG_IN.message')}/>
-                      <Basic.AbstractForm ref="form" style={{ padding: 0, backgroundColor: '#fff' }}>
+                      <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
                         <Basic.TextField
                           ref="username"
                           labelSpan="col-sm-5"

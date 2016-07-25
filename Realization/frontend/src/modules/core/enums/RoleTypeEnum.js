@@ -43,3 +43,4 @@ export default class RoleTypeEnum extends AbstractEnum {
 RoleTypeEnum.SYSTEM = Symbol('SYSTEM');
 RoleTypeEnum.BUSINESS = Symbol('BUSINESS');
 RoleTypeEnum.TECHNICAL = Symbol('TECHNICAL');
+RoleTypeEnum.LOGIN = Symbol('LOGIN');

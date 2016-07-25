@@ -188,7 +188,8 @@
     "RoleTypeEnum": {
       "SYSTEM": "Systémová",
       "BUSINESS": "Business",
-      "TECHNICAL": "Technická"
+      "TECHNICAL": "Technická",
+      "LOGIN": "Přihlašovací"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",
@@ -593,7 +594,7 @@
           "info": "Systémové role jsou určeny pro procesy samotné aplikace. U systémové role lze měnit pouze nastavení nezávislé na aplikační logice."
         },
         "authority": {
-          "header": "Přidělená oprávnění <small>kategorie</small>",
+          "header": "Přidělená oprávnění <small>(kategorie)</small>",
           "select": {
             "none": "Odebrat všechna nastavená oprávnění v dané kategorii",
             "all": "Přidat všechna oprávnění v dané kategorii"
@@ -602,6 +603,9 @@
             "hide": "Skrýt nastavení základních oprávnění v dané kategorii",
             "show": "Zobrazit nastavení základních oprávnění v dané kategorii"
           }
+        },
+        "approval": {
+          "header": "Schvalovací workflow"
         }
       }
     },
@@ -1020,8 +1024,9 @@
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
-      "approveAddWorkflow": "Přiřazení role schválit pomocí WF",
-      "approveRemoveWorkflow": "Odebrání role schválit pomocí WF"
+      "approveAddWorkflow": "Schválení přiřazení (WF)",
+      "approveRemoveWorkflow": "Schválení odebrání (WF)",
+      "description": "Popis"
     },
     "Setting": {
       "key": "Klíč",

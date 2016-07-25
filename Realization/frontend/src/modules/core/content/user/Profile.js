@@ -334,7 +334,7 @@ class Profile extends Basic.AbstractContent {
           <Basic.Row>
             <Basic.Panel className="col-lg-7 no-border last" showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.PanelHeader text={this.i18n('header')}/>
-              <Basic.AbstractForm ref="form" readOnly={!canEditMap.get('isSaveEnabled')}>
+              <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled')}>
                 <Basic.TextField ref="username" readOnly={true} label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
                 <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
                 <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>

@@ -218,7 +218,7 @@ class PasswordChange extends Basic.AbstractContent {
                     rendered={SecurityManager.isAdmin(userContext)}
                     style={{ margin: '15px 0 0 0'}}/>
 
-                  <Basic.AbstractForm ref="form">
+                  <Basic.AbstractForm ref="form" className="form-horizontal">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
                     <Basic.TextField type="password" ref="newPassword"
                       validate={this._validatePassword.bind(this, 'newPasswordAgain', true)}

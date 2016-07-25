@@ -23,7 +23,7 @@ import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 ...
 <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-  <Basic.AbstractForm ref="filterForm">
+  <Basic.AbstractForm ref="filterForm" className="form-horizontal">
     <Basic.Row>
       <div className="col-lg-4">
         <Advanced.Filter.TextField

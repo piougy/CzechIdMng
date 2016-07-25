@@ -37,7 +37,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form">
+          <Basic.AbstractForm ref="form" className="form-horizontal">
             <Basic.TextField ref="taskName" readOnly label={this.i18n('name')}/>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
@@ -54,7 +54,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             identityRoleManager={identityRoleManager}/>
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.AbstractForm ref="formData">
+          <Basic.AbstractForm ref="formData" className="form-horizontal">
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>

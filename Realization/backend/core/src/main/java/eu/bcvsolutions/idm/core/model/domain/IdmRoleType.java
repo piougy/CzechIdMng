@@ -7,7 +7,8 @@ package eu.bcvsolutions.idm.core.model.domain;
  *
  */
 public enum IdmRoleType {
-	SYSTEM, // system role - can not be deleted
+	SYSTEM, // system role - provided by system
 	BUSINESS, // role could contain technical roles
-	TECHNICAL; // "leaf"
+	TECHNICAL, // "leaf"
+	LOGIN; // login role - for quarantine etc.
 }

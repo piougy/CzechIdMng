@@ -113,7 +113,7 @@ class Team extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                   <Basic.Row>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField

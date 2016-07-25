@@ -211,7 +211,7 @@ class AbstractForm extends AbstractContextComponent {
     return (
       <Loading showLoading={this.props.showLoading || this.state.showLoading}>{/* props.showLoading has higher priority */}
         {/* TODO: remove className defs? Somethimes different className e.g. form-inline is needed */}
-        <div className={'abstract-form form-horizontal clearfix ' + this.props.className} style={this.props.style}>
+        <div className={'abstract-form clearfix ' + this.props.className} style={this.props.style}>
           {this.props.children}
         </div>
         {this.getFooter()}

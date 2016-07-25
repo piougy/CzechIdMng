@@ -1,12 +1,8 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../components/basic';
-import { AdvancedTable, AdvancedColumn } from '../../../components/advanced';
-import { SecurityManager } from '../../../modules/core/redux';
 import { ConfigService } from '../../../modules/core/services';
 import ComponentService from '../../../services/ComponentService';
 
@@ -17,7 +13,7 @@ class AppModules extends Basic.AbstractContent {
     this.state = {
       moduleDescriptors: [],
       components: []
-    }
+    };
     this.configService = new ConfigService();
     this.componentService = new ComponentService();
   }
@@ -32,8 +28,6 @@ class AppModules extends Basic.AbstractContent {
 
 
   render() {
-    const { userContext } = this.props;
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -52,24 +46,24 @@ class AppModules extends Basic.AbstractContent {
                   {moduleDescriptor.description}
                 </Basic.PanelBody>
 
-                <Basic.PanelHeader text="Komponenty"/>
+                <Basic.PanelHeader text={this.i18n('components.header')}/>
 
                 <Basic.Table
                   data={componentDescriptor.components}
-                  rowClass={({rowIndex, data}) => { return data[rowIndex].module !==  this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''}}>
+                  rowClass={({rowIndex, data}) => { return data[rowIndex].module !== this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''; }}>
                   <Basic.Column
                     property="id"
-                    header="Identifikátor"
+                    header={this.i18n('label.id')}
                     cell={({rowIndex, data}) => {
                       const overridedInModule = this.componentService.getComponentDefinition(data[rowIndex].id).module;
                       const overrided = data[rowIndex].module !== overridedInModule;
-                      let textStyle = {};
+                      const textStyle = {};
                       if (overrided) {
                         textStyle.textDecoration = 'line-through';
                       }
                       return (
                         <span
-                          title={overrided ? 'Komponenta přetížena v modulu: ' + overridedInModule : ''}>
+                          title={overrided ? this.i18n('', { moduleId: overridedInModule }) : ''}>
                           <span style={textStyle}>{data[rowIndex].id}</span>
                           {
                             !overrided
@@ -79,9 +73,9 @@ class AppModules extends Basic.AbstractContent {
                         </span>
                       );
                     }}/>
-                  <Basic.Column property="priority" header="Priorita" width="100px"/>
-                  <Basic.Column property="type" header="Typ" width="100px"/>
-                  <Basic.Column property="order" header="Pořadí" width="100px"/>
+                  <Basic.Column property="priority" header={this.i18n('components.priority')} width="100px"/>
+                  <Basic.Column property="type" header={this.i18n('components.type')} width="100px"/>
+                  <Basic.Column property="order" header={this.i18n('components.order')} width="100px"/>
                   <Basic.Column property="span" header={<span>Span <small>col-lg</small></span>} width="100px"/>
                 </Basic.Table>
               </Basic.Panel>
@@ -104,7 +98,7 @@ AppModules.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext
-  }
+  };
 }
 
-export default connect(select)(AppModules)
+export default connect(select)(AppModules);

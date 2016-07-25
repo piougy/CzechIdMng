@@ -72,7 +72,7 @@ class Login extends Basic.AbstractContent {
             <Basic.Panel className="login-container" showLoading={userContext.showLoading}>
               <Basic.PanelHeader text={this.i18n('header')}/>
               <Basic.PanelBody>
-                <Basic.AbstractForm ref="form" style={{ padding: 0, backgroundColor: '#fff' }}>
+                <Basic.AbstractForm ref="form" className="form-horizontal" style={{ padding: 0, backgroundColor: '#fff' }}>
                   <Basic.TextField
                     ref="username"
                     labelSpan="col-sm-5"

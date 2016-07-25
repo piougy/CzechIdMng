@@ -159,7 +159,7 @@ class PasswordChange extends Basic.AbstractContent {
               <Basic.Panel showLoading={showLoading}>
                 <Basic.PanelHeader text={this.i18n('header')} help={forUsername ? '' : help}/>
 
-                <Basic.AbstractForm ref="form" className="panel-body">
+                <Basic.AbstractForm ref="form" className="form-horizontal panel-body">
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin" rendered={!forUsername}/>
 

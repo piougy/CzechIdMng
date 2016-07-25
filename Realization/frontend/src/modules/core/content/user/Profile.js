@@ -1,19 +1,15 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import Joi from 'joi';
-import Immutable from 'immutable';
 
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import { IdentitySubordinateManager } from '../../../../redux';
-import { SecurityManager, IdentityManager, OrganizationManager } from '../../../../modules/core/redux';
+import { IdentityManager } from '../../redux';
 import ApiOperationTypeEnum from '../../../../modules/core/enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
-const organizationManager = new OrganizationManager();
 
 class Profile extends Basic.AbstractContent {
 
@@ -28,39 +24,44 @@ class Profile extends Basic.AbstractContent {
       deactivateBreak: false,
       showLoadingIdentityTrimmed: false,
       setDataToForm: false
-    }
+    };
   }
 
   getContentKey() {
     return 'content.user.profile';
   }
 
+  componentWillMount() {
+    this.setState({
+      showLoading: true
+    });
+  }
+
   componentDidMount() {
-    this.selectNavigationItems(['user-profile','profile-personal']);
+    this.selectNavigationItems(['user-profile', 'profile-personal']);
     const { userID } = this.props.params;
-    //we set empty data (for hard validate all components)
+    // we set empty data (for hard validate all components)
     this.refs.form.setData({});
     this.context.store.dispatch(identityManager.fetchEntity(userID));
-    this.setState({showLoading: true});
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.identity) {
-      if (nextProps.identity._trimmed){
+      if (nextProps.identity._trimmed) {
         this.setState({showLoadingIdentityTrimmed: true});
       } else {
         this.setState({showLoadingIdentityTrimmed: false});
       }
-      if (nextProps.identity !== this.props.identity){
-        //after receive new Identity we will hide showLoading on form
+      if (nextProps.identity !== this.props.identity) {
+        // after receive new Identity we will hide showLoading on form
         this.setState({showLoading: false, setDataToForm: true});
       }
     }
   }
 
-  componentDidUpdate(){
-    if (this.props.identity && !this.props.identity._trimmed && this.state.setDataToForm){
-      //We have to set data to form after is rendered
+  componentDidUpdate() {
+    if (this.props.identity && !this.props.identity._trimmed && this.state.setDataToForm) {
+      // We have to set data to form after is rendered
       this.transformData(this.props.identity, null, ApiOperationTypeEnum.GET);
     }
   }
@@ -334,7 +335,7 @@ class Profile extends Basic.AbstractContent {
           <Basic.Row>
             <Basic.Panel className="col-lg-7 no-border last" showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.PanelHeader text={this.i18n('header')}/>
-              <Basic.AbstractForm ref="form" readOnly={!canEditMap.get('isSaveEnabled')}>
+              <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled')}>
                 <Basic.TextField ref="username" readOnly={true} label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
                 <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
                 <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>
@@ -448,18 +449,18 @@ class Profile extends Basic.AbstractContent {
 }
 
 Profile.propTypes = {
-  userContext: React.PropTypes.object
-}
+  userContext: PropTypes.object
+};
 Profile.defaultProps = {
   userContext: null
-}
+};
 
 function select(state, component) {
   const { userID } = component.params;
   return {
     identity: identityManager.getEntity(state, userID),
     userContext: state.security.userContext
-  }
+  };
 }
 
 export default connect(select)(Profile);

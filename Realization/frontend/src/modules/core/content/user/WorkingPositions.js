@@ -257,7 +257,7 @@ class WorkingPositions extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.IdentityWorkingPosition.position')}

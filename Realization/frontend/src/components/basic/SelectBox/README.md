@@ -9,8 +9,8 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
-| service  | instanceOf(AbstractService)   | Implementation of service (extended from AbstractService) for entity type where we want search |  |
-| searchInFields  | arrayOf(string)   | Fields in which we want search|  |
+| manager  | instanceOf(EntityManager)   | Implementation of manager (extended from EnttityManager) for entity type where we want search - uses manager.getDefaultSearchParameters()  |  |
+| forceSearchParameters | object | "Hard filter" - sometimes is useful show just some data (e.q. data filtered by logged user) |   |
 | fieldLabel  | string   | Field use for show string representation of item in select box| 'niceLabel' this is automatic added field from service for item |
 | multiSelect | bool   | If is true then component is in multi select mode| false |
 | value | string or Array of strings (object or Array of objects)  | Value can contains object (object type have to equals with service entity type) or id of entity in string. In multi select mod can be in value Array (string or object) | |
@@ -22,8 +22,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ```html
 <SelectBox ref="selectComponent"
      label="Select box test"
-     service={identityService}
-     searchInFields={['lastName', 'name']}
+     manager={identityManager}
      placeholder="Select user ..."
      value="admin"
      validation={Joi.object().required()}/>

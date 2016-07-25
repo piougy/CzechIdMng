@@ -49,6 +49,9 @@ public class IdmRole extends AbstractEntity {
 	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
 	private String approveRemoveWorkflow;
 	
+	@Column(name = "description")
+	private String description;
+	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleAuthority> authorities;
@@ -145,5 +148,12 @@ public class IdmRole extends AbstractEntity {
 	public void setApproveRemoveWorkflow(String approveRemoveWorkflow) {
 		this.approveRemoveWorkflow = approveRemoveWorkflow;
 	}
-
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
 }

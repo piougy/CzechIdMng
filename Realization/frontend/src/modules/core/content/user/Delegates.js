@@ -235,7 +235,7 @@ class Delegates extends Basic.AbstractContent {
           <form onSubmit={this.save.bind(this)}>
             <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" >
+              <Basic.AbstractForm ref="form" className="form-horizontal">
                 <Basic.SelectBox
                   ref="delegate"
                   service={this.identityManager.getService()}

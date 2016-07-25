@@ -13,6 +13,7 @@ Table of records, features
 | onRowDoubleClick  | func   | Callback that is called when a row is double clicked. | |
 | rowClass | oneOfType([string,func]) | ccs class added for row ||
 | hover | bool | Activate table hover (highligth selected row) | true | |
+| noData | oneOfType([string, element]) | No data found | Nenalezeny žádné záznamy |
 
 # Column Component
 

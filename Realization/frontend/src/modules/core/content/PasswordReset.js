@@ -142,7 +142,7 @@ class PasswordReset extends Basic.AbstractContent {
               <Basic.Panel rendered={!hasToken} showLoading={showLoading}>
                 <Basic.PanelHeader text={this.i18n('header')} help={help}/>
 
-                <Basic.AbstractForm ref="formToken" className="panel-body">
+                <Basic.AbstractForm ref="formToken" className="form-horizontal panel-body">
 
                   <Basic.Alert text={this.i18n('message.generateResetToken.info')} className="no-margin"/>
 

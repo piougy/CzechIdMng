@@ -1,5 +1,3 @@
-
-
 import _ from 'lodash';
 import Immutable from 'immutable';
 
@@ -13,8 +11,8 @@ export default class SearchParameters {
     this.name = name;
     this.page = page;
     this.size = size;
-    this.filters = Immutable.Map({});
-    this.sorts = Immutable.OrderedMap({});
+    this.filters = new Immutable.Map({});
+    this.sorts = new Immutable.OrderedMap({});
   }
 
   _clone() {
@@ -36,7 +34,7 @@ export default class SearchParameters {
    * @param {[type]} name [description]
    */
   setName(name) {
-    let newState = this._clone();
+    const newState = this._clone();
     newState.name = name;
     return newState;
   }
@@ -57,7 +55,7 @@ export default class SearchParameters {
    * @return {SearchParameters} new copy
    */
   setSize(size = SearchParameters.DEFAUT_SIZE) {
-    let newState = this._clone();
+    const newState = this._clone();
     newState.size = size;
     return newState;
   }
@@ -78,7 +76,7 @@ export default class SearchParameters {
    * @return {SearchParameters} new copy
    */
   setPage(page = 0) {
-    let newState = this._clone();
+    const newState = this._clone();
     newState.page = page;
     return newState;
   }
@@ -94,7 +92,7 @@ export default class SearchParameters {
     if (!property) {
       return this;
     }
-    let newState = this._clone();
+    const newState = this._clone();
     newState.sorts = newState.sorts.set(property, ascending);
     return newState;
   }
@@ -106,7 +104,7 @@ export default class SearchParameters {
    * @return {SearchParameters} new copy
    */
   clearSort(property = null) {
-    let newState = this._clone();
+    const newState = this._clone();
     //
     if (property) {
       if (newState.sorts.has(property)) {
@@ -153,13 +151,13 @@ export default class SearchParameters {
     if (!property) {
       return this;
     }
-    let newState = this._clone();
+    const newState = this._clone();
     newState.filters = newState.filters.set(property, filter);
     return newState;
   }
 
   setFilters(filters) {
-    let newState = this._clone();
+    const newState = this._clone();
     if (!filters) {
       newState.clearFilter();
     } else if (!(filters instanceof Immutable.Map)) {
@@ -187,7 +185,7 @@ export default class SearchParameters {
    * @return {SearchParameters} new copy
    */
   clearFilter(property = null) {
-    let newState = this._clone();
+    const newState = this._clone();
     //
     if (property) {
       if (newState.filters.has(property)) {
@@ -204,12 +202,12 @@ export default class SearchParameters {
       return new SearchParameters();
     }
     // TODO: convert from json
-    throw 'unsupported operation';
+    throw new Error('unsupported operation');
   }
 
   toJs() {
     // TODO: convert to json
-    throw 'unsupported operation';
+    throw new Error('unsupported operation');
   }
 
   /**

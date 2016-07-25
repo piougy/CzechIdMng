@@ -1,9 +1,7 @@
-
-
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 /**
  * Bootstrap row
@@ -37,11 +35,11 @@ Row.propTypes = {
    * If component is rendered on page
    */
   rendered: PropTypes.bool
-}
+};
 
 Row.defaultProps = {
   rendered: true
-}
+};
 
 
 export default Row;

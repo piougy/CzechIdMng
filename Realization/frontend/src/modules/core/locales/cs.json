@@ -26,6 +26,7 @@
     "notImplemented": "Operace není zatím podporována"
   },
   "label": {
+    "id": "Identifikátor",
     "action": "Akce",
     "otherAttributes": "Další atributy",
     "selectAll": "Vybrat vše / nic",
@@ -188,7 +189,8 @@
     "RoleTypeEnum": {
       "SYSTEM": "Systémová",
       "BUSINESS": "Business",
-      "TECHNICAL": "Technická"
+      "TECHNICAL": "Technická",
+      "LOGIN": "Přihlašovací"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",
@@ -597,7 +599,7 @@
           "info": "Systémové role jsou určeny pro procesy samotné aplikace. U systémové role lze měnit pouze nastavení nezávislé na aplikační logice."
         },
         "authority": {
-          "header": "Přidělená oprávnění <small>kategorie</small>",
+          "header": "Přidělená oprávnění <small>(kategorie)</small>",
           "select": {
             "none": "Odebrat všechna nastavená oprávnění v dané kategorii",
             "all": "Přidat všechna oprávnění v dané kategorii"
@@ -606,6 +608,9 @@
             "hide": "Skrýt nastavení základních oprávnění v dané kategorii",
             "show": "Zobrazit nastavení základních oprávnění v dané kategorii"
           }
+        },
+        "approval": {
+          "header": "Schvalovací workflow"
         }
       }
     },
@@ -922,7 +927,14 @@
     "system": {
       "app-modules": {
         "header": "Aplikační moduly a komponenty",
-        "title": "Moduly a komponenty"
+        "title": "Moduly a komponenty",
+        "components": {
+          "header": "Komponenty",
+          "priority": "Priorita",
+          "type": "Typ",
+          "order": "Pořadí",
+          "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
+        }
       }
     },
     "workflow" : {
@@ -1024,8 +1036,9 @@
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
-      "approveAddWorkflow": "Přiřazení role schválit pomocí WF",
-      "approveRemoveWorkflow": "Odebrání role schválit pomocí WF"
+      "approveAddWorkflow": "Schválení přiřazení (WF)",
+      "approveRemoveWorkflow": "Schválení odebrání (WF)",
+      "description": "Popis"
     },
     "Setting": {
       "key": "Klíč",

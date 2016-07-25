@@ -1,10 +1,6 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -26,7 +22,7 @@ class Organizations extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
     this.organizationManager = new OrganizationManager();
   }
 
@@ -61,7 +57,7 @@ class Organizations extends Basic.AbstractContent {
       detail: {
         show: true,
         showLoading: false,
-        entity: entity
+        entity
       }
     }, () => {
       this.refs.form.setData(entity);
@@ -88,8 +84,8 @@ class Organizations extends Basic.AbstractContent {
     const entity = this.refs.form.getData();
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (entity, error) => {
-        this._afterSave(entity, error);
+      this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+        this._afterSave(createdEntity, error);
         if (!error) {
           this.refs.table.getWrappedInstance().reload();
         }
@@ -110,17 +106,16 @@ class Organizations extends Basic.AbstractContent {
   }
 
   onDelete(bulkActionValue, selectedRows) {
-    const { roleManager, uiKey } = this.props;
     const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(result => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, (data, error) => {
+    ).then(() => {
+      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, () => {
         this.refs.table.getWrappedInstance().reload();
       }));
-    }, (error) => {
+    }, () => {
       // nothing
     });
   }
@@ -143,11 +138,11 @@ class Organizations extends Basic.AbstractContent {
             ref="table"
             uiKey="organization_table"
             manager={this.getManager()}
-            showRowSelection={true}
-            rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}
+            showRowSelection
+            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm">
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
@@ -198,10 +193,10 @@ class Organizations extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.Column property="name" sort={true}/>
-            <Advanced.Column property="disabled" sort={true} face="bool"/>
-            <Advanced.Column property="shortName" sort={true} rendered={false}/>
-            <Advanced.Column property="parentId" sort={true} rendered={false}/>
+            <Advanced.Column property="name" sort/>
+            <Advanced.Column property="disabled" sort face="bool"/>
+            <Advanced.Column property="shortName" sort rendered={false}/>
+            <Advanced.Column property="parentId" sort rendered={false}/>
           </Advanced.Table>
         </Basic.Panel>
 
@@ -216,7 +211,7 @@ class Organizations extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('entity.Organization.name')}
@@ -238,7 +233,7 @@ class Organizations extends Basic.AbstractContent {
                 type="submit"
                 level="success"
                 showLoading={_showLoading}
-                showLoadingIcon={true}
+                showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}
               </Basic.Button>
@@ -268,7 +263,7 @@ Organizations.defaultProps = {
   _showLoading: false
 };
 
-function select(state, component) {
+function select(state) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`)

@@ -205,7 +205,7 @@ class Profile extends Basic.AbstractContent {
             <Basic.Panel>
               <Basic.PanelHeader text={this.i18n('content.user.create.header')}/>
 
-              <Basic.AbstractForm ref="form">
+              <Basic.AbstractForm ref="form" className="form-horizontal">
                 <div className="col-lg-7">
                   <Basic.TextField ref="username" label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
                   <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>

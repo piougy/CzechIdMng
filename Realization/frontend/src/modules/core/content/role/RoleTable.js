@@ -11,7 +11,6 @@ import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
-
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of roles
@@ -190,7 +189,7 @@ export class RoleTable extends Basic.AbstractContent {
           showRowSelection
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm">
+              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                 <Basic.Row className="last">
                   <div className="col-lg-4">
                     <Advanced.Filter.TextField
@@ -199,7 +198,10 @@ export class RoleTable extends Basic.AbstractContent {
                       label={this.i18n('entity.Role.name')}/>
                   </div>
                   <div className="col-lg-4">
-
+                    <Basic.EnumSelectBox
+                      ref="roleType"
+                      label={this.i18n('entity.Role.roleType')}
+                      enum={RoleTypeEnum}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -256,59 +258,72 @@ export class RoleTable extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined }/>
             <Basic.Modal.Body>
               <Basic.Loading showLoading={_showLoading}>
-                <Basic.Row>
-                  <div className="col-lg-8">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
-                    <Basic.AbstractForm ref="form">
-                      <Basic.TextField
-                        ref="name"
-                        label={this.i18n('entity.Role.name')}
-                        required/>
-                      <Basic.EnumSelectBox
-                        ref="roleType"
-                        label={this.i18n('entity.Role.roleType')}
-                        enum={RoleTypeEnum}
-                        required
-                        readOnly={!Utils.Entity.isNew(detail.entity)}/>
+                <Basic.AbstractForm ref="form">
+                  <Basic.Row>
+                    <div className="col-lg-8">
+                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
+                      <div className="form-horizontal">
+                        <Basic.TextField
+                          ref="name"
+                          label={this.i18n('entity.Role.name')}
+                          required/>
+                        <Basic.EnumSelectBox
+                          ref="roleType"
+                          label={this.i18n('entity.Role.roleType')}
+                          enum={RoleTypeEnum}
+                          required
+                          readOnly={!Utils.Entity.isNew(detail.entity)}/>
+                        <Basic.SelectBox
+                          ref="superiorRoles"
+                          label={this.i18n('entity.Role.superiorRoles')}
+                          manager={roleManager}
+                          multiSelect
+                          readOnly
+                          placeholder=""/>
+                        <Basic.SelectBox
+                          ref="subRoles"
+                          label={this.i18n('entity.Role.subRoles')}
+                          manager={roleManager}
+                          multiSelect/>
+                        <Basic.TextArea
+                          ref="description"
+                          label={this.i18n('entity.Role.description')}/>
+                        <Basic.Checkbox
+                          ref="disabled"
+                          label={this.i18n('entity.Role.disabled')}/>
+                      </div>
+                    </div>
+                    <div className="col-lg-4">
+                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
+                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
+                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
+                        <div className="clearfix"/>
+                      </h3>
+                      <AuthoritiesPanel
+                        ref="authorities"
+                        roleManager={roleManager}
+                        authorities={detail.entity.authorities}/>
+
+                      <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
+                        { this.i18n('setting.approval.header') }
+                      </h3>
                       <Basic.SelectBox
-                        ref="superiorRoles"
-                        label={this.i18n('entity.Role.superiorRoles')}
-                        manager={roleManager}
-                        multiSelect
-                        readOnly
-                        placeholder=""/>
-                      <Basic.SelectBox
-                        ref="subRoles"
-                        label={this.i18n('entity.Role.subRoles')}
-                        manager={roleManager}
-                        multiSelect/>
-                      <Basic.Checkbox
-                        ref="disabled"
-                        label={this.i18n('entity.Role.disabled')}/>
-                      <Basic.SelectBox
+                        labelSpan=""
+                        componentSpan=""
                         ref="approveAddWorkflow"
                         label={this.i18n('entity.Role.approveAddWorkflow')}
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                       <Basic.SelectBox
+                        labelSpan=""
+                        componentSpan=""
                         ref="approveRemoveWorkflow"
                         label={this.i18n('entity.Role.approveRemoveWorkflow')}
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
-                    </Basic.AbstractForm>
-                  </div>
-                  <div className="col-lg-4">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                      <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                      <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                      <div className="clearfix"/>
-                    </h3>
-                    <AuthoritiesPanel
-                      ref="authorities"
-                      roleManager={roleManager}
-                      authorities={detail.entity.authorities}/>
-                  </div>
-                </Basic.Row>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
               </Basic.Loading>
             </Basic.Modal.Body>
 

@@ -138,9 +138,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         filter.values = filledValues;
       } else {*/
       let filledValue = filterValues[property];
-      if (filledValue === null) {
-        continue;
-      }
       if (filterComponent.props.enum) { // enumeration
         filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
       }
@@ -151,7 +148,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     let userSearchParameters = _searchParameters;
     userSearchParameters = userSearchParameters.setPage(0);
     filters.forEach(filter => {
-      userSearchParameters = userSearchParameters.setFilter(filter.field, filter.value);
+      if (!filter.value) {
+        userSearchParameters = userSearchParameters.clearFilter(filter.field);
+      } else {
+        userSearchParameters = userSearchParameters.setFilter(filter.field, filter.value);
+      }
     });
     this.fetchEntities(userSearchParameters);
   }

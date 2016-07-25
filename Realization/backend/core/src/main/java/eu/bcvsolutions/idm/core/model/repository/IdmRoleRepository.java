@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 
@@ -28,7 +29,8 @@ public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	
 	@Query(value = "select e from IdmRole e" +
 	        " where" +
-	        " lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
+	        " (:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" +
+	        " and (:roleType is null or e.roleType = :roleType)")
 	@RestResource(path = "quick", rel = "quick")
-	Page<IdmRole> findByNameLikeLowerCase(@Param(value = "text") String text, Pageable pageable);
+	Page<IdmRole> findByQuick(@Param(value = "text") String text, @Param(value = "roleType") IdmRoleType roleType, Pageable pageable);
 }

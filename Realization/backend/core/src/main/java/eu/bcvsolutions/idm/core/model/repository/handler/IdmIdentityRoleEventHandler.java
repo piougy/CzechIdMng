@@ -1,15 +1,10 @@
 package eu.bcvsolutions.idm.core.model.repository.handler;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 
 /**
  * When role is assigned to user, then workflow is started if needed
@@ -21,8 +16,6 @@ import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 public class IdmIdentityRoleEventHandler {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmIdentityRoleEventHandler.class);
-	@Autowired
-	private IdmIdentityService identityService;
 	
 	@HandleBeforeSave
 	public void handleBeforeSave(IdmIdentityRole identityRole) {		

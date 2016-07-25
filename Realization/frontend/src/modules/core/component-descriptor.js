@@ -6,7 +6,7 @@ module.exports = {
   'components': [
     {
       'id': 'dynamicRoleTaskDetail',
-      'component': require('./content/task/DynamicTaskRoleDetail')
+      'component': require('./content/task/identityRole/DynamicTaskRoleDetail')
     }
   ]
 };

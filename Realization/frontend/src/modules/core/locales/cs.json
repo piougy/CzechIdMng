@@ -507,6 +507,10 @@
         },
         "RoleApprovalTaskDetail": {
           "roleName" : "Název role"
+        },
+        "IdentityRoleConceptTable": {
+          "oldValue": "Původní hodnota {{oldValue}}",
+          "oldValueNotExist": "Původní hodnota je prázdná"
         }
     },
     "users": {

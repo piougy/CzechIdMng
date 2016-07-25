@@ -38,8 +38,12 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     if (task) {
       force = force.setFilter('username', task.applicant);
     }
+    //
+    // <?-- <UserRoleTable
+    //      uiKey="user-role-table"
+    //    forceSearchParameters={force}
+    //      identityRoleManager={identityRoleManager}/>
 
-    console.log("dddddd", _currentIdentityRoles);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -61,13 +65,13 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<small>{this.i18n('content.task.instance.role.currentRoles')}</small>}/>
-          <UserRoleTable
-            uiKey="user-role-table"
-            forceSearchParameters={force}
-            identityRoleManager={identityRoleManager}/>
           <IdentityRoleConceptTable
             uiKey="identity-role-concept-table"
-            identityRoles={_currentIdentityRoles}/>
+            identityRoles={_currentIdentityRoles}
+            addedIdentityRoles={[{_embedded: {role: { name: 'ttttttttttadd' }}}]}
+            changedIdentityRoles={[{id: 12, validTill: '2020-07-07'}]}
+            removedIdentityRoles={[11, 6] }
+            />
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.AbstractForm ref="formData">

@@ -1,8 +1,8 @@
 
 
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import * as Basic from '../../../../../components/basic';
 import * as Advanced from '../../../../../components/advanced';
@@ -19,6 +19,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
+      conceptData: {},
       filterOpened: this.props.filterOpened,
       detail: {
         show: false,
@@ -28,13 +29,22 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.roles';
+    return 'content.task.IdentityRoleConceptTable';
   }
 
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
+  componentWillReceiveProps(nextProps) {
+    if (nextProps && (
+      JSON.stringify(nextProps.identityRoles) !== JSON.stringify(this.props.identityRoles) ||
+      JSON.stringify(nextProps.addedIdentityRoles) !== JSON.stringify(this.props.addedIdentityRoles) ||
+      JSON.stringify(nextProps.removedIdentityRoles) !== JSON.stringify(this.props.removedIdentityRoles) ||
+      JSON.stringify(nextProps.changedIdentityRoles) !== JSON.stringify(this.props.changedIdentityRoles)
+    )) {
+      this.setState({identityRoles: _.merge([], nextProps.identityRoles),
+         addedIdentityRoles: _.merge([], nextProps.addedIdentityRoles), removedIdentityRoles: _.merge([], nextProps.removedIdentityRoles),
+         changedIdentityRoles: _.merge([], nextProps.changedIdentityRoles)}, ()=>{
+        this.setState({conceptData: this._compileConceptData(this.state)});
+      });
+    }
   }
 
   useFilter(event) {
@@ -74,7 +84,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
-  _showDetail(entity) {
+  _showDetail(entity, isEdit = false) {
     const entityFormData = _.merge({}, entity, {
       role: entity.id ? entity._embedded.role.name : null
     });
@@ -82,7 +92,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     this.setState({
       detail: {
         show: true,
-        showLoading: false,
+        edit: isEdit,
         entity: entityFormData
       }
     }, () => {
@@ -104,17 +114,143 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     console.log("doConcept");
   }
 
-  _deleteConcept() {
-    console.log("deleteConcept");
+  _deleteConcept(data) {
+    const {addedIdentityRoles, removedIdentityRoles, changedIdentityRoles} = this.state;
+    if (data._added) {
+      for (const addedIdentityRole of addedIdentityRoles) {
+        if (addedIdentityRole === data) {
+          addedIdentityRoles.splice(addedIdentityRoles.indexOf(addedIdentityRole), 1);
+          this.setState({conceptData: this._compileConceptData(this.state)});
+          return;
+        }
+      }
+    } else if (data._removed) {
+      for (const removedIdentityRole of removedIdentityRoles) {
+        if (removedIdentityRole === data.id) {
+          removedIdentityRoles.splice(removedIdentityRoles.indexOf(removedIdentityRole), 1);
+          this.setState({conceptData: this._compileConceptData(this.state)});
+          return;
+        }
+      }
+    } else if (data._changed) {
+      for (const changedIdentityRole of changedIdentityRoles) {
+        if (changedIdentityRole.id === data.id) {
+          changedIdentityRoles.splice(changedIdentityRoles.indexOf(changedIdentityRole), 1);
+          this.setState({conceptData: this._compileConceptData(this.state)});
+          return;
+        }
+      }
+    } else {
+      removedIdentityRoles.push(data.id);
+      this.setState({conceptData: this._compileConceptData(this.state)});
+      return;
+    }
+  }
+
+  _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
+    let concepts = _.merge([], identityRoles);
+    for (const addedIdentityRole of addedIdentityRoles) {
+      addedIdentityRole._added = true;
+    }
+    concepts = _.concat(concepts, addedIdentityRoles);
+    for (const concept of concepts) {
+      if (removedIdentityRoles && removedIdentityRoles.includes(concept.id)) {
+        concept._removed = true;
+      }
+      if (changedIdentityRoles) {
+        for (const changedIdentityRole of changedIdentityRoles) {
+          if (changedIdentityRole.id === concept.id) {
+            concept._changed = true;
+            for (const property in changedIdentityRole) {
+              if (changedIdentityRole.hasOwnProperty(property)) {
+                const key = '_' + property + 'Changed';
+                concept[key] = changedIdentityRole[property];
+              }
+            }
+          }
+        }
+      }
+    }
+    return concepts;
+  }
+
+  _rowClass({rowIndex, data}) {
+    if (data[rowIndex]._added) {
+      return 'bg-success';
+    }
+    if (data[rowIndex]._removed) {
+      return 'bg-danger';
+    }
+    if (data[rowIndex]._changed) {
+      return 'bg-warning';
+    }
+    return null;
+  }
+
+  _conceptDateCell({rowIndex, data, property}) {
+    const changedProperty = '_' + property + 'Changed';
+    const format = this.i18n('format.date');
+    const propertyValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
+    const dataValue = propertyValue ? moment(propertyValue).format(format) : null;
+    const oldValue = oldValue ? this.i18n('oldValue', {oldValue: dataValue}) : this.i18n('oldValueNotExist');
+    const changedPropertyExist = data[rowIndex].hasOwnProperty(changedProperty);
+    return (
+      <Basic.DateCell
+        className={changedPropertyExist ? 'text-danger' : ''}
+        property={changedPropertyExist ? changedProperty : property}
+        rowIndex={rowIndex}
+        data={data}
+        title={changedPropertyExist ? oldValue : null}
+        format={format}/>
+    );
+  }
+
+  _conceptActionsCell({rowIndex, data}) {
+    const actions = [];
+    const value = data[rowIndex];
+    const notModificated = !(value._added || value._removed || value._changed);
+
+    actions.push(
+      <Basic.Button
+        level={'danger'}
+        onClick={this._deleteConcept.bind(this, data[rowIndex])}
+        className="btn-xs"
+        role="group"
+        title={this.i18n('button.delete')}
+        titlePlacement="bottom">
+        <Basic.Icon icon={notModificated ? 'trash' : 'remove'}/>
+      </Basic.Button>
+    );
+    if (!value._removed) {
+      actions.push(
+        <Basic.Button
+          level={'warning'}
+          onClick={this._showDetail.bind(this, data[rowIndex])}
+          className="btn-xs"
+          role="group"
+          title={this.i18n('button.edit')}
+          titlePlacement="bottom">
+          <Basic.Icon icon={'edit'}/>
+        </Basic.Button>
+      );
+    }
+    return (
+      <div className="btn-group" role="group">
+        {actions}
+      </div>
+    );
   }
 
   render() {
-    const { _showLoading, identityRoles} = this.props;
-    const { detail } = this.state;
+    const { _showLoading} = this.props;
+    const {conceptData, detail} = this.state;
+
     return (
       <div>
         <Basic.Table
-          data={identityRoles}
+          hover={false}
+          data={conceptData}
+          rowClass={this._rowClass}
           showRowSelection={false}>
           <Basic.Column
             header=""
@@ -136,29 +272,15 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
           <Basic.Column
             property="validFrom"
             header={this.i18n('label.validFrom')}
-            cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-            />
+            cell={this._conceptDateCell.bind(this)}/>
           <Basic.Column
             property="validTill"
             header={this.i18n('label.validTill')}
-            cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+            cell={this._conceptDateCell.bind(this)}/>
           <Basic.Column
             header={this.i18n('label.action')}
             className="action"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <Basic.Button
-                    level="danger"
-                    onClick={this._deleteConcept.bind(this, data[rowIndex])}
-                    className="btn-xs"
-                    title={this.i18n('button.delete', { delegate: data[rowIndex]._embedded.role.name })}
-                    titlePlacement="bottom">
-                    <Basic.Icon icon="trash"/>
-                  </Basic.Button>
-                );
-              }
-            }/>
+            cell={this._conceptActionsCell.bind(this)}/>
           </Basic.Table>
           <Basic.Modal
             bsSize="default"
@@ -167,7 +289,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             backdrop="static"
             keyboard={!_showLoading}>
 
-            <form onSubmit={this._saveConcept.bind(this)}>
+
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
@@ -179,15 +301,16 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                     required/>
                   <Basic.DateTimePicker
                     mode="date"
-                    ref="validFrom"
+                    className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
+                    ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
                     label={this.i18n('label.validFrom')}/>
                   <Basic.DateTimePicker
                     mode="date"
-                    ref="validTill"
+                    className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
+                    ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
                     label={this.i18n('label.validTill')}/>
                 </Basic.AbstractForm>
               </Basic.Modal.Body>
-
               <Basic.Modal.Footer>
                 <Basic.Button
                   level="link"
@@ -204,7 +327,6 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                   {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.Modal.Footer>
-            </form>
           </Basic.Modal>
       </div>
     );

@@ -14,7 +14,6 @@
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
         <activiti:formProperty id="addRoles" name="Přidat role" type="textArea"></activiti:formProperty>
-        <activiti:formProperty id="customText" name="Šíleně složitý číslo" type="textField" required="true"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
@@ -54,7 +53,7 @@
     <endEvent id="endByApplicant" name="Zrušeno žadatelem">
       <documentation>Zrušeno žadatelem</documentation>
     </endEvent>
-    <userTask id="applicantReturnedTask" name="Oprava žádosti žadatelem (vráceno vedoucím)" activiti:assignee=" ${applicantUsername}">
+    <userTask id="applicantReturnedTask" name="Oprava žádosti žadatelem (vráceno vedoucím)" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Je požadována úprava žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>

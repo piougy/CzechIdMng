@@ -512,7 +512,25 @@
         },
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
-          "oldValueNotExist": "Původní hodnota je prázdná"
+          "oldValueNotExist": "Původní hodnota byla prázdná",
+          "action": {
+            "deleteAdded": {
+              "header": "Odstranění oprávnění",
+              "message": "Opravdu chcete odstranit toto nové oprávnění?"
+            },
+            "deleteChanged": {
+              "header": "Odstranění úprav",
+              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+            },
+            "deleteRemoved": {
+              "header": "Odstranění úprav",
+              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+            },
+            "delete": {
+              "header": "Odstranění oprávnění",
+              "message": "Opravdu chcete toto oprávnění odstranit?"
+            }
+          }
         }
     },
     "users": {

@@ -3,16 +3,18 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import uuid from 'uuid';
 //
 import * as Basic from '../../../../../components/basic';
 import * as Advanced from '../../../../../components/advanced';
-import {RoleManager } from '../../../redux';
+import {RoleManager, IdentityManager} from '../../../redux';
 
 /**
 * Table for keep identity role concept
 */
 
 const roleManager = new RoleManager();
+const identityManager = new IdentityManager();
 
 export class IdentityRoleConceptTable extends Basic.AbstractContent {
 
@@ -47,46 +49,26 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     }
   }
 
-  useFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+  getAddedIdentityRoles() {
+    return this.state.addedIdentityRoles;
   }
 
-  cancelFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  getRemovedIdentityRolesIds() {
+    return this.state.removedIdentityRoles;
   }
 
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
+  getChangedIdentityRoles() {
+    return this.state.changedIdentityRoles;
   }
 
-  _useFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
-  }
-
-  _cancelFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
-  }
-
+  /**
+   * Show modal dialog
+   * @param  {Object}  entity           Entity show in dialog
+   * @param  {Boolean} isEdit = false   If is false then form in dialog will be read only
+   */
   _showDetail(entity, isEdit = false) {
     const entityFormData = _.merge({}, entity, {
-      role: entity.id ? entity._embedded.role.name : null
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null
     });
 
     this.setState({
@@ -101,6 +83,9 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * Close modal dialog
+   */
   _closeDetail() {
     this.setState({
       detail: {
@@ -110,43 +95,146 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     });
   }
 
-  _saveConcept() {
-    console.log("doConcept");
-  }
+  /**
+   * Save added or changed entities to arrays and recompile concept data.
+   */
+  _saveConcept(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+    const {addedIdentityRoles} = this.state;
+    const {identityUsername} = this.props;
 
-  _deleteConcept(data) {
-    const {addedIdentityRoles, removedIdentityRoles, changedIdentityRoles} = this.state;
-    if (data._added) {
-      for (const addedIdentityRole of addedIdentityRoles) {
-        if (addedIdentityRole === data) {
-          addedIdentityRoles.splice(addedIdentityRoles.indexOf(addedIdentityRole), 1);
-          this.setState({conceptData: this._compileConceptData(this.state)});
-          return;
-        }
-      }
-    } else if (data._removed) {
-      for (const removedIdentityRole of removedIdentityRoles) {
-        if (removedIdentityRole === data.id) {
-          removedIdentityRoles.splice(removedIdentityRoles.indexOf(removedIdentityRole), 1);
-          this.setState({conceptData: this._compileConceptData(this.state)});
-          return;
-        }
-      }
-    } else if (data._changed) {
-      for (const changedIdentityRole of changedIdentityRoles) {
-        if (changedIdentityRole.id === data.id) {
-          changedIdentityRoles.splice(changedIdentityRoles.indexOf(changedIdentityRole), 1);
-          this.setState({conceptData: this._compileConceptData(this.state)});
-          return;
-        }
+    const entity = this.refs.form.getData();
+
+    if (entity._added) {
+      const addedIdentityRole = this._findAddedIdentityRoleByVirtualId(entity._virtualId);
+      entity._embedded = {};
+      entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
+      entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
+      if (addedIdentityRole) {
+        _.merge(addedIdentityRole, entity);
+      } else {
+        addedIdentityRoles.push(entity);
       }
     } else {
-      removedIdentityRoles.push(data.id);
-      this.setState({conceptData: this._compileConceptData(this.state)});
-      return;
+      this._findChange('validFrom', entity);
+      this._findChange('validTill', entity);
+    }
+    this.setState({conceptData: this._compileConceptData(this.state)});
+    this._closeDetail();
+  }
+
+  _findChangedIdentityRoleById(id) {
+    const {changedIdentityRoles} = this.state;
+    for (const changedIdentityRole of changedIdentityRoles) {
+      if (changedIdentityRole.id === id) {
+        return changedIdentityRole;
+      }
+    }
+    return null;
+  }
+
+  _findAddedIdentityRoleByVirtualId(virtualId) {
+    const {addedIdentityRoles} = this.state;
+    for (const addedIdentityRole of addedIdentityRoles) {
+      if (addedIdentityRole._virtualId === virtualId) {
+        return addedIdentityRole;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find and apply changes to changedIdentityRole array
+   */
+  _findChange(property, entity) {
+    const {conceptData, changedIdentityRoles} = this.state;
+    const changedPropertyName = '_' + property + 'Changed';
+    for (const conceptIdentityRole of conceptData) {
+      if (conceptIdentityRole.id === entity.id) {
+        const changedIdentityRole = this._findChangedIdentityRoleById(entity.id);
+        let propertyWithNewValue = property;
+        if (entity.hasOwnProperty(changedPropertyName)) {
+          propertyWithNewValue = changedPropertyName;
+        }
+        if (entity[propertyWithNewValue] !== conceptIdentityRole[propertyWithNewValue]) {
+          if (changedIdentityRole) {
+            changedIdentityRole[property] = entity[propertyWithNewValue];
+          } else {
+            changedIdentityRoles.push({id: entity.id, [property]: entity[propertyWithNewValue]});
+          }
+        }
+      }
     }
   }
 
+  /**
+   * Delete operation for added (delete whole object from array added entities),
+   * changed (delete changes ... object from array changed entities),
+   * removed (remove id from array of deleted entities)
+   */
+  _deleteConcept(data) {
+    let messageKey;
+    if (data._added) {
+      messageKey = 'Added';
+    } else if (data._removed) {
+      messageKey = 'Removed';
+    } else if (data._changed) {
+      messageKey = 'Changed';
+    } else {
+      messageKey = '';
+    }
+    this.refs['confirm-delete'].show(
+      this.i18n(`action.delete${messageKey}.message`),
+      this.i18n(`action.delete${messageKey}.header`)
+    ).then(() => {
+      const {addedIdentityRoles, removedIdentityRoles, changedIdentityRoles} = this.state;
+      if (data._added) {
+        for (const addedIdentityRole of addedIdentityRoles) {
+          if (addedIdentityRole === data) {
+            addedIdentityRoles.splice(addedIdentityRoles.indexOf(addedIdentityRole), 1);
+            this.setState({conceptData: this._compileConceptData(this.state)});
+            return;
+          }
+        }
+      } else if (data._removed) {
+        for (const removedIdentityRole of removedIdentityRoles) {
+          if (removedIdentityRole === data.id) {
+            removedIdentityRoles.splice(removedIdentityRoles.indexOf(removedIdentityRole), 1);
+            this.setState({conceptData: this._compileConceptData(this.state)});
+            return;
+          }
+        }
+      } else if (data._changed) {
+        for (const changedIdentityRole of changedIdentityRoles) {
+          if (changedIdentityRole.id === data.id) {
+            changedIdentityRoles.splice(changedIdentityRoles.indexOf(changedIdentityRole), 1);
+            this.setState({conceptData: this._compileConceptData(this.state)});
+            return;
+          }
+        }
+      } else {
+        removedIdentityRoles.push(data.id);
+        this.setState({conceptData: this._compileConceptData(this.state)});
+        return;
+      }
+    }, () => {
+      // Rejected
+    });
+  }
+
+  /**
+   * Create final data for concept table by input arrays
+   * @param  {array}  identityRoles         Original not modified data
+   * @param  {array}  addedIdentityRoles    Added data
+   * @param  {array}  removedIdentityRoles  Removed data (ids)
+   * @param  {array}  changedIdentityRoles} Changed data (every object in array contains only changed fields and ID)
+   * @return {array}  conceptData           Final data for concept table
+   */
   _compileConceptData({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
     let concepts = _.merge([], identityRoles);
     for (const addedIdentityRole of addedIdentityRoles) {
@@ -174,6 +262,9 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     return concepts;
   }
 
+  /**
+   * Compute background color row (added, removed, changed)
+   */
   _rowClass({rowIndex, data}) {
     if (data[rowIndex]._added) {
       return 'bg-success';
@@ -187,12 +278,16 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     return null;
   }
 
+  /**
+   * Generate date cell for concept. If is entity changed, will use 'changed' property. In title show old value.
+   */
   _conceptDateCell({rowIndex, data, property}) {
     const changedProperty = '_' + property + 'Changed';
+    // Load old value and add to title
     const format = this.i18n('format.date');
-    const propertyValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
-    const dataValue = propertyValue ? moment(propertyValue).format(format) : null;
-    const oldValue = oldValue ? this.i18n('oldValue', {oldValue: dataValue}) : this.i18n('oldValueNotExist');
+    const propertyOldValue = Basic.Cell.getPropertyValue(data[rowIndex], property);
+    const dataOldValue = propertyOldValue ? moment(propertyOldValue).format(format) : null;
+    const oldValueMessage = dataOldValue ? this.i18n('oldValue', {oldValue: dataOldValue}) : this.i18n('oldValueNotExist');
     const changedPropertyExist = data[rowIndex].hasOwnProperty(changedProperty);
     return (
       <Basic.DateCell
@@ -200,11 +295,23 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
         property={changedPropertyExist ? changedProperty : property}
         rowIndex={rowIndex}
         data={data}
-        title={changedPropertyExist ? oldValue : null}
+        title={changedPropertyExist ? oldValueMessage : null}
         format={format}/>
     );
   }
 
+  /**
+   * Create new IdentityRoleConcet with virtual ID (UUID)
+   */
+  _addConcept() {
+    const uuidId = uuid.v1();
+    const newIdentityRoleConcept = {_virtualId: uuidId, _added: true};
+    this._showDetail(newIdentityRoleConcept, true);
+  }
+
+  /**
+   * Generate cell with actions (buttons)
+   */
   _conceptActionsCell({rowIndex, data}) {
     const actions = [];
     const value = data[rowIndex];
@@ -225,7 +332,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       actions.push(
         <Basic.Button
           level={'warning'}
-          onClick={this._showDetail.bind(this, data[rowIndex])}
+          onClick={this._showDetail.bind(this, data[rowIndex], true)}
           className="btn-xs"
           role="group"
           title={this.i18n('button.edit')}
@@ -244,9 +351,19 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   render() {
     const { _showLoading} = this.props;
     const {conceptData, detail} = this.state;
-
     return (
       <div>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
+        <Basic.Toolbar>
+          <div className="pull-right">
+            <Basic.Button level="success" className="btn-xs" onClick={this._addConcept.bind(this)}>
+              <Basic.Icon value="fa:plus"/>
+              {' '}
+              {this.i18n('button.add')}
+            </Basic.Button>
+          </div>
+          <div className="clearfix"></div>
+        </Basic.Toolbar>
         <Basic.Table
           hover={false}
           data={conceptData}
@@ -260,7 +377,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this._showDetail.bind(this, data[rowIndex])}/>
+                    onClick={this._showDetail.bind(this, data[rowIndex], false)}/>
                 );
               }
             }
@@ -285,19 +402,20 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
           <Basic.Modal
             bsSize="default"
             show={detail.show}
-            onHide={this.closeDetail.bind(this)}
+            onHide={this._closeDetail.bind(this)}
             backdrop="static"
             keyboard={!_showLoading}>
 
-
+            <form onSubmit={this._saveConcept.bind(this)}>
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
-                <Basic.AbstractForm ref="form" showLoading={_showLoading}>
+                <Basic.AbstractForm className="form-horizontal" ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
                   <Basic.SelectBox
                     ref="role"
                     manager={roleManager}
                     label={this.i18n('entity.IdentityRole.role')}
+                    readOnly={!detail.entity._added}
                     required/>
                   <Basic.DateTimePicker
                     mode="date"
@@ -314,7 +432,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
               <Basic.Modal.Footer>
                 <Basic.Button
                   level="link"
-                  onClick={this.closeDetail.bind(this)}
+                  onClick={this._closeDetail.bind(this)}
                   showLoading={_showLoading}>
                   {this.i18n('button.close')}
                 </Basic.Button>
@@ -327,6 +445,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                   {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.Modal.Footer>
+            </form>
           </Basic.Modal>
       </div>
     );
@@ -335,14 +454,10 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
 
 IdentityRoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  identityRoleManager: PropTypes.object.isRequired,
-  columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool,
-  forceSearchParameters: PropTypes.object
+  identityUsername: PropTypes.string.isRequired
 };
 
 IdentityRoleConceptTable.defaultProps = {
-  columns: ['name', 'validTill', 'validFrom'],
   filterOpened: false,
   _showLoading: false
 };

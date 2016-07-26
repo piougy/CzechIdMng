@@ -7,7 +7,6 @@ import * as Basic from '../../../../../components/basic';
 import * as Advanced from '../../../../../components/advanced';
 import DecisionButtons from '../DecisionButtons';
 import DynamicTaskDetail from '../DynamicTaskDetail';
-import UserRoleTable from '../../user/UserRoleTable';
 import IdentityRoleConceptTable from './IdentityRoleConceptTable';
 import {IdentityRoleManager} from '../../../redux';
 import { connect } from 'react-redux';
@@ -30,6 +29,24 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     }
   }
 
+  _completeTask(decision) {
+    const formDataValues = this.refs.formData.getData();
+    const task = this.refs.form.getData();
+    const conceptTable = this.refs.identityRoleConceptTable;
+    const addedIdentityRoles = conceptTable.getAddedIdentityRoles();
+    const removedIdentityRoles = conceptTable.getRemovedIdentityRolesIds();
+    const changedIdentityRoles = conceptTable.getChangedIdentityRoles();
+    const formDataConverted = this._toFormData(formDataValues, task.formData);
+    const taskVariables = {};
+    taskVariables.addedIdentityRoles = addedIdentityRoles;
+    taskVariables.removedIdentityRoles = removedIdentityRoles;
+    taskVariables.changedIdentityRoles = changedIdentityRoles;
+
+    const formData = {'decision': decision.id, 'formData': formDataConverted, 'variables': taskVariables};
+    const { taskManager} = this.props;
+    this.context.store.dispatch(taskManager.completeTask(task, formData, this.props.uiKey, this._afterComplete.bind(this)));
+  }
+
   render() {
     const {task, taskManager, _currentIdentityRoles} = this.props;
     const { showLoading} = this.state;
@@ -38,12 +55,6 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
     if (task) {
       force = force.setFilter('username', task.applicant);
     }
-    //
-    // <?-- <UserRoleTable
-    //      uiKey="user-role-table"
-    //    forceSearchParameters={force}
-    //      identityRoleManager={identityRoleManager}/>
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -66,11 +77,13 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<small>{this.i18n('content.task.instance.role.currentRoles')}</small>}/>
           <IdentityRoleConceptTable
+            ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"
+            identityUsername={task.applicant}
             identityRoles={_currentIdentityRoles}
-            addedIdentityRoles={[{_embedded: {role: { name: 'ttttttttttadd' }}}]}
-            changedIdentityRoles={[{id: 12, validTill: '2020-07-07'}]}
-            removedIdentityRoles={[11, 6] }
+            addedIdentityRoles={task.variables.addedIdentityRoles}
+            changedIdentityRoles={task.variables.changedIdentityRoles}
+            removedIdentityRoles={task.variables.removedIdentityRoles}
             />
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>

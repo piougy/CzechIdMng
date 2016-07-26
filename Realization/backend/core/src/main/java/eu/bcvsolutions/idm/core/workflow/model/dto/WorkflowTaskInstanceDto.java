@@ -25,7 +25,7 @@ public class WorkflowTaskInstanceDto {
 	private String assignee;
 	@JsonProperty(value = "taskDescription")
 	private String description;
-	private Map<String, String> variables;
+	private Map<String, Object> variables;
 	private List<FormDataDto> formData;
 	private List<DecisionFormTypeDto> decisions;
 	private WorkflowTaskDefinitionDto definition;
@@ -70,14 +70,14 @@ public class WorkflowTaskInstanceDto {
 		this.definition = definition;
 	}
 
-	public Map<String, String> getVariables() {
+	public Map<String, Object> getVariables() {
 		if (variables == null) {
 			variables = new HashMap<>();
 		}
 		return variables;
 	}
 
-	public void setVariables(Map<String, String> variables) {
+	public void setVariables(Map<String, Object> variables) {
 		this.variables = variables;
 	}
 

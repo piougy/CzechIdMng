@@ -111,11 +111,17 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 	public void completeTask(String taskId, String decision) {
 		completeTask(taskId, decision, null);
 	}
-
+	
 	@Override
 	public void completeTask(String taskId, String decision, Map<String, String> formData) {
+		completeTask(taskId, decision, null, null);
+	}
+
+	@Override
+	public void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables) {
 		String loggedUser = securityService.getUsername();
 		taskService.setAssignee(taskId, loggedUser);
+		taskService.setVariables(taskId, variables);
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
 		if(formData != null){
@@ -148,8 +154,9 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 			dto.setApplicant((String) processVariables.get(WorkflowProcessInstanceService.APPLICANT_USERNAME));
 		}
 
+		dto.setVariables(processVariables);
 		convertToDtoVariables(dto, taksVariables);
-		convertToDtoVariables(dto, processVariables);
+		//convertToDtoVariables(dto, processVariables);
 
 		dto.setDefinition(workflowTaskDefinitionService.searchTaskDefinitionById(task.getProcessDefinitionId(),
 				task.getTaskDefinitionKey()));

@@ -9,6 +9,8 @@ public class FormDataWrapperDto {
 
 	private Map<String, String> formData;
 	
+	private Map<String, Object> variables;
+	
 	public String getDecision() {
 		return decision;
 	}
@@ -26,6 +28,17 @@ public class FormDataWrapperDto {
 
 	public void setFormData(Map<String, String> formData) {
 		this.formData = formData;
+	}
+
+	public Map<String, Object> getVariables() {
+		if(variables == null){
+			variables = new HashMap<>();
+		}
+		return variables;
+	}
+
+	public void setVariables(Map<String, Object> variables) {
+		this.variables = variables;
 	}
 	
 }

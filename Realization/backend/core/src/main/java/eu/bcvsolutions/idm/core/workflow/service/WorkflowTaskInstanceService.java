@@ -20,4 +20,6 @@ public interface WorkflowTaskInstanceService {
 
 	ResourcesWrapper<WorkflowTaskInstanceDto> search(WorkflowFilterDto filter);
 
+	void completeTask(String taskId, String decision, Map<String, String> formData, Map<String, Object> variables);
+
 }

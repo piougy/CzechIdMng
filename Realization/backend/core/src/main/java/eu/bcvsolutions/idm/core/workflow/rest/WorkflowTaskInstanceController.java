@@ -79,7 +79,7 @@ public class WorkflowTaskInstanceController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "{taskId}/complete")
 	public void completeTask(@PathVariable String taskId, @RequestBody FormDataWrapperDto formData) {
-		workflowTaskInstanceService.completeTask(taskId, formData.getDecision(), formData.getFormData());
+		workflowTaskInstanceService.completeTask(taskId, formData.getDecision(), formData.getFormData(), formData.getVariables());
 	}
 
 }

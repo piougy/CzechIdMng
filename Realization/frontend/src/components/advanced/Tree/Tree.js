@@ -34,22 +34,22 @@ class Tree extends Basic.AbstractContextComponent {
 
   componentWillReceiveProps(nextProps) {
     const {cursor} = nextProps;
-    //cursor is different
-    if (nextProps.cursor && this.props.cursor !== cursor){
+    // cursor is different
+    if (nextProps.cursor && this.props.cursor !== cursor) {
       const {data} = this.state;
-      //We find same node in data and merge new cursor to him
-      let oldCursor = this._findNode(cursor.id, data);
+      // We find same node in data and merge new cursor to him
+      const oldCursor = this._findNode(cursor.id, data);
       _.merge(oldCursor, cursor);
-      this.setState({data: data});
+      this.setState({data});
     }
   }
 
-  collapse(){
+  collapse() {
     const {data} = this.state;
-    if (data){
+    if (data) {
       data.toggled = false;
     }
-    this.setState({data: data});
+    this.setState({data});
   }
 
   /**
@@ -57,21 +57,21 @@ class Tree extends Basic.AbstractContextComponent {
   * @param  {object} node    selected node
   * @param  {boolean} toggled
   */
-  _onToggle(node, toggled){
+  _onToggle(node, toggled) {
     const {propertyParent, propertyId, uiKey} = this.props;
-    let filter = {filter: { operation: 'OR', filters: [{'field': propertyParent, 'value': node[propertyId]}]}};
-    if (this.state.cursor){
+    const filter = {filter: { operation: 'OR', filters: [{'field': propertyParent, 'value': node[propertyId]}]}};
+    if (this.state.cursor) {
       this.state.cursor.active = false;
     }
-    let loaded = this._loadNode(node, this.context.store.getState());
-    if (!loaded){
+    const loaded = this._loadNode(node, this.context.store.getState());
+    if (!loaded) {
       node.loading = true;
     }
     node.active = true;
     node.toggled = toggled;
     this.setState({ cursor: node }, ()=>{
-      if (!loaded){
-        this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey+node[propertyId]));
+      if (!loaded) {
+        this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey + node[propertyId]));
       }
     });
   }
@@ -82,20 +82,20 @@ class Tree extends Basic.AbstractContextComponent {
   * @param  {object} state  Redux state
   * @return {boolean}  Is node loaded
   */
-  _loadNode(node, state){
+  _loadNode(node, state) {
     const {propertyId, uiKey} = this.props;
-    let nodeKey =  uiKey+node[propertyId];
-    let containsUiKey = this.getManager().containsUiKey(state, nodeKey);
-    if (containsUiKey && !node.loading){
+    const nodeKey = uiKey + node[propertyId];
+    const containsUiKey = this.getManager().containsUiKey(state, nodeKey);
+    if (containsUiKey && !node.loading) {
       return true;
     }
-    if (containsUiKey){
-      let children = this.getManager().getEntities(state, nodeKey);
-      if (children.length !== 0){
+    if (containsUiKey) {
+      const children = this.getManager().getEntities(state, nodeKey);
+      if (children.length !== 0) {
         node.children = children;
-        for (let child of children) {
+        for (const child of children) {
           child.toggled = false;
-          if (!child.isLeaf){
+          if (!child.isLeaf) {
             child.children = [];
           }
         }
@@ -111,38 +111,38 @@ class Tree extends Basic.AbstractContextComponent {
   * Get decorators (default or custom form props)
   * @return {object} Decorators
   */
-  _getDecorators(){
+  _getDecorators() {
     const {propertyName, loadingDecorator, toggleDecorator, headerDecorator} = this.props;
     return {
       Loading: (props) => {
-        if (loadingDecorator){
+        if (loadingDecorator) {
           return loadingDecorator(props);
         }
         return (
             <div style={props.style}>
                 {this.i18n('component.advanced.Tree.loading')}
             </div>
-        )
+        );
       },
       Toggle: (props) => {
-        if (toggleDecorator){
+        if (toggleDecorator) {
           return toggleDecorator(props);
         }
-        return decorators.Toggle(props)
+        return decorators.Toggle(props);
       },
-      Header: (props) => {
-        if (headerDecorator){
-          return headerDecorator(props);
+      Header: (headerProps) => {
+        if (headerDecorator) {
+          return headerDecorator(headerProps);
         }
-        const style = props.style;
-        const iconType = props.node.children ? 'folder' : 'file-text';
+        const style = headerProps.style;
+        const iconType = headerProps.node.children ? 'folder' : 'file-text';
         const iconClass = `fa fa-${iconType}`;
         const iconStyle = { marginRight: '5px' };
         return (
           <div style={style.base}>
             <div style={style.title}>
               <i className={iconClass} style={iconStyle}/>
-              {props.node[propertyName]}
+              {headerProps.node[propertyName]}
             </div>
           </div>
         );
@@ -155,12 +155,12 @@ class Tree extends Basic.AbstractContextComponent {
   * @param  {string} idNode
   * @param  {object} element
   */
-  _findNode(idNode, element){
-    if (element.id === idNode){
+  _findNode(idNode, element) {
+    if (element.id === idNode) {
       return element;
-    }else if (element.children != null){
-      var result = null;
-      for (let i = 0; !result && i < element.children.length; i++){
+    } else if (element.children != null) {
+      let result = null;
+      for (let i = 0; !result && i < element.children.length; i++) {
         result = this._findNode(idNode, element.children[i]);
       }
       return result;
@@ -170,23 +170,24 @@ class Tree extends Basic.AbstractContextComponent {
 
   render() {
     const { data } = this.state;
-    const { propertyName, loadingDecorator, toggleDecorator, headerDecorator, style, showLoading, rendered } = this.props;
-    //I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
-    let customDecorators = this._getDecorators();
+    const { style, rendered } = this.props;
+    // I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
+    const customDecorators = this._getDecorators();
+    if (!rendered) {
+      return null;
+    }
     return (
       <div>
-        {rendered ?
           (showLoading ?
-            <Basic.Well showLoading={true}/>
+            <Basic.Well showLoading/>
             :
             <Treebeard
               data={data}
               onToggle={this._onToggle.bind(this)}
               style={style ? style : defaultStyle}
-              decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading /*, Toggle: customDecorators.Toggle*/}}
+              decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}
               />
           )
-          : ''}
         </div>
       );
   }

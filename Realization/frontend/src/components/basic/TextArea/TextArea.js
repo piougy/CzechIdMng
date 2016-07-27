@@ -1,8 +1,5 @@
-
-
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import merge from 'object-assign';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
@@ -14,7 +11,7 @@ class TextArea extends AbstractFormComponent {
     super(props);
   }
 
-  getRequiredValidationSchema(){
+  getRequiredValidationSchema() {
     return Joi.string().required();
   }
 
@@ -25,19 +22,19 @@ class TextArea extends AbstractFormComponent {
     this.refs.input.focus();
   }
 
-  getBody(feedback){
+  getBody(feedback) {
     const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && !this.state.value){
+    if (required && !this.state.value) {
       showAsterix = true;
     }
-    let title = this.getValidationResult() != null ? this.getValidationResult().message : null;
+    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
 
     return (
-      <div className={ showAsterix ?'has-feedback':''}>
+      <div className={ showAsterix ? 'has-feedback' : ''}>
         {
           !label
           ||
@@ -61,7 +58,13 @@ class TextArea extends AbstractFormComponent {
                 readOnly={this.state.readOnly}
                 onChange={this.onChange}
                 value={this.state.value || ''}/>
-              {feedback != null ? feedback : showAsterix ? (<span className="form-control-feedback" style={{color: 'red', zIndex : 0}}>*</span>):''}
+              {
+                feedback
+                ||
+                !showAsterix
+                ||
+                <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
+              }
             </span>
           </Tooltip>
         </div>
@@ -72,13 +75,13 @@ class TextArea extends AbstractFormComponent {
 
 TextArea.propTypes = {
   ...AbstractFormComponent.propTypes,
-  placeholder: React.PropTypes.string,
-  rows: React.PropTypes.number
-}
+  placeholder: PropTypes.string,
+  rows: PropTypes.number
+};
 
 TextArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   rows: 3
-}
+};
 
 export default TextArea;

@@ -23,9 +23,7 @@ const EnumCell = ({rowIndex, data, property, enumClass, ...props}) => {
     <DefaultCell {...props}>
       {
         !propertyValue
-        ?
-        null
-        :
+        ||
         !enumClass
         ?
         propertyValue
@@ -38,6 +36,6 @@ const EnumCell = ({rowIndex, data, property, enumClass, ...props}) => {
       }
     </DefaultCell>
   );
-}
+};
 
 export default EnumCell;

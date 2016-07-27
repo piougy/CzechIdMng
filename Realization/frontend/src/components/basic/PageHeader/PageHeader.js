@@ -1,6 +1,4 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -31,7 +29,7 @@ class PageHeader extends AbstractComponent {
           {
             showLoading
             ?
-            <Icon type="fa" icon="refresh" showLoading={true} className="icon-loading"/>
+            <Icon type="fa" icon="refresh" showLoading className="icon-loading"/>
             :
             <span>
               {text}
@@ -46,10 +44,10 @@ class PageHeader extends AbstractComponent {
 
 PageHeader.propTypes = {
   ...AbstractComponent.propTypes
-}
+};
 
 PageHeader.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 export default PageHeader;

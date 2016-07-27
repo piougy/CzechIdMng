@@ -1,7 +1,4 @@
-
-
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import DefaultCell from './DefaultCell';
@@ -19,10 +16,10 @@ class Cell extends AbstractComponent {
 
   render() {
     const { property, data, showLoading, width, className, ...props } = this.props;
-    let cellProps = {
-      showLoading: showLoading
+    const cellProps = {
+      showLoading
     };
-    let innerStyle = {
+    const innerStyle = {
       width
     };
 
@@ -38,7 +35,7 @@ class Cell extends AbstractComponent {
       cellProps.data = data;
     }
 
-    var content;
+    let content;
     if (!props.cell) {
       let text = null;
       if (props.rowIndex === -1) { // header
@@ -94,8 +91,9 @@ Cell.propTypes = {
    * input data as array of json objects
    */
   data: PropTypes.array
-}
+};
+
 Cell.defaultProps = {
-}
+};
 
 export default Cell;

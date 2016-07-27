@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import _ from 'lodash';
@@ -17,7 +15,7 @@ export default class BasicTooltip extends AbstractComponent {
    * Shows tooltip
    */
   show() {
-    const { rendered, children, value } = this.props;
+    const { rendered, children } = this.props;
     if (rendered && children) {
       this.refs.popover.show();
     }
@@ -44,7 +42,7 @@ export default class BasicTooltip extends AbstractComponent {
             {
               showLoading
               ?
-              <Icon value="Refresh" showLoading={true}/>
+              <Icon value="Refresh" showLoading/>
               :
               value
             }
@@ -79,10 +77,10 @@ BasicTooltip.propTypes = {
    * A millisecond delay amount before showing the Tooltip once triggered.
    */
   delayShow: PropTypes.number
-}
+};
 
 BasicTooltip.defaultProps = {
   ...AbstractComponent.defaultProps,
   placement: 'bottom',
   trigger: ['hover', 'focus']
-}
+};

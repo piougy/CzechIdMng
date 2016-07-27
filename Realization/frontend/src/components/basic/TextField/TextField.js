@@ -37,8 +37,9 @@ class TextField extends AbstractFormComponent {
     if (required && !this.state.value) {
       showAsterix = true;
     }
-    let title = this.getValidationResult() != null ? this.getValidationResult().message : null;
-    let component = (
+    const validationResult = this.getValidationResult();
+    const title = validationResult != null ? validationResult.message : null;
+    const component = (
       <input
         ref="input"
         type={type}
@@ -51,7 +52,7 @@ class TextField extends AbstractFormComponent {
         readOnly={this.state.readOnly}/>
     );
 
-    let render = (
+    return (
       <div className={showAsterix ? 'has-feedback' : ''}>
         {
           !label
@@ -65,14 +66,19 @@ class TextField extends AbstractFormComponent {
           <Tooltip ref="popover" placement="right" value={title}>
             <span>
               {component}
-              {feedback != null ? feedback : showAsterix ? (<span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>) : ''}
+              {
+                feedback
+                ||
+                !showAsterix
+                ||
+                <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
+              }
             </span>
           </Tooltip>
           <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
         </div>
       </div>
     );
-    return render;
   }
 }
 

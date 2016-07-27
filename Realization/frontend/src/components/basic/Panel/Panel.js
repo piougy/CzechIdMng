@@ -1,7 +1,4 @@
-
-
-import React, { PropTypes } from 'react'
-import { Link }  from 'react-router';
+import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -41,11 +38,11 @@ Panel.propTypes = {
    * Panel level / css / class
    */
   level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'primary'])
-}
+};
 Panel.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'default'
-}
+};
 
 export class PanelHeader extends AbstractComponent {
 
@@ -66,11 +63,10 @@ export class PanelHeader extends AbstractComponent {
     return (
       <div className={classNames} {...others}>
         <div className={help ? 'pull-left' : null}>
+          <Icon type="fa" icon="refresh" showLoading rendered={ showLoading }/>
           {
             showLoading
-            ?
-            <Icon type="fa" icon="refresh" showLoading={true} />
-            :
+            ||
             text
             ?
             <h2>{text}</h2>
@@ -104,10 +100,10 @@ PanelHeader.propTypes = {
    * link to help
    */
   help: PropTypes.string
-}
+};
 PanelHeader.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 export class PanelBody extends AbstractComponent {
 
@@ -137,10 +133,10 @@ export class PanelBody extends AbstractComponent {
 
 PanelBody.propTypes = {
   ...AbstractComponent.propTypes
-}
+};
 PanelBody.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 
 export class PanelFooter extends AbstractComponent {
@@ -171,7 +167,7 @@ export class PanelFooter extends AbstractComponent {
 
 PanelFooter.propTypes = {
   ...AbstractComponent.propTypes
-}
+};
 PanelFooter.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};

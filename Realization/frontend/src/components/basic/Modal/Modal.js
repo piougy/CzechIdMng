@@ -1,15 +1,13 @@
-
-
 import React, { PropTypes } from 'react';
 import { Modal } from 'react-bootstrap';
-import classnames from 'classnames';
 import _ from 'lodash';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Loading from '../Loading/Loading';
 import HelpIcon from '../HelpIcon/HelpIcon';
+import Icon from '../Icon/Icon';
 
-const SUPPORTED_SIZES = ['lg','large','sm','small'];
+const SUPPORTED_SIZES = ['lg', 'large', 'sm', 'small'];
 
 /**
  * Wrapped bootstrap modal
@@ -26,7 +24,7 @@ export default class BasicModal extends AbstractComponent {
   _onEnter(...args) {
     const { onEnter } = this.props;
     // find modal-backdrop
-    if (typeof $ != 'undefined') {
+    if (typeof $ !== 'undefined') {
       $('.modal-backdrop').css({
         bottom: 0 - $(window).scrollTop()
       });
@@ -51,12 +49,13 @@ export default class BasicModal extends AbstractComponent {
           showLoading
           ?
           <Modal.Body>
-            <Loading isStatic showLoading={true}/>
+            <Loading isStatic showLoading/>
           </Modal.Body>
           :
           null
         }
-        <div className={showLoading ? 'hidden' : ''}> {/* prevent exception, when parent component touchs to childerns ref etc.*/}
+        {/* prevent exception, when parent component is touching to childerns ref etc.*/}
+        <div className={showLoading ? 'hidden' : ''}>
           {this.props.children}
         </div>
       </Modal>
@@ -78,12 +77,12 @@ BasicModal.propTypes = {
   /**
    * ... and other react bootstap modal props
    */
-}
+};
 
 BasicModal.defaultProps = {
   ...AbstractComponent.defaultProps,
   bsSize: 'default'
-}
+};
 
 
 class BasicModalHeader extends AbstractComponent {
@@ -95,18 +94,17 @@ class BasicModalHeader extends AbstractComponent {
     return (
       <Modal.Header {...others}>
         <div className="pull-left">
+          <Icon type="fa" icon="refresh" showLoading rendered={ showLoading } />
           {
             showLoading
-            ?
-            <Icon type="fa" icon="refresh" showLoading={true} />
-            :
+            ||
             text
             ?
             <h2><span dangerouslySetInnerHTML={{__html: text}}/></h2>
             :
             null
           }
-          {children}
+          { children }
         </div>
         {
           help
@@ -126,17 +124,14 @@ class BasicModalHeader extends AbstractComponent {
 BasicModalHeader.propTypes = {
   ...AbstractComponent.propTypes,
   /**
-   * ... and other react bootstap modal.header props
+   * Header text
    */
-   /**
-    * Header text
-    */
-   text: PropTypes.any,
-}
+  text: PropTypes.any
+};
 
 BasicModalHeader.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 BasicModal.Header = BasicModalHeader;
 BasicModal.Body = Modal.Body;

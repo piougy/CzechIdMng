@@ -7,7 +7,7 @@ import DefaultCell from './DefaultCell';
 /**
  * Renders cell with text content.
  * Parametrs are automatically propagated from table / row / column
- * 
+ *
  * @param number rowIndex
  * @param array[json] input data
  * @param property column key
@@ -21,6 +21,6 @@ const TextCell = ({rowIndex, data, property, ...props}) => {
       {propertyValue}
     </DefaultCell>
   );
-}
+};
 
 export default TextCell;

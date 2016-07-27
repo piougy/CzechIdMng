@@ -1,6 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import moment from 'moment';
 //
 import DefaultCell from './DefaultCell';

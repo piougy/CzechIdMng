@@ -1,11 +1,8 @@
-
-
 import React from 'react';
-import { Link }  from 'react-router';
+import { Link } from 'react-router';
 import { formatPattern, getParamNames } from 'react-router/lib/PatternUtils';
 //
 import DefaultCell from './DefaultCell';
-import Icon from '../Icon/Icon';
 import Immutable from 'immutable';
 
 /**
@@ -17,9 +14,9 @@ import Immutable from 'immutable';
  */
 function _resolveToWithParameters(to, rowData) {
   const parameterNames = getParamNames(to);
-  let parameterValues = Immutable.Map({});
+  let parameterValues = new Immutable.Map({});
   parameterNames.map(parameter => {
-    parameterValues = parameterValues.set(parameter, DefaultCell.getPropertyValue(rowData, parameter))
+    parameterValues = parameterValues.set(parameter, DefaultCell.getPropertyValue(rowData, parameter));
   });
   return formatPattern(to, parameterValues.toJS());
 }
@@ -40,7 +37,6 @@ const LinkCell = ({rowIndex, data, property, to, className, title, ...props}) =>
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   //
   return (
-    //<Icon icon="search"/>
     <DefaultCell {...props}>
       {
         propertyValue
@@ -53,6 +49,6 @@ const LinkCell = ({rowIndex, data, property, to, className, title, ...props}) =>
       }
     </DefaultCell>
   );
-}
+};
 
 export default LinkCell;

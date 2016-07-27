@@ -1,6 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -25,7 +23,10 @@ class SortHeaderCell extends AbstractComponent {
       return null;
     }
     const sort = searchParameters.getSort(property);
-    return sort === null ? null : sort === true ? ASC : DESC;
+    if (sort === null) {
+      return null;
+    }
+    return sort === true ? ASC : DESC;
   }
 
   _handleSort(order, event) {
@@ -89,10 +90,10 @@ SortHeaderCell.propTypes = {
    * loadinig indicator
    */
   showLoading: React.PropTypes.bool
-}
+};
 SortHeaderCell.defaultProps = {
   showLoading: false
-}
+};
 
 /**
  * Sort icon
@@ -114,7 +115,7 @@ class SortIcon extends AbstractComponent {
       <span className="sort-icons">
         {(showLoading && active)
           ?
-          <Icon type="fa" icon="refresh" showLoading={true} className="sort-icon active"/>
+          <Icon type="fa" icon="refresh" showLoading className="sort-icon active"/>
           :
           <span>
             <Icon icon="triangle-top" className={ascClassName}/>
@@ -135,11 +136,11 @@ SortIcon.propTypes = {
    * loadinig indicator
    */
   showLoading: React.PropTypes.bool
-}
+};
 SortIcon.defaultProps = {
   active: null,
   showLoading: false
-}
+};
 
 const SortHeader = ({...props}) => (
   <SortHeaderCell {...props}/>

@@ -1,9 +1,5 @@
-
-
-import React, { PropTypes } from 'react'
-import { Link }  from 'react-router';
+import React, { PropTypes } from 'react';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import HelpIcon from '../HelpIcon/HelpIcon';
 import Loading from '../Loading/Loading';
 import classnames from 'classnames';
 import { AutoAffix } from 'react-overlays';
@@ -52,8 +48,8 @@ Toolbar.propTypes = {
    * The logical container node or component for determining offset from bottom of viewport, or a function that returns it
    */
   container: PropTypes.object
-}
+};
 
 Toolbar.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};

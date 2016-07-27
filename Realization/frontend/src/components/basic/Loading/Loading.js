@@ -1,10 +1,8 @@
-
-
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent'
+import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
 class Loading extends AbstractComponent {
 
@@ -17,18 +15,18 @@ class Loading extends AbstractComponent {
     if (!showLoading) {
       return;
     }
-    if (typeof $ != 'undefined') {
-      let panel = $(ReactDOM.findDOMNode(this.refs.container));
-      let loading = panel.find('.loading');
+    if (typeof $ !== 'undefined') {
+      const panel = $(ReactDOM.findDOMNode(this.refs.container));
+      const loading = panel.find('.loading');
       if (loading.hasClass('global') || loading.hasClass('static')) {
         // we don't want resize loading container
         return;
       }
       loading.css({
         top: panel.position().top + 1, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
-      	left: panel.position().left + 1,
-      	width: panel.width() - 1,
-      	height: panel.height() - 1
+        left: panel.position().left + 1,
+        width: panel.width() - 1,
+        height: panel.height() - 1
       });
     }
   }
@@ -46,7 +44,7 @@ class Loading extends AbstractComponent {
     if (!rendered) {
       return null;
     }
-    let loaderClassNames = classNames(
+    const loaderClassNames = classNames(
       className,
       'loading',
       { 'hidden': !showLoading },
@@ -94,12 +92,12 @@ Loading.propTypes = {
    * Loading title
    */
   loadingTitle: PropTypes.string
-}
+};
 Loading.defaultProps = {
   ...AbstractComponent.defaultProps,
   showAnimation: true,
   isStatic: false,
   loadingTitle: 'Zpracovávám ...' // TODO: localization or undefined ?
-}
+};
 
 export default Loading;

@@ -25,9 +25,15 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       filterOpened: this.props.filterOpened,
       detail: {
         show: false,
-        entity: {}
+        entity: {},
+        add: false
       }
     };
+  }
+
+  componentDidMount() {
+    // We have to create concept from props here, because same instance this component could be used in past (in this case may be this.prosp and nextProps same)
+    this._setConcept(this.props);
   }
 
   getContentKey() {
@@ -41,11 +47,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       JSON.stringify(nextProps.removedIdentityRoles) !== JSON.stringify(this.props.removedIdentityRoles) ||
       JSON.stringify(nextProps.changedIdentityRoles) !== JSON.stringify(this.props.changedIdentityRoles)
     )) {
-      this.setState({identityRoles: _.merge([], nextProps.identityRoles),
-         addedIdentityRoles: _.merge([], nextProps.addedIdentityRoles), removedIdentityRoles: _.merge([], nextProps.removedIdentityRoles),
-         changedIdentityRoles: _.merge([], nextProps.changedIdentityRoles)}, ()=>{
-        this.setState({conceptData: this._compileConceptData(this.state)});
-      });
+      this._setConcept(this.state);
     }
   }
 
@@ -62,11 +64,26 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   }
 
   /**
+   * Set input arrays (with current, added, removed, changed data) to state (first do clone) and call compile conceptData
+   * @param  {array}  identityRoles         Original not modified data
+   * @param  {array}  addedIdentityRoles    Added data
+   * @param  {array}  removedIdentityRoles  Removed data (ids)
+   * @param  {array}  changedIdentityRoles} Changed data (every object in array contains only changed fields and ID)
+   */
+  _setConcept({ identityRoles, addedIdentityRoles, removedIdentityRoles, changedIdentityRoles}) {
+    this.setState({identityRoles: _.merge([], identityRoles),
+       addedIdentityRoles: _.merge([], addedIdentityRoles), removedIdentityRoles: _.merge([], removedIdentityRoles),
+       changedIdentityRoles: _.merge([], changedIdentityRoles)}, ()=>{
+      this.setState({conceptData: this._compileConceptData(this.state)});
+    });
+  }
+
+  /**
    * Show modal dialog
    * @param  {Object}  entity           Entity show in dialog
    * @param  {Boolean} isEdit = false   If is false then form in dialog will be read only
    */
-  _showDetail(entity, isEdit = false) {
+  _showDetail(entity, isEdit = false, multiAdd = false) {
     const entityFormData = _.merge({}, entity, {
       role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null
     });
@@ -75,7 +92,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       detail: {
         show: true,
         edit: isEdit,
-        entity: entityFormData
+        entity: entityFormData,
+        add: multiAdd
       }
     }, () => {
       this.refs.form.setData(entityFormData);
@@ -90,7 +108,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     this.setState({
       detail: {
         ... this.state.detail,
-        show: false
+        show: false,
+        add: false
       }
     });
   }
@@ -111,14 +130,26 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
     const entity = this.refs.form.getData();
 
     if (entity._added) {
-      const addedIdentityRole = this._findAddedIdentityRoleByVirtualId(entity._virtualId);
-      entity._embedded = {};
-      entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
-      entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
-      if (addedIdentityRole) {
-        _.merge(addedIdentityRole, entity);
+      if (!entity._virtualId && entity.role instanceof Array) {
+        for (const roleId of entity.role) {
+          const uuidId = uuid.v1();
+          const identityRole = _.merge({}, entity, {_virtualId: uuidId, _added: true});
+          identityRole._virtualId = uuidId;
+          identityRole._embedded = {};
+          identityRole._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
+          identityRole._embedded.role = roleManager.getEntity(this.context.store.getState(), roleId);
+          addedIdentityRoles.push(identityRole);
+        }
       } else {
-        addedIdentityRoles.push(entity);
+        const addedIdentityRole = this._findAddedIdentityRoleByVirtualId(entity._virtualId);
+        entity._embedded = {};
+        entity._embedded.identity = identityManager.getEntity(this.context.store.getState(), identityUsername);
+        entity._embedded.role = roleManager.getEntity(this.context.store.getState(), entity.role);
+        if (addedIdentityRole) {
+          _.merge(addedIdentityRole, entity);
+        } else {
+          addedIdentityRoles.push(entity);
+        }
       }
     } else {
       this._findChange('validFrom', entity);
@@ -304,9 +335,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
    * Create new IdentityRoleConcet with virtual ID (UUID)
    */
   _addConcept() {
-    const uuidId = uuid.v1();
-    const newIdentityRoleConcept = {_virtualId: uuidId, _added: true};
-    this._showDetail(newIdentityRoleConcept, true);
+    const newIdentityRoleConcept = {_added: true};
+    this._showDetail(newIdentityRoleConcept, true, true);
   }
 
   /**
@@ -332,7 +362,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       actions.push(
         <Basic.Button
           level={'warning'}
-          onClick={this._showDetail.bind(this, data[rowIndex], true)}
+          onClick={this._showDetail.bind(this, data[rowIndex], true, false)}
           className="btn-xs"
           role="group"
           title={this.i18n('button.edit')}
@@ -377,7 +407,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this._showDetail.bind(this, data[rowIndex], false)}/>
+                    onClick={this._showDetail.bind(this, data[rowIndex], false, false)}/>
                 );
               }
             }
@@ -415,6 +445,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                     ref="role"
                     manager={roleManager}
                     label={this.i18n('entity.IdentityRole.role')}
+                    multiSelect={detail.entity._added && detail.add}
                     readOnly={!detail.entity._added}
                     required/>
                   <Basic.DateTimePicker

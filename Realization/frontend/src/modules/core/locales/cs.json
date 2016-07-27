@@ -486,7 +486,8 @@
           "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
           "role": {
-            "currentRoles": "Aktuálně přiřazená oprávnění"
+            "currentRoles": "Aktuálně přiřazená oprávnění",
+            "conceptIdentityRoles": "Oprávnění žádatele"
           }
         },
         "DefaultTaskDetail": {

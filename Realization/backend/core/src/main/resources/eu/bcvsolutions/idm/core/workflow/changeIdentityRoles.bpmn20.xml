@@ -9,11 +9,6 @@
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="createRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost změn od" type="date"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost změn do" type="date">
-          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
-        </activiti:formProperty>
-        <activiti:formProperty id="addRoles" name="Přidat role" type="textArea"></activiti:formProperty>
         <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
@@ -29,9 +24,6 @@
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="addRoles" name="Žádost o nové oprávnění" type="textArea"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost role od" type="date"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost role do" type="date"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" name="Poznámka pro žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka, která bude žadateli zobrazena při várcení žádosti."></activiti:value>
         </activiti:formProperty>
@@ -59,15 +51,10 @@
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="managerDescription" name="Poznámka vedoucího" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost změn od" type="date"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost změn do" type="date">
-          <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
-        </activiti:formProperty>
         <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
           <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
           <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="addRoles" name="Přidat role" type="textArea"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>

@@ -75,7 +75,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
           </Basic.AbstractForm>
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.PanelHeader text={<small>{this.i18n('content.task.instance.role.currentRoles')}</small>}/>
+          <Basic.PanelHeader text={<small>{this.i18n('content.task.instance.role.conceptIdentityRoles')}</small>}/>
           <IdentityRoleConceptTable
             ref="identityRoleConceptTable"
             uiKey="identity-role-concept-table"

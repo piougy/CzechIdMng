@@ -93,7 +93,7 @@ export class UserTable extends Basic.AbstractContent {
     userSearchParameters = userSearchParameters.setPage(0);
     //
     this.refs.table.getWrappedInstance().fetchEntities(userSearchParameters);
-    //this.refs.orgTree.getWrappedInstance().collapse();
+    // this.refs.orgTree.getWrappedInstance().collapse();
   }
 
   onActivate(bulkActionValue, usernames) {
@@ -117,19 +117,19 @@ export class UserTable extends Basic.AbstractContent {
   }
 
   onRemove(selectedRows) {
-    this.refs.confirm.show('Are you sure ' + selectedRows + '?', 'Title').then(result => {
+    this.refs.confirm.show('Are you sure ' + selectedRows + '?', 'Title').then(() => {
       alert('onRemove');
-    }, (err) => {
-      //Rejected
+    }, () => {
+      // Rejected
     });
   }
 
-  _homeOrganizationFilter(node, event){
+  _homeOrganizationFilter(node, event) {
     event.stopPropagation();
     this.setState({selectedOrganization: node ? node.id: null}, ()=>{this.useFilter();})
   }
 
-  _orgTreeHeaderDecorator(props){
+  _orgTreeHeaderDecorator(props) {
     const style = props.style;
     const iconType = props.node.isLeaf ? 'group' : 'building';
     const iconClass = `fa fa-${iconType}`;
@@ -139,7 +139,7 @@ export class UserTable extends Basic.AbstractContent {
         <div style={style.title}>
           <i className={iconClass} style={iconStyle}/>
           <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeOrganizationFilter.bind(this, props.node)}>
-            {props.node['shortName']}
+            { props.node.shortName }
           </Basic.Button>
         </div>
       </div>
@@ -160,7 +160,7 @@ export class UserTable extends Basic.AbstractContent {
           uiKey={uiKey}
           manager={identityManager}
           onRowDoubleClick={this.onRowDoubleClick.bind(this)}
-          showRowSelection={true}
+          showRowSelection
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>

@@ -46,6 +46,13 @@ export class NotificationTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  showDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.router.push('/audit/notification/' + entity.id);
+  }
+
   render() {
     const { uiKey, notificationManager } = this.props;
     const { filterOpened } = this.state;
@@ -91,11 +98,10 @@ export class NotificationTable extends Basic.AbstractContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={() => alert('not implemented')}/>
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
                 );
               }
-            }
-            sort={false}/>
+            }/>
           <Advanced.Column property="created" sort face="datetime"/>
           <Advanced.Column property="topic" sort face="text"/>
           <Advanced.Column property="message.subject" sort face="text"/>
@@ -105,7 +111,7 @@ export class NotificationTable extends Basic.AbstractContent {
               ({ rowIndex, data, property }) => {
                 return data[rowIndex][property].map(recipient => {
                   return (
-                    <NotificationRecipient recipient={recipient} />
+                    <NotificationRecipient recipient={recipient} identityOnly />
                   );
                 });
               }
@@ -115,7 +121,7 @@ export class NotificationTable extends Basic.AbstractContent {
             cell={
               ({ rowIndex, data, property }) => {
                 return (
-                  <NotificationRecipient recipient={data[rowIndex][property]} />
+                  <NotificationRecipient recipient={data[rowIndex][property]} identityOnly />
                 );
               }
             }/>

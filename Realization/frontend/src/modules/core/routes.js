@@ -143,7 +143,12 @@ module.exports = {
           path: 'notifications',
           component: require('./content/audit/notification/Notifications'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
-        }
+        },
+        {
+          path: 'notification/:entityId',
+          component: require('./content/audit/notification/NotificationContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        },
       ]
     },
     // error pages

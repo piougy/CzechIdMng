@@ -4,7 +4,7 @@ import * as Basic from 'app/components/basic';
 import { IdentityManager } from 'core/redux';
 
 /**
- * List of notifications
+ * Notification recipient
  */
 export default class NotificationRecipient extends Basic.AbstractComponent {
 
@@ -14,14 +14,18 @@ export default class NotificationRecipient extends Basic.AbstractComponent {
   }
 
   render() {
-    const { recipient } = this.props;
+    const { rendered, recipient, identityOnly, ...others } = this.props;
     //
-    if (!recipient) {
+    if (!recipient || !rendered) {
       return null;
     }
     return (
-      <div>
+      <div {...others}>
         {
+          identityOnly
+          ?
+          this.identityManager.getNiceLabel(recipient._embedded.identityRecipient)
+          :
           recipient.realRecipient
           ||
           !recipient._embedded
@@ -34,7 +38,11 @@ export default class NotificationRecipient extends Basic.AbstractComponent {
 }
 
 NotificationRecipient.propTypes = {
-  recipient: PropTypes.object
+  ...Basic.AbstractComponent.propTypes,
+  recipient: PropTypes.object,
+  identityOnly: PropTypes.bool
 };
 NotificationRecipient.defaultProps = {
+  ...Basic.AbstractComponent.defaultProps,
+  identityOnly: false
 };

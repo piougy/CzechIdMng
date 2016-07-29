@@ -27,7 +27,7 @@ export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
  */
 export default class EntityManager {
 
-  constructor () {
+  constructor() {
     if (this.getService === undefined) {
       throw new TypeError('Must override method getService()');
     }
@@ -74,7 +74,7 @@ export default class EntityManager {
   getNiceLabels(entities) {
     return entities.map(entity => {
       return this.getNiceLabel(entity);
-    })
+    });
   }
 
   /**
@@ -166,7 +166,7 @@ export default class EntityManager {
       .catch(error => {
         dispatch(this.receiveError({}, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /*
@@ -230,7 +230,7 @@ export default class EntityManager {
         }
         dispatch(this.receiveError(id, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /**
@@ -255,7 +255,7 @@ export default class EntityManager {
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /**
@@ -510,8 +510,8 @@ export default class EntityManager {
     uiKey = this.resolveUiKey(uiKey);
     return (dispatch, getState) => {
       let searchParameters = this.getSearchParameters(getState().data.ui[uiKey].searchParameters);
-      searchParameters = searchParameters.clearSort().setSort(property, 'DESC' !== order)
-      dispatch(this.fetchEntities(searchParameters , uiKey));
+      searchParameters = searchParameters.clearSort().setSort(property, order !== 'DESC');
+      dispatch(this.fetchEntities(searchParameters, uiKey));
     };
   }
 
@@ -567,8 +567,8 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    * @return {boolean} - true, when loading for given uiKey proceed
    */
-  isShowLoading(state, uiKey = null) {
-    return Utils.Ui.isShowLoading(state, this.resolveUiKey(uiKey));
+  isShowLoading(state, uiKey = null, id = null) {
+    return Utils.Ui.isShowLoading(state, this.resolveUiKey(uiKey, id));
   }
 
   /**
@@ -603,7 +603,7 @@ export default class EntityManager {
       } else if (cb) {
         cb(this.getEntity(getState(), id), null);
       }
-    }
+    };
   }
 
   /**
@@ -632,7 +632,7 @@ export default class EntityManager {
     return {
       type: START_BULK_ACTION,
       action: bulkAction,
-      size: size
+      size
     };
   }
 

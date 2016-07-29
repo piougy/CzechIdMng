@@ -74,11 +74,11 @@ export class RoleTable extends Basic.AbstractContent {
         } else {
           // transform subroles to array of identifiers
           loadedEntity.subRoles = loadedEntity.subRoles.map(subRole => {
-            return subRole._embedded.subRole.id;
+            return subRole._embedded.sub.id;
           });
           // transform superiorRoles
           loadedEntity.superiorRoles = loadedEntity.superiorRoles.map(superiorRole => {
-            return superiorRole._embedded.superiorRole.id;
+            return superiorRole._embedded.superior.id;
           });
           this._setSelectedEntity(loadedEntity);
         }
@@ -125,7 +125,7 @@ export class RoleTable extends Basic.AbstractContent {
     if (entity.subRoles) {
       entity.subRoles = entity.subRoles.map(subRoleId => {
         return {
-          subRole: roleManager.getSelfLink(subRoleId)
+          sub: roleManager.getSelfLink(subRoleId)
         };
       });
     }

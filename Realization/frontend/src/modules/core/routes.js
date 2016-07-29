@@ -140,20 +140,15 @@ module.exports = {
       component: 'div',
       childRoutes: [
         {
-          path: 'log',
-          component: require('./content/audit/AuditLog'),
-          access: [{ type: 'DENY_ALL' }]
+          path: 'notifications',
+          component: require('./content/audit/notification/Notifications'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
         },
         {
-          path: 'object',
-          component: require('./content/audit/AuditLogForObject'),
-          access: [{ type: 'DENY_ALL' }]
+          path: 'notification/:entityId',
+          component: require('./content/audit/notification/NotificationContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
         },
-        {
-          path: 'email-log',
-          component: require('./content/audit/EmailLog'),
-          access: [{ type: 'DENY_ALL' }]
-        }
       ]
     },
     // error pages

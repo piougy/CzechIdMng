@@ -202,14 +202,6 @@
       "WAIT_CHANGE_APPROVE": "Přiřazena (úprava čeká na schválení)",
       "WAIT_REMOVE_APPROVE": "Přiřazena (odebrání čeká na schválení)"
     },
-    "OperationEnum": {
-      "SECURITY": "SECURITY",
-      "FUNCTION_SECURITY": "FUNCTION_SECURITY",
-      "FUNCTION_RESULT": "FUNCTION_RESULT",
-      "WORKFLOW_START": "WORKFLOW_START",
-      "FUNCTION_INFO": "FUNCTION_INFO",
-      "CUSTOM": "CUSTOM"
-    },
     "OperationResultEnum": {
       "SUCCESS": "Úspěch",
       "FAILED": "Selhání"
@@ -230,38 +222,12 @@
       "UPDATE": "UPDATE",
       "WANT_ADD": "WANT_ADD"
     },
-    "OperationTargetEnum": {
-      "ACCOUNT": "ACCOUNT",
-      "APPROVAL": "APPROVAL",
-      "ATTRIBUTE": "ATTRIBUTE",
-      "CONTROLED_ORGANISATION": "CONTROLED_ORGANISATION",
-      "DENIED_ORGANISATION": "DENIED_ORGANISATION",
-      "IDENTITY": "IDENTITY",
-      "IDENTIFIER": "IDENTIFIER",
-      "ENTITY": "ENTITY",
-      "MANAGER": "MANAGER",
-      "HOME_ORGANISATION": "HOME_ORGANISATION",
-      "PASSWORD": "PASSWORD",
-      "DELEGATION": "DELEGATION",
-      "ROLE": "ROLE",
-      "ROLE_DETAIL": "ROLE_DETAIL",
-      "ADMIN_ROLE": "ADMIN_ROLE",
-      "PRIVILEGE": "PRIVILEGE",
-      "SUB_ROLES": "SUB_ROLES",
-      "USERTASK": "USERTASK",
-      "TOP_MODULE": "TOP_MODULE",
-      "MODULE_NODE": "MODULE_NODE"
-    },
     "ObjectClassEnum": {
       "Identity": "Identity",
       "Role": "Role",
-      "AdminRole": "AdminRole",
       "Organisation": "Organization",
       "Resource": "Resource",
-      "WorkflowDefinition": "WorkflowDefinition",
-      "TopModule": "TopModule",
-      "CrtCertificateTask": "CrtCertificateTask",
-      "CrtCertificate": "CrtCertificate"
+      "WorkflowDefinition": "WorkflowDefinition"
     },
     "TaskStateEnum": {
       "APPROVED": "Schváleno",
@@ -877,71 +843,7 @@
     "audit": {
       "header": "Audit",
       "headerSmall": "záznamy auditních logů",
-      "title": "Audit",
-      "object": {
-        "header": "Auditní log pro entity",
-        "title": "Auditní log pro entity",
-        "filter": {
-          "dateFrom": {
-            "label": "Datum od",
-            "placeholder": "Datum od"
-          },
-          "dateTill": {
-            "label": "Datum do",
-            "placeholder": "Datum do"
-          },
-          "objectClass": {
-            "placeholder": "Vyberte typ entity ..."
-          },
-          "operationTarget": {
-            "placeholder": "Vyberte cíl operace ..."
-          },
-          "operationType": {
-            "placeholder": "Vyberte typ operace ..."
-          }
-        }
-      },
-      "log": {
-        "header": "Auditní log",
-        "title": "Auditní log",
-        "filter": {
-          "dateFrom": {
-            "label": "Datum od",
-            "placeholder": "Datum od"
-          },
-          "dateTill": {
-            "label": "Datum do",
-            "placeholder": "Datum do"
-          },
-          "operationType": {
-            "placeholder": "Vyberte typ operace ..."
-          },
-          "operationResult": {
-            "placeholder": "Vyberte výsledek operace ..."
-          }
-        }
-      },
-      "emailLog": {
-        "header": "Log emailů",
-        "title": "Log emailů",
-        "filter": {
-          "createdAtFrom": {
-            "label": "Datum od",
-            "placeholder": "Datum od"
-          },
-          "createdAtTill": {
-            "label": "Datum do",
-            "placeholder": "Datum do"
-          },
-          "success": {
-            "label": "Odesláno",
-            "placeholder": "Vyberte variantu ..."
-          }
-        },
-        "detail": {
-          "header": "Detail emailu"
-        }
-      }
+      "title": "Audit"
     },
     "system": {
       "app-modules": {
@@ -955,6 +857,17 @@
           "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
         }
       }
+    },
+    "notifications": {
+      "header": "Notifikace",
+      "title": "Notifikace",
+      "filter": {
+        "placeholder": "Předmět, zpráva"
+      }
+    },
+    "notification": {
+      "header": "Detail notifikace",
+      "title": "Detail notifikace"
     },
     "workflow" : {
       "definition": {
@@ -1030,6 +943,8 @@
     }
   },
   "entity": {
+    "created": "Vytvořeno",
+
     "Identity": {
       "_type": "Uživatel",
       "username": "Uživatelské jméno",
@@ -1080,36 +995,6 @@
       "encoding": "Kódování",
       "filesize": "Velikost [B]",
       "versionLabel": "Verze"
-    },
-    "AuditLog": {
-      "date": "Datum",
-      "executorName": "Spusil",
-      "effectiveExecutorName": "Spustil reálně",
-      "operationType": "Typ operace",
-      "operationName": "Název operace" ,
-      "operationResult": "Výsledek operace",
-      "detail": "Detail"
-    },
-    "AuditLogForObject": {
-      "date": "Datum",
-      "objectClass": "Typ entity",
-      "targetObject": "Identifikátor entity",
-      "creator": "Provedl",
-      "operationSubject": "Předmět operace",
-      "operationTarget": "Cíl operace",
-      "operationType": "Typ operace",
-      "oldValue": "Původní hodnota",
-      "newValue": "Nová hodnota",
-      "detail": "Detail"
-    },
-    "EmailLog": {
-      "createdAt": "Datum",
-      "email": "Příjemce",
-      "subject": "Předmět",
-      "success": "Odesláno úspěsně",
-      "failed": "Email nebyl odeslán",
-      "text": "Tělo emailu",
-      "sent": "Odesláno"
     },
     "ApprovalTask": {
       "taskId": "Identifikátor",
@@ -1174,6 +1059,20 @@
       "priority": "Priorita",
       "createTime": "Datum vytvoření",
       "completeTaskDecision": "Rozhodnutí"
+    },
+    "Notification": {
+      "topic": "Téma",
+      "created": "$t(entity.created)",
+      "message": {
+        "subject": "Předmět",
+        "message": "Zpráva",
+        "textMessage": "Zpráva (text)",
+        "htmlMessage": "Zpráva (html)"
+      },
+      "from": "Odesílatel",
+      "recipients": "Příjemci",
+      "sent": "Odesláno",
+      "sentLog": "Zpráva při odeslání"
     }
   },
   "error": {

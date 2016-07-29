@@ -66,8 +66,8 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		});
 		// sub roles
 		role.getSubRoles().forEach(subRole -> {
-			if (!processedRoles.contains(subRole.getSubRole())) {
-				grantedAuthorities.addAll(getActiveRoleAuthorities(subRole.getSubRole(), processedRoles));
+			if (!processedRoles.contains(subRole.getSub())) {
+				grantedAuthorities.addAll(getActiveRoleAuthorities(subRole.getSub(), processedRoles));
 			}
 		});
 		return grantedAuthorities;

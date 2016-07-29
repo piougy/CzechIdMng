@@ -1,6 +1,4 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Cell from './Cell';
 
@@ -15,11 +13,11 @@ class Row extends AbstractComponent {
     super(props);
   }
 
-  _onClick(/*object*/ event) {
+  _onClick(/* object */ event) {
     this.props.onClick(event, this.props.rowIndex, this.props.data);
   }
 
-  _onDoubleClick(/*object*/ event) {
+  _onDoubleClick(/* object */ event) {
     this.props.onDoubleClick(event, this.props.rowIndex, this.props.data);
   }
 
@@ -31,15 +29,25 @@ class Row extends AbstractComponent {
     onRowSelect(rowIndex, event.currentTarget.checked);
   }
 
+  _getTitle({ selected, rowIndex }) {
+    // TODO: localization - move to props adn fill in advanced table
+    if (selected) {
+      return 'Zrušit výběr';
+    }
+    if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
+      return 'Vybrat záznam';
+    }
+    return 'Vybrat záznamy';
+  }
+
   render() {
     const { rowIndex, columns, selected, rowClass } = this.props;
-    let cells = new Array(columns.length);
+    const cells = new Array(columns.length);
     for (let i = 0, j = columns.length; i < j; i++) {
-      let columnProps = columns[i].props;
-      let key = 'cell_' + i;
+      const columnProps = columns[i].props;
       cells[i] = (
         <Cell
-          key={key}
+          key={`cell_${i}`}
           rowIndex={rowIndex}
           cell={columnProps.cell}
           property={columnProps.property}
@@ -55,7 +63,7 @@ class Row extends AbstractComponent {
       _rowClass = '';
     } else if (typeof rowClass === 'function') {
       _rowClass = rowClass({
-        rowIndex: rowIndex,
+        rowIndex,
         data: this.props.data
       });
     } else {
@@ -72,10 +80,10 @@ class Row extends AbstractComponent {
           ||
           <td width="16px" className="bulk-selection">
             <input
-              type='checkbox'
+              type="checkbox"
               checked={selected}
               onChange={this._onSelect.bind(this)}
-              title={selected ? 'Zrušit výběr' : (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) ?  'Vybrat záznam' : ('Vybrat záznamy')}/> {/* TODO: localization - move to props adn fill in advanced table */}
+              title={this._getTitle(this.props)}/>
           </td>
         }
         {cells}
@@ -119,10 +127,10 @@ Row.propTypes = {
     PropTypes.string,
     PropTypes.func
   ])
-}
+};
 Row.defaultProps = {
   showLoading: false,
   selected: false
-}
+};
 
 export default Row;

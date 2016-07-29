@@ -18,10 +18,6 @@ export default class ObjectClassEnum extends AbstractEnum {
 
 ObjectClassEnum.Identity = Symbol('Identity');
 ObjectClassEnum.Role = Symbol('Role');
-ObjectClassEnum.AdminRole = Symbol('AdminRole');
 ObjectClassEnum.Organisation = Symbol('Organisation');
 ObjectClassEnum.Resource = Symbol('Resource');
 ObjectClassEnum.WorkflowDefinition = Symbol('WorkflowDefinition');
-ObjectClassEnum.TopModule = Symbol('TopModule');
-ObjectClassEnum.CrtCertificateTask = Symbol('CrtCertificateTask');
-ObjectClassEnum.CrtCertificate = Symbol('CrtCertificate');

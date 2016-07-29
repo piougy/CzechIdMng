@@ -57,11 +57,11 @@ public class IdmRole extends AbstractEntity {
 	private List<IdmRoleAuthority> authorities;
 	
 	@JsonManagedReference
-	@OneToMany(mappedBy = "superiorRole", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleComposition> subRoles;
 	
 	@JsonProperty(access = Access.READ_ONLY)
-	@OneToMany(mappedBy = "subRole")
+	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 
 	public String getName() {

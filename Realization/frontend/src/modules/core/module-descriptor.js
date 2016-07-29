@@ -173,6 +173,33 @@ module.exports = {
         ]
       },
       {
+        'id': 'audit',
+        'labelKey': 'content.audit.title',
+        'icon': 'stats',
+        'order': 1010,
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': [ 'SYSTEM_ADMIN' ]
+          }
+        ],
+        'items': [
+          {
+            'id': 'notifications',
+            'labelKey': 'content.notifications.title',
+            'order': 30,
+            'path': '/audit/notifications',
+            'icon': 'fa:envelope',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': [config.authorities.superAdminAuthority]
+              }
+            ]
+          }
+        ]
+      },
+      {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
@@ -181,56 +208,6 @@ module.exports = {
         'iconColor': '#c12e2a',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
-          {
-            'id': 'audit',
-            'labelKey': 'content.audit.title',
-            'icon': 'stats',
-            'order': 10,
-            'access': [
-              {
-                'type': 'DENY_ALL',
-                'authorities': [ 'auditor', 'superAdminAuthority2' ]
-              }
-            ],
-            'items': [
-              {
-                'id': 'audit-log-for-object',
-                'labelKey': 'content.audit.object.title',
-                'order': 10,
-                'path': '/audit/object',
-                'access': [
-                  {
-                    'type': 'HAS_ANY_AUTHORITY',
-                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
-                  }
-                ]
-              },
-              {
-                'id': 'audit-log',
-                'labelKey': 'content.audit.log.title',
-                'order': 20,
-                'path': '/audit/log',
-                'access': [
-                  {
-                    'type': 'HAS_ANY_AUTHORITY',
-                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
-                  }
-                ]
-              },
-              {
-                'id': 'email-log',
-                'labelKey': 'content.audit.emailLog.title',
-                'order': 30,
-                'path': '/audit/email-log',
-                'access': [
-                  {
-                    'type': 'HAS_ANY_AUTHORITY',
-                    'authorities': [ 'auditor', 'superAdminAuthority2' ]
-                  }
-                ]
-              }
-            ]
-          },
           {
             'id': 'system-setting',
             'labelKey': 'navigation.menu.setting',

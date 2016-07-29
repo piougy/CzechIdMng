@@ -1,12 +1,10 @@
-'use strict'
-
 import EntityManager from './EntityManager';
 import { RoleService } from '../../services';
 import DataManager from './DataManager';
 
 export default class RoleManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
     this.service = new RoleService();
     this.dataManager = new DataManager();
@@ -26,7 +24,7 @@ export default class RoleManager extends EntityManager {
 
   /**
    * Load available authorities from BE if needed (available authorites can be changed just with BE restart)
-   * 
+   *
    * @param  {string} uiKey
    * @return {array[object]}
    */
@@ -46,7 +44,6 @@ export default class RoleManager extends EntityManager {
             dispatch(this.receiveError(null, uiKey, error));
           });
       }
-
-    }
+    };
   }
 }

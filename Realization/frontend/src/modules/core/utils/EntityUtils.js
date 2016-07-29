@@ -1,7 +1,3 @@
-
-
-import _ from 'lodash';
-import Immutable from 'immutable';
 import moment from 'moment';
 
 /**
@@ -49,7 +45,7 @@ export default class EntityUtils {
         return EntityUtils.getEntity(state, entityType, id);
       })
       .filter(entity => {
-        return entity !== null
+        return entity !== null;
       });
   }
 

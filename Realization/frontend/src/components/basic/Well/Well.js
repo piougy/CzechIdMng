@@ -1,6 +1,4 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
@@ -31,7 +29,7 @@ class Well extends AbstractComponent {
         {
           showLoading
           ?
-          <Icon type="fa" icon="refresh" showLoading={true}/>
+          <Icon type="fa" icon="refresh" showLoading/>
           :
           children
         }
@@ -42,10 +40,10 @@ class Well extends AbstractComponent {
 
 Well.propTypes = {
   ...AbstractComponent.propTypes
-}
+};
 
 Well.defaultProps = {
   ...AbstractComponent.defaultProps
-}
+};
 
 export default Well;

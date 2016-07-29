@@ -5,9 +5,9 @@ import Joi from 'joi';
 
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
-import { IdentitySubordinateManager } from '../../../../redux';
-import { IdentityManager } from '../../redux';
-import ApiOperationTypeEnum from '../../../../modules/core/enums/ApiOperationTypeEnum';
+import { IdentitySubordinateManager } from 'app/redux';
+import { IdentityManager } from 'core/redux';
+import ApiOperationTypeEnum from 'core/enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
 

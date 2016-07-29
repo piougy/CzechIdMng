@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import _ from 'lodash';
 //
@@ -44,12 +42,11 @@ class DefaultCell extends AbstractComponent {
       return propertyValue[property];
     } else if (_.includes(property, '.')) { // nested property
       const nestedProperties = property.split('.'); // properties are joined by dot notation e.g `identityManager.name`
-      for (let nestedProperty of nestedProperties) {
+      for (const nestedProperty of nestedProperties) {
         if (!propertyValue[nestedProperty]) {
           return null; // we don't need previous nested object property value
-        } else {
-          propertyValue = propertyValue[nestedProperty];
         }
+        propertyValue = propertyValue[nestedProperty];
       }
     } else {
       return null;
@@ -65,8 +62,8 @@ class DefaultCell extends AbstractComponent {
 }
 
 DefaultCell.propTypes = {
-}
+};
 DefaultCell.defaultProps = {
-}
+};
 
 export default DefaultCell;

@@ -38,6 +38,7 @@
     "no-nested-ternary": 1,
     "no-self-compare": 1,
     "guard-for-in": 1,
+    "no-unused-vars": [1, {"vars": "local", "args": "after-used"}],
     "babel/object-shorthand": 1,
     "react/jsx-boolean-value": 1,
     "react/jsx-no-duplicate-props": 2,

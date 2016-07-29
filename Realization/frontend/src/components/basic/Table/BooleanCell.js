@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 //
 import DefaultCell from './DefaultCell';
@@ -17,9 +15,9 @@ const BooleanCell = ({rowIndex, data, property, ...props}) => {
   //
   return (
     <DefaultCell {...props}>
-      <input type="checkbox" disabled={true} checked={propertyValue} />
+      <input type="checkbox" disabled checked={propertyValue} />
     </DefaultCell>
   );
-}
+};
 
 export default BooleanCell;

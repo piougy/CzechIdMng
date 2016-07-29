@@ -29,6 +29,9 @@ export default class OperationResultEnum extends AbstractEnum {
       case this.FAILED: {
         return 'danger';
       }
+      default: {
+        // nothing
+      }
     }
   }
 }

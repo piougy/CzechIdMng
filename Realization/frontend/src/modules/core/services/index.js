@@ -1,5 +1,3 @@
-
-
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
 import AuthenticateService from './AuthenticateService';
@@ -15,23 +13,25 @@ import IdentityWorkingPositionService from './IdentityWorkingPositionService';
 import WorkflowProcessInstanceService from './WorkflowProcessInstanceService';
 import WorkflowHistoricProcessInstanceService from './WorkflowHistoricProcessInstanceService';
 import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceService';
+import NotificationService from './NotificationService';
 
 const ServiceRoot = {
-  RestApiService: RestApiService,
-  AbstractService: AbstractService,
-  AuthenticateService: AuthenticateService,
-  ConfigService: ConfigService,
-  IdentityService: IdentityService,
-  WorkflowProcessDefinitionService: WorkflowProcessDefinitionService,
-  OrganizationService: OrganizationService,
-  LocalizationService: LocalizationService,
-  RoleService: RoleService,
-  WorkflowTaskInstanceService: WorkflowTaskInstanceService,
-  IdentityRoleService: IdentityRoleService,
-  IdentityWorkingPositionService: IdentityWorkingPositionService,
-  WorkflowProcessInstanceService: WorkflowProcessInstanceService,
-  WorkflowHistoricProcessInstanceService: WorkflowHistoricProcessInstanceService,
-  WorkflowHistoricTaskInstanceService: WorkflowHistoricTaskInstanceService
+  RestApiService,
+  AbstractService,
+  AuthenticateService,
+  ConfigService,
+  IdentityService,
+  WorkflowProcessDefinitionService,
+  OrganizationService,
+  LocalizationService,
+  RoleService,
+  WorkflowTaskInstanceService,
+  IdentityRoleService,
+  IdentityWorkingPositionService,
+  WorkflowProcessInstanceService,
+  WorkflowHistoricProcessInstanceService,
+  WorkflowHistoricTaskInstanceService,
+  NotificationService
 };
 
 ServiceRoot.version = '0.0.1';

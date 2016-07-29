@@ -16,20 +16,20 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  */
 @Entity
 @Table(name = "idm_role_composition")
-public class IdmRoleComposition extends AbstractEntity {
+public class IdmRoleComposition extends AbstractEntity implements EntityComposition<IdmRole> {
 
 	private static final long serialVersionUID = -1594762884461330895L;
 	
 	@NotNull
 	@JsonBackReference
-	@JoinColumn(name = "superior_role_id", referencedColumnName = "id")
+	@JoinColumn(name = "superior_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
-	private IdmRole superiorRole;
+	private IdmRole superior;
 	
 	@NotNull
-	@JoinColumn(name = "sub_role_id", referencedColumnName = "id")
+	@JoinColumn(name = "sub_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
-	private IdmRole subRole;
+	private IdmRole sub;
 
 	public IdmRoleComposition() {
 	}
@@ -39,24 +39,26 @@ public class IdmRoleComposition extends AbstractEntity {
 	}
 	
 	public IdmRoleComposition(IdmRole superiorRole, IdmRole subRole) {
-		this.superiorRole = superiorRole;
-		this.subRole = subRole;
+		this.superior = superiorRole;
+		this.sub = subRole;
 	}
 
-	public IdmRole getSuperiorRole() {
-		return superiorRole;
+	@Override
+	public IdmRole getSuperior() {
+		return superior;
 	}
 
-	public void setSuperiorRole(IdmRole superiorRole) {
-		this.superiorRole = superiorRole;
+	public void setSuperior(IdmRole superiorRole) {
+		this.superior = superiorRole;
 	}
 
-	public IdmRole getSubRole() {
-		return subRole;
+	@Override
+	public IdmRole getSub() {
+		return sub;
 	}
 
-	public void setSubRole(IdmRole subRole) {
-		this.subRole = subRole;
+	public void setSub(IdmRole subRole) {
+		this.sub = subRole;
 	}
 
 }

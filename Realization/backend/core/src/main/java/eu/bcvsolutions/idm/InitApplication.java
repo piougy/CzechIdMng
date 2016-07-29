@@ -119,6 +119,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity.setPassword("heslo".getBytes());
 				identity.setFirstName("Radek");
 				identity.setLastName("Tomiška");
+				identity.setEmail("radek.tomiska@bcvsolutions.eu");
 				identity = this.identityRepository.save(identity);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
 				//

@@ -3,7 +3,7 @@
 import AbstractEnum from '../../../modules/core/enums/AbstractEnum';
 
 /**
- * OperationType for audit operation etc.
+ * Delegate setting
  */
 export default class DelegateStateEnum extends AbstractEnum {
 

@@ -92,6 +92,9 @@ export default class SearchParameters {
     if (!property) {
       return this;
     }
+    if (typeof ascending === 'string') {
+      ascending = ascending.toLowerCase() === 'asc';
+    }
     const newState = this._clone();
     newState.sorts = newState.sorts.set(property, ascending);
     return newState;

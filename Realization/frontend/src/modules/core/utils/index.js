@@ -1,5 +1,3 @@
-
-
 import EntityUtils from './EntityUtils';
 import UiUtils from './UiUtils';
 import ResponseUtils from './ResponseUtils';

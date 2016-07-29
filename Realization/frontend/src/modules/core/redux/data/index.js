@@ -1,5 +1,3 @@
-
-
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import OrganizationManager from './OrganizationManager';
@@ -11,19 +9,21 @@ import WorkflowProcessInstanceManager from './WorkflowProcessInstanceManager';
 import WorkflowHistoricProcessInstanceManager from './WorkflowHistoricProcessInstanceManager';
 import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceManager';
 import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager';
+import NotificationManager from './NotificationManager';
 
 const ManagerRoot = {
-  DataManager: DataManager,
-  IdentityManager: IdentityManager,
-  OrganizationManager: OrganizationManager,
-  RoleManager: RoleManager,
-  WorkflowTaskInstanceManager: WorkflowTaskInstanceManager,
-  IdentityRoleManager: IdentityRoleManager,
-  IdentityWorkingPositionManager: IdentityWorkingPositionManager,
-  WorkflowProcessInstanceManager: WorkflowProcessInstanceManager,
-  WorkflowHistoricProcessInstanceManager: WorkflowHistoricProcessInstanceManager,
-  WorkflowHistoricTaskInstanceManager: WorkflowHistoricTaskInstanceManager,
-  WorkflowProcessDefinitionManager: WorkflowProcessDefinitionManager
+  DataManager,
+  IdentityManager,
+  OrganizationManager,
+  RoleManager,
+  WorkflowTaskInstanceManager,
+  IdentityRoleManager,
+  IdentityWorkingPositionManager,
+  WorkflowProcessInstanceManager,
+  WorkflowHistoricProcessInstanceManager,
+  WorkflowHistoricTaskInstanceManager,
+  WorkflowProcessDefinitionManager,
+  NotificationManager
 };
 
 ManagerRoot.version = '0.0.1';

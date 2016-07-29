@@ -7,7 +7,7 @@ import AbstractEnum from './AbstractEnum';
  */
 export default class ApiOperationTypeEnum extends AbstractEnum {
 
-  static getNiceLabel(key){
+  static getNiceLabel(key) {
     return super.getNiceLabel(`enums.ApiOperationTypeEnum.${key}`);
   }
 
@@ -16,7 +16,7 @@ export default class ApiOperationTypeEnum extends AbstractEnum {
   }
 }
 
-ApiOperationTypeEnum.GET  = Symbol('GET');
-ApiOperationTypeEnum.CREATE  = Symbol('CREATE');
-ApiOperationTypeEnum.UPDATE  = Symbol('UPDATE');
-ApiOperationTypeEnum.DELETE  = Symbol('DELETE');
+ApiOperationTypeEnum.GET = Symbol('GET');
+ApiOperationTypeEnum.CREATE = Symbol('CREATE');
+ApiOperationTypeEnum.UPDATE = Symbol('UPDATE');
+ApiOperationTypeEnum.DELETE = Symbol('DELETE');

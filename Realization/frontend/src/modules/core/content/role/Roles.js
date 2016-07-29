@@ -1,8 +1,8 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 //
-import * as Basic from '../../../../components/basic';
-import { RoleManager } from '../../redux';
+import * as Basic from 'app/components/basic';
+import { RoleManager } from 'core/redux';
 import RoleTable from './RoleTable';
 
 /**

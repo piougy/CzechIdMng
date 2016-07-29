@@ -24,6 +24,7 @@ import babelRegister from 'babel/register';
 import stringify from 'stringify';
 import yargs from 'yargs';
 import util from 'gulp-util';
+import pathmodify from 'pathmodify';
 
 const paths = {
   bundle: 'app.js',
@@ -45,34 +46,41 @@ const paths = {
   src: 'src/**/*.js'
 };
 
+const pathmodifyOptions = {
+  mods: [
+    pathmodify.mod.dir('app', path.join(__dirname, 'src')),
+    pathmodify.mod.dir('core', path.join(__dirname, 'src/modules/core'))
+  ]
+};
+
 /**
  * Returns configuration for requestet environment
  * @param  {string} env environment
  * @return {object}     config json
  */
 function getConfigByEnvironment(env = 'development', profile = 'default') {
-  return require('./config/'+profile+'/'+env+'.json');
+  return require('./config/' + profile + '/' + env + '.json');
 }
 
 /**
  * Select environment stage and profile by input arguments.
  */
-function selectStageAndProfile(){
-  let argv = yargs.alias('p', 'profile').alias('s', 'stage').usage('Usage: $0 --profile [name of profile] --stage [development/test/production]')
+function selectStageAndProfile() {
+  const argv = yargs.alias('p', 'profile').alias('s', 'stage').usage('Usage: $0 --profile [name of profile] --stage [development/test/production]')
   .choices('stage', ['development', 'test', 'production']).help('help').alias('h', 'help').argv;
   let profile = argv.profile;
-  if (!profile){
+  if (!profile) {
     profile = 'default';
-    util.log('No profile argument present. Profile "'+profile+'" will be used for build!');
+    util.log('No profile argument present. Profile "' + profile + '" will be used for build!');
   } else {
-    util.log('Profile "'+profile+'" will be used for build.');
+    util.log('Profile "' + profile + '" will be used for build.');
   }
   let stage = argv.stage;
-  if (!stage){
+  if (!stage) {
     stage = 'development';
-    util.log('No stage argument present. Stage "'+stage+'" will be used for build!');
+    util.log('No stage argument present. Stage "' + stage + '" will be used for build!');
   } else {
-    util.log('Stage "'+stage+'" will be used for build.');
+    util.log('Stage "' + stage + '" will be used for build.');
   }
   process.env.NODE_ENV = stage;
   process.env.NODE_PROFILE = profile;
@@ -91,8 +99,10 @@ gulp.task('browserSync', () => {
 });
 
 gulp.task('watchify', () => {
-  let bundler = watchify(
-    browserify(paths.srcJsx, watchify.args).transform(stringify)
+  const bundler = watchify(
+    browserify(paths.srcJsx, watchify.args)
+      .plugin(pathmodify, pathmodifyOptions)
+      .transform(stringify)
   );
 
   function rebundle() {
@@ -111,6 +121,7 @@ gulp.task('watchify', () => {
 
 gulp.task('browserify', () => {
   browserify(paths.srcJsx)
+  .plugin(pathmodify, pathmodifyOptions)
   .transform(stringify)
   .transform(babelify)
   .bundle()
@@ -121,7 +132,7 @@ gulp.task('browserify', () => {
     uglify({
       compress: {
         global_defs: {
-          DEBUG: false 
+          DEBUG: false
         }
       }
     })
@@ -137,7 +148,7 @@ gulp.task('styles', () => {
     .pipe(sourcemaps.init())
     .pipe(less({
       compress: true,
-      globalVars:{
+      globalVars: {
         ENV: config.env,
         version: 10,
         theme: '\"' + config.theme + '\"' // wrap to quotes - less engine needs it to skip formating slash characters
@@ -188,14 +199,14 @@ gulp.task('js', () => {
 });
 
 gulp.task('fonts', () => {
-    return gulp.src(paths.srcFont)
-      .pipe(gulp.dest(paths.distFont));
+  return gulp.src(paths.srcFont)
+    .pipe(gulp.dest(paths.distFont));
 });
 
 gulp.task('locales', () => {
-    return gulp.src(paths.srcLocale)
-      .pipe(gulp.dest(paths.distLocale))
-      .pipe(reload({stream: true}));
+  return gulp.src(paths.srcLocale)
+    .pipe(gulp.dest(paths.distLocale))
+    .pipe(reload({stream: true}));
 });
 
 gulp.task('lint', () => {
@@ -210,11 +221,11 @@ gulp.task('config', (cb) => {
 });
 
 gulp.task('test', () => {
-  let argv = yargs.alias('w', 'watch').help('help').alias('h', 'help')
+  const argv = yargs.alias('w', 'watch').help('help').alias('h', 'help')
   .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
-  let watchArg = argv.watch;
-  if (watchArg){
-    gulp.watch([paths.src,paths.testSrc], ['runTest']);
+  const watchArg = argv.watch;
+  if (watchArg) {
+    gulp.watch([paths.src, paths.testSrc], ['runTest']);
   } else {
     selectStageAndProfile();
     runSequence('clean', ['runTest']);
@@ -223,14 +234,14 @@ gulp.task('test', () => {
 
 gulp.task('runTest', () => {
   // https://www.npmjs.com/package/gulp-mocha#require
-	return gulp.src(paths.testSrc, { read: false })
-		.pipe(mocha({
+  return gulp.src(paths.testSrc, { read: false })
+    .pipe(mocha({
       reporter: 'nyan',
       recursive: true,
       compilers: ['js:babel/register'],
       require: ['./test/setup.js'],
       ignoreLeaks: false
-    }))
+    }));
 });
 
 gulp.task('watchTask', () => {
@@ -241,7 +252,7 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean','runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
+  runSequence('clean', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
 });
 
 gulp.task('build', cb => {

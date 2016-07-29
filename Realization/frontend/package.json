@@ -90,8 +90,8 @@
   "devDependencies": {
     "babel": "5.8.38",
     "babel-core": "5.8.38",
-    "babel-plugin-dev-expression": "^0.1.0",
     "babel-eslint": "^4.1.8",
+    "babel-plugin-dev-expression": "^0.1.0",
     "babelify": "6.3.0",
     "browser-sync": "2.9.11",
     "browserify": "13.0.1",
@@ -120,6 +120,7 @@
     "mocha": "2.3.0",
     "nock": "^8.0.0",
     "path": "0.12.7",
+    "pathmodify": "^0.5.0",
     "react-addons-test-utils": "15.1.0",
     "react-shallow-renderer-helpers": "2.0.2",
     "react-tools": "0.13.3",

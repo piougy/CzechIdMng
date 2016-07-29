@@ -1,16 +1,12 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager} from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
-import HistoricProcessInstanceTable from './HistoricProcessInstanceTable'
-import _ from 'lodash';
+import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 
 /**
 * Workflow process historic detail
@@ -36,17 +32,17 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     workflowHistoricProcessInstanceManager.getService().downloadDiagram(historicProcessInstanceId, this.reciveDiagram.bind(this));
   }
 
-  reciveDiagram(blob){
-    var objectURL = URL.createObjectURL(blob);
-    this.setState({diagramUrl:objectURL})
+  reciveDiagram(blob) {
+    const objectURL = URL.createObjectURL(blob);
+    this.setState({diagramUrl: objectURL});
   }
 
-  _showFullDiagram(){
-    this.setState({showModalDiagram:true});
+  _showFullDiagram() {
+    this.setState({showModalDiagram: true});
   }
 
-  _closeModalDiagram(){
-    this.setState({showModalDiagram:false});
+  _closeModalDiagram() {
+    this.setState({showModalDiagram: false});
   }
 
   render() {
@@ -54,7 +50,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     const {_historicProcess} = this.props;
     const { historicProcessInstanceId } = this.props.params;
 
-    let showLoadingInternal = showLoading || !_historicProcess;
+    const showLoadingInternal = showLoading || !_historicProcess;
     let force = new SearchParameters();
     force = force.setFilter('processInstanceId', historicProcessInstanceId);
     let forceSubprocess = new SearchParameters();
@@ -93,8 +89,9 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             manager={workflowHistoricTaskInstanceManager}>
             <Advanced.Column property="name" sort={false} face="text"/>
             <Advanced.Column property="assignee" sort={false} face="text"/>
-            <Advanced.Column property="createTime" sort={true} face="datetime"/>
-            <Advanced.Column property="endTime" sort={true} face="datetime"/>
+            <Advanced.Column property="createTime" sort face="datetime"/>
+            <Advanced.Column property="endTime" sort face="datetime"/>
+            <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>
             <Advanced.Column property="deleteReason" sort={false} face="text"/>
           </Advanced.Table>
         </Basic.Panel>
@@ -102,49 +99,53 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
           <Basic.PanelHeader>
             {this.i18n('subprocesses')}
           </Basic.PanelHeader>
-          <HistoricProcessInstanceTable uiKey='historic_subprocess_instance_table'
+          <HistoricProcessInstanceTable uiKey="historic_subprocess_instance_table"
              workflowHistoricProcessInstanceManager={workflowHistoricProcessInstanceManager}
              forceSearchParameters={forceSubprocess}
              filterOpened={false}/>
         </Basic.Panel>
         <Basic.Panel showLoading={!diagramUrl}>
           <Basic.PanelHeader>
-            {this.i18n('diagram')}  <div className="pull-right">
+            {this.i18n('diagram')} <div className="pull-right">
             <Basic.Button type="button" className="btn-sm" level="success" onClick={this._showFullDiagram.bind(this)}>
               <Basic.Icon icon="fullscreen"/>
             </Basic.Button>
           </div>
         </Basic.PanelHeader>
-        <div style={{textAlign:'center', marginBottom:'40px'}}>
-          <img style={{maxWidth:'70%'}} src={diagramUrl}/>
+        <div style={{textAlign: 'center', marginBottom: '40px'}}>
+          <img style={{maxWidth: '70%'}} src={diagramUrl}/>
         </div>
-      </Basic.Panel>
-      <Basic.Modal show={showModalDiagram} dialogClassName='modal-large' onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
-        <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
-        <Basic.Modal.Body style={{overflow: 'scroll'}}>
-          <img src={diagramUrl}/>
-        </Basic.Modal.Body>
-        <Basic.Modal.Footer>
-          <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>
-        </Basic.Modal.Footer>
-      </Basic.Modal>
-    </div>
-  );
-}
+        </Basic.Panel>
+        <Basic.Modal
+           show={showModalDiagram}
+           dialogClassName="modal-large"
+           onHide={this._closeModalDiagram.bind(this)}
+           style={{width: '90%'}} keyboard={!diagramUrl}>
+          <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
+          <Basic.Modal.Body style={{overflow: 'scroll'}}>
+            <img src={diagramUrl}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button level="link" disabled={showLoading} onClick={this._closeModalDiagram.bind(this)}>{this.i18n('button.close')}</Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
+      </div>
+    );
+  }
 }
 
 HistoricProcessInstanceDetail.propTypes = {
-}
+};
 HistoricProcessInstanceDetail.defaultProps = {
 
-}
+};
 
 function select(state, component) {
   const { historicProcessInstanceId } = component.params;
-  let historicProcess = workflowHistoricProcessInstanceManager.getEntity(state, historicProcessInstanceId);
+  const historicProcess = workflowHistoricProcessInstanceManager.getEntity(state, historicProcessInstanceId);
   return {
     _historicProcess: historicProcess
-  }
+  };
 }
 
 export default connect(select, null, null, { withRef: true})(HistoricProcessInstanceDetail);

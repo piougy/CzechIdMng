@@ -47,7 +47,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       JSON.stringify(nextProps.removedIdentityRoles) !== JSON.stringify(this.props.removedIdentityRoles) ||
       JSON.stringify(nextProps.changedIdentityRoles) !== JSON.stringify(this.props.changedIdentityRoles)
     )) {
-      this._setConcept(this.state);
+      this._setConcept(nextProps);
     }
   }
 

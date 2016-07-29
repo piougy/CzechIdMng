@@ -3,7 +3,9 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.activiti.bpmn.model.ServiceTask;
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private TaskService taskService;
 
 	@Override
 	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {
@@ -57,8 +62,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		String loggedUsername = securityService.getUsername();
 		query.or();
 		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUsername);
-		// TODO When I use two OR then is count wrong
-		//query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
+		query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUsername);
 		query.taskInvolvedUser(loggedUsername);
 		// TODO admin
 		query.endOr();
@@ -113,6 +117,10 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		}
 
 		WorkflowHistoricTaskInstanceDto dto = new WorkflowHistoricTaskInstanceDto();
+// Not working ... variables are not local but global in process scope ... may be logged level?
+//		if(instance.getTaskLocalVariables() != null && instance.getTaskLocalVariables().containsKey(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION)){
+//			dto.setCompleteTaskDecision((String) instance.getTaskLocalVariables().get(WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION));
+//		}		
 		dto.setId(instance.getId());
 		dto.setName(instance.getName());
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());

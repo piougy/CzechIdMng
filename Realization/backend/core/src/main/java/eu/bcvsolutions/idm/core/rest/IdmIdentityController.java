@@ -36,22 +36,22 @@ import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
 @RestController
 @RequestMapping(value = "/api/identities/")
 public class IdmIdentityController {
-	
+
 	@Autowired
 	private IdmIdentityRepository identityRepository;
-	
+
 	@Autowired
 	private IdmIdentityLookup identityLookup;
-	
+
 	@Autowired
 	private SecurityService securityService;
-	
+
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-	
+
 	@Autowired
 	private IdmIdentityService idmIdentityService;
-	
+
 	@Autowired
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
 
@@ -66,20 +66,22 @@ public class IdmIdentityController {
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "{identityId}/password-change", method = RequestMethod.PUT)
-	public ResponseEntity<Void> passwordChange(@PathVariable String identityId, @RequestBody @Valid PasswordChangeDto passwordChangeDto) {
-		IdmIdentity identity = (IdmIdentity)identityLookup.lookupEntity(identityId);
+	public ResponseEntity<Void> passwordChange(@PathVariable String identityId,
+			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
+		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		// TODO: settingResource + SYSTEM_ADMIN
-		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
+		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()),
+				new String(passwordChangeDto.getOldPassword()))) {
 			throw new RestApplicationException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}
 		identity.setPassword(passwordChangeDto.getNewPassword());
 		identityRepository.save(identity);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/**
 	 * Returns given identity's granted authorities
 	 * 
@@ -90,10 +92,10 @@ public class IdmIdentityController {
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
-	
+
 	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
-		IdmIdentity identity = (IdmIdentity)identityLookup.lookupEntity(identityId);
+		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
@@ -101,7 +103,8 @@ public class IdmIdentityController {
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
 		filter.setId(processInstance.getActivityId());
-		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController.search(filter).getBody().getResources();
+		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController
+				.search(filter).getBody().getResources();
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);
 	}
 

@@ -80,7 +80,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 
 		WorkflowProcessDefinitionDto definitionDto = processDefinitionService.get(definitionKey);
-		builder.processInstanceName(definitionDto.getName());
+		//builder.processInstanceName(definitionDto.getName());
 		return builder.start();
 
 	}

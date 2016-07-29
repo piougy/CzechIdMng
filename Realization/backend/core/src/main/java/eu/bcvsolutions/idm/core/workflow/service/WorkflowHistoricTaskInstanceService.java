@@ -8,6 +8,7 @@ public interface WorkflowHistoricTaskInstanceService {
 
 	public static final String SORT_BY_CREATE_TIME = "createTime";
 	public static final String SORT_BY_END_TIME = "endTime";
+	public static final String TASK_COMPLETE_DECISION = "taskCompleteDecision";
 
 	ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter);
 

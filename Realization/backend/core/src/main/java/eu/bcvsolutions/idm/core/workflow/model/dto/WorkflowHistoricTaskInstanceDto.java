@@ -29,6 +29,7 @@ public class WorkflowHistoricTaskInstanceDto {
 	private String assignee;
 	private Date createTime;
 	private Date dueDate;
+	private String completeTaskDecision;
 	private Map<String, Object> taskVariables;
 
 	public String getProcessDefinitionId() {
@@ -125,6 +126,14 @@ public class WorkflowHistoricTaskInstanceDto {
 
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
+	}
+
+	public String getCompleteTaskDecision() {
+		return completeTaskDecision;
+	}
+
+	public void setCompleteTaskDecision(String completeTaskDecision) {
+		this.completeTaskDecision = completeTaskDecision;
 	}
 
 	public Map<String, Object> getTaskVariables() {

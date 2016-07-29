@@ -250,11 +250,14 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		if (instance == null) {
 			return null;
 		}
-		String instanceName = null;
-		if(instance.getName() == null){
+		String instanceName = instance.getName();
+		// If we don't have process name, then we try variable with key processInstanceName
+		if(instanceName == null && instance.getProcessVariables() != null 
+				&& instance.getProcessVariables().containsKey(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME)){
+			instanceName = (String) instance.getProcessVariables().get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
+		}
+		if(instanceName == null || instanceName.isEmpty()){
 			instanceName = definitionService.getById(instance.getProcessDefinitionId()).getName();
-		}else{
-			instanceName = instance.getName();
 		}
 
 		WorkflowHistoricProcessInstanceDto dto = new WorkflowHistoricProcessInstanceDto();

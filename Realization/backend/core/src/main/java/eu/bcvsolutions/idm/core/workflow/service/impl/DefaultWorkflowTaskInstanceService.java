@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.IdentityLinkDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
@@ -122,6 +123,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		String loggedUser = securityService.getUsername();
 		taskService.setAssignee(taskId, loggedUser);
 		taskService.setVariables(taskId, variables);
+		taskService.setVariableLocal(taskId, WorkflowHistoricTaskInstanceService.TASK_COMPLETE_DECISION, decision);
 		Map<String, String> properties = new HashMap<String, String>();
 		properties.put(WorkflowTaskInstanceService.WORKFLOW_DECISION, decision);
 		if(formData != null){

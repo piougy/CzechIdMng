@@ -33,24 +33,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	private IdmIdentityRepository identityRepository;
 
 	@Autowired
-	private IdmRoleRepository idmRoleRepository;
-
-	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
-
-	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
-
-	@Override
-	public boolean addRole(IdmIdentityRole identityRole, boolean startApproveWorkflow) {
-		identityRoleRepository.save(identityRole);
-		return true;
-	}
-	
-	@Override
-	public boolean addRoleByDto(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow) {
-		return addRole(toEntity(identityRoleDto), startApproveWorkflow);
-	}
 	
 	@Override
 	public ProcessInstance changePermissions(IdmIdentity identity){
@@ -61,26 +44,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), variables);	
 	}
 
-	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto) {
-		if (identityRoleDto == null) {
-			return null;
-		}
-		IdmRole role = null;
-		IdmIdentity identity = null;
-		if (identityRoleDto.getRole() != null) {
-			role = idmRoleRepository.findOne(identityRoleDto.getRole());
-		}
-		if (identityRoleDto.getIdentity() != null) {
-			identity = identityRepository.findOne(identityRoleDto.getIdentity());
-		}
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setId(identityRoleDto.getId());
-		identityRole.setRole(role);
-		identityRole.setIdentity(identity);
-		identityRole.setValidFrom(identityRoleDto.getValidFrom());
-		identityRole.setValidTill(identityRoleDto.getValidTill());
-		return identityRole;
-	}
+	
 
 	/**
 	 * Check on exist duplication workflow

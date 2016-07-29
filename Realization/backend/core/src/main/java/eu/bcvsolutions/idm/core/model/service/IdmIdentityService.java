@@ -14,9 +14,5 @@ public interface IdmIdentityService {
 
 	IdmIdentity get(Long id);
 
-	boolean addRole(IdmIdentityRole identityRole, boolean startApproveWorkflow);
-	
-	boolean addRoleByDto(IdmIdentityRoleDto identityRoleDto, boolean startApproveWorkflow);
-
 	ProcessInstance changePermissions(IdmIdentity identity);
 }

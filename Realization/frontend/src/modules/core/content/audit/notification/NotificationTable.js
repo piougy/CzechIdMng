@@ -125,8 +125,27 @@ export class NotificationTable extends Basic.AbstractContent {
                 );
               }
             }/>
-          <Advanced.Column property="sent" sort face="datetime"/>
-          <Advanced.Column property="sentLog" sort face="text"/>
+          <Advanced.Column
+            property="sent"
+            cell={
+              ({ rowIndex, data, property }) => {
+                const sentCount = data[rowIndex].relatedNotifications.reduce((result, notification) => { return result + (notification.sent ? 1 : 0); }, 0);
+                if (sentCount === data[rowIndex].relatedNotifications.length) {
+                  return (
+                    <Advanced.DateValue value={data[rowIndex][property]}/>
+                  );
+                }
+                if (sentCount === 0) {
+                  return (
+                    <Basic.Label level="danger" text={this.i18n('content.notification.label.notSent')}/>
+                  );
+                }
+                return (
+                  <Basic.Label level="warning" text={this.i18n('content.notification.label.sentPartly')}/>
+                );
+              }
+            }/>
+          <Advanced.Column property="sentLog" sort face="text" rendered={false}/>
         </Advanced.Table>
       </div>
     );

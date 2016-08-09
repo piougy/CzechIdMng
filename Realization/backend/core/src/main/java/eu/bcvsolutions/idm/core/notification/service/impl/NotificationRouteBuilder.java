@@ -11,7 +11,8 @@ public class NotificationRouteBuilder extends RouteBuilder {
 		// suports email only for now, @see http://redmine.czechidm.com/issues/65
 		// TODO: complex routing - by topic and identity configuration
     	from("direct:notifications")
-    		.to("bean:emailService?method=send");
+    		.multicast()
+    		.to("bean:emailService?method=send", "bean:consoleNotificationService?method=send");
     	//
     	// register email sender
     	from("direct:emails").to("bean:emailer?method=send");

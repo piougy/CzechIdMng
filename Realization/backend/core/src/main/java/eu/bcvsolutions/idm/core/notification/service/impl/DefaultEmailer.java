@@ -43,7 +43,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired
     private ProducerTemplate producerTemplate;
 	
-	// TODO: refaktor to configurationService
+	// TODO: refactor to configurationService
 	
 	@Value("${emailer.protocol:smtp}")
 	private String protocol;
@@ -88,6 +88,7 @@ public class DefaultEmailer implements Emailer {
 				log.info("Test mode for emailer is enabled. Email [{}] is logged only.", emailLog);
 				emailService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
 			} else {
+				log.debug("Email was registered to producer [{}]", emailLog);
 				producerTemplate.asyncCallback(endpoint, exchange, new EmailCallback(emailLog.getId(), emailService));
 			}
 			return true;

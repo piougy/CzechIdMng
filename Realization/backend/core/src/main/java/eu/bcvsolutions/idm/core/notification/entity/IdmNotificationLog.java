@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.notification.service.NotificationLogService;
 
 @Entity
 @Table(name = "idm_notification_log")
@@ -28,6 +29,11 @@ public class IdmNotificationLog extends IdmNotification {
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "parent")
 	private List<IdmNotification> relatedNotifications;
+	
+	@Override
+	public String getType() {
+		return NotificationLogService.NOTIFICATION_TYPE;
+	}
 
 	public String getTopic() {
 		return topic;

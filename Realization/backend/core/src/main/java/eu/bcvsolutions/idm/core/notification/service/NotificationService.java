@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service;
 
+import java.util.List;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
@@ -30,6 +32,16 @@ public interface NotificationService {
 	 * @return
 	 */
 	boolean send(String topic, IdmMessage message, IdmIdentity recipient);
+	
+	/**
+	 * Sends given message with given topic to given identities.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @param recipient
+	 * @return
+	 */
+	boolean send(String topic, IdmMessage message, List<IdmIdentity> recipients);
 	
 	/**
 	 * Sends given notification

@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
@@ -18,11 +22,17 @@ public abstract class AbstractNotificationService implements NotificationService
 
 	@Override
 	public boolean send(String topic, IdmMessage message, IdmIdentity recipient) {
+		return send(topic, message, Lists.newArrayList(recipient));
+	}
+	
+	@Override
+	public boolean send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
 		IdmNotificationLog notification = new IdmNotificationLog();
 		notification.setTopic(topic);
 		notification.setMessage(message);
-		IdmNotificationRecipient notificationRecipient = new IdmNotificationRecipient(notification, recipient); 
-		notification.getRecipients().add(notificationRecipient);
+		recipients.forEach(recipient -> {
+			notification.getRecipients().add(new IdmNotificationRecipient(notification, recipient));
+		});		
 		return send(notification);
 	}
 	

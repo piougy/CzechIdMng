@@ -30,8 +30,8 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	public boolean send(IdmNotification notification) {
 		Assert.notNull(notification, "Noticition is required!");
 		//
-		IdmEmailLog emailLog = createLog(notification);
 		log.info("Adding email notification to queue [{}]", notification);
+		IdmEmailLog emailLog = createLog(notification);		
 		emailLog = emailLogRepository.save(emailLog);
 		// send notification to routing
 		producerTemplate.sendBody("direct:emails", emailLog);
@@ -88,6 +88,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 		Assert.notNull(notification.getMessage());
 		//
 		IdmEmailLog emailLog = new IdmEmailLog();
+		// parent message
 		emailLog.setParent(notification);
 		// clone message
 		emailLog.setMessage(cloneMessage(notification));

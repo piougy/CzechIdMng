@@ -6,6 +6,8 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 
 public interface EmailService extends NotificationService {
 	
+	public static final String NOTIFICATION_TYPE = "email";
+	
 	/**
 	 * Returns recipient's email address
 	 *  

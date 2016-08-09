@@ -10,6 +10,8 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
  */
 public interface NotificationLogService extends NotificationService {
 	
+	public static final String NOTIFICATION_TYPE = "notification";
+	
 	/**
 	 * Sends existing notification to routing
 	 * 

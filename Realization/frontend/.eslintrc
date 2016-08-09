@@ -42,6 +42,7 @@
     "babel/object-shorthand": 1,
     "react/jsx-boolean-value": 1,
     "react/jsx-no-duplicate-props": 2,
+    "react/no-multi-comp": 1,
     "react/sort-comp": 0,
     "react/prop-types": [2, { "ignore": [
         "children",

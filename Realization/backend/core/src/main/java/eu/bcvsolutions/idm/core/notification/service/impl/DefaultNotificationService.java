@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
@@ -46,7 +48,7 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 	}
 	
 	/**
-	 * Persists new emailog record from given notification
+	 * Persists new notification record from given notification
 	 * 
 	 * @param notification
 	 * @return
@@ -54,12 +56,16 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 	private IdmNotification createLog(IdmNotification notification) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
-		//
+		// we can only create log, if notification is instance of IdmNotificationLog
+		if (notification instanceof IdmNotificationLog) {
+			return idmNotificationRepository.save((IdmNotificationLog) notification);
+		}
+		// we need to clone notification
 		IdmNotificationLog notificationLog = new IdmNotificationLog();
 		notificationLog.setSent(new Date());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
-		// clone recipients - resolve real email
+		// clone recipients
 		notification.getRecipients().forEach(recipient -> {
 			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient));
 		});

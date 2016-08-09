@@ -867,7 +867,12 @@
     },
     "notification": {
       "header": "Detail notifikace",
-      "title": "Detail notifikace"
+      "title": "Detail notifikace",
+      "relatedNotifications": "Záznamy při odeslání",
+      "label": {
+        "notSent": "Neodesláno",
+        "sentPartly": "Částečně"
+      }
     },
     "workflow" : {
       "definition": {
@@ -1072,7 +1077,8 @@
       "from": "Odesílatel",
       "recipients": "Příjemci",
       "sent": "Odesláno",
-      "sentLog": "Zpráva při odeslání"
+      "sentLog": "Zpráva při odeslání",
+      "type": "Typ"
     }
   },
   "error": {

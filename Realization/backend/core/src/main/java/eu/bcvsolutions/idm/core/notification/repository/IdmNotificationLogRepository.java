@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 )
 public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog> {
 	
+	// TODO: refactor using jpa criteria - is not possible to use named parameters now (because optional date parameters) and readability is lost ... 
 	@Query(value = "select e from IdmNotificationLog e left join e.from.identityRecipient fr" +
 	        " where "
 	        + "("
@@ -65,8 +66,8 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 			@Param(value = "sender") String sender,
 			@Param(value = "recipient") String recipient,
 			@Param(value = "sent") String sent,
-			@Param(value = "createdFrom") @Temporal(TemporalType.DATE) @DateTimeFormat(iso = ISO.DATE) Date createdFrom,
-			@Param(value = "createdTill") @Temporal(TemporalType.DATE) @DateTimeFormat(iso = ISO.DATE) Date createdTill,
+			@Param(value = "createdFrom") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdFrom,
+			@Param(value = "createdTill") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdTill,
 			Pageable pageable);
 	
 	@Override

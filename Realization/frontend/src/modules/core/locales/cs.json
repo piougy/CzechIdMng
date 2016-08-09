@@ -239,6 +239,11 @@
       "PENDING": "Čeká na schválení",
       "DENIED": "Zamítnuto",
       "APPROVED": "Schváleno"
+    },
+    "NotificationStateEnum": {
+      "ALL": "Odesláno",
+      "PARTLY": "Částečně",
+      "NOT": "Neodesláno"
     }
   },
   "content": {
@@ -862,7 +867,30 @@
       "header": "Notifikace",
       "title": "Notifikace",
       "filter": {
-        "placeholder": "Předmět, zpráva"
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        },
+        "text": {
+          "label": "Zpráva",
+          "placeholder": "Předmět, obsah zprávy"
+        },
+        "sender": {
+          "label": "Odesílatel",
+          "placeholder": ""
+        },
+        "recipient": {
+          "label": "Příjemce",
+          "placeholder": ""
+        },
+        "sent": {
+          "label": "Odesláno",
+          "placeholder": "Stav odeslání ..."
+        }
       }
     },
     "notification": {

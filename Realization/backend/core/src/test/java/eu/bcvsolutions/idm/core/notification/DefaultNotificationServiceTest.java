@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.notification;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
@@ -32,7 +36,13 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
-	private IdmEmailLogRepository emailLogRepository;		
+	private IdmEmailLogRepository emailLogRepository;	
+	
+	@BeforeMethod
+	public void clear() {
+		emailLogRepository.deleteAll();
+		idmNotificationRepository.deleteAll();
+	}
 	
 	@Test
 	public void testSendSimple() {
@@ -45,4 +55,28 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(1, idmNotificationRepository.count());
 		assertEquals(1, emailLogRepository.count());
 	}
+	
+	@Test
+	public void testFilterByDate() {
+		assertEquals(0, idmNotificationRepository.count());
+		
+		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		
+		Date start = new Date();
+		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
+		Date middle = new Date();		
+		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);
+		Date after = new Date();		
+		
+		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
+		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, start, null, null).getTotalElements());
+		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, middle, null, null).getTotalElements());
+		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, after, null, null).getTotalElements());
+		
+		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, after, null).getTotalElements());
+		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, null, middle, null).getTotalElements());
+		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
+	}
+	
+	
 }

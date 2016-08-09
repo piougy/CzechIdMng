@@ -5,6 +5,8 @@ import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import NotificationRecipient from './NotificationRecipient';
+import { IdentityManager } from 'core/redux';
+import NotificationStateEnum from 'core/enums/NotificationStateEnum';
 
 /**
 * Table of roles
@@ -20,6 +22,7 @@ export class NotificationTable extends Basic.AbstractContent {
         entity: {}
       }
     };
+    this.identityManager = new IdentityManager();
   }
 
   getContentKey() {
@@ -70,19 +73,64 @@ export class NotificationTable extends Basic.AbstractContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                <Basic.Row className="last">
+                <Basic.Row>
                   <div className="col-lg-4">
-                    <Advanced.Filter.TextField
-                      ref="text"
-                      placeholder={this.i18n('filter.placeholder')}
-                      label=""
-                      labelSpan=""
-                      componentSpan="col-lg-12"/>
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="createdFrom"
+                      placeholder={this.i18n('filter.dateFrom.placeholder')}
+                      label={this.i18n('filter.dateFrom.label')}/>
                   </div>
                   <div className="col-lg-4">
+                    <Advanced.Filter.DateTimePicker
+                      mode="date"
+                      ref="createdTill"
+                      placeholder={this.i18n('filter.dateTill.placeholder')}
+                      label={this.i18n('filter.dateTill.label')}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                  </div>
+                </Basic.Row>
+
+                <Basic.Row>
+                  <div className="col-lg-4">
+                    <Advanced.Filter.TextField
+                      ref="text"
+                      placeholder={this.i18n('filter.text.placeholder')}
+                      label={this.i18n('filter.text.label')}/>
+                  </div>
+                  <div className="col-lg-4">
+                    <Advanced.Filter.SelectBox
+                      ref="sender"
+                      label={this.i18n('filter.sender.label')}
+                      placeholder={this.i18n('filter.sender.placeholder')}
+                      multiSelect={false}
+                      manager={this.identityManager}
+                      returnProperty="username"/>
+                  </div>
+                  <div className="col-lg-4">
+                    <Advanced.Filter.SelectBox
+                      ref="recipient"
+                      label={this.i18n('filter.recipient.label')}
+                      placeholder={this.i18n('filter.recipient.placeholder')}
+                      multiSelect={false}
+                      manager={this.identityManager}
+                      returnProperty="username"/>
+                  </div>
+                </Basic.Row>
+
+                <Basic.Row className="last">
+                  <div className="col-lg-4">
+                    <Advanced.Filter.EnumSelectBox
+                      ref="sent"
+                      label={this.i18n('filter.sent.label')}
+                      placeholder={this.i18n('filter.sent.placeholder')}
+                      enum={NotificationStateEnum}/>
+                  </div>
+                  <div className="col-lg-4">
+                  </div>
+                  <div className="col-lg-4">
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -137,11 +185,11 @@ export class NotificationTable extends Basic.AbstractContent {
                 }
                 if (sentCount === 0) {
                   return (
-                    <Basic.Label level="danger" text={this.i18n('content.notification.label.notSent')}/>
+                    <Basic.Label level="danger" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.NOT)}/>
                   );
                 }
                 return (
-                  <Basic.Label level="warning" text={this.i18n('content.notification.label.sentPartly')}/>
+                  <Basic.Label level="warning" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.PARTLY)}/>
                 );
               }
             }/>

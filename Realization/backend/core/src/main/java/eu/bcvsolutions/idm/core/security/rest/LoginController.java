@@ -15,10 +15,10 @@ import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.service.NotificationService;
 import eu.bcvsolutions.idm.core.security.dto.LoginDto;
 import eu.bcvsolutions.idm.core.security.service.LoginService;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.service.NotificationService;
 
 @RestController
 @RequestMapping(value = "/api/authentication")

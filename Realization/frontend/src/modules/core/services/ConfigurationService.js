@@ -1,5 +1,5 @@
 import AbstractService from './AbstractService';
-import SearchParameters from 'core/domain/SearchParameters';
+import SearchParameters from '../domain/SearchParameters';
 
 export default class ConfigurationService extends AbstractService {
 

@@ -1,5 +1,5 @@
 import EntityManager from './EntityManager';
-import { ConfigurationService } from 'core/services';
+import { ConfigurationService } from '../../services';
 
 export default class ConfigurationManager extends EntityManager {
 

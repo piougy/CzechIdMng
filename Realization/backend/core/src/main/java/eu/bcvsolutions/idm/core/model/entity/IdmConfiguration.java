@@ -32,6 +32,18 @@ public class IdmConfiguration extends AbstractEntity {
 	
 	@Column(name = "secured")
 	private boolean secured;
+	
+	public IdmConfiguration() {
+	}
+	
+	public IdmConfiguration(Long id) {
+		super(id);
+	}
+	
+	public IdmConfiguration(String name, String value) {
+		this.name = name;
+		this.value = value;
+	}
 
 	public String getName() {
 		return name;

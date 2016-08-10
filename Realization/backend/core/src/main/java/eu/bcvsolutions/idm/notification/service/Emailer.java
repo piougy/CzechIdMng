@@ -1,6 +1,6 @@
-package eu.bcvsolutions.idm.core.notification.service;
+package eu.bcvsolutions.idm.notification.service;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 
 /**
  * Email sender

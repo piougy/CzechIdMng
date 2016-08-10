@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;

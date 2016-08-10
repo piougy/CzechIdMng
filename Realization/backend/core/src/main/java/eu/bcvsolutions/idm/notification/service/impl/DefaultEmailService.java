@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
+import eu.bcvsolutions.idm.notification.service.EmailService;
 
 @Component("emailService")
 public class DefaultEmailService extends AbstractNotificationService implements EmailService {

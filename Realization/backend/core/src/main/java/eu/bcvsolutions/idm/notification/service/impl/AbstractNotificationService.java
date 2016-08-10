@@ -1,15 +1,15 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.core.notification.service.NotificationService;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.notification.service.NotificationService;
 
 public abstract class AbstractNotificationService implements NotificationService {
 	

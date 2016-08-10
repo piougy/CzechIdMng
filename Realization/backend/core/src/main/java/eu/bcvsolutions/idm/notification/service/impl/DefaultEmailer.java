@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.core.notification.service.EmailService;
-import eu.bcvsolutions.idm.core.notification.service.Emailer;
+import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.service.Emailer;
 
 /**
  * Default email sender implementation

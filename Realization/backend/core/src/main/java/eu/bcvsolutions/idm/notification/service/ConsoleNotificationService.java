@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service;
+package eu.bcvsolutions.idm.notification.service;
 
 public interface ConsoleNotificationService extends NotificationService {
 	

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.entity;
+package eu.bcvsolutions.idm.notification.entity;
 
 import java.text.MessageFormat;
 

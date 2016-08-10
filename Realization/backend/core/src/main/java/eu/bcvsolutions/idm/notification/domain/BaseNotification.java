@@ -1,9 +1,9 @@
-package eu.bcvsolutions.idm.core.notification.domain;
+package eu.bcvsolutions.idm.notification.domain;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 
 /**
  * Common message properties for notification system

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.repository;
+package eu.bcvsolutions.idm.notification.repository;
 
 import java.util.Date;
 
@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
  * Repository for notification system

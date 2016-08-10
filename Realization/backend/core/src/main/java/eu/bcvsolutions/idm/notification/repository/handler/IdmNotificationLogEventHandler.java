@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.repository.handler;
+package eu.bcvsolutions.idm.notification.repository.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
@@ -6,8 +6,8 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.notification.service.NotificationLogService;
 
 /**
  * Sending notifications through rest

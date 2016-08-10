@@ -1,11 +1,11 @@
-package eu.bcvsolutions.idm.core.notification.repository;
+package eu.bcvsolutions.idm.notification.repository;
 
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
+import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 
 /**
  * Test repository for console logs

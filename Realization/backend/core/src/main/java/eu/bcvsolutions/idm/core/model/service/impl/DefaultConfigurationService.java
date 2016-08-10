@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.core.model.service.ConfigurationService;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
+@Service
 public class DefaultConfigurationService implements ConfigurationService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
@@ -42,6 +44,6 @@ public class DefaultConfigurationService implements ConfigurationService {
 
 	@Override
 	public boolean getBoolean(String key) {
-		return Boolean.getBoolean(getValue(key));
+		return Boolean.valueOf(getValue(key));
 	}
 }

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.util.Date;
 
@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
+import eu.bcvsolutions.idm.notification.service.NotificationLogService;
 
 @Component("notificationService")
 public class DefaultNotificationService extends AbstractNotificationService implements NotificationLogService {

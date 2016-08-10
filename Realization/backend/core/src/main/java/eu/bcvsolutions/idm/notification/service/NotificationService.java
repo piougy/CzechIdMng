@@ -1,10 +1,10 @@
-package eu.bcvsolutions.idm.core.notification.service;
+package eu.bcvsolutions.idm.notification.service;
 
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 
 /**
  * Notification system

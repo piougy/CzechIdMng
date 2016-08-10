@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.service.impl;
+package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmConsoleLog;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.core.notification.repository.IdmConsoleLogRepository;
-import eu.bcvsolutions.idm.core.notification.service.ConsoleNotificationService;
+import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
+import eu.bcvsolutions.idm.notification.service.ConsoleNotificationService;
 
 /**
  * For testing purpose only

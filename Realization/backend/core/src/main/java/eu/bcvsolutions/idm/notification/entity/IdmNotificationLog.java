@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.notification.entity;
+package eu.bcvsolutions.idm.notification.entity;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.NotificationLogService;
 
 @Entity
 @Table(name = "idm_notification_log")

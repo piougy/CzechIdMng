@@ -1,9 +1,9 @@
-package eu.bcvsolutions.idm.core.notification.entity;
+package eu.bcvsolutions.idm.notification.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.core.notification.service.ConsoleNotificationService;
+import eu.bcvsolutions.idm.notification.service.ConsoleNotificationService;
 
 /**
  * For testing purpose only

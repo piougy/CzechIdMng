@@ -1,6 +1,6 @@
-package eu.bcvsolutions.idm.core.notification.service;
+package eu.bcvsolutions.idm.notification.service;
 
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
  * Extend default notification service for simle noticitaion log sending

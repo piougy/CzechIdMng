@@ -1,12 +1,12 @@
-package eu.bcvsolutions.idm.core.notification;
+package eu.bcvsolutions.idm.notification;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -23,7 +23,6 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-@Test
 public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
@@ -38,7 +37,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmEmailLogRepository emailLogRepository;	
 	
-	@BeforeMethod
+	@Before
 	public void clear() {
 		emailLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();
@@ -74,7 +73,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, after, null, null).getTotalElements());
 		
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, after, null).getTotalElements());
-		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, null, middle, null).getTotalElements());
+		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, start, middle, null).getTotalElements());
 		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
 	}
 	

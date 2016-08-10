@@ -23,12 +23,4 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	boolean getBoolean(String key);
-	
-	/**
-	 * Return email configuration
-	 * 
-	 * @return
-	 */
-	Object getEmailerConfiguration();
-
 }

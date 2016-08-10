@@ -251,11 +251,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 	        <groupId>org.hamcrest</groupId>
 	        <artifactId>hamcrest-library</artifactId>
 	        <scope>test</scope>
@@ -291,7 +286,7 @@
 					<useIncrementalCompilation>false</useIncrementalCompilation>
 				</configuration>
 			</plugin>
-			<!-- execute both junit and testng tests -->
+			<!-- execute junit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${surefire.version}</version>
@@ -299,11 +294,6 @@
 					<dependency>
 						<groupId>org.apache.maven.surefire</groupId>
 						<artifactId>surefire-junit47</artifactId>
-						<version>${surefire.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.maven.surefire</groupId>
-						<artifactId>surefire-testng</artifactId>
 						<version>${surefire.version}</version>
 					</dependency>
 				</dependencies>

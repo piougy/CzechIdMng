@@ -1,11 +1,10 @@
-package eu.bcvsolutions.idm.core.security;
+package eu.bcvsolutions.idm.security;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.junit.Assert.*;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
-import org.testng.annotations.Test;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.TestUtils;
@@ -20,7 +19,6 @@ import eu.bcvsolutions.idm.core.security.rest.LoginController;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-@Test
 public class LoginControllerTest extends AbstractIntegrationTest {
 
 	@Autowired
@@ -41,7 +39,7 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 		assertEquals(TestUtils.TEST_USERNAME, authentication.getOriginalUsername());
 	}
 	
-	@Test(expectedExceptions = AuthenticationException.class)
+	@Test(expected = AuthenticationException.class)
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(TestUtils.TEST_USERNAME);

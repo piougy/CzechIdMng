@@ -19,14 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.InitApplication;
 import eu.bcvsolutions.idm.core.model.dto.ResultModels;
 import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 @ControllerAdvice
 public class ExceptionControllerAdvice {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitApplication.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExceptionControllerAdvice.class);
 	
 	@ExceptionHandler(RestApplicationException.class)
     ResponseEntity<ResultModels> handle(RestApplicationException ex) {

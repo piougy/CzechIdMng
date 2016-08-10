@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+
+import org.activiti.engine.IdentityService;
+
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 import org.junit.Before;
@@ -9,13 +12,20 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.IdmApplication;
+import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
@@ -31,15 +41,8 @@ import eu.bcvsolutions.idm.IdmApplication;
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
 @ActiveProfiles("test")
-public class AbstractRestTest {
-
-	protected MockMvc mockMvc;
+@Rollback(true)
+@Transactional
+public abstract class AbstractIntegrationTest {
 	
-	@Autowired
-    private WebApplicationContext webApplicationContext;
-	
-	@Before
-    public void setup() throws Exception {
-        this.mockMvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-	}
 }

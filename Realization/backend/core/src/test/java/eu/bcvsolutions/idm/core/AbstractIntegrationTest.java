@@ -1,57 +1,45 @@
 package eu.bcvsolutions.idm.core;
 
-import org.activiti.engine.IdentityService;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.Test;
-
-import com.google.common.collect.Lists;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
 
 /**
- * Integration test will be based on spring integration tests and testNG framework
+ * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
+ * 
+ * http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/integration-testing.html
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-@ActiveProfiles("test")
+@Ignore
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = IdmApplication.class)
+@WebAppConfiguration
 @IntegrationTest("server.port:0")
-@SpringApplicationConfiguration(IdmApplication.class)
-@Transactional
-@Rollback(true)
-@Test(enabled = false)
-@TestExecutionListeners(inheritListeners = false, listeners = {
-	TransactionalTestExecutionListener.class,
-	DependencyInjectionTestExecutionListener.class,
-	DirtiesContextTestExecutionListener.class }
-)
-public class AbstractIntegrationTest extends AbstractTestNGSpringContextTests {
-	
+@ActiveProfiles("test")
+public class AbstractRestTest {
+
+	protected MockMvc mockMvc;
 	
 	@Autowired
-	private IdentityService workflowIdentityService;
-
-	public void login(String username){
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("superAdminRole");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(username, null, Lists.newArrayList(superAdminRoleAuthority)));
-		workflowIdentityService.setAuthenticatedUserId(username);
-	}
+    private WebApplicationContext webApplicationContext;
 	
-	public void logout(){
-		SecurityContextHolder.clearContext();
-		workflowIdentityService.setAuthenticatedUserId(null);
+	@Before
+    public void setup() throws Exception {
+        this.mockMvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
 	}
 }

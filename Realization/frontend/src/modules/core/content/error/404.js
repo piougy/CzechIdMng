@@ -1,31 +1,30 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
-import { AbstractContent, Panel, PanelHeader, PanelBody, Icon } from '../../../../components/basic';
+import { AbstractContent, Icon } from '../../../../components/basic';
 
 
 export default class Error404 extends AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-       id: null // 404 with record id
-     }
+    super(props, context);
+    this.state = {
+      id: null // 404 with record id
+    };
   }
 
   getContentKey() {
     return 'content.error.404';
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('home');
-    let { query } = this.props.location;
+    const { query } = this.props.location;
      // 404 with record id
-     if (query) {
-       this.setState({
-         id: query.id
-       });
-     }
+    if (query) {
+      this.setState({
+        id: query.id
+      });
+    }
   }
 
   render() {
@@ -41,7 +40,7 @@ export default class Error404 extends AbstractContent {
               ?
               this.i18n('description')
               :
-              this.i18n('record', { id: id, escape: false })
+              this.i18n('record', { id, escape: false })
             }
           </div>
         </div>

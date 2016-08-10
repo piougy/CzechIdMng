@@ -90,8 +90,7 @@ class SelectBox extends AbstractFormComponent {
     // value is not array
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
-    // result property value
-    return copyValue[this.props.returnProperty];
+    return copyValue.id;
   }
 
   _deletePrivateField(item) {
@@ -326,18 +325,13 @@ SelectBox.propTypes = {
   /**
    * "Hard filters"
    */
-  forceSearchParameters: PropTypes.object,
-  /**
-   * If object is selected, then this property value will be returned
-   */
-  returnProperty: PropTypes.string
+  forceSearchParameters: PropTypes.object
 };
 
 SelectBox.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   fieldLabel: NICE_LABEL,
-  multiSelect: false,
-  returnProperty: 'id'
+  multiSelect: false
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

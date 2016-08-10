@@ -13,7 +13,7 @@ class OrganizationService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.name; 
+    return entity.name;
   }
 
   /**

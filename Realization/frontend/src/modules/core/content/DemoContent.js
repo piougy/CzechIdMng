@@ -1,7 +1,4 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import faker from 'faker';
 import moment from 'moment';
@@ -13,25 +10,25 @@ import { IdentityService } from '../../../modules/core/services';
 class DemoContent extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-         loading: false
-     };
-     this.identityService = new IdentityService();
+    super(props, context);
+    this.state = {
+      loading: false
+    };
+    this.identityService = new IdentityService();
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('home');
   }
 
   _showLoading() {
     this.setState({loading: true});
-    setTimeout(() =>  this._hideLoading(), 3000);
+    setTimeout(() => this._hideLoading(), 3000);
   }
 
   _showPanelLoading() {
     this.setState({panelLoading: true});
-    setTimeout(() =>  this._hidePanelLoading(), 3000);
+    setTimeout(() => this._hidePanelLoading(), 3000);
   }
 
   _hideLoading() {
@@ -46,13 +43,13 @@ class DemoContent extends Basic.AbstractContent {
 
   render() {
     const userID = 'admin';
-    let randomNames = [];
-    for (let i=0; i < 10; i ++) {
+    const randomNames = [];
+    for (let i = 0; i < 10; i ++) {
       randomNames.push({
         'Termín': moment(faker.date.future()).format(this.i18n('format.date')),
         'Popis': faker.lorem.sentence()
-        //Name: faker.name.findName(),
-        //Email: faker.internet.email()
+        // Name: faker.name.findName(),
+        // Email: faker.internet.email()
       });
     }
     return (
@@ -97,7 +94,7 @@ class DemoContent extends Basic.AbstractContent {
             </Basic.Panel>
 
             <Basic.Panel>
-              <Basic.Loading showLoading={true} className="static"/>
+              <Basic.Loading showLoading className="static"/>
             </Basic.Panel>
           </div>
 
@@ -122,7 +119,7 @@ class DemoContent extends Basic.AbstractContent {
                       label="Select box"
                       service={this.identityService}
                       value = {userID}
-                      searchInFields={['lastName', 'name','email']}
+                      searchInFields={['lastName', 'name', 'email']}
                       placeholder="Vyberte uživatele ..."
                       multiSelect={false}
                       required/>
@@ -132,9 +129,9 @@ class DemoContent extends Basic.AbstractContent {
                       label="Select box multi"
                       service={this.identityService}
                       value = {[userID]}
-                      searchInFields={['lastName', 'name','email']}
+                      searchInFields={['lastName', 'name', 'email']}
                       placeholder="Vyberte uživatele ..."
-                      multiSelect={true}
+                      multiSelect
                       required/>
 
                     <Basic.EnumSelectBox
@@ -150,8 +147,8 @@ class DemoContent extends Basic.AbstractContent {
                       ref="enumSelectBoxMulti"
                       label="Enum select multi"
                       placeholder="Vyberte enumeraci ..."
-                      multiSelect={true}
-                      value={[ApiOperationTypeEnum.DELETE, ApiOperationTypeEnum.CREATE,ApiOperationTypeEnum.UPDATE,ApiOperationTypeEnum.GET]}
+                      multiSelect
+                      value={[ApiOperationTypeEnum.DELETE, ApiOperationTypeEnum.CREATE, ApiOperationTypeEnum.UPDATE, ApiOperationTypeEnum.GET]}
                       enum={ApiOperationTypeEnum}
                       required/>
 
@@ -159,9 +156,9 @@ class DemoContent extends Basic.AbstractContent {
                       ref="anySelectBoxMulti"
                       label="Any select multi"
                       placeholder="Vyberte něco ..."
-                      multiSelect={true}
-                      value={['item1','item2']}
-                      options={[{value: 'item1', niceLabel: 'NiceItem1'},{value: 'item2', niceLabel: 'NiceItem2'}, {value: 'item3', niceLabel: 'NiceItem3'}]}
+                      multiSelect
+                      value={['item1', 'item2']}
+                      options={[{value: 'item1', niceLabel: 'NiceItem1'}, {value: 'item2', niceLabel: 'NiceItem2'}, {value: 'item3', niceLabel: 'NiceItem3'}]}
                       required/>
 
                   </Basic.PanelBody>
@@ -172,11 +169,11 @@ class DemoContent extends Basic.AbstractContent {
         </div>
 
         <Basic.Panel>
-          <Basic.Loading showLoading={true} className="static"/>
+          <Basic.Loading showLoading className="static"/>
         </Basic.Panel>
 
         <Basic.Panel>
-          <Basic.Loading showLoading={true} className="static"/>
+          <Basic.Loading showLoading className="static"/>
         </Basic.Panel>
       </div>
     );

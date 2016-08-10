@@ -39,7 +39,7 @@ export class Root extends Basic.AbstractContent {
           </div>
         }
       </div>
-    )
+    );
   }
 }
 
@@ -58,7 +58,7 @@ Root.childContextTypes = {
 function select(state) {
   return {
     i18nReady: state.layout.get('i18nReady')
-  }
+  };
 }
 
 export default connect(select)(Root);

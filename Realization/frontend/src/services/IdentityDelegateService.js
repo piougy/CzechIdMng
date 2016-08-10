@@ -7,7 +7,7 @@ class IdentityDelegateService extends AbstractService {
   constructor(username) {
     super();
     this.username = username;
-   }
+  }
 
    setUsername(username) {
      this.username = username;
@@ -22,7 +22,7 @@ class IdentityDelegateService extends AbstractService {
     return entity.delegate + ' (' + entity.identity + ')';
   }
 
-  search(searchParameters) {
+  search() {
     if (!this.username) {
       return null;
     }

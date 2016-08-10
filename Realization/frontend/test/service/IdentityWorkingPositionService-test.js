@@ -1,13 +1,9 @@
-'use strict';
-
 import { expect } from 'chai';
-//
 import { IdentityWorkingPositionService } from '../../src/modules/core/services';
 import moment from 'moment';
 
 
 describe('IdentityWorkingPositionService', function() {
-
   const identityWorkingPositionService = new IdentityWorkingPositionService('test');
 
   describe('#valid WorkingPosition', function() {

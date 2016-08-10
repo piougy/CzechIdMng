@@ -1,12 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { WorkflowHistoricProcessInstanceManager } from '../../redux';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 
@@ -16,8 +11,8 @@ import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
 class HistoricProcessIntances extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
+    super(props, context);
+    this.workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
   }
 
   getContentKey() {
@@ -38,7 +33,7 @@ class HistoricProcessIntances extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <HistoricProcessInstanceTable uiKey='historic_process_instance_table' workflowHistoricProcessInstanceManager={this.workflowHistoricProcessInstanceManager} filterOpened={false}/>
+          <HistoricProcessInstanceTable uiKey="historic_process_instance_table" workflowHistoricProcessInstanceManager={this.workflowHistoricProcessInstanceManager} filterOpened={false}/>
         </Basic.Panel>
 
       </div>
@@ -47,13 +42,13 @@ class HistoricProcessIntances extends Basic.AbstractContent {
 }
 
 HistoricProcessIntances.propTypes = {
-}
+};
 HistoricProcessIntances.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
-export default connect(select)(HistoricProcessIntances)
+export default connect(select)(HistoricProcessIntances);

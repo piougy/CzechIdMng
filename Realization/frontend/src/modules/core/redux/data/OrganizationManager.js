@@ -1,11 +1,9 @@
-'use strict'
-
 import EntityManager from './EntityManager';
 import { OrganizationService } from '../../services';
 
 export default class OrganizationManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
     this.service = new OrganizationService();
   }

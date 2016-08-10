@@ -1,16 +1,12 @@
 
 
-import _ from 'lodash';
-import Immutable from 'immutable';
-//
 import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
-import AuthenticateService from './AuthenticateService';
 
 class WorkflowProcessDefinitionService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/workflow/definitions/';
   }
 
@@ -24,7 +20,7 @@ class WorkflowProcessDefinitionService extends AbstractService {
   /**
    * Find all current Workflow definitions
    */
-  getAllDefinitions(){
+  getAllDefinitions() {
     return RestApiService
       .get(this.getApiPath())
       .then(response => {

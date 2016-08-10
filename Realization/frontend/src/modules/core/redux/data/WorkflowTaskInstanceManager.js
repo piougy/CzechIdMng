@@ -1,12 +1,10 @@
-'use strict'
-
 import EntityManager from './EntityManager';
 import { WorkflowTaskInstanceService } from '../../services';
 import * as Utils from '../../utils';
 
 export default class WorkflowTaskInstanceManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
     this.service = new WorkflowTaskInstanceService();
   }
@@ -25,10 +23,10 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
 
   completeTask(task, formData, uiKey = null, cb = null) {
     if (!task || !formData) {
-      return;
+      return null;
     }
     uiKey = this.resolveUiKey(uiKey, task.id);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity(task.id, uiKey));
       this.getService().completeTask(task.id, formData)
       .then(response => {
@@ -53,6 +51,6 @@ export default class WorkflowTaskInstanceManager extends EntityManager {
       .catch(error => {
         dispatch(this.receiveError(task, uiKey, error, cb));
       });
-    }
+    };
   }
 }

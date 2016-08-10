@@ -1,22 +1,17 @@
-'use strict';
-
 import { expect } from 'chai';
-import faker from 'faker';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import nock from 'nock';
 import Immutable from 'immutable';
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 //
-import FlashMessagesManager, { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES, DEFAULT_SERVER_UNAVAILABLE_TIMEOUT } from '../../src/modules/core/redux/flash/FlashMessagesManager';
+import FlashMessagesManager, { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from '../../src/modules/core/redux/flash/FlashMessagesManager';
 import * as flashMessagesReducers from '../../src/modules/core/redux/flash/reducer';
 
 
 // https://github.com/reactjs/redux/blob/master/docs/recipes/WritingTests.md
 describe('FlashMessagesManager', function() {
-
   describe.skip('[server is unavailable]', function() { // TODO: this test is unstable - https://mochajs.org/#retry-tests
     const flashMessagesManager = new FlashMessagesManager();
     flashMessagesManager.setServerUnavailableTimeout(1200);
@@ -26,7 +21,7 @@ describe('FlashMessagesManager', function() {
     const error = {
       message: 'TypeError: NetworkError when attempting to fetch resource.'
     };
-    const store = mockStore({ messages: Immutable.OrderedMap({}) });
+    const store = mockStore({ messages: new Immutable.OrderedMap({}) });
 
     store.dispatch(flashMessagesManager.addError(error));
     it('- before timeout', function(done) {
@@ -38,7 +33,7 @@ describe('FlashMessagesManager', function() {
     it('- server is unavailable - after timeout', function() {
       expect(store.getActions()).to.not.be.empty;
       const errorAppLoad = store.getActions().find(action => {
-        return action.type === ADD_MESSAGE && action.message.key === 'error-app-load'
+        return action.type === ADD_MESSAGE && action.message.key === 'error-app-load';
       });
       expect(errorAppLoad).to.not.be.null;
     });
@@ -47,12 +42,12 @@ describe('FlashMessagesManager', function() {
   function getMessage(key = 'key') {
     return {
       type: ADD_MESSAGE,
-      message: { key: key, message: 'Hello!' }
+      message: { key, message: 'Hello!' }
     };
   }
 
   it('[addMessage] - add message to store', function() {
-    let state = flashMessagesReducers.messages(undefined, getMessage());
+    const state = flashMessagesReducers.messages(undefined, getMessage());
     expect(state).to.not.be.null;
     expect(state.messages).to.not.be.null;
     expect(state.messages.get(1)).to.not.be.null;
@@ -158,5 +153,4 @@ describe('FlashMessagesManager', function() {
     // TODO: constant etc ...
     expect(state.messages.size).to.equal(25);
   });
-
 });

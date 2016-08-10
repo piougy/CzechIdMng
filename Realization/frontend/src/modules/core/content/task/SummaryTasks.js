@@ -1,7 +1,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import { AbstractContent, Panel, PanelHeader, PanelBody  } from '../../../../components/basic';
+import { AbstractContent, Panel, PanelHeader } from '../../../../components/basic';
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import { ApprovalTaskManager} from '../../../../redux';
@@ -28,7 +28,7 @@ class SummaryTasks extends AbstractContent {
           ]
         }
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -36,8 +36,8 @@ class SummaryTasks extends AbstractContent {
   }
 
 
-  componentDidMount(){
-      this.selectNavigationItems(['tasks', 'tasks-summary']);
+  componentDidMount() {
+    this.selectNavigationItems(['tasks', 'tasks-summary']);
   }
 
   useFilter(event) {
@@ -67,15 +67,15 @@ class SummaryTasks extends AbstractContent {
                 uiKey="summary_approval_tasks_table"
                 manager={this.approvalTaskManager}
                 filter={this._getFilterDefinition()}
-                  filterOpened={true}>
-                <Advanced.Column property="taskState" width="5%" sort={true} face="text"
+                  filterOpened>
+                <Advanced.Column property="taskState" width="5%" sort face="text"
                    cell={<Basic.EnumCell enumClass={TaskStateEnum}/>}/>
-                <Advanced.ColumnLink to="task/:taskId" property="taskName" width="30%" sort={true} face="text"/>
-                <Advanced.Column property="createdDate" width="5%" sort={true} face="date" />
-                <Advanced.Column property="closedDate" width="5%" sort={true} face="date" />
-                <Advanced.ColumnLink to="user/:approvedBy/profile" property="approvedBy" width="5%" sort={true} face="text" />
-                <Advanced.Column property="relatedTaskId" width="5%" sort={true} face="text" />
-                <Advanced.Column property="taskId" width="5%" sort={true} face="text" />
+                <Advanced.ColumnLink to="task/:taskId" property="taskName" width="30%" sort face="text"/>
+                <Advanced.Column property="createdDate" width="5%" sort face="date" />
+                <Advanced.Column property="closedDate" width="5%" sort face="date" />
+                <Advanced.ColumnLink to="user/:approvedBy/profile" property="approvedBy" width="5%" sort face="text" />
+                <Advanced.Column property="relatedTaskId" width="5%" sort face="text" />
+                <Advanced.Column property="taskId" width="5%" sort face="text" />
               </Advanced.Table>
         </Panel>
       </div>
@@ -86,8 +86,8 @@ class SummaryTasks extends AbstractContent {
  * Filter for table
  * @return filter definiton
  */
-  _getFilterDefinition(){
-    return(
+  _getFilterDefinition() {
+    return (
         <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
           <Basic.AbstractForm ref="filterForm" className="form-horizontal">
             <Basic.Row>
@@ -170,27 +170,22 @@ class SummaryTasks extends AbstractContent {
             </Basic.Row>
           </Basic.AbstractForm>
         </Advanced.Filter>
-      )
+      );
   }
 }
 
 SummaryTasks.propTypes = {
-}
+};
 SummaryTasks.defaultProps = {
-}
+};
 
 function select(state) {
-  return {
-  }
-}
-
-function select(state) {
-  if (!state.data.ui['my_approval_tasks_table']) {
-    return {}
+  if (!state.data.ui.my_approval_tasks_table) {
+    return {};
   }
   return {
-    _searchParameters: state.data.ui['my_approval_tasks_table'].searchParameters
-  }
+    _searchParameters: state.data.ui.my_approval_tasks_table.searchParameters
+  };
 }
 
-export default connect(select)(SummaryTasks)
+export default connect(select)(SummaryTasks);

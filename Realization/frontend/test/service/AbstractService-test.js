@@ -1,8 +1,4 @@
-'use strict';
-
-import _ from 'lodash';
 import { expect } from 'chai';
-//
 import { AbstractService } from '../../src/modules/core/services';
 import SearchParameters from '../../src/modules/core/domain/SearchParameters';
 
@@ -17,8 +13,8 @@ class DefaultAbstractService extends AbstractService {
 }
 
 describe('AbstractService', function() {
-
   it('- constructor should throw TypeError exception', function() {
+    /* eslint no-new: 1 */
     expect(() => { new AbstractService(); }).to.throw(TypeError);
   });
 
@@ -38,7 +34,6 @@ describe('AbstractService', function() {
   });
 
   describe('[#mergeSearchParameters]', function() {
-
     let mergedSearchParameters;
 
     it('- merge default search parameters with empty search params should eql to default search parameters', function() {
@@ -71,8 +66,5 @@ describe('AbstractService', function() {
       expect(mergedSearchParameters.getSize()).to.equal(userSearchParameters.getSize());
       expect(mergedSearchParameters.getPage()).to.equal(userSearchParameters.getPage());
     });
-
   });
-
-
 });

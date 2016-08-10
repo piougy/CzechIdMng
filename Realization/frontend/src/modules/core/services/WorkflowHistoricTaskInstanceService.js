@@ -2,16 +2,14 @@
 
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
-import RestApiService from './RestApiService';
-import * as Utils from '../utils';
 
 class WorkflowHistoricTaskInstanceService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/workflow/history/tasks';
   }
 
-  getNiceLabel(proc){
+  getNiceLabel(proc) {
     if (!proc) {
       return '';
     }

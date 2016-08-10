@@ -1,11 +1,9 @@
-'use strict'
-
 import EntityManager from './EntityManager';
 import { WorkflowHistoricProcessInstanceService } from '../../services';
 
 export default class WorkflowHistoricProcessInstanceManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
     this.service = new WorkflowHistoricProcessInstanceService();
   }

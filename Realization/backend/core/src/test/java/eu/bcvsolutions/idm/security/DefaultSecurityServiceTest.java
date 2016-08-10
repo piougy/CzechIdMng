@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.security;
+package eu.bcvsolutions.idm.security;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

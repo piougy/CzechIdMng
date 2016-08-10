@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.CustomBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
@@ -189,7 +188,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				*/
 				//Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
-				testUser1.setUsername(TestUtils.TEST_USER_1);
+				testUser1.setUsername("testUser1");
 				testUser1.setPassword("heslo".getBytes());
 				testUser1.setFirstName("Test");
 				testUser1.setLastName("First User");
@@ -198,7 +197,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				this.identityRepository.save(testUser1);
 				
 				IdmIdentity testUser2 = new IdmIdentity();
-				testUser2.setUsername(TestUtils.TEST_USER_2);
+				testUser2.setUsername("testUser2");
 				testUser2.setPassword("heslo".getBytes());
 				testUser2.setFirstName("Test");
 				testUser2.setLastName("Second User");

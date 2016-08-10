@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.workflow.deploy;
+package eu.bcvsolutions.idm.workflow.deploy;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,8 +6,6 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.Deployment;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
 
@@ -16,11 +14,9 @@ import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
  * @author svandav
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 public class DeployAndRunProcessTest extends AbstractWorkflowTest {
 
 	private static final String PROCESS_KEY = "testDeployAndRun";
-
 
 	@Test
 	@Deployment(resources = { "eu/bcvsolutions/idm/core/workflow/deploy/testDeployAndRun.bpmn20.xml" })

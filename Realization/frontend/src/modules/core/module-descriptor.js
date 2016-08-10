@@ -204,16 +204,17 @@ module.exports = {
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
         'order': 1000,
-        'path': '/setting',
+        'path': '/configuration',
         'iconColor': '#c12e2a',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
           {
-            'id': 'system-setting',
-            'labelKey': 'navigation.menu.setting',
+            'id': 'system-configuration',
+            'labelKey': 'navigation.menu.configuration',
+            'icon': 'cog',
             'order': 20,
-            'path': '/setting',
-            'access': [ { 'type': 'DENY_ALL', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'path': '/configuration',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           },
           {
             'id': 'system-modules',

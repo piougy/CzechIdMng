@@ -1,8 +1,8 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 //
-import * as Basic from '../../../../../components/basic';
-import { NotificationManager } from '../../../redux';
+import * as Basic from 'app/components/basic';
+import { NotificationManager } from 'core/redux';
 import NotificationTable from './NotificationTable';
 
 /**

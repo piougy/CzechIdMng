@@ -30,7 +30,7 @@ public class WebConfig {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
 
-	@Value("#{'${allowed-origins:http://localhost:3000}'.replaceAll(\"\\s*\",\"\").split(',')}")
+	@Value("#{'${allowed-origins:http://localhost:3000,http://localhost/idm}'.replaceAll(\"\\s*\",\"\").split(',')}")
 	private List<String> allowedOrigins;
 
 	@Bean

@@ -101,8 +101,8 @@ module.exports = {
       component: require('./content/Messages')
     },
     {
-      path: 'setting',
-      component: require('./content/Setting'),
+      path: 'configuration',
+      component: require('./content/Configuration'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {

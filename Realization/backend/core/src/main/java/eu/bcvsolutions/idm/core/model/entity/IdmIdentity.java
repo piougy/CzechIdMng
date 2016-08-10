@@ -45,7 +45,7 @@ public class IdmIdentity extends AbstractEntity {
 
 	@NotNull
 	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
+	private boolean disabled;
 	
 	/**
 	 * Optimistic lock - will be used with ETag

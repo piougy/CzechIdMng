@@ -10,6 +10,7 @@ import WorkflowHistoricProcessInstanceManager from './WorkflowHistoricProcessIns
 import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceManager';
 import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager';
 import NotificationManager from './NotificationManager';
+import ConfigurationManager from './ConfigurationManager';
 
 const ManagerRoot = {
   DataManager,
@@ -23,7 +24,8 @@ const ManagerRoot = {
   WorkflowHistoricProcessInstanceManager,
   WorkflowHistoricTaskInstanceManager,
   WorkflowProcessDefinitionManager,
-  NotificationManager
+  NotificationManager,
+  ConfigurationManager
 };
 
 ManagerRoot.version = '0.0.1';

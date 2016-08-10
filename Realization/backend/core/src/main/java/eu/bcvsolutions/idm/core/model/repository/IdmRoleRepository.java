@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		path = "roles", //
 		itemResourceRel = "role", //
 		excerptProjection = IdmRoleExcerpt.class)
-
 public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	
 	IdmRole findOneByName(@Param("name") String name);

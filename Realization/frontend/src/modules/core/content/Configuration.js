@@ -1,41 +1,38 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
-import { OrganizationManager } from '../../../modules/core/redux';
-import * as Utils from '../utils';
+import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
+import { ConfigurationManager } from 'core/redux';
+import * as Utils from 'core/utils';
 
-const uiKey = 'organization_table';
+const uiKey = 'configuration_table';
 
-/**
-* Organizations list
-*/
-class Organizations extends Basic.AbstractContent {
+class Configuration extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: true,
+      filterOpened: false,
       detail: {
         show: false,
         entity: {}
       }
     };
-    this.organizationManager = new OrganizationManager();
-  }
-
-  getManager() {
-    return this.organizationManager;
-  }
-
-  getContentKey() {
-    return 'content.organizations';
+    this.configurationManager = new ConfigurationManager();
   }
 
   componentDidMount() {
-    this.selectNavigationItem('organizations');
+    this.selectNavigationItem('system-configuration');
+  }
+
+  getManager() {
+    return this.configurationManager;
+  }
+
+  getContentKey() {
+    return 'content.configuration';
   }
 
   useFilter(event) {
@@ -130,7 +127,7 @@ class Organizations extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.PageHeader>
-          <Basic.Icon value="fa:building"/>
+          <Basic.Icon value="cog"/>
           {' '}
           {this.i18n('header')}
         </Basic.PageHeader>
@@ -138,10 +135,9 @@ class Organizations extends Basic.AbstractContent {
         <Basic.Panel>
           <Advanced.Table
             ref="table"
-            uiKey="organization_table"
+            uiKey={uiKey}
             manager={this.getManager()}
             showRowSelection
-            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -149,16 +145,10 @@ class Organizations extends Basic.AbstractContent {
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Organization.name')}
-                        label={this.i18n('entity.Organization.name')}/>
+                        placeholder={this.i18n('entity.Configuration.name')}
+                        label={this.i18n('entity.Configuration.name')}/>
                     </div>
                     <div className="col-lg-4">
-                      {/*
-                      <Advanced.Filter.TextField
-                        ref="parentId"
-                        placeholder={this.i18n('entity.Organization.parentId')}
-                        label={this.i18n('filter.parentId.label')}/>
-                        */}
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -193,12 +183,10 @@ class Organizations extends Basic.AbstractContent {
                       onClick={this.showDetail.bind(this, data[rowIndex])}/>
                   );
                 }
-              }
-              sort={false}/>
+              }/>
             <Advanced.Column property="name" sort/>
-            <Advanced.Column property="disabled" sort face="bool"/>
-            <Advanced.Column property="shortName" sort rendered={false}/>
-            <Advanced.Column property="parentId" sort rendered={false}/>
+            <Advanced.Column property="value" sort/>
+            <Advanced.Column property="secured" sort face="bool"/>
           </Advanced.Table>
         </Basic.Panel>
 
@@ -216,11 +204,14 @@ class Organizations extends Basic.AbstractContent {
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="name"
-                  label={this.i18n('entity.Organization.name')}
+                  label={this.i18n('entity.Configuration.name')}
                   required/>
+                <Basic.TextArea
+                  ref="value"
+                  label={this.i18n('entity.Configuration.value')}/>
                 <Basic.Checkbox
-                  ref="disabled"
-                  label={this.i18n('entity.Organization.disabled')}/>
+                  ref="secured"
+                  label={this.i18n('entity.Configuration.secured')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -241,27 +232,16 @@ class Organizations extends Basic.AbstractContent {
               </Basic.Button>
             </Basic.Modal.Footer>
           </form>
-
         </Basic.Modal>
-
-        <Basic.Panel rendered={false}>
-          <Advanced.Tree
-            rootNode={{name: 'top', shortName: 'Organizace', toggled: true}}
-            propertyId="name"
-            propertyParent="parentId"
-            propertyName="shortName"
-            uiKey="orgTree"
-            manager={this.getManager()}
-            />
-        </Basic.Panel>
       </div>
     );
   }
 }
 
-Organizations.propTypes = {
+Configuration.propTypes = {
 };
-Organizations.defaultProps = {
+
+Configuration.defaultProps = {
   _showLoading: false
 };
 
@@ -272,4 +252,4 @@ function select(state) {
   };
 }
 
-export default connect(select, null, null, { withRef: true})(Organizations);
+export default connect(select)(Configuration);

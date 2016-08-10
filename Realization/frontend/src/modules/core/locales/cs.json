@@ -107,7 +107,7 @@
         "title": "Seznam uživatelů"
       },
       "messages": "Hlášení",
-      "setting": "Nastavení",
+      "configuration": "Nastavení",
       "userLabel": "{{userID}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
@@ -364,8 +364,18 @@
         "removeAll": "Odebrat všechna hlášení"
       }
     },
-    "setting": {
-      "header": "Nastavení"
+    "configuration": {
+      "header": "Nastavení aplikace",
+      "title": "Nastavení",
+      "edit": {
+        "header": "{{name}} <small>detail nastavení</small>"
+      },
+      "create": {
+        "header": "Nové nastavení"
+      },
+      "save": {
+        "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
+      }
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1008,10 +1018,6 @@
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
       "description": "Popis"
     },
-    "Setting": {
-      "key": "Klíč",
-      "value": "Hodnota"
-    },
     "IdentityRole": {
       "role" : "Role"
     },
@@ -1107,6 +1113,11 @@
       "sent": "Odesláno",
       "sentLog": "Zpráva při odeslání",
       "type": "Typ"
+    },
+    "Configuration": {
+      "name": "Klíč",
+      "value": "Hodnota",
+      "secured": "Skryté nastavení (systémové)"
     }
   },
   "error": {

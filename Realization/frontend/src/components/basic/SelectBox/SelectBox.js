@@ -90,7 +90,8 @@ class SelectBox extends AbstractFormComponent {
     // value is not array
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
-    return copyValue.id;
+    // result property value
+    return copyValue[this.props.returnProperty];
   }
 
   _deletePrivateField(item) {

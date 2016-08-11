@@ -1,16 +1,10 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
 //
 import * as Basic from '../../../../src/components/basic';
 
 describe('Basic Confirm', function() {
-
   /**
    * Clean DOM afrer each test
    * @param
@@ -62,5 +56,4 @@ describe('Basic Confirm', function() {
     });
     confirm.reject();
   });
-
 });

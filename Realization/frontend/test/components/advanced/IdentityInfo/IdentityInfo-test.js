@@ -1,16 +1,10 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
 //
 import { IdentityInfo } from '../../../../src/components/advanced/IdentityInfo/IdentityInfo';
 
 describe('Advanced IdentityInfo', function() {
-
   it('[not rendered] - component should not be rendered', function() {
     const shallowRenderer = TestUtils.createRenderer();
     shallowRenderer.render(<IdentityInfo rendered={false}/>);
@@ -22,7 +16,7 @@ describe('Advanced IdentityInfo', function() {
     const shallowRenderer = TestUtils.createRenderer();
     shallowRenderer.render(<IdentityInfo showLoading={false}/>);
     const renderedComponent = shallowRenderer.getRenderOutput();
-    shallowRenderer.render(<IdentityInfo showLoading={true}/>);
+    shallowRenderer.render(<IdentityInfo showLoading/>);
     const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
     expect(renderedComponent).to.not.eql(renderedComponentWithShowLoading);
   });
@@ -42,5 +36,4 @@ describe('Advanced IdentityInfo', function() {
     const externe = shallowRenderer.getRenderOutput();
     expect(internist).to.not.eql(externe);
   });
-
 });

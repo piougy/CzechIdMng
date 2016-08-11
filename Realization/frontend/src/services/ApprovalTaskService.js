@@ -14,7 +14,7 @@ class ApprovalTaskService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    let defaultSearchParameters = super.getDefaultSearchParameters();
+    const defaultSearchParameters = super.getDefaultSearchParameters();
     defaultSearchParameters.sort = [
       {
         field: 'createdDate',
@@ -31,7 +31,7 @@ class ApprovalTaskService extends AbstractService {
    * @return {Promise} task
    */
   approve(idTask, task) {
-    return RestApiService.put(this.getApiPath() + `/`+idTask+`/approve`, task);
+    return RestApiService.put(this.getApiPath() + `/` + idTask + `/approve`, task);
   }
 
   /**
@@ -41,7 +41,7 @@ class ApprovalTaskService extends AbstractService {
    * @return {Promise} task
    */
   disapprove(idTask, task) {
-    return RestApiService.put(this.getApiPath() + `/`+idTask+`/disapprove`, task);
+    return RestApiService.put(this.getApiPath() + `/` + idTask + `/disapprove`, task);
   }
 
   /**
@@ -50,7 +50,7 @@ class ApprovalTaskService extends AbstractService {
    * @return {Promise}   Return list of identities (are trimmed, contain only username)
    */
   getApprovers(idTask) {
-    return RestApiService.get(this.getApiPath() + `/`+idTask+`/approvers`);
+    return RestApiService.get(this.getApiPath() + `/` + idTask + `/approvers`);
   }
 
   /**
@@ -59,7 +59,7 @@ class ApprovalTaskService extends AbstractService {
    * @return {Promise}   Return user is not trimmed
    */
   getApplicant(idTask) {
-    return RestApiService.get(this.getApiPath() + `/`+idTask+`/applicant`);
+    return RestApiService.get(this.getApiPath() + `/` + idTask + `/applicant`);
   }
 
   getNiceLabel(entity) {

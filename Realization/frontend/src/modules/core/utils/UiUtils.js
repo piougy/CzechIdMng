@@ -1,9 +1,6 @@
 
 
-import _ from 'lodash';
-import Immutable from 'immutable';
 import EntityUtils from './EntityUtils';
-import moment from 'moment';
 
 /**
  * Helper methods for ui state

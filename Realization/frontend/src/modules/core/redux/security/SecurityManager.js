@@ -1,11 +1,8 @@
 
 
 import _ from 'lodash';
-import { routeActions } from 'react-router-redux';
-//
 import { AuthenticateService, ConfigService, IdentityService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
-import * as Utils from '../../utils';
 
 /**
  * action types
@@ -27,7 +24,7 @@ const configService = new ConfigService();
  */
 export default class SecurityManager {
 
-  constructor () {
+  constructor() {
     this.flashMessagesManager = new FlashMessagesManager();
   }
 
@@ -47,7 +44,7 @@ export default class SecurityManager {
       .then(json => {
         getState().logger.debug('logged user', json);
         // resolve authorities from auth
-        const authorities = json.authentication.authorities.map(authority => { return authority.authority });
+        const authorities = json.authentication.authorities.map(authority => { return authority.authority; });
         getState().logger.debug('logged user authorities', authorities);
         // construct logged user context
         const userContext = {
@@ -55,14 +52,14 @@ export default class SecurityManager {
           isAuthenticated: true,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities: authorities
+          authorities
         };
         dispatch(this.receiveLogin(userContext, redirect));
       })
       .catch(error => {
         dispatch(this.receiveLoginError(error, redirect));
       });
-    }
+    };
   }
 
   /*
@@ -75,17 +72,17 @@ export default class SecurityManager {
   }
 
   receiveLogin(userContext, redirect) {
-    return (dispatch, getState) => {
-      //getState().logger.debug('received login', userContext);
+    return (dispatch) => {
+      // getState().logger.debug('received login', userContext);
       // redirect after login, if needed
       if (redirect) {
         redirect(userContext.isAuthenticated);
       }
       dispatch({
         type: RECEIVE_LOGIN,
-        userContext: userContext
+        userContext
       });
-    }
+    };
   }
 
   receiveLoginError(error, redirect) {
@@ -113,14 +110,14 @@ export default class SecurityManager {
    */
   logout(redirect) {
     return dispatch => {
-      authenticateService.logout()
+      authenticateService.logout();
       dispatch(this.flashMessagesManager.hideAllMessages());
       dispatch(this.flashMessagesManager.addMessage({key: 'login', message: LocalizationService.i18n('content.logout.message.logout'), level: 'info', position: 'tc'}));
       dispatch(this.receiveLogout());
       if (redirect) {
         redirect();
       }
-    }
+    };
   }
 
   /**
@@ -130,7 +127,7 @@ export default class SecurityManager {
     authenticateService.logout();
     return dispatch => {
       dispatch(this.receiveLogout());
-    }
+    };
   }
 
   receiveLogout() {
@@ -153,7 +150,7 @@ export default class SecurityManager {
           tokenCSRF: this.getCookie(TOKEN_COOKIE_NAME)
         })
       ));
-    }
+    };
   }
 
   /**
@@ -247,6 +244,9 @@ export default class SecurityManager {
           }
           case 'HAS_ANY_AUTHORITY': {
             return SecurityManager.hasAnyAuthority(userContext, accessItem.authorities);
+          }
+          default : {
+            return null;
           }
         }
       }

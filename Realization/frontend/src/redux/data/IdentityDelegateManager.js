@@ -9,7 +9,7 @@ export default class IdentityDelegateManager extends EntityManager {
   constructor(username) {
     super();
     this.identityDelegateService = new IdentityDelegateService(username);
-   }
+  }
 
    setUsername(username) {
      this.getService().setUsername(username);
@@ -24,6 +24,6 @@ export default class IdentityDelegateManager extends EntityManager {
   }
 
   getDelegates(uiKey, cb = null) {
-    return this.fetchEntities({}, uiKey, cb)
+    return this.fetchEntities({}, uiKey, cb);
   }
 }

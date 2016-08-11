@@ -19,10 +19,10 @@ class Footer extends Basic.AbstractContextComponent {
   /**
    * Jump to page top
    */
-  jumpTop(event) {
-		$('html, body').animate({
-			scrollTop: 0
-		}, 'fast');
+  jumpTop() {
+    $('html, body').animate({
+      scrollTop: 0
+    }, 'fast');
   }
 
   render() {
@@ -55,19 +55,19 @@ class Footer extends Basic.AbstractContextComponent {
 
 Footer.propTypes = {
   backendVersion: PropTypes.string
-}
+};
 
 Footer.defaultProps = {
   backendVersion: null
-}
+};
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
 function select(state) {
   return {
     backendVersion: settingManager.getValue(state, 'environment.version')
-  }
+  };
 }
 
 // Wrap the component to inject dispatch and state into it
-export default connect(select)(Footer)
+export default connect(select)(Footer);

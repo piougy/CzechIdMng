@@ -1,9 +1,6 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-//
 import * as Basic from '../../../components/basic';
 import { SecurityManager } from '../../../modules/core/redux';
 
@@ -106,16 +103,16 @@ class Login extends Basic.AbstractContent {
 
 Login.propTypes = {
   userContext: PropTypes.object
-}
+};
 
 Login.defaultProps = {
   userContext: { isAuthenticated: false }
-}
+};
 
 function select(state) {
   return {
     userContext: state.security.userContext
-  }
+  };
 }
 
-export default connect(select)(Login)
+export default connect(select)(Login);

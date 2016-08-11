@@ -128,7 +128,7 @@ class Tree extends Basic.AbstractContextComponent {
         if (toggleDecorator) {
           return toggleDecorator(props);
         }
-        return decorators.Toggle(props);
+        return new decorators.Toggle(props);
       },
       Header: (headerProps) => {
         if (headerDecorator) {

@@ -1,12 +1,6 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
-import Immutable from 'immutable';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 
@@ -23,7 +17,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -55,7 +49,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
       detail: {
         show: true,
         showLoading: false,
-        entity: entity
+        entity
       }
     }, () => {
       this.refs.form.setData(entity);
@@ -130,9 +124,9 @@ export class TaskInstanceTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink property="taskDescription" to="task/:id" sort={true} face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="taskCreated" sort={true} face="datetime" rendered={_.includes(columns, 'created')}/>
-          <Advanced.Column property="id" sort={true} face="text" rendered={_.includes(columns, 'id')}/>
+          <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
+          <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="id" sort face="text" rendered={_.includes(columns, 'id')}/>
         </Advanced.Table>
       </div>
     );
@@ -147,7 +141,7 @@ TaskInstanceTable.propTypes = {
 };
 
 TaskInstanceTable.defaultProps = {
-  columns: ['created', 'description','id'],
+  columns: ['created', 'description', 'id'],
   filterOpened: false,
   _showLoading: false
 };

@@ -3,15 +3,14 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
-import * as Utils from '../utils';
 
 class WorkflowHistoricProcessInstanceService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/workflow/history/processes';
   }
 
-  getNiceLabel(proc){
+  getNiceLabel(proc) {
     if (!proc) {
       return '';
     }

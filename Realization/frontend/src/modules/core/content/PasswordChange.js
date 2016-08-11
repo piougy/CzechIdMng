@@ -1,11 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-//
 import * as Basic from '../../../components/basic';
-import { AdvancedTable, AdvancedColumn, AdvancedColumnLink } from '../../../components/advanced';
 import { SecurityManager, IdentityManager } from '../../../modules/core/redux';
 //
 import help from './PasswordChange_cs.md';
@@ -16,24 +12,24 @@ const securityManager = new SecurityManager();
 class PasswordChange extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-       showLoading: false,
-       forUsername: null
-     }
+    super(props, context);
+    this.state = {
+      showLoading: false,
+      forUsername: null
+    };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('password-change');
-    let { query } = this.props.location
+    const { query } = this.props.location;
     const forUsername = (query) ? query.name : null;
     if (!forUsername) {
       this.refs.form.setData({});
       this.refs.username.focus();
     } else {
       this.setState({
-        forUsername: forUsername
-      })
+        forUsername
+      });
       this.refs.form.setData({
         username: forUsername
       });
@@ -55,16 +51,16 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate){
+    if (onlyValidate) {
       this.refs[property].validate();
       return result;
     }
-    if (result.error){
+    if (result.error) {
       return result;
     }
-    let opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value){
-      return {error:{key:'passwords_not_same'}}
+    const opositeValue = this.refs[property].getValue();
+    if (opositeValue !== value) {
+      return {error: {key: 'passwords_not_same'}};
     }
     return result;
   }
@@ -137,12 +133,12 @@ class PasswordChange extends Basic.AbstractContent {
         return;
       }
       // redirection to requested page before login
-      const { location } = this.props
+      const { location } = this.props;
       if (location.state && location.state.nextPathname) {
-        this.context.router.replace(location.state.nextPathname)
+        this.context.router.replace(location.state.nextPathname);
       } else {
         // TODO: user defined home page ...
-        this.context.router.replace('/')
+        this.context.router.replace('/');
       }
     }));
   }
@@ -220,15 +216,15 @@ class PasswordChange extends Basic.AbstractContent {
 
 PasswordChange.propTypes = {
   userContext: React.PropTypes.object
-}
+};
 PasswordChange.defaultProps = {
   userContext: null
-}
+};
 
 function select(state) {
   return {
     userContext: state.security.userContext
-  }
+  };
 }
 
-export default connect(select)(PasswordChange)
+export default connect(select)(PasswordChange);

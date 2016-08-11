@@ -58,9 +58,9 @@ export default class LocalizationService {
           // prefix for stored languages
           prefix: 'i18next_res_',
           // expiration
-          expirationTime: 24*60*60*1000
+          expirationTime: 24 * 60 * 60 * 1000
         }
-      },(error, t)=> {
+      }, (error)=> {
         cb(error);
       });
   }

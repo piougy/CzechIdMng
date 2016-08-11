@@ -12,17 +12,9 @@ import DateCell from './DateCell';
 import BooleanCell from './BooleanCell';
 import EnumCell from './EnumCell';
 
-var TableRoot = {
-  Table: Table,
-  Column: Column,
-  Pagination: Pagination,
-  Cell: DefaultCell,
-  SortHeaderCell: SortHeaderCell,
-  TextCell: TextCell,
-  LinkCell: LinkCell,
-  DateCell: DateCell,
-  BooleanCell: BooleanCell,
-  EnumCell: EnumCell
+const TableRoot = {Table, Column, Pagination,
+  Cell: DefaultCell, SortHeaderCell, TextCell,
+  LinkCell, DateCell, BooleanCell, EnumCell
 };
 _.merge(TableRoot, { BasicTable: TableRoot });
 TableRoot.version = '0.0.1';

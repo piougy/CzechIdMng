@@ -1,5 +1,3 @@
-
-
 import AbstractEnum from '../../../modules/core/enums/AbstractEnum';
 
 /**

@@ -1,7 +1,5 @@
 
 
-import _ from 'lodash';
-//
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
@@ -179,7 +177,7 @@ export default class AbstractService {
       return previousSearchParameters;
     }
     if (!previousSearchParameters) { // nothing to merge with
-      return newSearchParameters
+      return newSearchParameters;
     }
     // merge filters
     let _searchParameters = previousSearchParameters;

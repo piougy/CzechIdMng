@@ -1,14 +1,12 @@
 
 
-import merge from 'object-assign';
 import Immutable from 'immutable';
-//
-import { SELECT_NAVIGATION_ITEMS, SELECT_NAVIGATION_ITEM, I18N_READY, NAVIGATION_INIT, getNavigationItems, getNavigationItem } from './layoutActions';
-import { AuthenticateService, ConfigService } from '../../modules/core/services';
+import { SELECT_NAVIGATION_ITEMS, SELECT_NAVIGATION_ITEM, I18N_READY, NAVIGATION_INIT, getNavigationItem } from './layoutActions';
+import { ConfigService } from '../../modules/core/services';
 
 const configService = new ConfigService();
 
-const INITIAL_STATE = Immutable.Map({
+const INITIAL_STATE = new Immutable.Map({
   navigation: configService.getNavigation(), // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
   i18nReady: false              // localization context is ready
@@ -25,12 +23,11 @@ export function layout(state = INITIAL_STATE, action) {
       return state.set('selectedNavigationItems', newState);
     }
     case SELECT_NAVIGATION_ITEM: {
-      const prevState = state.get('selectedNavigationItems');
       const newState = [];
       // traverse to item parent
       let itemId = action.selectedNavigationItemId;
       while (itemId !== null) {
-        let item = getNavigationItem(state.get('navigation'), itemId);
+        const item = getNavigationItem(state.get('navigation'), itemId);
         if (!item) {
           break;
         }

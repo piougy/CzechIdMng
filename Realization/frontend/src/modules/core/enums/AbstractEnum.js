@@ -25,11 +25,11 @@ export default class AbstractEnum {
   /**
    * finds key to given symbol
    */
-  static findKeyBySymbol(enumeration, sym){
-    if (sym){
-      for (let enumItem in enumeration) {
-        if (enumeration[enumItem] === sym){
-            return enumItem;
+  static findKeyBySymbol(enumeration, sym) {
+    if (sym) {
+      for (const enumItem in enumeration) {
+        if (enumeration[enumItem] === sym) {
+          return enumItem;
         }
       }
     }
@@ -38,12 +38,11 @@ export default class AbstractEnum {
   /**
    * find symbol by key
    */
-  static findSymbolByKey(enumeration, key){
-    if (key){
-
-      for (let enumItem in enumeration) {
-        if (enumItem === key){
-            return enumeration[enumItem];
+  static findSymbolByKey(enumeration, key) {
+    if (key) {
+      for (const enumItem in enumeration) {
+        if (enumItem === key) {
+          return enumeration[enumItem];
         }
       }
     }

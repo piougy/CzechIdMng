@@ -8,7 +8,7 @@ const identityService = new IdentityService();
 
 export default class IdentityWorkingPositionManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
   }
 
@@ -26,7 +26,7 @@ export default class IdentityWorkingPositionManager extends EntityManager {
 
   fetchWorkingPositions(username, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntities(null, uiKey));
       identityService.getWorkingPositions(username)
       .then(json => {
@@ -35,6 +35,6 @@ export default class IdentityWorkingPositionManager extends EntityManager {
       .catch(error => {
         dispatch(this.receiveError({}, uiKey, error, cb));
       });
-    }
+    };
   }
 }

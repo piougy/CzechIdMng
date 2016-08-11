@@ -1,11 +1,6 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
 import Immutable from 'immutable';
 //
 import { App } from '../../src/layout/App';
@@ -13,9 +8,7 @@ import * as Basic from '../../src/components/basic';
 import * as Advanced from '../../src/components/advanced';
 
 describe('App', function() {
-
   describe.skip('[without redux connected]', function() {
-
     it('- without setting loding is rendered', function() {
       const shallowRenderer = TestUtils.createRenderer();
       shallowRenderer.render(<App location={{}} userContext={{ username: 'johndoe'}}/>);
@@ -34,7 +27,7 @@ describe('App', function() {
     });
 
     it('- with setting is rendered navigation, body and footer', function() {
-      let setting = Immutable.Map({});
+      let setting = new Immutable.Map({});
       setting = setting.set('1', {});
       //
       const shallowRenderer = TestUtils.createRenderer();
@@ -47,5 +40,4 @@ describe('App', function() {
       expect(app.props.children[1].props.children[1].props.id).to.equal('content-container');
     });
   });
-
 });

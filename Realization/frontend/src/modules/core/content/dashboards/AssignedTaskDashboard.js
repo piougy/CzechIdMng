@@ -1,6 +1,4 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../../../components/basic';
 import ConnectedAssignedTaskTable, { AssignedTaskTable } from '../task/AssignedTaskTable';
@@ -15,7 +13,7 @@ class AssignedTaskDashboard extends Basic.AbstractContent {
         <Basic.PanelHeader text="Přiřazené úkoly"/>
         <ConnectedAssignedTaskTable
           username={userContext.username}
-          columns={AssignedTaskTable.defaultProps.columns.filter(property => { return property !== 'relatedTaskId'})}/>
+          columns={AssignedTaskTable.defaultProps.columns.filter(property => { return property !== 'relatedTaskId'; })}/>
       </Basic.Panel>
     );
   }
@@ -32,7 +30,7 @@ AssignedTaskDashboard.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext
-  }
+  };
 }
 
 export default connect(select)(AssignedTaskDashboard);

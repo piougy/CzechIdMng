@@ -1,12 +1,7 @@
-'use strict';
-
 import { expect } from 'chai';
-import faker from 'faker';
-//
 import { SecurityManager } from '../../src/modules/core/redux';
 
 describe('SecurityManager', function() {
-
   const securityManager = new SecurityManager();
 
   const TEST_AUTHORITY = 'USER_READ';
@@ -18,7 +13,7 @@ describe('SecurityManager', function() {
     tokenCSRF: null,
     tokenCIDMST: null,
     authorities: [TEST_AUTHORITY], // user authorities
-  }
+  };
 
   it('[isAuthenticated] - test user context should be authenticated', function() {
     expect(SecurityManager.isAuthenticated(testUserContext)).to.be.true;

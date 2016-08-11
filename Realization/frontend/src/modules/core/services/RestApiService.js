@@ -1,7 +1,5 @@
 
 
-import Fetch from 'isomorphic-fetch';
-//
 import AuthenticateService from './AuthenticateService';
 import ConfigService from './ConfigService';
 
@@ -9,32 +7,32 @@ const configService = new ConfigService();
 
 export default class RestApiService {
 
-  static get(path, token = null){
-    let fetchConfig = this._getFetchConfig('get', null, token);
+  static get(path, token = null) {
+    const fetchConfig = this._getFetchConfig('get', null, token);
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static post(path, json, token = null){
-    let fetchConfig = this._getFetchConfig('post', json, token);
+  static post(path, json, token = null) {
+    const fetchConfig = this._getFetchConfig('post', json, token);
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static put(path, json){
-    let fetchConfig = this._getFetchConfig('put', json);
+  static put(path, json) {
+    const fetchConfig = this._getFetchConfig('put', json);
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static patch(path, json){
-    let fetchConfig = this._getFetchConfig('PATCH', json); // uppercase is needed
+  static patch(path, json) {
+    const fetchConfig = this._getFetchConfig('PATCH', json); // uppercase is needed
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static delete(path){
-    let fetchConfig = this._getFetchConfig('DELETE');
+  static delete(path) {
+    const fetchConfig = this._getFetchConfig('DELETE');
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static upload(path, formData){
+  static upload(path, formData) {
     return fetch(this.getUrl(path), {
       method: 'post',
       headers: {
@@ -45,7 +43,7 @@ export default class RestApiService {
     });
   }
 
-  static download(path){
+  static download(path) {
     return fetch(this.getUrl(path), {
       method: 'get',
       headers: {
@@ -62,22 +60,22 @@ export default class RestApiService {
     return `${configService.getServerUrl()}${path}`;
   }
 
-  static _getFetchConfig(methodType, body, token = null){
+  static _getFetchConfig(methodType, body, token = null) {
     if (token === null) {
       token = AuthenticateService.getTokenCIDMST();
     }
-    let fetchConfig = {
+    const fetchConfig = {
       method: methodType,
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       credentials: 'include'
+    };
+    if (token) {
+      fetchConfig.headers.CIDMST = token;
     }
-    if (token){
-      fetchConfig.headers['CIDMST'] = token;
-    }
-    if (body){
+    if (body) {
       fetchConfig.body = JSON.stringify(body);
     }
     return fetchConfig;

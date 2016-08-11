@@ -7,11 +7,11 @@ import * as Utils from '../utils';
 
 class RoleService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/roles';
   }
 
-  getNiceLabel(role){
+  getNiceLabel(role) {
     if (!role) {
       return '';
     }

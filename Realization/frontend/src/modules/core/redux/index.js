@@ -6,8 +6,8 @@ import SecurityManager from './security/SecurityManager';
 import FlashMessagesManager from './flash/FlashMessagesManager';
 
 const TopManagerRoot = _.merge({}, DataManagerRoot, {
-  SecurityManager: SecurityManager,
-  FlashMessagesManager: FlashMessagesManager
+  SecurityManager,
+  FlashMessagesManager
 });
 
 TopManagerRoot.version = '0.0.1';

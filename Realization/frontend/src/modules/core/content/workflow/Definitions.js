@@ -1,14 +1,8 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { WorkflowProcessDefinitionService } from '../../services';
-import _ from 'lodash';
 
 /**
 * Workflow definition list
@@ -33,15 +27,15 @@ class Definitions extends Basic.AbstractContent {
   /**
    * Load all active and last version workflow definitions
    */
-  _loadDefinitions(){
-    let promise = this.workflowDefinitionService.getAllDefinitions();
+  _loadDefinitions() {
+    const promise = this.workflowDefinitionService.getAllDefinitions();
     this.setState({
       showLoading: true
     });
     promise.then((json) => {
       this.setState({
         showLoading: false,
-        definitions: json['_embedded'].resources
+        definitions: json._embedded.resources
       });
     }).catch(ex => {
       this.setState({
@@ -56,7 +50,7 @@ class Definitions extends Basic.AbstractContent {
    * @param  {file} file File to upload
    */
   _upload(file) {
-    if (!file.name.endsWith('.bpmn20.xml')){
+    if (!file.name.endsWith('.bpmn20.xml')) {
       this.addMessage({
         message: this.i18n('fileRejected', {name: file.name}),
         level: 'warning'
@@ -67,7 +61,7 @@ class Definitions extends Basic.AbstractContent {
       showLoading: true
     });
 
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append( 'name', file.name );
     formData.append( 'fileName', file.name);
     formData.append( 'data', file );
@@ -95,7 +89,7 @@ class Definitions extends Basic.AbstractContent {
    * @param  {array} files Array of selected files
    */
   _onDrop(files) {
-    if (this.refs.dropzone.state.isDragReject){
+    if (this.refs.dropzone.state.isDragReject) {
       this.addMessage({
         message: this.i18n('filesRejected'),
         level: 'warning'
@@ -118,17 +112,17 @@ class Definitions extends Basic.AbstractContent {
 
         <Basic.Panel>
           <Basic.Table ref="table" data={definitions} showLoading={showLoading}>
-            <Basic.Column property="key"  header={this.i18n('key')} width="10%"
-              cell={<Basic.LinkCell property="key"  to="workflow/definitions/:key"/>}/>
+            <Basic.Column property="key" header={this.i18n('key')} width="10%"
+              cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>}/>
             <Basic.Column property="name" header={this.i18n('name')} width="20%"/>
-            <Basic.Column property="resourceName" header={this.i18n('resourceName')}  width="20%"/>
-            <Basic.Column property="description" header={this.i18n('description')}  width="35%"/>
-            <Basic.Column property="version" header={this.i18n('version')}  width="5%"/>
+            <Basic.Column property="resourceName" header={this.i18n('resourceName')} width="20%"/>
+            <Basic.Column property="description" header={this.i18n('description')} width="35%"/>
+            <Basic.Column property="version" header={this.i18n('version')} width="5%"/>
           </Basic.Table>
         </Basic.Panel>
         <Basic.Panel>
           <Basic.Dropzone ref="dropzone"
-            multiple={true}
+            multiple
             accept="text/xml"
             onDrop={this._onDrop.bind(this)}>
           </Basic.Dropzone>
@@ -139,11 +133,11 @@ class Definitions extends Basic.AbstractContent {
 }
 
 Definitions.propTypes = {
-}
+};
 Definitions.defaultProps = {
-}
+};
 
-function select(state, component) {
+function select() {
   return {};
 }
 

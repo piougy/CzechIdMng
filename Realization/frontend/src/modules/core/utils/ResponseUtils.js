@@ -1,9 +1,5 @@
 
 
-import _ from 'lodash';
-import Immutable from 'immutable';
-import moment from 'moment';
-
 /**
  * Helper methods for response error and info handling
  */

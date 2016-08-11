@@ -1,5 +1,3 @@
-'use strict'
-
 import EntityManager from '../../modules/core/redux/data/EntityManager';
 import { ApprovalTaskService } from '../../services';
 import SecurityManager from '../../modules/core/redux/security/SecurityManager';
@@ -8,7 +6,7 @@ const service = new ApprovalTaskService();
 
 export default class ApprovalTaskManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
   }
 
@@ -22,11 +20,11 @@ export default class ApprovalTaskManager extends EntityManager {
   * @return {Boolean}
   */
   hasEditRight(approvers) {
-    if (SecurityManager.isAdmin()){
+    if (SecurityManager.isAdmin()) {
       return true;
     }
-    for (let approver of approvers) {
-      if (SecurityManager.equalsAuthenticated(approver.name)){
+    for (const approver of approvers) {
+      if (SecurityManager.equalsAuthenticated(approver.name)) {
         return true;
       }
     }

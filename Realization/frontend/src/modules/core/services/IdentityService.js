@@ -1,8 +1,5 @@
 
 
-import _ from 'lodash';
-import Immutable from 'immutable';
-//
 import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
@@ -10,7 +7,7 @@ import SearchParameters from '../domain/SearchParameters';
 
 class IdentityService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/identities';
   }
 
@@ -33,7 +30,7 @@ class IdentityService extends AbstractService {
    * @param passwordChangeDto {object}
    * @return {Promise}
    */
-  passwordChange(username, passwordChangeDto){
+  passwordChange(username, passwordChangeDto) {
     return RestApiService.put(this.getApiPath() + `/${username}/password-change`, passwordChangeDto);
   }
 
@@ -44,7 +41,7 @@ class IdentityService extends AbstractService {
    * @param passwordResetDto {object}
    * @return {Promise}
    */
-  passwordReset(username, passwordResetDto){
+  passwordReset(username, passwordResetDto) {
     return RestApiService.put(this.getApiPath() + `/${username}/password/reset`, passwordResetDto);
   }
 
@@ -74,8 +71,8 @@ class IdentityService extends AbstractService {
    */
   paswordResetByToken(token, password) {
     return RestApiService.put(this.getApiPath() + `/password/reset/token`, {
-      token: token,
-      password: password
+      token,
+      password
     });
   }
 
@@ -90,8 +87,8 @@ class IdentityService extends AbstractService {
   passwordChangePublic(username, oldPassword, newPassword) {
     return RestApiService.put(this.getApiPath() + `/password/change`, {
       identity: username,
-      oldPassword: oldPassword,
-      newPassword: newPassword
+      oldPassword,
+      newPassword
     });
   }
 
@@ -106,8 +103,8 @@ class IdentityService extends AbstractService {
   passwordMustChange(username, oldPassword, newPassword) {
     return RestApiService.put(this.getApiPath() + `/password/must/change`, {
       identity: username,
-      oldPassword: oldPassword,
-      newPassword: newPassword
+      oldPassword,
+      newPassword
     });
   }
 
@@ -167,7 +164,7 @@ class IdentityService extends AbstractService {
    */
   isExterne(identity) {
     return false;
-    //throw new Error('not implemented');
+    // throw new Error('not implemented');
   }
 
   /**
@@ -249,7 +246,7 @@ class IdentityService extends AbstractService {
    * @param  id Identity id
    * @return Promise  task instance
    */
-  changePermissions(id){
+  changePermissions(id) {
     return RestApiService.put(this.getApiPath() + `/${id}/change-permissions`, null).then(response => {
       if (response.status === 403) {
         throw new Error(403);

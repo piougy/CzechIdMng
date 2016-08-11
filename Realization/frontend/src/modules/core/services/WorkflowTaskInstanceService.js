@@ -6,18 +6,18 @@ import RestApiService from './RestApiService';
 
 class WorkflowTaskInstanceService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/workflow/tasks';
   }
 
-  getNiceLabel(task){
+  getNiceLabel(task) {
     if (!task) {
       return '';
     }
     return task.taskName;
   }
 
-  completeTask(id, formData){
+  completeTask(id, formData) {
     return RestApiService.put(this.getApiPath() + `/${id}/complete`, formData);
   }
 

@@ -1,11 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-//
 import * as Basic from '../../../components/basic';
-import { AdvancedTable, AdvancedColumn, AdvancedColumnLink } from '../../../components/advanced';
 import { IdentityManager } from '../../../modules/core/redux/data';
 //
 import help from './PasswordReset_cs.md';
@@ -15,14 +11,14 @@ const identityManager = new IdentityManager();
 class PasswordReset extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-       hasToken: false,
-       showLoading: false
-     }
+    super(props, context);
+    this.state = {
+      hasToken: false,
+      showLoading: false
+    };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('password-reset');
     this.refs.formToken.setData({});
     this.refs.username.focus();
@@ -116,16 +112,16 @@ class PasswordReset extends Basic.AbstractContent {
   }
 
   _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate){
+    if (onlyValidate) {
       this.refs[property].validate();
       return result;
     }
-    if (result.error){
+    if (result.error) {
       return result;
     }
-    let opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value){
-      return {error:{key:'passwords_not_same'}}
+    const opositeValue = this.refs[property].getValue();
+    if (opositeValue !== value) {
+      return {error: {key: 'passwords_not_same'}};
     }
     return result;
   }
@@ -223,13 +219,13 @@ class PasswordReset extends Basic.AbstractContent {
 }
 
 PasswordReset.propTypes = {
-}
+};
 PasswordReset.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
-export default connect(select)(PasswordReset)
+export default connect(select)(PasswordReset);

@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import * as Basic from '../../../components/basic';
 import { SecurityManager } from '../../../modules/core/redux';
@@ -19,6 +17,6 @@ export default class Logout extends Basic.AbstractContent {
   }
 
   render() {
-    return <Basic.Loading isStatic showLoading={true}/>
+    return <Basic.Loading isStatic showLoading />;
   }
 }

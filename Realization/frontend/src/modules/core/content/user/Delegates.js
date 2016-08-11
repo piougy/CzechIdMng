@@ -1,8 +1,5 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../../components/basic';
@@ -30,7 +27,7 @@ class Delegates extends Basic.AbstractContent {
         till: null,
         _isDateUnlimited: true
       }
-    }
+    };
   }
 
   getManager() {
@@ -38,7 +35,7 @@ class Delegates extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.delegates'
+    return 'content.user.delegates';
   }
 
   componentDidMount() {
@@ -71,7 +68,7 @@ class Delegates extends Basic.AbstractContent {
       return;
     }
     const { userID } = this.props.params;
-    let newDelegate = this.refs.form.getData(); // TODO: multi identities + array + push + bulk
+    const newDelegate = this.refs.form.getData(); // TODO: multi identities + array + push + bulk
     newDelegate.identity = userID;
     if (newDelegate._isDateUnlimited) {
       newDelegate.from = null;
@@ -143,21 +140,21 @@ class Delegates extends Basic.AbstractContent {
           this.addError(error);
         });
       });
-    }, (err) => {
-      //Rejected
+    }, () => {
+      // Rejected
     });
   }
 
   onDateUnlimitedChange(event) {
     const isDateUnlimited = event ? event.currentTarget.checked : true;
     this.setState({
-      isDateUnlimited: isDateUnlimited
+      isDateUnlimited
     });
   }
 
   render() {
     const { _entities, _showLoading} = this.props;
-    const { showDetail, detail, showLoading, showLoadingDelete, isDateUnlimited } = this.state;
+    const { showDetail, showLoading, showLoadingDelete, isDateUnlimited } = this.state;
     //
     return (
       <div>
@@ -172,7 +169,7 @@ class Delegates extends Basic.AbstractContent {
         {
           _showLoading
           ?
-          <Basic.Loading showLoading={true} className="static"/>
+          <Basic.Loading showLoading className="static"/>
           :
           <Basic.Panel className="no-border last">
             <Basic.Toolbar>
@@ -187,7 +184,7 @@ class Delegates extends Basic.AbstractContent {
             </Basic.Toolbar>
             <Basic.Table
               data={_entities}
-              rowClass={({rowIndex, data}) => { return data[rowIndex]['state'] === DelegateStateEnum.findKeyBySymbol(DelegateStateEnum.DENIED) ? 'disabled' : ''}}
+              rowClass={({rowIndex, data}) => { return data[rowIndex].state === DelegateStateEnum.findKeyBySymbol(DelegateStateEnum.DENIED) ? 'disabled' : '';}}
               noData={this.i18n('empty')}>
               <Basic.Column
                 property="state"
@@ -211,7 +208,7 @@ class Delegates extends Basic.AbstractContent {
                 header={this.i18n('label.action')}
                 className="action"
                 cell={
-                  ({rowIndex, data, property, ...props}) => {
+                  ({rowIndex, data }) => {
                     return (
                       <Basic.Button
                         level="danger"
@@ -239,7 +236,7 @@ class Delegates extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="delegate"
                   service={this.identityManager.getService()}
-                  searchInFields={['lastName', 'name','email']}
+                  searchInFields={['lastName', 'name', 'email']}
                   label={this.i18n('entity.Delegate.delegate')}
                   multiSelect={false}
                   required/>
@@ -270,7 +267,7 @@ class Delegates extends Basic.AbstractContent {
                 type="submit"
                 level="success"
                 showLoading={showLoading}
-                showLoadingIcon={true}
+                showLoadingIcon
                 showLoadingText={this.i18n('create.button.saving')}>
                 {this.i18n('create.button.save')}
               </Basic.Button>
@@ -284,7 +281,7 @@ class Delegates extends Basic.AbstractContent {
           keyboard={false}>
           <Basic.Modal.Header text={this.i18n('delete.header')}/>
           <Basic.Modal.Body>
-            <Basic.Loading isStatic showLoading={true}/>
+            <Basic.Loading isStatic showLoading />
           </Basic.Modal.Body>
         </Basic.Modal>
 

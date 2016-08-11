@@ -44,6 +44,10 @@
     "react/jsx-no-duplicate-props": 2,
     "react/no-multi-comp": 1,
     "react/sort-comp": 0,
+    "react/no-did-mount-set-state": 1,
+    "react/no-did-update-set-state": 1,
+    "no-shadow": 1,
+    "no-unused-expressions": 1,
     "react/prop-types": [2, { "ignore": [
         "children",
         "className",

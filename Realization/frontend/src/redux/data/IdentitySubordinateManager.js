@@ -14,7 +14,7 @@ export default class IdentitySubordinateManager extends IdentityManager {
       throw new TypeError('idmManager is not defined');
     }
     this.identitySubordinateService = new IdentitySubordinateService(idmManager);
-   }
+  }
 
   getService() {
     return this.identitySubordinateService;

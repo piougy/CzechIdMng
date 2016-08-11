@@ -1,15 +1,12 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
 import Immutable from 'immutable';
-
 import * as Basic from '../../../../components/basic';
 import { AuthenticateService } from '../../../../modules/core/services';
-import { SecurityManager, IdentityManager, OrganizationManager } from '../../../../modules/core/redux';
+import { IdentityManager, OrganizationManager } from '../../../../modules/core/redux';
 import ApiOperationTypeEnum from '../../../../modules/core/enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
@@ -18,19 +15,19 @@ const organizationManager = new OrganizationManager();
 class Profile extends Basic.AbstractContent {
 
   constructor(props) {
-   super(props);
-   this.state = {
-     showLoading: false,
-     generatePassword: false,
-     generatePasswordShowLoading: false
-   }
- }
+    super(props);
+    this.state = {
+      showLoading: false,
+      generatePassword: false,
+      generatePasswordShowLoading: false
+    };
+  }
 
  initData() {
    // TODO: load data from redux store
    const { generatePassword } = this.state;
    this.transformData({
-     generatePassword: generatePassword,
+     generatePassword,
      password: '',
      passwordAgain: ''
    }, null, ApiOperationTypeEnum.GET);
@@ -71,7 +68,7 @@ class Profile extends Basic.AbstractContent {
       showLoading: true
     }, this.refs.form.processStarted());
 
-    let result = _.merge({}, formData, {
+    const result = _.merge({}, formData, {
       password: btoa(formData.password) // base64
     });
     delete result.passwordAgain;
@@ -111,18 +108,18 @@ class Profile extends Basic.AbstractContent {
     });
   }
 
-  transformData(json, error, operationType){
+  transformData(json, error, operationType) {
     let result;
     if (json) {
-      result =  _.merge({}, json, { email: '' });
+      result = _.merge({}, json, { email: '' });
     }
     this.refs.form.setData(result, error, operationType);
   }
 
   setNewPassword(password) {
-    let formData = this.refs.form.getData();
+    const formData = this.refs.form.getData();
     _.merge(formData, {
-      password: password,
+      password,
       passwordAgain: password
     });
     this.refs.form.setData(formData);
@@ -172,30 +169,28 @@ class Profile extends Basic.AbstractContent {
   }
 
   canEditMap() {
-    const { userContext } = this.props;
-    let canEditMap = Immutable.Map();
+    let canEditMap = new Immutable.Map();
     canEditMap = canEditMap.set('isSaveEnabled', true);
     return canEditMap;
   }
 
   _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate){
+    if (onlyValidate) {
       this.refs[property].validate();
       return result;
     }
-    if (result.error){
+    if (result.error) {
       return result;
     }
-    let opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value){
-      return {error:{key:'passwords_not_same'}}
+    const opositeValue = this.refs[property].getValue();
+    if (opositeValue !== value) {
+      return {error: {key: 'passwords_not_same'}};
     }
     return result;
   }
 
   render() {
-    const canEditMap = this.canEditMap();
-    const { showLoading, generatePassword, generatePasswordShowLoading } = this.state
+    const { showLoading, generatePassword, generatePasswordShowLoading } = this.state;
 
     return (
       <Basic.Row>
@@ -272,15 +267,15 @@ class Profile extends Basic.AbstractContent {
 
 Profile.propTypes = {
   userContext: React.PropTypes.object
-}
+};
 Profile.defaultProps = {
   userContext: null
-}
+};
 
 function select(state) {
   return {
     userContext: state.security.userContext
-  }
+  };
 }
 
 export default connect(select)(Profile);

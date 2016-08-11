@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import SearchParameters from '../../domain/SearchParameters';

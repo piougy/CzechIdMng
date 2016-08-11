@@ -5,7 +5,7 @@
 
 import merge from 'object-assign';
 import Immutable from 'immutable';
-//
+import _ from 'lodash';
 import { LOGOUT } from '../security/SecurityManager';
 import {
   REQUEST_ENTITIES,
@@ -60,7 +60,7 @@ const INITIAL_STATE = {
     size: 0
   },
   // custom data store - create, edit etc.
-  data: Immutable.Map({})
+  data: new Immutable.Map({})
 };
 
 export function data(state = INITIAL_STATE, action) {
@@ -80,20 +80,20 @@ export function data(state = INITIAL_STATE, action) {
     }
     case RECEIVE_ENTITIES: {
       const entityType = action.entityType;
-      let entities = state.entity[entityType] || Immutable.Map({});
-      let ids = [];
+      let entities = state.entity[entityType] || new Immutable.Map({});
+      const ids = [];
       action.entities.map(entity => {
         ids.push(entity.id);
         entities = entities.set(entity.id, entity);
       });
-      const entityTypes =  merge({}, state.entity, {
+      const entityTypes = merge({}, state.entity, {
         [entityType]: entities
       });
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
           showLoading: false,
           searchParameters: action.searchParameters,
-          entityType: entityType,
+          entityType,
           items: ids,
           total: action.total,
           error: null
@@ -119,9 +119,9 @@ export function data(state = INITIAL_STATE, action) {
     }
     case RECEIVE_ENTITY: {
       const entityType = action.entityType;
-      let entities = state.entity[entityType] || Immutable.Map({});
+      let entities = state.entity[entityType] || new Immutable.Map({});
       entities = entities.set(action.id, action.entity);
-      const entityTypes =  merge({}, state.entity, {
+      const entityTypes = merge({}, state.entity, {
         [entityType]: entities
       });
       let items = [];
@@ -135,10 +135,10 @@ export function data(state = INITIAL_STATE, action) {
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
           showLoading: false,
-          entityType: entityType,
+          entityType,
           id: action.id,
           error: null,
-          items: items
+          items
         })
       });
       return merge({}, state, {
@@ -148,16 +148,16 @@ export function data(state = INITIAL_STATE, action) {
     }
     case DELETED_ENTITY: {
       const entityType = action.entityType;
-      let entities = state.entity[entityType] || Immutable.Map({});
+      let entities = state.entity[entityType] || new Immutable.Map({});
       if (entities.has(action.id)) {
         entities = entities.delete(action.id);
       }
-      const entityTypes =  merge({}, state.entity, {
+      const entityTypes = merge({}, state.entity, {
         [entityType]: entities
       });
       // clear entity.id from all uiKeys items
       let ui = merge({}, state.ui);
-      for (let processUiKey in state.ui) {
+      for (const processUiKey in state.ui) {
         if (state.ui[processUiKey].items) {
           const items = _.without(state.ui[processUiKey].items, action.id);
           ui = merge(ui, {
@@ -165,14 +165,14 @@ export function data(state = INITIAL_STATE, action) {
               showLoading: false,
               id: action.id,
               error: null,
-              items: items
+              items
             })
           });
         }
       }
       return merge({}, state, {
         entity: entityTypes,
-        ui: ui
+        ui
       });
     }
     case RECEIVE_ERROR: {
@@ -189,8 +189,8 @@ export function data(state = INITIAL_STATE, action) {
     case CLEAR_ENTITIES: {
       const entityType = action.entityType;
       const uiKey = action.uiKey;
-      const entityTypes =  merge({}, state.entity, {
-        [entityType]: Immutable.Map({})
+      const entityTypes = merge({}, state.entity, {
+        [entityType]: new Immutable.Map({})
       });
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
@@ -205,7 +205,6 @@ export function data(state = INITIAL_STATE, action) {
         entity: entityTypes,
         ui: merge({}, state.ui, ui)
       });
-
     }
     case LOGOUT: {
       // clear whole state except setting

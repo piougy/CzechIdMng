@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
@@ -13,7 +11,6 @@ import * as Advanced from '../../../../src/components/advanced';
 const componentLibraries = [Basic, Advanced];
 
 describe('Basic AbstractComponent', function() {
-
   it('- supportsRendered', function() {
     expect(Basic.AbstractComponent.supportsRendered(Basic.AbstractComponent)).to.be.true;
     expect(Basic.AbstractComponent.supportsRendered(Basic.Icon)).to.be.true;
@@ -33,10 +30,11 @@ describe('Basic AbstractComponent', function() {
           continue;
         }
         if (Basic.AbstractComponent.supportsRendered(componentLibrary[component])) {
-          it('- ' + component, function() {
-            let ComponentType = componentLibrary[component];
+          /* eslint  no-loop-func: 1 */
+          it('- ' + component, function fdg() {
+            const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show={true} value="empty" text="Text" label="label" rendered={false} />);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" rendered={false} />);
             const renderedComponent = shallowRenderer.getRenderOutput();
             expect(renderedComponent).to.be.null;
           });
@@ -47,19 +45,19 @@ describe('Basic AbstractComponent', function() {
 
   describe('- component should not be the same, when showLoading changes', function() {
     // all components which supports rendered props
-    for (let componentLibrary of componentLibraries) {
-      for (let component in componentLibrary) {
+    for (const componentLibrary of componentLibraries) {
+      for (const component in componentLibrary) {
         if (component.startsWith('Abstract')) {
           continue;
         }
         if (Basic.AbstractComponent.supportsShowLoading(componentLibrary[component])) {
           it('- ' + component, function() {
-            let ComponentType = componentLibrary[component];
+            const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
             // fill some commons properties to ensure more component types wil be rendered
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show={true} value="empty" text="Text" label="label" showLoading={false}/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading={false}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show={true} value="empty" text="Text" label="label" showLoading={true}/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading={true}/>);
             const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
             /*
             if(component === 'Label') {
@@ -77,5 +75,4 @@ describe('Basic AbstractComponent', function() {
       }
     }
   });
-
 });

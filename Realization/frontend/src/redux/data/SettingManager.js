@@ -1,7 +1,5 @@
 
 
-import React from 'react';
-//
 import EntityManager from '../../modules/core/redux/data/EntityManager';
 import { SettingService } from '../../services';
 
@@ -31,11 +29,11 @@ export default class SettingManager extends EntityManager {
     return null;
   }
 
-  isEnableModule(state, key){
-    let modules =  this.getValue(state, ENABLED_MODULES);
-    if (modules){
-      let modulesArray = modules.split(',');
-      for (var variable in modulesArray) {
+  isEnableModule(state, key) {
+    const modules = this.getValue(state, ENABLED_MODULES);
+    if (modules) {
+      const modulesArray = modules.split(',');
+      for (const variable in modulesArray) {
         if (modulesArray.hasOwnProperty(variable) && modulesArray[variable] === key) {
           return true;
         }

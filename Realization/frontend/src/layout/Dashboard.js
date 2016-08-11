@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../components/basic';
-import ComponentService from '../services/ComponentService';;
+import ComponentService from '../services/ComponentService';
 
 const DEFAULT_SPAN = 6;
 const DASHBOARD_COMPONENT_TYPE = 'dashboard';
@@ -12,13 +12,13 @@ const DASHBOARD_COMPONENT_TYPE = 'dashboard';
 class Dashboard extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-     };
-     this.componentService = new ComponentService();
+    super(props, context);
+    this.state = {
+    };
+    this.componentService = new ComponentService();
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('home');
   }
 
@@ -27,13 +27,12 @@ class Dashboard extends Basic.AbstractContent {
     //
     let dashboards = [];
     dashboards = this.componentService.getComponentDefinitions(DASHBOARD_COMPONENT_TYPE).map(component=> {
-      let DashboardComponent = component.component;
+      const DashboardComponent = component.component;
       return (
         <div className={'col-lg-' + (component.span ? component.span : DEFAULT_SPAN)}>
           <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} userID={userContext.username}/>
         </div>
       );
-
     });
     return (
       <Basic.Row>

@@ -1,18 +1,13 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
 import faker from 'faker';
-import moment from 'moment';
 import _ from 'lodash';
 //
 import * as Basic from '../../../../src/components/basic';
 import TableRow from '../../../../src/components/basic/Table/Row';
 
 describe('Basic Table', function() {
-
   /**
    * Clean DOM afrer each test
    * @param
@@ -35,7 +30,6 @@ describe('Basic Table', function() {
       expect(table.props.children.props.level).to.equal('info');
       expect(table.props.children.props.text).to.equal(noData);
     });
-
   });
 
   describe('[not rendered]', function() {
@@ -48,7 +42,7 @@ describe('Basic Table', function() {
   });
 
   describe('[json data]', function() {
-    let data = [];
+    const data = [];
     for (let i = 0; i < 10; i++) {
       data.push({
         id: i + 1000,
@@ -79,7 +73,7 @@ describe('Basic Table', function() {
       expect(table.type).to.equal('table');
       header = table.props.children.find(c => c && c.type === 'thead');
       body = table.props.children.find(c => c && c.type === 'tbody');
-      let footer = table.props.children.find(c => c && c.type === 'tfoot');
+      const footer = table.props.children.find(c => c && c.type === 'tfoot');
       expect(header).to.not.be.null;
       expect(body).to.not.be.null;
       expect(footer).to.be.undefined; // footer shold be undefined
@@ -90,10 +84,13 @@ describe('Basic Table', function() {
       const headerRow = header.props.children;
       expect(headerRow.type).to.equal(TableRow);
       const firstDataRow = data[0];
-      let dataProperties = [];
-      for (let property in firstDataRow) {
+      const dataProperties = [];
+      for (const property in firstDataRow) {
         if (_.isObject(firstDataRow[property])) { // simple second lvl - TODO: recursion
-          for (let nestedProperty in firstDataRow[property]) {
+          for (const nestedProperty in firstDataRow[property]) {
+            if (!firstDataRow[property].hasOwnProperty(nestedProperty)) {
+              continue;
+            }
             dataProperties.push(property + '.' + nestedProperty);
           }
         } else {

@@ -1,18 +1,16 @@
 
 
 import React, { PropTypes } from 'react';
-import classNames from 'classnames';
-//
 import * as Basic from '../../basic';
 
 
 export default class ToogleFilterButton extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
-     super(props, context);
-     this.state = {
-       filterOpened: this.props.filterOpened
-     }
+    super(props, context);
+    this.state = {
+      filterOpened: this.props.filterOpened
+    };
   }
 
   _filterOpen(opened) {
@@ -40,7 +38,7 @@ export default class ToogleFilterButton extends Basic.AbstractContextComponent {
         {' '}
         <Basic.Icon icon={!filterOpened ? 'triangle-bottom' : 'triangle-top'} style={{ fontSize: '0.85em'}}/>
       </Basic.Button>
-    )
+    );
   }
 }
 
@@ -56,7 +54,7 @@ ToogleFilterButton.propTypes = {
    * @type {bool}
    */
   filterOpened: PropTypes.bool
-}
+};
 ToogleFilterButton.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps
-}
+};

@@ -1,16 +1,10 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
 //
 import * as Basic from '../../../../src/components/basic';
 
 describe('Basic Alert', function() {
-
   /**
    * Clean DOM afrer each test
    * @param
@@ -47,8 +41,8 @@ describe('Basic Alert', function() {
   it('- onClose fire - dom render', function() {
     this.result = null;
     const alert = TestUtils.renderIntoDocument(<Basic.Alert title="Title" onClose={() => { this.result = 'test'; }}/>);
-    let onClose = alert.refs.close;
-    //TestUtils.Simulate.click(onClose); // TODO: not works, why?
+    const onClose = alert.refs.close;
+    // TestUtils.Simulate.click(onClose); // TODO: not works, why?
     expect(onClose).to.not.be.undefined;
     onClose.props.onClick();
     expect(alert.state.closed).to.be.true;
@@ -65,5 +59,4 @@ describe('Basic Alert', function() {
     onClose.props.onClick();
     expect(this.result).to.equal('test');
   });
-
 });

@@ -1,13 +1,9 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
-//
 import * as Basic from '../../../components/basic';
 import { FlashMessagesManager } from '../../../modules/core/redux';
-//
 import help from './Messages_cs.md';
 
 class Messages extends Basic.AbstractContent {
@@ -17,7 +13,7 @@ class Messages extends Basic.AbstractContent {
     this.flashMessagesManager = new FlashMessagesManager();
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('messages');
   }
 
@@ -30,13 +26,13 @@ class Messages extends Basic.AbstractContent {
   }
 
   render() {
-    let messages = [];
+    const messages = [];
     const isEmpty = !this.props.messages || !this.props.messages.length;
     if (isEmpty) {
       messages.push(<Basic.Alert icon="ok" level="success" text={this.i18n('content.messages.empty')}/>);
     } else {
       for (let i = 0; i < this.props.messages.length; i++) {
-        let m = Basic.FlashMessages.getMessage(this.props.messages[i]);
+        const m = Basic.FlashMessages.getMessage(this.props.messages[i]);
         if (m.title && typeof m.title === 'object') {
           m.title = JSON.stringify(m.title);
         }
@@ -51,7 +47,7 @@ class Messages extends Basic.AbstractContent {
           </div>
         );
 
-        let key = 'flash-message-'+m.id;
+        const key = 'flash-message-' + m.id;
         messages.push(
           <Basic.Alert
             key={key}
@@ -63,7 +59,7 @@ class Messages extends Basic.AbstractContent {
       }
     }
 
-    let panelText = (
+    const panelText = (
       <span>
         <span>
           <Basic.Icon value="envelope"/>
@@ -112,17 +108,17 @@ class Messages extends Basic.AbstractContent {
 Messages.propTypes = {
   maxHistory: React.PropTypes.number,
   messages: React.PropTypes.array
-}
+};
 Messages.defaultProps = {
   maxHistory: 100,
   messages: []
-}
+};
 
 function select(state) {
   return {
     maxHistory: state.messages.maxHistory,
     messages: state.messages.messages.reverse().toArray()
-  }
+  };
 }
 
-export default connect(select)(Messages)
+export default connect(select)(Messages);

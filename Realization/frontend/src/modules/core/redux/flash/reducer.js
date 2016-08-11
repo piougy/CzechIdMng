@@ -5,8 +5,9 @@ import Immutable from 'immutable';
 import { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from './FlashMessagesManager';
 
 const INITIAL_STATE = {
-  //maxHistory: 2, // TODO: repair redux local storage - its not possible persist partial state only (merge -> lodash merge)
-  messages: Immutable.OrderedMap({})
+  // maxHistory: 2,
+  // TODO: repair redux local storage - its not possible persist partial state only (merge -> lodash merge)
+  messages: new Immutable.OrderedMap({})
 };
 
 export function messages(state = INITIAL_STATE, action) {
@@ -44,7 +45,7 @@ export function messages(state = INITIAL_STATE, action) {
           message
       );
       return merge({}, state, {
-        messages: messages }
+        messages }
       );
     }
 

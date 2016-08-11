@@ -68,16 +68,15 @@ export default class ConfigService {
    * @param  {string} moduleId
    * @return {ModuleDescriptor} json object
    */
-  getModuleDescriptor(moduleId){
+  getModuleDescriptor(moduleId) {
     const loaderModuleDescriptor = moduleLoader.getModuleDescriptor(moduleId);
     const configModuleDescriptor = this._getConfigModuleDescriptor(moduleId);
-    //
-    //Merge module descriptor with override values from configuration
+    // Merge module descriptor with override values from configuration
     return _.mergeWith(loaderModuleDescriptor, configModuleDescriptor, this._overrideModuleDescriptorMerge.bind(this));
   }
 
-  _getConfigModuleDescriptor(moduleId){
-    if (config.overrideModuleDescriptor){
+  _getConfigModuleDescriptor(moduleId) {
+    if (config.overrideModuleDescriptor) {
       return config.overrideModuleDescriptor[moduleId];
     }
     return {};
@@ -86,29 +85,26 @@ export default class ConfigService {
   /**
    * Function for lodash mergeWith. Is use for custom merge override module descriptors from configuration.
    */
-  _overrideModuleDescriptorMerge(objValue, srcValue, key, object, source, stack){
+  _overrideModuleDescriptorMerge(objValue, srcValue) {
     let standardMerge = false;
     if (_.isArray(objValue)) {
-      for (let value of objValue) {
-        for (let overrideValue of srcValue) {
-          if (overrideValue && value && overrideValue.id && value.id && overrideValue.id === value.id){
+      for (const value of objValue) {
+        for (const overrideValue of srcValue) {
+          if (overrideValue && value && overrideValue.id && value.id && overrideValue.id === value.id) {
             _.mergeWith(value, overrideValue, this._overrideModuleDescriptorMerge.bind(this));
           }
-          //Item not have id ... we will use standard merge for this array
-          if (value && !value.id){
+          // Item not have id ... we will use standard merge for this array
+          if (value && !value.id) {
             standardMerge = true;
           }
-        };
-      };
-      if (standardMerge){
-        //standard merge
-        return;
+        }
       }
-      //we did merge in this array itself. Return array as resutl.
-      return objValue;
+      if (!standardMerge) {
+        // we did merge in this array itself. Return array as resutl.
+        return objValue;
+      }
+      // standard merge
     }
-    //standard merge
-    return;
   }
 
 
@@ -137,10 +133,10 @@ export default class ConfigService {
     //
     for (let i = 0; i < rawItems.length; i++) {
       // append default values
-      const item = _.merge({ parentId: parentId }, ITEM_DEFAULTS, rawItems[i]);
+      const item = _.merge({ parentId }, ITEM_DEFAULTS, rawItems[i]);
       const _parentId = item.parentId || parentId;
       //
-      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).get(_parentId) : Immutable.Map();
+      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).get(_parentId) : new Immutable.Map();
       // first or higher priority wins
       if (!items.has(item.id) || items.get(item.id).priority < item.priority) {
         items = items.set(item.id, item);
@@ -157,7 +153,7 @@ export default class ConfigService {
       return navigationItems;
     }
     rawAccess.forEach(item => {
-      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PATH).get(item.path) : Immutable.List();
+      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PATH).get(item.path) : new Immutable.List();
       items = items.push(item);
       navigationItems = navigationItems.set(ConfigService.NAVIGATION_BY_PATH, navigationItems.get(ConfigService.NAVIGATION_BY_PATH).set(item.path, items));
     });
@@ -170,13 +166,13 @@ export default class ConfigService {
    * @return Immutable.Map({ byParent: Immutable.Map, byId: Immutable.Map. byPath: })
    */
   getNavigation() {
-    let navigationItems = Immutable.Map({
-      [ConfigService.NAVIGATION_BY_PARENT]: Immutable.Map({}),
-      [ConfigService.NAVIGATION_BY_ID]: Immutable.Map({}),
-      [ConfigService.NAVIGATION_BY_PATH]: Immutable.Map({})
+    let navigationItems = new Immutable.Map({
+      [ConfigService.NAVIGATION_BY_PARENT]: new Immutable.Map({}),
+      [ConfigService.NAVIGATION_BY_ID]: new Immutable.Map({}),
+      [ConfigService.NAVIGATION_BY_PATH]: new Immutable.Map({})
     });
     moduleLoader.getEnabledModuleIds().map(moduleId => {
-        navigationItems = this._resolveNavigation(navigationItems, moduleId);
+      navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order
     navigationItems = navigationItems.set(

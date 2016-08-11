@@ -1,10 +1,7 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import { connect } from 'react-redux';
-import { AbstractContent, Panel, PanelHeader, PanelBody, Table, Column, Loading, Alert } from '../../../../components/basic';
+import { AbstractContent, Panel, PanelHeader, PanelBody } from '../../../../components/basic';
 
 class Approve extends AbstractContent {
 
@@ -32,13 +29,13 @@ class Approve extends AbstractContent {
 }
 
 Approve.propTypes = {
-}
+};
 Approve.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
-export default connect(select)(Approve)
+export default connect(select)(Approve);

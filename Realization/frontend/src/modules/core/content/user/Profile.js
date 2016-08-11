@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import Joi from 'joi';
-
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import { IdentitySubordinateManager } from 'app/redux';
@@ -80,10 +79,10 @@ class Profile extends Basic.AbstractContent {
   saveIdentity(json, deactive = false) {
     this.setState({
       showLoading: true,
-      setDataToForm: false //Form will not be set new data (we are waiting to saved data)
+      setDataToForm: false // Form will not be set new data (we are waiting to saved data)
     });
     const { userID } = this.props.params;
-    let result = _.merge({}, json);
+    const result = _.merge({}, json);
 
     identityManager.getService().patchById(userID, result)
     .then((json) => {
@@ -101,7 +100,7 @@ class Profile extends Basic.AbstractContent {
     });
   }
 
-  transformData(json, error, operationType){
+  transformData(json, error, operationType) {
     this.refs.form.setData(json, error, operationType);
   }
 
@@ -121,7 +120,7 @@ class Profile extends Basic.AbstractContent {
     // check, if user has subordinates
     identityManager.getService().searchSubordinates(userID)
     .then(json => {
-      if (!json.error){
+      if (!json.error) {
         this.setState({
           showLoading: false,
           showDeactivateLoading: false,
@@ -159,10 +158,9 @@ class Profile extends Basic.AbstractContent {
         title: this.i18n('validation.newIdmManagerIsTheSame.title', { username: value.username }),
         message: this.i18n('validation.newIdmManagerIsTheSame.message')
       });
-      return { error: { key: 'user_is_same'} }
-    } else {
-      this.hideMessage('form-validation-newIdmManager');
+      return { error: { key: 'user_is_same'} };
     }
+    this.hideMessage('form-validation-newIdmManager');
     return result;
   }
 
@@ -214,7 +212,7 @@ class Profile extends Basic.AbstractContent {
         level: 'warning',
         key: 'form-validation-newIdmManager',
         title: this.i18n('messages.deactivateBreak.title'),
-        message: this.i18n('messages.deactivateBreak.message', { deactivateCounter: deactivateCounter })
+        message: this.i18n('messages.deactivateBreak.message', { deactivateCounter })
       });
     });
     this.openDeactivateModal();
@@ -224,7 +222,6 @@ class Profile extends Basic.AbstractContent {
    * Sets active to false on current identity (current form data) and submits form
    */
   deactivateCurrentIdentity() {
-    const { userID } = this.props.params;
     this.setState({
       showLoading: true,
       showDeactivateLoading: false,
@@ -232,7 +229,7 @@ class Profile extends Basic.AbstractContent {
       deactivateLoading: false,
       deactivateCounter: 0,
     });
-    let formData = this.refs.form.getData();
+    const formData = this.refs.form.getData();
     _.merge(formData, {
       disabled: true
     });
@@ -250,18 +247,18 @@ class Profile extends Basic.AbstractContent {
     // console.log('switchIdmManager', previousIdmManager, newIdmManager);
     identityManager.getService().searchSubordinates(previousIdmManager)
     .then(json => {
-      if (!json.error){
+      if (!json.error) {
         if (!json.returned) {
           // all identity was switched to new manager ... we can disable
           this.addMessage({
             level: 'success',
             key: 'form-validation-newIdmManager',
             title: this.i18n('messages.switchedIdmManager.title'),
-            message: this.i18n('messages.switchedIdmManager.message', { previousIdmManager: previousIdmManager, newIdmManager: newIdmManager })
+            message: this.i18n('messages.switchedIdmManager.message', { previousIdmManager, newIdmManager })
           });
           this.deactivateCurrentIdentity();
         } else {
-          let promises = [];
+          const promises = [];
           json._embedded.forEach(identity => {
             promises.push(this.switchIdmManagerForSubordinate(identity, newIdmManager));
           });
@@ -307,9 +304,9 @@ class Profile extends Basic.AbstractContent {
           hidden: true,
           position: 'tr',
           level: 'warning',
-          title: this.i18n('messages.switchIdmManagerFailed.title', { identity: identity })
+          title: this.i18n('messages.switchIdmManagerFailed.title', { identity })
         }, json.error);
-        //this.requestDeactivateBreak();
+        // this.requestDeactivateBreak();
       }
       return json;
     });
@@ -336,7 +333,7 @@ class Profile extends Basic.AbstractContent {
             <Basic.Panel className="col-lg-7 no-border last" showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.PanelHeader text={this.i18n('header')}/>
               <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled')}>
-                <Basic.TextField ref="username" readOnly={true} label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
+                <Basic.TextField ref="username" readOnly label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
                 <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
                 <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>
                 <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
@@ -364,7 +361,7 @@ class Profile extends Basic.AbstractContent {
                     onClick={this.openDeactivateModal.bind(this)}
                     disabled={showLoading}
                     showLoading={showDeactivateLoading}
-                    showLoadingIcon={true}
+                    showLoadingIcon
                     showLoadingText={this.i18n('button.deactivatePrepare')}>
                     {this.i18n('button.deactivate')}
                   </Basic.Button>
@@ -401,14 +398,14 @@ class Profile extends Basic.AbstractContent {
               <div>
                 <Basic.Alert
                   level="warning"
-                  text={this.i18n('messages.subordinatesCount', { username: userID, subordinatesCount: subordinatesCount, escape: false })}
+                  text={this.i18n('messages.subordinatesCount', { username: userID, subordinatesCount, escape: false })}
                 />
 
                 <div className="form-horizontal">
                   <Basic.SelectBox
                     ref="newIdmManager"
                     service={identityManager.getService()}
-                    searchInFields={['lastName', 'name','email']}
+                    searchInFields={['lastName', 'name', 'email']}
                     placeholder={this.i18n('deactivate.form.newIdmManager')}
                     componentSpan="col-sm-12"
                     required
@@ -420,12 +417,12 @@ class Profile extends Basic.AbstractContent {
                   ref="table"
                   uiKey="deactivate_subordinate_table"
                   manager={identitySubordinateManager}
-                  rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}>
-                  <Advanced.Column property="name" width="20%" sort={true} face="text"/>
-                  <Advanced.Column property="lastName" sort={true} face="text" />
+                  rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : '';}}>
+                  <Advanced.Column property="name" width="20%" sort face="text"/>
+                  <Advanced.Column property="lastName" sort face="text" />
                   <Advanced.Column property="firstName" width="10%" face="text" />
-                  <Advanced.Column property="email" width="15%" face="text" sort={true}/>
-                  <Advanced.Column property="disabled" face="bool" sort={true} width="100px"/>
+                  <Advanced.Column property="email" width="15%" face="text" sort />
+                  <Advanced.Column property="disabled" face="bool" sort width="100px"/>
                 </Advanced.Table>
               </div>
             }

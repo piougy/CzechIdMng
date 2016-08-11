@@ -196,6 +196,19 @@ module.exports = {
                 'authorities': [config.authorities.superAdminAuthority]
               }
             ]
+          },
+          {
+            'id': 'emails',
+            'labelKey': 'content.emails.title',
+            'order': 30,
+            'path': '/audit/emails',
+            'icon': 'fa:envelope-o',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': [config.authorities.superAdminAuthority]
+              }
+            ]
           }
         ]
       },

@@ -15,6 +15,7 @@ import WorkflowHistoricProcessInstanceService from './WorkflowHistoricProcessIns
 import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceService';
 import NotificationService from './NotificationService';
 import ConfigurationService from './ConfigurationService';
+import EmailService from './EmailService';
 
 const ServiceRoot = {
   RestApiService,
@@ -33,7 +34,8 @@ const ServiceRoot = {
   WorkflowHistoricProcessInstanceService,
   WorkflowHistoricTaskInstanceService,
   NotificationService,
-  ConfigurationService
+  ConfigurationService,
+  EmailService
 };
 
 ServiceRoot.version = '0.0.1';

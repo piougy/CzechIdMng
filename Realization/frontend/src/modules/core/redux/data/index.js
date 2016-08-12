@@ -11,6 +11,7 @@ import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceM
 import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager';
 import NotificationManager from './NotificationManager';
 import ConfigurationManager from './ConfigurationManager';
+import EmailManager from './EmailManager';
 
 const ManagerRoot = {
   DataManager,
@@ -25,7 +26,8 @@ const ManagerRoot = {
   WorkflowHistoricTaskInstanceManager,
   WorkflowProcessDefinitionManager,
   NotificationManager,
-  ConfigurationManager
+  ConfigurationManager,
+  EmailManager
 };
 
 ManagerRoot.version = '0.0.1';

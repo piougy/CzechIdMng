@@ -244,6 +244,10 @@
       "ALL": "Odesláno",
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
+    },
+    "EmailStateEnum": {
+      "ALL": "Odesláno",
+      "NOT": "Neodesláno"
     }
   },
   "content": {
@@ -912,6 +916,45 @@
         "sentPartly": "Částečně"
       }
     },
+    "emails": {
+      "header": "Emaily",
+      "title": "Emaily",
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        },
+        "text": {
+          "label": "Zpráva",
+          "placeholder": "Předmět, obsah zprávy"
+        },
+        "sender": {
+          "label": "Odesílatel",
+          "placeholder": ""
+        },
+        "recipient": {
+          "label": "Příjemce",
+          "placeholder": ""
+        },
+        "sent": {
+          "label": "Odesláno",
+          "placeholder": "Stav odeslání ..."
+        }
+      }
+    },
+    "email": {
+      "header": "Detail emailu",
+      "title": "Detail emailu",
+      "relatedNotifications": "Záznamy při odeslání",
+      "label": {
+        "notSent": "Neodesláno",
+        "sentPartly": "Částečně"
+      }
+    },
     "workflow" : {
       "definition": {
         "title": "Detail workflow definice",
@@ -1100,6 +1143,36 @@
       "completeTaskDecision": "Rozhodnutí"
     },
     "Notification": {
+      "topic": "Téma",
+      "created": "$t(entity.created)",
+      "message": {
+        "subject": "Předmět",
+        "message": "Zpráva",
+        "textMessage": "Zpráva (text)",
+        "htmlMessage": "Zpráva (html)"
+      },
+      "from": "Odesílatel",
+      "recipients": "Příjemci",
+      "sent": "Odesláno",
+      "sentLog": "Zpráva při odeslání",
+      "type": "Typ"
+    },
+    "Emails": {
+      "topic": "Téma",
+      "created": "$t(entity.created)",
+      "message": {
+        "subject": "Předmět",
+        "message": "Zpráva",
+        "textMessage": "Zpráva (text)",
+        "htmlMessage": "Zpráva (html)"
+      },
+      "from": "Odesílatel",
+      "recipients": "Příjemci",
+      "sent": "Odesláno",
+      "sentLog": "Zpráva při odeslání",
+      "type": "Typ"
+    },
+    "Email": {
       "topic": "Téma",
       "created": "$t(entity.created)",
       "message": {

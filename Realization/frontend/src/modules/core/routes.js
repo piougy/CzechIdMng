@@ -149,6 +149,16 @@ module.exports = {
           component: require('./content/audit/notification/NotificationContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
         },
+        {
+          path: 'emails',
+          component: require('./content/audit/email/Emails'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        },
+        {
+          path: 'emails/:entityId',
+          component: require('./content/audit/email/EmailContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        },
       ]
     },
     // error pages

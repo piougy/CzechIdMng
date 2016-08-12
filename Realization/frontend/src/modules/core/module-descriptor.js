@@ -227,7 +227,7 @@ module.exports = {
             'icon': 'cog',
             'order': 20,
             'path': '/configuration',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_READ', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
             'id': 'system-modules',

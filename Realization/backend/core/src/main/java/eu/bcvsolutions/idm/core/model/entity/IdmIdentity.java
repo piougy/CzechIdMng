@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 
 /**
  * Main idm class - identity. Identity and their roles - whole application runs around it :)
@@ -29,7 +30,7 @@ import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
  */
 @Entity
 @Table(name = "idm_identity", indexes = { @Index(name = "ux_identity_username", columnList = "username") })
-public class IdmIdentity extends AbstractEntity {
+public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
@@ -93,6 +94,11 @@ public class IdmIdentity extends AbstractEntity {
 
 	public String getUsername() {
 		return username;
+	}
+	
+	@Override
+	public String getName() {
+		return getUsername();
 	}
 
 	public void setUsername(String username) {

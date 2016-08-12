@@ -27,11 +27,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
+import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @RestController
 @RequestMapping(value = "/api/identities/")

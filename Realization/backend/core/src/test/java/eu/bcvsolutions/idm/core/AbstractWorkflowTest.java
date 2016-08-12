@@ -13,8 +13,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
 /**
  * 
@@ -31,14 +31,15 @@ public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
     @Autowired
 	private IdentityService workflowIdentityService;
 	
-	public void login(String username){
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
+    @Override
+	public void loginAsAdmin(String username){
+		super.loginAsAdmin(username);
 		workflowIdentityService.setAuthenticatedUserId(username);
 	}
 	
+    @Override
 	public void logout(){
-		SecurityContextHolder.clearContext();
+		super.logout();
 		workflowIdentityService.setAuthenticatedUserId(null);
 	}
 }

@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Default implementation of workflow process historic service

@@ -4,13 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.configuration.repository.IdmConfigurationRepository;
+import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
-import eu.bcvsolutions.idm.core.model.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.TestUtils;
 
 public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
@@ -22,6 +25,16 @@ public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;
+	
+	@Before
+	public void login() {
+		super.loginAsAdmin(TestUtils.TEST_USER_1);
+	}
+	
+	@After
+	public void logout() {
+		super.logout();
+	}
 	
 	@Test
 	public void testReadNotExists() {

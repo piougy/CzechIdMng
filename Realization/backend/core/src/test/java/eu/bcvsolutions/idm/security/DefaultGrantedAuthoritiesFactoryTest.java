@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.security.core.GrantedAuthority;
 
 import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
@@ -19,8 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.service.impl.DefaultGrantedAuthoritiesFactory;
 
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
@@ -72,7 +72,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	public void testRoleComposition() {	
 		when(idmIdentityRepository.findOneByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		
-		List<DefaultGrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
+		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
 		assertEquals(SUB_ROLE_AUTHORITY.getAuthority(), grantedAuthorities.get(0).getAuthority());
 		
@@ -83,7 +83,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	public void testUniqueAuthorities() {
 		when(idmIdentityRepository.findOneByUsername(TEST_IDENTITY.getUsername())).thenReturn(TEST_IDENTITY);
 		
-		List<DefaultGrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
+		List<GrantedAuthority> grantedAuthorities =  defaultGrantedAuthoritiesFactory.getGrantedAuthorities(TEST_IDENTITY.getUsername());
 		
 		assertEquals(1, grantedAuthorities.size());
 		

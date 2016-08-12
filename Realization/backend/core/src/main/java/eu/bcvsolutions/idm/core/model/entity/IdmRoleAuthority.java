@@ -12,9 +12,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import eu.bcvsolutions.idm.core.model.domain.BasePermission;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.model.domain.GroupPermission;
+import eu.bcvsolutions.idm.security.domain.BasePermission;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.GroupPermission;
 
 /**
  * Role privileges
@@ -27,7 +28,6 @@ import eu.bcvsolutions.idm.core.model.domain.GroupPermission;
 public class IdmRoleAuthority extends AbstractEntity {
 	
 	private static final long serialVersionUID = -4935521717718151720L;
-	public static final String TARGET_ACTION_SEPARATOR = "_";
 
 	@NotNull
 	@JsonBackReference
@@ -82,6 +82,6 @@ public class IdmRoleAuthority extends AbstractEntity {
 	}
 	
 	public String getAuthority() {
-		return target + TARGET_ACTION_SEPARATOR + action;
+		return new DefaultGrantedAuthority(target, action).getAuthority();
 	}
 }

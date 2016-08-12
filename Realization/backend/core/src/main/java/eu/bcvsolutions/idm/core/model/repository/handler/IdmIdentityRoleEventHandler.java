@@ -36,5 +36,5 @@ public class IdmIdentityRoleEventHandler {
 //				throw new RestApplicationException(CoreResultCode.ACCEPTED, "Request was accepted. Role has to be approved first.");
 //			}
 //		}
-//	}	
+//	}
 }

@@ -19,5 +19,5 @@ public interface BaseRepository<T extends BaseEntity> extends PagingAndSortingRe
 
 	@Override
 	@Transactional(timeout = 10)
-	public Iterable<T> findAll();
+	Iterable<T> findAll();
 }

@@ -19,7 +19,6 @@ import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
@@ -27,6 +26,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Default implementation of workflow process instance service

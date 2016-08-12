@@ -3,6 +3,9 @@ package eu.bcvsolutions.idm.core.model.domain;
 import java.util.Arrays;
 import java.util.List;
 
+import eu.bcvsolutions.idm.security.domain.BasePermission;
+import eu.bcvsolutions.idm.security.domain.GroupPermission;
+
 public enum CustomGroupPermission implements GroupPermission {
 	
 	SYSTEM(CustomBasePermission.ADMIN),

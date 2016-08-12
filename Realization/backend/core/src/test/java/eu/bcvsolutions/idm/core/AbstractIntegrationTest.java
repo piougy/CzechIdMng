@@ -1,15 +1,7 @@
 package eu.bcvsolutions.idm.core;
 
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-
-import org.activiti.engine.IdentityService;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
-
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,15 +9,13 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework
@@ -45,4 +35,18 @@ import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
 @Transactional
 public abstract class AbstractIntegrationTest {
 	
+	public void login(String username){
+		// TODO: SYSTEM context
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(
+				"[SYSTEM]",
+				null, 
+				Lists.newArrayList(
+						new DefaultGrantedAuthority("SYSTEM_ADMIN"),
+						new DefaultGrantedAuthority("CONFIGURATION_WRITE")
+						)));
+	}
+	
+	public void logout(){
+		SecurityContextHolder.clearContext();
+	}
 }

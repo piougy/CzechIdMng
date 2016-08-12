@@ -21,11 +21,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
 @Entity
 @Table(name = "idm_role", indexes = { @Index(name = "ux_role_name", columnList = "name") })
-public class IdmRole extends AbstractEntity {
+public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -64,6 +65,7 @@ public class IdmRole extends AbstractEntity {
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 
+	@Override
 	public String getName() {
 		return name;
 	}

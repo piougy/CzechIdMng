@@ -15,8 +15,8 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.TestUtils;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
 
 public class IdmIdentityControllerRestTest extends AbstractRestTest {

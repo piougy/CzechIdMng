@@ -9,9 +9,9 @@ import org.springframework.security.core.AuthenticationException;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.security.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.rest.LoginController;
+import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
+import eu.bcvsolutions.idm.security.dto.LoginDto;
+import eu.bcvsolutions.idm.security.rest.LoginController;
 
 /**
  * Login to application with test user

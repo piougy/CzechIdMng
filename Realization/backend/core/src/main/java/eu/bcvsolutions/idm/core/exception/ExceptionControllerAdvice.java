@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.model.dto.ResultModels;
-import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 
 @ControllerAdvice
 public class ExceptionControllerAdvice {

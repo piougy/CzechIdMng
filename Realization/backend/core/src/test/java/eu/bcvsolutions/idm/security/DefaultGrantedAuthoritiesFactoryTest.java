@@ -19,8 +19,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.service.impl.DefaultGrantedAuthoritiesFactory;
 
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}

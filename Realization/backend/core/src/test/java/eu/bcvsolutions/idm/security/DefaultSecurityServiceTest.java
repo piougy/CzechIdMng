@@ -15,10 +15,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.core.AbstractUnitTest;
-import eu.bcvsolutions.idm.core.security.domain.AbstractAuthentication;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
+import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 
 /**
  * Test for {@link DefaultSecurityService}

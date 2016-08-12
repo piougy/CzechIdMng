@@ -2,9 +2,6 @@ package eu.bcvsolutions.idm.core.config.web;
 
 import java.util.List;
 
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.RouteDefinition;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,22 +73,4 @@ public class WebConfig {
 	public ErrorAttributes errorAttributes() {
 	    return new RestErrorAttributes();
 	}
-	
-	//@Bean
-    RoutesBuilder myRouter() {
-        return new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {            	
-            	RouteDefinition route = from("timer://foo?period=10000");
-            	route.transform().simple("ref:myBean");
-            	route.to("bean:sftpStager?method=stage");
-            	route.to("log:bar");
-            }
-        };
-    }
-	
-	//@Bean
-    String myBean() {
-        return "First email";
-    }
 }

@@ -1,5 +1,5 @@
 import routeActions from 'react-router-redux';
-import LocalizationService from '../../services';
+import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import * as Utils from '../../utils';
 
@@ -319,7 +319,7 @@ export default class EntityManager {
     return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().deleteById(entity.id)
-      .then(json => {
+      .then(() => {
         dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
       })
       .catch(error => {
@@ -351,7 +351,7 @@ export default class EntityManager {
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
           return this.getService().deleteById(entity.id);
-        }).then(json => {
+        }).then(() => {
           dispatch(this.updateBulkAction());
           successEntities.push(entity);
           // new entity to redux store

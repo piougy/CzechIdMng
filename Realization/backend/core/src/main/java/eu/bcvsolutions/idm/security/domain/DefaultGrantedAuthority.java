@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.security.domain;
 
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -20,7 +21,24 @@ public class DefaultGrantedAuthority implements GrantedAuthority {
 		Assert.notNull(authority, "roleName must be filled");		
 		this.authority = authority;
 	}
-
+	
+	/**
+	 * Construct authority from given permissions (e.g. group_base)
+	 * 
+	 * @param permissions
+	 */
+	public DefaultGrantedAuthority(BasePermission... permissions) {
+		this(StringUtils.join(permissions, BasePermission.SEPARATOR));
+	}
+	
+	/**
+	 * Construct authority from given permissions (e.g. group_base)
+	 * 
+	 * @param permissions
+	 */
+	public DefaultGrantedAuthority(String... permissions) {
+		this(StringUtils.join(permissions, BasePermission.SEPARATOR));
+	}
 
 	@Override
 	public String getAuthority() {

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.security.domain.BasePermission;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.GroupPermission;
 
 /**
@@ -81,6 +82,6 @@ public class IdmRoleAuthority extends AbstractEntity {
 	}
 	
 	public String getAuthority() {
-		return target + BasePermission.SEPARATOR + action;
+		return new DefaultGrantedAuthority(target, action).getAuthority();
 	}
 }

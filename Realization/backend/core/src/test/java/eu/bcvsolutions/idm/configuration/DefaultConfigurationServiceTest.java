@@ -28,7 +28,7 @@ public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		super.login(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(TestUtils.TEST_USER_1);
 	}
 	
 	@After

@@ -2,12 +2,8 @@ package eu.bcvsolutions.idm.security.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -18,11 +14,11 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.GroupPermission;
-import eu.bcvsolutions.idm.security.dto.GroupPermissionDto;
-import eu.bcvsolutions.idm.security.rest.IdmAuthorityController;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
@@ -96,6 +92,18 @@ public class DefaultSecurityService implements SecurityService {
 		groupPermissions.addAll(Arrays.asList(NotificationGroupPermission.values()));
 		log.debug("Loaded available groupPermissions [size:{}]", groupPermissions.size());
 		return groupPermissions;
+	}
+	
+	@Override
+	public List<GrantedAuthority> getAvailableAuthorities() {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		getAvailableGroupPermissions().forEach(groupPermission -> {
+			groupPermission.getPermissions().forEach(basePermission -> {
+				authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
+			});					
+			
+		});
+		return new ArrayList<>(authorities);
 	}
 
 }

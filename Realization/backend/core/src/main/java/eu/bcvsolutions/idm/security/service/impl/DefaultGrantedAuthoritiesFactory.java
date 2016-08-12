@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -32,7 +33,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	private IdmIdentityRepository idmIdentityRepository;
 
 	@Override
-	public List<DefaultGrantedAuthority> getGrantedAuthorities(String username) {
+	public List<GrantedAuthority> getGrantedAuthorities(String username) {
 		IdmIdentity identity = idmIdentityRepository.findOneByUsername(username);
 		if (identity == null) {
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
@@ -76,7 +77,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	@Override
 	public IdmJwtAuthentication getIdmJwtAuthentication(IdmJwtAuthenticationDto dto) {
 		Collection<DefaultGrantedAuthorityDto> authorities = dto.getAuthorities();
-		List<DefaultGrantedAuthority> grantedAuthorities = new ArrayList<>();
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		if (authorities != null) {
 			for (DefaultGrantedAuthorityDto a : authorities) {
 				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));

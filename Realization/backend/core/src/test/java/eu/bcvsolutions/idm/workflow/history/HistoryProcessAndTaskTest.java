@@ -50,7 +50,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 
 	@Before
 	public void login() {
-		super.login(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(TestUtils.TEST_USER_1);
 	}
 	
 	@After
@@ -76,14 +76,14 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		assertNotNull(historicProcessDto);
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(TestUtils.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null
 		WorkflowHistoricProcessInstanceDto historicProcessDto2 = historicProcessService.get(instance.getId());
 		assertNull(historicProcessDto2);
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(TestUtils.TEST_USER_1);
 		
 		completeTasksAndCheckHistory();
 	}
@@ -109,7 +109,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		assertEquals(0, tasks.size());
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(TestUtils.TEST_USER_2);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());

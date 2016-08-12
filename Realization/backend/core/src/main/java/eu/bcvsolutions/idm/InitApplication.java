@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Initialize application
@@ -58,40 +59,36 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
 	
+	@Autowired
+	private SecurityService securityService;
+	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		// TODO: runAs
-		// TODO: split demo and test data
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
 		//
 		try {
-			IdmRole superAdminRole = this.roleRepository.findOneByName("superAdminRole");
-			if (superAdminRole == null) {
+			IdmRole existsSuperAdminRole = this.roleRepository.findOneByName("superAdminRole");
+			if (existsSuperAdminRole == null) {
 				log.info("Creating demo data ...");
 				//
-				superAdminRole = new IdmRole();
+				final IdmRole superAdminRole = new IdmRole();
 				superAdminRole.setName("superAdminRole");
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
 				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");				
-				IdmRoleAuthority privilege3 = new IdmRoleAuthority();
-				privilege3.setRole(superAdminRole);
-				privilege3.setTargetPermission(IdmGroupPermission.USER);
-				privilege3.setActionPermission(IdmBasePermission.READ);
 				List<IdmRoleAuthority> authorities = new ArrayList<>();
-				authorities.add(privilege3);
-				IdmRoleAuthority privilege2 = new IdmRoleAuthority();
-				privilege2.setRole(superAdminRole);
-				privilege2.setTargetPermission(IdmGroupPermission.USER);
-				privilege2.setActionPermission(CustomBasePermission.ADMIN);
-				authorities.add(privilege2);
-				IdmRoleAuthority privilege = new IdmRoleAuthority();
-				privilege.setRole(superAdminRole);
-				privilege.setTargetPermission(CustomGroupPermission.SYSTEM);
-				privilege.setActionPermission(CustomBasePermission.ADMIN);
-				authorities.add(privilege);
+				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
+					groupPermission.getPermissions().forEach(basePermission -> {
+						IdmRoleAuthority privilege = new IdmRoleAuthority();
+						privilege.setRole(superAdminRole);
+						privilege.setTargetPermission(groupPermission);
+						privilege.setActionPermission(basePermission);
+						authorities.add(privilege);
+					});					
+					
+				});
 				superAdminRole.setAuthorities(authorities);
-				superAdminRole = this.roleRepository.save(superAdminRole);
+				this.roleRepository.save(superAdminRole);
 				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
 				//
 				IdmRole role1 = new IdmRole();
@@ -176,16 +173,8 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
-				/*
-				for (int i = 0; i < 100; i++) {
-					IdmIdentity bulkIdentity = new IdmIdentity();
-					bulkIdentity.setUsername("rt_" + i);
-					bulkIdentity.setPassword("heslo".getBytes());
-					bulkIdentity.setFirstName("F");
-					bulkIdentity.setLastName("L");
-					this.identityRepository.save(bulkIdentity);
-				}
-				*/
+				//
+				// TODO: split test and demo data - use flyway?
 				//Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
 				testUser1.setUsername("testUser1");

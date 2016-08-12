@@ -32,8 +32,8 @@ public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
 	private IdentityService workflowIdentityService;
 	
     @Override
-	public void login(String username){
-		super.login(username);
+	public void loginAsAdmin(String username){
+		super.loginAsAdmin(username);
 		workflowIdentityService.setAuthenticatedUserId(username);
 	}
 	

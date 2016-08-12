@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.security.service;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.domain.GroupPermission;
 
@@ -56,5 +58,12 @@ public interface SecurityService {
 	 * @return
 	 */
 	List<GroupPermission> getAvailableGroupPermissions();
+	
+	/**
+	 * Returns all available authorities to identity in idm
+	 * 
+	 * @return
+	 */
+	List<GrantedAuthority> getAvailableAuthorities();
 
 }

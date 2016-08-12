@@ -17,16 +17,16 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 	private static final long serialVersionUID = -63165487654324844L;
 
 	private Date expiration;
-	private Collection<DefaultGrantedAuthority> authorities;
+	private Collection<GrantedAuthority> authorities;
 
 	
 	public IdmJwtAuthentication(String username, Date expiration,
-			Collection<DefaultGrantedAuthority> authorities) {
+			Collection<GrantedAuthority> authorities) {
 		this(username, username, expiration, authorities);
 	}
 
 	public IdmJwtAuthentication(String currentUsername, String originalUsername, Date expiration,
-			Collection<DefaultGrantedAuthority> authorities) {
+			Collection<GrantedAuthority> authorities) {
 		super(currentUsername, originalUsername);
 
 		this.expiration = expiration;

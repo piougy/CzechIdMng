@@ -2,7 +2,8 @@ package eu.bcvsolutions.idm.security.service;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
+
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 
@@ -19,7 +20,7 @@ public interface GrantedAuthoritiesFactory {
 	 * @param username
 	 * @return
 	 */
-	List<DefaultGrantedAuthority> getGrantedAuthorities(String username);
+	List<GrantedAuthority> getGrantedAuthorities(String username);
 
 	IdmJwtAuthentication getIdmJwtAuthentication(IdmJwtAuthenticationDto dto);
 

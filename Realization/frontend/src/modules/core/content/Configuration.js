@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
-import { ConfigurationManager } from 'core/redux';
+import { ConfigurationManager, DataManager, SecurityManager } from 'core/redux';
 import * as Utils from 'core/utils';
 
 const uiKey = 'configuration_table';
@@ -25,6 +25,7 @@ class Configuration extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('system-configuration');
+    this.context.store.dispatch(this.configurationManager.fetchFileConfigurations());
   }
 
   getManager() {
@@ -118,7 +119,7 @@ class Configuration extends Basic.AbstractContent {
   }
 
   render() {
-    const { _showLoading } = this.props;
+    const { _showLoading, fileConfigurations, _fileConfigurationsShowLoading } = this.props;
     const { filterOpened, detail } = this.state;
 
     return (
@@ -165,7 +166,7 @@ class Configuration extends Basic.AbstractContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAnyAuthority(null, ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -233,22 +234,37 @@ class Configuration extends Basic.AbstractContent {
             </Basic.Modal.Footer>
           </form>
         </Basic.Modal>
+
+        <Basic.ContentHeader>
+          <Basic.Icon value="cog"/>
+          {' '}
+          Nastavení aplikace dle parametrů prostředí a dle konfiguračních souborů <small>application.properties</small>
+        </Basic.ContentHeader>
+
+        <Basic.Panel>
+          <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}/>
+        </Basic.Panel>
       </div>
     );
   }
 }
 
 Configuration.propTypes = {
+  fileConfigurations: PropTypes.arrayOf(PropTypes.object)
 };
 
 Configuration.defaultProps = {
-  _showLoading: false
+  fileConfigurations: [],
+  _showLoading: false,
+  _fileConfigurationsShowLoading: false
 };
 
 function select(state) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    fileConfigurations: DataManager.getData(state, ConfigurationManager.FILE_CONFIGURATIONS),
+    _fileConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.FILE_CONFIGURATIONS)
   };
 }
 

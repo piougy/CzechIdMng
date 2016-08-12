@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.configuration.service;
 
+import java.util.List;
+
+import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
+
 /**
  * Provides configuration through application
  * 
@@ -7,6 +11,9 @@ package eu.bcvsolutions.idm.configuration.service;
  *
  */
 public interface ConfigurationService {
+	
+	static final String PUBLIC_PROPERTY_PREFIX = "idm.pub.";
+	static final String PRIVATE_PROPERTY_PREFIX = "idm.sec.";
 
 	/**
 	 * Returns configured value for given key
@@ -23,4 +30,18 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	boolean getBoolean(String key);
+	
+	/**
+	 * Returns all public configuration properties 
+	 * 
+	 * @return
+	 */
+	List<ConfigurationDto> getAllPublicConfigurations();
+	
+	/**
+	 * Returns all configuration properties from property files
+	 * 
+	 * @return
+	 */
+	List<ConfigurationDto> getAllFileConfigurations();
 }

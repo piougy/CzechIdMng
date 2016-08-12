@@ -6,12 +6,9 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { SettingManager } from '../../../redux';
 import { SecurityManager } from '../../../modules/core/redux';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
 import NavigationItem from './NavigationItem';
-
-const settingManager = new SettingManager();
 
 /**
  * Top navigation
@@ -297,7 +294,7 @@ Navigation.contextTypes = {
 };
 
 function select(state) {
-  let environment = settingManager.getValue(state, 'environment.stage');
+  let environment = 'development'; // settingManager.getValue(state, 'environment.stage');
   if (environment) {
     environment = environment.toLowerCase();
   }

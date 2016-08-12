@@ -158,7 +158,7 @@ export class UserTable extends Basic.AbstractContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                <Basic.Row>
+                <Basic.Row className="last">
                   <div className="col-lg-8">
                     <Advanced.Filter.TextField
                       ref="filterName"

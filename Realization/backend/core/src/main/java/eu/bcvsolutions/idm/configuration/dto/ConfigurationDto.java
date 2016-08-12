@@ -6,15 +6,15 @@ package eu.bcvsolutions.idm.configuration.dto;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-public class IdmConfigurationDto {
+public class ConfigurationDto {
 
 	private String name;
 	private String value;
 
-	public IdmConfigurationDto() {
+	public ConfigurationDto() {
 	}
 
-	public IdmConfigurationDto(String name, String value) {
+	public ConfigurationDto(String name, String value) {
 		this.name = name;
 		this.value = value;
 	}

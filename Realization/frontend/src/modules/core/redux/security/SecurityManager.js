@@ -203,6 +203,9 @@ export default class SecurityManager {
   }
 
   static hasAnyAuthority(userContext, authorities) {
+    if (!userContext) {
+      userContext = AuthenticateService.getUserContext();
+    }
     if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }

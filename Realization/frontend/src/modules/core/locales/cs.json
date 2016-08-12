@@ -244,7 +244,7 @@
       "ALL": "Odesláno",
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
-    },
+    }
   },
   "content": {
     "error": {

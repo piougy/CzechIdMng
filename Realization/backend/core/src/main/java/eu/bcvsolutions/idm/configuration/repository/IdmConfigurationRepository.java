@@ -33,7 +33,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 * 
 	 * @return
 	 */
-	List<IdmConfiguration> findAllBySecuredIsTrue();
+	List<IdmConfiguration> findAllBySecuredIsFalse();
 	
 	/**
 	 * Returns all configurations based on current user authorities

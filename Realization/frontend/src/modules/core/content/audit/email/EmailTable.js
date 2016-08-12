@@ -121,11 +121,10 @@ export class EmailTable extends Basic.AbstractContent {
 
                 <Basic.Row className="last">
                   <div className="col-lg-4">
-                    <Advanced.Filter.EnumSelectBox
+                    <Advanced.Filter.BooleanSelectBox
                       ref="sent"
                       label={this.i18n('filter.sent.label')}
-                      placeholder={this.i18n('filter.sent.placeholder')}
-                      enum={EmailStateEnum}/>
+                      placeholder={this.i18n('filter.sent.placeholder')}/>
                   </div>
                   <div className="col-lg-4">
                   </div>

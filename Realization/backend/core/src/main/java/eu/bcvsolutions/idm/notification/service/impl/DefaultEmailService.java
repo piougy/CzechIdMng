@@ -89,7 +89,9 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 		//
 		IdmEmailLog emailLog = new IdmEmailLog();
 		// parent message
-		emailLog.setParent(notification);
+		if (notification.getId() != null) {
+			emailLog.setParent(notification);
+		}
 		// clone message
 		emailLog.setMessage(cloneMessage(notification));
 		// clone recipients - resolve real email

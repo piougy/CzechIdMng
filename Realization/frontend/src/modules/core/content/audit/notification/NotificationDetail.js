@@ -39,7 +39,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
       <div>
         <Basic.AbstractForm ref="form" className="form-horizontal">
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly/>
-          <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly/>
+          <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly hidden={notification.topic !== ''} />
 
           <Basic.LabelWrapper
             label={this.i18n('entity.Notification.from')}>
@@ -64,66 +64,72 @@ export default class NotificationDetail extends Basic.AbstractContent {
           <Basic.DateTimePicker ref="sent" label={this.i18n('entity.Notification.sent')} readOnly/>
           <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly/>
         </Basic.AbstractForm>
-
-        <Basic.PanelBody>
-          <Basic.ContentHeader text={this.i18n('relatedNotifications')}/>
-        </Basic.PanelBody>
-
-        <Basic.Table
-          data={notification.relatedNotifications}
-          rowClass={({ data, rowIndex }) => { return data[rowIndex].sent ? 'success' : ''; }}>
-          <Basic.Column
-            property="type"
-            header={this.i18n('entity.Notification.type')}/>
-          <Basic.Column
-            property="created"
-            header={this.i18n('entity.Notification.created')}
-            cell={<Basic.DateCell format={this.i18n('format.datetime')}/>}
-            rendered={false}/>
-          <Basic.Column
-            property="recipients"
-            header={this.i18n('entity.Notification.recipients')}
-            cell={
-              ({ rowIndex, data, property }) => {
-                return data[rowIndex][property].map(recipient => {
-                  return (
-                    <NotificationRecipient recipient={recipient} />
-                  );
-                });
-              }
-            }/>
-          <Basic.Column
-            property="from"
-            header={this.i18n('entity.Notification.from')}
-            cell={
-              ({ rowIndex, data, property }) => {
-                return (
-                  <NotificationRecipient recipient={data[rowIndex][property]} />
-                );
-              }
-            }/>
-            <Basic.Column
-              property="sent"
-              header={this.i18n('entity.Notification.sent')}
-              cell={
-                cellProps => {
-                  const { rowIndex, data, property } = cellProps;
-                  const sent = data[rowIndex][property];
-                  if (sent) {
+        {
+          notification.relatedNotifications
+          ?
+          <div>
+            <Basic.PanelBody>
+              <Basic.ContentHeader text={this.i18n('relatedNotifications')}/>
+            </Basic.PanelBody>
+            <Basic.Table
+              data={notification.relatedNotifications}
+              rowClass={({ data, rowIndex }) => { return data[rowIndex].sent ? 'success' : ''; }}>
+              <Basic.Column
+                property="type"
+                header={this.i18n('entity.Notification.type')}/>
+              <Basic.Column
+                property="created"
+                header={this.i18n('entity.Notification.created')}
+                cell={<Basic.DateCell format={this.i18n('format.datetime')}/>}
+                rendered={false}/>
+              <Basic.Column
+                property="recipients"
+                header={this.i18n('entity.Notification.recipients')}
+                cell={
+                  ({ rowIndex, data, property }) => {
+                    return data[rowIndex][property].map(recipient => {
+                      return (
+                        <NotificationRecipient recipient={recipient} />
+                      );
+                    });
+                  }
+                }/>
+              <Basic.Column
+                property="from"
+                header={this.i18n('entity.Notification.from')}
+                cell={
+                  ({ rowIndex, data, property }) => {
                     return (
-                      <Basic.DateCell format={this.i18n('format.datetime')} {...cellProps}/>
+                      <NotificationRecipient recipient={data[rowIndex][property]} />
                     );
                   }
-                  return (
-                    <Basic.Label level="danger" text={this.i18n('label.notSent')}/>
-                  );
-                }
-              }/>
-            <Basic.Column
-              property="sentLog"
-              header={this.i18n('entity.Notification.sentLog')}/>
-        </Basic.Table>
-      </div>
+                }/>
+                <Basic.Column
+                  property="sent"
+                  header={this.i18n('entity.Notification.sent')}
+                  cell={
+                    cellProps => {
+                      const { rowIndex, data, property } = cellProps;
+                      const sent = data[rowIndex][property];
+                      if (sent) {
+                        return (
+                          <Basic.DateCell format={this.i18n('format.datetime')} {...cellProps}/>
+                        );
+                      }
+                      return (
+                        <Basic.Label level="danger" text={this.i18n('label.notSent')}/>
+                      );
+                    }
+                  }/>
+                <Basic.Column
+                  property="sentLog"
+                  header={this.i18n('entity.Notification.sentLog')}/>
+            </Basic.Table>
+          </div>
+          :
+          null
+        }
+        </div>
     );
   }
 }

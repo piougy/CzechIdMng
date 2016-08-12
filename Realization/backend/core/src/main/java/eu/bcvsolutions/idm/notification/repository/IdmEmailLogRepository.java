@@ -53,8 +53,8 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
         	+ "and "
         	+ "("
         		+ "?#{[3]} is null "
-        		+ "or (?#{[3]} = 'NOT' and not exists(from IdmNotification rn where rn.parent = e and rn.sent is not null)) "
-        		+ "or (?#{[3]} = 'ALL' and not exists(from IdmNotification rn where rn.parent = e and rn.sent is null) and exists(from IdmNotification rn where rn.parent = e)) "
+        		+ "or (?#{[3]} = false and sent is null) "
+        		+ "or (?#{[3]} = true and sent is not null)"
         	+ ") "
         	+ "and "
         	+ "(?#{[4] == null ? 'null' : ''} = 'null' or e.created >= ?#{[4]}) "
@@ -65,7 +65,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
 			@Param(value = "text") String text,
 			@Param(value = "sender") String sender,
 			@Param(value = "recipient") String recipient,
-			@Param(value = "sent") String sent,
+			@Param(value = "sent") Boolean sent,
 			@Param(value = "createdFrom") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdFrom,
 			@Param(value = "createdTill") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdTill,
 			Pageable pageable);

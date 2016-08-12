@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from 'app/components/basic';
 import { EmailManager } from 'core/redux';
-import EmailDetail from './EmailDetail';
+import NotificationDetail from '../notification/NotificationDetail';
 
 const emailManager = new EmailManager();
 
@@ -45,7 +45,7 @@ class EmailContent extends Basic.AbstractContent {
           {
             !email
             ||
-            <EmailDetail email={email} />
+            <NotificationDetail notification={email} />
           }
           <Basic.PanelFooter rendered={!showLoading}>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

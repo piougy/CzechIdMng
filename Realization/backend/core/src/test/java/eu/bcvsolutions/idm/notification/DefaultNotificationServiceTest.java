@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
+import eu.bcvsolutions.idm.notification.service.EmailService;
 import eu.bcvsolutions.idm.notification.service.NotificationService;
 
 /**
@@ -27,6 +28,9 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private NotificationService notificationService;
+	
+	@Autowired
+	private EmailService emailService;
 	
 	@Autowired
 	private IdmNotificationLogRepository idmNotificationRepository;
@@ -75,6 +79,31 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, after, null).getTotalElements());
 		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, start, middle, null).getTotalElements());
 		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
+	}
+	
+	@Test
+	public void testEmailFilterBySender() {
+		
+		assertEquals(0, emailLogRepository.findByQuick(null, "svanda", null, null, null, null, null).getTotalElements());
+		assertEquals(0, emailLogRepository.findByQuick(null, "tomiska", null, null, null, null, null).getTotalElements());
+		
+		// send some email
+		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		IdmIdentity identity2 = identityRepository.findOneByUsername("svanda");
+		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
+		assertEquals(1, emailLogRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
+		assertEquals(0, emailLogRepository.findByQuick(null, null, identity2.getUsername(), null, null, null, null).getTotalElements());
+		assertEquals(1, emailLogRepository.findByQuick(null, null, identity.getUsername(), null, null, null, null).getTotalElements());
+	}
+	
+	@Test
+	public void testEmailFilterBySent() {
+		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
+		assertEquals(0, emailLogRepository.findByQuick(null, null, null, true, null, null, null).getTotalElements());
+		
+		emailService.send(new IdmMessage("subject2", "Idm notification2"),  identity);
+		assertEquals(2, emailLogRepository.findByQuick(null, null, null, false, null, null, null).getTotalElements());
 	}
 	
 	

@@ -245,10 +245,6 @@
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
     },
-    "EmailStateEnum": {
-      "ALL": "Odesláno",
-      "NOT": "Neodesláno"
-    }
   },
   "content": {
     "error": {

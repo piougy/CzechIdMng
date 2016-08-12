@@ -326,13 +326,18 @@ SelectBox.propTypes = {
   /**
    * "Hard filters"
    */
-  forceSearchParameters: PropTypes.object
+  forceSearchParameters: PropTypes.object,
+  /**
+  * If object is selected, then this property value will be returned
+  */
+  returnProperty: PropTypes.string
 };
 
 SelectBox.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   fieldLabel: NICE_LABEL,
-  multiSelect: false
+  multiSelect: false,
+  returnProperty: 'id'
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

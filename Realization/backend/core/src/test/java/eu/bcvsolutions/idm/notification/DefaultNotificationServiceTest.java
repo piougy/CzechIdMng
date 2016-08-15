@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.notification.service.EmailService;
 import eu.bcvsolutions.idm.notification.service.NotificationService;
-import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 
 /**
  * Test for {@link DefaultSecurityService}

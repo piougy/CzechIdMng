@@ -68,6 +68,7 @@
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDate}" target="validTill"></activiti:in>
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -183,6 +184,7 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <activiti:in sourceExpression="#{idmRoleIdentity._validFromDateNew}" target="validFromDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDateNew}" target="validTillDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity.id}" target="identityRoleIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>

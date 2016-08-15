@@ -67,13 +67,25 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		if(filter.getProcessDefinitionKey() != null){
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
+		if(filter.getProcessInstanceId() != null){
+			query.processInstanceId(filter.getProcessInstanceId());
+		}
+		if(filter.getId() != null){
+			query.taskId(filter.getId());
+		}
 		if (equalsVariables != null) {
 			for (String key : equalsVariables.keySet()) {
 				query.processVariableValueEquals(key, equalsVariables.get(key));
 			}
 		}
 
-		query.taskCandidateOrAssigned(securityService.getUsername());
+		// check security ... only involved user or applicant or implementer can work with
+		String loggedUser = securityService.getUsername();
+		query.or();
+		query.taskInvolvedUser(securityService.getUsername());
+		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUser);
+		query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUser);
+		query.endOr();
 		query.orderByTaskCreateTime();
 		query.desc();
 		long count = query.count();
@@ -100,12 +112,11 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Override
 	public WorkflowTaskInstanceDto get(String taskId) {
-		TaskQuery query = taskService.createTaskQuery();
-		query.includeProcessVariables();
-		query.taskId(taskId);
-		query.taskCandidateOrAssigned(securityService.getUsername());
-		return toResource(query.singleResult());
-
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setId(taskId);
+		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) search(filter).getResources();
+		
+		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
 	@Override

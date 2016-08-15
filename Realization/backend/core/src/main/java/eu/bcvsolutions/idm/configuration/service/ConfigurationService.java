@@ -12,9 +12,11 @@ import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
  */
 public interface ConfigurationService {
 	
-	static final String IDM_PROPERTY_PREFIX = "idm.";
-	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub.";
-	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec.";
+	static final String PROPERTY_SEPARATOR = ".";
+	static final String SPLIT_PROPERTY_SEPARATOR = "\\.";
+	static final String IDM_PROPERTY_PREFIX = "idm" + PROPERTY_SEPARATOR;
+	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub" + PROPERTY_SEPARATOR;
+	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
 
 	/**
 	 * Returns configured value for given key

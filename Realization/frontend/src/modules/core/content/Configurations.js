@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
@@ -17,6 +18,7 @@ class Configurations extends Basic.AbstractContent {
       filterOpened: false,
       detail: {
         show: false,
+        isGuarded: false,
         entity: {}
       }
     };
@@ -54,14 +56,23 @@ class Configurations extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
+    const isGuarded = entity && this.configurationManager.shouldBeGuarded(entity.name);
     this.setState({
       detail: {
         show: true,
         showLoading: false,
-        entity
+        entity,
+        isGuarded
       }
     }, () => {
-      this.refs.form.setData(entity);
+      const data = {
+        ...entity
+      };
+      if (isGuarded) {
+        // TODO: prevend value is reset
+        data.value = null;
+      }
+      this.refs.form.setData(data);
       this.refs.name.focus();
     });
   }
@@ -185,7 +196,7 @@ class Configurations extends Basic.AbstractContent {
               ]
             }>
             <Advanced.Column
-              property="detail"
+              property=""
               header=""
               className="detail-button"
               cell={
@@ -197,9 +208,9 @@ class Configurations extends Basic.AbstractContent {
                   );
                 }
               }/>
-            <Advanced.Column property="name" sort/>
+            <Advanced.Column property="name" sort width="250px"/>
             <Advanced.Column property="value" sort/>
-            <Advanced.Column property="secured" sort face="bool"/>
+            <Advanced.Column property="secured" sort face="bool" width="250px"/>
           </Advanced.Table>
         </Basic.Panel>
 
@@ -219,7 +230,11 @@ class Configurations extends Basic.AbstractContent {
                   ref="name"
                   label={this.i18n('entity.Configuration.name')}
                   required/>
-                <Basic.TextArea
+                <Basic.LabelWrapper label=" " rendered={detail.isGuarded}>
+                  <Basic.Alert level="info" text={this.i18n('guarded', { guarded: ConfigurationManager.GUARDED_PROPERTY_NAMES.join(', ') })} style={{ whiteSpace: 'normal', marginBottom: 0 }}/>
+                </Basic.LabelWrapper>
+                <Basic.TextField
+                  type={detail.isGuarded ? 'password' : 'text'}
                   ref="value"
                   label={this.i18n('entity.Configuration.value')}/>
                 <Basic.Checkbox
@@ -257,7 +272,11 @@ class Configurations extends Basic.AbstractContent {
         </Basic.ContentHeader>
 
         <Basic.Panel>
-          <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}/>
+          <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}>
+            <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
+            <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
+            <Basic.Column property="secured" header={this.i18n('entity.Configuration.secured')} cell={<Basic.BooleanCell className="column-face-bool"/>} width="250px"/>
+          </Basic.Table>
         </Basic.Panel>
 
         {
@@ -271,7 +290,10 @@ class Configurations extends Basic.AbstractContent {
             </Basic.ContentHeader>
 
             <Basic.Panel>
-              <Basic.Table data={environmentConfigurations} showLoading={_environmentConfigurationsShowLoading}/>
+              <Basic.Table data={environmentConfigurations} showLoading={_environmentConfigurationsShowLoading}>
+                <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
+                <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
+              </Basic.Table>
             </Basic.Panel>
           </div>
         }

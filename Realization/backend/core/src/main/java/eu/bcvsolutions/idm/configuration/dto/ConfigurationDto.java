@@ -10,13 +10,19 @@ public class ConfigurationDto {
 
 	private String name;
 	private String value;
+	private boolean secured;
 
 	public ConfigurationDto() {
 	}
 
 	public ConfigurationDto(String name, String value) {
+		this(name, value, false);
+	}
+	
+	public ConfigurationDto(String name, String value, boolean secured) {
 		this.name = name;
 		this.value = value;
+		this.secured = secured;
 	}
 
 	public String getName() {
@@ -33,6 +39,12 @@ public class ConfigurationDto {
 
 	public void setValue(String value) {
 		this.value = value;
+	}public void setSecured(boolean secured) {
+		this.secured = secured;
+	}
+	
+	public boolean isSecured() {
+		return secured;
 	}
 
 }

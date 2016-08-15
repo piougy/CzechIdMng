@@ -380,7 +380,8 @@
       "fromEnvironment": "Nastavení prostředí <small>backendového serveru</small>",
       "secured": {
         "notAllowed": "Nemáte oprávnění pro editaci systémového nastavení"
-      }
+      },
+      "guarded": "Hodnoty nastavení obsahující klíč [{{guarded}}] nejsou zobrazeny."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1191,7 +1192,7 @@
     "Configuration": {
       "name": "Klíč",
       "value": "Hodnota",
-      "secured": "Skryté nastavení (systémové)"
+      "secured": "Systémové nastavení"
     }
   },
   "error": {

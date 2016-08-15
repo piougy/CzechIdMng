@@ -375,7 +375,8 @@
       },
       "save": {
         "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
-      }
+      },
+      "fromFile": "Nastavení aplikace dle parametrů prostředí a dle konfiguračních souborů <small>application.properties</small>"
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",

@@ -2,6 +2,8 @@ import React, { PropTypes } from 'react';
 //
 import * as Basic from 'app/components/basic';
 import NotificationRecipient from './NotificationRecipient';
+import NotificationRecipientCell from './NotificationRecipientCell';
+import NotificationRecipientsCell from './NotificationRecipientsCell';
 
 /**
  * Notification detail content
@@ -29,7 +31,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { notification } = this.props;
+    const { notification, identityOnly } = this.props;
     //
     if (!notification) {
       return null;
@@ -43,7 +45,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
 
           <Basic.LabelWrapper
             label={this.i18n('entity.Notification.from')}>
-            <NotificationRecipient recipient={notification.from} style={{ margin: '7px 0' }} identityOnly/>
+            <NotificationRecipient recipient={notification.from} style={{ margin: '7px 0' }} identityOnly={identityOnly}/>
           </Basic.LabelWrapper>
 
           <Basic.LabelWrapper
@@ -51,7 +53,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
             {
               notification.recipients.map(recipient => {
                 return (
-                  <NotificationRecipient recipient={recipient} style={{ margin: '7px 0' }} identityOnly/>
+                  <NotificationRecipient recipient={recipient} style={{ margin: '7px 0' }} identityOnly={identityOnly}/>
                 );
               })
             }
@@ -85,45 +87,31 @@ export default class NotificationDetail extends Basic.AbstractContent {
               <Basic.Column
                 property="recipients"
                 header={this.i18n('entity.Notification.recipients')}
-                cell={
-                  ({ rowIndex, data, property }) => {
-                    return data[rowIndex][property].map(recipient => {
-                      return (
-                        <NotificationRecipient recipient={recipient} />
-                      );
-                    });
-                  }
-                }/>
+                cell={<NotificationRecipientsCell />}/>
               <Basic.Column
                 property="from"
                 header={this.i18n('entity.Notification.from')}
+                cell={<NotificationRecipientCell identityOnly={false} />}/>
+              <Basic.Column
+                property="sent"
+                header={this.i18n('entity.Notification.sent')}
                 cell={
-                  ({ rowIndex, data, property }) => {
+                  cellProps => {
+                    const { rowIndex, data, property } = cellProps;
+                    const sent = data[rowIndex][property];
+                    if (sent) {
+                      return (
+                        <Basic.DateCell format={this.i18n('format.datetime')} {...cellProps}/>
+                      );
+                    }
                     return (
-                      <NotificationRecipient recipient={data[rowIndex][property]} />
+                      <Basic.Label level="danger" text={this.i18n('label.notSent')}/>
                     );
                   }
                 }/>
-                <Basic.Column
-                  property="sent"
-                  header={this.i18n('entity.Notification.sent')}
-                  cell={
-                    cellProps => {
-                      const { rowIndex, data, property } = cellProps;
-                      const sent = data[rowIndex][property];
-                      if (sent) {
-                        return (
-                          <Basic.DateCell format={this.i18n('format.datetime')} {...cellProps}/>
-                        );
-                      }
-                      return (
-                        <Basic.Label level="danger" text={this.i18n('label.notSent')}/>
-                      );
-                    }
-                  }/>
-                <Basic.Column
-                  property="sentLog"
-                  header={this.i18n('entity.Notification.sentLog')}/>
+              <Basic.Column
+                property="sentLog"
+                header={this.i18n('entity.Notification.sentLog')}/>
             </Basic.Table>
           </div>
           :
@@ -135,7 +123,9 @@ export default class NotificationDetail extends Basic.AbstractContent {
 }
 
 NotificationDetail.propTypes = {
-  notification: PropTypes.object
+  notification: PropTypes.object,
+  identityOnly: PropTypes.bool
 };
 NotificationDetail.defaultProps = {
+  identityOnly: false
 };

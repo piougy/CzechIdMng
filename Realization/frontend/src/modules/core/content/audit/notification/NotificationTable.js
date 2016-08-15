@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
-import NotificationRecipient from './NotificationRecipient';
 import { IdentityManager } from 'core/redux';
 import NotificationStateEnum from 'core/enums/NotificationStateEnum';
+import NotificationRecipientCell from './NotificationRecipientCell';
+import NotificationRecipientsCell from './NotificationRecipientsCell';
 
 /**
 * Table of roles
@@ -155,24 +156,10 @@ export class NotificationTable extends Basic.AbstractContent {
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-            cell={
-              ({ rowIndex, data, property }) => {
-                return data[rowIndex][property].map(recipient => {
-                  return (
-                    <NotificationRecipient recipient={recipient} identityOnly />
-                  );
-                });
-              }
-            }/>
+            cell={<NotificationRecipientsCell identityOnly />}/>
           <Advanced.Column
             property="from"
-            cell={
-              ({ rowIndex, data, property }) => {
-                return (
-                  <NotificationRecipient recipient={data[rowIndex][property]} identityOnly />
-                );
-              }
-            }/>
+            cell={<NotificationRecipientCell identityOnly />}/>
           <Advanced.Column
             property="sent"
             cell={

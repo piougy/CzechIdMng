@@ -238,7 +238,7 @@ class Configuration extends Basic.AbstractContent {
         <Basic.ContentHeader>
           <Basic.Icon value="cog"/>
           {' '}
-          Nastavení aplikace dle parametrů prostředí a dle konfiguračních souborů <small>application.properties</small>
+          {this.i18n('fromFile')}
         </Basic.ContentHeader>
 
         <Basic.Panel>

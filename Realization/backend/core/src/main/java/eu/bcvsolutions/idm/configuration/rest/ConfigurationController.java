@@ -43,9 +43,21 @@ public class ConfigurationController {
 	 */
 	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('CONFIGURATIONSECURED_READ')")
 	@RequestMapping(path = "/configurations/file", method = RequestMethod.GET)
-	public List<ConfigurationDto> getFileConfigurations() {
+	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
-		return configurationService.getAllFileConfigurations();
+		return configurationService.getAllConfigurationsFromFiles();
+	}
+	
+	/**
+	 * Returns configurations from property files 
+	 * 
+	 * @return
+	 */
+	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_READ')")
+	@RequestMapping(path = "/configurations/environment", method = RequestMethod.GET)
+	public List<ConfigurationDto> getAllConfigurationsFroEnvironment() {
+		// TODO: resource wrapper + assembler
+		return configurationService.getAllConfigurationsFromEnvironment();
 	}
 
 }

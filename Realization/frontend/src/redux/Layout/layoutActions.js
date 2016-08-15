@@ -125,7 +125,7 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
       return false;
     }
     // security check
-    if (!SecurityManager.hasAccess(userContext, item.access)) {
+    if (!SecurityManager.hasAccess(item.access, userContext)) {
       return false;
     }
     // construct target to link from path and parameters

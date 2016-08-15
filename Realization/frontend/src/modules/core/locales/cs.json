@@ -375,7 +375,13 @@
       },
       "save": {
         "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
-      }
+      },
+      "fromFile": "Nastavení aplikace z konfiguračních souborů <small>application.properties</small>",
+      "fromEnvironment": "Nastavení prostředí <small>backendového serveru</small>",
+      "secured": {
+        "notAllowed": "Nemáte oprávnění pro editaci systémového nastavení"
+      },
+      "guarded": "Hodnoty nastavení obsahující klíč [{{guarded}}] nejsou zobrazeny."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1186,7 +1192,7 @@
     "Configuration": {
       "name": "Klíč",
       "value": "Hodnota",
-      "secured": "Skryté nastavení (systémové)"
+      "secured": "Systémové nastavení"
     }
   },
   "error": {

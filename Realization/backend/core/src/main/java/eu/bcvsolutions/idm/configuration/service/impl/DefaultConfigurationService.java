@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.configuration.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 /**
  * Default implementation finds configuration in database, if configuration for
@@ -68,13 +69,13 @@ public class DefaultConfigurationService implements ConfigurationService {
 	 */
 	@Override
 	public List<ConfigurationDto> getAllPublicConfigurations() {
-		Map<String, String> configurations = new HashMap<>();
+		Map<String, Object> configurations = new HashMap<>();
 		// defaults from property file
 		Map<String, Object> map = getAllProperties(env);
 		for (Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
-			if (key.startsWith(PUBLIC_PROPERTY_PREFIX)) {
-				configurations.put(key, entry.getValue() == null ? null : entry.getValue().toString());
+			if (key.startsWith(IDM_PUBLIC_PROPERTY_PREFIX)) {
+				configurations.put(key, entry.getValue());
 			}
 		}
 		// override from database
@@ -83,7 +84,7 @@ public class DefaultConfigurationService implements ConfigurationService {
 		});
 		List<ConfigurationDto> results = new ArrayList<>();
 		configurations.forEach((k, v) -> {
-			results.add(new ConfigurationDto(k, v));
+			results.add(toConfigurationDto(k, v));
 		});
 		return results;
 	}
@@ -93,14 +94,46 @@ public class DefaultConfigurationService implements ConfigurationService {
 	 * 
 	 * @return
 	 */
-	public List<ConfigurationDto> getAllFileConfigurations() {
+	@Override
+	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		Map<String, Object> map = getAllProperties(env);
 		return map.entrySet().stream()
-			.map(entry -> { 
-				return new ConfigurationDto(entry.getKey(), entry.getValue().toString()); 
+				.filter(entry -> {
+					return entry.getKey().toLowerCase().startsWith(IDM_PROPERTY_PREFIX);
 				})
-			.collect(Collectors.toList());
-	}	
+				.map(entry -> {
+					return toConfigurationDto(entry.getKey(), entry.getValue());
+				})
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Returns server environment properties
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
+		Map<String, Object> map = getAllProperties(env);
+		return map.entrySet().stream()
+				.filter(entry -> {
+					return !entry.getKey().toLowerCase().startsWith(IDM_PROPERTY_PREFIX);
+				})
+				.map(entry -> {
+					return toConfigurationDto(entry.getKey(), entry.getValue());
+				})
+				.collect(Collectors.toList());
+	}
+	
+	private static ConfigurationDto toConfigurationDto(String key, Object value) {
+		String stringValue = value == null ? null : value.toString();
+		// password etc. has to be guarded - can be used just in BE
+		if(GuardedString.shouldBeGuarded(key)) {
+			log.debug("Configuration value for property [{}] is guarded.", key);
+			stringValue = GuardedString.SECRED_PROXY_STRING;
+		}
+		return new ConfigurationDto(key, stringValue, key.startsWith(IDM_PRIVATE_PROPERTY_PREFIX));
+	}
 
 	private static Map<String, Object> getAllProperties(ConfigurableEnvironment aEnv) {
 		Map<String, Object> result = new HashMap<>();

@@ -20,15 +20,15 @@ describe('SecurityManager', function() {
   });
 
   it('[hasAuthority] - test user context should have TEST_AUTHORITY', function() {
-    expect(SecurityManager.hasAuthority(testUserContext, TEST_AUTHORITY)).to.be.true;
+    expect(SecurityManager.hasAuthority(TEST_AUTHORITY, testUserContext)).to.be.true;
   });
 
   it('[hasAuthority] - test user context should not have wrong-authority', function() {
-    expect(SecurityManager.hasAuthority(testUserContext, 'wrong-authority')).to.be.false;
+    expect(SecurityManager.hasAuthority('wrong-authority', testUserContext)).to.be.false;
   });
 
   it('[hasAnyAuthority] - test user context should have TEST_AUTHORITY', function() {
-    expect(SecurityManager.hasAnyAuthority(testUserContext, [TEST_AUTHORITY, 'wrong-authority'])).to.be.true;
+    expect(SecurityManager.hasAnyAuthority([TEST_AUTHORITY, 'wrong-authority'], testUserContext)).to.be.true;
   });
 
   it('[isAdmin] - todo');

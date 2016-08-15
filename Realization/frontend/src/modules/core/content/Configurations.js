@@ -185,6 +185,7 @@ class Configurations extends Basic.AbstractContent {
               ]
             }>
             <Advanced.Column
+              property="detail"
               header=""
               className="detail-button"
               cell={

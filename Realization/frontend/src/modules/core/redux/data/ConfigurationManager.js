@@ -38,7 +38,7 @@ export default class ConfigurationManager extends EntityManager {
     };
   }
 
-  fetchFileConfigurations() {
+  fetchAllConfigurationsFromFile() {
     const uiKey = ConfigurationManager.FILE_CONFIGURATIONS;
     //
     return (dispatch, getState) => {
@@ -47,7 +47,28 @@ export default class ConfigurationManager extends EntityManager {
         // we dont need to load them again - change depends on BE restart
       } else {
         dispatch(this.dataManager.requestData(uiKey));
-        this.getService().getFileConfigurations()
+        this.getService().getAllConfigurationsFromFile()
+          .then(json => {
+            dispatch(this.dataManager.receiveData(uiKey, json));
+          })
+          .catch(error => {
+            // TODO: data uiKey
+            dispatch(this.receiveError(null, uiKey, error));
+          });
+      }
+    };
+  }
+
+  fetchAllConfigurationsFromEnvironment() {
+    const uiKey = ConfigurationManager.ENVIRONMENT_CONFIGURATIONS;
+    //
+    return (dispatch, getState) => {
+      const environmentConfigurations = DataManager.getData(getState(), uiKey);
+      if (environmentConfigurations) {
+        // we dont need to load them again - change depends on BE restart
+      } else {
+        dispatch(this.dataManager.requestData(uiKey));
+        this.getService().getAllConfigurationsFromEnvironment()
           .then(json => {
             dispatch(this.dataManager.receiveData(uiKey, json));
           })
@@ -62,3 +83,4 @@ export default class ConfigurationManager extends EntityManager {
 
 ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations';
 ConfigurationManager.FILE_CONFIGURATIONS = 'file-configurations';
+ConfigurationManager.ENVIRONMENT_CONFIGURATIONS = 'environment-configurations';

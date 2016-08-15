@@ -12,8 +12,9 @@ import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
  */
 public interface ConfigurationService {
 	
-	static final String PUBLIC_PROPERTY_PREFIX = "idm.pub.";
-	static final String PRIVATE_PROPERTY_PREFIX = "idm.sec.";
+	static final String IDM_PROPERTY_PREFIX = "idm.";
+	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub.";
+	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec.";
 
 	/**
 	 * Returns configured value for given key
@@ -43,5 +44,12 @@ public interface ConfigurationService {
 	 * 
 	 * @return
 	 */
-	List<ConfigurationDto> getAllFileConfigurations();
+	List<ConfigurationDto> getAllConfigurationsFromFiles();
+	
+	/**
+	 * Returns server environment properties
+	 * 
+	 * @return
+	 */
+	List<ConfigurationDto> getAllConfigurationsFromEnvironment();
 }

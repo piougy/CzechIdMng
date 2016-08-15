@@ -9,7 +9,7 @@ import * as Utils from 'core/utils';
 
 const uiKey = 'configuration_table';
 
-class Configuration extends Basic.AbstractContent {
+class Configurations extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,7 +25,10 @@ class Configuration extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('system-configuration');
-    this.context.store.dispatch(this.configurationManager.fetchFileConfigurations());
+    this.context.store.dispatch(this.configurationManager.fetchAllConfigurationsFromFile());
+    if (SecurityManager.hasAuthority('CONFIGURATIONSECURED_READ')) {
+      this.context.store.dispatch(this.configurationManager.fetchAllConfigurationsFromEnvironment());
+    }
   }
 
   getManager() {
@@ -119,7 +122,13 @@ class Configuration extends Basic.AbstractContent {
   }
 
   render() {
-    const { _showLoading, fileConfigurations, _fileConfigurationsShowLoading } = this.props;
+    const {
+      _showLoading,
+      fileConfigurations,
+      _fileConfigurationsShowLoading,
+      environmentConfigurations,
+      _environmentConfigurationsShowLoading
+    } = this.props;
     const { filterOpened, detail } = this.state;
 
     return (
@@ -138,7 +147,7 @@ class Configuration extends Basic.AbstractContent {
             ref="table"
             uiKey={uiKey}
             manager={this.getManager()}
-            showRowSelection
+            showRowSelection={SecurityManager.hasAnyAuthority(['CONFIGURATION_DELETE', 'CONFIGURATIONSECURED_DELETE'])}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -160,13 +169,15 @@ class Configuration extends Basic.AbstractContent {
             }
             filterOpened={filterOpened}
             actions={
-              [
-                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-              ]
+              SecurityManager.hasAnyAuthority(['CONFIGURATION_DELETE', 'CONFIGURATIONSECURED_DELETE'])
+              ?
+              [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+              :
+              null
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAnyAuthority(null, ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_WRITE'])}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAnyAuthority(['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -212,7 +223,10 @@ class Configuration extends Basic.AbstractContent {
                   label={this.i18n('entity.Configuration.value')}/>
                 <Basic.Checkbox
                   ref="secured"
-                  label={this.i18n('entity.Configuration.secured')}/>
+                  label={this.i18n('entity.Configuration.secured')}
+                  readOnly={ !SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE') }>
+                  <Basic.Alert level="info" text={this.i18n('secured.notAllowed')} style={{ marginTop: 7 }} rendered={!SecurityManager.hasAuthority('CONFIGURATIONSECURED_WRITE')}/>
+                </Basic.Checkbox>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -238,25 +252,43 @@ class Configuration extends Basic.AbstractContent {
         <Basic.ContentHeader>
           <Basic.Icon value="cog"/>
           {' '}
-          {this.i18n('fromFile')}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('fromFile') }}/>
         </Basic.ContentHeader>
 
         <Basic.Panel>
           <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}/>
         </Basic.Panel>
+
+        {
+          !SecurityManager.hasAuthority('CONFIGURATIONSECURED_READ')
+          ||
+          <div>
+            <Basic.ContentHeader>
+              <Basic.Icon value="cog"/>
+              {' '}
+              <span dangerouslySetInnerHTML={{ __html: this.i18n('fromEnvironment') }}/>
+            </Basic.ContentHeader>
+
+            <Basic.Panel>
+              <Basic.Table data={environmentConfigurations} showLoading={_environmentConfigurationsShowLoading}/>
+            </Basic.Panel>
+          </div>
+        }
       </div>
     );
   }
 }
 
-Configuration.propTypes = {
-  fileConfigurations: PropTypes.arrayOf(PropTypes.object)
+Configurations.propTypes = {
+  fileConfigurations: PropTypes.arrayOf(PropTypes.object),
+  environmentConfigurations: PropTypes.arrayOf(PropTypes.object)
 };
 
-Configuration.defaultProps = {
+Configurations.defaultProps = {
   fileConfigurations: [],
   _showLoading: false,
-  _fileConfigurationsShowLoading: false
+  _fileConfigurationsShowLoading: false,
+  _environmentConfigurationsShowLoading: false
 };
 
 function select(state) {
@@ -264,8 +296,10 @@ function select(state) {
     _searchParameters: Utils.Ui.getSearchParameters(state, uiKey),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
     fileConfigurations: DataManager.getData(state, ConfigurationManager.FILE_CONFIGURATIONS),
-    _fileConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.FILE_CONFIGURATIONS)
+    _fileConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.FILE_CONFIGURATIONS),
+    environmentConfigurations: DataManager.getData(state, ConfigurationManager.ENVIRONMENT_CONFIGURATIONS),
+    _environmentConfigurationsShowLoading: Utils.Ui.isShowLoading(state, ConfigurationManager.ENVIRONMENT_CONFIGURATIONS)
   };
 }
 
-export default connect(select)(Configuration);
+export default connect(select)(Configurations);

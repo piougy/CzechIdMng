@@ -73,7 +73,7 @@ public class DefaultConfigurationService implements ConfigurationService {
 		Map<String, Object> map = getAllProperties(env);
 		for (Entry<String, Object> entry : map.entrySet()) {
 			String key = entry.getKey();
-			if (key.startsWith(PUBLIC_PROPERTY_PREFIX)) {
+			if (key.startsWith(IDM_PUBLIC_PROPERTY_PREFIX)) {
 				configurations.put(key, entry.getValue() == null ? null : entry.getValue().toString());
 			}
 		}
@@ -93,14 +93,36 @@ public class DefaultConfigurationService implements ConfigurationService {
 	 * 
 	 * @return
 	 */
-	public List<ConfigurationDto> getAllFileConfigurations() {
+	@Override
+	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		Map<String, Object> map = getAllProperties(env);
 		return map.entrySet().stream()
-			.map(entry -> { 
-				return new ConfigurationDto(entry.getKey(), entry.getValue().toString()); 
+				.filter(entry -> {
+					return entry.getKey().toLowerCase().startsWith(IDM_PROPERTY_PREFIX);
 				})
-			.collect(Collectors.toList());
-	}	
+				.map(entry -> {
+					return new ConfigurationDto(entry.getKey(), entry.getValue().toString());
+				})
+				.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Returns server environment properties
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
+		Map<String, Object> map = getAllProperties(env);
+		return map.entrySet().stream()
+				.filter(entry -> {
+					return !entry.getKey().toLowerCase().startsWith(IDM_PROPERTY_PREFIX);
+				})
+				.map(entry -> {
+					return new ConfigurationDto(entry.getKey(), entry.getValue().toString());
+				})
+				.collect(Collectors.toList());
+	}
 
 	private static Map<String, Object> getAllProperties(ConfigurableEnvironment aEnv) {
 		Map<String, Object> result = new HashMap<>();

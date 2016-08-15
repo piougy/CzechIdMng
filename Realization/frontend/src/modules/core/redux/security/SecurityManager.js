@@ -1,7 +1,5 @@
-
-
 import _ from 'lodash';
-import { AuthenticateService, ConfigService, IdentityService, LocalizationService } from '../../services';
+import { AuthenticateService, ConfigService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 
 /**
@@ -16,7 +14,6 @@ export const LOGOUT = 'LOGOUT';
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
 
 const authenticateService = new AuthenticateService();
-const identityService = new IdentityService();
 const configService = new ConfigService();
 
 /**
@@ -170,7 +167,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return SecurityManager.hasAuthority(userContext, configService.getConfig('authorities').superAdminAuthority);
+    return SecurityManager.hasAuthority(configService.getConfig('authorities').superAdminAuthority, userContext);
   }
 
   /**
@@ -192,7 +189,7 @@ export default class SecurityManager {
   /**
    * Returns true, if user has given authority
    */
-  static hasAuthority(userContext = null, authority) {
+  static hasAuthority(authority, userContext = null) {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
@@ -202,7 +199,7 @@ export default class SecurityManager {
     return _.includes(userContext.authorities, authority);
   }
 
-  static hasAnyAuthority(userContext, authorities) {
+  static hasAnyAuthority(authorities, userContext = null) {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
@@ -215,7 +212,7 @@ export default class SecurityManager {
   /**
    * Return true, if user fits in at least one access item - @see ConfigService for available access types
    */
-  static hasAccess(userContext, accessItems) {
+  static hasAccess(accessItems, userContext) {
     if (!accessItems) {
       return false;
     }
@@ -246,7 +243,7 @@ export default class SecurityManager {
             }
           }
           case 'HAS_ANY_AUTHORITY': {
-            return SecurityManager.hasAnyAuthority(userContext, accessItem.authorities);
+            return SecurityManager.hasAnyAuthority(accessItem.authorities, userContext);
           }
           default : {
             return null;
@@ -263,7 +260,7 @@ export default class SecurityManager {
     const userContext = AuthenticateService.getUserContext();
     const lastRoute = nextState.routes.slice(-1)[0];
     //
-    if (!SecurityManager.hasAccess(userContext, lastRoute.access)) {
+    if (!SecurityManager.hasAccess(lastRoute.access, userContext)) {
       replace({
         pathname: (SecurityManager.isAuthenticated(userContext)) ? '/error/403' : '/login',
         state: { nextPathname: nextState.location.pathname }

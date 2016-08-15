@@ -376,7 +376,11 @@
       "save": {
         "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
       },
-      "fromFile": "Nastavení aplikace dle parametrů prostředí a dle konfiguračních souborů <small>application.properties</small>"
+      "fromFile": "Nastavení aplikace z konfiguračních souborů <small>application.properties</small>",
+      "fromEnvironment": "Nastavení prostředí <small>backendového serveru</small>",
+      "secured": {
+        "notAllowed": "Nemáte oprávnění pro editaci systémového nastavení"
+      }
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",

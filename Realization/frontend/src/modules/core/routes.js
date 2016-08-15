@@ -101,8 +101,8 @@ module.exports = {
       component: require('./content/Messages')
     },
     {
-      path: 'configuration',
-      component: require('./content/Configuration'),
+      path: 'configurations',
+      component: require('./content/Configurations'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {

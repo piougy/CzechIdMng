@@ -49,9 +49,28 @@ export default class ConfigurationService extends AbstractService {
    *
    * @return Promise
    */
-  getFileConfigurations() {
+  getAllConfigurationsFromFile() {
     return RestApiService
     .get(this.getApiPath() + '/file')
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Returns all configurations from property files
+   *
+   * @return Promise
+   */
+  getAllConfigurationsFromEnvironment() {
+    return RestApiService
+    .get(this.getApiPath() + '/environment')
     .then(response => {
       return response.json();
     })

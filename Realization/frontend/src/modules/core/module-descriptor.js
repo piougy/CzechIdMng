@@ -217,7 +217,7 @@ module.exports = {
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
         'order': 1000,
-        'path': '/configuration',
+        'path': '/configurations',
         'iconColor': '#c12e2a',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', config.authorities.superAdminAuthority] } ],
         'items': [
@@ -226,7 +226,7 @@ module.exports = {
             'labelKey': 'navigation.menu.configuration',
             'icon': 'cog',
             'order': 20,
-            'path': '/configuration',
+            'path': '/configurations',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {

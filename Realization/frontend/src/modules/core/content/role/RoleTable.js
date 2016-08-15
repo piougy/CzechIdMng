@@ -9,6 +9,7 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 //
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
+import SearchParameters from '../../domain/SearchParameters';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
@@ -312,6 +313,7 @@ export class RoleTable extends Basic.AbstractContent {
                         componentSpan=""
                         ref="approveAddWorkflow"
                         label={this.i18n('entity.Role.approveAddWorkflow')}
+                        forceSearchParameters={ new SearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve') }
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                       <Basic.SelectBox
@@ -319,6 +321,7 @@ export class RoleTable extends Basic.AbstractContent {
                         componentSpan=""
                         ref="approveRemoveWorkflow"
                         label={this.i18n('entity.Role.approveRemoveWorkflow')}
+                        forceSearchParameters={ new SearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve') }
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                     </div>

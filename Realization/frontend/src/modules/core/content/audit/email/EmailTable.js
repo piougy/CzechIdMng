@@ -4,9 +4,9 @@ import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import { IdentityManager } from 'core/redux';
-import NotificationStateEnum from 'core/enums/NotificationStateEnum';
 import NotificationRecipientCell from '../notification/NotificationRecipientCell';
 import NotificationRecipientsCell from '../notification/NotificationRecipientsCell';
+import NotificationSentState from '../notification/NotificationSentState';
 
 /**
 * Table of audit log for emails
@@ -134,8 +134,7 @@ export class EmailTable extends Basic.AbstractContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }
-          >
+          }>
 
           <Advanced.Column
             header=""
@@ -160,20 +159,13 @@ export class EmailTable extends Basic.AbstractContent {
           <Advanced.Column
             property="sent"
             cell={
-              ({ rowIndex, data, property }) => {
-                if (data[rowIndex][property] != null) {
-                  return (
-                    <Advanced.DateValue value={data[rowIndex][property]}/>
-                  );
-                }
-                if (data[rowIndex][property] === null) {
-                  return (
-                    <Basic.Label level="danger" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.NOT)}/>
-                  );
-                }
+              ({ rowIndex, data}) => {
+                return (
+                  <NotificationSentState notification={data[rowIndex]}/>
+                );
               }
             }/>
-          <Advanced.Column property="sentLog" sort face="text" rendered={false}/>
+          <Advanced.Column property="sentLog" sort face="text" width="20%"/>
         </Advanced.Table>
       </div>
     );

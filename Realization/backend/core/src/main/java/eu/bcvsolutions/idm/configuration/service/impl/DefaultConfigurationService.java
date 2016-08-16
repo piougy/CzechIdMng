@@ -43,8 +43,14 @@ public class DefaultConfigurationService implements ConfigurationService {
 
 	@Override
 	public String getValue(String key) {
-		log.debug("Reading configuration for key [{}]", key);
+		return getValue(key, null);
+	}
+	
+	@Override
+	public String getValue(String key, String defaultValue) {
+		log.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
+		// idm configuration has higher priority
 		IdmConfiguration config = configurationRepository.get(key);
 		if (config != null) {
 			value = config.getValue();
@@ -53,13 +59,24 @@ public class DefaultConfigurationService implements ConfigurationService {
 			// try to find value in property configuration
 			value = env.getProperty(key);
 		}
-		log.debug("Resolved configuration value for key [{}] is [{}].", key, value);
+		// fill default value
+		if (value == null) {
+			value = defaultValue;
+		}	
+		log.debug("Resolved configuration value for key [{}] and default [{}] is [{}].", key, defaultValue, value);
 		return value;
 	}
 
 	@Override
-	public boolean getBoolean(String key) {
-		return Boolean.valueOf(getValue(key));
+	public Boolean getBooleanValue(String key) {
+		String value = getValue(key);
+		return value == null ? null : Boolean.valueOf(value);
+	}
+	
+	@Override
+	public boolean getBooleanValue(String key, boolean defaultValue) {
+		String value = getValue(key);
+		return value == null ? defaultValue : Boolean.valueOf(value);
 	}
 
 	/**
@@ -80,7 +97,9 @@ public class DefaultConfigurationService implements ConfigurationService {
 		}
 		// override from database
 		configurationRepository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
-			configurations.put(idmConfiguration.getName(), idmConfiguration.getValue());
+			if (idmConfiguration.getName().startsWith(IDM_PUBLIC_PROPERTY_PREFIX)) {
+				configurations.put(idmConfiguration.getName(), idmConfiguration.getValue());
+			}
 		});
 		List<ConfigurationDto> results = new ArrayList<>();
 		configurations.forEach((k, v) -> {

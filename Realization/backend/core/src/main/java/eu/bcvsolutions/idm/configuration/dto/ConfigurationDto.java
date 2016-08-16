@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.configuration.dto;
 /**
  * Configuration item
  * 
+ * TODO: include guarded string to guarded properties
+ * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */

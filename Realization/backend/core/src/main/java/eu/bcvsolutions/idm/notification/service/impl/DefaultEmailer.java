@@ -14,10 +14,10 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.SynchronizationAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.configuration.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.service.EmailService;
@@ -43,34 +43,14 @@ public class DefaultEmailer implements Emailer {
 	@Autowired
     private ProducerTemplate producerTemplate;
 	
-	// TODO: refactor to configurationService
-	
-	@Value("${emailer.protocol:smtp}")
-	private String protocol;
-	
-	@Value("${emailer.host:localhost}")
-	private String host;
-	
-	@Value("${emailer.port:25}")
-	private String port;
-	
-	@Value("${emailer.username:username@mail.eu}")
-	private String username;
-	
-	@Value("${emailer.password:password}")
-	private String password;
-	
-	@Value("${emailer.from:idm@bcvsolutions.eu}")
-	private String from;
-	
-	@Value("${emailer.test.enabled:true}")
-	private boolean testEnabled;
+	@Autowired
+	private EmailerConfiguration configuration;
 	
 	public boolean send(IdmEmailLog emailLog) {
 		log.debug("Sending email [{}]", emailLog);
 		
 		try {
-			Endpoint endpoint = camelContext.getEndpoint(MessageFormat.format("{0}://{1}:{2}?username={3}&password={4}", protocol, host, port, username, password));
+			Endpoint endpoint = congigureEndpoint();
 			
 			// create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
 			Exchange exchange = endpoint.createExchange();
@@ -84,7 +64,7 @@ public class DefaultEmailer implements Emailer {
 			in.addAttachment("rest.txt", new DataHandler(ds));
 			*/
 
-			if (testEnabled) {
+			if (configuration.isTestEnabled()) {
 				log.info("Test mode for emailer is enabled. Email [{}] is logged only.", emailLog);
 				emailService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
 			} else {
@@ -99,11 +79,29 @@ public class DefaultEmailer implements Emailer {
 		}
 	}
 	
+	/**
+	 * Configure apache camel endpoint for email by configuration
+	 * @return
+	 */
+	private Endpoint congigureEndpoint() {
+		StringBuilder endpoint = new StringBuilder(MessageFormat.format("{0}://{1}:{2}", configuration.getProtocol(), configuration.getHost(), configuration.getPort()));
+		// append principals
+		String username = configuration.getUsername();
+		if (StringUtils.isNotBlank(username)) {
+			endpoint.append(MessageFormat.format("?username={0}&password={1}", username, configuration.getPassword()));
+		}		
+		return camelContext.getEndpoint(endpoint.toString());
+	}
+	
 	private Map<String, Object> createEmailHeaders(IdmEmailLog emailLog) {
 		Map<String, Object> headers = new HashMap<String, Object>();		
 		// resolve recipients
-		headers.put("To", getRecipiets(emailLog));		
-		headers.put("From", this.from);
+		headers.put("To", getRecipiets(emailLog));	
+		
+		String from = configuration.getFrom();
+		if (StringUtils.isNotBlank(from)) {
+			headers.put("From", from);
+		}
 		// when from is given - transform to reply to
 		if (emailLog.getFrom() != null && StringUtils.isNotBlank(emailLog.getFrom().getRealRecipient())) {
 			headers.put("Reply-To", emailLog.getFrom().getRealRecipient());

@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
 import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientCell from './NotificationRecipientCell';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
+import NotificationSentState from '../notification/NotificationSentState';
 
 /**
  * Notification detail content
@@ -63,7 +65,11 @@ export default class NotificationDetail extends Basic.AbstractContent {
           <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly/>
           <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly/>
 
-          <Basic.DateTimePicker ref="sent" label={this.i18n('entity.Notification.sent')} readOnly/>
+          <Basic.LabelWrapper
+            label={this.i18n('entity.Notification.sent')}>
+            <NotificationSentState notification={notification}/>
+          </Basic.LabelWrapper>
+
           <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly/>
         </Basic.AbstractForm>
         {
@@ -74,8 +80,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
               <Basic.ContentHeader text={this.i18n('relatedNotifications')}/>
             </Basic.PanelBody>
             <Basic.Table
-              data={notification.relatedNotifications}
-              rowClass={({ data, rowIndex }) => { return data[rowIndex].sent ? 'success' : ''; }}>
+              data={notification.relatedNotifications}>
               <Basic.Column
                 property="type"
                 header={this.i18n('entity.Notification.type')}/>
@@ -96,22 +101,16 @@ export default class NotificationDetail extends Basic.AbstractContent {
                 property="sent"
                 header={this.i18n('entity.Notification.sent')}
                 cell={
-                  cellProps => {
-                    const { rowIndex, data, property } = cellProps;
-                    const sent = data[rowIndex][property];
-                    if (sent) {
-                      return (
-                        <Basic.DateCell format={this.i18n('format.datetime')} {...cellProps}/>
-                      );
-                    }
+                  ({ rowIndex, data}) => {
                     return (
-                      <Basic.Label level="danger" text={this.i18n('label.notSent')}/>
+                      <NotificationSentState notification={data[rowIndex]}/>
                     );
                   }
                 }/>
               <Basic.Column
                 property="sentLog"
-                header={this.i18n('entity.Notification.sentLog')}/>
+                header={this.i18n('entity.Notification.sentLog')}
+                width="20%"/>
             </Basic.Table>
           </div>
           :

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
 
@@ -12,14 +12,18 @@ class DateValue extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { format, rendered, ...others } = this.props;
+    const { format, rendered, showTime, ...others } = this.props;
     if (!rendered) {
       return null;
     }
 
     let _format = format;
     if (!_format) {
-      _format = this.i18n('format.date');
+      if (showTime) {
+        _format = this.i18n('format.datetime');
+      } else {
+        _format = this.i18n('format.date');
+      }
     }
 
     return (
@@ -29,11 +33,13 @@ class DateValue extends Basic.AbstractContextComponent {
 }
 
 DateValue.propTypes = {
-  ...Basic.DateValue.propTypes
+  ...Basic.DateValue.propTypes,
+  showTime: PropTypes.bool
 };
 
 DateValue.defaultProps = {
-  ...Basic.DateValue.defaultProps
+  ...Basic.DateValue.defaultProps,
+  showTime: false
 };
 
 

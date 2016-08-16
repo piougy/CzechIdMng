@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
@@ -275,7 +274,11 @@ class Configurations extends Basic.AbstractContent {
           <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}>
             <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
             <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
-            <Basic.Column property="secured" header={this.i18n('entity.Configuration.secured')} cell={<Basic.BooleanCell className="column-face-bool"/>} width="250px"/>
+            <Basic.Column
+              property="secured"
+              header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Configuration.secured')}</Basic.Cell>}
+              cell={<Basic.BooleanCell className="column-face-bool"/>}
+              width="250px"/>
           </Basic.Table>
         </Basic.Panel>
 

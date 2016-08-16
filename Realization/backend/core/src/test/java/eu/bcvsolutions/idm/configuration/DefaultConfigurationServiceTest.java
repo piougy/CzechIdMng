@@ -44,19 +44,29 @@ public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void testReadNotExistsWithDefault() {
+		assertEquals("true", configurationService.getValue("not_exists", "true"));
+	}
+	
+	@Test
+	public void testReadBooleanNotExistsWithDefault() {
+		assertTrue(configurationService.getBooleanValue("not_exists", true));
+	}
+	
+	@Test
 	public void testReadPropertyFromFile() {
 		assertEquals("true", configurationService.getValue(TEST_PROPERTY_KEY));
 	}
 	
 	@Test
 	public void testReadBooleanPropertyFromFile() {
-		assertTrue(configurationService.getBoolean(TEST_PROPERTY_KEY));
+		assertTrue(configurationService.getBooleanValue(TEST_PROPERTY_KEY));
 	}
 	
 	@Test
 	public void testReadPropertyFromDb() {
 		configurationRepository.save(new IdmConfiguration(TEST_PROPERTY_DB_KEY, "true"));
-		assertTrue(configurationService.getBoolean(TEST_PROPERTY_DB_KEY));
+		assertTrue(configurationService.getBooleanValue(TEST_PROPERTY_DB_KEY));
 	}
 	
 	@Test

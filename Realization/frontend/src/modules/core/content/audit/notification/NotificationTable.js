@@ -8,6 +8,7 @@ import { IdentityManager } from 'core/redux';
 import NotificationStateEnum from 'core/enums/NotificationStateEnum';
 import NotificationRecipientCell from './NotificationRecipientCell';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
+import NotificationSentState from './NotificationSentState';
 
 /**
 * Table of roles
@@ -163,24 +164,13 @@ export class NotificationTable extends Basic.AbstractContent {
           <Advanced.Column
             property="sent"
             cell={
-              ({ rowIndex, data, property }) => {
-                const sentCount = data[rowIndex].relatedNotifications.reduce((result, notification) => { return result + (notification.sent ? 1 : 0); }, 0);
-                if (sentCount === data[rowIndex].relatedNotifications.length) {
-                  return (
-                    <Advanced.DateValue value={data[rowIndex][property]}/>
-                  );
-                }
-                if (sentCount === 0) {
-                  return (
-                    <Basic.Label level="danger" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.NOT)}/>
-                  );
-                }
+              ({ rowIndex, data }) => {
                 return (
-                  <Basic.Label level="warning" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.PARTLY)}/>
+                  <NotificationSentState notification={data[rowIndex]}/>
                 );
               }
             }/>
-          <Advanced.Column property="sentLog" sort face="text" rendered={false}/>
+          <Advanced.Column property="sentLog" sort face="text" rendered={false} width="300px"/>
         </Advanced.Table>
       </div>
     );

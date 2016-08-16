@@ -79,8 +79,18 @@ module.exports = {
     },
     {
       path: 'organizations',
-      component: require('./content/Organizations'),
+      component: require('./content/organization/Organizations'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+    },
+    {
+      path: 'organizations/:entityId',
+      component: require('./content/organization/OrganizationContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+    },
+    {
+      path: 'organizations/new',
+      component: require('./content/organization/OrganizationContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority ] } ]
     },
     {
       path: 'roles',

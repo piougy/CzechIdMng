@@ -106,10 +106,29 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return children;
   }
 
-  useFilter(filterForm) {
+  useFilterData(formData) {
     const { _searchParameters } = this.props;
+    let userSearchParameters = _searchParameters;
+    userSearchParameters = userSearchParameters.setPage(0);
+    for (const value in formData) {
+      console.log(value, formData[value]);
+      if (!formData.hasOwnProperty(value)) {
+        continue;
+      }
+      if (!formData[value]) {
+        userSearchParameters = userSearchParameters.clearFilter(value);
+      } else {
+        userSearchParameters = userSearchParameters.setFilter(value, formData[value]);
+      }
+      this.fetchEntities(userSearchParameters);
+    }
+  }
+
+  useFilterForm(filterForm) {
+    // const { _searchParameters } = this.props;
     //
-    const filters = [];
+    // const filters = [];
+    const data = {};
     const filterValues = filterForm.getData();
     for (const property in filterValues) {
       if (!filterValues.hasOwnProperty(property)) {
@@ -143,18 +162,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }
       filter.value = filledValue;
       // }
-      filters.push(filter);
+      // filters.push(filter);
+      data[field] = filledValue;
     }
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setPage(0);
-    filters.forEach(filter => {
-      if (!filter.value) {
-        userSearchParameters = userSearchParameters.clearFilter(filter.field);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(filter.field, filter.value);
-      }
-    });
-    this.fetchEntities(userSearchParameters);
+    this.useFilterData(data);
   }
 
   cancelFilter(filterForm) {

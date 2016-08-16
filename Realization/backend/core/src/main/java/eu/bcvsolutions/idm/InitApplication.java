@@ -156,13 +156,20 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity2 = this.identityRepository.save(identity2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
+				// create parent
+				IdmOrganization organizationRoot = new IdmOrganization();
+				organizationRoot.setName("Organization ROOT");
+				this.organizationRepository.save(organizationRoot);
+				//
 				IdmOrganization organization1 = new IdmOrganization();
 				organization1.setName("Organization One");
+				organization1.setParent(organizationRoot);
 				this.organizationRepository.save(organization1);
 				//
 				IdmOrganization organization2 = new IdmOrganization();
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
+				organization2.setParent(organizationRoot);
 				this.organizationRepository.save(organization2);
 				//
 				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();

@@ -399,7 +399,8 @@ export default class EntityManager {
   }
 
   /**
-   * Receive entity by id from server
+   * Receive entity and pair it with context. Its pair with uiKey.
+   * Used for create new entity in forms.
    *
    * @param  {string|number} id - entity identifier
    * @param  {object} entity - received entity. If entity is null, then will be removed from state

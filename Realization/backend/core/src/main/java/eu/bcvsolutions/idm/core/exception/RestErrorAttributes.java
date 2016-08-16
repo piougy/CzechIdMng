@@ -47,7 +47,8 @@ public class RestErrorAttributes extends DefaultErrorAttributes {
         	log.error("Error not resolved - errorAttributes needs extension for error attrs [{}]", errorAttributes);
         	return errorAttributes;
         }
-        errorAttributes.clear();
+        // we need timestamp
+        // errorAttributes.clear();
         errorAttributes.put("error", errorModel);
 		log.warn(errorModel.toString());
         return errorAttributes;	            

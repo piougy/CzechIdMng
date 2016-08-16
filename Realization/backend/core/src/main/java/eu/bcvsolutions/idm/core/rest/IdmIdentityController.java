@@ -102,7 +102,6 @@ public class IdmIdentityController {
 		ProcessInstance processInstance = idmIdentityService.changePermissions(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
-		filter.setId(processInstance.getActivityId());
 		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController
 				.search(filter).getBody().getResources();
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);

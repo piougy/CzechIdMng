@@ -33,7 +33,20 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 * 
 	 * @return
 	 */
-	List<IdmConfiguration> findAllBySecuredIsTrue();
+	List<IdmConfiguration> findAllBySecuredIsFalse();
+	
+	/**
+	 * Returns configuration by given name - for internal purpose.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@RestResource(exported = false)
+	@Query(value = "select e from #{#entityName} e" +
+	        " where "
+	        + "e.name = :name")
+	IdmConfiguration get(@Param("name") String name);
+	
 	
 	/**
 	 * Returns all configurations based on current user authorities
@@ -79,18 +92,6 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 */
 	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('CONFIGURATIONSECURED_READ')")
 	IdmConfiguration findOneByName(@Param("name") String name);
-	
-	/**
-	 * Returns configuration by given name - for internal purpose.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	@RestResource(exported = false)
-	@Query(value = "select e from #{#entityName} e" +
-	        " where "
-	        + "e.name = :name")
-	IdmConfiguration get(@Param("name") String name);
 	
 	/**
 	 * Returns pageable configurations based on current user authorities

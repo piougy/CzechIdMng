@@ -26,6 +26,13 @@ public class DefaultIdmRoleService implements IdmRoleService {
 		IdmRole entity = idmRoleRepository.findOne(id);
 		return entity;
 	}
+	
+	@Override
+	@Transactional
+	public IdmRole getByName(String name) {
+		IdmRole entity = idmRoleRepository.findOneByName(name);
+		return entity;
+	}
 
 	@Override
 	public List<IdmRole> getRolesByIds(String roles) {

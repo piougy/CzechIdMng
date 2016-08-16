@@ -3,14 +3,12 @@ import { connect } from 'react-redux';
 import Footer from './Footer';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
-import { SettingManager } from '../redux';
 import { SecurityManager } from '../modules/core/redux';
 
 export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.settingManager = new SettingManager();
     this.securityManager = new SecurityManager();
   }
 

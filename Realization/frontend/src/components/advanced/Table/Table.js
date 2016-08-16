@@ -330,7 +330,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return (
       <div className="advanced-table">
         {
-          !filter && (actions.length === 0 || !showRowSelection)
+          !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
             <div className="pull-left">
@@ -343,7 +343,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 options={actions}
                 placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
                 readOnly={selectedRows <= 0}
-                rendered={actions.length > 0 && showRowSelection}/>
+                rendered={actions !== null && actions.length > 0 && showRowSelection}/>
             </div>
             <div className="pull-right">
               { buttons }

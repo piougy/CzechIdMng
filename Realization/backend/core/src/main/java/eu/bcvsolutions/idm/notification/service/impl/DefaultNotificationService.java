@@ -58,6 +58,7 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 		Assert.notNull(notification.getMessage());
 		// we can only create log, if notification is instance of IdmNotificationLog
 		if (notification instanceof IdmNotificationLog) {
+			notification.setSent(new Date());
 			return idmNotificationRepository.save((IdmNotificationLog) notification);
 		}
 		// we need to clone notification

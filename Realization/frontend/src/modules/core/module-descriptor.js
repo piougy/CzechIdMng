@@ -217,17 +217,17 @@ module.exports = {
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
         'order': 1000,
-        'path': '/configuration',
+        'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', config.authorities.superAdminAuthority] } ],
         'items': [
           {
             'id': 'system-configuration',
             'labelKey': 'navigation.menu.configuration',
             'icon': 'cog',
             'order': 20,
-            'path': '/configuration',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_READ', 'CONFIGURATIONSECURED_READ'] } ]
+            'path': '/configurations',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
             'id': 'system-modules',

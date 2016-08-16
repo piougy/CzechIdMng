@@ -15,6 +15,8 @@ public class WorkflowProcessInstanceDto {
 	protected String name;
 	protected boolean isEnded = false;
 	protected Map<String, Object>  processVariables;
+	protected String currentActivityName;
+	protected String currentActivityDocumentation;
 	protected WorkflowTaskDefinitionDto currentTaskDefinition;
 
 	public String getProcessDefinitionId() {
@@ -106,6 +108,22 @@ public class WorkflowProcessInstanceDto {
 
 	public void setCurrentTaskDefinition(WorkflowTaskDefinitionDto currentTaskDefinition) {
 		this.currentTaskDefinition = currentTaskDefinition;
+	}
+
+	public String getCurrentActivityName() {
+		return currentActivityName;
+	}
+
+	public void setCurrentActivityName(String currentActivityName) {
+		this.currentActivityName = currentActivityName;
+	}
+
+	public String getCurrentActivityDocumentation() {
+		return currentActivityDocumentation;
+	}
+
+	public void setCurrentActivityDocumentation(String currentActivityDocumentation) {
+		this.currentActivityDocumentation = currentActivityDocumentation;
 	}
 
 }

@@ -1,15 +1,13 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 //
 import * as Basic from '../components/basic';
 import packageInfo from '../../package.json';
-import { SettingManager } from '../redux';
 
-const settingManager = new SettingManager();
-
+/**
+ * Idm footer
+ */
 class Footer extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -63,9 +61,9 @@ Footer.defaultProps = {
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
-function select(state) {
+function select() {
   return {
-    backendVersion: settingManager.getValue(state, 'environment.version')
+    backendVersion: 'x.x.x'// settingManager.getValue(state, 'environment.version')
   };
 }
 

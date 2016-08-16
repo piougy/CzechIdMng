@@ -22,6 +22,7 @@ class Loading extends AbstractComponent {
         // we don't want resize loading container
         return;
       }
+      // TODO: offset, scroll
       loading.css({
         top: panel.position().top + 1, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
         left: panel.position().left + 1,
@@ -33,10 +34,12 @@ class Loading extends AbstractComponent {
 
   componentDidMount() {
     this._resize();
+    // window.addEventListener('resize', this._resize);
   }
 
   componentDidUpdate() {
     this._resize();
+    // window.removeEventListener('resize', this._resize);
   }
 
   render() {

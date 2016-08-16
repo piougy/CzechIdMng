@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
-import EmailRecipient from './EmailRecipient';
 import { IdentityManager } from 'core/redux';
-import EmailStateEnum from 'core/enums/EmailStateEnum';
+import NotificationRecipientCell from '../notification/NotificationRecipientCell';
+import NotificationRecipientsCell from '../notification/NotificationRecipientsCell';
+import NotificationSentState from '../notification/NotificationSentState';
 
 /**
 * Table of audit log for emails
@@ -133,8 +134,7 @@ export class EmailTable extends Basic.AbstractContent {
                 </Basic.Row>
               </Basic.AbstractForm>
             </Advanced.Filter>
-          }
-          >
+          }>
 
           <Advanced.Column
             header=""
@@ -152,41 +152,20 @@ export class EmailTable extends Basic.AbstractContent {
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-            cell={
-              ({ rowIndex, data, property }) => {
-                return data[rowIndex][property].map(recipient => {
-                  return (
-                    <EmailRecipient recipient={recipient} identityOnly />
-                  );
-                });
-              }
-            }/>
+            cell={<NotificationRecipientsCell />}/>
           <Advanced.Column
             property="from"
-            cell={
-              ({ rowIndex, data, property }) => {
-                return (
-                  <EmailRecipient recipient={data[rowIndex][property]} identityOnly />
-                );
-              }
-            }/>
+            cell={<NotificationRecipientCell />}/>
           <Advanced.Column
             property="sent"
             cell={
-              ({ rowIndex, data, property }) => {
-                if (data[rowIndex][property] != null) {
-                  return (
-                    <Advanced.DateValue value={data[rowIndex][property]}/>
-                  );
-                }
-                if (data[rowIndex][property] === null) {
-                  return (
-                    <Basic.Label level="danger" text={EmailStateEnum.getNiceLabelBySymbol(EmailStateEnum.NOT)}/>
-                  );
-                }
+              ({ rowIndex, data}) => {
+                return (
+                  <NotificationSentState notification={data[rowIndex]}/>
+                );
               }
             }/>
-          <Advanced.Column property="sentLog" sort face="text" rendered={false}/>
+          <Advanced.Column property="sentLog" sort face="text" width="20%"/>
         </Advanced.Table>
       </div>
     );

@@ -47,7 +47,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers( //
 				"/api", // endpoint with supported services list
 				"/api/authentication", // login / out
-				"/api/public/**" // public
+				"/api/public/**", // public
+				"/error/**",
+				"/api/browser/**"
 			);
 	}
    

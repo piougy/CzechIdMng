@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.add">
   <process id="approveRoleByUserTomiska" name="Schválení přiřazení role uživatelem &quot;tomiska&quot;" isExecutable="true">
     <documentation>Workflow pro schválení přiřazení role uživatelem "tomiska"</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
@@ -44,6 +44,9 @@ execution.setVariable("newIdmIdentityRole", ir);
     <sequenceFlow id="flow6" sourceRef="exclusivegateway1" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role uživatelem &quot;tomiska&quot; pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="approveTask"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete uživateli roli přiřadit?","level":"success","tooltip":"Schválit a přiřadit roli žadateli"}</activiti:value>
@@ -55,9 +58,6 @@ execution.setVariable("newIdmIdentityRole", ir);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role uživatelem &quot;tomiska&quot; pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
-    <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
-    <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="approveTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_approveRoleByUserTomiska">
     <bpmndi:BPMNPlane bpmnElement="approveRoleByUserTomiska" id="BPMNPlane_approveRoleByUserTomiska">

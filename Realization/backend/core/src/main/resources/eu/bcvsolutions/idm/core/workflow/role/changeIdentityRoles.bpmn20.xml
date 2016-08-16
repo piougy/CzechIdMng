@@ -68,6 +68,7 @@
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDate}" target="validTill"></activiti:in>
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -130,7 +131,7 @@
       </extensionElements>
     </dataObject>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
-    <scriptTask id="scripttask2" name="Načtení existujících oprávnění" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="scripttask2" name="Načtení a příprava existujících oprávnění ke změně" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>for (changedIdentityRole in changedIdentityRoles) {
 java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!!  "+changedIdentityRole)
 	//Load IdentityRole entity by ID
@@ -183,15 +184,63 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <activiti:in sourceExpression="#{idmRoleIdentity._validFromDateNew}" target="validFromDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDateNew}" target="validTillDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity.id}" target="identityRoleIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow25" sourceRef="scripttask2" targetRef="startChangeSubWorkflow"></sequenceFlow>
-    <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
+    <parallelGateway id="parallelgateway1" name="Paralelní schvalování jednotlivých rolí"></parallelGateway>
     <sequenceFlow id="flow26" sourceRef="parallelgateway1" targetRef="scripttask1"></sequenceFlow>
     <parallelGateway id="parallelgateway2" name="Parallel Gateway"></parallelGateway>
     <sequenceFlow id="flow27" sourceRef="parallelgateway2" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow28" sourceRef="startChangeSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
+    <callActivity id="startRemoveSubWorkflow" name="Schválení odebrání jednotlivých oprávnění" calledElement="${idmRoleIdentity.removeWorkflowKey}">
+      <extensionElements>
+        <activiti:in source="identityIdentifier" target="identityIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.roleId}" target="roleIdentifier"></activiti:in>
+        <activiti:in source="applicantIdentifier" target="applicantIdentifier"></activiti:in>
+        <activiti:in source="applicantUsername" target="applicantUsername"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.validFrom}" target="validFrom"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.validTill}" target="validTill"></activiti:in>
+        <activiti:in source="approve" target="approve"></activiti:in>
+        <activiti:in source="disapprove" target="disapprove"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.identityRoleIdentifier}" target="identityRoleIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;remove&quot;}" target="operationType"></activiti:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removeIdentityRoleWrapperList" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <scriptTask id="scripttask3" name="Načtení a příprava oprávnění ke smazání" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>//Create new list (removedIdentityRoles is only list of IDs)
+def removeIdentityRoleWrapperList = [];
+
+for (removedIdentityRoleId in removedIdentityRoles) {
+java.lang.System.out.println("!!!!!!!!!!!!!!removeIdentityRole!!!!!!!!!!!!!!!!  "+removedIdentityRoleId)
+	//Load IdentityRole entity by ID
+	def idmIdentityRole = defaultIdmIdentityRoleService.get(removedIdentityRoleId);
+
+	//Load RoleId
+	def idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
+	def removedIdentityRoleWrapper = new Expando();
+	removedIdentityRoleWrapper.roleId = idmRole.id;
+
+	//Add dates values
+	removedIdentityRoleWrapper.validFrom = idmIdentityRole.validFrom;
+	removedIdentityRoleWrapper.validTill = idmIdentityRole.validTill;
+	removedIdentityRoleWrapper.identityRoleIdentifier = idmIdentityRole.id;
+
+	//Load and add approve workflow key
+	removedIdentityRoleWrapper.removeWorkflowKey = idmRole.approveRemoveWorkflow;
+	if(removedIdentityRoleWrapper.removeWorkflowKey == null) {
+		removedIdentityRoleWrapper.removeWorkflowKey = "notApproveRoleRealizationRemove";
+	}
+	removeIdentityRoleWrapperList.add(removedIdentityRoleWrapper.getProperties());
+	java.lang.System.out.println("!!!!!!!!!!!!!!removedIdentityRoleWrapper!!!!!!!!!!!!!!!!  "+removedIdentityRoleWrapper.getProperties())
+ }
+execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapperList);</script>
+    </scriptTask>
+    <sequenceFlow id="flow29" sourceRef="scripttask3" targetRef="startRemoveSubWorkflow"></sequenceFlow>
+    <sequenceFlow id="flow30" sourceRef="parallelgateway1" targetRef="scripttask3"></sequenceFlow>
+    <sequenceFlow id="flow31" sourceRef="startRemoveSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_changeIdentityRoles">
     <bpmndi:BPMNPlane bpmnElement="changeIdentityRoles" id="BPMNPlane_changeIdentityRoles">
@@ -232,7 +281,7 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <omgdc:Bounds height="87.0" width="105.0" x="71.0" y="101.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
-        <omgdc:Bounds height="55.0" width="155.0" x="740.0" y="220.0"></omgdc:Bounds>
+        <omgdc:Bounds height="78.0" width="155.0" x="740.0" y="204.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startChangeSubWorkflow" id="BPMNShape_startChangeSubWorkflow">
         <omgdc:Bounds height="86.0" width="201.0" x="972.0" y="150.0"></omgdc:Bounds>
@@ -242,6 +291,12 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelgateway2" id="BPMNShape_parallelgateway2">
         <omgdc:Bounds height="40.0" width="40.0" x="1240.0" y="308.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startRemoveSubWorkflow" id="BPMNShape_startRemoveSubWorkflow">
+        <omgdc:Bounds height="79.0" width="201.0" x="972.0" y="411.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="70.0" width="155.0" x="743.0" y="401.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="342.0" y="142.0"></omgdi:waypoint>
@@ -293,11 +348,11 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
         <omgdi:waypoint x="665.0" y="310.0"></omgdi:waypoint>
-        <omgdi:waypoint x="665.0" y="248.0"></omgdi:waypoint>
-        <omgdi:waypoint x="740.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="665.0" y="243.0"></omgdi:waypoint>
+        <omgdi:waypoint x="740.0" y="243.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
-        <omgdi:waypoint x="895.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="895.0" y="243.0"></omgdi:waypoint>
         <omgdi:waypoint x="972.0" y="193.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
@@ -312,6 +367,20 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <omgdi:waypoint x="1173.0" y="193.0"></omgdi:waypoint>
         <omgdi:waypoint x="1260.0" y="193.0"></omgdi:waypoint>
         <omgdi:waypoint x="1260.0" y="308.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="898.0" y="436.0"></omgdi:waypoint>
+        <omgdi:waypoint x="972.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="665.0" y="350.0"></omgdi:waypoint>
+        <omgdi:waypoint x="665.0" y="432.0"></omgdi:waypoint>
+        <omgdi:waypoint x="743.0" y="436.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="1173.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="451.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="348.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

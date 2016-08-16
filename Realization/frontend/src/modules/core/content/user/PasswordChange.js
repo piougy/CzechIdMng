@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import * as Basic from '../../../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../../../modules/core/services';
-import { SettingManager } from '../../../../redux';
 import { SecurityManager } from '../../../../modules/core/redux';
 
 const DISABLED = 'DISABLED';
@@ -17,7 +16,6 @@ const UI_KEY = 'user-accounts';
 const RESOURCE_IDM = '0:czechidm';
 
 const identityService = new IdentityService();
-const settingManager = new SettingManager();
 const securityManager = new SecurityManager();
 
 class PasswordChange extends Basic.AbstractContent {

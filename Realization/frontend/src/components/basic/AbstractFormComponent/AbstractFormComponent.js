@@ -51,9 +51,9 @@ class AbstractFormComponent extends AbstractContextComponent {
     }
     // validation
     if ((nextProps.required !== this.props.required) || (nextProps.validation !== this.props.validation)) {
-      this.setState({validation: this.getValidationDefinition(nextProps.required)}, function() {
+      this.setState({validation: this.getValidationDefinition(nextProps.required)}, () => {
         this.validate(false);
-      }.bind(this));
+      });
     }
   }
 
@@ -112,9 +112,9 @@ class AbstractFormComponent extends AbstractContextComponent {
     } else {
       this.setState({
         value: event.currentTarget.value
-      }, function() {
+      }, () => {
         this.validate();
-      }.bind(this));
+      });
     }
   }
 
@@ -129,7 +129,7 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   validate(showValidationError) {
-    let showValidations = showValidationError != null ? showValidationError : true;
+    const showValidations = showValidationError != null ? showValidationError : true;
     if (this.state.validation) {
       let result = this.state.validation.validate(this.state.value);
       // custom validate

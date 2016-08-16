@@ -1,40 +1,40 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.support.EntityLookupSupport;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 @Component
-public class IdmRoleLookup extends EntityLookupSupport<IdmRole>{
+public class IdmRoleLookup extends IdentifiableByNameLookup<IdmRole>{
 
-	//private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleLookup.class);
+	@Autowired 
+	private ApplicationContext applicationContext;
 	
 	@Autowired
 	private IdmRoleRepository roleRepository;
 	
 	@Override
-	public Serializable getResourceIdentifier(IdmRole role) {
-		return role.getName();
+	public IdmRole findOneByName(String name) {
+		return getRepository().findOneByName(name);
+	}
+
+	@Override
+	public IdmRole findOne(Long id) {
+		return getRepository().findOne(id);
 	}
 
 	/**
-	 * Role could be found by name (primary) or id
+	 * We need to inject repository lazily - we need security AOP to take effect
+	 * 
+	 * @return
 	 */
-	@Override
-	public Object lookupEntity(Serializable id) {
-		IdmRole role = roleRepository.findOneByName(id.toString());
-		if(role == null) {
-			try {
-				role = roleRepository.findOne(Long.valueOf(id.toString()));
-			} catch (NumberFormatException ex) {
-				// simply not found		
-			}
+	private IdmRoleRepository getRepository() {
+		if (roleRepository == null) {
+			roleRepository = applicationContext.getBean(IdmRoleRepository.class);
 		}
-		return role;
+		return roleRepository;
 	}
 	
 

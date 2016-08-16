@@ -1,37 +1,39 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.support.EntityLookupSupport;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 @Component
-public class IdmIdentityLookup extends EntityLookupSupport<IdmIdentity> {
-	
+public class IdmIdentityLookup extends IdentifiableByNameLookup<IdmIdentity> {
+
+	@Autowired
+	private ApplicationContext applicationContext;
+
 	@Autowired
 	private IdmIdentityRepository identityRepository;
-	
+
 	@Override
-	public Serializable getResourceIdentifier(IdmIdentity identity) {
-		return identity.getUsername();
+	public IdmIdentity findOneByName(String name) {
+		return getRepository().findOneByUsername(name);
+	}
+
+	@Override
+	public IdmIdentity findOne(Long id) {
+		return getRepository().findOne(id);
 	}
 
 	/**
-	 * Identity could be found by username (primary) or id
+	 * We need to inject repository lazily - we need security AOP to take effect
+	 * 
+	 * @return
 	 */
-	@Override
-	public Object lookupEntity(Serializable id) {
-		IdmIdentity identity = identityRepository.findOneByUsername(id.toString());
-		if(identity == null) {
-			try {
-				identity = identityRepository.findOne(Long.valueOf(id.toString()));
-			} catch (NumberFormatException ex) {
-				// simply not found		
-			}
+	private IdmIdentityRepository getRepository() {
+		if (identityRepository == null) {
+			identityRepository = applicationContext.getBean(IdmIdentityRepository.class);
 		}
-		return identity;
+		return identityRepository;
 	}
 }

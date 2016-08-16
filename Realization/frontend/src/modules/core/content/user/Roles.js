@@ -77,6 +77,27 @@ class Roles extends Basic.AbstractContent {
     });
   }
 
+  showProcessDetail(entity) {
+    this.context.router.push('workflow/history/processes/' + entity.id);
+  }
+
+  /**
+   * Compute background color row (added, removed, changed)
+   */
+  _rowClass({rowIndex, data}) {
+    if (data[rowIndex].processVariables.operationType === 'add') {
+      return 'bg-success';
+    }
+    if (data[rowIndex].processVariables.operationType === 'remove') {
+      return 'bg-danger';
+    }
+    if (data[rowIndex].processVariables.operationType === 'change') {
+      return 'bg-warning';
+    }
+    return null;
+  }
+
+
   save(event) {
     if (event) {
       event.preventDefault();
@@ -124,7 +145,7 @@ class Roles extends Basic.AbstractContent {
     this.closeDetail();
   }
 
-  onDelete(entity, event) {
+  _onDelete(entity, event) {
     if (event) {
       event.preventDefault();
     }
@@ -151,15 +172,17 @@ class Roles extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs['confirm-delete'].show(
-      this.i18n('content.user.roles.addRoleProcesse.deleteConfirm', {'processId': entity.id}),
+      this.i18n('content.user.roles.changeRoleProcesses.deleteConfirm', {'processId': entity.id}),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
       this.context.store.dispatch(workflowProcessInstanceManager.deleteEntity(entity, null, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('content.user.roles.addRoleProcesse.deleteSuccess', {'processId': entity.id})});
+          this.addMessage({ message: this.i18n('content.user.roles.changeRoleProcesses.deleteSuccess', {'processId': entity.id})});
         } else {
           this.addError(error);
         }
+        this.refs.tableProcesses.getWrappedInstance().reload();
+        this.refs.tablePermissionProcesses.getWrappedInstance().reload();
       }));
     }, () => {
       // Rejected
@@ -200,7 +223,10 @@ class Roles extends Basic.AbstractContent {
     const { detail } = this.state;
     let force = new SearchParameters();
     force = force.setFilter('identity', userID);
-    force = force.setFilter('processDefinitionKey', 'changeIdentityRoles');
+    force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
+    let forcePermissions = new SearchParameters();
+    forcePermissions = forcePermissions.setFilter('identity', userID);
+    forcePermissions = forcePermissions.setFilter('category', 'eu.bcvsolutions.identity.roles.change');
 
     //
     // sort entities by role name
@@ -234,11 +260,6 @@ class Roles extends Basic.AbstractContent {
                         {' '}
                         { this.i18n('changePermissions') }
                       </Basic.Button>
-                      <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={false}>
-                        <Basic.Icon value="fa:plus"/>
-                        {' '}
-                        {this.i18n('button.add')}
-                      </Basic.Button>
                     </div>
                     <div className="clearfix"></div>
                   </Basic.Toolbar>
@@ -271,23 +292,6 @@ class Roles extends Basic.AbstractContent {
                       property="validTill"
                       header={this.i18n('label.validTill')}
                       cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-                    <Basic.Column
-                      header={this.i18n('label.action')}
-                      className="action"
-                      cell={
-                        ({ rowIndex, data }) => {
-                          return (
-                            <Basic.Button
-                              level="danger"
-                              onClick={this.onDelete.bind(this, data[rowIndex])}
-                              className="btn-xs"
-                              title={this.i18n('button.delete', { delegate: data[rowIndex]._embedded.role.name })}
-                              titlePlacement="bottom">
-                              <Basic.Icon icon="trash"/>
-                            </Basic.Button>
-                          );
-                        }
-                      }/>
                     </Basic.Table>
                   </div>
                 }
@@ -309,43 +313,110 @@ class Roles extends Basic.AbstractContent {
             </div>
           </Basic.Row>
           <Basic.Panel>
-            <Basic.PanelHeader text={this.i18n('addRoleProcesse.header')}/>
+            <Basic.PanelHeader text={this.i18n('changeRoleProcesses.header')}/>
             <Advanced.Table
               ref="tableProcesses"
               uiKey="table-processes"
+              rowClass={this._rowClass}
               forceSearchParameters={force}
               manager={workflowProcessInstanceManager}
               pagination={false}>
               <Advanced.Column
                 property="detail"
-                cell={<Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this)}/>}
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                    );
+                  }
+                }
                 header={' '}
                 sort={false}
                 face="text"/>
-
               <Advanced.Column
-                property="currentTaskDefinition.name"
-                header={this.i18n('content.roles.processAdd.currentActivity')}
+                property="currentActivityName"
+                header={this.i18n('content.roles.processRoleChange.currentActivity')}
                 sort={false}
                 face="text"/>
               <Advanced.Column
                 property="processVariables.roleIdentifier"
                 cell={this._roleNameCell.bind(this)}
-                header={this.i18n('content.roles.processAdd.roleName')}
+                header={this.i18n('content.roles.processRoleChange.roleName')}
                 sort={false}
                 face="text"/>
               <Advanced.Column
                 property="processVariables.validFrom"
-                header={this.i18n('content.roles.processAdd.roleValidFrom')}
+                header={this.i18n('content.roles.processRoleChange.roleValidFrom')}
                 sort={false}
                 face="date"/>
               <Advanced.Column
                 property="processVariables.validTill"
-                header={this.i18n('content.roles.processAdd.roleValidTill')}
+                header={this.i18n('content.roles.processRoleChange.roleValidTill')}
                 sort={false}
                 face="date"/>
+              <Advanced.Column
+                property="id"
+                header={this.i18n('label.id')}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                header={this.i18n('label.action')}
+                className="action"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Basic.Button
+                        level="danger"
+                        onClick={this._onDeleteAddRoleProcessInstance.bind(this, data[rowIndex])}
+                        className="btn-xs"
+                        title={this.i18n('button.delete')}
+                        titlePlacement="bottom">
+                        <Basic.Icon icon="trash"/>
+                      </Basic.Button>
+                    );
+                  }
+                }/>
+            </Advanced.Table>
+          </Basic.Panel>
+          <Basic.Panel>
+            <Basic.PanelHeader text={this.i18n('changePermissionProcesses.header')}/>
+            <Advanced.Table
+              ref="tablePermissionProcesses"
+              uiKey="table-permission-processes"
+              forceSearchParameters={forcePermissions}
+              manager={workflowProcessInstanceManager}
+              pagination={false}>
+              <Advanced.Column
+                property="detail"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showProcessDetail.bind(this, data[rowIndex])}/>
+                    );
+                  }
+                }
+                header={' '}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="processVariables.processInstanceName"
+                header={this.i18n('content.roles.processPermissionChange.processInstanceName')}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="currentActivityName"
+                header={this.i18n('content.roles.processPermissionChange.currentActivity')}
+                sort={false}
+                face="text"/>
+              <Advanced.Column
+                property="id"
+                header={this.i18n('label.id')}
+                sort={false}
+                face="text"/>
               <Advanced.Column
                 header={this.i18n('label.action')}
                 className="action"
@@ -376,7 +447,7 @@ class Roles extends Basic.AbstractContent {
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
-                <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+                <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly className="form-horizontal">
                   <Basic.SelectBox
                     ref="role"
                     manager={roleManager}
@@ -399,14 +470,6 @@ class Roles extends Basic.AbstractContent {
                   onClick={this.closeDetail.bind(this)}
                   showLoading={_showLoading}>
                   {this.i18n('button.close')}
-                </Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoading={_showLoading}
-                  showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}>
-                  {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.Modal.Footer>
             </form>

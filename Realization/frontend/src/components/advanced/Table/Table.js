@@ -111,7 +111,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     let userSearchParameters = _searchParameters;
     userSearchParameters = userSearchParameters.setPage(0);
     for (const value in formData) {
-      console.log(value, formData[value]);
       if (!formData.hasOwnProperty(value)) {
         continue;
       }
@@ -125,10 +124,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   useFilterForm(filterForm) {
-    // const { _searchParameters } = this.props;
+    const { _searchParameters } = this.props;
     //
-    // const filters = [];
-    const data = {};
+    const filters = [];
     const filterValues = filterForm.getData();
     for (const property in filterValues) {
       if (!filterValues.hasOwnProperty(property)) {
@@ -162,10 +160,18 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       }
       filter.value = filledValue;
       // }
-      // filters.push(filter);
-      data[field] = filledValue;
+      filters.push(filter);
     }
-    this.useFilterData(data);
+    let userSearchParameters = _searchParameters;
+    userSearchParameters = userSearchParameters.setPage(0);
+    filters.forEach(filter => {
+      if (!filter.value) {
+        userSearchParameters = userSearchParameters.clearFilter(filter.field);
+      } else {
+        userSearchParameters = userSearchParameters.setFilter(filter.field, filter.value);
+      }
+    });
+    this.fetchEntities(userSearchParameters);
   }
 
   cancelFilter(filterForm) {

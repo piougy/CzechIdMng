@@ -59,7 +59,6 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(1, emailLogRepository.count());
 	}
 	
-	@Ignore
 	@Test
 	public void testFilterByDate() {
 		assertEquals(0, idmNotificationRepository.count());
@@ -82,7 +81,6 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
 	}
 	
-	@Ignore
 	@Test
 	public void testEmailFilterBySender() {
 		
@@ -98,7 +96,6 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		assertEquals(1, emailLogRepository.findByQuick(null, null, identity.getUsername(), null, null, null, null).getTotalElements());
 	}
 	
-	@Ignore
 	@Test
 	public void testEmailFilterBySent() {
 		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");

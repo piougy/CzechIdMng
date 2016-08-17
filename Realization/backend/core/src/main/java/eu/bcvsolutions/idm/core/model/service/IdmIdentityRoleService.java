@@ -14,4 +14,6 @@ public interface IdmIdentityRoleService {
 	IdmIdentityRole updateByDto(Long id, IdmIdentityRoleDto dto);
 
 	IdmIdentityRole addByDto(IdmIdentityRoleDto dto);
+
+	void delete(Long id);
 }

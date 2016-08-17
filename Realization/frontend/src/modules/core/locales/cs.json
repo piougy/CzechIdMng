@@ -591,11 +591,15 @@
       "save": {
         "success": "Role [{{name}}] byla úspěšně uložena"
       },
-      "processAdd": {
+      "processRoleChange": {
         "roleName": "Název role",
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
         "currentActivity": "Stav žádosti"
+      },
+      "processPermissionChange": {
+        "currentActivity": "Stav žádosti",
+        "processInstanceName": "Název žádosti"
       },
       "setting": {
         "basic": {
@@ -706,10 +710,13 @@
         "title": "$t(navigation.menu.roles.label)",
         "changePermissions": "Změnit oprávnění",
         "authorities": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
-        "addRoleProcesse": {
-          "header": "Žádosti o přiřazení nových rolí",
-          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o přiřazení nové role?",
-          "deleteSuccess": "Žádost o přidělení nové role byla úspěšně smazána."
+        "changeRoleProcesses": {
+          "header": "Role čekající na schválení",
+          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
+          "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
+        },
+        "changePermissionProcesses": {
+          "header": "Žádosti o změnu oprávnění"
         },
         "create": {
           "header": "Přiřazení nové role",

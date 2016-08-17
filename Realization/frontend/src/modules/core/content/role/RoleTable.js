@@ -43,7 +43,7 @@ export class RoleTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {

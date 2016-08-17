@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +26,15 @@ public interface IdmOrganizationRepository extends BaseRepository<IdmOrganizatio
 	
 	@Query(value = "select e from IdmOrganization e" +
 	        " where" +
-	        " lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
+	        "(:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" + 
+	        " and (:parent is null or e.parent = :parent)")
 	@RestResource(path = "quick", rel = "quick")
-	Page<IdmIdentity> findByNameOrParentName(@Param(value = "text") String text, Pageable pageable); // @Param(value = "parentName") String parentName
+	Page<IdmIdentity> findByNameOrParentName(@Param(value = "text") String text, @Param(value = "parent") IdmOrganization parent, Pageable pageable);
+
+	@Query(value = "select e from IdmOrganization e" +
+			" where" +
+			" (:parent is null and e.parent.id IS NULL) or (e.parent.id = :parent)")
+	@RestResource(path = "children", rel = "children")
+	List<IdmIdentity> findChildrenByParent(@Param(value = "parent") Long parent);
+	
 }

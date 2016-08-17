@@ -59,7 +59,7 @@ class Tree extends Basic.AbstractContextComponent {
   */
   _onToggle(node, toggled) {
     const {propertyParent, propertyId, uiKey} = this.props;
-    const filter = {filter: { operation: 'OR', filters: [{'field': propertyParent, 'value': node[propertyId]}]}};
+    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
     if (this.state.cursor) {
       this.state.cursor.active = false;
     }
@@ -170,7 +170,7 @@ class Tree extends Basic.AbstractContextComponent {
 
   render() {
     const { data } = this.state;
-    const { style, rendered } = this.props;
+    const { style, showLoading, rendered } = this.props;
     // I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
     const customDecorators = this._getDecorators();
     if (!rendered) {
@@ -178,7 +178,7 @@ class Tree extends Basic.AbstractContextComponent {
     }
     return (
       <div>
-          (showLoading ?
+          {showLoading ?
             <Basic.Well showLoading/>
             :
             <Treebeard
@@ -187,7 +187,7 @@ class Tree extends Basic.AbstractContextComponent {
               style={style ? style : defaultStyle}
               decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}
               />
-          )
+          }
         </div>
       );
   }

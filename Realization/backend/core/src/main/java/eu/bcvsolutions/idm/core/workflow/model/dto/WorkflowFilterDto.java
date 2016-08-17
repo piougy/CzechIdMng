@@ -23,6 +23,7 @@ public class WorkflowFilterDto {
 	private String superProcessInstanceId;
 	private String name;
 	private String id;
+	private String category;
 
 	public Map<String, Object> getEqualsVariables() {
 		if (equalsVariables == null) {
@@ -121,6 +122,14 @@ public class WorkflowFilterDto {
 
 	public void setSuperProcessInstanceId(String superProcessInstanceId) {
 		this.superProcessInstanceId = superProcessInstanceId;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	@JsonIgnore

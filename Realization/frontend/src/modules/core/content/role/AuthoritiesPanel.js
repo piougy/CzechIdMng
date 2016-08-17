@@ -117,18 +117,20 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
   render() {
     const { _showLoading, showLoading, disabled, rendered } = this.props;
     const { openedAuthorities, filledAuthorities } = this.state;
-
+    //
     if (!rendered) {
       return null;
     }
-
+    //
+    if (_showLoading || showLoading) {
+      return (
+        <Basic.Loading showLoading isStatic/>
+      );
+    }
+    //
     return (
       <div>
         {
-          (_showLoading || showLoading)
-          ?
-          <Basic.Loading showLoading isStatic/>
-          :
           !filledAuthorities
           ||
           filledAuthorities.map((permissions, authorityGroupName) => {

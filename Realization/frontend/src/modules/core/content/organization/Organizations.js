@@ -42,10 +42,10 @@ class Organizations extends Basic.AbstractContent {
     // this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, rootKey));
     this.selectNavigationItem('organizations');
   }
-  
+
   render() {
     const { _showLoading, _root } = this.props;
-    console.log("#", this.refs.organizationTree);
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />

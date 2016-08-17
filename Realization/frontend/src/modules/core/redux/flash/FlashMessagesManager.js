@@ -51,7 +51,6 @@ export default class FlashMessagesManager {
 
   addErrorMessage(message, error) {
     return (dispatch, getState) => {
-      /* eslint no-undef: 1 */
       if (DEBUG) {
         getState().logger.error(message, error);
       }
@@ -105,7 +104,7 @@ export default class FlashMessagesManager {
                 }
               }*/
             }));
-            dispatch(this._clearSetting());
+            dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
       // TODO: module defined exception handlers
@@ -133,12 +132,11 @@ export default class FlashMessagesManager {
     };
   }
 
-  // TODO: cyclic dependency in setting manager
-  _clearSetting() {
+  // TODO: cyclic dependency in configuration manager - refactor action constants
+  _clearConfiguations() {
     return {
-      type: 'CLEAR_ENTITIES',
-      entityType: 'Setting',
-      uiKey: 'Setting'
+      type: 'CLEAR_DATA',
+      uiKey: 'public-configurations'
     };
   }
 

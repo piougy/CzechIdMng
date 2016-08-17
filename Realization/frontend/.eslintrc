@@ -20,7 +20,8 @@
     "mocha": true
   },
   "globals": {
-      "$": false
+      "$": false,
+      "DEBUG": false
   },
   "rules": {
     "quotes": [2, "single" ],

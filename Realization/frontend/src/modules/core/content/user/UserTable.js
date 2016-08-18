@@ -48,8 +48,6 @@ export class UserTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { _searchParameters } = this.props;
-
     /*
     if (!this.refs.filterName.getValue() && !selectedOrganization) {
       this.cancelFilter();
@@ -65,16 +63,11 @@ export class UserTable extends Basic.AbstractContent {
         }
       ]
     }*/
-
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setFilter('text', this.refs.filterName.getValue() || '');
-    userSearchParameters = userSearchParameters.setPage(0);
-
     /*
     if (selectedOrganization){
       userSearchParameters.filter.filters.push(homeOrganisationFilter);
     }*/
-    this.refs.table.getWrappedInstance().fetchEntities(userSearchParameters);
+    this.refs.table.getWrappedInstance().useFilterData({ text: this.refs.filterName.getValue() || '' });
   }
 
   cancelFilter() {

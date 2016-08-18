@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import merge from 'object-assign';
+import _ from 'lodash';
 import Select from 'react-select';
 //
 import SelectBox from '../SelectBox/SelectBox';
@@ -55,21 +55,18 @@ class EnumSelectBox extends SelectBox {
   itemRenderer(enumItem, key) {
     let item;
     if (enumItem && enumItem.value && !enumItem[SelectBox.ITEM_FULL_KEY]) {
-      item = enumItem;
-      merge(item, {
+      item = _.merge({}, enumItem, {
         [SelectBox.NICE_LABEL]: enumItem.niceLabel ? enumItem.niceLabel : this._findNiceLabel(enumItem.value),
         [SelectBox.ITEM_FULL_KEY]: enumItem.value
       });
     } else {
-      item = {
-        value: enumItem
-      };
+      item = _.merge({}, enumItem);
       let niceLabel;
       if (this.props.enum) {
         niceLabel = this.props.enum.getNiceLabel(key);
       }
       const itemFullKey = niceLabel;
-      merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey});
+      _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey});
     }
     return item;
   }
@@ -159,12 +156,12 @@ class EnumSelectBox extends SelectBox {
     if (value instanceof Array && this.props.multiSelect === true) {
       const copyValue = [];
       for (const item of value) {
-        copyValue.push(this._convertValue((this._deletePrivateField(merge({}, item))).value));
+        copyValue.push(this._convertValue((this._deletePrivateField(_.merge({}, item))).value));
       }
       return copyValue;
     }
     // value is not array
-    const copyValue = merge({}, value);
+    const copyValue = _.merge({}, value);
     this._deletePrivateField(copyValue);
     return this._convertValue(copyValue.value);
   }
@@ -230,11 +227,11 @@ EnumSelectBox.propTypes = {
   placeholder: PropTypes.string,
   fieldLabel: PropTypes.string,
   multiSelect: PropTypes.bool,
-  enum: React.PropTypes.object,
-  options: React.PropTypes.array,
-  value: React.PropTypes.oneOfType([
-    React.PropTypes.arrayOf(React.PropTypes.symbol),
-    React.PropTypes.symbol
+  enum: PropTypes.object,
+  options: PropTypes.array,
+  value: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.symbol),
+    PropTypes.symbol
   ])
 };
 

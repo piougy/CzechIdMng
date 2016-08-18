@@ -86,7 +86,7 @@ class Tree extends Basic.AbstractContextComponent {
     const {propertyId, uiKey} = this.props;
     const nodeKey = uiKey + node[propertyId];
     const containsUiKey = this.getManager().containsUiKey(state, nodeKey);
-    if (containsUiKey && !node.loading) {
+    if (containsUiKey && node.loading && !node.loading) {
       return true;
     }
     if (containsUiKey) {
@@ -99,6 +99,9 @@ class Tree extends Basic.AbstractContextComponent {
             child.children = [];
           }
         }
+      } else {
+        node.isLeaf = true;
+        delete node.children;
       }
       node.loading = false;
       node.toggled = true;
@@ -135,7 +138,7 @@ class Tree extends Basic.AbstractContextComponent {
           return headerDecorator(headerProps);
         }
         const style = headerProps.style;
-        const iconType = headerProps.node.children ? 'folder' : 'file-text';
+        const iconType = headerProps.node.isLeaf ? 'file-text' : 'folder';
         const iconClass = `fa fa-${iconType}`;
         const iconStyle = { marginRight: '5px' };
         return (

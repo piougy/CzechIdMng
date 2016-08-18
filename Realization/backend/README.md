@@ -18,3 +18,8 @@ Java application deployable to Tomcat 8 application server.
 Default profile is using h2 database. It is not nessesary a configuration for first start.
 
 * TODO: profiles, db and other props
+
+## Demo user credentials
+
+* username: `admin`
+* password: `admin`

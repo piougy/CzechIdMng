@@ -10,12 +10,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.core.model.domain.CustomBasePermission;
-import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -29,7 +23,6 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;

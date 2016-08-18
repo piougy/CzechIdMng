@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
@@ -44,7 +42,6 @@ public class LoginController {
 	@RequestMapping(method = RequestMethod.GET)
 	public void test() {
 		IdmIdentity identityOne = identityRepository.findOneByUsername("tomiska");
-		IdmIdentity identityTwo = identityRepository.findOneByUsername("svanda");
 		notificationService.send("topicOne", new IdmMessage("Předmět", "text", "html"), identityOne);
 		// notificationService.send("topicTwo", new IdmMessage("Předmět2", "text2", "html2"), identityTwo);
 		// notificationService.send("topicOne", new IdmMessage("Předmět3", "text3", "html3"), Lists.newArrayList(identityOne, identityTwo));

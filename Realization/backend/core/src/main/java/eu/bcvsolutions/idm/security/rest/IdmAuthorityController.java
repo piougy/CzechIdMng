@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.security.rest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -14,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.configuration.service.impl.DefaultConfigurationService;
-import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.domain.GroupPermission;
 import eu.bcvsolutions.idm.security.dto.GroupPermissionDto;
 import eu.bcvsolutions.idm.security.service.SecurityService;

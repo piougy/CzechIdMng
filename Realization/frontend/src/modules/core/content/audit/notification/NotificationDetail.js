@@ -108,11 +108,11 @@ export default class NotificationDetail extends Basic.AbstractContent {
 
             <Basic.SelectBox hidden={!isNew} required
               ref="sender"
-              label={this.i18n('entity.Notification.from')}
+              label={this.i18n('entity.Notification.sender')}
               manager={this.identityManager}/>
 
           <Basic.LabelWrapper hidden={isNew}
-            label={this.i18n('entity.Notification.from')}>
+            label={this.i18n('entity.Notification.sender')}>
             <NotificationRecipient recipient={notification.sender} style={{ margin: '7px 0' }} identityOnly={identityOnly}/>
           </Basic.LabelWrapper>
 

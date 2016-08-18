@@ -162,7 +162,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity3.setPassword("heslo".getBytes());
 				identity3.setLastName("Kopr");
 				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
-				identity3 = this.identityRepository.save(identity2);
+				identity3 = this.identityRepository.save(identity3);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// create parent

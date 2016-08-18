@@ -6,6 +6,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.envers.Audited;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
@@ -20,12 +22,14 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 
 	private static final long serialVersionUID = -1594762884461330895L;
 	
+	@Audited
 	@NotNull
 	@JsonBackReference
 	@JoinColumn(name = "superior_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
 	private IdmRole superior;
 	
+	@Audited
 	@NotNull
 	@JoinColumn(name = "sub_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)

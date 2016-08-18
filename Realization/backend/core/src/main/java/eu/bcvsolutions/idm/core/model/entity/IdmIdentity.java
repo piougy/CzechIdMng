@@ -12,6 +12,7 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -34,6 +35,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
+	@Audited
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
@@ -44,6 +46,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "password", length = DefaultFieldLengths.PASSWORD)
 	private byte[] password;
 
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -55,39 +58,48 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@JsonIgnore
 	private Long version;
 
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "first_name", length = DefaultFieldLengths.NAME)
 	private String firstName;
 
+	@Audited
 	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "last_name", length = DefaultFieldLengths.NAME)
 	private String lastName;
 
+	@Audited
 	@Email
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)
 	@Column(name = "email", length = DefaultFieldLengths.EMAIL_ADDRESS)
 	private String email;
 
+	@Audited
 	@Size(max = 30)
 	@Column(name = "phone", length = 30)
 	private String phone;
 
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_before", length = 100)
 	private String titleBefore;
 
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_after", length = 100)
 	private String titleAfter;
 
+	@Audited
 	@Column(name = "description")
 	private String description;
 	
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	private List<IdmIdentityRole> roles;
 	
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	private List<IdmIdentityWorkingPosition> workingPositions;

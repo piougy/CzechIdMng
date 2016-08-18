@@ -42,10 +42,27 @@ class Organizations extends Basic.AbstractContent {
     // this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, rootKey));
     this.selectNavigationItem('organizations');
   }
-  
+
+  _orgTreeHeaderDecorator(props) {
+    const style = props.style;
+    const iconType = props.node.isLeaf ? 'group' : 'building';
+    const iconClass = `fa fa-${iconType}`;
+    const iconStyle = { marginRight: '5px' };
+    return (
+      <div style={style.base}>
+        <div style={style.title}>
+          <i className={iconClass} style={iconStyle}/>
+          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}}>
+            {props.node.name}
+          </Basic.Button>
+
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { _showLoading, _root } = this.props;
-    console.log("#", this.refs.organizationTree);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -67,11 +84,12 @@ class Organizations extends Basic.AbstractContent {
             ||
           <Advanced.Tree
             ref="organizationTree"
-            rootNode={{name: _root.name, shortName: 'Organizace', toggled: true, id: _root.id}}
+            rootNode={{name: _root.name, toggled: true, id: _root.id}}
             propertyId="id"
             propertyParent="parent"
             propertyName="name"
             showLoading={_showLoading}
+            headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
             uiKey="orgTree"
             manager={this.getManager()}
             />

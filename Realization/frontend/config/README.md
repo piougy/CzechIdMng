@@ -1,9 +1,13 @@
 # Configuration
 * Configuration folder is separated by profile (client) and stage (development/test/production)
 
-__For build (select configuration json) you can use command:__
+__For developing application with selected configuration you can use command (default value for profile is `default`  and for stage argument is `development`):__
 
-`gulp -p default -s test` (default values of profile and stage arguments are default/development)
+`gulp -p default -s development`
+
+__For building application with selected configuration you can use command (default value for profile is `default`  and for stage argument is `development`):__
+
+`gulp build -p default -s test`
 
 __Structure of configurations file:__
 
@@ -38,8 +42,6 @@ IMPORTANT: You have to use same block **id** in module descriptor and configurat
 ```
 ...
 "theme": "default",
-"crtEncrytpEnable": false,
-"crtSigningEnable": true,
 "overrideModuleDescriptor": {
   "core":{
     "navigation": {

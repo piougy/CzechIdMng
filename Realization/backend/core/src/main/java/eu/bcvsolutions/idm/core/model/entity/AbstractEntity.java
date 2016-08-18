@@ -11,6 +11,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -37,30 +38,36 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
+	@Audited
 	@CreatedDate
 	@Column(name = "created", nullable = false)
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Date created;
 
+	@Audited
 	@LastModifiedDate
 	@Column(name = "modified", nullable = false)
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Date modified;
 
+	@Audited
 	@CreatedBy
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "creator", length = DefaultFieldLengths.NAME, nullable = false)
 	private String creator;
 	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_creator", length = DefaultFieldLengths.NAME)
 	private String originalCreator;
 
+	@Audited
 	@LastModifiedBy
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "modifier", length = DefaultFieldLengths.NAME)
 	private String modifier;
 	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
 	private String originalModifier;

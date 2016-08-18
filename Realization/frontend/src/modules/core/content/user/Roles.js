@@ -16,6 +16,8 @@ const identityRoleManager = new IdentityRoleManager();
 const identityManager = new IdentityManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 
+const TEST_ADD_ROLE_DIRECTLY = false;
+
 class Roles extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -252,6 +254,11 @@ class Roles extends Basic.AbstractContent {
                 <div>
                   <Basic.Toolbar>
                     <div className="pull-right">
+                      <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={TEST_ADD_ROLE_DIRECTLY}>
+                        <Basic.Icon value="fa:plus"/>
+                        {' '}
+                        {this.i18n('button.add')}
+                      </Basic.Button>
                       <Basic.Button
                         style={{display: 'block'}}
                         level="warning"
@@ -436,6 +443,7 @@ class Roles extends Basic.AbstractContent {
                 }/>
             </Advanced.Table>
           </Basic.Panel>
+
           <Basic.Modal
             bsSize="default"
             show={detail.show}
@@ -447,7 +455,7 @@ class Roles extends Basic.AbstractContent {
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
-                <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly className="form-horizontal">
+                <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal" readOnly={!TEST_ADD_ROLE_DIRECTLY}>
                   <Basic.SelectBox
                     ref="role"
                     manager={roleManager}
@@ -470,6 +478,15 @@ class Roles extends Basic.AbstractContent {
                   onClick={this.closeDetail.bind(this)}
                   showLoading={_showLoading}>
                   {this.i18n('button.close')}
+                </Basic.Button>
+                <Basic.Button
+                  type="submit"
+                  level="success"
+                  showLoading={_showLoading}
+                  showLoadingIcon
+                  showLoadingText={this.i18n('button.saving')}
+                  rendered={TEST_ADD_ROLE_DIRECTLY}>
+                  {this.i18n('button.save')}
                 </Basic.Button>
               </Basic.Modal.Footer>
             </form>

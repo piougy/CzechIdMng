@@ -11,6 +11,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 @Entity
 @Table(name = "idm_identity_role")
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
@@ -18,19 +21,23 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	private static final long serialVersionUID = 9208706652291035265L;
 
 	@NotNull
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
 	private IdmIdentity identity;
 	
 	@NotNull
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
 	private IdmRole role;
 	
+	@Audited
 	@Column(name = "valid_from")
 	@Temporal(TemporalType.DATE)
 	private Date validFrom;
 	
+	@Audited
 	@Column(name = "valid_till")
 	@Temporal(TemporalType.DATE)
 	private Date validTill;

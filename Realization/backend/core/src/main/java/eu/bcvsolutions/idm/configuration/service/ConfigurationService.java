@@ -19,7 +19,7 @@ public interface ConfigurationService {
 	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
 
 	/**
-	 * Returns configured value for given key. If no value for given key is configered, then returns {@code null}.
+	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.
 	 * 
 	 * @param key
 	 * @return
@@ -27,7 +27,7 @@ public interface ConfigurationService {
 	String getValue(String key);
 	
 	/**
-	 * Returns configured value for given key. If no value for given key is configered, then returns given defaultValue.
+	 * Returns configured value for given key. If no value for given key is configured, then returns given defaultValue.
 	 * 
 	 * @param key
 	 * @param defaultValue

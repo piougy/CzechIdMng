@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "idm_configuration", indexes = { @Index(name = "ux_configuration_name", columnList = "name") })
+@Table(name = "idm_configuration", indexes = { @Index(name = "ux_configuration_name", columnList = "name", unique = true) })
 public class IdmConfiguration extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -8377477231407116537L;

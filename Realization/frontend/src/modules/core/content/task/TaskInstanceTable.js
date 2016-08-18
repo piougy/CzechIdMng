@@ -45,16 +45,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    this.setState({
-      detail: {
-        show: true,
-        showLoading: false,
-        entity
-      }
-    }, () => {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    });
+    this.context.router.push('task/' + entity.id);
   }
 
   closeDetail() {
@@ -66,41 +57,9 @@ export class TaskInstanceTable extends Basic.AbstractContent {
     });
   }
 
-  save(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const entity = this.refs.form.getData();
-    const { taskInstanceManager, uiKey } = this.props;
-    //
-    if (entity.id === undefined) {
-      this.context.store.dispatch(taskInstanceManager.createEntity(entity, `${uiKey}-detail`, (entity, error) => {
-        this._afterSave(entity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    } else {
-      this.context.store.dispatch(taskInstanceManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
-  }
-
-  _afterSave(entity, error) {
-    if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
-  }
-
   render() {
-    const { uiKey, taskInstanceManager, columns, _showLoading } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { uiKey, taskInstanceManager, columns } = this.props;
+    const { filterOpened} = this.state;
 
     return (
       <div>

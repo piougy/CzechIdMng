@@ -24,13 +24,15 @@ import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 
 /**
- * Main idm class - identity. Identity and their roles - whole application runs around it :)
+ * Main idm class - identity. Identity and their roles - whole application runs
+ * around it :)
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
 @Entity
-@Table(name = "idm_identity", indexes = { @Index(name = "ux_identity_username", columnList = "username") })
+@Table(name = "idm_identity", indexes = {
+		@Index(name = "ux_identity_username", columnList = "username", unique = true) })
 public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3387957881104260630L;
@@ -50,7 +52,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
-	
+
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -104,7 +106,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	public String getUsername() {
 		return username;
 	}
-	
+
 	@Override
 	public String getName() {
 		return getUsername();
@@ -196,14 +198,14 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	public void setRoles(List<IdmIdentityRole> roles) {
 		this.roles = roles;
 	}
-	
+
 	public List<IdmIdentityWorkingPosition> getWorkingPositions() {
 		if (workingPositions == null) {
 			workingPositions = new ArrayList<>();
 		}
 		return workingPositions;
 	}
-	
+
 	public void setWorkingPositions(List<IdmIdentityWorkingPosition> workingPositions) {
 		this.workingPositions = workingPositions;
 	}

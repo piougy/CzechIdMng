@@ -6,11 +6,14 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 
@@ -30,6 +33,10 @@ public class IdmOrganization extends AbstractEntity {
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
+	
+	@Version
+	@JsonIgnore
+	private Long version; // Optimistic lock - will be used with ETag
 	
 	@Audited
 	@ManyToOne(optional = true)

@@ -11,12 +11,14 @@ import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -41,6 +43,10 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
+	
+	@Version
+	@JsonIgnore
+	private Long version; // Optimistic lock - will be used with ETag
 	
 	@Audited
 	@NotNull

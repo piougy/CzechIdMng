@@ -9,10 +9,17 @@ Java application deployable to Tomcat 8 application server.
 
 ## Installation
 
-* Install `Tomcat 8`, `JDK 8` and `maven` (at least 3.1 is required)
+* Install `Tomcat 8.0.*`, `JDK 8` and `maven` (at least 3.1 is required)
 * Open all project in your favorite IDE (we are using eclipse).
 * build + deploy `.war` file located in `client` module target folder to Tomcat
 
 ## Configuration
-* TODO: configure default profile to h2 db
-* TODO: db and other props
+
+Default profile is using h2 database. It is not nessesary a configuration for first start.
+
+* TODO: profiles, db and other props
+
+## Demo user credentials
+
+* username: `admin`
+* password: `admin`

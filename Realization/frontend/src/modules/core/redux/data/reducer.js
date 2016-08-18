@@ -188,7 +188,6 @@ export function data(state = INITIAL_STATE, action) {
     }
     case CLEAR_ENTITIES: {
       const entityType = action.entityType;
-      const uiKey = action.uiKey;
       const entityTypes = merge({}, state.entity, {
         [entityType]: new Immutable.Map({})
       });
@@ -207,14 +206,9 @@ export function data(state = INITIAL_STATE, action) {
       });
     }
     case LOGOUT: {
-      // clear whole state except setting
+      // clear whole state
       const newState = INITIAL_STATE;
-      // setting will be preserved
-      return merge({}, newState, {
-        entity: merge({}, newState.entity, {
-          Setting: state.entity.Setting
-        })
-      });
+      return merge({}, newState);
     }
     case RECEIVE_DATA: {
       const ui = merge({}, state.ui, {
@@ -233,7 +227,7 @@ export function data(state = INITIAL_STATE, action) {
         return state;
       }
       return merge({}, state, {
-        data: data.delete(uiKey)
+        data: state.data.delete(uiKey)
       });
     }
     case START_BULK_ACTION: {

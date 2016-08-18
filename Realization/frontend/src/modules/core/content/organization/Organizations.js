@@ -63,6 +63,7 @@ class Organizations extends Basic.AbstractContent {
 
   render() {
     const { _showLoading, _root } = this.props;
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />

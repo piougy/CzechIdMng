@@ -46,7 +46,7 @@ public class LoginController {
 		IdmIdentity identityOne = identityRepository.findOneByUsername("tomiska");
 		IdmIdentity identityTwo = identityRepository.findOneByUsername("svanda");
 		notificationService.send("topicOne", new IdmMessage("Předmět", "text", "html"), identityOne);
-		notificationService.send("topicTwo", new IdmMessage("Předmět2", "text2", "html2"), identityTwo);
-		notificationService.send("topicOne", new IdmMessage("Předmět3", "text3", "html3"), Lists.newArrayList(identityOne, identityTwo));
+		// notificationService.send("topicTwo", new IdmMessage("Předmět2", "text2", "html2"), identityTwo);
+		// notificationService.send("topicOne", new IdmMessage("Předmět3", "text3", "html3"), Lists.newArrayList(identityOne, identityTwo));
 	}
 }

@@ -106,49 +106,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return children;
   }
 
-  useFilterData(formData) {
-    const { _searchParameters } = this.props;
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setPage(0);
-    for (const value in formData) {
-      console.log(value, formData[value]);
-      if (!formData.hasOwnProperty(value)) {
-        continue;
-      }
-      if (!formData[value]) {
-        userSearchParameters = userSearchParameters.clearFilter(value);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(value, formData[value]);
-      }
-      this.fetchEntities(userSearchParameters);
-    }
-  }
-
   useFilterForm(filterForm) {
-    // const { _searchParameters } = this.props;
-    //
-    // const filters = [];
-    const data = {};
+    const filters = {};
     const filterValues = filterForm.getData();
     for (const property in filterValues) {
       if (!filterValues.hasOwnProperty(property)) {
         continue;
       }
       const filterComponent = filterForm.getComponent(property);
-      /*
-      let relation = filterComponent.props.relation;
-      if (!relation) {
-        if (filterComponent.props.enum) { // enumeration
-          relation = Filter.DEFAUT_ENUM_RELATION;
-        }
-        relation = Filter.DEFAUT_RELATION;
-      }*/
       const field = filterComponent.props.field || property;
-      //
-      const filter = {
-        field,
-        // relation: relation
-      };
+      // TODO: implement multi value filters
       /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
         let filledValues = filterValues[property];
         if (filterComponent.props.enum) { // enumeration
@@ -160,12 +127,27 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       if (filterComponent.props.enum) { // enumeration
         filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
       }
-      filter.value = filledValue;
-      // }
-      // filters.push(filter);
-      data[field] = filledValue;
+      filters[field] = filledValue;
     }
-    this.useFilterData(data);
+    this.useFilterData(filters);
+  }
+
+  useFilterData(formData) {
+    const { _searchParameters } = this.props;
+    //
+    let userSearchParameters = _searchParameters;
+    userSearchParameters = userSearchParameters.setPage(0);
+    for (const property in formData) {
+      if (!formData.hasOwnProperty(property)) {
+        continue;
+      }
+      if (!formData[property]) {
+        userSearchParameters = userSearchParameters.clearFilter(property);
+      } else {
+        userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
+      }
+    }
+    this.fetchEntities(userSearchParameters);
   }
 
   cancelFilter(filterForm) {

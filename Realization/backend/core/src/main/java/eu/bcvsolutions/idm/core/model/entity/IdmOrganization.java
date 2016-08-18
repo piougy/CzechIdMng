@@ -21,7 +21,7 @@ public class IdmOrganization extends AbstractEntity {
 
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
 	@NotNull

@@ -10,7 +10,9 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
@@ -22,8 +24,8 @@ public class IdmNotificationRecipient extends AbstractEntity {
 
 	private static final long serialVersionUID = 6041589660726734115L;
 
-	@JsonIgnore
 	@NotNull
+	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "notification_id", referencedColumnName = "id")
 	private IdmNotification notification;

@@ -20,6 +20,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -36,11 +37,13 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 
 	@Embedded
 	private IdmMessage message;
-
-	@JoinColumn(name = "from_id", referencedColumnName = "id")
+	
+	@JsonManagedReference
+	@JoinColumn(name = "sender_id", referencedColumnName = "id")
 	@ManyToOne(optional = true, cascade = CascadeType.ALL)
-	private IdmNotificationRecipient from;
-
+	private IdmNotificationRecipient sender;
+	
+	@JsonManagedReference
 	@OneToMany(mappedBy = "notification", cascade = CascadeType.ALL) // orphan removal is not necessary - notification can be added only
 	private List<IdmNotificationRecipient> recipients;
 	
@@ -59,12 +62,12 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id")
 	private IdmNotification parent;
 	
-	public void setFrom(IdmNotificationRecipient from) {
-		this.from = from;
+	public void setSender(IdmNotificationRecipient sender) {
+		this.sender = sender;
 	}
 	
-	public IdmNotificationRecipient getFrom() {
-		return from;
+	public IdmNotificationRecipient getSender() {
+		return sender;
 	}
 
 	public void setRecipients(List<IdmNotificationRecipient> recipients) {

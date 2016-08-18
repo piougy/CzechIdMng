@@ -103,8 +103,8 @@ public class DefaultEmailer implements Emailer {
 			headers.put("From", from);
 		}
 		// when from is given - transform to reply to
-		if (emailLog.getFrom() != null && StringUtils.isNotBlank(emailLog.getFrom().getRealRecipient())) {
-			headers.put("Reply-To", emailLog.getFrom().getRealRecipient());
+		if (emailLog.getSender() != null && StringUtils.isNotBlank(emailLog.getSender().getRealRecipient())) {
+			headers.put("Reply-To", emailLog.getSender().getRealRecipient());
 		}
 		headers.put("Subject", emailLog.getMessage().getSubject());
 		

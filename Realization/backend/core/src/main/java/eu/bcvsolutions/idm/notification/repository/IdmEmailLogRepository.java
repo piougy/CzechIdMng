@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
 	
 	// TODO: refactor using jpa criteria - is not possible to use named parameters now (because optional date parameters) and readability is lost ... 
-	@Query(value = "select e from IdmEmailLog e left join e.from.identityRecipient fr" +
+	@Query(value = "select e from IdmEmailLog e left join e.sender.identityRecipient fr" +
 	        " where "
 	        + "("
 	        	+ "?#{[0]} is null "

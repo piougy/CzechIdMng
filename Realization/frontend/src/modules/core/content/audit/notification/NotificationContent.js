@@ -21,24 +21,46 @@ class NotificationContent extends Basic.AbstractContent {
     return 'content.notification';
   }
 
+  _getIsNew() {
+    const { query } = this.props.location;
+    return (query) ? query.new : null;
+  }
+
   componentDidMount() {
     this.selectNavigationItem('notifications');
     const { entityId } = this.props.params;
-    //
-    this.getLogger().debug(`[NotificationContent] loading entity detail [id:${entityId}]`);
-    this.context.store.dispatch(notificationManager.fetchEntity(entityId));
+    const isNew = this._getIsNew();
+    if (isNew) {
+      this.context.store.dispatch(notificationManager.receiveEntity(entityId, { }));
+    } else {
+      this.getLogger().debug(`[NotificationContent] loading entity detail [id:${entityId}]`);
+      this.context.store.dispatch(notificationManager.fetchEntity(entityId));
+    }
   }
 
   render() {
     const { notification, showLoading } = this.props;
+    const isNew = this._getIsNew();
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
+        <Helmet title={
+            isNew
+            ?
+            this.i18n('titleNew')
+            :
+            this.i18n('title')
+          } />
 
         <Basic.PageHeader>
           <Basic.Icon value="fa:envelope"/>
           {' '}
-          {this.i18n('header')}
+          {
+            isNew
+            ?
+            this.i18n('headerNew')
+            :
+            this.i18n('header')
+          }
         </Basic.PageHeader>
 
         <Basic.Panel>
@@ -46,11 +68,8 @@ class NotificationContent extends Basic.AbstractContent {
           {
             !notification
             ||
-            <NotificationDetail notification={notification} />
+            <NotificationDetail notification={notification} isNew={isNew ? true : false} />
           }
-          <Basic.PanelFooter rendered={!showLoading}>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-          </Basic.PanelFooter>
         </Basic.Panel>
 
       </div>

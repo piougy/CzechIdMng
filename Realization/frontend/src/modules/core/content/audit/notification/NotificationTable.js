@@ -9,6 +9,7 @@ import NotificationStateEnum from 'core/enums/NotificationStateEnum';
 import NotificationRecipientCell from './NotificationRecipientCell';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
+import uuid from 'uuid';
 
 /**
 * Table of roles
@@ -55,7 +56,13 @@ export class NotificationTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.push('/audit/notification/' + entity.id);
+
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/audit/notification/${uuidId}?new=1`);
+    } else {
+      this.context.router.push('/audit/notification/' + entity.id);
+    }
   }
 
   render() {
@@ -138,6 +145,15 @@ export class NotificationTable extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
+          buttons={
+            [
+              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.add')}
+              </Basic.Button>
+            ]
+          }
           >
 
           <Advanced.Column
@@ -159,7 +175,7 @@ export class NotificationTable extends Basic.AbstractContent {
             property="recipients"
             cell={<NotificationRecipientsCell identityOnly />}/>
           <Advanced.Column
-            property="from"
+            property="sender"
             cell={<NotificationRecipientCell identityOnly />}/>
           <Advanced.Column
             property="sent"

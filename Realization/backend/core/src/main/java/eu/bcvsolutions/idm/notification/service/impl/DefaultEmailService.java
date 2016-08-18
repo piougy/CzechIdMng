@@ -99,8 +99,8 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
 		});
 		// clone from - resolve real email
-		if (notification.getFrom() != null) {
-			emailLog.setFrom(cloneRecipient(emailLog, notification.getFrom()));
+		if (notification.getSender() != null) {
+			emailLog.setSender(cloneRecipient(emailLog, notification.getSender()));
 		}
 		return emailLogRepository.save(emailLog);
 	}

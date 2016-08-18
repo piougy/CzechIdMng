@@ -51,12 +51,9 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
 	
-	/**
-	 * Optimistic lock - will be used with ETag
-	 */
 	@Version
 	@JsonIgnore
-	private Long version;
+	private Long version; // Optimistic lock - will be used with ETag
 
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)

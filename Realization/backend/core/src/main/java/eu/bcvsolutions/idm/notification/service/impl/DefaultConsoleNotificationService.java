@@ -57,8 +57,8 @@ public class DefaultConsoleNotificationService extends AbstractNotificationServi
 			notificationLog.getRecipients().add(new IdmNotificationRecipient(notificationLog, recipient.getIdentityRecipient(), NOTIFICATION_TYPE));
 		});
 		// clone from - resolve real email
-		if (notification.getFrom() != null) {
-			notificationLog.setFrom(cloneRecipient(notificationLog, notification.getFrom()));
+		if (notification.getSender() != null) {
+			notificationLog.setSender(cloneRecipient(notificationLog, notification.getSender()));
 		}
 		return logRepository.save(notificationLog);
 	}

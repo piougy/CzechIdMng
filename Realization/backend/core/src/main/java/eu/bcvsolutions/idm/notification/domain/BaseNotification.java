@@ -24,9 +24,9 @@ public interface BaseNotification {
 	 * Notification sender - could be filled, when notification is send from
 	 * some user
 	 * 
-	 * @param from
+	 * @param sender
 	 */
-	void setFrom(IdmNotificationRecipient from);
+	void setSender(IdmNotificationRecipient sender);
 
 	/**
 	 * Notification sender - could be filled, when notification is send from
@@ -34,7 +34,7 @@ public interface BaseNotification {
 	 * 
 	 * @return
 	 */
-	IdmNotificationRecipient getFrom();
+	IdmNotificationRecipient getSender();
 
 	/**
 	 * Notification recipients

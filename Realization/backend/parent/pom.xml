@@ -46,6 +46,15 @@
 			</roles>
 			<email>radek.tomiska@bcvsolutions.eu</email>
 		</developer>
+		<developer>
+			<id>OK</id>
+			<name>Ondřej Kopr</name>
+			<roles>
+				<role>Developer</role>
+				<role>Waterboy :)</role>
+			</roles>
+			<email>ondrej.kopr@bcvsolutions.eu</email>
+		</developer>
 	</developers>
 
 	<properties>

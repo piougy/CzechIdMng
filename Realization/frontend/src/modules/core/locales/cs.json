@@ -917,12 +917,17 @@
       }
     },
     "notification": {
+      "headerNew": "Notifikace",
       "header": "Detail notifikace",
       "title": "Detail notifikace",
+      "titleNew": "Notifikace",
       "relatedNotifications": "Záznamy při odeslání",
       "label": {
         "notSent": "Neodesláno",
         "sentPartly": "Částečně"
+      },
+      "save": {
+        "success": "Uložení notifikace bylo úspěšně uloženo"
       }
     },
     "emails": {
@@ -1160,7 +1165,7 @@
         "textMessage": "Zpráva (text)",
         "htmlMessage": "Zpráva (html)"
       },
-      "from": "Odesílatel",
+      "sender": "Odesílatel",
       "recipients": "Příjemci",
       "sent": "Odesláno",
       "sentLog": "Zpráva při odeslání",

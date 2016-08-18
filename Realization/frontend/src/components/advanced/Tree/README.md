@@ -1,6 +1,7 @@
 # Advanced Tree component
 
-Component for view tree of entities. Using EntityManager.
+Component for view tree of entities. Using EntityManager. For correct show leafs in tree, you must have attribute "isLeaf (false/true)" in
+nodes data.
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
@@ -14,7 +15,6 @@ Component for view tree of entities. Using EntityManager.
 | loadingDecorator  | func   |  Can be use for override loading decorator |default decorator |
 | toggleDecorator  | func   |  Can be use for override toggle decorator | default decorator|
 | headerDecorator  | func   |  Can be use for override header decorator | default decorator| |
-
 
 ## Usage
 ### Simplest example:
@@ -30,6 +30,7 @@ Component for view tree of entities. Using EntityManager.
   />
 ```
 ### Example with custom Header decorator:
+Custom decorator in this case provide use custom icons and add custom link button for start filtering after click on node.
 ```javascript
 
 <Advanced.Tree

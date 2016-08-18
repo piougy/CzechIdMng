@@ -71,8 +71,8 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient));
 		});
 		// clone from - resolve real email
-		if (notification.getFrom() != null) {
-			notificationLog.setFrom(cloneRecipient(notificationLog, notification.getFrom()));
+		if (notification.getSender() != null) {
+			notificationLog.setSender(cloneRecipient(notificationLog, notification.getSender()));
 		}
 		return idmNotificationRepository.save(notificationLog);
 	}

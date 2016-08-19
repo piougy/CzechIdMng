@@ -58,7 +58,7 @@ public class DefaultConsoleNotificationService extends AbstractNotificationServi
 		});
 		// clone from - resolve real email
 		if (notification.getSender() != null) {
-			notificationLog.setSender(cloneRecipient(notificationLog, notification.getSender()));
+			notificationLog.setSender(notification.getSender());
 		}
 		return logRepository.save(notificationLog);
 	}

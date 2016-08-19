@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -29,6 +30,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	
 	private static final long serialVersionUID = -4935521717718151720L;
 
+	@Audited
 	@NotNull
 	@JsonBackReference
 	@ManyToOne(optional = false)
@@ -37,6 +39,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Group
 	 */
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "target_permission", length = DefaultFieldLengths.NAME, nullable = false)
@@ -44,6 +47,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Base permission
 	 */
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "action_permission", length = DefaultFieldLengths.NAME, nullable = false)

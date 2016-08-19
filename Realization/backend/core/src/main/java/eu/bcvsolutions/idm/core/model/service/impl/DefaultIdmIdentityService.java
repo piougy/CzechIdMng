@@ -8,21 +8,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 @Service
@@ -42,28 +30,6 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		//check duplication
 		//checkDuplicationWorkflow(identity, variables);
 		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), variables);	
-	}
-
-	
-
-	/**
-	 * Check on exist duplication workflow
-	 * 
-	 * @param identity
-	 * @param role
-	 * @param filter
-	 */
-	private void checkDuplicationWorkflow(IdmIdentity identity, Map<String, Object> variables) {
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setProcessDefinitionKey(ADD_ROLE_TO_IDENTITY_WORKFLOW);
-		filter.getEqualsVariables().putAll(variables);
-
-		ResourcesWrapper<WorkflowProcessInstanceDto> result = workflowProcessInstanceService.search(filter);
-		if (result != null && result.getResources() != null && !result.getResources().isEmpty()) {
-			throw new RestApplicationException(CoreResultCode.CONFLICT,
-					"For identity %s change permission workflow already exist!",
-					ImmutableMap.of("identity", identity.getUsername()));
-		}
 	}
 
 	@Override

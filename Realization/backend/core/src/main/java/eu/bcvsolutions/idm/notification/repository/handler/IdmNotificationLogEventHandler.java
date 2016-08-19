@@ -28,6 +28,12 @@ public class IdmNotificationLogEventHandler {
 		throw new UnsupportedOperationException("Update notification is not supported. Use POST method for creating new notification");
 	}
 	
+	/**
+	 * Send notification after notificationLog is created ...
+	 * TODO: switch to handleBeforeCreate and skip standard persist - this could have problem with transactions (notification will be created even sending fails unexpectedly)
+	 * 
+	 * @param notificationLog
+	 */
 	@HandleAfterCreate
 	public void handleAfterCreate(IdmNotificationLog notificationLog) {
 		log.debug("Notification log [{}] was created and notificatio will be send.", notificationLog);

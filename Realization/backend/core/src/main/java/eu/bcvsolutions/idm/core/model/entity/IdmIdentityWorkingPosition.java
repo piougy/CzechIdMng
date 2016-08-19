@@ -10,35 +10,43 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 @Entity
 @Table(name = "idm_identity_working_position")
 public class IdmIdentityWorkingPosition extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
 	private IdmIdentity identity;
 	
+	@Audited
 	@Column(name = "valid_from")
 	@Temporal(TemporalType.DATE)
 	private Date validFrom;
 	
+	@Audited
 	@Column(name = "valid_till")
 	@Temporal(TemporalType.DATE)
 	private Date validTill;
 	
+	@Audited
 	@Column(name = "position")
 	private String position; // TODO: will be codelist
 	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "manager_id", referencedColumnName = "id")
 	private IdmIdentity manager;
 	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "organization_id", referencedColumnName = "id")
 	private IdmOrganization organization;
-	
 	
 	public IdmIdentityWorkingPosition() {
 	}

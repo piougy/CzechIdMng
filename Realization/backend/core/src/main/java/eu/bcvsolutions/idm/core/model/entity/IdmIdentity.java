@@ -12,6 +12,7 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -23,17 +24,20 @@ import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 
 /**
- * Main idm class - identity. Identity and their roles - whole application runs around it :)
+ * Main idm class - identity. Identity and their roles - whole application runs
+ * around it :)
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
 @Entity
-@Table(name = "idm_identity", indexes = { @Index(name = "ux_identity_username", columnList = "username") })
+@Table(name = "idm_identity", indexes = {
+		@Index(name = "ux_identity_username", columnList = "username", unique = true) })
 public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
+	@Audited
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
@@ -44,50 +48,57 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "password", length = DefaultFieldLengths.PASSWORD)
 	private byte[] password;
 
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
-	
-	/**
-	 * Optimistic lock - will be used with ETag
-	 */
+
 	@Version
 	@JsonIgnore
-	private Long version;
+	private Long version; // Optimistic lock - will be used with ETag
 
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "first_name", length = DefaultFieldLengths.NAME)
 	private String firstName;
 
+	@Audited
 	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "last_name", length = DefaultFieldLengths.NAME)
 	private String lastName;
 
+	@Audited
 	@Email
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)
 	@Column(name = "email", length = DefaultFieldLengths.EMAIL_ADDRESS)
 	private String email;
 
+	@Audited
 	@Size(max = 30)
 	@Column(name = "phone", length = 30)
 	private String phone;
 
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_before", length = 100)
 	private String titleBefore;
 
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_after", length = 100)
 	private String titleAfter;
 
+	@Audited
 	@Column(name = "description")
 	private String description;
 	
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	private List<IdmIdentityRole> roles;
 	
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	private List<IdmIdentityWorkingPosition> workingPositions;
@@ -95,7 +106,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	public String getUsername() {
 		return username;
 	}
-	
+
 	@Override
 	public String getName() {
 		return getUsername();
@@ -187,14 +198,14 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	public void setRoles(List<IdmIdentityRole> roles) {
 		this.roles = roles;
 	}
-	
+
 	public List<IdmIdentityWorkingPosition> getWorkingPositions() {
 		if (workingPositions == null) {
 			workingPositions = new ArrayList<>();
 		}
 		return workingPositions;
 	}
-	
+
 	public void setWorkingPositions(List<IdmIdentityWorkingPosition> workingPositions) {
 		this.workingPositions = workingPositions;
 	}

@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
@@ -70,10 +68,7 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 		notification.getRecipients().forEach(recipient -> {
 			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient));
 		});
-		// clone from - resolve real email
-		if (notification.getSender() != null) {
-			notificationLog.setSender(cloneRecipient(notificationLog, notification.getSender()));
-		}
+		notificationLog.setSender(notification.getSender());
 		return idmNotificationRepository.save(notificationLog);
 	}
 }

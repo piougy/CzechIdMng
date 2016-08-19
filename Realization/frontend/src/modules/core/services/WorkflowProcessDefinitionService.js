@@ -1,13 +1,16 @@
-
-
 import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
+import SearchParameters from '../domain/SearchParameters';
 
 class WorkflowProcessDefinitionService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/definitions/';
+    return '/workflow/definitions';
+  }
+
+  getSearchQuickApiPatch() {
+    return '/workflow/definitions/search/quick';
   }
 
   getNiceLabel(entity) {
@@ -18,11 +21,17 @@ class WorkflowProcessDefinitionService extends AbstractService {
   }
 
   /**
-   * Find all current Workflow definitions
+   * Returns default searchParameters for current entity type
+   *
+   * @return {object} searchParameters
    */
-  getAllDefinitions() {
+  getDefaultSearchParameters() {
+    return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
+  }
+
+  _getDefinitions(apiUrl) {
     return RestApiService
-      .get(this.getApiPath())
+      .get(apiUrl + '/')
       .then(response => {
         return response.json();
       })
@@ -32,6 +41,20 @@ class WorkflowProcessDefinitionService extends AbstractService {
         }
         return json;
       });
+  }
+
+  /**
+   * Find current workflow definitions by search quick api
+   */
+  getSeachQuickDefinitions() {
+    return this._getDefinitions(this.getSearchQuickApiPatch());
+  }
+
+  /**
+   * Find all current Workflow definitions
+   */
+  getAllDefinitions() {
+    return this._getDefinitions(this.getApiPath());
   }
 
   /**

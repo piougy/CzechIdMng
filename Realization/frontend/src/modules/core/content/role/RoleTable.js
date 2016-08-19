@@ -313,7 +313,7 @@ export class RoleTable extends Basic.AbstractContent {
                         componentSpan=""
                         ref="approveAddWorkflow"
                         label={this.i18n('entity.Role.approveAddWorkflow')}
-                        forceSearchParameters={ new SearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve') }
+                        forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.add') }
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                       <Basic.SelectBox
@@ -321,7 +321,7 @@ export class RoleTable extends Basic.AbstractContent {
                         componentSpan=""
                         ref="approveRemoveWorkflow"
                         label={this.i18n('entity.Role.approveRemoveWorkflow')}
-                        forceSearchParameters={ new SearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve') }
+                        forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.remove') }
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                     </div>

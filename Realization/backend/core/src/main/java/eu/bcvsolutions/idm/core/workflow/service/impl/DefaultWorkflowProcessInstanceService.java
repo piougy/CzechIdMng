@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -184,12 +185,22 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (instance == null) {
 			return null;
 		}
-
+		
+		String instanceName = instance.getName();
+		// If we don't have process name, then we try variable with key processInstanceName
+		if(instanceName == null && instance.getProcessVariables() != null 
+				&& instance.getProcessVariables().containsKey(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME)){
+			instanceName = (String) instance.getProcessVariables().get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
+		}
+		if(instanceName == null || instanceName.isEmpty()){
+			instanceName = instance.getProcessDefinitionName();
+		}
+		
 		WorkflowProcessInstanceDto dto = new WorkflowProcessInstanceDto();
 		dto.setId(instance.getId());
 		dto.setActivityId(instance.getActivityId());
 		dto.setBusinessKey(instance.getBusinessKey());
-		dto.setName(instance.getName() != null ? instance.getName() : instance.getProcessDefinitionName());
+		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
 		dto.setProcessDefinitionKey(instance.getProcessDefinitionKey());
 		dto.setProcessDefinitionName(instance.getProcessDefinitionName());

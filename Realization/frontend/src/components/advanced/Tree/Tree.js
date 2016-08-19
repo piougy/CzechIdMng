@@ -32,6 +32,25 @@ class Tree extends Basic.AbstractContextComponent {
     }
   }
 
+  reload() {
+    const { rendered, uiKey, rootNode, propertyId, propertyParent } = this.props;
+    if (!rendered) {
+      return;
+    }
+    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, rootNode[propertyId]);
+    const nodeKey = uiKey + rootNode[propertyId];
+    this.context.store.dispatch(this.getManager().fetchEntities(filter, nodeKey));
+  }
+
+  _mergeSearchParameters(searchParameters) {
+    const { defaultSearchParameters, forceSearchParameters } = this.props;
+    let _forceSearchParameters = null;
+    if (forceSearchParameters) {
+      _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
+    }
+    return this.getManager().mergeSearchParameters(searchParameters || defaultSearchParameters || this.getManager().getDefaultSearchParameters(), _forceSearchParameters);
+  }
+
   componentWillReceiveProps(nextProps) {
     const {cursor} = nextProps;
     // cursor is different

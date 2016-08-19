@@ -5,6 +5,9 @@ import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import uuid from 'uuid';
 
+// Root key for tree
+const rootKey = 'tree_root';
+
 /**
 * Table of organization
 */
@@ -26,15 +29,24 @@ export class OrganizationTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    const { organizationManager } = this.props;
+    const searchParameters = organizationManager.getService().getTreeSearchParameters();
+    this.context.store.dispatch(organizationManager.fetchEntities(searchParameters, rootKey));
   }
 
   componentDidUpdate() {
-    const { organizationTree } = this.props;
-    this.refs.table.getWrappedInstance().reload();
+    // const { organizationTree } = this.props;
+    // this.refs.table.getWrappedInstance().reload();
   }
 
   componentWillUnmount() {
     this.cancelFilter();
+  }
+
+  _reloadTree() {
+    const { organizationManager } = this.props;
+    const searchParameters = organizationManager.getService().getTreeSearchParameters();
+    this.context.store.dispatch(organizationManager.fetchEntities(searchParameters, rootKey));
   }
 
   useFilter(event) {
@@ -50,26 +62,24 @@ export class OrganizationTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
 
+  _useFilterByTree(nodeId, event) {
+    const { organizationManager } = this.props;
+    if (!nodeId) {
+      return;
+    }
+    const data = {
+      ... this.refs.filterForm.getData(),
+      parent: organizationManager.getSelfLink(nodeId)
+    };
+    this.refs.parent.setValue(nodeId);
+    this.refs.table.getWrappedInstance().useFilterData(data);
+  }
+
   cancelFilter(event) {
     if (event) {
       event.preventDefault();
     }
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
-  }
-
-  onDelete(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, this.context.store.uiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
-      }));
-    }, () => {
-      // nothing
-    });
   }
 
   /**
@@ -87,12 +97,47 @@ export class OrganizationTable extends Basic.AbstractContent {
     }
   }
 
+  _orgTreeHeaderDecorator(props) {
+    const style = props.style;
+    const iconType = props.node.isLeaf ? 'group' : 'building';
+    const iconClass = `fa fa-${iconType}`;
+    const iconStyle = { marginRight: '5px' };
+    return (
+      <div style={style.base}>
+        <div style={style.title}>
+          <i className={iconClass} style={iconStyle}/>
+          <Basic.Button level="link" onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
+            {props.node.name}
+          </Basic.Button>
+
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { uiKey, organizationManager } = this.props;
+    const { uiKey, organizationManager, _root, _showLoading } = this.props;
     const { filterOpened } = this.state;
 
     return (
       <div>
+      <Basic.Panel>
+        {
+          !_root
+          ||
+        <Advanced.Tree
+          ref="organizationTree"
+          rootNode={{name: _root.name, toggled: true, id: _root.id}}
+          propertyId="id"
+          propertyParent="parent"
+          showLoading={_showLoading}
+          propertyName="name"
+          headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
+          uiKey="orgTree"
+          manager={organizationManager}
+          />
+        }
+      </Basic.Panel>
       <Advanced.Table
         ref="table"
         uiKey={uiKey}
@@ -125,12 +170,7 @@ export class OrganizationTable extends Basic.AbstractContent {
             </Basic.AbstractForm>
           </Advanced.Filter>
         }
-        filterOpened={filterOpened}
-        actions={
-          [
-            { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-          ]
-        }
+        filterOpened={!filterOpened}
         buttons={
           [
             <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
@@ -177,7 +217,8 @@ OrganizationTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${component.uiKey}-detail`),
+    _root: Utils.Ui.getEntities(state, rootKey)[0]
   };
 }
 

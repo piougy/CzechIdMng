@@ -47,9 +47,6 @@ export default class OrganizationDetail extends Basic.AbstractContent {
     if (entity.id === undefined) {
       this.context.store.dispatch(this.organizationManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
       }));
     } else {
       this.context.store.dispatch(this.organizationManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
@@ -58,22 +55,14 @@ export default class OrganizationDetail extends Basic.AbstractContent {
 
   _afterSave(entity, error) {
     if (error) {
-      this.refs.form.processEnded();
       this.addError(error);
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
     this.context.router.replace(`organizations/`);
   }
 
   closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
   }
 
   render() {

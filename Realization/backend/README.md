@@ -11,7 +11,7 @@ Java application deployable to Tomcat 8 application server.
 
 * Install `Tomcat 8.0.*`, `JDK 8` and `maven` (at least 3.1 is required)
 * Open all project in your favorite IDE (we are using eclipse).
-* build + deploy `.war` file located in `client` module target folder to Tomcat
+* build (all project modules in order above) + deploy `.war` file located in `client` module target folder to Tomcat
 
 ## Configuration
 

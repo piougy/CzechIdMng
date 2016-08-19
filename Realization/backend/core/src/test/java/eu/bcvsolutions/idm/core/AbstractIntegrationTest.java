@@ -31,7 +31,6 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 @IntegrationTest("server.port:0")
 @ActiveProfiles("test")
 @Rollback(true)
-@Transactional
 public abstract class AbstractIntegrationTest {
 	
 	@Autowired

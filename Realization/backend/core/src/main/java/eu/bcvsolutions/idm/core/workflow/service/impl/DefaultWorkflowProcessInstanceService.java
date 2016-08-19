@@ -165,11 +165,15 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
 		query.processInstanceId(processInstanceId);
-		// check security ... only applicant can delete process instance
+		// check security ... only applicant or implementer can delete process instance
+		query.or();
 		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
 				securityService.getOriginalUsername());
-		query.active();
-		query.includeProcessVariables();
+		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME,
+				securityService.getOriginalUsername());
+		query.endOr();
+		//query.active();
+		//query.includeProcessVariables();
 		ProcessInstance processInstance = query.singleResult();
 		if (processInstance == null) {
 			throw new RestApplicationException(CoreResultCode.FORBIDDEN,

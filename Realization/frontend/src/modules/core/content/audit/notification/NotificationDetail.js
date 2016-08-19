@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import { IdentityManager, NotificationManager } from 'core/redux';
 import * as Basic from 'app/components/basic';
 import NotificationRecipient from './NotificationRecipient';
-import NotificationRecipientCell from './NotificationRecipientCell';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from '../notification/NotificationSentState';
 
@@ -49,13 +48,13 @@ export default class NotificationDetail extends Basic.AbstractContent {
         htmlMessage: entity.htmlMessage
       }
     };
-    /*
+
     this.context.store.dispatch(this.notificationManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
       this._afterSave(createdEntity, error);
       if (!error) {
         this.refs.table.getWrappedInstance().reload();
       }
-    }));*/
+    }));
   }
 
   _afterSave(entity, error) {

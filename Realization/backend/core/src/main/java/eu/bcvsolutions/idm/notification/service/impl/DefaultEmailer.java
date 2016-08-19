@@ -50,7 +50,7 @@ public class DefaultEmailer implements Emailer {
 		log.debug("Sending email [{}]", emailLog);
 		
 		try {
-			Endpoint endpoint = congigureEndpoint();
+			Endpoint endpoint = configureEndpoint();
 			
 			// create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
 			Exchange exchange = endpoint.createExchange();
@@ -83,7 +83,7 @@ public class DefaultEmailer implements Emailer {
 	 * Configure apache camel endpoint for email by configuration
 	 * @return
 	 */
-	private Endpoint congigureEndpoint() {
+	private Endpoint configureEndpoint() {
 		StringBuilder endpoint = new StringBuilder(MessageFormat.format("{0}://{1}:{2}", configuration.getProtocol(), configuration.getHost(), configuration.getPort()));
 		// append principals
 		String username = configuration.getUsername();
@@ -103,8 +103,11 @@ public class DefaultEmailer implements Emailer {
 			headers.put("From", from);
 		}
 		// when from is given - transform to reply to
-		if (emailLog.getSender() != null && StringUtils.isNotBlank(emailLog.getSender().getRealRecipient())) {
-			headers.put("Reply-To", emailLog.getSender().getRealRecipient());
+		if (emailLog.getSender() != null) {
+			String fromEmail = emailService.getEmailAddress(emailLog.getSender());
+			if (StringUtils.isNotBlank(fromEmail)) {
+				headers.put("Reply-To", fromEmail);
+			}			
 		}
 		headers.put("Subject", emailLog.getMessage().getSubject());
 		

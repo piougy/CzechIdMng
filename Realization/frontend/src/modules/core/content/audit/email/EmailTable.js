@@ -154,8 +154,12 @@ export class EmailTable extends Basic.AbstractContent {
             property="recipients"
             cell={<NotificationRecipientsCell />}/>
           <Advanced.Column
-            property="from"
-            cell={<NotificationRecipientCell />}/>
+            property="sender"
+            cell={
+              ({ rowIndex, data, property }) => {
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+              }
+            }/>
           <Advanced.Column
             property="sent"
             cell={

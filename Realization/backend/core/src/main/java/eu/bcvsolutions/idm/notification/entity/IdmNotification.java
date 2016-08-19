@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.notification.domain.BaseNotification;
 
 @Entity
@@ -38,10 +39,9 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@Embedded
 	private IdmMessage message;
 	
-	@JsonManagedReference
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "sender_id", referencedColumnName = "id")
-	@ManyToOne(optional = true, cascade = CascadeType.ALL)
-	private IdmNotificationRecipient sender;
+	private IdmIdentity sender;
 	
 	@JsonManagedReference
 	@OneToMany(mappedBy = "notification", cascade = CascadeType.ALL) // orphan removal is not necessary - notification can be added only
@@ -62,11 +62,12 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id")
 	private IdmNotification parent;
 	
-	public void setSender(IdmNotificationRecipient sender) {
+	public void setSender(IdmIdentity sender) {
 		this.sender = sender;
 	}
 	
-	public IdmNotificationRecipient getSender() {
+	@Override
+	public IdmIdentity getSender() {
 		return sender;
 	}
 

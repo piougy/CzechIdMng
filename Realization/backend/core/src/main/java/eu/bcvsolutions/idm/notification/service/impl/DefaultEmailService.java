@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
@@ -46,33 +47,65 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 */
 	@Override
 	public String getEmailAddress(IdmNotificationRecipient recipient) {
-		if (recipient == null) {
-			return null;
+		log.trace("Resolving email address to recipient [{}]", recipient);
+		String emailAddress = null;
+		try {
+			if (recipient == null) {
+				return emailAddress;
+			}
+			if (StringUtils.isNotBlank(recipient.getRealRecipient())) {
+				emailAddress = recipient.getRealRecipient();
+				return emailAddress;
+			}
+			
+			if (recipient.getIdentityRecipient() != null) {
+				String identityEmail = getEmailAddress(recipient.getIdentityRecipient());
+				if(StringUtils.isNotBlank(identityEmail)) {
+					emailAddress = identityEmail;
+				}
+			}			
+			return emailAddress;
+		} finally {
+			log.trace("Resolved email address to recipient [{}] is [{}]", recipient, emailAddress);
 		}
-		if (StringUtils.isNotBlank(recipient.getRealRecipient())) {
-			return recipient.getRealRecipient();
-		}
-		if (recipient.getIdentityRecipient() != null && StringUtils.isNotBlank(recipient.getIdentityRecipient().getEmail())) {
-			return recipient.getIdentityRecipient().getEmail();
-		}
-		return null;
+	}	
+	
+	@Override
+	public String getEmailAddress(IdmIdentity recipient) {
+		Assert.notNull(recipient, "Recipient has to be filled!");
+		//
+		// TODO: hook - resolve identity emails
+		return recipient.getEmail();
 	}
 	
+	/**
+	 * Persists sent date to given emailLogId
+	 * 
+	 * @param emailLogId
+	 * @param sent
+	 */
 	@Override
 	public void setEmailSent(Long emailLogId, Date sent) {
 		IdmEmailLog emailLog = emailLogRepository.findOne(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
+		log.debug("Persist sent date [{}] to emailLogId [{}]", sent, emailLogId);
 		emailLog.setSent(sent);
 		emailLogRepository.save(emailLog);
 	}
 	
-	
+	/**
+	 * Persists sent log to given emailLog
+	 * 
+	 * @param emailLogId
+	 * @param sentLog
+	 */
 	@Override
 	public void setEmailSentLog(Long emailLogId, String sentLog) {
 		IdmEmailLog emailLog = emailLogRepository.findOne(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
+		log.debug("Persist sent log [{}] to emailLogId [{}]", sentLog, emailLogId);
 		emailLog.setSentLog(sentLog);
 		emailLogRepository.save(emailLog);
 	}
@@ -98,10 +131,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 		notification.getRecipients().forEach(recipient -> {
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
 		});
-		// clone from - resolve real email
-		if (notification.getSender() != null) {
-			emailLog.setSender(cloneRecipient(emailLog, notification.getSender()));
-		}
+		emailLog.setSender(notification.getSender());
 		return emailLogRepository.save(emailLog);
 	}
 	

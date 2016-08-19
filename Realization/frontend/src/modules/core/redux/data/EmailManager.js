@@ -13,7 +13,7 @@ export default class EmailManager extends EntityManager {
   }
 
   getEntityType() {
-    return 'Emails';
+    return 'Email';
   }
 
   getCollectionType() {

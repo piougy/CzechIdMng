@@ -176,7 +176,11 @@ export class NotificationTable extends Basic.AbstractContent {
             cell={<NotificationRecipientsCell identityOnly />}/>
           <Advanced.Column
             property="sender"
-            cell={<NotificationRecipientCell identityOnly />}/>
+            cell={
+              ({ rowIndex, data, property }) => {
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+              }
+            }/>
           <Advanced.Column
             property="sent"
             cell={

@@ -38,7 +38,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
         recipientsData.push({identityRecipient: this.identityManager.getSelfLink(entityId)});
       });
     }
-    const sender = {identityRecipient: this.identityManager.getSelfLink(entity.sender)};
+    const sender = this.identityManager.getSelfLink(entity.sender);
     const saveEntity = {
       ...entity,
       sender,
@@ -49,17 +49,17 @@ export default class NotificationDetail extends Basic.AbstractContent {
         htmlMessage: entity.htmlMessage
       }
     };
+    /*
     this.context.store.dispatch(this.notificationManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
       this._afterSave(createdEntity, error);
       if (!error) {
         this.refs.table.getWrappedInstance().reload();
       }
-    }));
+    }));*/
   }
 
   _afterSave(entity, error) {
     if (error) {
-      this.refs.form.processEnded();
       this.addError(error);
       return;
     }
@@ -106,14 +106,21 @@ export default class NotificationDetail extends Basic.AbstractContent {
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
 
-            <Basic.SelectBox hidden={!isNew} required
-              ref="sender"
-              label={this.i18n('entity.Notification.sender')}
-              manager={this.identityManager}/>
+          <Basic.SelectBox
+            hidden={!isNew}
+            ref="sender"
+            label={this.i18n('entity.Notification.sender')}
+            manager={this.identityManager}/>
 
           <Basic.LabelWrapper hidden={isNew}
             label={this.i18n('entity.Notification.sender')}>
-            <NotificationRecipient recipient={notification.sender} style={{ margin: '7px 0' }} identityOnly={identityOnly}/>
+            <div style={{ margin: '7px 0' }}>
+              {
+                !notification._embedded
+                ||
+                this.identityManager.getNiceLabel(notification._embedded.sender)
+              }
+            </div>
           </Basic.LabelWrapper>
 
           <Basic.LabelWrapper hidden={isNew}
@@ -171,8 +178,12 @@ export default class NotificationDetail extends Basic.AbstractContent {
                 cell={<NotificationRecipientsCell />}/>
               <Basic.Column
                 property="sender"
-                header={this.i18n('entity.Notification.from')}
-                cell={<NotificationRecipientCell identityOnly={false} />}/>
+                header={this.i18n('entity.Notification.sender')}
+                cell={
+                  ({ rowIndex, data, property }) => {
+                    return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
+                  }
+                }/>
               <Basic.Column
                 property="sent"
                 header={this.i18n('entity.Notification.sent')}

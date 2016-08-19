@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.notification.domain;
 
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 
@@ -22,19 +23,19 @@ public interface BaseNotification {
 
 	/**
 	 * Notification sender - could be filled, when notification is send from
-	 * some user
+	 * some identity
 	 * 
 	 * @param sender
 	 */
-	void setSender(IdmNotificationRecipient sender);
+	void setSender(IdmIdentity sender);
 
 	/**
 	 * Notification sender - could be filled, when notification is send from
-	 * some user
+	 * some identity
 	 * 
 	 * @return
 	 */
-	IdmNotificationRecipient getSender();
+	IdmIdentity getSender();
 
 	/**
 	 * Notification recipients

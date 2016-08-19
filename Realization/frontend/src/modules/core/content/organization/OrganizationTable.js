@@ -120,85 +120,92 @@ export class OrganizationTable extends Basic.AbstractContent {
     const { filterOpened } = this.state;
 
     return (
-      <div>
-      <Basic.Panel>
-        {
-          !_root
-          ||
-        <Advanced.Tree
-          ref="organizationTree"
-          rootNode={{name: _root.name, toggled: true, id: _root.id}}
-          propertyId="id"
-          propertyParent="parent"
-          showLoading={_showLoading}
-          propertyName="name"
-          headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-          uiKey="orgTree"
-          manager={organizationManager}
-          />
-        }
-      </Basic.Panel>
-      <Advanced.Table
-        ref="table"
-        uiKey={uiKey}
-        manager={organizationManager}
-        showRowSelection
-        rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-        filter={
-          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-            <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-              <Basic.Row className="last">
-                <div className="col-lg-4">
-                  <Advanced.Filter.TextField
-                    ref="text"
-                    placeholder={this.i18n('entity.Organization.name')}
-                    label={this.i18n('entity.Organization.name')}/>
-                </div>
-                <div className="col-lg-4">
-                  {
-                  <Advanced.Filter.SelectBox
-                    ref="parent"
-                    placeholder={this.i18n('entity.Organization.parentId')}
-                    label={this.i18n('filter.parentId.label')}
-                    manager={organizationManager}/>
-                    }
-                </div>
-                <div className="col-lg-4 text-right">
-                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                </div>
-              </Basic.Row>
-            </Basic.AbstractForm>
-          </Advanced.Filter>
-        }
-        filterOpened={!filterOpened}
-        buttons={
-          [
-            <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
-              <Basic.Icon type="fa" icon="plus"/>
-              {' '}
-              {this.i18n('button.add')}
-            </Basic.Button>
-          ]
-        }>
-        <Advanced.Column
-          header=""
-          className="detail-button"
-          cell={
-            ({ rowIndex, data }) => {
-              return (
-                <Advanced.DetailButton
-                  title={this.i18n('button.detail')}
-                  onClick={this.showDetail.bind(this, data[rowIndex])}/>
-              );
-            }
-          }
-          sort={false}/>
-        <Advanced.Column property="name" sort/>
-        <Advanced.Column property="disabled" sort face="bool"/>
-        <Advanced.Column property="shortName" sort rendered={false}/>
-        <Advanced.Column property="parentId" sort rendered={false}/>
-      </Advanced.Table>
-      </div>
+      <Basic.Row>
+        <div className="col-lg-12">
+          <div className="col-lg-3">
+            <Basic.Panel>
+              {
+              !_root
+              ||
+              <Advanced.Tree
+                ref="organizationTree"
+                rootNode={{name: _root.name, toggled: true, id: _root.id}}
+                propertyId="id"
+                propertyParent="parent"
+                showLoading={_showLoading}
+                propertyName="name"
+                headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
+                uiKey="orgTree"
+                manager={organizationManager}
+                />
+              }
+            </Basic.Panel>
+          </div>
+          <div className="col-lg-9">
+            <Advanced.Table
+              ref="table"
+              uiKey={uiKey}
+              manager={organizationManager}
+              showRowSelection
+              rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+              filter={
+                <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                  <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                    <Basic.Row className="last">
+                      <div className="col-lg-4">
+                        <Advanced.Filter.TextField
+                          ref="text"
+                          placeholder={this.i18n('entity.Organization.name')}
+                          label={this.i18n('entity.Organization.name')}/>
+                      </div>
+                      <div className="col-lg-4">
+                        {
+                        <Advanced.Filter.SelectBox
+                          ref="parent"
+                          placeholder={this.i18n('entity.Organization.parentId')}
+                          label={this.i18n('filter.parentId.label')}
+                          manager={organizationManager}/>
+                          }
+                      </div>
+                      <div className="col-lg-4 text-right">
+                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                      </div>
+                    </Basic.Row>
+                  </Basic.AbstractForm>
+                </Advanced.Filter>
+              }
+              filterOpened={!filterOpened}
+              buttons={
+                [
+                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+                    <Basic.Icon type="fa" icon="plus"/>
+                    {' '}
+                    {this.i18n('button.add')}
+                  </Basic.Button>
+                ]
+              }>
+              <Advanced.Column
+                header=""
+                className="detail-button"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                    );
+                  }
+                }
+                sort={false}/>
+              <Advanced.Column property="name" sort/>
+              <Advanced.Column property="parent.name" sort/>
+              <Advanced.Column property="disabled" sort face="bool"/>
+              <Advanced.Column property="shortName" sort rendered={false}/>
+              <Advanced.Column property="parentId" sort rendered={false}/>
+            </Advanced.Table>
+          </div>
+        </div>
+      </Basic.Row>
     );
   }
 }

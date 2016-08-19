@@ -1118,7 +1118,10 @@
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
-      "parentId": "Nadřazená organizační jednotka"
+      "parentId": "Nadřazená organizační jednotka",
+      "parent": {
+          "name": "Nadřazená organizační jed."
+      }
     },
     "Delegate": {
       "_type": "Delegace",

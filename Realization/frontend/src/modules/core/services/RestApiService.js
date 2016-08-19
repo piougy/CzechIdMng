@@ -1,5 +1,4 @@
-
-
+import fetch from 'isomorphic-fetch';
 import AuthenticateService from './AuthenticateService';
 import ConfigService from './ConfigService';
 

@@ -112,7 +112,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	Page<IdmConfiguration> findByQuick(@Param(value = "text") String text, Pageable pageable);
 	
 	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_WRITE') or (hasAuthority('CONFIGURATION_WRITE') and #entity?.secured == false)")
-	<S extends IdmConfiguration> IdmConfiguration save(@Param("entity") IdmConfiguration entity);
+	IdmConfiguration save(@Param("entity") IdmConfiguration entity);
 	
 	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_DELETE') or (hasAuthority('CONFIGURATION_DELETE') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
 	void delete(@Param("id") Long id);

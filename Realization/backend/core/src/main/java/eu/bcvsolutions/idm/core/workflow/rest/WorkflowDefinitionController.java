@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
@@ -58,6 +61,23 @@ public class WorkflowDefinitionController {
 
 		return new ResourceWrapper<>(deploymentService.create(name, fileName, data.getInputStream()));
 	}
+	
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> search(
+			@RequestBody WorkflowFilterDto filter) {
+		ResourcesWrapper<WorkflowProcessDefinitionDto> result = definitionService.search(filter);
+	
+		List<WorkflowProcessDefinitionDto> processes = (List<WorkflowProcessDefinitionDto>) result.getResources();
+		List<ResourceWrapper<WorkflowProcessDefinitionDto>> wrappers = new ArrayList<>();
+
+		for (WorkflowProcessDefinitionDto process : processes) {
+			wrappers.add(new ResourceWrapper<WorkflowProcessDefinitionDto>(process));
+		}
+		ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>> resources = new ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>(
+				wrappers);
+		resources.setPage(result.getPage());
+		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
+				HttpStatus.OK);
+	}
 
 	/**
 	 * Search all last version and active process definitions
@@ -78,7 +98,27 @@ public class WorkflowDefinitionController {
 		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
 				HttpStatus.OK);
 	}
+	
+	/**
+	 * Search last version and active process definitions. Use quick search api.
+	 * @param size
+	 * @param page
+	 * @param sort
+	 * @param text - category
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> searchQuick(
+			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String category) {
 
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setPageNumber(page);
+		filter.setPageSize(size);
+		filter.setCategory(category);
+		filter.initSort(sort);
+
+		return this.search(filter);
+	}
 	/**
 	 * Search last version process by key
 	 * 

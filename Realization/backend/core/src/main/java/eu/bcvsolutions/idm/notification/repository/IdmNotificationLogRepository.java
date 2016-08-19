@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog> {
 	
 	// TODO: refactor using jpa criteria - is not possible to use named parameters now (because optional date parameters) and readability is lost ... 
-	@Query(value = "select e from IdmNotificationLog e left join e.sender.identityRecipient fr" +
+	@Query(value = "select e from IdmNotificationLog e left join e.sender s" +
 	        " where "
 	        + "("
 	        	+ "?#{[0]} is null "
@@ -42,7 +42,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
         	+ "and "
         	+ "("
         		+ "?#{[1]} is null "
-        		+ "or lower(fr.username) like ?#{[1] == null ? '%' : [1].toLowerCase()} "
+        		+ "or lower(s.username) like ?#{[1] == null ? '%' : [1].toLowerCase()} "
         	+ ") "
         	+ "and "
         	+ "("

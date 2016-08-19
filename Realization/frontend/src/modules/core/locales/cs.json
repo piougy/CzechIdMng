@@ -1171,21 +1171,6 @@
       "sentLog": "Zpráva při odeslání",
       "type": "Typ"
     },
-    "Emails": {
-      "topic": "Téma",
-      "created": "$t(entity.created)",
-      "message": {
-        "subject": "Předmět",
-        "message": "Zpráva",
-        "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
-      },
-      "from": "Odesílatel",
-      "recipients": "Příjemci",
-      "sent": "Odesláno",
-      "sentLog": "Zpráva při odeslání",
-      "type": "Typ"
-    },
     "Email": {
       "topic": "Téma",
       "created": "$t(entity.created)",
@@ -1195,7 +1180,7 @@
         "textMessage": "Zpráva (text)",
         "htmlMessage": "Zpráva (html)"
       },
-      "from": "Odesílatel",
+      "sender": "Odesílatel",
       "recipients": "Příjemci",
       "sent": "Odesláno",
       "sentLog": "Zpráva při odeslání",

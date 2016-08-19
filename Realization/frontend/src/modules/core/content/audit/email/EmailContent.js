@@ -47,9 +47,6 @@ class EmailContent extends Basic.AbstractContent {
             ||
             <NotificationDetail notification={email}/>
           }
-          <Basic.PanelFooter rendered={!showLoading}>
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-          </Basic.PanelFooter>
         </Basic.Panel>
 
       </div>

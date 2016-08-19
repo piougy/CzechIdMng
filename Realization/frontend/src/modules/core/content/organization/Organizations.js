@@ -9,8 +9,6 @@ import OrganizationTable from './OrganizationTable';
 
 const uiKey = 'organization_table';
 
-const rootKey = 'tree_root';
-
 /**
 * Organizations list
 */
@@ -37,33 +35,10 @@ class Organizations extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const searchParameters = this.getManager().getService().getTreeSearchParameters();
-    this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, rootKey));
-    // this.context.store.dispatch(this.getManager().fetchEntities(searchParameters, rootKey));
     this.selectNavigationItem('organizations');
   }
 
-  _orgTreeHeaderDecorator(props) {
-    const style = props.style;
-    const iconType = props.node.isLeaf ? 'group' : 'building';
-    const iconClass = `fa fa-${iconType}`;
-    const iconStyle = { marginRight: '5px' };
-    return (
-      <div style={style.base}>
-        <div style={style.title}>
-          <i className={iconClass} style={iconStyle}/>
-          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}}>
-            {props.node.name}
-          </Basic.Button>
-
-        </div>
-      </div>
-    );
-  }
-
   render() {
-    const { _showLoading, _root } = this.props;
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -78,25 +53,6 @@ class Organizations extends Basic.AbstractContent {
         <Basic.Panel>
           <OrganizationTable uiKey={this.uiKey} organizationManager={this.getManager()} organizationTree={this.refs.organizationTree} />
         </Basic.Panel>
-          {
-        <Basic.Panel>
-          {
-            !_root
-            ||
-          <Advanced.Tree
-            ref="organizationTree"
-            rootNode={{name: _root.name, toggled: true, id: _root.id}}
-            propertyId="id"
-            propertyParent="parent"
-            propertyName="name"
-            showLoading={_showLoading}
-            headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-            uiKey="orgTree"
-            manager={this.getManager()}
-            />
-          }
-        </Basic.Panel>
-      }
       </div>
     );
   }
@@ -109,11 +65,9 @@ Organizations.defaultProps = {
 };
 
 function select(state, component) {
-  // console.log(Utils.Ui.getUiState(state, rootKey));
   return {
     _searchParameters: Utils.Ui.getSearchParameters(state, component.uiKey),
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
-    _root: Utils.Ui.getEntities(state, rootKey)[0]
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`)
   };
 }
 

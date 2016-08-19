@@ -23,6 +23,7 @@ public class OptimisticLockTest extends AbstractIntegrationTest {
 	@PersistenceContext
     private EntityManager entityManager;
 	
+	@Transactional
 	@Test(expected = ObjectOptimisticLockingFailureException.class)
 	public void testOptimisticLockException() {		
 		IdmIdentity identityOne = identityRepository.findOneByUsername("tomiska");

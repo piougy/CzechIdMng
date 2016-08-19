@@ -4,14 +4,17 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.notification.service.EmailService;
@@ -41,13 +44,24 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private IdmEmailLogRepository emailLogRepository;	
 	
+	@Autowired
+	private IdmConsoleLogRepository consoleLogRepository;
+	
 	@Before
 	public void clear() {
+		loginAsAdmin("admin");
 		emailLogRepository.deleteAll();
+		consoleLogRepository.deleteAll();
 		idmNotificationRepository.deleteAll();
 	}
 	
+	@After
+	public void logout() {
+		super.logout();
+	}
+	
 	@Test
+	@Transactional
 	public void testSendSimple() {
 		assertEquals(0, idmNotificationRepository.count());
 		
@@ -82,6 +96,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Transactional
 	public void testEmailFilterBySender() {
 		
 		assertEquals(0, emailLogRepository.findByQuick(null, "svanda", null, null, null, null, null).getTotalElements());
@@ -97,6 +112,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Transactional
 	public void testEmailFilterBySent() {
 		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
 		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);

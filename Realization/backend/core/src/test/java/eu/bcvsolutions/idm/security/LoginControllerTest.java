@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.TestUtils;
@@ -25,6 +26,7 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	private LoginController loginController;
 	
 	@Test
+	@Transactional
 	public void testSuccesfulLogIn() throws Exception {
 		// TODO: prepare test data - through flyway? Test db initializer with rollback only?
 		LoginDto loginDto = new LoginDto();

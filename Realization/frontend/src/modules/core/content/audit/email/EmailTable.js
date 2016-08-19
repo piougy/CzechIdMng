@@ -4,7 +4,6 @@ import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import { IdentityManager } from 'core/redux';
-import NotificationRecipientCell from '../notification/NotificationRecipientCell';
 import NotificationRecipientsCell from '../notification/NotificationRecipientsCell';
 import NotificationSentState from '../notification/NotificationSentState';
 

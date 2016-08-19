@@ -102,18 +102,18 @@ export class EmailTable extends Basic.AbstractContent {
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
-                      ref="sender"
-                      label={this.i18n('filter.sender.label')}
-                      placeholder={this.i18n('filter.sender.placeholder')}
+                      ref="recipient"
+                      label={this.i18n('filter.recipient.label')}
+                      placeholder={this.i18n('filter.recipient.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
                       returnProperty="username"/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
-                      ref="recipient"
-                      label={this.i18n('filter.recipient.label')}
-                      placeholder={this.i18n('filter.recipient.placeholder')}
+                      ref="sender"
+                      label={this.i18n('filter.sender.label')}
+                      placeholder={this.i18n('filter.sender.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
                       returnProperty="username"/>

@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  *
  */
 @RestController
-@RequestMapping(value = "/api/workflow/definitions/")
+@RequestMapping(value = "/api/workflow/definitions")
 public class WorkflowDefinitionController {
 
 	@Autowired
@@ -107,7 +107,7 @@ public class WorkflowDefinitionController {
 	 * @param text - category
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> searchQuick(
 			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String category) {
 
@@ -125,7 +125,7 @@ public class WorkflowDefinitionController {
 	 * @param definitionKey
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "{definitionKey}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{definitionKey}")
 	public ResponseEntity<ResourceWrapper<WorkflowProcessDefinitionDto>> get(@PathVariable String definitionKey) {
 		WorkflowProcessDefinitionDto definition = definitionService.get(definitionKey);
 		WorkflowDefinitionAssembler assembler = new WorkflowDefinitionAssembler();
@@ -140,7 +140,7 @@ public class WorkflowDefinitionController {
 	 * @param definitionKey
 	 * @return
 	 */
-	@RequestMapping(value = "{definitionKey}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@RequestMapping(value = "/{definitionKey}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getDiagram(@PathVariable String definitionKey) {
 		// check rights

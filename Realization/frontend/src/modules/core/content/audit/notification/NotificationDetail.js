@@ -51,9 +51,6 @@ export default class NotificationDetail extends Basic.AbstractContent {
 
     this.context.store.dispatch(this.notificationManager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
       this._afterSave(createdEntity, error);
-      if (!error) {
-        this.refs.table.getWrappedInstance().reload();
-      }
     }));
   }
 

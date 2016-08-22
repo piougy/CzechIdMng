@@ -194,6 +194,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				testUser1 = this.identityRepository.save(testUser1);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));
 				this.identityRepository.save(testUser1);
+				
 
 				IdmIdentity testUser2 = new IdmIdentity();
 				testUser2.setUsername("testUser2");
@@ -203,6 +204,13 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				testUser2 = this.identityRepository.save(testUser2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 				this.identityRepository.save(testUser2);
+				
+				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
+				identityWorkingPosition2.setIdentity(testUser1);
+				identityWorkingPosition2.setPosition("vedoucí");
+				identityWorkingPosition2.setManager(testUser2);
+				identityWorkingPosition2.setOrganization(organization2);
+				identityWorkingPositionRepository.save(identityWorkingPosition2);
 			}
 			//
 		} finally {

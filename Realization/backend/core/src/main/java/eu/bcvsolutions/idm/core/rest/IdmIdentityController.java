@@ -93,6 +93,11 @@ public class IdmIdentityController {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
 
+	/**
+	 * Change given identity's permissions (assigned roles)
+	 * @param identityId
+	 * @return
+	 */
 	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);

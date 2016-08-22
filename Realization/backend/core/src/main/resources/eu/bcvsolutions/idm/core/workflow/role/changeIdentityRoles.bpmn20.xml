@@ -17,7 +17,7 @@
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="applicantTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="admin" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllManagersByUserPositionsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Schválení žádosti vedoucím</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>

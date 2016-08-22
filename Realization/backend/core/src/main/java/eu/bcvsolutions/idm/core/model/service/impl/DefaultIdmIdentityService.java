@@ -1,14 +1,20 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Objects;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -82,5 +88,31 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 		}
 		return sb.toString().trim();
 	}
-
+	
+	/**
+	 * Method find all managers by user positions and return managers username, separate by commas
+	 * @param id
+	 * @return String - usernames separate by commas
+	 */
+	public String findAllManagersByUserPositionsString(Long id) {
+		List<String> list = this.findAllManagersByUserPositions(id).stream().map(IdmIdentity::getUsername).collect(Collectors.toList());
+		return StringUtils.join(list, ',');
+	}
+	
+	/**
+	 * Method find all managers by user positions and return managers identity
+	 * @param id
+	 * @return List of IdmIdentities 
+	 */
+	public List<IdmIdentity> findAllManagersByUserPositions(Long id) {
+		List<IdmIdentity> result = new ArrayList<>();
+		
+		IdmIdentity user = this.get(id);
+		List<IdmIdentityWorkingPosition> positions = user.getWorkingPositions();
+		
+		for	(IdmIdentityWorkingPosition position : positions) {
+			result.add(position.getManager());
+		}
+		return result;
+	}
 }

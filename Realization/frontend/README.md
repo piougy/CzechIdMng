@@ -7,11 +7,17 @@ In project folder:
 
 ### Install Node.js
 
+**Node.js version 4.x or higher is required.** Download and install Node.js by your OS.
+
+For linux (fedora):
+
 `sudo dnf install nodejs`
 
-__Node.js version 4.x or higher is required.__
-
 Check nodejs version:
+
+`node -v`
+
+or
 
 `nodejs -v`
 

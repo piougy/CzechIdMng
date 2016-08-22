@@ -81,12 +81,7 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 		// check security ... only candidate or assigned user can read task
 		String loggedUser = securityService.getUsername();
-		query.or();
 		query.taskCandidateOrAssigned(loggedUser);
-//		query.taskInvolvedUser(securityService.getUsername());
-//		query.processVariableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME, loggedUser);
-//		query.processVariableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME, loggedUser);
-		query.endOr();
 		query.orderByTaskCreateTime();
 		query.desc();
 		long count = query.count();

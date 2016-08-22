@@ -4,7 +4,7 @@
     <documentation>Workflow pro změnu opravnění (změna přiřazených rolí) pro konkrétní identitu.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
-    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:candidateUsers="${implementerUsername},${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Vytvoření žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -132,10 +132,16 @@
     </dataObject>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
     <scriptTask id="scripttask2" name="Načtení a příprava existujících oprávnění ke změně" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>for (changedIdentityRole in changedIdentityRoles) {
-java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!!  "+changedIdentityRole)
+      <script>//Create new list
+def changeIdentityRoleWrapperList = [];
+
+for (changedIdentityRole in changedIdentityRoles) {
 	//Load IdentityRole entity by ID
 	idmIdentityRole = defaultIdmIdentityRoleService.get(changedIdentityRole.id.toLong());
+	if(!idmIdentityRole) {
+		// IdentityRole not found ... subprocess will be not started
+		continue;
+	}
 	//Load RoleId
 	idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
 	changedIdentityRole._roleId = idmRole.id;
@@ -168,7 +174,9 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
 	if(changedIdentityRole.addWorkflowKey == null) {
 		changedIdentityRole.addWorkflowKey = "notApproveRoleRealizationUpdate";
 	}
- }</script>
+	changeIdentityRoleWrapperList.add(changedIdentityRole);
+ }
+execution.setVariable("changeIdentityRoleWrapperList", changeIdentityRoleWrapperList);</script>
     </scriptTask>
     <sequenceFlow id="flow24" sourceRef="parallelgateway1" targetRef="scripttask2"></sequenceFlow>
     <callActivity id="startChangeSubWorkflow" name="Schválení změny jednotlivých oprávnění" calledElement="${idmRoleIdentity.addWorkflowKey}">
@@ -186,7 +194,7 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <activiti:in sourceExpression="#{idmRoleIdentity.id}" target="identityRoleIdentifier"></activiti:in>
         <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changeIdentityRoleWrapperList" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow25" sourceRef="scripttask2" targetRef="startChangeSubWorkflow"></sequenceFlow>
     <parallelGateway id="parallelgateway1" name="Paralelní schvalování jednotlivých rolí"></parallelGateway>
@@ -214,10 +222,12 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
 def removeIdentityRoleWrapperList = [];
 
 for (removedIdentityRoleId in removedIdentityRoles) {
-java.lang.System.out.println("!!!!!!!!!!!!!!removeIdentityRole!!!!!!!!!!!!!!!!  "+removedIdentityRoleId)
 	//Load IdentityRole entity by ID
 	def idmIdentityRole = defaultIdmIdentityRoleService.get(removedIdentityRoleId);
-
+	if (!idmIdentityRole) {
+		// IdentityRole not found ... subprocess will be not started
+		continue;
+	}
 	//Load RoleId
 	def idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
 	def removedIdentityRoleWrapper = new Expando();
@@ -234,7 +244,6 @@ java.lang.System.out.println("!!!!!!!!!!!!!!removeIdentityRole!!!!!!!!!!!!!!!!  
 		removedIdentityRoleWrapper.removeWorkflowKey = "notApproveRoleRealizationRemove";
 	}
 	removeIdentityRoleWrapperList.add(removedIdentityRoleWrapper.getProperties());
-	java.lang.System.out.println("!!!!!!!!!!!!!!removedIdentityRoleWrapper!!!!!!!!!!!!!!!!  "+removedIdentityRoleWrapper.getProperties())
  }
 execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapperList);</script>
     </scriptTask>

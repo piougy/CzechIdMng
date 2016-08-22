@@ -11,7 +11,7 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 * ES6
   * použití tříd
   * používat šipkovou syntaxi pro předávání funkcí (odpadá nutnost použití `.bind(this)`)
-  * použít `import` - import knihoven třetích stran před vlastními
+  * použít `import` - import knihoven třetích stran jest uveden před vlastními
   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
   * Immutable
   * ...
@@ -48,7 +48,7 @@ We are using [Atom IDE](https://atom.io/) for development with plugins installed
 * git-status
 * line-diff-details
 * last-cursor-position
-* Docblockr
+* docblockr
 
 Tips for Atom:
 * **Ctrl+Shift+P** Search any function of Atom.
@@ -59,13 +59,13 @@ Tips for Atom:
 
 ## Our Development Process
 
-1. Fork the repo and create your branch from `CzechIdMng`.
+1. Clone or Fork the repo and create your branch from `CzechIdMng`.
 
 2. If you've added code that should be tested, add tests to test folder.
 
 3. Ensure the test suite passes.
 
-4. Make sure your code lints (coming soon).
+4. Make sure your code lints.
 
 5. Do not commit anything to the `dist` folder.
 

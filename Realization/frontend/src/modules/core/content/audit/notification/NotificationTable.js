@@ -6,7 +6,6 @@ import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import { IdentityManager } from 'core/redux';
 import NotificationStateEnum from 'core/enums/NotificationStateEnum';
-import NotificationRecipientCell from './NotificationRecipientCell';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
 import uuid from 'uuid';

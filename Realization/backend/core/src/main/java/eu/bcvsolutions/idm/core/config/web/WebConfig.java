@@ -1,10 +1,7 @@
 package eu.bcvsolutions.idm.core.config.web;
 
-import java.util.List;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -27,18 +24,14 @@ public class WebConfig {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
 
-	@Value("#{'${idm.sec.core.allowed-origins:http://localhost:3000,http://localhost/idm}'.replaceAll(\"\\s*\",\"\").split(',')}")
-	private List<String> allowedOrigins;
+	//@Value("#{'${idm.pub.core.security.allowed-origins}'.replaceAll(\"\\s*\",\"\").split(',')}")
+	//private List<String> allowedOrigins;
 
 	@Bean
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration config = corsConfiguration();
         config.setAllowCredentials(true);
-        allowedOrigins.forEach(allowedOrigin -> {
-        	log.info("Adding allowed origin [{}]", allowedOrigin);
-        	config.addAllowedOrigin(allowedOrigin);
-        });
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("PUT");
@@ -51,6 +44,16 @@ public class WebConfig {
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;
     }
+	
+	/**
+	 * Cors configuration
+	 * 
+	 * @return
+	 */
+	@Bean
+	public CorsConfiguration corsConfiguration() {
+		return new DynamicCorsConfiguration();
+	}
 	
 	/**
 	 * Common json object mapper

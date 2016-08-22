@@ -34,7 +34,6 @@
 				<role>Developer</role>
 				<role>Presenter:)</role>
 			</roles>
-			<email>vit.svanda@bcvsolutions.eu</email>
 		</developer>
 		<developer>
 			<id>RT</id>
@@ -44,7 +43,6 @@
 				<role>Developer</role>
 				<role>Architect junior:)</role>
 			</roles>
-			<email>radek.tomiska@bcvsolutions.eu</email>
 		</developer>
 		<developer>
 			<id>OK</id>
@@ -53,7 +51,6 @@
 				<role>Developer</role>
 				<role>Waterboy :)</role>
 			</roles>
-			<email>ondrej.kopr@bcvsolutions.eu</email>
 		</developer>
 	</developers>
 

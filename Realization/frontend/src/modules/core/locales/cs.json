@@ -56,6 +56,8 @@
     },
     "logout": "Odhlásit se",
     "no": "Ne",
+    "send": "Odeslat",
+    "sending": "Odesílám ...",
     "save": "Uložit",
     "saving": "Ukládám ...",
     "yes": "Ano"
@@ -926,8 +928,8 @@
         "notSent": "Neodesláno",
         "sentPartly": "Částečně"
       },
-      "save": {
-        "success": "Uložení notifikace bylo úspěšně uloženo"
+      "sent": {
+        "success": "Odeslání notifikace bylo úspěšné"
       }
     },
     "emails": {

@@ -150,7 +150,7 @@ export class NotificationTable extends Basic.AbstractContent {
               <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
-                {this.i18n('button.add')}
+                {this.i18n('button.send')}
               </Basic.Button>
             ]
           }

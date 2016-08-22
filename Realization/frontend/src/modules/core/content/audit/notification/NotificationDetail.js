@@ -12,6 +12,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {showLoading: false};
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
   }
@@ -29,6 +30,11 @@ export default class NotificationDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
+
+    this.setState({
+      showLoading: true
+    }, this.refs.form.processStarted());
+
     const entity = this.refs.form.getData();
     // append recipients to recipientsData
     const recipientsData = [];
@@ -59,18 +65,8 @@ export default class NotificationDetail extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
+    this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
     this.context.router.replace('audit/notifications/');
-  }
-
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
   }
 
   componentDidMount() {
@@ -91,6 +87,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
 
   render() {
     const { notification, identityOnly, isNew } = this.props;
+    const { showLoading } = this.state;
     //
     if (!notification) {
       return null;
@@ -98,7 +95,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Basic.AbstractForm ref="form" className="form-horizontal">
+        <Basic.AbstractForm ref="form" className="form-horizontal"  >
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
 
@@ -200,13 +197,13 @@ export default class NotificationDetail extends Basic.AbstractContent {
           null
         }
         <Basic.PanelFooter>
-          <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+          <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
           <Basic.Button hidden={!isNew}
               onClick={this.save.bind(this)}
               level="success"
               showLoadingIcon
-              showLoadingText={this.i18n('button.saving')}>
-              {this.i18n('button.save')}
+              showLoadingText={this.i18n('button.sending')}>
+              {this.i18n('button.send')}
           </Basic.Button>
         </Basic.PanelFooter>
         </div>
@@ -220,5 +217,6 @@ NotificationDetail.propTypes = {
   isNew: PropTypes.bool
 };
 NotificationDetail.defaultProps = {
-  identityOnly: false
+  identityOnly: false,
+  showLoading: false
 };

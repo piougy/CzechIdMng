@@ -34,8 +34,10 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @RestController
-@RequestMapping(value = "/api/identities/")
+@RequestMapping(value = "/api/")
 public class IdmIdentityController {
+	
+	public static final String ENDPOINT_NAME = "identities";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -65,7 +67,7 @@ public class IdmIdentityController {
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = "public/" + ENDPOINT_NAME + "/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
@@ -88,7 +90,7 @@ public class IdmIdentityController {
 	 * @param identityId
 	 * @return list of granted authorities
 	 */
-	@RequestMapping(value = "{identityId}/authorities", method = RequestMethod.GET)
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
@@ -98,7 +100,7 @@ public class IdmIdentityController {
 	 * @param identityId
 	 * @return
 	 */
-	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {

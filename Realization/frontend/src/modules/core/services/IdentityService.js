@@ -29,7 +29,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   passwordChange(username, passwordChangeDto) {
-    return RestApiService.put(this.getApiPath() + `/${username}/password-change`, passwordChangeDto);
+    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${username}/password-change`), passwordChangeDto);
   }
 
   /**

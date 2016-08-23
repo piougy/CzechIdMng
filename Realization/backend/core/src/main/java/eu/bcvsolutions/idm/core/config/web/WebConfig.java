@@ -11,6 +11,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 
 /**
@@ -24,13 +25,11 @@ public class WebConfig {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
 
-	//@Value("#{'${idm.pub.core.security.allowed-origins}'.replaceAll(\"\\s*\",\"\").split(',')}")
-	//private List<String> allowedOrigins;
-
 	@Bean
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = corsConfiguration();
+        log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");

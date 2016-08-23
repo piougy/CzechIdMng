@@ -39,6 +39,14 @@ public class IdmNotificationRecipient extends AbstractEntity {
 	public IdmNotificationRecipient() {
 	}
 	
+	public IdmNotificationRecipient(IdmIdentity identity) {
+		this(null, identity, null);
+	}
+	
+	public IdmNotificationRecipient(String recipient) {
+		this(null, null, recipient);
+	}
+	
 	public IdmNotificationRecipient(IdmNotification notification, IdmIdentity identity) {
 		this(notification, identity, null);
 	}

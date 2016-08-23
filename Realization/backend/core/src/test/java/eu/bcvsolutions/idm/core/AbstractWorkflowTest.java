@@ -1,9 +1,17 @@
 package eu.bcvsolutions.idm.core;
 
+import javax.annotation.PostConstruct;
+
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.test.ActivitiRule;
+import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.junit.Before;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
+import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 
 /**
  * 
@@ -19,6 +27,23 @@ public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
     
     @Autowired
 	private IdentityService workflowIdentityService;
+	
+	@Autowired
+	private AutowireCapableBeanFactory beanFactory;
+    
+	/**
+	 * Behavior injection from configuration doesn't work - we need to initialize it manually
+	 */
+	@Before
+    public void initBehavior() {
+    	ProcessEngineConfigurationImpl processEngineConfiguration = (ProcessEngineConfigurationImpl)activitiRule.getProcessEngine().getProcessEngineConfiguration();
+		CustomActivityBehaviorFactory customActivityBehaviorFactory = new CustomActivityBehaviorFactory();
+		beanFactory.autowireBean(customActivityBehaviorFactory);
+		// Evaluate expression in workflow
+		customActivityBehaviorFactory.setExpressionManager(((SpringProcessEngineConfiguration) processEngineConfiguration).getExpressionManager());
+		// For catch email
+		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(customActivityBehaviorFactory);
+    }
 	
     @Override
 	public void loginAsAdmin(String username){

@@ -65,6 +65,7 @@ export class OrganizationTable extends Basic.AbstractContent {
   _useFilterByTree(nodeId, event) {
     if (event) {
       event.preventDefault();
+      event.stopPropagation();
     }
     const { organizationManager } = this.props;
     if (!nodeId) {

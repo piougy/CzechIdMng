@@ -10,6 +10,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -67,9 +68,10 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				log.info("Creating demo data ...");
 				//
 				final IdmRole superAdminRole = new IdmRole();
-				superAdminRole.setName("superAdminRole");
+				superAdminRole.setName(TestUtils.SUPER_ADMIN_ROLE);
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
 				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");
+				superAdminRole.setApproveRemoveWorkflow("approveRemoveRoleBySuperAdminRole");
 				List<IdmRoleAuthority> authorities = new ArrayList<>();
 				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
 					groupPermission.getPermissions().forEach(basePermission -> {
@@ -86,12 +88,12 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
 				//
 				IdmRole role1 = new IdmRole();
-				role1.setName("userRole");
+				role1.setName(TestUtils.USER_ROLE);
 				role1 = this.roleRepository.save(role1);
 				log.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();
-				role2.setName("customRole");
+				role2.setName(TestUtils.CUSTOM_ROLE);
 				List<IdmRoleComposition> subRoles = new ArrayList<>();
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);

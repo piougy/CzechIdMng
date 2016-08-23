@@ -13,8 +13,8 @@ const INITIAL_STATE = {
 export function messages(state = INITIAL_STATE, action) {
   switch (action.type) {
     case ADD_MESSAGE: {
-      const messages = state.messages.toArray();
-      let nextId = messages.reduce((maxId, message) => Math.max(message.id, maxId), -1) + 1;
+      const messagesData = state.messages.toArray();
+      let nextId = messagesData.reduce((maxId, message) => Math.max(message.id, maxId), -1) + 1;
       if (!nextId) {
         nextId = 1;
       }
@@ -37,7 +37,7 @@ export function messages(state = INITIAL_STATE, action) {
     }
     case HIDE_ALL_MESSAGES:
     case HIDE_MESSAGE: {
-      let messages = state.messages.map(message =>
+      const messagesData = state.messages.map(message =>
         (action.type === HIDE_ALL_MESSAGES || message.id === action.id || message.key === action.id)
           ?
           merge({}, message, { hidden: true })
@@ -45,8 +45,8 @@ export function messages(state = INITIAL_STATE, action) {
           message
       );
       return merge({}, state, {
-        messages }
-      );
+        messages: messagesData
+      } );
     }
 
     default:

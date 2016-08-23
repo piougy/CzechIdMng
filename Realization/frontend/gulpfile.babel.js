@@ -20,11 +20,12 @@ import less from 'gulp-less';
 import minifyCSS from 'gulp-minify-css';
 import autoprefixer from 'gulp-autoprefixer';
 import mocha from 'gulp-mocha';
-import babelRegister from 'babel/register';
 import stringify from 'stringify';
 import yargs from 'yargs';
 import util from 'gulp-util';
 import pathmodify from 'pathmodify';
+
+require('babel/register');
 
 const paths = {
   bundle: 'app.js',

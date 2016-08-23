@@ -134,7 +134,7 @@ class IdentityService extends AbstractService {
    * @param searchParameters {SearchParameters}
    * @return {Promise}
    */
-  searchSubordinates(username, searchParameters) {
+  searchSubordinates(/* username, searchParameters */) {
     throw new Error('not implemented');
     /*
     if (!username) {
@@ -160,7 +160,7 @@ class IdentityService extends AbstractService {
    * @param identity {Identity}
    * @return {boolean}
    */
-  isExterne(identity) {
+  isExterne(/* identity */) {
     return false;
     // throw new Error('not implemented');
   }

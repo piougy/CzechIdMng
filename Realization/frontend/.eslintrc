@@ -21,7 +21,8 @@
   },
   "globals": {
       "$": false,
-      "DEBUG": false
+      "DEBUG": false,
+      "LOGGER": false
   },
   "rules": {
     "quotes": [2, "single" ],

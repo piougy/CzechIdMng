@@ -1,7 +1,9 @@
-import { expect } from 'chai';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Immutable from 'immutable';
+import chai, { expect } from 'chai';
+import dirtyChai from 'dirty-chai';
+chai.use(dirtyChai);
 
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
@@ -11,8 +13,8 @@ import * as flashMessagesReducers from '../../src/modules/core/redux/flash/reduc
 
 
 // https://github.com/reactjs/redux/blob/master/docs/recipes/WritingTests.md
-describe('FlashMessagesManager', function() {
-  describe.skip('[server is unavailable]', function() { // TODO: this test is unstable - https://mochajs.org/#retry-tests
+describe('FlashMessagesManager', function flashMessagesManagerTestSuite() {
+  describe.skip('[server is unavailable]', function flashMessagesManagerTest() { // TODO: this test is unstable - https://mochajs.org/#retry-tests
     const flashMessagesManager = new FlashMessagesManager();
     flashMessagesManager.setServerUnavailableTimeout(1200);
 
@@ -24,18 +26,18 @@ describe('FlashMessagesManager', function() {
     const store = mockStore({ messages: new Immutable.OrderedMap({}) });
 
     store.dispatch(flashMessagesManager.addError(error));
-    it('- before timeout', function(done) {
+    it('- before timeout', function test(done) {
       expect(store.getActions()).to.have.lengthOf(0);
       // after defined timeout - one message with key `error-app-load` will be shown
       setTimeout(done, flashMessagesManager.getServerUnavailableTimeout() + 50);
     });
 
-    it('- server is unavailable - after timeout', function() {
-      expect(store.getActions()).to.not.be.empty;
+    it('- server is unavailable - after timeout', function test() {
+      expect(store.getActions()).to.not.be.empty();
       const errorAppLoad = store.getActions().find(action => {
         return action.type === ADD_MESSAGE && action.message.key === 'error-app-load';
       });
-      expect(errorAppLoad).to.not.be.null;
+      expect(errorAppLoad).to.not.be.null();
     });
   });
 
@@ -46,42 +48,42 @@ describe('FlashMessagesManager', function() {
     };
   }
 
-  it('[addMessage] - add message to store', function() {
+  it('[addMessage] - add message to store', function test() {
     const state = flashMessagesReducers.messages(undefined, getMessage());
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
-    expect(state.messages.get(1)).to.not.be.null;
-    expect(state.messages.get(1).hidden).to.be.undefined;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
+    expect(state.messages.get(1)).to.not.be.null();
+    expect(state.messages.get(1).hidden).to.be.undefined();
     expect(state.messages.get(1).message).to.equal(getMessage().message.message);
   });
 
-  it('[hideMessage] - hide message from store by id', function() {
+  it('[hideMessage] - hide message from store by id', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
     expect(state.messages.size).to.equal(3);
-    expect(state.messages.get(1).hidden).to.be.undefined;
-    expect(state.messages.get(2).hidden).to.be.undefined;
-    expect(state.messages.get(3).hidden).to.be.undefined;
+    expect(state.messages.get(1).hidden).to.be.undefined();
+    expect(state.messages.get(2).hidden).to.be.undefined();
+    expect(state.messages.get(3).hidden).to.be.undefined();
 
     state = flashMessagesReducers.messages(state, {
       type: HIDE_MESSAGE,
       id: 2
     });
 
-    expect(state.messages.get(1).hidden).to.be.undefined;
-    expect(state.messages.get(2).hidden).to.be.true;
-    expect(state.messages.get(3).hidden).to.be.undefined;
+    expect(state.messages.get(1).hidden).to.be.undefined();
+    expect(state.messages.get(2).hidden).to.be.true();
+    expect(state.messages.get(3).hidden).to.be.undefined();
   });
 
-  it('[hideMessage] - hide message from store by key', function() {
+  it('[hideMessage] - hide message from store by key', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     state = flashMessagesReducers.messages(state, getMessage('new-key'));
     state = flashMessagesReducers.messages(state, getMessage());
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
     expect(state.messages.size).to.equal(3);
 
     state = flashMessagesReducers.messages(state, {
@@ -89,34 +91,34 @@ describe('FlashMessagesManager', function() {
       id: getMessage().message.key
     });
 
-    expect(state.messages.get(1).hidden).to.be.true;
-    expect(state.messages.get(2).hidden).to.be.undefined;
-    expect(state.messages.get(3).hidden).to.be.true;
+    expect(state.messages.get(1).hidden).to.be.true();
+    expect(state.messages.get(2).hidden).to.be.undefined();
+    expect(state.messages.get(3).hidden).to.be.true();
   });
 
-  it('[hideAllMessages] - hide all messages from store', function() {
+  it('[hideAllMessages] - hide all messages from store', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
     state = flashMessagesReducers.messages(state, getMessage('new-key'));
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
     expect(state.messages.size).to.equal(3);
 
     state = flashMessagesReducers.messages(state, {
       type: HIDE_ALL_MESSAGES
     });
 
-    expect(state.messages.get(1).hidden).to.be.true;
-    expect(state.messages.get(2).hidden).to.be.true;
-    expect(state.messages.get(3).hidden).to.be.true;
+    expect(state.messages.get(1).hidden).to.be.true();
+    expect(state.messages.get(2).hidden).to.be.true();
+    expect(state.messages.get(3).hidden).to.be.true();
   });
 
-  it('[removeMessage] - remove message from store by id', function() {
+  it('[removeMessage] - remove message from store by id', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
     expect(state.messages.size).to.equal(3);
 
     state = flashMessagesReducers.messages(state, {
@@ -125,17 +127,17 @@ describe('FlashMessagesManager', function() {
     });
     expect(state.messages.size).to.equal(2);
 
-    expect(state.messages.get(1).hidden).to.be.undefined;
-    expect(state.messages.has(2)).to.be.false;
-    expect(state.messages.get(3).hidden).to.be.undefined;
+    expect(state.messages.get(1).hidden).to.be.undefined();
+    expect(state.messages.has(2)).to.be.false();
+    expect(state.messages.get(3).hidden).to.be.undefined();
   });
 
-  it('[removeAllMessages] - remove all messages from store', function() {
+  it('[removeAllMessages] - remove all messages from store', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
     state = flashMessagesReducers.messages(state, getMessage());
-    expect(state).to.not.be.null;
-    expect(state.messages).to.not.be.null;
+    expect(state).to.not.be.null();
+    expect(state.messages).to.not.be.null();
     expect(state.messages.size).to.equal(3);
 
     state = flashMessagesReducers.messages(state, {
@@ -145,7 +147,7 @@ describe('FlashMessagesManager', function() {
     expect(state.messages.size).to.equal(0);
   });
 
-  it('[maxHistory] - slice messages by max history size', function() {
+  it('[maxHistory] - slice messages by max history size', function test() {
     let state = flashMessagesReducers.messages(undefined, getMessage());
     for (let i = 0; i < 29; i++) {
       state = flashMessagesReducers.messages(state, getMessage());

@@ -1,4 +1,4 @@
-describe('Form EnumSelectBox', function() {
+describe('Form EnumSelectBox', function enumSelectBoxTest() {
   it('[check label, if is correctly rendered]');
 
   it('[check value, if is correctly rendered]');

@@ -38,11 +38,11 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-        mockMvc.perform(get("/api/identities/" + TestUtils.TEST_USERNAME)
+        mockMvc.perform(get("/api/identities/" + TestUtils.TEST_ADMIN)
         		.with(security())
                 .contentType(TestUtils.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtils.HAL_CONTENT_TYPE))
-                .andExpect(jsonPath("$.username", equalTo(TestUtils.TEST_USERNAME)));
+                .andExpect(jsonPath("$.username", equalTo(TestUtils.TEST_ADMIN)));
     }
 }

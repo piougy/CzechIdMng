@@ -30,21 +30,21 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	public void testSuccesfulLogIn() throws Exception {
 		// TODO: prepare test data - through flyway? Test db initializer with rollback only?
 		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(TestUtils.TEST_USERNAME);
+		loginDto.setUsername(TestUtils.TEST_ADMIN);
 		loginDto.setPassword(TestUtils.TEST_PASSWORD);
 		ResourceWrapper<LoginDto> response = loginController.login(loginDto);
 		
 		IdmJwtAuthenticationDto authentication = response.getResource().getAuthentication();
 		
 		assertNotNull(authentication);
-		assertEquals(TestUtils.TEST_USERNAME, authentication.getCurrentUsername());
-		assertEquals(TestUtils.TEST_USERNAME, authentication.getOriginalUsername());
+		assertEquals(TestUtils.TEST_ADMIN, authentication.getCurrentUsername());
+		assertEquals(TestUtils.TEST_ADMIN, authentication.getOriginalUsername());
 	}
 	
 	@Test(expected = AuthenticationException.class)
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(TestUtils.TEST_USERNAME);
+		loginDto.setUsername(TestUtils.TEST_ADMIN);
 		loginDto.setPassword("wrong_pass");
 		loginController.login(loginDto);
 	}

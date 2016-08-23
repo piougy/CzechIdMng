@@ -46,6 +46,7 @@ log4js.configure({
 });
 const logger = log4js.getLogger();
 logger.setLevel(!config.logger || !config.logger.level ? 'DEBUG' : config.logger.level);
+global.LOGGER = logger;
 // debug setting
 if (typeof DEBUG === 'undefined') {
   global.DEBUG = true;

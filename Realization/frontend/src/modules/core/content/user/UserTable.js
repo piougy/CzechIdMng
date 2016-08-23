@@ -88,7 +88,7 @@ export class UserTable extends Basic.AbstractContent {
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`content.users.action.${bulkActionValue}.message`, { count: usernames.length, username: usernames[0] }),
       this.i18n(`content.users.action.${bulkActionValue}.header`, { count: usernames.length})
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
     }, () => {
       // nothing

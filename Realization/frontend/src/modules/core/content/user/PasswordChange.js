@@ -12,7 +12,6 @@ const DISABLED = 'DISABLED';
 const ALL_ONLY = 'ALL_ONLY';
 const CUSTOM = 'CUSTOM';
 
-const UI_KEY = 'user-accounts';
 const RESOURCE_IDM = '0:czechidm';
 
 const identityService = new IdentityService();
@@ -45,8 +44,6 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   _initForm() {
-    const { userID } = this.props.params;
-    const { passwordChangeType } = this.props;
     if (this._canPasswordChange()) {
       this.setState({
         preload: false,
@@ -117,7 +114,7 @@ class PasswordChange extends Basic.AbstractContent {
       }
       return json;
     })
-    .then(json => {
+    .then(() => {
       let resources = (requestData.idm) ? 'czechidm' : '';
       if (requestData.resources.length > 0 && resources) {
         resources += ', ';

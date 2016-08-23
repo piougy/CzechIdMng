@@ -207,7 +207,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       filterCollapsible,
       filterViewportOffsetTop,
       actions,
-      buttons
+      buttons,
+      ...others
     } = this.props;
     const {
       filterOpened,
@@ -310,7 +311,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
 
     return (
-      <div className="advanced-table">
+      <div className="advanced-table" {...others}>
         {
           !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||

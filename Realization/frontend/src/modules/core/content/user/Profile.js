@@ -85,7 +85,7 @@ class Profile extends Basic.AbstractContent {
     const result = _.merge({}, json);
 
     identityManager.getService().patchById(userID, result)
-    .then((json) => {
+    .then(() => {
       this.context.store.dispatch(identityManager.fetchEntity(userID));
       if (!deactive) {
         this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: userID }) });
@@ -263,7 +263,7 @@ class Profile extends Basic.AbstractContent {
             promises.push(this.switchIdmManagerForSubordinate(identity, newIdmManager));
           });
           // next batch
-          Promise.all(promises).then(jsons => {
+          Promise.all(promises).then(() => {
             const { deactivateBreak } = this.state;
             if (!deactivateBreak) {
               this.switchIdmManager(previousIdmManager, newIdmManager);
@@ -381,7 +381,23 @@ class Profile extends Basic.AbstractContent {
           onHide={this.closeDeactivateModal.bind(this)}
           bsSize={subordinatesCount ? 'large' : 'default'} backdrop="static" keyboard={!deactivateLoading}>
           <Basic.Modal.Header closeButton={!deactivateLoading}>
-            <h1>{deactivateLoading ? this.i18n('deactivate.proceed', { username: userID }) : subordinatesCount ? this.i18n('deactivate.selectIdmManager') : this.i18n('deactivate.confirm.header')}</h1>
+            <h1>
+              {
+                deactivateLoading
+                ?
+                this.i18n('deactivate.proceed', { username: userID })
+                :
+                <span>
+                  {
+                    subordinatesCount
+                    ?
+                    this.i18n('deactivate.selectIdmManager')
+                    :
+                    this.i18n('deactivate.confirm.header')
+                  }
+                </span>
+              }
+            </h1>
           </Basic.Modal.Header>
           <Basic.Modal.Body>
             {
@@ -389,42 +405,46 @@ class Profile extends Basic.AbstractContent {
               ?
               <Basic.ProgressBar min={0} max={subordinatesCount} now={deactivateCounter} label={deactivateLabel} active style={{ marginBottom: 0}}/>
               :
-              !subordinatesCount
-              ?
-              <Basic.Alert
-                text={this.i18n('deactivate.confirm.message', { username: userID, escape: false })}
-                className="last"/>
-              :
-              <div>
-                <Basic.Alert
-                  level="warning"
-                  text={this.i18n('messages.subordinatesCount', { username: userID, subordinatesCount, escape: false })}
-                />
+              <span>
+                {
+                  !subordinatesCount
+                  ?
+                  <Basic.Alert
+                    text={this.i18n('deactivate.confirm.message', { username: userID, escape: false })}
+                    className="last"/>
+                  :
+                  <div>
+                    <Basic.Alert
+                      level="warning"
+                      text={this.i18n('messages.subordinatesCount', { username: userID, subordinatesCount, escape: false })}
+                    />
 
-                <div className="form-horizontal">
-                  <Basic.SelectBox
-                    ref="newIdmManager"
-                    service={identityManager.getService()}
-                    searchInFields={['lastName', 'name', 'email']}
-                    placeholder={this.i18n('deactivate.form.newIdmManager')}
-                    componentSpan="col-sm-12"
-                    required
-                    validate={this._validateNewIdmManager.bind(this, userID)}
-                  />
-                </div>
+                    <div className="form-horizontal">
+                      <Basic.SelectBox
+                        ref="newIdmManager"
+                        service={identityManager.getService()}
+                        searchInFields={['lastName', 'name', 'email']}
+                        placeholder={this.i18n('deactivate.form.newIdmManager')}
+                        componentSpan="col-sm-12"
+                        required
+                        validate={this._validateNewIdmManager.bind(this, userID)}
+                      />
+                    </div>
 
-                <Advanced.Table
-                  ref="table"
-                  uiKey="deactivate_subordinate_table"
-                  manager={identitySubordinateManager}
-                  rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : '';}}>
-                  <Advanced.Column property="name" width="20%" sort face="text"/>
-                  <Advanced.Column property="lastName" sort face="text" />
-                  <Advanced.Column property="firstName" width="10%" face="text" />
-                  <Advanced.Column property="email" width="15%" face="text" sort />
-                  <Advanced.Column property="disabled" face="bool" sort width="100px"/>
-                </Advanced.Table>
-              </div>
+                    <Advanced.Table
+                      ref="table"
+                      uiKey="deactivate_subordinate_table"
+                      manager={identitySubordinateManager}
+                      rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : '';}}>
+                      <Advanced.Column property="name" width="20%" sort face="text"/>
+                      <Advanced.Column property="lastName" sort face="text" />
+                      <Advanced.Column property="firstName" width="10%" face="text" />
+                      <Advanced.Column property="email" width="15%" face="text" sort />
+                      <Advanced.Column property="disabled" face="bool" sort width="100px"/>
+                    </Advanced.Table>
+                  </div>
+                }
+              </span>
             }
           </Basic.Modal.Body>
           <Basic.Modal.Footer>

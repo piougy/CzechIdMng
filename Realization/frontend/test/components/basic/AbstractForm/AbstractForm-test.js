@@ -12,14 +12,14 @@ function getForm() {
   );
 }
 
-describe('Basic AbstractForm', function() {
+describe('Basic AbstractForm', function abstractForm() {
   // Does not work for components with ref (throw "Only a ReactOwner can have refs. ..."). I need ref in AbstractFrom and their subcomponents
-  it('[readonly] - setting readOnly on form makes all children readOnly', function() {
+  it('[readonly] - setting readOnly on form makes all children readOnly', function test() {
     const readOnly = true;
     // https://www.npmjs.com/package/react-shallow-renderer-helpers
     const shallowRenderer = shallowHelpers.createRenderer();
     shallowRenderer.render(() => getForm(readOnly), {});
-    const instance = shallowRenderer.getMountedInstance();
+    // const instance = shallowRenderer.getMountedInstance();
     // console.log('form', instance.getComponent('name'));
 
     // const form = TestUtils.renderIntoDocument(getForm(readOnly));

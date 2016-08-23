@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.configuration.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
@@ -48,6 +49,12 @@ public class DefaultEmailer implements Emailer {
 	
 	public boolean send(IdmEmailLog emailLog) {
 		log.debug("Sending email [{}]", emailLog);
+		
+		if (ObjectUtils.isEmpty(emailLog.getRecipients())) {
+			log.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
+			emailService.setEmailSentLog(emailLog.getId(), "Email recipiets is empty. Email was logged only.");
+			return false;
+		}
 		
 		try {
 			Endpoint endpoint = configureEndpoint();

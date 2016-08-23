@@ -1,5 +1,3 @@
-
-
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
@@ -66,11 +64,11 @@ export default class AbstractService {
       .then(response => {
         return response.json();
       })
-      .then(json => {
-        if (Utils.Response.hasError(json)) {
-          throw Utils.Response.getFirstError(json);
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
         }
-        return json;
+        return jsonResponse;
       });
   }
 
@@ -111,9 +109,9 @@ export default class AbstractService {
       .then(response => {
         return response.json();
       })
-      .then(json => {
-        if (Utils.Response.hasError(json)) {
-          throw Utils.Response.getFirstError(json);
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
         }
         return json;
       });
@@ -125,11 +123,11 @@ export default class AbstractService {
       .then(response => {
         return response.json();
       })
-      .then(json => {
-        if (Utils.Response.hasError(json)) {
-          throw Utils.Response.getFirstError(json);
+      .then(jsonResponse => {
+        if (Utils.Response.hasError(jsonResponse)) {
+          throw Utils.Response.getFirstError(jsonResponse);
         }
-        return json;
+        return jsonResponse;
       });
   }
 
@@ -138,9 +136,8 @@ export default class AbstractService {
       searchParameters = this.getDefaultSearchParameters();
     }
     if (!(searchParameters instanceof SearchParameters)) {
-      // TODO: try construct SearchParameters.fromJs
-      // TODO: log4js warn
-      console.log('Search parameters is not instance of SearchParameters - using default', searchParameters);
+      // TODO: try construct SearchParameters.fromJs object
+      LOGGER.warn('Search parameters is not instance of SearchParameters - using default', searchParameters);
       searchParameters = this.getDefaultSearchParameters();
     }
     return RestApiService

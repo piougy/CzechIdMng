@@ -12,7 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.AbstractUnitTest;
-import eu.bcvsolutions.idm.core.config.web.DynamicCorsConfiguration;
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 
 /**
  * Test configuration change for DynamicCorsConfiguration

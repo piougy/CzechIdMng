@@ -61,7 +61,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 		// TODO: runAs
 		SecurityContextHolder.getContext().setAuthentication(
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
-		// TODO: move to create script + flyway
+		// TODO: move to create script + flyway		
 		try {
 			IdmRole existsSuperAdminRole = this.roleRepository.findOneByName("superAdminRole");
 			if (existsSuperAdminRole == null) {

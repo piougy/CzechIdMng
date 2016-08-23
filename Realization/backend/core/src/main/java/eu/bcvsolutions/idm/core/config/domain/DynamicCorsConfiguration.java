@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.config.web;
+package eu.bcvsolutions.idm.core.config.domain;
 
 import java.util.Arrays;
 import java.util.Collections;

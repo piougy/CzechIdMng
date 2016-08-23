@@ -242,8 +242,18 @@ export class RoleTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.Column property="name" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="roleType" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+          <Advanced.Column
+            header={this.i18n('entity.Role.approvable')}
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <input type="checkbox" disabled checked={data[rowIndex].approveAddWorkflow || data[rowIndex].approveRemoveWorkflow} />
+                );
+              }
+            }
+            sort={false}/>
           <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
-          <Advanced.Column property="approvable" sort face="bool" rendered={_.includes(columns, 'approvable')}/>
         </Advanced.Table>
 
         <Basic.Modal

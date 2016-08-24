@@ -1,4 +1,5 @@
 import routeActions from 'react-router-redux';
+//
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import * as Utils from '../../utils';
@@ -217,13 +218,11 @@ export default class EntityManager {
         // TODO: sub error class
         if (error.message === '403') {
           dispatch(routeActions.push('/error/403'));
-          return null;
-        }
-        if (error.message === '404') {
+        } else if (error.message === '404') {
           dispatch(routeActions.push(`/error/404?id=${id}`));
-          return null;
+        } else {
+          dispatch(this.receiveError(id, uiKey, error, cb));
         }
-        dispatch(this.receiveError(id, uiKey, error, cb));
       });
     };
   }

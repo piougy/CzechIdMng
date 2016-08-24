@@ -34,11 +34,6 @@ export class OrganizationTable extends Basic.AbstractContent {
     this.context.store.dispatch(organizationManager.fetchEntities(searchParameters, rootKey));
   }
 
-  componentDidUpdate() {
-    // const { organizationTree } = this.props;
-    // this.refs.table.getWrappedInstance().reload();
-  }
-
   componentWillUnmount() {
     this.cancelFilter();
   }
@@ -65,6 +60,8 @@ export class OrganizationTable extends Basic.AbstractContent {
   _useFilterByTree(nodeId, event) {
     if (event) {
       event.preventDefault();
+      // Stop propagation is important for prohibition of node tree expand.
+      // After click on link node, we want only filtering ... not node expand.
       event.stopPropagation();
     }
     const { organizationManager } = this.props;
@@ -101,6 +98,9 @@ export class OrganizationTable extends Basic.AbstractContent {
     }
   }
 
+/**
+ * Decorator for organization tree. Add custom icons and allow filtering after click on node
+ */
   _orgTreeHeaderDecorator(props) {
     const style = props.style;
     const iconType = props.node.isLeaf ? 'group' : 'building';

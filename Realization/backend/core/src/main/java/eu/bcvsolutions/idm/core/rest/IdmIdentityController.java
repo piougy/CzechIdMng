@@ -98,7 +98,7 @@ public class IdmIdentityController {
 	/**
 	 * Change given identity's permissions (assigned roles)
 	 * @param identityId
-	 * @return
+	 * @return Instance of workflow user task, where applicant can fill his change permission request
 	 */
 	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {

@@ -65,7 +65,6 @@ const Components = {
   Table: BasicTable.Table,
   Column: BasicTable.Column,
   Cell: BasicTable.Cell,
-  DefaultCell: BasicTable.DefaultCell,
   SortHeaderCell: BasicTable.SortHeaderCell,
   TextCell: BasicTable.TextCell,
   LinkCell: BasicTable.LinkCell,

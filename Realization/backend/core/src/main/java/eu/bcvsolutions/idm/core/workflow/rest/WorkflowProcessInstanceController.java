@@ -67,12 +67,14 @@ public class WorkflowProcessInstanceController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort,  @RequestParam String identity,  @RequestParam String processDefinitionKey) {
+			@RequestParam(required = false) int size, @RequestParam(required = false) int page, @RequestParam(required = false) String sort,  @RequestParam String identity,
+			@RequestParam(required = false) String processDefinitionKey, @RequestParam(required = false) String category) {
 		
 		IdmIdentity idmIdentity = idmIdentityRepository.findOneByUsername(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.getEqualsVariables().put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, idmIdentity.getId());
 		filter.setProcessDefinitionKey(processDefinitionKey);
+		filter.setCategory(category);
 		filter.setPageNumber(page);
 		filter.setPageSize(size);
 		return this.search(filter);

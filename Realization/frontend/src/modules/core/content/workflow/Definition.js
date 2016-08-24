@@ -1,14 +1,8 @@
-
-
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { WorkflowProcessDefinitionService } from '../../services';
-import _ from 'lodash';
 
 /**
 * Workflow definition detail
@@ -31,7 +25,7 @@ class Definition extends Basic.AbstractContent {
     this.setState({
       showLoading: true
     });
-    let promise = this.workflowDefinitionService.getById(definitionId);
+    const promise = this.workflowDefinitionService.getById(definitionId);
     promise.then((json) => {
       this.setState({
         showLoading: false,
@@ -48,21 +42,21 @@ class Definition extends Basic.AbstractContent {
     this.workflowDefinitionService.downloadDiagram(definitionId, this.reciveDiagram.bind(this));
   }
 
-  reciveDiagram(blob){
-    var objectURL = URL.createObjectURL(blob);
-    this.setState({diagramUrl:objectURL})
+  reciveDiagram(blob) {
+    const objectURL = URL.createObjectURL(blob);
+    this.setState({diagramUrl: objectURL});
   }
 
-  _showFullDiagram(){
-    this.setState({showModalDiagram:true});
+  _showFullDiagram() {
+    this.setState({showModalDiagram: true});
   }
 
-  _closeModalDiagram(){
-    this.setState({showModalDiagram:false});
+  _closeModalDiagram() {
+    this.setState({showModalDiagram: false});
   }
 
   render() {
-    const {showLoading, definition, showModalDiagram, diagramUrl} = this.state;
+    const {showLoading, showModalDiagram, diagramUrl} = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -97,11 +91,11 @@ class Definition extends Basic.AbstractContent {
               </Basic.Button>
             </div>
           </Basic.PanelHeader>
-          <div style={{textAlign:'center', marginBottom:'40px'}}>
-            <img style={{maxWidth:'70%'}} src={diagramUrl}/>
+          <div style={{textAlign: 'center', marginBottom: '40px'}}>
+            <img style={{maxWidth: '70%'}} src={diagramUrl}/>
           </div>
         </Basic.Panel>
-        <Basic.Modal show={showModalDiagram} dialogClassName='modal-large' onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
+        <Basic.Modal show={showModalDiagram} dialogClassName="modal-large" onHide={this._closeModalDiagram.bind(this)} style={{width: '90%'}} keyboard={!diagramUrl}>
           <Basic.Modal.Header text={this.i18n('fullscreenDiagram')}/>
           <Basic.Modal.Body style={{overflow: 'scroll'}}>
             <img src={diagramUrl}/>
@@ -116,11 +110,11 @@ class Definition extends Basic.AbstractContent {
 }
 
 Definition.propTypes = {
-}
+};
 Definition.defaultProps = {
-}
+};
 
-function select(state, component) {
+function select() {
   return {};
 }
 

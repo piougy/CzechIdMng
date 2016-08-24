@@ -32,6 +32,25 @@ class Tree extends Basic.AbstractContextComponent {
     }
   }
 
+  reload() {
+    const { rendered, uiKey, rootNode, propertyId, propertyParent } = this.props;
+    if (!rendered) {
+      return;
+    }
+    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, rootNode[propertyId]);
+    const nodeKey = uiKey + rootNode[propertyId];
+    this.context.store.dispatch(this.getManager().fetchEntities(filter, nodeKey));
+  }
+
+  _mergeSearchParameters(searchParameters) {
+    const { defaultSearchParameters, forceSearchParameters } = this.props;
+    let _forceSearchParameters = null;
+    if (forceSearchParameters) {
+      _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
+    }
+    return this.getManager().mergeSearchParameters(searchParameters || defaultSearchParameters || this.getManager().getDefaultSearchParameters(), _forceSearchParameters);
+  }
+
   componentWillReceiveProps(nextProps) {
     const {cursor} = nextProps;
     // cursor is different
@@ -59,7 +78,7 @@ class Tree extends Basic.AbstractContextComponent {
   */
   _onToggle(node, toggled) {
     const {propertyParent, propertyId, uiKey} = this.props;
-    const filter = {filter: { operation: 'OR', filters: [{'field': propertyParent, 'value': node[propertyId]}]}};
+    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
     if (this.state.cursor) {
       this.state.cursor.active = false;
     }
@@ -86,7 +105,7 @@ class Tree extends Basic.AbstractContextComponent {
     const {propertyId, uiKey} = this.props;
     const nodeKey = uiKey + node[propertyId];
     const containsUiKey = this.getManager().containsUiKey(state, nodeKey);
-    if (containsUiKey && !node.loading) {
+    if (containsUiKey && node.loading && !node.loading) {
       return true;
     }
     if (containsUiKey) {
@@ -99,6 +118,9 @@ class Tree extends Basic.AbstractContextComponent {
             child.children = [];
           }
         }
+      } else {
+        node.isLeaf = true;
+        delete node.children;
       }
       node.loading = false;
       node.toggled = true;
@@ -128,14 +150,14 @@ class Tree extends Basic.AbstractContextComponent {
         if (toggleDecorator) {
           return toggleDecorator(props);
         }
-        return decorators.Toggle(props);
+        return new decorators.Toggle(props);
       },
       Header: (headerProps) => {
         if (headerDecorator) {
           return headerDecorator(headerProps);
         }
         const style = headerProps.style;
-        const iconType = headerProps.node.children ? 'folder' : 'file-text';
+        const iconType = headerProps.node.isLeaf ? 'file-text' : 'folder';
         const iconClass = `fa fa-${iconType}`;
         const iconStyle = { marginRight: '5px' };
         return (
@@ -170,7 +192,7 @@ class Tree extends Basic.AbstractContextComponent {
 
   render() {
     const { data } = this.state;
-    const { style, rendered } = this.props;
+    const { style, showLoading, rendered } = this.props;
     // I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
     const customDecorators = this._getDecorators();
     if (!rendered) {
@@ -178,7 +200,7 @@ class Tree extends Basic.AbstractContextComponent {
     }
     return (
       <div>
-          (showLoading ?
+          {showLoading ?
             <Basic.Well showLoading/>
             :
             <Treebeard
@@ -187,7 +209,7 @@ class Tree extends Basic.AbstractContextComponent {
               style={style ? style : defaultStyle}
               decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}
               />
-          )
+          }
         </div>
       );
   }

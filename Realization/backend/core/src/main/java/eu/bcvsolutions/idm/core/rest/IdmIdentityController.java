@@ -27,15 +27,17 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
+import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @RestController
-@RequestMapping(value = "/api/identities/")
+@RequestMapping(value = "/api/")
 public class IdmIdentityController {
+	
+	public static final String ENDPOINT_NAME = "identities";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -65,7 +67,7 @@ public class IdmIdentityController {
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = "public/" + ENDPOINT_NAME + "/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
@@ -88,12 +90,17 @@ public class IdmIdentityController {
 	 * @param identityId
 	 * @return list of granted authorities
 	 */
-	@RequestMapping(value = "{identityId}/authorities", method = RequestMethod.GET)
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
 
-	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
+	/**
+	 * Change given identity's permissions (assigned roles)
+	 * @param identityId
+	 * @return
+	 */
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
@@ -102,7 +109,6 @@ public class IdmIdentityController {
 		ProcessInstance processInstance = idmIdentityService.changePermissions(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
-		filter.setId(processInstance.getActivityId());
 		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController
 				.search(filter).getBody().getResources();
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);

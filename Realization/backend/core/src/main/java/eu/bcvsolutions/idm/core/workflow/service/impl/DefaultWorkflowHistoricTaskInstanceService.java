@@ -3,20 +3,18 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.bpmn.model.ServiceTask;
 import org.activiti.engine.HistoryService;
-import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Default implementation of workflow process historic service
@@ -29,12 +27,8 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 
 	@Autowired
 	private HistoryService historyService;
-
 	@Autowired
 	private SecurityService securityService;
-	
-	@Autowired
-	private TaskService taskService;
 
 	@Override
 	public ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter) {

@@ -5,6 +5,7 @@ import SearchParameters from '../domain/SearchParameters';
 
 class OrganizationService extends AbstractService {
 
+  const
   getApiPath() {
     return '/organizations';
   }
@@ -13,7 +14,7 @@ class OrganizationService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.name; 
+    return entity.name;
   }
 
   /**
@@ -24,6 +25,19 @@ class OrganizationService extends AbstractService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
   }
+
+  /**
+   * Returns search parameters by parent ID, used in tree
+   */
+  getTreeSearchParameters() {
+    return super.getDefaultSearchParameters().setName(OrganizationService.TREE_SEARCH).clearSort().setSort('name');
+  }
 }
+
+/**
+ * Search by parent ID for tree
+ * @type {Number}
+ */
+OrganizationService.TREE_SEARCH = 'children';
 
 export default OrganizationService;

@@ -7,7 +7,7 @@ class IdentityAccountService extends AbstractService {
   constructor(username) {
     super();
     this.username = username;
-   }
+  }
 
    setUsername(username) {
      this.username = username;
@@ -18,7 +18,7 @@ class IdentityAccountService extends AbstractService {
   }
 
   getNiceLabel(entity) {
-    return entity.resource + ' (' +entity.identity + ')';
+    return entity.resource + ' (' + entity.identity + ')';
   }
 
   search(searchParameters) {

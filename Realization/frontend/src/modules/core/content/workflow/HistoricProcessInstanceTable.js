@@ -1,12 +1,6 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
-import Immutable from 'immutable';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import {WorkflowProcessDefinitionManager} from '../../redux';
@@ -26,7 +20,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -43,7 +37,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -54,7 +48,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    this.context.router.push('workflow/history/processes/'+entity.id)
+    this.context.router.push('workflow/history/processes/' + entity.id);
   }
 
   closeDetail() {
@@ -67,7 +61,7 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   _filter() {
-   return(  <Advanced.Filter onSubmit={this._useFilter.bind(this)}>
+    return (<Advanced.Filter onSubmit={this._useFilter.bind(this)}>
       <Basic.AbstractForm ref="filterForm" className="form-horizontal">
         <Basic.Row className="last">
           <div className="col-lg-4">
@@ -90,14 +84,14 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           </div>
         </Basic.Row>
       </Basic.AbstractForm>
-    </Advanced.Filter>)
+    </Advanced.Filter>);
   }
 
   _useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   _cancelFilter(event) {
@@ -108,8 +102,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, workflowHistoricProcessInstanceManager, columns, _showLoading, forceSearchParameters } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { uiKey, workflowHistoricProcessInstanceManager, columns, forceSearchParameters } = this.props;
+    const { filterOpened } = this.state;
 
     return (
       <div>
@@ -142,8 +136,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
               header={this.i18n('entity.WorkflowHistoricProcessInstance.applicant')}
               sort={false}
               face="text"/>
-          <Advanced.Column property="startTime" sort={true} face="datetime" rendered={_.includes(columns, 'startTime')}/>
-          <Advanced.Column property="endTime" sort={true} face="datetime" rendered={_.includes(columns, 'endTime')}/>
+          <Advanced.Column property="startTime" sort face="datetime" rendered={_.includes(columns, 'startTime')}/>
+          <Advanced.Column property="endTime" sort face="datetime" rendered={_.includes(columns, 'endTime')}/>
           <Advanced.Column property="startActivityId" sort={false} face="text" rendered={_.includes(columns, 'startActivityId')}/>
           <Advanced.Column property="deleteReason" sort={false} face="text" rendered={_.includes(columns, 'deleteReason')}/>
           <Advanced.Column property="superProcessInstanceId" sort={false} face="text" rendered={_.includes(columns, 'superProcessInstanceId')}/>
@@ -163,7 +157,7 @@ HistoricProcessInstanceTable.propTypes = {
 };
 
 HistoricProcessInstanceTable.defaultProps = {
-  columns: ['deleteReason','id', 'endTime', 'startTime', 'name'],
+  columns: ['deleteReason', 'id', 'endTime', 'startTime', 'name'],
   filterOpened: false,
   _showLoading: false
 };

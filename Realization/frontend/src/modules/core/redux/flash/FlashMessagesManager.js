@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
 // api
 import { LocalizationService, AuthenticateService } from '../../services';
-//import SecurityManager from '../Security/SecurityManager';
-//import SettingManager from '../data/SettingManager';
+// import SecurityManager from '../Security/SecurityManager';
+// import SettingManager from '../data/SettingManager';
 
 /*
  * action types
@@ -21,7 +21,7 @@ export const DEFAULT_SERVER_UNAVAILABLE_TIMEOUT = 3000;
 
 export default class FlashMessagesManager {
 
-  constructor () {
+  constructor() {
     this.serverUnavailableTimeout = DEFAULT_SERVER_UNAVAILABLE_TIMEOUT;
   }
 
@@ -42,14 +42,14 @@ export default class FlashMessagesManager {
         type: ADD_MESSAGE,
         message: _.merge({}, message, { date: new Date() })
       });
-    }
+    };
   }
 
   addError(error, context = null) {
     return this.addErrorMessage({}, error, context);
   }
 
-  addErrorMessage(message, error, context = null) {
+  addErrorMessage(message, error) {
     return (dispatch, getState) => {
       if (DEBUG) {
         getState().logger.error(message, error);
@@ -62,7 +62,7 @@ export default class FlashMessagesManager {
         if (!_.isEmpty(error.parameters)) {
           defaultMessage += ' (';
           let first = true;
-          for (let parameterKey in error.parameters) {
+          for (const parameterKey in error.parameters) {
             if (!first) {
               defaultMessage += ', ';
             } else {
@@ -76,7 +76,7 @@ export default class FlashMessagesManager {
         //
         errorMessage = _.merge({}, {
           key: error.statusEnum,
-          level: (parseInt(error.statusCode) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
+          level: (parseInt(error.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
           title: messageTitle,
           message: messageText,
         }, message);
@@ -96,7 +96,7 @@ export default class FlashMessagesManager {
               level: 'error',
               title: LocalizationService.i18n('content.error.503.description'),
               message: LocalizationService.i18n('content.error.503.note'),
-              dismissible: false/*,
+              dismissible: false/* ,
               action: {
                 label: 'Odeslat na podporu',
                 callback: () => {
@@ -104,7 +104,7 @@ export default class FlashMessagesManager {
                 }
               }*/
             }));
-            dispatch(this._clearSetting());
+            dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
       // TODO: module defined exception handlers
@@ -120,7 +120,7 @@ export default class FlashMessagesManager {
       } else {
         dispatch(this.addMessage(errorMessage));
       }
-    }
+    };
   }
 
   // TODO: cyclic dependency in security manager
@@ -132,12 +132,11 @@ export default class FlashMessagesManager {
     };
   }
 
-  // TODO: cyclic dependency in setting manager
-  _clearSetting() {
+  // TODO: cyclic dependency in configuration manager - refactor action constants
+  _clearConfiguations() {
     return {
-      type: 'CLEAR_ENTITIES',
-      entityType: 'Setting',
-      uiKey: 'Setting'
+      type: 'CLEAR_DATA',
+      uiKey: 'public-configurations'
     };
   }
 
@@ -148,7 +147,7 @@ export default class FlashMessagesManager {
     if (!error.statusEnum) {
       return false;
     }
-    if (error.statusEnum === 'XSRF'  || error.statusEnum === 'LOG_IN' || error.statusEnum === 'AUTH_EXPIRED') {
+    if (error.statusEnum === 'XSRF' || error.statusEnum === 'LOG_IN' || error.statusEnum === 'AUTH_EXPIRED') {
       return true;
     }
     return false;

@@ -8,13 +8,15 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import eu.bcvsolutions.idm.core.model.domain.BasePermission;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.model.domain.GroupPermission;
+import eu.bcvsolutions.idm.security.domain.BasePermission;
+import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.GroupPermission;
 
 /**
  * Role privileges
@@ -27,8 +29,8 @@ import eu.bcvsolutions.idm.core.model.domain.GroupPermission;
 public class IdmRoleAuthority extends AbstractEntity {
 	
 	private static final long serialVersionUID = -4935521717718151720L;
-	public static final String TARGET_ACTION_SEPARATOR = "_";
 
+	@Audited
 	@NotNull
 	@JsonBackReference
 	@ManyToOne(optional = false)
@@ -37,6 +39,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Group
 	 */
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "target_permission", length = DefaultFieldLengths.NAME, nullable = false)
@@ -44,6 +47,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Base permission
 	 */
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "action_permission", length = DefaultFieldLengths.NAME, nullable = false)
@@ -82,6 +86,6 @@ public class IdmRoleAuthority extends AbstractEntity {
 	}
 	
 	public String getAuthority() {
-		return target + TARGET_ACTION_SEPARATOR + action;
+		return new DefaultGrantedAuthority(target, action).getAuthority();
 	}
 }

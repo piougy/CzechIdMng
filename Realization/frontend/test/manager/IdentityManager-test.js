@@ -1,64 +1,62 @@
-'use strict';
-
-import { expect } from 'chai';
 import faker from 'faker';
-import Immutable from 'immutable';
+import chai, { expect } from 'chai';
+import dirtyChai from 'dirty-chai';
+chai.use(dirtyChai);
 //
 import { IdentityManager } from '../../src/modules/core/redux';
 
-describe('IdentityManager', function() {
-
+describe('IdentityManager', function identityManagerTest() {
   const identityManager = new IdentityManager();
 
-  it('- entity type should be Identity', function() {
+  it('- entity type should be Identity', function test() {
     expect(identityManager.getEntityType()).to.equal('Identity');
   });
 
-  it.skip('- isExterne on externe identity should return true', function() {
-    let identity = { name: faker.name.findName() }
-    expect(identityManager.isExterne(identity)).to.be.false;
+  it.skip('- isExterne on externe identity should return true', function test() {
+    const identity = { name: faker.name.findName() };
+    expect(identityManager.isExterne(identity)).to.be.false();
     identity.externe = true;
-    expect(identityManager.isExterne(identity)).to.be.true;
+    expect(identityManager.isExterne(identity)).to.be.true();
   });
 
   // TODO: move userContext creation to SecurityManager
-  let userContext = {
+  const userContext = {
     username: faker.name.findName(),
     isAuthenticated: false,
     tokenCSRF: 'token',
     roles: []
   };
 
-  it.skip('- not logged user cannot edit identity', function() {
-    let canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
-    expect(canEditMap.get('isSaveEnabled')).to.be.false;
+  it.skip('- not logged user cannot edit identity', function test() {
+    const canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
+    expect(canEditMap.get('isSaveEnabled')).to.be.false();
   });
 
-  it.skip('- logged user cannot edit itentity without admin role or if he is not in identity managers', function() {
+  it.skip('- logged user cannot edit itentity without admin role or if he is not in identity managers', function test() {
     userContext.isAuthenticated = true;
-    let canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
-    expect(canEditMap.get('isSaveEnabled')).to.be.false;
-    expect(canEditMap.get('idmManager')).to.be.false;
+    const canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
+    expect(canEditMap.get('isSaveEnabled')).to.be.false();
+    expect(canEditMap.get('idmManager')).to.be.false();
   });
 
-  it.skip('- logged user with admin role can edit identity', function() {
+  it.skip('- logged user with admin role can edit identity', function test() {
     userContext.roles.push('superAdminRole');
-    let canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
-    expect(canEditMap.get('isSaveEnabled')).to.be.true;
-    expect(canEditMap.get('idmManager')).to.be.true;
+    const canEditMap = identityManager.canEditMap(userContext, { name: 'jn' });
+    expect(canEditMap.get('isSaveEnabled')).to.be.true();
+    expect(canEditMap.get('idmManager')).to.be.true();
   });
 
-  it.skip('- logged user with garant role can edit identity, if he is in identity managers', function() {
+  it.skip('- logged user with garant role can edit identity, if he is in identity managers', function test() {
     userContext.roles = ['garant'];
-    let canEditMap = identityManager.canEditMap(userContext, { name: 'jn', managers: [{ name: userContext.username }] });
-    expect(canEditMap.get('isSaveEnabled')).to.be.true;
+    const canEditMap = identityManager.canEditMap(userContext, { name: 'jn', managers: [{ name: userContext.username }] });
+    expect(canEditMap.get('isSaveEnabled')).to.be.true();
     // he is not idmManager - he cannot edit identity idmManager
-    expect(canEditMap.get('idmManager')).to.be.false;
+    expect(canEditMap.get('idmManager')).to.be.false();
   });
 
-  it.skip('- logged user with garant role can edit identity and idmManager, if he is identity idmManager', function() {
-    let canEditMap = identityManager.canEditMap(userContext, { name: 'jn', idmManager: userContext.username  });
-    expect(canEditMap.get('isSaveEnabled')).to.be.true;
-    expect(canEditMap.get('idmManager')).to.be.true;
+  it.skip('- logged user with garant role can edit identity and idmManager, if he is identity idmManager', function test() {
+    const canEditMap = identityManager.canEditMap(userContext, { name: 'jn', idmManager: userContext.username });
+    expect(canEditMap.get('isSaveEnabled')).to.be.true();
+    expect(canEditMap.get('idmManager')).to.be.true();
   });
 });

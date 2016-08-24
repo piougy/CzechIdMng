@@ -10,7 +10,7 @@ class IdentitySubordinateService extends IdentityService {
       throw new TypeError('idmManager is not defined');
     }
     this.idmManager = idmManager;
-   }
+  }
 
   searchSubordinates(searchParameters) {
     super.searchSubordinates(this.idmManager, searchParameters);
@@ -18,7 +18,7 @@ class IdentitySubordinateService extends IdentityService {
 
   search(searchParameters) {
     if (!searchParameters) {
-      searchParameters = {}
+      searchParameters = {};
     }
     return RestApiService.post(this.getApiPath() + `/${this.idmManager}/subordinates`, searchParameters);
   }

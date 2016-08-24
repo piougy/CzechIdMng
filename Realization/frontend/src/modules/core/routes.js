@@ -79,8 +79,18 @@ module.exports = {
     },
     {
       path: 'organizations',
-      component: require('./content/Organizations'),
+      component: require('./content/organization/Organizations'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+    },
+    {
+      path: 'organizations/:entityId',
+      component: require('./content/organization/OrganizationContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+    },
+    {
+      path: 'organizations/new',
+      component: require('./content/organization/OrganizationContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority ] } ]
     },
     {
       path: 'roles',
@@ -101,9 +111,9 @@ module.exports = {
       component: require('./content/Messages')
     },
     {
-      path: 'configuration',
-      component: require('./content/Configuration'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      path: 'configurations',
+      component: require('./content/Configurations'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
       path: 'app-modules',
@@ -133,7 +143,7 @@ module.exports = {
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',
       component: require('./content/workflow/HistoricProcessInstanceDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      // access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'audit/',
@@ -147,6 +157,16 @@ module.exports = {
         {
           path: 'notification/:entityId',
           component: require('./content/audit/notification/NotificationContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        },
+        {
+          path: 'emails',
+          component: require('./content/audit/email/Emails'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        },
+        {
+          path: 'emails/:entityId',
+          component: require('./content/audit/email/EmailContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
         },
       ]

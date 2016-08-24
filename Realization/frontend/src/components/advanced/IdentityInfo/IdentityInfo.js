@@ -54,7 +54,7 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
         {
           showLoading || (username && !_identity)
           ?
-          <Basic.Well showLoading={true}/>
+          <Basic.Well showLoading/>
           :
           !_identity
           ?

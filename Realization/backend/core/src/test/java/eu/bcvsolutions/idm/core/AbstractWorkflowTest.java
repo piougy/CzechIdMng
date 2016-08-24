@@ -1,20 +1,19 @@
 package eu.bcvsolutions.idm.core;
 
+import java.io.InputStream;
+
 import org.activiti.engine.IdentityService;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.test.ActivitiRule;
+import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.junit.Before;
 import org.junit.Rule;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
-import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.IdmApplication;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 
 /**
  * 
@@ -25,20 +24,54 @@ import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
  */
 public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
 
-    @Autowired @Rule
-    public ActivitiRule activitiRule;
-    
-    @Autowired
+	@Autowired
+	@Rule
+	public ActivitiRule activitiRule;
+
+	@Autowired
 	private IdentityService workflowIdentityService;
+
+	@Autowired
+	private WorkflowDeploymentService processDeploymentService;
+
 	
-	public void login(String username){
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
+	@Autowired
+	private AutowireCapableBeanFactory beanFactory;
+    
+	/**
+	 * Behavior injection from configuration doesn't work - we need to initialize it manually
+	 */
+	@Before
+    public void initBehavior() {
+    	ProcessEngineConfigurationImpl processEngineConfiguration = (ProcessEngineConfigurationImpl)activitiRule.getProcessEngine().getProcessEngineConfiguration();
+		CustomActivityBehaviorFactory customActivityBehaviorFactory = new CustomActivityBehaviorFactory();
+		beanFactory.autowireBean(customActivityBehaviorFactory);
+		// Evaluate expression in workflow
+		customActivityBehaviorFactory.setExpressionManager(((SpringProcessEngineConfiguration) processEngineConfiguration).getExpressionManager());
+		// For catch email
+		((SpringProcessEngineConfiguration) processEngineConfiguration).getBpmnParser().setActivityBehaviorFactory(customActivityBehaviorFactory);
+    }
+	
+    @Override
+	public void loginAsAdmin(String username){
+		super.loginAsAdmin(username);
 		workflowIdentityService.setAuthenticatedUserId(username);
 	}
-	
-	public void logout(){
-		SecurityContextHolder.clearContext();
+
+	@Override
+	public void logout() {
+		super.logout();
 		workflowIdentityService.setAuthenticatedUserId(null);
+	}
+
+	/**
+	 * Deploy process by definition file path
+	 * @param xmlPath
+	 * @return
+	 */
+	public WorkflowDeploymentDto deployProcess(String xmlPath) {
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(xmlPath);
+		return  processDeploymentService.create(xmlPath,
+				xmlPath, is);
 	}
 }

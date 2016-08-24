@@ -22,7 +22,7 @@ export default class DataManager {
   requestData(uiKey) {
     return {
       type: REQUEST_DATA,
-      uiKey: uiKey
+      uiKey
     };
   }
 
@@ -48,8 +48,8 @@ export default class DataManager {
   receiveData(uiKey, data) {
     return {
       type: RECEIVE_DATA,
-      uiKey: uiKey,
-      data: data
+      uiKey,
+      data
     };
   }
 
@@ -62,7 +62,7 @@ export default class DataManager {
   clearData(uiKey) {
     return {
       type: CLEAR_DATA,
-      uiKey: uiKey
+      uiKey
     };
   }
 

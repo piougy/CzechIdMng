@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 //
 import DefaultCell from './DefaultCell';
@@ -22,6 +20,7 @@ const EnumCell = ({rowIndex, data, property, enumClass, ...props}) => {
   return (
     <DefaultCell {...props}>
       {
+        /* eslint no-nested-ternary: 0 */
         !propertyValue
         ||
         !enumClass

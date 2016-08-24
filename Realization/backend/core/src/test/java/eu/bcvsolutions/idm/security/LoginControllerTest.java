@@ -5,13 +5,14 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.security.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.core.security.dto.LoginDto;
-import eu.bcvsolutions.idm.core.security.rest.LoginController;
+import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
+import eu.bcvsolutions.idm.security.dto.LoginDto;
+import eu.bcvsolutions.idm.security.rest.LoginController;
 
 /**
  * Login to application with test user
@@ -25,24 +26,25 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	private LoginController loginController;
 	
 	@Test
+	@Transactional
 	public void testSuccesfulLogIn() throws Exception {
 		// TODO: prepare test data - through flyway? Test db initializer with rollback only?
 		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(TestUtils.TEST_USERNAME);
+		loginDto.setUsername(TestUtils.TEST_ADMIN);
 		loginDto.setPassword(TestUtils.TEST_PASSWORD);
 		ResourceWrapper<LoginDto> response = loginController.login(loginDto);
 		
 		IdmJwtAuthenticationDto authentication = response.getResource().getAuthentication();
 		
 		assertNotNull(authentication);
-		assertEquals(TestUtils.TEST_USERNAME, authentication.getCurrentUsername());
-		assertEquals(TestUtils.TEST_USERNAME, authentication.getOriginalUsername());
+		assertEquals(TestUtils.TEST_ADMIN, authentication.getCurrentUsername());
+		assertEquals(TestUtils.TEST_ADMIN, authentication.getOriginalUsername());
 	}
 	
 	@Test(expected = AuthenticationException.class)
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(TestUtils.TEST_USERNAME);
+		loginDto.setUsername(TestUtils.TEST_ADMIN);
 		loginDto.setPassword("wrong_pass");
 		loginController.login(loginDto);
 	}

@@ -12,18 +12,18 @@ export default class AuthenticateService {
    */
   login(username, password) {
     const json = {
-      username: username,
-      password: password
+      username,
+      password
     };
     return RestApiService
     .post(authPath, json, false) // false - we don't want to append auth token
     .then(response => {
       return response.json();
-    }).then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
+    }).then(jsonResponse => {
+      if (Utils.Response.hasError(jsonResponse)) {
+        throw Utils.Response.getFirstError(jsonResponse);
       }
-      return json;
+      return jsonResponse;
     });
   }
 
@@ -40,7 +40,7 @@ export default class AuthenticateService {
    */
   static isAuthenticated() {
     const userContext = AuthenticateService.getUserContext();
-    if (!userContext){
+    if (!userContext) {
       return false;
     }
     return userContext.isAuthenticated;
@@ -106,9 +106,9 @@ export default class AuthenticateService {
    */
   getCookie(cookiename) {
     // Get name followed by anything except a semicolon
-    var cookiestring=RegExp(''+cookiename+'[^;]+').exec(document.cookie);
+    const cookiestring = RegExp('' + cookiename + '[^;]+').exec(document.cookie);
     // Return everything after the equal sign
-    return unescape(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./,'') : '');
+    return unescape(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./, '') : '');
   }
 
   /**
@@ -122,20 +122,20 @@ export default class AuthenticateService {
     let temp = '';
     let len = plength / 2;
     len = len - 1;
-    let lenspec = plength - len - len;
+    const lenspec = plength - len - len;
 
-    for (let i=0;i<len;i++) {
-      temp+=keylistalpha.charAt(Math.floor(Math.random()*keylistalpha.length));
+    for (let i = 0; i < len; i++) {
+      temp += keylistalpha.charAt(Math.floor(Math.random() * keylistalpha.length));
     }
 
-    for (let i=0;i<lenspec;i++) {
-      temp+=keylistspec.charAt(Math.floor(Math.random()*keylistspec.length));
+    for (let i = 0; i < lenspec; i++) {
+      temp += keylistspec.charAt(Math.floor(Math.random() * keylistspec.length));
     }
 
     for (let i = 0; i < len; i++) {
-      temp+=keylistint.charAt(Math.floor(Math.random()*keylistint.length));
+      temp += keylistint.charAt(Math.floor(Math.random() * keylistint.length));
     }
-    temp = temp.split('').sort(function(){return 0.5-Math.random()}).join('');
+    temp = temp.split('').sort(function s() { return 0.5 - Math.random(); }).join('');
     return temp;
   }
 }

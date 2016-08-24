@@ -1,9 +1,5 @@
 
 
-import _ from 'lodash';
-import Immutable from 'immutable';
-import moment from 'moment';
-
 /**
  * Helper methods for response error and info handling
  */
@@ -16,8 +12,8 @@ export default class ResponseUtils {
     return true;
   }
 
-  static hasInfo(responseJson) {
-
+  static hasInfo(/* responseJson */) {
+    throw new Error('unsupported operation');
   }
 
   static getFirstError(responseJson) {
@@ -37,12 +33,12 @@ export default class ResponseUtils {
     return content._errors[0];
   }
 
-  static getInfos(responseJson) {
-
+  static getInfos(/* responseJson */) {
+    throw new Error('unsupported operation');
   }
 
-  static getErrors(responseJson) {
-
+  static getErrors(/* responseJson */) {
+    throw new Error('unsupported operation');
   }
 
 }

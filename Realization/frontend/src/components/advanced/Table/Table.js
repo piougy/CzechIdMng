@@ -106,30 +106,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return children;
   }
 
-  useFilter(filterForm) {
-    const { _searchParameters } = this.props;
-    //
-    const filters = [];
+  useFilterForm(filterForm) {
+    const filters = {};
     const filterValues = filterForm.getData();
     for (const property in filterValues) {
       if (!filterValues.hasOwnProperty(property)) {
         continue;
       }
       const filterComponent = filterForm.getComponent(property);
-      /*
-      let relation = filterComponent.props.relation;
-      if (!relation) {
-        if (filterComponent.props.enum) { // enumeration
-          relation = Filter.DEFAUT_ENUM_RELATION;
-        }
-        relation = Filter.DEFAUT_RELATION;
-      }*/
       const field = filterComponent.props.field || property;
-      //
-      const filter = {
-        field,
-        // relation: relation
-      };
+      // TODO: implement multi value filters
       /* if (filterComponent.props.multiSelect === true) { // multiselect returns array of selected values
         let filledValues = filterValues[property];
         if (filterComponent.props.enum) { // enumeration
@@ -141,19 +127,26 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       if (filterComponent.props.enum) { // enumeration
         filledValue = filterComponent.props.enum.findKeyBySymbol(filledValue);
       }
-      filter.value = filledValue;
-      // }
-      filters.push(filter);
+      filters[field] = filledValue;
     }
+    this.useFilterData(filters);
+  }
+
+  useFilterData(formData) {
+    const { _searchParameters } = this.props;
+    //
     let userSearchParameters = _searchParameters;
     userSearchParameters = userSearchParameters.setPage(0);
-    filters.forEach(filter => {
-      if (!filter.value) {
-        userSearchParameters = userSearchParameters.clearFilter(filter.field);
-      } else {
-        userSearchParameters = userSearchParameters.setFilter(filter.field, filter.value);
+    for (const property in formData) {
+      if (!formData.hasOwnProperty(property)) {
+        continue;
       }
-    });
+      if (!formData[property]) {
+        userSearchParameters = userSearchParameters.clearFilter(property);
+      } else {
+        userSearchParameters = userSearchParameters.setFilter(property, formData[property]);
+      }
+    }
     this.fetchEntities(userSearchParameters);
   }
 
@@ -214,7 +207,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       filterCollapsible,
       filterViewportOffsetTop,
       actions,
-      buttons
+      buttons,
+      ...others
     } = this.props;
     const {
       filterOpened,
@@ -317,9 +311,9 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
 
     return (
-      <div className="advanced-table">
+      <div className="advanced-table" {...others}>
         {
-          !filter && (actions.length === 0 || !showRowSelection)
+          !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
             <div className="pull-left">
@@ -332,7 +326,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 options={actions}
                 placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
                 readOnly={selectedRows <= 0}
-                rendered={actions.length > 0 && showRowSelection}/>
+                rendered={actions !== null && actions.length > 0 && showRowSelection}/>
             </div>
             <div className="pull-right">
               { buttons }

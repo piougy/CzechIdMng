@@ -1,8 +1,6 @@
 
 
 import _ from 'lodash';
-import Immutable from 'immutable';
-//
 import { REQUEST_LOGIN, RECEIVE_LOGIN, RECEIVE_LOGIN_EXPIRED, RECEIVE_LOGIN_ERROR, LOGOUT } from './SecurityManager';
 
 // TODO: integrate immutable map with redux-localstorage
@@ -16,7 +14,7 @@ const INITIAL_STATE = {
     tokenCIDMST: null,
     authorities: [], // user authorities
   }
-}
+};
 
 export function security(state = INITIAL_STATE, action) {
   switch (action.type) {

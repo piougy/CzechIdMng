@@ -10,7 +10,10 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
 
@@ -21,8 +24,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  * @author svandav
  *
  */
-public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessDefinitionService {
-
+public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessDefinitionService {	
+	
 	@Autowired
 	private RepositoryService repositoryService;
 
@@ -60,6 +63,60 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 			return toResource(result);
 		}
 		return null;
+	}
+	
+	@Override
+	public ResourcesWrapper<WorkflowProcessDefinitionDto> search(WorkflowFilterDto filter) {
+		ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
+		
+		query.active();
+		
+		query.latestVersion();
+		
+		if (filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())){
+			query.processDefinitionCategoryLike('%' + filter.getCategory() + '%');
+		}
+		
+		filter.getSortByFields();
+		
+		if (WorkflowProcessDefinitionService.SORT_BY_KEY.equals(filter.getSortByFields())) {
+			query.orderByProcessDefinitionKey();
+		} else if (WorkflowProcessDefinitionService.SORT_BY_NAME.equals(filter.getSortByFields())) {
+			query.orderByProcessDefinitionName();
+		} else {
+			query.orderByProcessDefinitionId();
+		}
+		
+		if (filter.isSortAsc()) {
+			query.asc();
+		}
+		if (filter.isSortDesc()) {
+			query.desc();
+		}
+		
+		// paginator
+		long count = query.count();
+		
+		List<ProcessDefinition> processInstances = query.listPage((filter.getPageNumber()) * filter.getPageSize(),
+				filter.getPageSize());
+		
+		List<WorkflowProcessDefinitionDto> dtos = new ArrayList<>();
+
+		if (processInstances != null) {
+			for (ProcessDefinition instance : processInstances) {
+				dtos.add(toResource(instance));
+			}
+		}
+
+		double totalPageDouble = ((double) count / filter.getPageSize());
+		double totlaPageFlorred = Math.floor(totalPageDouble);
+		long totalPage = 0;
+		if (totalPageDouble > totlaPageFlorred) {
+			totalPage = (long) (totlaPageFlorred + 1);
+		}
+		ResourcesWrapper<WorkflowProcessDefinitionDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+				filter.getPageNumber(), filter.getPageSize());
+		return result;
 	}
 	
 	/**

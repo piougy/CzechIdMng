@@ -1,10 +1,6 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import { connect } from 'react-redux';
-//
 import * as Basic from '../../../../components/basic';
 import { IdentityAccountManager } from '../../../../redux/data';
 
@@ -27,11 +23,11 @@ class Accounts extends Basic.AbstractContent {
   render() {
     const { _entities, _showLoading} = this.props;
 
-    let accountPanels = [];
+    const accountPanels = [];
     if (_entities) {
       for (let i = 0; i < _entities.length; i++) {
-        let account = _entities[i];
-        let key = 'account_panel_' + i;
+        const account = _entities[i];
+        const key = 'account_panel_' + i;
         accountPanels.push(
           <div key={key} className="col-sm-6">
             <Basic.Panel showLoading={_showLoading} className="second">
@@ -55,7 +51,7 @@ class Accounts extends Basic.AbstractContent {
         {
           _showLoading
           ?
-          <Basic.Loading showLoading={true} className="static"/>
+          <Basic.Loading showLoading className="static"/>
           :
           accountPanels.length === 0
           ?
@@ -89,7 +85,7 @@ function select(state) {
   return {
     _showLoading: identityAccountManager.isShowLoading(state, uiKey),
     _entities: identityAccountManager.getEntities(state, uiKey)
-  }
+  };
 }
 
 export default connect(select)(Accounts);

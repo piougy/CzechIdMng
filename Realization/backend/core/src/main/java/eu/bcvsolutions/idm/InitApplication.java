@@ -10,12 +10,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
-import eu.bcvsolutions.idm.core.model.domain.CustomBasePermission;
-import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -29,8 +24,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Initialize application
@@ -40,67 +35,65 @@ import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
  */
 @Component
 public class InitApplication implements ApplicationListener<ContextRefreshedEvent> {
-	
+
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitApplication.class);
-	
+
 	@Autowired
 	private IdmIdentityRepository identityRepository;
-	
+
 	@Autowired
 	private IdmRoleRepository roleRepository;
-	
+
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
-	
+
 	@Autowired
 	private IdmOrganizationRepository organizationRepository;
-	
+
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
-	
+
+	@Autowired
+	private SecurityService securityService;
+
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		// TODO: runAs
-		// TODO: split demo and test data
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
-		//
+		SecurityContextHolder.getContext().setAuthentication(
+				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+		// TODO: move to create script + flyway		
 		try {
-			IdmRole superAdminRole = this.roleRepository.findOneByName("superAdminRole");
-			if (superAdminRole == null) {
+			IdmRole existsSuperAdminRole = this.roleRepository.findOneByName("superAdminRole");
+			if (existsSuperAdminRole == null) {
 				log.info("Creating demo data ...");
 				//
-				superAdminRole = new IdmRole();
-				superAdminRole.setName("superAdminRole");
+				final IdmRole superAdminRole = new IdmRole();
+				superAdminRole.setName(TestUtils.SUPER_ADMIN_ROLE);
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
-				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");				
-				IdmRoleAuthority privilege3 = new IdmRoleAuthority();
-				privilege3.setRole(superAdminRole);
-				privilege3.setTargetPermission(IdmGroupPermission.USER);
-				privilege3.setActionPermission(IdmBasePermission.READ);
+				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");
+				superAdminRole.setApproveRemoveWorkflow("approveRemoveRoleBySuperAdminRole");
 				List<IdmRoleAuthority> authorities = new ArrayList<>();
-				authorities.add(privilege3);
-				IdmRoleAuthority privilege2 = new IdmRoleAuthority();
-				privilege2.setRole(superAdminRole);
-				privilege2.setTargetPermission(IdmGroupPermission.USER);
-				privilege2.setActionPermission(CustomBasePermission.ADMIN);
-				authorities.add(privilege2);
-				IdmRoleAuthority privilege = new IdmRoleAuthority();
-				privilege.setRole(superAdminRole);
-				privilege.setTargetPermission(CustomGroupPermission.SYSTEM);
-				privilege.setActionPermission(CustomBasePermission.ADMIN);
-				authorities.add(privilege);
+				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
+					groupPermission.getPermissions().forEach(basePermission -> {
+						IdmRoleAuthority privilege = new IdmRoleAuthority();
+						privilege.setRole(superAdminRole);
+						privilege.setTargetPermission(groupPermission);
+						privilege.setActionPermission(basePermission);
+						authorities.add(privilege);
+					});
+
+				});
 				superAdminRole.setAuthorities(authorities);
-				superAdminRole = this.roleRepository.save(superAdminRole);
+				this.roleRepository.save(superAdminRole);
 				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
 				//
 				IdmRole role1 = new IdmRole();
-				role1.setName("userRole");
+				role1.setName(TestUtils.USER_ROLE);
 				role1 = this.roleRepository.save(role1);
 				log.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
-				//			
+				//
 				IdmRole role2 = new IdmRole();
-				role2.setName("customRole");
+				role2.setName(TestUtils.CUSTOM_ROLE);
 				List<IdmRoleComposition> subRoles = new ArrayList<>();
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
@@ -126,19 +119,19 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				IdmIdentity identityAdmin = new IdmIdentity();
 				identityAdmin.setUsername("admin");
 				identityAdmin.setFirstName("Hlavní");
-				identityAdmin.setPassword("heslo".getBytes());
+				identityAdmin.setPassword("admin".getBytes());
 				identityAdmin.setLastName("Administrátor");
 				identityAdmin = this.identityRepository.save(identityAdmin);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identityAdmin.getId()));
-				
+
 				IdmIdentityRole identityRole4 = new IdmIdentityRole();
 				identityRole4.setIdentity(identityAdmin);
 				identityRole4.setRole(roleManager);
-				identityRoleRepository.save(identityRole4);	
+				identityRoleRepository.save(identityRole4);
 				IdmIdentityRole identityRole3 = new IdmIdentityRole();
 				identityRole3.setIdentity(identityAdmin);
 				identityRole3.setRole(superAdminRole);
-				identityRoleRepository.save(identityRole3);		
+				identityRoleRepository.save(identityRole3);
 				//
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
 				identityRole1.setIdentity(identity);
@@ -159,13 +152,29 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity2 = this.identityRepository.save(identity2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
+				IdmIdentity identity3 = new IdmIdentity();
+				identity3.setUsername("kopr");
+				identity3.setFirstName("Ondrej");
+				identity3.setPassword("heslo".getBytes());
+				identity3.setLastName("Kopr");
+				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
+				identity3 = this.identityRepository.save(identity3);
+				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
+				//
+				// create parent
+				IdmOrganization organizationRoot = new IdmOrganization();
+				organizationRoot.setName("Organization ROOT");
+				this.organizationRepository.save(organizationRoot);
+				//
 				IdmOrganization organization1 = new IdmOrganization();
 				organization1.setName("Organization One");
+				organization1.setParent(organizationRoot);
 				this.organizationRepository.save(organization1);
 				//
 				IdmOrganization organization2 = new IdmOrganization();
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
+				organization2.setParent(organizationRoot);
 				this.organizationRepository.save(organization2);
 				//
 				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();
@@ -176,17 +185,9 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
-				/*
-				for (int i = 0; i < 100; i++) {
-					IdmIdentity bulkIdentity = new IdmIdentity();
-					bulkIdentity.setUsername("rt_" + i);
-					bulkIdentity.setPassword("heslo".getBytes());
-					bulkIdentity.setFirstName("F");
-					bulkIdentity.setLastName("L");
-					this.identityRepository.save(bulkIdentity);
-				}
-				*/
-				//Users for JUnit testing
+				//
+				// TODO: split test and demo data - use flyway?
+				// Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
 				testUser1.setUsername("testUser1");
 				testUser1.setPassword("heslo".getBytes());
@@ -196,6 +197,7 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));
 				this.identityRepository.save(testUser1);
 				
+
 				IdmIdentity testUser2 = new IdmIdentity();
 				testUser2.setUsername("testUser2");
 				testUser2.setPassword("heslo".getBytes());
@@ -204,6 +206,13 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				testUser2 = this.identityRepository.save(testUser2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 				this.identityRepository.save(testUser2);
+				
+				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
+				identityWorkingPosition2.setIdentity(testUser1);
+				identityWorkingPosition2.setPosition("vedoucí");
+				identityWorkingPosition2.setManager(testUser2);
+				identityWorkingPosition2.setOrganization(organization2);
+				identityWorkingPositionRepository.save(identityWorkingPosition2);
 			}
 			//
 		} finally {

@@ -1,16 +1,12 @@
-'use strict';
-
 import React from 'react';
-import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
+import chai, { expect } from 'chai';
+import dirtyChai from 'dirty-chai';
+chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
-describe('Basic Confirm', function() {
-
+describe('Basic Confirm', function confirmTest() {
   /**
    * Clean DOM afrer each test
    * @param
@@ -23,44 +19,43 @@ describe('Basic Confirm', function() {
     setTimeout(done);
   });*/
 
-  it('- is not shown by default', function() {
+  it('- is not shown by default', function test() {
     const confirm = TestUtils.renderIntoDocument(<Basic.Confirm/>);
-    expect(confirm.props.show).to.be.false;
-    expect(confirm.state.show).to.be.false;
+    expect(confirm.props.show).to.be.false();
+    expect(confirm.state.show).to.be.false();
   });
 
-  it('- texts check', function() {
+  it('- texts check', function test() {
     const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
     confirm.show('Message', 'Title');
-    expect(confirm.state.show).to.be.true;
+    expect(confirm.state.show).to.be.true();
     expect(confirm.state.message).to.equal('Message');
     expect(confirm.state.title).to.equal('Title');
     confirm.closeModal();
-    expect(confirm.state.show).to.be.false;
+    expect(confirm.state.show).to.be.false();
   });
 
-  it('- promise execution check - on confirm click', function(done) {
+  it('- promise execution check - on confirm click', function test(done) {
     this.result = null;
     const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
     confirm.show('Message', 'Title')
-    .then(result => {
+    .then(() => {
       done();
-    }, (err) => {
+    }, () => {
       done(new Error('confirm should be confirmed - rejected instead'));
     });
     confirm.confirm();
   });
 
-  it('- promise execution check - on confirm click', function(done) {
+  it('- promise execution check - on confirm click', function test(done) {
     this.result = null;
     const confirm = TestUtils.renderIntoDocument(<Basic.Confirm />);
     confirm.show('Message', 'Title')
-    .then(result => {
+    .then(() => {
       done(new Error('confirm should be rejected - confirmed instead'));
-    }, (err) => {
+    }, () => {
       done();
     });
     confirm.reject();
   });
-
 });

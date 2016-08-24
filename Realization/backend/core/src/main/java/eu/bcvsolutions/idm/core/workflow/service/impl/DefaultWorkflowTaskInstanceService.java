@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.DecisionFormType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
@@ -28,6 +27,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceSer
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Default workflow task instance service
@@ -67,13 +67,21 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 		if(filter.getProcessDefinitionKey() != null){
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
 		}
+		if(filter.getProcessInstanceId() != null){
+			query.processInstanceId(filter.getProcessInstanceId());
+		}
+		if(filter.getId() != null){
+			query.taskId(filter.getId());
+		}
 		if (equalsVariables != null) {
 			for (String key : equalsVariables.keySet()) {
 				query.processVariableValueEquals(key, equalsVariables.get(key));
 			}
 		}
 
-		query.taskCandidateOrAssigned(securityService.getUsername());
+		// check security ... only candidate or assigned user can read task
+		String loggedUser = securityService.getUsername();
+		query.taskCandidateOrAssigned(loggedUser);
 		query.orderByTaskCreateTime();
 		query.desc();
 		long count = query.count();
@@ -100,12 +108,11 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	@Override
 	public WorkflowTaskInstanceDto get(String taskId) {
-		TaskQuery query = taskService.createTaskQuery();
-		query.includeProcessVariables();
-		query.taskId(taskId);
-		query.taskCandidateOrAssigned(securityService.getUsername());
-		return toResource(query.singleResult());
-
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setId(taskId);
+		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) search(filter).getResources();
+		
+		return tasks.isEmpty() ? null : tasks.get(0);
 	}
 
 	@Override

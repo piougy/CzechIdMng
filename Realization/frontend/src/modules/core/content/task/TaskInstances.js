@@ -1,12 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { WorkflowTaskInstanceManager } from '../../redux';
 import TaskInstanceTable from './TaskInstanceTable';
 
@@ -16,8 +11,8 @@ import TaskInstanceTable from './TaskInstanceTable';
 class TaskInstances extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+    super(props, context);
+    this.workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
   }
 
   getContentKey() {
@@ -38,7 +33,7 @@ class TaskInstances extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <TaskInstanceTable uiKey='task_instance_table' taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
+          <TaskInstanceTable uiKey="task_instance_table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
         </Basic.Panel>
 
       </div>
@@ -47,13 +42,13 @@ class TaskInstances extends Basic.AbstractContent {
 }
 
 TaskInstances.propTypes = {
-}
+};
 TaskInstances.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
-export default connect(select)(TaskInstances)
+export default connect(select)(TaskInstances);

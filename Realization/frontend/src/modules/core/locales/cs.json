@@ -56,6 +56,8 @@
     },
     "logout": "Odhlásit se",
     "no": "Ne",
+    "send": "Odeslat",
+    "sending": "Odesílám ...",
     "save": "Uložit",
     "saving": "Ukládám ...",
     "yes": "Ano"
@@ -375,7 +377,13 @@
       },
       "save": {
         "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
-      }
+      },
+      "fromFile": "Nastavení aplikace z konfiguračních souborů <small>application.properties</small>",
+      "fromEnvironment": "Nastavení prostředí <small>backendového serveru</small>",
+      "secured": {
+        "notAllowed": "Nemáte oprávnění pro editaci systémového nastavení"
+      },
+      "guarded": "Hodnoty nastavení obsahující klíč [{{guarded}}] nejsou zobrazeny."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -585,11 +593,15 @@
       "save": {
         "success": "Role [{{name}}] byla úspěšně uložena"
       },
-      "processAdd": {
+      "processRoleChange": {
         "roleName": "Název role",
         "roleValidFrom": "Platnost role od",
         "roleValidTill": "Platnost role do",
         "currentActivity": "Stav žádosti"
+      },
+      "processPermissionChange": {
+        "currentActivity": "Stav žádosti",
+        "processInstanceName": "Název žádosti"
       },
       "setting": {
         "basic": {
@@ -700,10 +712,13 @@
         "title": "$t(navigation.menu.roles.label)",
         "changePermissions": "Změnit oprávnění",
         "authorities": "Přidělená oprávnění <small>dle přiřazných rolí</small>",
-        "addRoleProcesse": {
-          "header": "Žádosti o přiřazení nových rolí",
-          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o přiřazení nové role?",
-          "deleteSuccess": "Žádost o přidělení nové role byla úspěšně smazána."
+        "changeRoleProcesses": {
+          "header": "Role čekající na schválení",
+          "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
+          "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
+        },
+        "changePermissionProcesses": {
+          "header": "Žádosti o změnu oprávnění"
         },
         "create": {
           "header": "Přiřazení nové role",
@@ -904,8 +919,52 @@
       }
     },
     "notification": {
+      "headerNew": "Notifikace",
       "header": "Detail notifikace",
       "title": "Detail notifikace",
+      "titleNew": "Notifikace",
+      "relatedNotifications": "Záznamy při odeslání",
+      "label": {
+        "notSent": "Neodesláno",
+        "sentPartly": "Částečně"
+      },
+      "sent": {
+        "success": "Odeslání notifikace bylo úspěšné"
+      }
+    },
+    "emails": {
+      "header": "Emaily",
+      "title": "Emaily",
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        },
+        "text": {
+          "label": "Zpráva",
+          "placeholder": "Předmět, obsah zprávy"
+        },
+        "sender": {
+          "label": "Odesílatel",
+          "placeholder": ""
+        },
+        "recipient": {
+          "label": "Příjemce",
+          "placeholder": ""
+        },
+        "sent": {
+          "label": "Odesláno",
+          "placeholder": "Stav odeslání ..."
+        }
+      }
+    },
+    "email": {
+      "header": "Detail emailu",
+      "title": "Detail emailu",
       "relatedNotifications": "Záznamy při odeslání",
       "label": {
         "notSent": "Neodesláno",
@@ -1061,7 +1120,10 @@
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
-      "parentId": "Nadřazená organizační jednotka"
+      "parentId": "Nadřazená organizační jednotka",
+      "parent": {
+          "name": "Nadřazená organizační jed."
+      }
     },
     "Delegate": {
       "_type": "Delegace",
@@ -1108,7 +1170,22 @@
         "textMessage": "Zpráva (text)",
         "htmlMessage": "Zpráva (html)"
       },
-      "from": "Odesílatel",
+      "sender": "Odesílatel",
+      "recipients": "Příjemci",
+      "sent": "Odesláno",
+      "sentLog": "Zpráva při odeslání",
+      "type": "Typ"
+    },
+    "Email": {
+      "topic": "Téma",
+      "created": "$t(entity.created)",
+      "message": {
+        "subject": "Předmět",
+        "message": "Zpráva",
+        "textMessage": "Zpráva (text)",
+        "htmlMessage": "Zpráva (html)"
+      },
+      "sender": "Odesílatel",
       "recipients": "Příjemci",
       "sent": "Odesláno",
       "sentLog": "Zpráva při odeslání",
@@ -1117,7 +1194,7 @@
     "Configuration": {
       "name": "Klíč",
       "value": "Hodnota",
-      "secured": "Skryté nastavení (systémové)"
+      "secured": "Systémové nastavení"
     }
   },
   "error": {

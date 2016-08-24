@@ -1,11 +1,9 @@
-'use strict'
-
 import EntityManager from './EntityManager';
 import { WorkflowProcessDefinitionService } from '../../services';
 
 export default class WorkflowProcessDefinitionManager extends EntityManager {
 
-  constructor () {
+  constructor() {
     super();
     this.service = new WorkflowProcessDefinitionService();
   }

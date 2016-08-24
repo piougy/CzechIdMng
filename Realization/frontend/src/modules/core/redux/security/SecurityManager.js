@@ -1,11 +1,6 @@
-
-
 import _ from 'lodash';
-import { routeActions } from 'react-router-redux';
-//
-import { AuthenticateService, ConfigService, IdentityService, LocalizationService } from '../../services';
+import { AuthenticateService, ConfigService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
-import * as Utils from '../../utils';
 
 /**
  * action types
@@ -19,7 +14,6 @@ export const LOGOUT = 'LOGOUT';
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
 
 const authenticateService = new AuthenticateService();
-const identityService = new IdentityService();
 const configService = new ConfigService();
 
 /**
@@ -27,7 +21,7 @@ const configService = new ConfigService();
  */
 export default class SecurityManager {
 
-  constructor () {
+  constructor() {
     this.flashMessagesManager = new FlashMessagesManager();
   }
 
@@ -47,7 +41,7 @@ export default class SecurityManager {
       .then(json => {
         getState().logger.debug('logged user', json);
         // resolve authorities from auth
-        const authorities = json.authentication.authorities.map(authority => { return authority.authority });
+        const authorities = json.authentication.authorities.map(authority => { return authority.authority; });
         getState().logger.debug('logged user authorities', authorities);
         // construct logged user context
         const userContext = {
@@ -55,14 +49,14 @@ export default class SecurityManager {
           isAuthenticated: true,
           tokenCIDMST: json.token,
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
-          authorities: authorities
+          authorities
         };
         dispatch(this.receiveLogin(userContext, redirect));
       })
       .catch(error => {
         dispatch(this.receiveLoginError(error, redirect));
       });
-    }
+    };
   }
 
   /*
@@ -75,17 +69,17 @@ export default class SecurityManager {
   }
 
   receiveLogin(userContext, redirect) {
-    return (dispatch, getState) => {
-      //getState().logger.debug('received login', userContext);
+    return (dispatch) => {
+      // getState().logger.debug('received login', userContext);
       // redirect after login, if needed
       if (redirect) {
         redirect(userContext.isAuthenticated);
       }
       dispatch({
         type: RECEIVE_LOGIN,
-        userContext: userContext
+        userContext
       });
-    }
+    };
   }
 
   receiveLoginError(error, redirect) {
@@ -113,14 +107,14 @@ export default class SecurityManager {
    */
   logout(redirect) {
     return dispatch => {
-      authenticateService.logout()
+      authenticateService.logout();
       dispatch(this.flashMessagesManager.hideAllMessages());
       dispatch(this.flashMessagesManager.addMessage({key: 'login', message: LocalizationService.i18n('content.logout.message.logout'), level: 'info', position: 'tc'}));
       dispatch(this.receiveLogout());
       if (redirect) {
         redirect();
       }
-    }
+    };
   }
 
   /**
@@ -130,7 +124,7 @@ export default class SecurityManager {
     authenticateService.logout();
     return dispatch => {
       dispatch(this.receiveLogout());
-    }
+    };
   }
 
   receiveLogout() {
@@ -153,7 +147,7 @@ export default class SecurityManager {
           tokenCSRF: this.getCookie(TOKEN_COOKIE_NAME)
         })
       ));
-    }
+    };
   }
 
   /**
@@ -173,7 +167,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return SecurityManager.hasAuthority(userContext, configService.getConfig('authorities').superAdminAuthority);
+    return SecurityManager.hasAuthority(configService.getConfig('authorities').superAdminAuthority, userContext);
   }
 
   /**
@@ -195,7 +189,7 @@ export default class SecurityManager {
   /**
    * Returns true, if user has given authority
    */
-  static hasAuthority(userContext = null, authority) {
+  static hasAuthority(authority, userContext = null) {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
@@ -205,7 +199,10 @@ export default class SecurityManager {
     return _.includes(userContext.authorities, authority);
   }
 
-  static hasAnyAuthority(userContext, authorities) {
+  static hasAnyAuthority(authorities, userContext = null) {
+    if (!userContext) {
+      userContext = AuthenticateService.getUserContext();
+    }
     if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
@@ -215,7 +212,7 @@ export default class SecurityManager {
   /**
    * Return true, if user fits in at least one access item - @see ConfigService for available access types
    */
-  static hasAccess(userContext, accessItems) {
+  static hasAccess(accessItems, userContext) {
     if (!accessItems) {
       return false;
     }
@@ -246,7 +243,10 @@ export default class SecurityManager {
             }
           }
           case 'HAS_ANY_AUTHORITY': {
-            return SecurityManager.hasAnyAuthority(userContext, accessItem.authorities);
+            return SecurityManager.hasAnyAuthority(accessItem.authorities, userContext);
+          }
+          default : {
+            return null;
           }
         }
       }
@@ -260,7 +260,7 @@ export default class SecurityManager {
     const userContext = AuthenticateService.getUserContext();
     const lastRoute = nextState.routes.slice(-1)[0];
     //
-    if (!SecurityManager.hasAccess(userContext, lastRoute.access)) {
+    if (!SecurityManager.hasAccess(lastRoute.access, userContext)) {
       replace({
         pathname: (SecurityManager.isAuthenticated(userContext)) ? '/error/403' : '/login',
         state: { nextPathname: nextState.location.pathname }

@@ -1,13 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
-import Immutable from 'immutable';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { IdentitySubordinateManager } from '../../../../redux/data';
 import ConnectedUserTable, { UserTable } from './UserTable';
 
@@ -17,7 +11,7 @@ class Subordinates extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       userID: null
-    }
+    };
   }
 
   componentDidMount() {
@@ -27,17 +21,21 @@ class Subordinates extends Basic.AbstractContent {
   componentDidUpdate() {
     const { userID } = this.props.params;
     if (userID && (!this.state.userID || this.state.userID !== userID)) {
-      this.setState(
-        {
-          userID: userID
-        },
-        () => { this.refs.table.getWrappedInstance().cancelFilter(); }
-      );
+      this._refreshTable(userID);
     }
   }
 
+  _refreshTable(userID) {
+    this.setState(
+      {
+        userID
+      },
+      () => { this.refs.table.getWrappedInstance().cancelFilter(); }
+    );
+  }
+
   _selectNavigationItem() {
-    this.selectNavigationItems(['user-subordinates','profile-subordinates']);
+    this.selectNavigationItems(['user-subordinates', 'profile-subordinates']);
   }
 
   render() {
@@ -55,9 +53,9 @@ class Subordinates extends Basic.AbstractContent {
         <Basic.Panel className="no-border last">
           <ConnectedUserTable
             ref="table"
-            uiKey='subordinate_table'
+            uiKey="subordinate_table"
             identityManager={identitySubordinateManager}
-            columns={UserTable.defaultProps.columns.filter(property => { return property !== 'idmManager'})}/>
+            columns={UserTable.defaultProps.columns.filter(property => { return property !== 'idmManager';})}/>
         </Basic.Panel>
       </div>
     );
@@ -65,13 +63,13 @@ class Subordinates extends Basic.AbstractContent {
 }
 
 Subordinates.propTypes = {
-}
+};
 Subordinates.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
 export default connect(select)(Subordinates);

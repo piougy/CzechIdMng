@@ -1,12 +1,6 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
-import Immutable from 'immutable';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 
@@ -23,7 +17,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getContentKey() {
@@ -40,7 +34,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -51,16 +45,7 @@ export class TaskInstanceTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    this.setState({
-      detail: {
-        show: true,
-        showLoading: false,
-        entity: entity
-      }
-    }, () => {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    });
+    this.context.router.push('task/' + entity.id);
   }
 
   closeDetail() {
@@ -72,41 +57,9 @@ export class TaskInstanceTable extends Basic.AbstractContent {
     });
   }
 
-  save(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const entity = this.refs.form.getData();
-    const { taskInstanceManager, uiKey } = this.props;
-    //
-    if (entity.id === undefined) {
-      this.context.store.dispatch(taskInstanceManager.createEntity(entity, `${uiKey}-detail`, (entity, error) => {
-        this._afterSave(entity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    } else {
-      this.context.store.dispatch(taskInstanceManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
-  }
-
-  _afterSave(entity, error) {
-    if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
-  }
-
   render() {
-    const { uiKey, taskInstanceManager, columns, _showLoading } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { uiKey, taskInstanceManager, columns } = this.props;
+    const { filterOpened} = this.state;
 
     return (
       <div>
@@ -130,9 +83,9 @@ export class TaskInstanceTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink property="taskDescription" to="task/:id" sort={true} face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="taskCreated" sort={true} face="datetime" rendered={_.includes(columns, 'created')}/>
-          <Advanced.Column property="id" sort={true} face="text" rendered={_.includes(columns, 'id')}/>
+          <Advanced.ColumnLink property="taskDescription" to="task/:id" sort face="text" rendered={_.includes(columns, 'description')}/>
+          <Advanced.Column property="taskCreated" sort face="datetime" rendered={_.includes(columns, 'created')}/>
+          <Advanced.Column property="id" sort face="text" rendered={_.includes(columns, 'id')}/>
         </Advanced.Table>
       </div>
     );
@@ -147,7 +100,7 @@ TaskInstanceTable.propTypes = {
 };
 
 TaskInstanceTable.defaultProps = {
-  columns: ['created', 'description','id'],
+  columns: ['created', 'description', 'id'],
   filterOpened: false,
   _showLoading: false
 };

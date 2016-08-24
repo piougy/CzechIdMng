@@ -1,13 +1,7 @@
 package eu.bcvsolutions.idm.core.config.web;
 
-import java.util.List;
-
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.RouteDefinition;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +11,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 
 /**
@@ -30,18 +25,12 @@ public class WebConfig {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
 
-	@Value("#{'${allowed-origins:http://localhost:3000,http://localhost/idm}'.replaceAll(\"\\s*\",\"\").split(',')}")
-	private List<String> allowedOrigins;
-
 	@Bean
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration config = corsConfiguration();
+        log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
         config.setAllowCredentials(true);
-        allowedOrigins.forEach(allowedOrigin -> {
-        	log.info("Adding allowed origin [{}]", allowedOrigin);
-        	config.addAllowedOrigin(allowedOrigin);
-        });
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("PUT");
@@ -54,6 +43,16 @@ public class WebConfig {
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;
     }
+	
+	/**
+	 * Cors configuration
+	 * 
+	 * @return
+	 */
+	@Bean
+	public CorsConfiguration corsConfiguration() {
+		return new DynamicCorsConfiguration();
+	}
 	
 	/**
 	 * Common json object mapper
@@ -76,22 +75,4 @@ public class WebConfig {
 	public ErrorAttributes errorAttributes() {
 	    return new RestErrorAttributes();
 	}
-	
-	//@Bean
-    RoutesBuilder myRouter() {
-        return new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {            	
-            	RouteDefinition route = from("timer://foo?period=10000");
-            	route.transform().simple("ref:myBean");
-            	route.to("bean:sftpStager?method=stage");
-            	route.to("log:bar");
-            }
-        };
-    }
-	
-	//@Bean
-    String myBean() {
-        return "First email";
-    }
 }

@@ -9,4 +9,6 @@ public interface IdmRoleService {
 	IdmRole get(Long id);
 
 	List<IdmRole> getRolesByIds(String roles);
+
+	IdmRole getByName(String name);
 }

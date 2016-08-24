@@ -2,15 +2,14 @@
 
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
-import RestApiService from './RestApiService';
 
 class WorkflowProcessInstanceService extends AbstractService {
 
-  getApiPath(){
+  getApiPath() {
     return '/workflow/processes';
   }
 
-  getNiceLabel(proc){
+  getNiceLabel(proc) {
     if (!proc) {
       return '';
     }

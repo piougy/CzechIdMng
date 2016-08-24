@@ -1,7 +1,5 @@
 
 
-import Fetch from 'isomorphic-fetch';
-//
 import { AbstractService, RestApiService, AuthenticateService } from '../modules/core/services/';
 
 class AttachmentService extends AbstractService {
@@ -38,7 +36,7 @@ class AttachmentService extends AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    let defaultSearchParameters = super.getDefaultSearchParameters();
+    const defaultSearchParameters = super.getDefaultSearchParameters();
     defaultSearchParameters.sort = [
       {
         field: 'name',

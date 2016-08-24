@@ -1,10 +1,17 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
@@ -19,14 +26,11 @@ import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskDefinitionDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Default implementation of workflow process instance service
@@ -44,13 +48,10 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	private SecurityService securityService;
 
 	@Autowired
-	private WorkflowTaskDefinitionService taskDefinitionService;
-
-	@Autowired
-	private WorkflowProcessDefinitionService processDefinitionService;
-
-	@Autowired
 	private IdmIdentityService identityService;
+	
+	@Autowired
+	private RepositoryService repositoryService;
 
 	/**
 	 * Start new workflow process
@@ -79,8 +80,6 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			}
 		}
 
-		WorkflowProcessDefinitionDto definitionDto = processDefinitionService.get(definitionKey);
-		//builder.processInstanceName(definitionDto.getName());
 		return builder.start();
 
 	}
@@ -101,6 +100,22 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		if (filter.getProcessDefinitionKey() != null) {
 			query.processDefinitionKey(filter.getProcessDefinitionKey());
+		}
+		if (filter.getCategory() != null) {
+			//Find definitions with this category (use double sided like)
+			//We have to find definitions first, because process instance can't be find by category.
+			ProcessDefinitionQuery queryDefinition = repositoryService.createProcessDefinitionQuery();
+			queryDefinition.active();
+			queryDefinition.latestVersion();
+			queryDefinition.processDefinitionCategoryLike(filter.getCategory()+"%");
+			List<ProcessDefinition> processDefinitions = queryDefinition.list();
+			Set<String> processDefinitionKeys = new HashSet<>();
+			processDefinitions.forEach(p -> processDefinitionKeys.add(p.getKey()));
+			if(processDefinitionKeys.isEmpty()){
+				//We don`t have any definitions ... nothing must be returned
+				processDefinitionKeys.add("-1");
+			}
+			query.processDefinitionKeys(processDefinitionKeys);
 		}
 		if (equalsVariables != null) {
 			for (String key : equalsVariables.keySet()) {
@@ -150,11 +165,15 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		}
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery();
 		query.processInstanceId(processInstanceId);
-		// check security ... only applicant can delete process instance
+		// check security ... only applicant or implementer can delete process instance
+		query.or();
 		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
 				securityService.getOriginalUsername());
-		query.active();
-		query.includeProcessVariables();
+		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME,
+				securityService.getOriginalUsername());
+		query.endOr();
+		//query.active();
+		//query.includeProcessVariables();
 		ProcessInstance processInstance = query.singleResult();
 		if (processInstance == null) {
 			throw new RestApplicationException(CoreResultCode.FORBIDDEN,
@@ -170,23 +189,37 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		if (instance == null) {
 			return null;
 		}
-
+		
+		String instanceName = instance.getName();
+		// If we don't have process name, then we try variable with key processInstanceName
+		if(instanceName == null && instance.getProcessVariables() != null 
+				&& instance.getProcessVariables().containsKey(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME)){
+			instanceName = (String) instance.getProcessVariables().get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
+		}
+		if(instanceName == null || instanceName.isEmpty()){
+			instanceName = instance.getProcessDefinitionName();
+		}
+		
 		WorkflowProcessInstanceDto dto = new WorkflowProcessInstanceDto();
 		dto.setId(instance.getId());
 		dto.setActivityId(instance.getActivityId());
 		dto.setBusinessKey(instance.getBusinessKey());
-		dto.setName(instance.getName() != null ? instance.getName() : instance.getProcessDefinitionName());
+		dto.setName(instanceName);
 		dto.setProcessDefinitionId(instance.getProcessDefinitionId());
 		dto.setProcessDefinitionKey(instance.getProcessDefinitionKey());
 		dto.setProcessDefinitionName(instance.getProcessDefinitionName());
 		dto.setProcessVariables(instance.getProcessVariables());
 		dto.setEnded(instance.isEnded());
 		dto.setProcessInstanceId(instance.getProcessInstanceId());
-		// Add current task definition
-		// TODO: activityId not have to be userTask
-		WorkflowTaskDefinitionDto taskDefDto = taskDefinitionService
-				.searchTaskDefinitionById(instance.getProcessDefinitionId(), instance.getActivityId());
-		dto.setCurrentTaskDefinition(taskDefDto);
+		// Add current activity name and documentation
+		BpmnModel model =  repositoryService.getBpmnModel(instance.getProcessDefinitionId());
+		
+		for(FlowElement element : model.getMainProcess().getFlowElements()) {
+			if(element.getId().equals(instance.getActivityId())) {
+				dto.setCurrentActivityName(element.getName());
+				dto.setCurrentActivityDocumentation(element.getDocumentation());
+			}
+		}
 
 		return dto;
 	}

@@ -6,12 +6,9 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { SettingManager } from '../../../redux';
 import { SecurityManager } from '../../../modules/core/redux';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
 import NavigationItem from './NavigationItem';
-
-const settingManager = new SettingManager();
 
 /**
  * Top navigation
@@ -46,7 +43,7 @@ export class Navigation extends Basic.AbstractContextComponent {
 
     $(window).bind('load resize', function() {
       let topOffset = 50;
-      let width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+      const width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
       if (width < 768) {
         $('div.navbar-collapse').addClass('collapse');
         topOffset = 100; // 2-row-menu
@@ -82,9 +79,9 @@ export class Navigation extends Basic.AbstractContextComponent {
     if (!items) {
       return null;
     }
-    let renderedItems = [];
-    for (let item of items) {
-      let renderedItem = this.renderNavigationItem(item, userContext, selectedNavigationItems[0]);
+    const renderedItems = [];
+    for (const item of items) {
+      const renderedItem = this.renderNavigationItem(item, userContext, selectedNavigationItems[0]);
       if (renderedItem) { // can be null
         renderedItems.push(renderedItem);
       }
@@ -93,7 +90,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   _resolveNavigationItemText(item, userContext) {
-    let labelParams = resolveNavigationParameters(userContext);
+    const labelParams = resolveNavigationParameters(userContext);
     labelParams.defaultValue = item.label;
 
     if (item.labelKey) {
@@ -147,10 +144,10 @@ export class Navigation extends Basic.AbstractContextComponent {
       return null;
     }
 
-    let items = [];
-    for (let levelItem of levelItems) {
-      let children = this.renderSidebarItems(levelItem.id, level);
-      let isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
+    const items = [];
+    for (const levelItem of levelItems) {
+      const children = this.renderSidebarItems(levelItem.id, level);
+      const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
       if (children) {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
@@ -163,7 +160,7 @@ export class Navigation extends Basic.AbstractContextComponent {
           </li>
         );
       } else {
-        let item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right');
+        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right');
         if (item) {
           items.push(item);
         }
@@ -196,7 +193,7 @@ export class Navigation extends Basic.AbstractContextComponent {
     if (!parentId || !selectedNavigationItems) {
       return false;
     }
-    for (let selectedNavigationItem of selectedNavigationItems) {
+    for (const selectedNavigationItem of selectedNavigationItems) {
       if (parentId === selectedNavigationItem) {
         return true;
       }
@@ -297,7 +294,7 @@ Navigation.contextTypes = {
 };
 
 function select(state) {
-  let environment = settingManager.getValue(state, 'environment.stage');
+  let environment = 'development'; // settingManager.getValue(state, 'environment.stage');
   if (environment) {
     environment = environment.toLowerCase();
   }

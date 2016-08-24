@@ -9,7 +9,7 @@ export default class IdentityAccountManager extends EntityManager {
   constructor(username) {
     super();
     this.identityAccountService = new IdentityAccountService(username);
-   }
+  }
 
    setUsername(username) {
      this.getService().setUsername(username);
@@ -33,6 +33,6 @@ export default class IdentityAccountManager extends EntityManager {
    * @return {[type]}       [description]
    */
   getAccounts(uiKey, cb = null) {
-    return this.fetchEntities({}, uiKey, cb)
+    return this.fetchEntities({}, uiKey, cb);
   }
 }

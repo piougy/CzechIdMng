@@ -4,7 +4,7 @@
     <documentation>Workflow pro změnu opravnění (změna přiřazených rolí) pro konkrétní identitu.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
-    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:candidateUsers="${implementerUsername},${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Vytvoření žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
@@ -17,7 +17,7 @@
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="applicantTask" targetRef="exclusivegateway1"></sequenceFlow>
-    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="admin" activiti:formKey="dynamicRoleTaskDetail">
+    <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllManagersByUserPositionsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
       <documentation>Schválení žádosti vedoucím</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -68,6 +68,7 @@
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDate}" target="validTill"></activiti:in>
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -98,43 +99,18 @@
     </scriptTask>
     <serviceTask id="servicetaskCreateProcessName" name="Generování názvu procesu" activiti:expression="Žádost o změnu oprávnění pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow22" sourceRef="servicetaskCreateProcessName" targetRef="applicantTask"></sequenceFlow>
-    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete úkol schválit?","level":"success","tooltip":"Schválit úkol a předat na administrátora"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Zamítnout","showWarning":true,"warningMessage":"Opravdu chcete žádost zamítnout?","level":"danger","tooltip":"Zamítnout úkolu"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Vrátit žadateli","showWarning":true,"warningMessage":"Opravdu chcete žádost vrátit žadateli k přepracování?","level":"warning","tooltip":"Vrátit žádost žadateli k přepracování"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Vytvořit žádost","showWarning":true,"warningMessage":"Opravdu chcete žádost podat ke schválení?","level":"success","tooltip":"Vytvořit žádsot a předat ke schválení"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Smazat žádost","showWarning":true,"warningMessage":"Opravdu chcete tuto žádost o změnu oprávnění smazat?","level":"danger","tooltip":"Smazat žádost o změnu oprávnění"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Žádost opravena","showWarning":true,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
-      </extensionElements>
-    </dataObject>
     <sequenceFlow id="flow23" sourceRef="startevent1" targetRef="servicetaskCreateProcessName"></sequenceFlow>
-    <scriptTask id="scripttask2" name="Načtení existujících oprávnění" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>for (changedIdentityRole in changedIdentityRoles) {
-java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!!  "+changedIdentityRole)
+    <scriptTask id="scripttask2" name="Načtení a příprava existujících oprávnění ke změně" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>//Create new list
+def changeIdentityRoleWrapperList = [];
+
+for (changedIdentityRole in changedIdentityRoles) {
 	//Load IdentityRole entity by ID
 	idmIdentityRole = defaultIdmIdentityRoleService.get(changedIdentityRole.id.toLong());
+	if(!idmIdentityRole) {
+		// IdentityRole not found ... subprocess will be not started
+		continue;
+	}
 	//Load RoleId
 	idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
 	changedIdentityRole._roleId = idmRole.id;
@@ -167,7 +143,9 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
 	if(changedIdentityRole.addWorkflowKey == null) {
 		changedIdentityRole.addWorkflowKey = "notApproveRoleRealizationUpdate";
 	}
- }</script>
+	changeIdentityRoleWrapperList.add(changedIdentityRole);
+ }
+execution.setVariable("changeIdentityRoleWrapperList", changeIdentityRoleWrapperList);</script>
     </scriptTask>
     <sequenceFlow id="flow24" sourceRef="parallelgateway1" targetRef="scripttask2"></sequenceFlow>
     <callActivity id="startChangeSubWorkflow" name="Schválení změny jednotlivých oprávnění" calledElement="${idmRoleIdentity.addWorkflowKey}">
@@ -183,15 +161,95 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <activiti:in sourceExpression="#{idmRoleIdentity._validFromDateNew}" target="validFromDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity._validTillDateNew}" target="validTillDateNew"></activiti:in>
         <activiti:in sourceExpression="#{idmRoleIdentity.id}" target="identityRoleIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
       </extensionElements>
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changedIdentityRoles" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changeIdentityRoleWrapperList" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow25" sourceRef="scripttask2" targetRef="startChangeSubWorkflow"></sequenceFlow>
-    <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
+    <parallelGateway id="parallelgateway1" name="Paralelní schvalování jednotlivých rolí"></parallelGateway>
     <sequenceFlow id="flow26" sourceRef="parallelgateway1" targetRef="scripttask1"></sequenceFlow>
     <parallelGateway id="parallelgateway2" name="Parallel Gateway"></parallelGateway>
     <sequenceFlow id="flow27" sourceRef="parallelgateway2" targetRef="endevent"></sequenceFlow>
     <sequenceFlow id="flow28" sourceRef="startChangeSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
+    <callActivity id="startRemoveSubWorkflow" name="Schválení odebrání jednotlivých oprávnění" calledElement="${idmRoleIdentity.removeWorkflowKey}">
+      <extensionElements>
+        <activiti:in source="identityIdentifier" target="identityIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.roleId}" target="roleIdentifier"></activiti:in>
+        <activiti:in source="applicantIdentifier" target="applicantIdentifier"></activiti:in>
+        <activiti:in source="applicantUsername" target="applicantUsername"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.validFrom}" target="validFrom"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.validTill}" target="validTill"></activiti:in>
+        <activiti:in source="approve" target="approve"></activiti:in>
+        <activiti:in source="disapprove" target="disapprove"></activiti:in>
+        <activiti:in sourceExpression="#{idmRoleIdentity.identityRoleIdentifier}" target="identityRoleIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{&quot;remove&quot;}" target="operationType"></activiti:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="removeIdentityRoleWrapperList" activiti:elementVariable="idmRoleIdentity"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <scriptTask id="scripttask3" name="Načtení a příprava oprávnění ke smazání" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>//Create new list (removedIdentityRoles is only list of IDs)
+def removeIdentityRoleWrapperList = [];
+
+for (removedIdentityRoleId in removedIdentityRoles) {
+	//Load IdentityRole entity by ID
+	def idmIdentityRole = defaultIdmIdentityRoleService.get(removedIdentityRoleId);
+	if (!idmIdentityRole) {
+		// IdentityRole not found ... subprocess will be not started
+		continue;
+	}
+	//Load RoleId
+	def idmRole = defaultIdmRoleService.get(idmIdentityRole.role.id);
+	def removedIdentityRoleWrapper = new Expando();
+	removedIdentityRoleWrapper.roleId = idmRole.id;
+
+	//Add dates values
+	removedIdentityRoleWrapper.validFrom = idmIdentityRole.validFrom;
+	removedIdentityRoleWrapper.validTill = idmIdentityRole.validTill;
+	removedIdentityRoleWrapper.identityRoleIdentifier = idmIdentityRole.id;
+
+	//Load and add approve workflow key
+	removedIdentityRoleWrapper.removeWorkflowKey = idmRole.approveRemoveWorkflow;
+	if(removedIdentityRoleWrapper.removeWorkflowKey == null) {
+		removedIdentityRoleWrapper.removeWorkflowKey = "notApproveRoleRealizationRemove";
+	}
+	removeIdentityRoleWrapperList.add(removedIdentityRoleWrapper.getProperties());
+ }
+execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapperList);</script>
+    </scriptTask>
+    <sequenceFlow id="flow29" sourceRef="scripttask3" targetRef="startRemoveSubWorkflow"></sequenceFlow>
+    <sequenceFlow id="flow30" sourceRef="parallelgateway1" targetRef="scripttask3"></sequenceFlow>
+    <sequenceFlow id="flow31" sourceRef="startRemoveSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete úkol schválit?","level":"success","tooltip":"Schválit úkol a předat na administrátora"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Zamítnout","showWarning":true,"warningMessage":"Opravdu chcete žádost zamítnout?","level":"danger","tooltip":"Zamítnout úkolu"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Vrátit žadateli","showWarning":true,"warningMessage":"Opravdu chcete žádost vrátit žadateli k přepracování?","level":"warning","tooltip":"Vrátit žádost žadateli k přepracování"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Vytvořit žádost","showWarning":false,"warningMessage":"Opravdu chcete žádost podat ke schválení?","level":"success","tooltip":"Vytvořit žádsot a předat ke schválení"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Smazat žádost","showWarning":true,"warningMessage":"Opravdu chcete tuto žádost o změnu oprávnění smazat?","level":"danger","tooltip":"Smazat žádost o změnu oprávnění"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_changeIdentityRoles">
     <bpmndi:BPMNPlane bpmnElement="changeIdentityRoles" id="BPMNPlane_changeIdentityRoles">
@@ -232,7 +290,7 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <omgdc:Bounds height="87.0" width="105.0" x="71.0" y="101.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
-        <omgdc:Bounds height="55.0" width="155.0" x="740.0" y="220.0"></omgdc:Bounds>
+        <omgdc:Bounds height="78.0" width="155.0" x="740.0" y="204.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startChangeSubWorkflow" id="BPMNShape_startChangeSubWorkflow">
         <omgdc:Bounds height="86.0" width="201.0" x="972.0" y="150.0"></omgdc:Bounds>
@@ -242,6 +300,12 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelgateway2" id="BPMNShape_parallelgateway2">
         <omgdc:Bounds height="40.0" width="40.0" x="1240.0" y="308.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startRemoveSubWorkflow" id="BPMNShape_startRemoveSubWorkflow">
+        <omgdc:Bounds height="79.0" width="201.0" x="972.0" y="411.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="70.0" width="155.0" x="743.0" y="401.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="342.0" y="142.0"></omgdi:waypoint>
@@ -293,11 +357,11 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
         <omgdi:waypoint x="665.0" y="310.0"></omgdi:waypoint>
-        <omgdi:waypoint x="665.0" y="248.0"></omgdi:waypoint>
-        <omgdi:waypoint x="740.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="665.0" y="243.0"></omgdi:waypoint>
+        <omgdi:waypoint x="740.0" y="243.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
-        <omgdi:waypoint x="895.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="895.0" y="243.0"></omgdi:waypoint>
         <omgdi:waypoint x="972.0" y="193.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
@@ -312,6 +376,20 @@ java.lang.System.out.println("!!!!!!!!!!!!!!changedIdentityRole!!!!!!!!!!!!!!!! 
         <omgdi:waypoint x="1173.0" y="193.0"></omgdi:waypoint>
         <omgdi:waypoint x="1260.0" y="193.0"></omgdi:waypoint>
         <omgdi:waypoint x="1260.0" y="308.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="898.0" y="436.0"></omgdi:waypoint>
+        <omgdi:waypoint x="972.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="665.0" y="350.0"></omgdi:waypoint>
+        <omgdi:waypoint x="665.0" y="432.0"></omgdi:waypoint>
+        <omgdi:waypoint x="743.0" y="436.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="1173.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="451.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="348.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

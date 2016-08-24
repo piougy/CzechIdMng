@@ -1,6 +1,6 @@
+// Deprecated - will be moved to core
 
 
-import SettingService from './SettingService';
 import IdentityAccountService from './IdentityAccountService';
 import AttachmentService from './AttachmentService';
 import IdentitySubordinateService from './IdentitySubordinateService';
@@ -9,7 +9,6 @@ import RoleApprovalTaskService from './RoleApprovalTaskService';
 import IdentityDelegateService from './IdentityDelegateService';
 
 const ServiceRoot = {
-  SettingService,
   IdentityAccountService,
   AttachmentService,
   IdentitySubordinateService,

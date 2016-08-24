@@ -1,27 +1,20 @@
-
-
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../../../modules/core/services';
-import { SettingManager } from '../../../../redux';
 import { SecurityManager } from '../../../../modules/core/redux';
 
 const DISABLED = 'DISABLED';
 const ALL_ONLY = 'ALL_ONLY';
 const CUSTOM = 'CUSTOM';
 
-const UI_KEY = 'user-accounts';
 const RESOURCE_IDM = '0:czechidm';
 
 const identityService = new IdentityService();
-const settingManager = new SettingManager();
 const securityManager = new SecurityManager();
 
 class PasswordChange extends Basic.AbstractContent {
@@ -32,7 +25,7 @@ class PasswordChange extends Basic.AbstractContent {
       preload: true,
       showLoading: false,
       accounts: []
-    }
+    };
   }
 
   getContentKey() {
@@ -51,16 +44,14 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   _initForm() {
-    const { userID } = this.props.params;
-    const { passwordChangeType } = this.props;
     if (this._canPasswordChange()) {
       this.setState({
         preload: false,
         accounts: []
       }, () => {
-        let resources = [RESOURCE_IDM];
+        const resources = [RESOURCE_IDM];
         this.refs.form.setData({
-          resources: resources,
+          resources,
           oldPassword: '',
           newPassword: '',
           newPasswordAgain: ''
@@ -93,12 +84,12 @@ class PasswordChange extends Basic.AbstractContent {
       showLoading: true
     }, this.refs.form.processStarted());
     //
-    let requestData = {
+    const requestData = {
       identity: userID,
       oldPassword: btoa(formData.oldPassword),  // base64
       newPassword: btoa(formData.newPassword),  // base64
       resources: []
-    }
+    };
     formData.resources.map(resourceValue => {
       if (resourceValue === RESOURCE_IDM) {
         requestData.idm = true;
@@ -111,7 +102,7 @@ class PasswordChange extends Basic.AbstractContent {
     .then(response => {
       this.setState({
         showLoading: false
-      },this.refs.form.processEnded());
+      }, this.refs.form.processEnded());
       if (response.status === 204) {
         return {};
       }
@@ -123,15 +114,15 @@ class PasswordChange extends Basic.AbstractContent {
       }
       return json;
     })
-    .then(json => {
+    .then(() => {
       let resources = (requestData.idm) ? 'czechidm' : '';
       if (requestData.resources.length > 0 && resources) {
-        resources += ', '
+        resources += ', ';
       }
       resources += requestData.resources.join();
 
       this.addMessage({
-        message: this.i18n('message.success', { resources: resources, username: userID })
+        message: this.i18n('message.success', { resources, username: userID })
       });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
@@ -154,7 +145,7 @@ class PasswordChange extends Basic.AbstractContent {
   _getOptions() {
     const { userID } = this.props.params;
     const { accounts } = this.state;
-    let options = [
+    const options = [
       { value: RESOURCE_IDM, niceLabel: 'czechidm (' + userID + ')'}
     ];
     if (accounts) {
@@ -165,24 +156,24 @@ class PasswordChange extends Basic.AbstractContent {
     return options;
   }
 
-  _validatePassword(property,onlyValidate,value,result){
-    if (onlyValidate){
+  _validatePassword(property, onlyValidate, value, result) {
+    if (onlyValidate) {
       this.refs[property].validate();
       return result;
     }
-    if (result.error){
+    if (result.error) {
       return result;
     }
-    let opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value){
-      return {error:{key:'passwords_not_same'}}
+    const opositeValue = this.refs[property].getValue();
+    if (opositeValue !== value) {
+      return {error: {key: 'passwords_not_same'}};
     }
     return result;
   }
 
   render() {
     const { passwordChangeType, requireOldPassword, userContext } = this.props;
-    const { preload, showLoading } = this.state;
+    const { preload } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== ALL_ONLY || SecurityManager.isAdmin(userContext) }
@@ -231,7 +222,7 @@ class PasswordChange extends Basic.AbstractContent {
                       ref="resources"
                       label={this.i18n('resources.label')}
                       placeholder={this.i18n('resources.placeholder')}
-                      multiSelect={true}
+                      multiSelect
                       options={accountOptions}
                       required
                       disabled={passwordChangeType === ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
@@ -263,18 +254,18 @@ PasswordChange.propTypes = {
   passwordChangeType: PropTypes.oneOf([DISABLED, ALL_ONLY, CUSTOM]),
   requireOldPassword: PropTypes.bool,
   userContext: PropTypes.object,
-}
+};
 PasswordChange.defaultProps = {
   passwordChangeType: ALL_ONLY,
   requireOldPassword: true,
   userContext: null
-}
+};
 
 function select(state) {
   return {
-    //passwordChangeType: settingManager.getValue(state, 'password.change') || DISABLED,
-    //requireOldPassword: settingManager.getValue(state, 'password.change.require.old') === 'true',
+    // passwordChangeType: settingManager.getValue(state, 'password.change') || DISABLED,
+    // requireOldPassword: settingManager.getValue(state, 'password.change.require.old') === 'true',
     userContext: state.security.userContext
-  }
+  };
 }
-export default connect(select)(PasswordChange)
+export default connect(select)(PasswordChange);

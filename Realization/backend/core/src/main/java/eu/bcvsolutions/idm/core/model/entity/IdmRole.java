@@ -11,59 +11,80 @@ import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
 @Entity
 @Table(name = "idm_role", indexes = { @Index(name = "ux_role_name", columnList = "name") })
-public class IdmRole extends AbstractEntity {
+public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String name;
 	
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
 	
+	@Version
+	@JsonIgnore
+	private Long version; // Optimistic lock - will be used with ETag
+	
+	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
 
+	@Audited
 	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
 	private String approveAddWorkflow;
 	
+	@Audited
 	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
 	private String approveRemoveWorkflow;
 	
+	@Audited
 	@Column(name = "description")
 	private String description;
 	
+	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleAuthority> authorities;
 	
+	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleComposition> subRoles;
 	
+	@Audited
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 
+	@Override
 	public String getName() {
 		return name;
 	}

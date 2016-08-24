@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 
-import eu.bcvsolutions.idm.core.security.service.SecurityService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * Retrieve auditor for auditable entity

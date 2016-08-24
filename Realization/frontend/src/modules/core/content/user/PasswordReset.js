@@ -1,17 +1,10 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import { connect } from 'react-redux';
-import classnames from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
-//
-import * as Basic from '../../../../components/basic'
-import { IdentityService } from '../../../../modules/core/services';
-import { SettingManager } from '../../../../redux';
-import { SecurityManager, DataManager, IdentityManager } from '../../redux';
+import * as Basic from '../../../../components/basic';
+import { DataManager, IdentityManager } from '../../redux';
 
 const RESOURCE_IDM = 'czechidm';
 
@@ -25,7 +18,7 @@ class PasswordReset extends Basic.AbstractContent {
       bulkCounter: 0,
       bulkCount: 0,
       bulkAction: null
-    }
+    };
     this.identityManager = new IdentityManager();
   }
 
@@ -43,7 +36,7 @@ class PasswordReset extends Basic.AbstractContent {
 
   _loadIdentityResources(usernames, index) {
     if (usernames.length < index + 1) {
-      return;
+      return null;
     }
     return this.identityManager.getService().getAccounts(usernames[index])
     .then(response => {
@@ -51,7 +44,7 @@ class PasswordReset extends Basic.AbstractContent {
     })
     .then(json => {
       if (!json.error) {
-        let resources =  new Immutable.Map();
+        let resources = new Immutable.Map();
         resources = resources.set(RESOURCE_IDM, true); // TODO: default selection
         json._embedded.forEach(account => {
           resources = resources.set(account.resource, true); // TODO: default selection
@@ -91,7 +84,7 @@ class PasswordReset extends Basic.AbstractContent {
    * @param  {event} event - checkbox event
    */
   onAllResourceSelect(resource, event) {
-    const { identityResources }  = this.state;
+    const { identityResources } = this.state;
     let newIdentityResources = new Immutable.OrderedMap();
     identityResources.forEach((resources, username) => {
       if (resources.has(resource)) {
@@ -109,14 +102,14 @@ class PasswordReset extends Basic.AbstractContent {
   onAllSelect(event) {
     let identityResources = new Immutable.OrderedMap();
     this.state.identityResources.keySeq().forEach(username => {
-      let resources =  new Immutable.Map();
+      let resources = new Immutable.Map();
       this.state.identityResources.get(username).forEach((value, resource) => {
         resources = resources.set(resource, event.currentTarget.checked);
       });
       identityResources = identityResources.set(username, resources);
     });
     this.setState({
-      identityResources: identityResources
+      identityResources
     });
   }
 
@@ -129,7 +122,7 @@ class PasswordReset extends Basic.AbstractContent {
   }
 
   onAllUsernameSelect(username, event) {
-    let resources =  new Immutable.Map();
+    let resources = new Immutable.Map();
     this.state.identityResources.get(username).forEach((value, resource) => {
       resources = resources.set(resource, event.currentTarget.checked);
     });
@@ -140,36 +133,36 @@ class PasswordReset extends Basic.AbstractContent {
 
   isAllUsernameChecked(username) {
     return this.state.identityResources.get(username).reduce((result, value) => {
-        return result && value;
+      return result && value;
     });
   }
 
   isAllResourceChecked(resource) {
-    const { identityResources }  = this.state;
+    const { identityResources } = this.state;
     let checked = true;
-    identityResources.forEach((resources, username) => {
+    identityResources.forEach((resources) => {
       if (resources.has(resource)) {
-        checked= checked && resources.get(resource);
+        checked = checked && resources.get(resource);
       }
     });
     return checked;
   }
 
   isSomeSelected() {
-    const { identityResources }  = this.state;
+    const { identityResources } = this.state;
     let checked = false;
-    identityResources.forEach((resources, username) => {
+    identityResources.forEach((resources) => {
       resources.forEach(resource => {
         checked = checked || resource;
-      })
+      });
     });
     return checked;
   }
 
-  //Uživatelům bylo resetováno heslo ve vybraných systémech
+  // Uživatelům bylo resetováno heslo ve vybraných systémech
 
   onPasswordReset() {
-    let { identityResources }  = this.state;
+    let { identityResources } = this.state;
     // remove not selected usernnames
     identityResources = identityResources.filter(resources => {
       return resources.some(value => {
@@ -177,7 +170,7 @@ class PasswordReset extends Basic.AbstractContent {
       });
     });
     //
-    this.refs['confirm'].show(
+    this.refs.confirm.show(
       this.i18n('confirm.message', { count: identityResources.size, username: identityResources.keySeq().toArray()[0] }),
       this.i18n('confirm.title')
     ).then(result => {
@@ -190,7 +183,7 @@ class PasswordReset extends Basic.AbstractContent {
       }, () => {
         this._resetPassword(identityResources, 0);
       });
-    }, (err) => {
+    }, () => {
       // nothing
     });
   }
@@ -198,8 +191,8 @@ class PasswordReset extends Basic.AbstractContent {
   _resetPassword(identityResources, index) {
     const usernames = identityResources.keySeq().toArray();
     if (usernames.length < index + 1) {
-      stopBulkAction();
-      return;
+      this.stopBulkAction();
+      return null;
     }
     const passwordResetDto = {
       identity: usernames[index],
@@ -251,13 +244,13 @@ class PasswordReset extends Basic.AbstractContent {
 
   render() {
     const { usernames } = this.props;
-    const { identityResources, bulkAction, bulkCounter, bulkCount, bulkLoading } = this.state;
+    const { identityResources, bulkCounter, bulkCount, bulkLoading } = this.state;
     //
     if (identityResources.size !== usernames.length) {
       return (
         <Basic.Panel>
           <Basic.PanelHeader text={this.i18n('header')}/>
-          <Basic.Loading isStatic showLoading={true}/>
+          <Basic.Loading isStatic showLoading />
         </Basic.Panel>
       );
     }
@@ -270,10 +263,10 @@ class PasswordReset extends Basic.AbstractContent {
       });
     });
 
-    let data = [];
+    const data = [];
     usernames.forEach(username => {
-      let row = {
-        username: username
+      const row = {
+        username
       };
       resources.forEach(resource => {
         _.merge(row, {
@@ -283,7 +276,7 @@ class PasswordReset extends Basic.AbstractContent {
       data.push(row);
     });
 
-    let columns = [
+    const columns = [
       <Basic.Column
         property="username"
         header={() => {
@@ -335,7 +328,7 @@ class PasswordReset extends Basic.AbstractContent {
               );
             }
             return (
-              <span title={this.i18n('accounts.empty', { username: data[rowIndex].username, resource: resource } )}>&nbsp;-&nbsp;</span>
+              <span title={this.i18n('accounts.empty', { username: data[rowIndex].username, resource } )}>&nbsp;-&nbsp;</span>
             );
           }}
         />);
@@ -392,15 +385,15 @@ class PasswordReset extends Basic.AbstractContent {
 
 PasswordReset.propTypes = {
   usernames: PropTypes.array
-}
+};
 PasswordReset.defaultProps = {
   usernames: ['cfhh', 'autoone', 'rtone']
-}
+};
 
 function select(state) {
   return {
     usernames: DataManager.getData(state, 'selected-usernames') || []
-  }
+  };
 }
 
 export default connect(select)(PasswordReset);

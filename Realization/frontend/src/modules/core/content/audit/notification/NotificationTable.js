@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
-import NotificationRecipient from './NotificationRecipient';
 import { IdentityManager } from 'core/redux';
 import NotificationStateEnum from 'core/enums/NotificationStateEnum';
+import NotificationRecipientsCell from './NotificationRecipientsCell';
+import NotificationSentState from './NotificationSentState';
+import uuid from 'uuid';
 
 /**
 * Table of roles
@@ -39,7 +41,7 @@ export class NotificationTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.refs.table.getWrappedInstance().useFilter(this.refs.filterForm);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -53,7 +55,13 @@ export class NotificationTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    this.context.router.push('/audit/notification/' + entity.id);
+
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/audit/notification/${uuidId}?new=1`);
+    } else {
+      this.context.router.push('/audit/notification/' + entity.id);
+    }
   }
 
   render() {
@@ -102,18 +110,18 @@ export class NotificationTable extends Basic.AbstractContent {
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
-                      ref="sender"
-                      label={this.i18n('filter.sender.label')}
-                      placeholder={this.i18n('filter.sender.placeholder')}
+                      ref="recipient"
+                      label={this.i18n('filter.recipient.label')}
+                      placeholder={this.i18n('filter.recipient.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
                       returnProperty="username"/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
-                      ref="recipient"
-                      label={this.i18n('filter.recipient.label')}
-                      placeholder={this.i18n('filter.recipient.placeholder')}
+                      ref="sender"
+                      label={this.i18n('filter.sender.label')}
+                      placeholder={this.i18n('filter.sender.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
                       returnProperty="username"/>
@@ -136,6 +144,15 @@ export class NotificationTable extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
+          buttons={
+            [
+              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+                <Basic.Icon type="fa" icon="plus"/>
+                {' '}
+                {this.i18n('button.send')}
+              </Basic.Button>
+            ]
+          }
           >
 
           <Advanced.Column
@@ -155,45 +172,24 @@ export class NotificationTable extends Basic.AbstractContent {
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"
-            cell={
-              ({ rowIndex, data, property }) => {
-                return data[rowIndex][property].map(recipient => {
-                  return (
-                    <NotificationRecipient recipient={recipient} identityOnly />
-                  );
-                });
-              }
-            }/>
+            cell={<NotificationRecipientsCell identityOnly />}/>
           <Advanced.Column
-            property="from"
+            property="sender"
             cell={
               ({ rowIndex, data, property }) => {
-                return (
-                  <NotificationRecipient recipient={data[rowIndex][property]} identityOnly />
-                );
+                return !data[rowIndex]._embedded ? null : this.identityManager.getNiceLabel(data[rowIndex]._embedded[property]);
               }
             }/>
           <Advanced.Column
             property="sent"
             cell={
-              ({ rowIndex, data, property }) => {
-                const sentCount = data[rowIndex].relatedNotifications.reduce((result, notification) => { return result + (notification.sent ? 1 : 0); }, 0);
-                if (sentCount === data[rowIndex].relatedNotifications.length) {
-                  return (
-                    <Advanced.DateValue value={data[rowIndex][property]}/>
-                  );
-                }
-                if (sentCount === 0) {
-                  return (
-                    <Basic.Label level="danger" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.NOT)}/>
-                  );
-                }
+              ({ rowIndex, data }) => {
                 return (
-                  <Basic.Label level="warning" text={NotificationStateEnum.getNiceLabelBySymbol(NotificationStateEnum.PARTLY)}/>
+                  <NotificationSentState notification={data[rowIndex]}/>
                 );
               }
             }/>
-          <Advanced.Column property="sentLog" sort face="text" rendered={false}/>
+          <Advanced.Column property="sentLog" sort face="text" rendered={false} width="300px"/>
         </Advanced.Table>
       </div>
     );

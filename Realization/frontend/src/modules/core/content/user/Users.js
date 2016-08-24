@@ -1,12 +1,7 @@
-
-
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import uuid from 'uuid';
-//
 import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
 import { IdentityManager } from '../../redux';
 import UserTable from './UserTable';
 
@@ -16,8 +11,8 @@ import UserTable from './UserTable';
 class Users extends Basic.AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
-     this.identityManager = new IdentityManager();
+    super(props, context);
+    this.identityManager = new IdentityManager();
   }
 
   getContentKey() {
@@ -38,7 +33,7 @@ class Users extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <UserTable uiKey='identity_table' identityManager={this.identityManager} filterOpened={true}/>
+          <UserTable uiKey="identity_table" identityManager={this.identityManager} filterOpened />
         </Basic.Panel>
 
       </div>
@@ -47,13 +42,13 @@ class Users extends Basic.AbstractContent {
 }
 
 Users.propTypes = {
-}
+};
 Users.defaultProps = {
-}
+};
 
-function select(state) {
+function select() {
   return {
-  }
+  };
 }
 
-export default connect(select)(Users)
+export default connect(select)(Users);

@@ -1,6 +1,6 @@
 
 
-import { formatPattern, getParamNames } from 'react-router/lib/PatternUtils';
+import { formatPattern } from 'react-router/lib/PatternUtils';
 import Immutable from 'immutable';
 // reused actions
 import FlashMessagesManager from '../../modules/core/redux/flash/FlashMessagesManager';
@@ -39,11 +39,21 @@ export function selectNavigationItem(selectedNavigationItemId) {
 }
 
 /**
+* After localization is initied - set to ready, before inicialization will be false
+*/
+export function i18nReady(ready) {
+  return {
+    type: I18N_READY,
+    ready
+  };
+}
+
+/**
 * Init i18n localization service
 */
 export function i18nInit() {
-  return (dispatch, getState) => {
-    let localizationService = new LocalizationService(
+  return (dispatch) => {
+    const localizationService = new LocalizationService(
       (error) => {
         if (error) {
           const flashMessagesManager = new FlashMessagesManager();
@@ -52,16 +62,6 @@ export function i18nInit() {
         dispatch(i18nReady(true, localizationService));
       }
     );
-  };
-}
-
-/**
-* After localization is initied - set to ready, before inicialization will be false
-*/
-export function i18nReady(ready, localizationService = null) {
-  return {
-    type: I18N_READY,
-    ready
   };
 }
 
@@ -75,6 +75,26 @@ export function navigationInit() {
     type: NAVIGATION_INIT,
     navigation: configService.getNavigation()
   };
+}
+
+/**
+ * return parameters used in redirections
+ */
+export function resolveNavigationParameters(userContext = null, params = null) {
+  let parameterValues;
+  if (params) {
+    parameterValues = new Immutable.Map(params);
+  } else {
+    parameterValues = new Immutable.Map({});
+  }
+  if (userContext) {
+    //
+    parameterValues = parameterValues.set('loggedUsername', userContext.username || 'guest');
+    if (!parameterValues.has('userID')) {
+      parameterValues = parameterValues.set('userID', userContext.username || 'guest');
+    }
+  }
+  return parameterValues.toJS();
 }
 
 /**
@@ -101,11 +121,11 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
     if (section && section !== item.section) {
       return false;
     }
-    if (item.disabled){
+    if (item.disabled) {
       return false;
     }
     // security check
-    if (!SecurityManager.hasAccess(userContext, item.access)) {
+    if (!SecurityManager.hasAccess(item.access, userContext)) {
       return false;
     }
     // construct target to link from path and parameters
@@ -132,24 +152,4 @@ export function getNavigationItem(navigation, id) {
     return null;
   }
   return navigation.get(ConfigService.NAVIGATION_BY_ID).get(id);
-}
-
-/**
- * return parameters used in redirections
- */
-export function resolveNavigationParameters(userContext = null, params = null) {
-  let parameterValues;
-  if (params) {
-    parameterValues = Immutable.Map(params);
-  } else {
-    parameterValues = Immutable.Map({});
-  }
-  if (userContext) {
-    //
-    parameterValues = parameterValues.set('loggedUsername', userContext.username || 'guest');
-    if (!parameterValues.has('userID')) {
-      parameterValues = parameterValues.set('userID', userContext.username || 'guest');
-    }
-  }
-  return parameterValues.toJS();
 }

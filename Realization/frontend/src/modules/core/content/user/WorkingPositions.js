@@ -1,9 +1,7 @@
-
-
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link }  from 'react-router';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
@@ -24,7 +22,7 @@ class WorkingPositions extends Basic.AbstractContent {
         show: false,
         entity: {}
       }
-    }
+    };
   }
 
   getManager() {
@@ -42,8 +40,9 @@ class WorkingPositions extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
+    /* eslint no-undef: 1 */
     const entityFormData = _.merge({}, entity, {
-      manager: entity.id && entity._embedded.manager? entity._embedded.manager.username : null,
+      manager: entity.id && entity._embedded.manager ? entity._embedded.manager.username : null,
       organization: entity.id && entity._embedded.organization ? entity._embedded.organization.id : null
     });
 
@@ -120,7 +119,7 @@ class WorkingPositions extends Basic.AbstractContent {
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
       this.i18n(`action.delete.header`, { count: 1 })
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(this.identityWorkingPositionManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('delete.success', { position: entity.position, username: userID }) });
@@ -128,8 +127,8 @@ class WorkingPositions extends Basic.AbstractContent {
           this.addError(error);
         }
       }));
-    }, (err) => {
-      //Rejected
+    }, () => {
+      // Rejected
     });
   }
 
@@ -149,7 +148,7 @@ class WorkingPositions extends Basic.AbstractContent {
         {
           _showLoading
           ?
-          <Basic.Loading showLoading={true} className="static"/>
+          <Basic.Loading showLoading className="static"/>
           :
           <Basic.Panel className="no-border last">
             <Basic.Toolbar rendered={SecurityManager.isAdmin()}>
@@ -170,7 +169,7 @@ class WorkingPositions extends Basic.AbstractContent {
               <Basic.Column
                 className="detail-button"
                 cell={
-                  ({rowIndex, data, property, ...props}) => {
+                  ({rowIndex, data}) => {
                     return (
                       <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
                     );
@@ -228,7 +227,7 @@ class WorkingPositions extends Basic.AbstractContent {
                 header={this.i18n('label.action')}
                 className="action"
                 cell={
-                  ({rowIndex, data, property, ...props}) => {
+                  ({rowIndex, data}) => {
                     return (
                       <Basic.Button
                         level="danger"
@@ -292,7 +291,7 @@ class WorkingPositions extends Basic.AbstractContent {
                 type="submit"
                 level="success"
                 showLoading={_showLoading}
-                showLoadingIcon={true}
+                showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}
               </Basic.Button>

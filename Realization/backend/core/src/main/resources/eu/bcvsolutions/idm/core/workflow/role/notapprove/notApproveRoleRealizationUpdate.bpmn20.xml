@@ -39,7 +39,7 @@ execution.setVariable("updatedIdmIdentityRole", ir);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Realizace změna oprávnění (bez schvalování) pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Realizace změny role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; (bez schvalování) pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask1"></sequenceFlow>
   </process>
@@ -55,13 +55,13 @@ execution.setVariable("updatedIdmIdentityRole", ir);
         <omgdc:Bounds height="35.0" width="35.0" x="1110.0" y="113.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
-        <omgdc:Bounds height="55.0" width="210.0" x="457.0" y="103.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="210.0" x="470.0" y="102.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
         <omgdc:Bounds height="58.0" width="181.0" x="213.0" y="101.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="667.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="129.0"></omgdi:waypoint>
         <omgdi:waypoint x="800.0" y="130.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
@@ -74,7 +74,7 @@ execution.setVariable("updatedIdmIdentityRole", ir);
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="394.0" y="130.0"></omgdi:waypoint>
-        <omgdi:waypoint x="457.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="129.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

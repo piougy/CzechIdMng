@@ -13,8 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import eu.bcvsolutions.idm.core.security.filter.OAuthAuthenticationFilter;
-import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
+import eu.bcvsolutions.idm.security.filter.OAuthAuthenticationFilter;
+import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Web security configuration
@@ -33,19 +33,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
-			.antMatchers(HttpMethod.OPTIONS)
-			.permitAll()
-			.and()
-			.authorizeRequests()
-			.antMatchers("/api/authentication")
-			.permitAll()
-			.and()
-			.authorizeRequests()
-			.antMatchers("/api/**")
-			.fullyAuthenticated()
-			.and()
-			.anonymous()
-			.disable();    	 
+			.antMatchers(HttpMethod.OPTIONS).permitAll()
+			.antMatchers("/api/public/**").permitAll()
+			.antMatchers("/api/**").fullyAuthenticated() // TODO: controllers should choose security?
+			.anyRequest().authenticated();
     }
 	
 	@Override
@@ -53,7 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// public controllers
 		web.ignoring().antMatchers( //
 				"/api", // endpoint with supported services list
-				"/api/authentication" // login / out
+				"/api/authentication", // login / out
+				//"/api/public/**", // public
+				"/error/**",
+				"/api/browser/**" // TODO: close this endpoint before first version is released
 			);
 	}
    

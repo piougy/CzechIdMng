@@ -1,10 +1,5 @@
-
-
-import merge from 'object-assign';
-import _ from 'lodash';
-import { routeActions } from 'react-router-redux';
-//
-import { AbstractService, LocalizationService } from '../../services';
+import routeActions from 'react-router-redux';
+import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import * as Utils from '../../utils';
 
@@ -157,7 +152,7 @@ export default class EntityManager {
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
     searchParameters = this.getSearchParameters(searchParameters);
     uiKey = this.resolveUiKey(uiKey);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntities(searchParameters, uiKey));
       this.getService().search(searchParameters)
       .then(json => {
@@ -189,7 +184,7 @@ export default class EntityManager {
       cb(json, null);
     }
     uiKey = this.resolveUiKey(uiKey);
-    let data = json._embedded[this.getCollectionType()] || [];
+    const data = json._embedded[this.getCollectionType()] || [];
     return {
       type: RECEIVE_ENTITIES,
       entityType: this.getEntityType(),
@@ -210,7 +205,7 @@ export default class EntityManager {
    */
   fetchEntity(id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, id);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
@@ -243,10 +238,10 @@ export default class EntityManager {
    */
   updateEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return;
+      return null;
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().updateById(entity.id, entity)
       .then(json => {
@@ -268,10 +263,10 @@ export default class EntityManager {
    */
   patchEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return;
+      return null;
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().patchById(entity.id, entity)
       .then(json => {
@@ -280,7 +275,7 @@ export default class EntityManager {
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /**
@@ -293,10 +288,10 @@ export default class EntityManager {
    */
   createEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return;
+      return null;
     }
     uiKey = this.resolveUiKey(uiKey, '[new]');
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity('[new]', uiKey));
       this.getService().create(entity)
       .then(json => {
@@ -305,7 +300,7 @@ export default class EntityManager {
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /**
@@ -318,19 +313,19 @@ export default class EntityManager {
    */
   deleteEntity(entity, uiKey = null, cb = null) {
     if (!entity) {
-      return;
+      return null;
     }
     uiKey = this.resolveUiKey(uiKey, entity.id);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.requestEntity(entity.id, uiKey));
       this.getService().deleteById(entity.id)
-      .then(json => {
+      .then(() => {
         dispatch(this.deletedEntity(entity.id, entity, uiKey, cb));
       })
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));
       });
-    }
+    };
   }
 
   /**
@@ -342,7 +337,7 @@ export default class EntityManager {
    * @return {object} - action
    */
   deleteEntities(entities, uiKey = null, cb = null) {
-    return ((dispatch, getState) => {
+    return (dispatch) => {
       dispatch(
         this.startBulkAction(
           {
@@ -352,11 +347,11 @@ export default class EntityManager {
           entities.length
         )
       );
-      let successEntities = [];
+      const successEntities = [];
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
           return this.getService().deleteById(entity.id);
-        }).then(json => {
+        }).then(() => {
           dispatch(this.updateBulkAction());
           successEntities.push(entity);
           // new entity to redux store
@@ -383,7 +378,7 @@ export default class EntityManager {
           cb(null, error);
         }
       });
-    });
+    };
   }
 
   /**
@@ -404,7 +399,8 @@ export default class EntityManager {
   }
 
   /**
-   * Receive entity by id from server
+   * Receive entity and pair it with context. Its pair with uiKey.
+   * Used for create new entity in forms.
    *
    * @param  {string|number} id - entity identifier
    * @param  {object} entity - received entity. If entity is null, then will be removed from state
@@ -426,9 +422,9 @@ export default class EntityManager {
     }
     return {
       type: RECEIVE_ENTITY,
-      id: id,
+      id,
       entityType: this.getEntityType(),
-      entity: entity,
+      entity,
       uiKey
     };
   }
@@ -451,7 +447,7 @@ export default class EntityManager {
     }
     return {
       type: DELETED_ENTITY,
-      id: id,
+      id,
       entityType: this.getEntityType(),
       uiKey
     };
@@ -468,7 +464,7 @@ export default class EntityManager {
    */
   receiveError(entity, uiKey = null, error = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, entity ? entity.id : null);
-    return (dispatch, getState) => {
+    return (dispatch) => {
       if (cb) {
         cb(null, error);
       } else {

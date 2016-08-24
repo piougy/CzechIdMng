@@ -1,16 +1,4 @@
-'use strict';
-
-import React from 'react';
-import ReactDOM from 'react-dom';
-import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
-import faker from 'faker';
-import moment from 'moment';
-//
-import * as Basic from '../../../../src/components/basic';
-
-describe('Basic FlashMessages', function() {
-
+describe('Basic FlashMessages', function flashMessageTest() {
   it('- mock redux flashmessage store via redux-mock-store');
 
   it('- add messages');
@@ -26,5 +14,4 @@ describe('Basic FlashMessages', function() {
   it('- hide all messages');
 
   it('- remove all messages');
-
 });

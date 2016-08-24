@@ -1,28 +1,24 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Footer from './Footer';
 import * as Basic from '../components/basic';
 import * as Advanced from '../components/advanced';
-import { SettingManager } from '../redux';
-import { SecurityManager } from '../modules/core/redux';
+import { SecurityManager, ConfigurationManager, DataManager } from '../modules/core/redux';
 
 export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.settingManager = new SettingManager();
     this.securityManager = new SecurityManager();
+    this.configurationManager = new ConfigurationManager();
   }
 
   /**
   * Look out: This method is supposted to be aplication entry point
   */
   componentDidMount() {
-    const { setting } = this.props;
     this.hideAllMessages();
-    if (!setting || setting.isEmpty()) {
-      // this.context.store.dispatch(this.settingManager.fetchEntities());
-    }
+    this.ping();
   }
 
   /**
@@ -40,6 +36,7 @@ export class App extends Basic.AbstractContent {
         password: this.refs.password.getValue() // prevent filled password
       });
     }
+    this.ping();
     // onEnter makes this redirection now
     // console.log('router', this.context.router);
     // console.log('location', this.props.location);
@@ -47,6 +44,13 @@ export class App extends Basic.AbstractContent {
     /* if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
       this.context.router.replace('/login');
     }*/
+  }
+
+  ping() {
+    const { publicConfigurations } = this.props;
+    if (!publicConfigurations || publicConfigurations.length === null) {
+      this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
+    }
   }
 
   handleSubmit(event) {
@@ -62,13 +66,13 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { setting, location, userContext, bulk } = this.props;
+    const { publicConfigurations, location, userContext, bulk } = this.props;
     //
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          (1 !== 1 && (!setting || setting.isEmpty()) && location.pathname !== '/unavailable')
+          ((!publicConfigurations || publicConfigurations.length === 0) && location.pathname !== '/unavailable')
           ?
           <Basic.Loading className="global" showLoading/>
           :
@@ -144,21 +148,21 @@ export class App extends Basic.AbstractContent {
 
 App.propTypes = {
   /**
-   * Application setting loaded from BE
+   * Application public configuration loaded from BE
    */
-  setting: React.PropTypes.object,
+  publicConfigurations: PropTypes.arrayOf(PropTypes.object),
   /**
    * Logged user context
    */
-  userContext: React.PropTypes.object,
+  userContext: PropTypes.object,
   /**
    * Globally bulk action
    */
-  bulk: React.PropTypes.object
+  bulk: PropTypes.object
 };
 
 App.defaultProps = {
-  setting: null,
+  publicConfigurations: null,
   userContext: null,
   bulk: { action: {} },
 };
@@ -168,7 +172,7 @@ App.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    setting: state.data.entity.Setting,
+    publicConfigurations: DataManager.getData(state, ConfigurationManager.PUBLIC_CONFIGURATIONS),
     bulk: state.data.bulk
   };
 }

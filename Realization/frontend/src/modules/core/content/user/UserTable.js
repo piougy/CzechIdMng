@@ -1,17 +1,11 @@
-
-
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
-import Immutable from 'immutable';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
 import { DataManager, OrganizationManager } from '../../redux';
-import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../../../components/advanced/Filter/README_cs.md';
 
@@ -24,7 +18,7 @@ export class UserTable extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       filterOpened: this.props.filterOpened
-    }
+    };
     this.dataManager = new DataManager();
     this.organizationManager = new OrganizationManager();
   }
@@ -35,7 +29,7 @@ export class UserTable extends Basic.AbstractContent {
   componentDidUpdate() {
   }
 
-  onRowDoubleClick(event, rowIndex, data) {
+  onRowDoubleClick() {
     // redirect to profile
     /*
     const username = data[rowIndex]['name'];
@@ -46,7 +40,7 @@ export class UserTable extends Basic.AbstractContent {
   * Redirec to new user form
   */
   addUser() {
-    let uuidId = uuid.v1();
+    const uuidId = uuid.v1();
     this.context.router.push(`user/new?id=${uuidId}`);
   }
 
@@ -54,9 +48,6 @@ export class UserTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { identityManager, _searchParameters } = this.props;
-    const { selectedOrganization } = this.state;
-
     /*
     if (!this.refs.filterName.getValue() && !selectedOrganization) {
       this.cancelFilter();
@@ -72,16 +63,11 @@ export class UserTable extends Basic.AbstractContent {
         }
       ]
     }*/
-
-    let userSearchParameters = _searchParameters;
-    userSearchParameters = userSearchParameters.setFilter('text', this.refs.filterName.getValue() || '');
-    userSearchParameters = userSearchParameters.setPage(0);
-
     /*
     if (selectedOrganization){
       userSearchParameters.filter.filters.push(homeOrganisationFilter);
     }*/
-    this.refs.table.getWrappedInstance().fetchEntities(userSearchParameters);
+    this.refs.table.getWrappedInstance().useFilterData({ text: this.refs.filterName.getValue() || '' });
   }
 
   cancelFilter() {
@@ -102,9 +88,9 @@ export class UserTable extends Basic.AbstractContent {
     this.refs['confirm-' + bulkActionValue].show(
       this.i18n(`content.users.action.${bulkActionValue}.message`, { count: usernames.length, username: usernames[0] }),
       this.i18n(`content.users.action.${bulkActionValue}.header`, { count: usernames.length})
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
-    }, (error) => {
+    }, () => {
       // nothing
     });
   }
@@ -118,7 +104,7 @@ export class UserTable extends Basic.AbstractContent {
 
   onRemove(selectedRows) {
     this.refs.confirm.show('Are you sure ' + selectedRows + '?', 'Title').then(() => {
-      alert('onRemove');
+      // alert('onRemove');
     }, () => {
       // Rejected
     });
@@ -126,7 +112,7 @@ export class UserTable extends Basic.AbstractContent {
 
   _homeOrganizationFilter(node, event) {
     event.stopPropagation();
-    this.setState({selectedOrganization: node ? node.id: null}, ()=>{this.useFilter();})
+    this.setState({selectedOrganization: node ? node.id : null}, ()=>{this.useFilter();});
   }
 
   _orgTreeHeaderDecorator(props) {
@@ -165,7 +151,7 @@ export class UserTable extends Basic.AbstractContent {
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                <Basic.Row>
+                <Basic.Row className="last">
                   <div className="col-lg-8">
                     <Advanced.Filter.TextField
                       ref="filterName"
@@ -214,18 +200,18 @@ export class UserTable extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" type="submit" className="btn-xs" onClick={this.addUser.bind(this)} rendered={true}>
+              <Basic.Button level="success" key="add_button" type="submit" className="btn-xs" onClick={this.addUser.bind(this)} rendered >
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.user.create.button.add')}
               </Basic.Button>
             ]
           }>
           <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
-          <Advanced.ColumnLink to="user/:username/profile" property="username" width="20%" sort={true} face="text" rendered={_.includes(columns, 'username')}/>
-          <Advanced.Column property="lastName" sort={true} face="text" rendered={_.includes(columns, 'lastName')}/>
+          <Advanced.ColumnLink to="user/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
+          <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>
           <Advanced.Column property="firstName" width="10%" face="text" rendered={_.includes(columns, 'firstName')}/>
-          <Advanced.Column property="email" width="15%" face="text" sort={true} rendered={_.includes(columns, 'email')}/>
-          <Advanced.Column property="disabled" face="bool" sort={true} width="100px" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column property="email" width="15%" face="text" sort rendered={_.includes(columns, 'email')}/>
+          <Advanced.Column property="disabled" face="bool" sort width="100px" rendered={_.includes(columns, 'disabled')}/>
           <Basic.Column
             header={this.i18n('entity.Identity.description')}
             cell={<Basic.TextCell property="description" />}

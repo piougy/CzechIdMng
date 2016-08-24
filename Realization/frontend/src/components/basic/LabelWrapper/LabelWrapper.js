@@ -28,7 +28,11 @@ class LabelWrapper extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, help } = this.props;
+    const { labelSpan, label, componentSpan, required, help, rendered } = this.props;
+    //
+    if (!rendered) {
+      return null;
+    }
     //
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
@@ -78,7 +82,8 @@ LabelWrapper.propTypes = {
 
 LabelWrapper.defaultProps = {
   ...AbstractFormComponent.defaultProps,
-  type: 'text'
+  type: 'text',
+  rendered: true
 };
 
 

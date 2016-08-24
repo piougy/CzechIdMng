@@ -61,6 +61,12 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 		return identityRoleRepository.save(toEntity(dto, identityRole));
 	}
 	
+	@Override
+	public void delete(Long id){
+		Assert.notNull(id);
+		identityRoleRepository.delete(id);
+	}
+	
 	
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {
 		if (identityRoleDto == null || identityRole == null) {

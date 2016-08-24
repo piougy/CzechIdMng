@@ -1,16 +1,15 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
-import { AbstractContent, Panel, PanelHeader, PanelBody, Icon } from '../../../../components/basic';
+import { AbstractContent, Icon } from '../../../../components/basic';
 
 
 export default class Error503 extends AbstractContent {
 
   constructor(props, context) {
-     super(props, context);
+    super(props, context);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.selectNavigationItem('home');
   }
 

@@ -16,10 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
 import eu.bcvsolutions.idm.core.TestUtils;
+import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
@@ -50,7 +52,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 
 	@Before
 	public void login() {
-		super.login(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(TestUtils.TEST_USER_1);
 	}
 	
 	@After
@@ -58,8 +60,6 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		super.logout();
 	}
 
-	// TODO: fix process instance definition name assert - null is returned now
-	@Ignore
 	@Test
 	public void deployAndRunProcess() {
 		//Deploy process
@@ -71,19 +71,23 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		//Start instance of process
 		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, TestUtils.TEST_USER_1, null,
 				null);
-		assertEquals(PROCESS_KEY, instance.getName());
+		WorkflowFilterDto filter = new WorkflowFilterDto();
+		filter.setProcessInstanceId(instance.getId());;
+		ResourcesWrapper<WorkflowProcessInstanceDto> processes = processInstanceService.search(filter);
+		
+		assertEquals(PROCESS_KEY, ((List<WorkflowProcessInstanceDto>) processes.getResources()).get(0).getName());
 		WorkflowHistoricProcessInstanceDto historicProcessDto = historicProcessService.get(instance.getId());
 		assertNotNull(historicProcessDto);
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(TestUtils.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null
 		WorkflowHistoricProcessInstanceDto historicProcessDto2 = historicProcessService.get(instance.getId());
 		assertNull(historicProcessDto2);
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(TestUtils.TEST_USER_1);
 		
 		completeTasksAndCheckHistory();
 	}
@@ -109,7 +113,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		assertEquals(0, tasks.size());
 
 		this.logout();
-		this.login(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(TestUtils.TEST_USER_2);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());

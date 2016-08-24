@@ -1,15 +1,13 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 //
 import * as Basic from '../components/basic';
 import packageInfo from '../../package.json';
-import { SettingManager } from '../redux';
 
-const settingManager = new SettingManager();
-
+/**
+ * Idm footer
+ */
 class Footer extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
@@ -19,10 +17,10 @@ class Footer extends Basic.AbstractContextComponent {
   /**
    * Jump to page top
    */
-  jumpTop(event) {
-		$('html, body').animate({
-			scrollTop: 0
-		}, 'fast');
+  jumpTop() {
+    $('html, body').animate({
+      scrollTop: 0
+    }, 'fast');
   }
 
   render() {
@@ -39,7 +37,7 @@ class Footer extends Basic.AbstractContextComponent {
           &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
           <a href="http://www.bcvsolutions.eu" target="_blank">{this.i18n('app.author')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="http://redmine.czechidm.com/projects/czechidm" target="_blank">HelpDesk</a>
+          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">HelpDesk</a>
         </div>
         <div className="pull-right">
           <Basic.Button type="button" className="btn-xs" aria-label="Left Align"
@@ -55,19 +53,19 @@ class Footer extends Basic.AbstractContextComponent {
 
 Footer.propTypes = {
   backendVersion: PropTypes.string
-}
+};
 
 Footer.defaultProps = {
   backendVersion: null
-}
+};
 
 // Which props do we want to inject, given the global state?
 // Note: use https://github.com/faassen/reselect for better performance.
-function select(state) {
+function select() {
   return {
-    backendVersion: settingManager.getValue(state, 'environment.version')
-  }
+    backendVersion: 'x.x.x'// settingManager.getValue(state, 'environment.version')
+  };
 }
 
 // Wrap the component to inject dispatch and state into it
-export default connect(select)(Footer)
+export default connect(select)(Footer);

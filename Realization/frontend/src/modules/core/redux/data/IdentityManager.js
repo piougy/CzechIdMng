@@ -1,7 +1,6 @@
 
 
 import Immutable from 'immutable';
-//
 import EntityManager from './EntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { ConfigService, IdentityService } from '../../services';
@@ -43,8 +42,8 @@ export default class IdentityManager extends EntityManager {
    *
    * @return {Immutable.Map<string, boolean>} UI elements, which is editable <key, boolean>
    */
-  canEditMap(userContext, identity) {
-    let canEditMap = Immutable.Map();
+  canEditMap(userContext) {
+    let canEditMap = new Immutable.Map();
     canEditMap = canEditMap.set('isSaveEnabled', false);
     //
     // super admin or user's garant can edit user profile
@@ -61,7 +60,7 @@ export default class IdentityManager extends EntityManager {
    * @param {string} bulkActionName activate|deactivate
    */
   setUsersActivity(usernames, bulkActionName) {
-    return ((dispatch, getState) => {
+    return (dispatch) => {
       dispatch(
         this.startBulkAction(
           {
@@ -71,25 +70,24 @@ export default class IdentityManager extends EntityManager {
           usernames.length
         )
       );
-      let successUsernames = [];
+      const successUsernames = [];
       usernames.reduce((sequence, username) => {
         return sequence.then(() => {
           if (bulkActionName === 'activate') {
             return this.getService().activate(username);
-          } else {
-            return this.getService().deactivate(username);
           }
+          return this.getService().deactivate(username);
         }).then(json => {
           dispatch(this.updateBulkAction());
           successUsernames.push(username);
           // new entity to redux store
           dispatch(this.receiveEntity(username, json));
         }).catch(error => {
-          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.users.action.${bulkActionName}.error`, { username: username }) }, error));
+          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.users.action.${bulkActionName}.error`, { username }) }, error));
           throw error;
         });
       }, Promise.resolve())
-      .catch((error) => {
+      .catch(() => {
         // nothing - message is propagated before
         // catch is before then - we want execute nex then clausule
       })
@@ -100,7 +98,7 @@ export default class IdentityManager extends EntityManager {
         }));
         dispatch(this.stopBulkAction());
       });
-    });
+    };
   }
 
   /**
@@ -111,7 +109,7 @@ export default class IdentityManager extends EntityManager {
    * @return {array[object]}
    */
   fetchAuthorities(username, uiKey) {
-    return (dispatch, getState) => {
+    return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().getAuthorities(username)
         .then(json => {
@@ -120,6 +118,6 @@ export default class IdentityManager extends EntityManager {
         .catch(error => {
           dispatch(this.receiveError(null, uiKey, error));
         });
-    }
+    };
   }
 }

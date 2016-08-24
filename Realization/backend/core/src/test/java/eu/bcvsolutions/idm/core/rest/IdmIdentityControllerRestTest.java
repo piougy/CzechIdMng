@@ -7,23 +7,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import com.google.common.collect.Lists;
-
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.TestUtils;
-import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.core.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 
 public class IdmIdentityControllerRestTest extends AbstractRestTest {
+	
+	@Autowired
+	private SecurityService securityService;
 
-	public static RequestPostProcessor security() {
-		DefaultGrantedAuthority superAdminRoleAuthority = new DefaultGrantedAuthority("SYSTEM_ADMIN");
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList(superAdminRoleAuthority)));
+	public RequestPostProcessor security() {
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
         return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
 	}
 	
@@ -37,11 +38,11 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-        mockMvc.perform(get("/api/identities/" + TestUtils.TEST_USERNAME)
+        mockMvc.perform(get("/api/identities/" + TestUtils.TEST_ADMIN)
         		.with(security())
                 .contentType(TestUtils.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtils.HAL_CONTENT_TYPE))
-                .andExpect(jsonPath("$.username", equalTo(TestUtils.TEST_USERNAME)));
+                .andExpect(jsonPath("$.username", equalTo(TestUtils.TEST_ADMIN)));
     }
 }

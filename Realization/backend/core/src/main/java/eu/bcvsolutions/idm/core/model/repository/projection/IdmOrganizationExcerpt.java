@@ -16,4 +16,6 @@ public interface IdmOrganizationExcerpt extends AbstractDtoProjection {
 	String getName();
 	
 	boolean isDisabled();
+	
+	IdmOrganization getParent();
 }

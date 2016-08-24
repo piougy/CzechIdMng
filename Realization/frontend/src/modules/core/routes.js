@@ -143,7 +143,7 @@ module.exports = {
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',
       component: require('./content/workflow/HistoricProcessInstanceDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      // access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
     },
     {
       path: 'audit/',

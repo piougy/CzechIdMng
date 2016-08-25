@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.remove">
-  <process id="approveRemoveRoleBySuperAdminRole" name="Odebrání role uživateli. Schvalují uživatelé s rolí &quot;SuperAdminRole&quot;" isExecutable="true">
+  <process id="approveRemoveRoleByManager" name="Odebrání role uživateli. Schvalují vedoucí žadatele" isExecutable="true">
     <documentation>Workflow pro schválení odebrání role uživateli.  Schvalují uživatelé s rolí "SuperAdminRole"</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveTask" name="Schválení odebrání uživatelem s rolí &quot;SuperAdminRole&quot;" activiti:candidateUsers="#{defaultIdmIdentityService.findAllManagersByUserPositionsString(applicantIdentifier)}">
+    <userTask id="approveTask" name="Schválení odebrání vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllByRole(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
       <documentation>Schválení odebrání role ${defaultIdmRoleService.get(roleIdentifier).name} pro uživatele ${applicantUsername}.</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -44,7 +44,7 @@ execution.setVariable("newIdmIdentityRole", ir);
     <sequenceFlow id="flow6" sourceRef="exclusivegateway1" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení odebrání role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživateli &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;. Schvalují uživatelé s rolí &quot;SuperAdminRole&quot;." activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení odebrání role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživateli &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;. Schvalují vedoucí žadatele&quot;." activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="flow29" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
     <scriptTask id="scripttask4" name="Dotažení vazby, která má být odstraněna" scriptFormat="groovy" activiti:autoStoreVariables="false">
@@ -57,6 +57,16 @@ execution.setVariable("validTill", identityRoleEntity.validTill);
 </script>
     </scriptTask>
     <sequenceFlow id="flow30" sourceRef="scripttask4" targetRef="approveTask"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow31" sourceRef="exclusivegateway2" targetRef="scripttask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) != null}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent3" name="End - Identity role with given ID not found">
+      <documentation>Identity role with given ID not found</documentation>
+    </endEvent>
+    <sequenceFlow id="flow32" name="Oprávnění, které má být změněno neexistuje" sourceRef="exclusivegateway2" targetRef="endevent3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) == null}]]></conditionExpression>
+    </sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
       <extensionElements>
         <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete uživateli roli přiřadit?","level":"success","tooltip":"Schválit a přiřadit roli žadateli"}</activiti:value>
@@ -68,22 +78,12 @@ execution.setVariable("validTill", identityRoleEntity.validTill);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow31" sourceRef="exclusivegateway2" targetRef="scripttask4">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) != null}]]></conditionExpression>
-    </sequenceFlow>
-    <endEvent id="endevent3" name="End - Identity role with given ID not found">
-      <documentation>Identity role with given ID not found</documentation>
-    </endEvent>
-    <sequenceFlow id="flow32" name="Oprávnění, které má být změněno neexistuje" sourceRef="exclusivegateway2" targetRef="endevent3">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) == null}]]></conditionExpression>
-    </sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Odebrání nové vazby mezi identitou a rolí</text>
     </textAnnotation>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_approveRemoveRoleBySuperAdminRole">
-    <bpmndi:BPMNPlane bpmnElement="approveRemoveRoleBySuperAdminRole" id="BPMNPlane_approveRemoveRoleBySuperAdminRole">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_approveRemoveRoleByManager">
+    <bpmndi:BPMNPlane bpmnElement="approveRemoveRoleByManager" id="BPMNPlane_approveRemoveRoleByManager">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="100.0" y="196.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>

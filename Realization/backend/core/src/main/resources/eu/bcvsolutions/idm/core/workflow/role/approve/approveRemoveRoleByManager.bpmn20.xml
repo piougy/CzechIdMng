@@ -3,7 +3,7 @@
   <process id="approveRemoveRoleByManager" name="Odebrání role uživateli. Schvalují vedoucí žadatele" isExecutable="true">
     <documentation>Workflow pro schválení odebrání role uživateli.  Schvalují vedoucí žadatele.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveTask" name="Schválení odebrání vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllByRole(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
+    <userTask id="approveTask" name="Schválení odebrání vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllManagersByUserPositionsString(applicantIdentifier)}">
       <documentation>Schválení odebrání role ${defaultIdmRoleService.get(roleIdentifier).name} pro uživatele ${applicantUsername}.</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>

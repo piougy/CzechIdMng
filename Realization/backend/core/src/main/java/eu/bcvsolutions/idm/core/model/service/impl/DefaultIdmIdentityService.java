@@ -34,9 +34,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 * Start workflow for change permissions
 	 */
 	public ProcessInstance changePermissions(IdmIdentity identity){
-		Map<String, Object> variables = new HashMap<>();
-		variables.put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, identity.getId());
-		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), variables);	
+		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), null);	
 	}
 
 	@Override

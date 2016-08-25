@@ -1,12 +1,18 @@
 package eu.bcvsolutions.idm.core.rest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.RevisionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.history.Revision;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,11 +28,16 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.RestApplicationException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.revision.IdmRevisionController;
+import eu.bcvsolutions.idm.core.revision.RevisionAssembler;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
@@ -35,7 +46,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @RestController
 @RequestMapping(value = "/api/identities/")
-public class IdmIdentityController {
+public class IdmIdentityController implements IdmRevisionController {
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -54,6 +65,9 @@ public class IdmIdentityController {
 
 	@Autowired
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
+	
+	@Autowired
+	private IdmAuditService auditService; 
 
 	/**
 	 * Changes identity password
@@ -100,6 +114,7 @@ public class IdmIdentityController {
 	 */
 	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
+
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
@@ -111,5 +126,38 @@ public class IdmIdentityController {
 				.search(filter).getBody().getResources();
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);
 	}
+	
+	@Override
+	@RequestMapping(value = "{identityId}/revisions/{revId}", method = RequestMethod.GET)
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
+		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
+		Revision<Integer, ? extends AbstractEntity> revision = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
+		IdmIdentity entity = (IdmIdentity) revision.getEntity();
+		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
+		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
+				String.valueOf(this.identityLookup.getResourceIdentifier(entity)), revision, revId);
 
+		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
+	}
+
+	@Override
+	@RequestMapping(value = "{identityId}/revisions", method = RequestMethod.GET)
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
+		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
+		
+		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
+		List<Revision<Integer, ? extends AbstractEntity>> results = this.auditService.findRevisions(IdmIdentity.class, originalEntity.getId());
+		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
+		
+		for	(Revision<Integer, ? extends AbstractEntity> revision : results) {
+			wrappers.add(assembler.toResource(this.getClass(), 
+					String.valueOf(this.identityLookup.getResourceIdentifier((IdmIdentity)revision.getEntity())),
+					revision, revision.getRevisionNumber()));
+		}
+		
+		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
+				wrappers);
+		
+		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>>(resources, HttpStatus.OK);
+	}
 }

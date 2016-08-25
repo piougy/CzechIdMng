@@ -16,6 +16,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 
 @Entity
 @Table(name = "idm_organization", indexes = { @Index(name = "ux_organization_name", columnList = "name") })

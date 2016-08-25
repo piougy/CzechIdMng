@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="eu.bcvsolutions.role.approve.remove">
   <process id="approveRemoveRoleByManager" name="Odebrání role uživateli. Schvalují vedoucí žadatele" isExecutable="true">
-    <documentation>Workflow pro schválení odebrání role uživateli.  Schvalují uživatelé s rolí "SuperAdminRole"</documentation>
+    <documentation>Workflow pro schválení odebrání role uživateli.  Schvalují vedoucí žadatele.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <userTask id="approveTask" name="Schválení odebrání vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllByRole(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
       <documentation>Schválení odebrání role ${defaultIdmRoleService.get(roleIdentifier).name} pro uživatele ${applicantUsername}.</documentation>

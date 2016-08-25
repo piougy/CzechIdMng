@@ -18,8 +18,8 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -63,7 +63,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(InitTestData.TEST_USER_1);
 	}
 	
 	@After
@@ -80,8 +80,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		assertNotNull(deploymentDto);
 		
 		//start change role process for TEST_USER_1
-		this.loginAsAdmin(TestUtils.TEST_USER_1);
-		IdmIdentity test1 = idmIdentityRepository.findOneByUsername(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(InitTestData.TEST_USER_1);
+		IdmIdentity test1 = idmIdentityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> createChangeRequestWrapped = idmIdentityController.changePermissions(test1.getId().toString());
 		WorkflowTaskInstanceDto createChangeRequest = createChangeRequestWrapped.getBody().getResource();
 		assertNotNull(createChangeRequest);
@@ -98,7 +98,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		Assert.isTrue(wrappedResult.getBody().getResources().isEmpty());
 		
 		this.logout();
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedResult.getBody().getResources());
@@ -109,7 +109,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		
 
 		this.logout();
-		this.loginAsAdmin(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 	}
 

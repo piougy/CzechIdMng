@@ -9,11 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.configuration.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 
 public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
@@ -30,7 +30,7 @@ public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
 	@Before
 	public void login() {
-		super.loginAsAdmin(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(InitTestData.TEST_USER_1);
 	}
 	
 	@After

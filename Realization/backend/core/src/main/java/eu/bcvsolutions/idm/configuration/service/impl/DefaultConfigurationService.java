@@ -46,6 +46,16 @@ public class DefaultConfigurationService implements ConfigurationService {
 		return getValue(key, null);
 	}
 	
+	public void setValue(String key, String value) {
+		IdmConfiguration config = configurationRepository.get(key);
+		if (config == null) {
+			config = new IdmConfiguration(key, value);
+		} else {
+			config.setValue(value);
+		}		
+		configurationRepository.save(config);
+	}
+	
 	@Override
 	public String getValue(String key, String defaultValue) {
 		log.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
@@ -77,6 +87,11 @@ public class DefaultConfigurationService implements ConfigurationService {
 	public boolean getBooleanValue(String key, boolean defaultValue) {
 		String value = getValue(key);
 		return value == null ? defaultValue : Boolean.valueOf(value);
+	}
+	
+	@Override
+	public void setBooleanValue(String key, boolean value) {
+		setValue(key, Boolean.valueOf(value).toString());
 	}
 
 	/**

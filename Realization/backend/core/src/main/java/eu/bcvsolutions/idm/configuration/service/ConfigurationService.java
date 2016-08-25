@@ -27,6 +27,14 @@ public interface ConfigurationService {
 	String getValue(String key);
 	
 	/**
+	 * Set given configuration value. Creates new, if configuration with given key does not exist. 
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	void setValue(String key, String value);
+	
+	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns given defaultValue.
 	 * 
 	 * @param key
@@ -50,6 +58,14 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	boolean getBooleanValue(String key, boolean defaultValue);
+	
+	/**
+	 * Set given configuration value. Creates new, if configuration with given key does not exist. 
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	void setBooleanValue(String key, boolean value);
 	
 	/**
 	 * Returns all public configuration properties 

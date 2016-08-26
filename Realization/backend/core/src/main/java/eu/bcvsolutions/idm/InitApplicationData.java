@@ -74,6 +74,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				superAdminRole.setName(ADMIN_ROLE);
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
 				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");
+				superAdminRole.setApproveRemoveWorkflow("approveRemoveRoleBySuperAdminRole");
 				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
 				List<IdmRoleAuthority> authorities = new ArrayList<>();
 				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {

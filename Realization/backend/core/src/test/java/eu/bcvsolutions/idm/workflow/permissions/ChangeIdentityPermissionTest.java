@@ -108,7 +108,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		this.loginAsAdmin(InitTestData.TEST_ADMIN_ROLE);
+		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For admin must be found one task (because was started subprocess WF for approve add permission for all users with SuperAdminRole)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());

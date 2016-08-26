@@ -14,6 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
@@ -46,14 +47,28 @@ public class DefaultConfigurationService implements ConfigurationService {
 		return getValue(key, null);
 	}
 	
+	@Override
 	public void setValue(String key, String value) {
-		IdmConfiguration config = configurationRepository.get(key);
-		if (config == null) {
-			config = new IdmConfiguration(key, value);
+		Assert.hasText(key);
+		//
+		IdmConfiguration configuration = configurationRepository.get(key);
+		if (configuration == null) {
+			configuration = new IdmConfiguration(key, value);
 		} else {
-			config.setValue(value);
+			configuration.setValue(value);
 		}		
-		configurationRepository.save(config);
+		setConfiguration(configuration);
+	}
+	
+	@Override
+	public void setConfiguration(IdmConfiguration configuration) {
+		Assert.notNull(configuration);
+		Assert.hasText(configuration.getName());
+		//
+		if (shouldBeSecured(configuration.getName())) {
+			configuration.setSecured(true);
+		}
+		configurationRepository.save(configuration);
 	}
 	
 	@Override
@@ -200,5 +215,9 @@ public class DefaultConfigurationService implements ConfigurationService {
 			}
 			aBase.put(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	private static boolean shouldBeSecured(String key) {
+		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX);
 	}
 }

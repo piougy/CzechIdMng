@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.configuration.service;
 import java.util.List;
 
 import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 
 /**
  * Provides configuration through application
@@ -33,6 +34,11 @@ public interface ConfigurationService {
 	 * @param value
 	 */
 	void setValue(String key, String value);
+	
+	/**
+	 * Set given configuration value. Creates new, if configuration with given key does not exist. 
+	 */
+	void setConfiguration(IdmConfiguration configuration);
 	
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns given defaultValue.

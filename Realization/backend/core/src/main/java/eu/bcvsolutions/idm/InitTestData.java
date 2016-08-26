@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -14,6 +16,8 @@ import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
@@ -41,6 +45,9 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_PASSWORD = InitApplicationData.ADMIN_PASSWORD;
 	public static final String TEST_USER_1 = "testUser1";
 	public static final String TEST_USER_2 = "testUser2";
+	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
+	public static final String TEST_USER_ROLE = "testUserRole";
+	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
 
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -76,12 +83,26 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		SecurityContextHolder.getContext().setAuthentication(
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
 		try {
-			// IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
+			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
 			IdmOrganization rootOrganization = organizationRepository.findOneByParentIsNull();
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
-				log.info("Creating test data ...");				
+				log.info("Creating test data ...");		
+				//
+				IdmRole role1 = new IdmRole();
+				role1.setName(TEST_USER_ROLE);
+				role1 = this.roleRepository.save(role1);
+				log.info(MessageFormat.format("Test role created [id: {0}]", role1.getId()));
+				//
+				IdmRole role2 = new IdmRole();
+				role2.setName(TEST_CUSTOM_ROLE);
+				List<IdmRoleComposition> subRoles = new ArrayList<>();
+				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
+				role2.setSubRoles(subRoles);
+				role2 = this.roleRepository.save(role2);
+				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
+				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//
 				// TODO: split test and demo data - use flyway?
 				// Users for JUnit testing

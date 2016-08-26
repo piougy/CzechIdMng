@@ -15,6 +15,10 @@ import SearchParameters from '../../../domain/SearchParameters';
 const identityRoleManager = new IdentityRoleManager();
 const uiKey = 'identity-roles-concept-task';
 
+/**
+ * Custom task detail designed for use with RoleConceptTable.
+ * Extended from DynamicTaskDetail (it is standard task detail renderer)
+ */
 class DynamicTaskRoleDetail extends DynamicTaskDetail {
 
   getContentKey() {

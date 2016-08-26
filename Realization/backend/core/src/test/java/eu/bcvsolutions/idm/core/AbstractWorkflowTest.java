@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core;
 
-import javax.annotation.PostConstruct;
+import java.io.InputStream;
 
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
+import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 
 /**
  * 
@@ -22,11 +24,16 @@ import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
  */
 public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
 
-    @Autowired @Rule
-    public ActivitiRule activitiRule;
-    
-    @Autowired
+	@Autowired
+	@Rule
+	public ActivitiRule activitiRule;
+
+	@Autowired
 	private IdentityService workflowIdentityService;
+
+	@Autowired
+	private WorkflowDeploymentService processDeploymentService;
+
 	
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
@@ -50,10 +57,21 @@ public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
 		super.loginAsAdmin(username);
 		workflowIdentityService.setAuthenticatedUserId(username);
 	}
-	
-    @Override
-	public void logout(){
+
+	@Override
+	public void logout() {
 		super.logout();
 		workflowIdentityService.setAuthenticatedUserId(null);
+	}
+
+	/**
+	 * Deploy process by definition file path
+	 * @param xmlPath
+	 * @return
+	 */
+	public WorkflowDeploymentDto deployProcess(String xmlPath) {
+		InputStream is = this.getClass().getClassLoader().getResourceAsStream(xmlPath);
+		return  processDeploymentService.create(xmlPath,
+				xmlPath, is);
 	}
 }

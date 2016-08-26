@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.stereotype.Component;
 
 /**
- * {@link FlywayMigrationStrategy} only can't be used for modular flyway configuration. 
+ * {@link FlywayMigrationStrategy} itself can't be used for modular {@link Flyway} configuration. 
  * We need to use {@link FlywayMigrationStrategy} directly after module dependent {@link Flyway} is created.
  * 
  * @author Radek Tomiška
@@ -22,11 +22,17 @@ public class IdmFlywayPostProcessor implements BeanPostProcessor {
 	@Autowired
 	private FlywayMigrationStrategy flywayMigrationStrategy;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof Flyway) {

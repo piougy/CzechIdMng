@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * FlywayAutoConfiguration extension:
- * * resolve used jdbc database dynamically - ${dbName} in location could be used
- * * support for multi modular {@link Flyway} configuration
+ * FlywayAutoConfiguration extension added support for multi modular {@link Flyway} configuration.
  * 
  * @author Radek Tomiška
  *

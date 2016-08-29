@@ -92,7 +92,7 @@ class PasswordChange extends Basic.AbstractContent {
       return json;
     })
     .then(() => {
-      // this.login(username, password);
+      this.login(username, password);
       this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
     .catch(error => {

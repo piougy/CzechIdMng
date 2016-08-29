@@ -53,10 +53,11 @@ public class DefaultSecurityService implements SecurityService {
 
 	@Override
 	public AbstractAuthentication getAuthentication() {
-		if (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (!(authentication instanceof AbstractAuthentication)) {
 			return null;
-		}		
-		return (AbstractAuthentication) SecurityContextHolder.getContext().getAuthentication();
+		}
+		return (AbstractAuthentication) authentication;
 	}
 
 	@Override

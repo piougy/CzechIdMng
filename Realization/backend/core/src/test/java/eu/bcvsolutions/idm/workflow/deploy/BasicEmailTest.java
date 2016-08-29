@@ -12,11 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
+import eu.bcvsolutions.idm.notification.service.EmailService;
 
 /**
  * Sipmle test for sending emails from workflow
@@ -28,7 +29,7 @@ public class BasicEmailTest extends AbstractWorkflowTest {
 
 	private static final String PROCESS_KEY = "testEmailer";
 	private static final String EMAIL_TEXT = "wf_test";
-	private static final String EMAIL_RECIPIENT = "tomiska";
+	private static final String EMAIL_RECIPIENT = InitTestData.TEST_USER_1;
 	
 	@Autowired
 	private WorkflowDeploymentService processDeploymentService;
@@ -38,7 +39,7 @@ public class BasicEmailTest extends AbstractWorkflowTest {
 	
 	@Before
 	public void login() {
-		super.loginAsAdmin(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(InitTestData.TEST_USER_1);
 	}
 	
 	@After

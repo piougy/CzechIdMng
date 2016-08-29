@@ -23,8 +23,8 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -67,7 +67,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(InitTestData.TEST_USER_1);
 	}
 	
 	@After
@@ -79,10 +79,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void addApprovableSuperAdminRole() {
 		IdmIdentity test1;
 		Page<IdmIdentityRole> idmIdentityRolePage;
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE, false);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, false);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		roles.add(createNewPermission(TestUtils.SUPER_ADMIN_ROLE, null, null));
+		roles.add(createNewPermission(InitTestData.TEST_ADMIN_ROLE, null, null));
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, roles);
 		variables.put(CHANGED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
 		variables.put(REMOVED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -92,7 +92,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -108,7 +108,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		this.loginAsAdmin(TestUtils.TEST_ADMIN);
+		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For admin must be found one task (because was started subprocess WF for approve add permission for all users with SuperAdminRole)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -121,19 +121,19 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For admin must be found no any task
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 		
-		test1 = idmIdentityRepository.findOneByUsername(TestUtils.TEST_USER_1);
+		test1 = idmIdentityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
 		//User test 1 must have superAdminRole
-		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(TestUtils.SUPER_ADMIN_ROLE);}).findFirst().isPresent());
+		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_ADMIN_ROLE);}).findFirst().isPresent());
 		
 	}
 	
 	@Test
 	public void changeApprovableSuperAdminRole() {
 	
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE, true);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, true);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		Calendar c = Calendar.getInstance();
@@ -142,7 +142,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		Date validFrom = c.getTime();
 		c.add(Calendar.MONTH, 2);
 		Date validTill = c.getTime();
-		IdmIdentityRole superAdminPermission = getPermission(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE);
+		IdmIdentityRole superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		
 		//Validity date form and till must be null 
 		Assert.isNull(superAdminPermission.getValidFrom());
@@ -158,7 +158,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -174,7 +174,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		this.loginAsAdmin(TestUtils.TEST_ADMIN);
+		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For admin must be found one task (because was started subprocess WF for approve add permission for all users with SuperAdminRole)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -187,7 +187,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For admin must be found no any task
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 		
-		superAdminPermission = getPermission(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE);
+		superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		//Validity date form and till must be not null 
 		assertNotNull(superAdminPermission.getValidFrom());
 		assertNotNull(superAdminPermission.getValidTill());
@@ -200,7 +200,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	@Test
 	public void changeNotApprovableUserRole() {
 	
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.USER_ROLE, true);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, true);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		Calendar c = Calendar.getInstance();
@@ -209,7 +209,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		Date validFrom = c.getTime();
 		c.add(Calendar.MONTH, 2);
 		Date validTill = c.getTime();
-		IdmIdentityRole userRolePermission = getPermission(TestUtils.TEST_USER_1, TestUtils.USER_ROLE);
+		IdmIdentityRole userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		
 		//Validity date form and till must be null 
 		Assert.isNull(userRolePermission.getValidFrom());
@@ -225,7 +225,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -241,7 +241,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approved task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 		
-		userRolePermission = getPermission(TestUtils.TEST_USER_1, TestUtils.USER_ROLE);
+		userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		//Validity date form and till must be not null 
 		assertNotNull(userRolePermission.getValidFrom());
 		assertNotNull(userRolePermission.getValidTill());
@@ -255,11 +255,11 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void addNotApprovableUserRole() {
 		IdmIdentity test1;
 		Page<IdmIdentityRole> idmIdentityRolePage;
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.USER_ROLE, false);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, false);
 		assertNotNull(createChangeRequest);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		roles.add(createNewPermission(TestUtils.USER_ROLE, null, null));
+		roles.add(createNewPermission(InitTestData.TEST_USER_ROLE, null, null));
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, roles);
 		variables.put(CHANGED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
 		variables.put(REMOVED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -269,7 +269,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -286,25 +286,25 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		this.loginAsAdmin(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 		//UserRole is no approvable, therefore user test 1 must have userRole without any additional approving
-		test1 = idmIdentityRepository.findOneByUsername(TestUtils.TEST_USER_1);
+		test1 = idmIdentityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
 		//User test 1 must have superAdminRole
-		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(TestUtils.USER_ROLE);}).findFirst().isPresent());
+		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_USER_ROLE);}).findFirst().isPresent());
 		
 	}
 	
 	@Test
 	public void removeApprovableSuperAdminRole() {
 	
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE, true);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, true);
 		List<Long> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		IdmIdentityRole superAdminPermission = getPermission(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE);
+		IdmIdentityRole superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		// Add permission ID to remove list
 		roles.add(superAdminPermission.getId());
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -316,7 +316,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -332,7 +332,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		this.loginAsAdmin(TestUtils.TEST_ADMIN);
+		this.loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For admin must be found one task (because was started subprocess WF for approve add permission for all users with SuperAdminRole)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -345,7 +345,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For admin must be found no any task
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 		
-		superAdminPermission = getPermission(TestUtils.TEST_USER_1, TestUtils.SUPER_ADMIN_ROLE);
+		superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		Assert.isNull(superAdminPermission);
 		
 	}
@@ -353,10 +353,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	@Test
 	public void removeNotApprovableUserRole() {
 	
-		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(TestUtils.TEST_USER_1, TestUtils.USER_ROLE, true);
+		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, true);
 		List<Long> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		IdmIdentityRole userRolePermission = getPermission(TestUtils.TEST_USER_1, TestUtils.USER_ROLE);
+		IdmIdentityRole userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		// Add permission ID to remove list
 		roles.add(userRolePermission.getId());
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -368,7 +368,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user1 must found no tasks
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().isEmpty());
 		
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		wrappedUserTasksResult =  workflowTaskInstanceController.getAll();
 		// For user2 must be found one task (because user2 is manager for user1)
 		Assert.notEmpty(wrappedUserTasksResult.getBody().getResources());
@@ -384,7 +384,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// For user2 must be found no any task (because user2 approve his task)
 		Assert.isTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 
-		userRolePermission = getPermission(TestUtils.TEST_USER_1, TestUtils.USER_ROLE);
+		userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		Assert.isNull(userRolePermission);
 		
 	}

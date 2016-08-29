@@ -37,4 +37,7 @@ public interface IdmOrganizationRepository extends BaseRepository<IdmOrganizatio
 	@RestResource(path = "children", rel = "children")
 	List<IdmIdentity> findChildrenByParent(@Param(value = "parent") Long parent);
 	
+	@RestResource(exported = false)
+	IdmOrganization findOneByParentIsNull();
+	
 }

@@ -12,8 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractRestTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -32,17 +32,17 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
     public void userNotFound() throws Exception {
         mockMvc.perform(get("/api/identities/n_a_user")
         		.with(security())
-                .contentType(TestUtils.HAL_CONTENT_TYPE))
+                .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
     }
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-        mockMvc.perform(get("/api/identities/" + TestUtils.TEST_ADMIN)
+        mockMvc.perform(get("/api/identities/" + InitTestData.TEST_ADMIN_USERNAME)
         		.with(security())
-                .contentType(TestUtils.HAL_CONTENT_TYPE))
+                .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(TestUtils.HAL_CONTENT_TYPE))
-                .andExpect(jsonPath("$.username", equalTo(TestUtils.TEST_ADMIN)));
+                .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(jsonPath("$.username", equalTo(InitTestData.TEST_ADMIN_USERNAME)));
     }
 }

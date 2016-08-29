@@ -8,7 +8,7 @@
     <serviceTask id="mailtask1" name="email taskfs" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
-          <activiti:string><![CDATA[tomiska]]></activiti:string>
+          <activiti:string><![CDATA[testUser1]]></activiti:string>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:string><![CDATA[Test emai3]]></activiti:string>
@@ -20,7 +20,7 @@
           <activiti:string><![CDATA[wf_test]]></activiti:string>
         </activiti:field>
         <activiti:field name="from">
-          <activiti:string><![CDATA[svanda]]></activiti:string>
+          <activiti:string><![CDATA[testUser2]]></activiti:string>
         </activiti:field>
       </extensionElements>
     </serviceTask>

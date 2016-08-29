@@ -28,6 +28,7 @@ class Dashboard extends Basic.AbstractContent {
     let dashboards = [];
     dashboards = this.componentService.getComponentDefinitions(DASHBOARD_COMPONENT_TYPE).map(component=> {
       const DashboardComponent = component.component;
+
       return (
         <div className={'col-lg-' + (component.span ? component.span : DEFAULT_SPAN)}>
           <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} userID={userContext.username}/>

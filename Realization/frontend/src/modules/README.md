@@ -15,20 +15,6 @@
 | span      | Span layout. Used in dashboard                                                              |
 | order     | Define order of component between other components                                          |
 
-  | Parameter | Type | Description | Default  |
-  | --- | :--- | :--- | :--- |
-  | rendered  | bool |  | true |
-  | showLoading  | bool | Shows loading icon  (fa-refresh fa-spin) | false |
-
-  | Parameter | Description                                                                                 |
-  |-----------|---------------------------------------------------------------------------------------------|
-  | id        | Component identifier (key). With this key will be component loaded. It must be unique.      |
-
-    |Parameter|Description|
-    |---|---|
-    |id|Component identifier (key). With this key will be component loaded. It must be unique. |
-
-
 
 ## Usage
 

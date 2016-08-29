@@ -1048,7 +1048,15 @@
           "completeTaskDecision": "$t(entity.WorkflowHistoricTaskInstance.completeTaskDecision)"
         }
       }
-    }
+    },
+    "audit": {
+      "header": "Audit",
+      "title": "Audit",
+      "modifier": "Změnu provedl",
+      "date": "Datum změny",
+      "empty": "Bez žádných záznamů",
+      "id": "ID"
+      }
   },
   "entity": {
     "created": "Vytvořeno",
@@ -1201,6 +1209,9 @@
       "name": "Klíč",
       "value": "Hodnota",
       "secured": "Systémové nastavení"
+    },
+    "Audit": {
+      "label": "Audit"
     }
   },
   "error": {

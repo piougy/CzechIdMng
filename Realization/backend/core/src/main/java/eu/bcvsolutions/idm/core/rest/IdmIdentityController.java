@@ -59,9 +59,7 @@ public class IdmIdentityController {
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
 
 	/**
-	 * Changes identity password
-	 * 
-	 * TODO: could be public, because previous password is required
+	 * Changes identity password. Could be public, because previous password is required.
 	 * 
 	 * @param identityId
 	 * @param passwordChangeDto
@@ -75,7 +73,7 @@ public class IdmIdentityController {
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		// TODO: settingResource + SYSTEM_ADMIN
+		// TODO: hasAnyAuthority as permissionGroup
 		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()),
 				new String(passwordChangeDto.getOldPassword()))) {
 			throw new RestApplicationException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);

@@ -41,7 +41,7 @@ export class Navigation extends Basic.AbstractContextComponent {
       toggle: true
     });
 
-    $(window).bind('load resize', function() {
+    $(window).bind('load resize', function sidebarResize() {
       let topOffset = 50;
       const width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
       if (width < 768) {
@@ -129,7 +129,7 @@ export class Navigation extends Basic.AbstractContextComponent {
         return null;
       }
       default: {
-        console.log('WARNING: navigation: ' + item.type + ' type not implemeted for item id [' + item.id + ']');
+        this.getLogger().warn('[Advanced.Navigation] ' + item.type + ' type not implemeted for item id [' + item.id + ']');
         return null;
       }
     }

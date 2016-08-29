@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +53,9 @@ public class DefaultSecurityService implements SecurityService {
 
 	@Override
 	public AbstractAuthentication getAuthentication() {
+		if (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+			return null;
+		}		
 		return (AbstractAuthentication) SecurityContextHolder.getContext().getAuthentication();
 	}
 
@@ -59,7 +63,7 @@ public class DefaultSecurityService implements SecurityService {
 	public Set<String> getAllAuthorities() {
 		Set<String> authorities = new HashSet<>();
 		Authentication authentication = getAuthentication();		
-		if (!authentication.isAuthenticated()) {
+		if (authentication == null || !authentication.isAuthenticated()) {
 			return authorities;
 		}
 		for (GrantedAuthority authority : authentication.getAuthorities()) {

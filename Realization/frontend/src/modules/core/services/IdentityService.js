@@ -26,10 +26,11 @@ class IdentityService extends AbstractService {
    *
    * @param username {string}
    * @param passwordChangeDto {object}
+   * @param token {string} - if token has to be used (from public page is is not needed, then *false* could be given)
    * @return {Promise}
    */
-  passwordChange(username, passwordChangeDto) {
-    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${username}/password-change`), passwordChangeDto);
+  passwordChange(username, passwordChangeDto, token = null) {
+    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${username}/password-change`), passwordChangeDto, token);
   }
 
   /**
@@ -71,22 +72,6 @@ class IdentityService extends AbstractService {
     return RestApiService.put(this.getApiPath() + `/password/reset/token`, {
       token,
       password
-    });
-  }
-
-  /**
-   * Changes password for given user without login
-   *
-   * @param username {string}
-   * @param oldPassword {string}
-   * @param newPassword {string}
-   * @return {Promise}
-   */
-  passwordChangePublic(username, oldPassword, newPassword) {
-    return RestApiService.put(this.getApiPath() + `/password/change`, {
-      identity: username,
-      oldPassword,
-      newPassword
     });
   }
 

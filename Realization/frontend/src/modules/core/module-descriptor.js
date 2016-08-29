@@ -269,7 +269,8 @@ module.exports = {
         'labelKey': 'content.password.change.title',
         'order': 10,
         'path': '/password/change',
-        'access': [ { 'type': 'DENY_ALL' } ]
+        'icon': false,
+        'access': [ { 'type': 'NOT_AUTHENTICATED' } ]
       },
       {
         'id': 'password-reset',

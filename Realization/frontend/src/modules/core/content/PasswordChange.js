@@ -1,9 +1,10 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../../components/basic';
-import { SecurityManager, IdentityManager } from '../../../modules/core/redux';
 //
+import * as Basic from 'app/components/basic';
+import * as Utils from 'core/utils';
+import { SecurityManager, IdentityManager } from 'core/redux';
 import help from './PasswordChange_cs.md';
 
 const identityManager = new IdentityManager();
@@ -14,27 +15,14 @@ class PasswordChange extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      showLoading: false,
-      forUsername: null
+      showLoading: false
     };
   }
 
   componentDidMount() {
     this.selectNavigationItem('password-change');
-    const { query } = this.props.location;
-    const forUsername = (query) ? query.name : null;
-    if (!forUsername) {
-      this.refs.form.setData({});
-      this.refs.username.focus();
-    } else {
-      this.setState({
-        forUsername
-      });
-      this.refs.form.setData({
-        username: forUsername
-      });
-      this.refs.passwordOld.focus();
-    }
+    this.refs.form.setData({});
+    this.refs.username.focus();
   }
 
   getContentKey() {
@@ -76,46 +64,47 @@ class PasswordChange extends Basic.AbstractContent {
       showLoading: true
     });
     const username = this.refs.username.getValue();
+    const oldPassword = this.refs.passwordOld.getValue();
     const password = this.refs.password.getValue();
 
-    let passwordChangePromise;
-    if (this.state.forUsername !== null) {
-      passwordChangePromise = identityManager.getService().passwordMustChange(
-        username,
-        this.refs.passwordOld.getValue(),
-        password
-      );
-    } else {
-      passwordChangePromise = identityManager.getService().passwordChangePublic(
-        username,
-        this.refs.passwordOld.getValue(),
-        password
-      );
-    }
-
-    passwordChangePromise.then(response => {
+    identityManager.getService().passwordChange(username, {
+      identity: username,
+      oldPassword: btoa(oldPassword),  // base64
+      newPassword: btoa(password),  // base64
+      resources: []
+    }, false)
+    .then(response => {
       this.setState({
         showLoading: false
       });
+      if (response.status === 404) {
+        throw new Error('IDENTITY_NOT_FOUND');
+      }
       if (response.status === 204) {
         return {};
       }
       return response.json();
     })
     .then(json => {
-      if (!json.error) {
-        this.login(username, password);
-        if (this.state.forUsername === null) {
-          this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
-        } else {
-          this.addMessage({ title: this.i18n('message.passwordMustChange.success.title'), message: this.i18n('message.passwordMustChange.success.message') });
-        }
-      } else {
-        this.addError(json.error);
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
       }
+      return json;
+    })
+    .then(() => {
+      // this.login(username, password);
+      this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
     .catch(error => {
-      this.addError(error);
+      if (error.message === 'IDENTITY_NOT_FOUND') {
+        this.addMessage({
+          level: 'warning',
+          title: this.i18n('error.PASSWORD_CHANGE_FAILED.title'),
+          message: this.i18n('error.IDENTITY_NOT_FOUND.message', { identity: username }),
+        });
+      } else {
+        this.addError(error);
+      }
     });
   }
 
@@ -144,7 +133,7 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   render() {
-    const { forUsername, showLoading } = this.state;
+    const { showLoading } = this.state;
 
     return (
       <div>
@@ -153,18 +142,16 @@ class PasswordChange extends Basic.AbstractContent {
           <div className="col-sm-offset-4 col-sm-4">
             <form onSubmit={this.passwordChange.bind(this)}>
               <Basic.Panel showLoading={showLoading}>
-                <Basic.PanelHeader text={this.i18n('header')} help={forUsername ? '' : help}/>
+                <Basic.PanelHeader text={this.i18n('header')} help={help}/>
 
                 <Basic.AbstractForm ref="form" className="form-horizontal panel-body">
 
-                  <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin" rendered={!forUsername}/>
-
-                  <Basic.Alert level="warning" text={this.i18n('message.passwordChange.required')} className="no-margin" rendered={forUsername !== null}/>
+                  <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
                   <Basic.TextField
                     ref="username"
-                    label={this.i18n('entity.Identity.name')}
-                    placeholder={this.i18n('entity.Identity.name')}
+                    label={this.i18n('entity.Identity.username')}
+                    placeholder={this.i18n('entity.Identity.username')}
                     required
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>

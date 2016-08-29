@@ -22,12 +22,17 @@ public class IdmIdentityProcessor implements ResourceProcessor<Resource<IdmIdent
 	@Override
 	public Resource<IdmIdentity> process(Resource<IdmIdentity> resource) {
 		// TODO: alps
+		String identityUserName = String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent()));
+		String identityId= String.valueOf(resource.getContent().getId());
 		Link passwordChangeLink = linkTo(methodOn(IdmIdentityController.class)
-				.passwordChange(String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent())), null)).withRel("password-change");
+				.passwordChange(identityUserName, null)).withRel("password-change");
 		resource.add(passwordChangeLink);
 		Link authoritiesLink = linkTo(methodOn(IdmIdentityController.class)
-				.getGrantedAuthotrities(String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent())))).withRel("authorities");
+				.getGrantedAuthotrities(identityUserName)).withRel("authorities");
 		resource.add(authoritiesLink);
+		Link revisionLink = linkTo(methodOn(IdmIdentityController.class)
+				.findRevisions(identityId)).withRel("revisions");
+		resource.add(revisionLink);
 		return resource;
 	}
 

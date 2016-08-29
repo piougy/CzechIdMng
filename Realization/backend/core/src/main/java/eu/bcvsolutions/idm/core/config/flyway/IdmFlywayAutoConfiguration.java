@@ -47,21 +47,32 @@ public class IdmFlywayAutoConfiguration extends FlywayAutoConfiguration {
 			return super.flyway();
 		}
 		
+		
+		/**
+		 *  We are using location with dynamic jdbc database name.
+		 *  TODO: move database resolving here and enable this check?
+		 */
+		@Deprecated
 		@PostConstruct
 		@Override
 		public void checkLocationExists() {
-			// we are using location with dynamic jdbc database name 
 		}
 		
+		/**
+		 * Default Flyway configuration is not needed.
+		 */
+		@Deprecated
 		@Override
 		public Flyway flyway() {
-			// we don't need default Flyway configuration
 			return null;
 		}
 		
+		/**
+		 * Default Flyway configuration is not needed.
+		 */
+		@Deprecated
 		@Override
 		public FlywayMigrationInitializer flywayInitializer(Flyway flyway) {
-			// we don't need default Flyway configuration
 			return null;
 		}
 	}

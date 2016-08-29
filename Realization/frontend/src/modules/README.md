@@ -7,13 +7,13 @@
   This is especially useful for modularity. Component can be defined in other module than core, but we need use components with same type in one location in core module (for example Dashboard).
 
 
-    | Parameter | Description                                                                                 |
-    |-----------|---------------------------------------------------------------------------------------------|
-    | id        | Component identifier (key). With this key will be component loaded. It must be unique.      |
-    | component | Define require on real location component                                                   |
-    | type      | Type of component. Using for get all components with same type (for example all dashboards) |
-    | span      | Span layout. Used in dashboard                                                              |
-    | order     | Define order of component between other components                                          |
+| Parameter | Description                                                                                 |
+|-----------|---------------------------------------------------------------------------------------------|
+| id        | Component identifier (key). With this key will be component loaded. It must be unique.      |
+| component | Define require on real location component                                                   |
+| type      | Type of component. Using for get all components with same type (for example all dashboards) |
+| span      | Span layout. Used in dashboard                                                              |
+| order     | Define order of component between other components                                          |
 
   | Parameter | Type | Description | Default  |
   | --- | :--- | :--- | :--- |

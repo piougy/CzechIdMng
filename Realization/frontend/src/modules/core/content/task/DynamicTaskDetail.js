@@ -56,12 +56,12 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     if (!this.refs.formData.isFormValid()) {
       return;
     }
+    this.setState({
+      showLoading: true
+    });
     if (decision.showWarning) {
       this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))
       .then(() => {
-        this.setState({
-          showLoading: true
-        });
         this._completeTask(decision);
       });
     } else {
@@ -79,14 +79,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
 
   _afterComplete(task, error) {
     if (error) {
+      this.setState({
+        showLoading: false
+      });
       this.refs.form.processEnded();
       this.addError(error);
       return;
     }
     this.addMessage({ message: this.i18n('successComplete', { name: task.name }) });
-    this.setState({
-      showLoading: false
-    });
     this.context.router.goBack();
   }
 
@@ -177,14 +177,13 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-        <Basic.PageHeader>{task.name}
+        <Basic.PageHeader>{task.taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
           <Basic.AbstractForm ref="form" className="form-horizontal">
-            <Basic.TextField ref="taskName" readOnly label={this.i18n('name')}/>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>

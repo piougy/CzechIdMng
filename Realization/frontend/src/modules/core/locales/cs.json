@@ -60,7 +60,8 @@
     "sending": "Odesílám ...",
     "save": "Uložit",
     "saving": "Ukládám ...",
-    "yes": "Ano"
+    "yes": "Ano",
+    "set": "Nastavit"
   },
   "action": {
     "delete": {
@@ -509,6 +510,12 @@
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
+          "create": {
+            "header": "Přidat oprávnění"
+          },
+          "edit": {
+            "header": "Upravit oprávnění"
+          },
           "action": {
             "deleteAdded": {
               "header": "Odstranění oprávnění",

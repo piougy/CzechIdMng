@@ -63,14 +63,13 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
-        <Basic.PageHeader>{task.name}
+        <Basic.PageHeader>{task.taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
           <Basic.AbstractForm ref="form" className="form-horizontal">
-            <Basic.TextField ref="taskName" readOnly label={this.i18n('name')}/>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>

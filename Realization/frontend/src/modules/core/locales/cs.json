@@ -60,7 +60,8 @@
     "sending": "Odesílám ...",
     "save": "Uložit",
     "saving": "Ukládám ...",
-    "yes": "Ano"
+    "yes": "Ano",
+    "set": "Nastavit"
   },
   "action": {
     "delete": {
@@ -509,6 +510,12 @@
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
+          "create": {
+            "header": "Přidat oprávnění"
+          },
+          "edit": {
+            "header": "Upravit oprávnění"
+          },
           "action": {
             "deleteAdded": {
               "header": "Odstranění oprávnění",
@@ -1048,7 +1055,15 @@
           "completeTaskDecision": "$t(entity.WorkflowHistoricTaskInstance.completeTaskDecision)"
         }
       }
-    }
+    },
+    "audit": {
+      "header": "Audit",
+      "title": "Audit",
+      "modifier": "Změnu provedl",
+      "date": "Datum změny",
+      "empty": "Bez žádných záznamů",
+      "id": "ID"
+      }
   },
   "entity": {
     "created": "Vytvořeno",
@@ -1201,6 +1216,9 @@
       "name": "Klíč",
       "value": "Hodnota",
       "secured": "Systémové nastavení"
+    },
+    "Audit": {
+      "label": "Audit"
     }
   },
   "error": {

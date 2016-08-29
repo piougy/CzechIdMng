@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 /**
  * Provisioning preparation
  * 
- * @author Ondrej Kopr <ondrej.kopr@bcvsolutions.eu>
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 @Component
 @RepositoryEventHandler(IdmOrganization.class)

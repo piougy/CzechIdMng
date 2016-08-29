@@ -1,6 +1,7 @@
 import routeActions from 'react-router-redux';
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
+import DataManager from './DataManager';
 import * as Utils from '../../utils';
 
 /**
@@ -27,6 +28,7 @@ export default class EntityManager {
       throw new TypeError('Must override method getService()');
     }
     this.flashMessagesManager = new FlashMessagesManager();
+    this.dataManager = new DataManager();
   }
 
   /**
@@ -653,6 +655,44 @@ export default class EntityManager {
   stopBulkAction() {
     return {
       type: STOP_BULK_ACTION
+    };
+  }
+  /**
+   * Load revisions from server
+   *
+   * @param entityId {string, number}
+   * @return {object} - action
+   */
+  fetchRevisions(entityId, uiKey = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getRevisions(entityId)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Load single revision from server
+   *
+   * @param entityId {string, number}
+   * @param revId {number}
+   * @return {object} - action
+   */
+  fetchRevision(entityId, revId, uiKey = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getRevision(entityId, revId)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
     };
   }
 }

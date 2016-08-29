@@ -93,6 +93,15 @@ module.exports = {
             'order': 70,
             'path': '/user/:userID/delegates',
             'access': [ { 'type': 'DENY_ALL' } ]
+          },
+          {
+            'id': 'profile-audit',
+            'type': 'TAB',
+            'labelKey': 'entity.Audit.label',
+            'order': 110,
+            'path': '/user/:userID/audit',
+            'icon': 'fa:building',
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           }
         ]
       },

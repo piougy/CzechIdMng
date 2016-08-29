@@ -65,6 +65,14 @@ module.exports = {
         {
           path: 'delegates',
           component: require('./content/user/Delegates')
+        },
+        {
+          path: 'audit',
+          component: require('./content/user/Audit')
+        },
+        {
+          path: 'audit/:revID',
+          component: require('./content/user/AuditDetail')
         }
       ]
     },

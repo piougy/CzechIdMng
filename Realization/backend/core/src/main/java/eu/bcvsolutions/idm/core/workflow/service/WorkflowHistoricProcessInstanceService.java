@@ -11,9 +11,16 @@ public interface WorkflowHistoricProcessInstanceService {
 	public static final String SORT_BY_END_TIME = "endTime";
 	public static final String PROCESS_INSTANCE_NAME = "processInstanceName";
 
+	/**
+	 * Search process history. Process variables will be included only for get specific process history. 
+	 * It means filter.processInstanceId is filled.
+	 * @param filter
+	 * @return
+	 */
 	ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter);
 
 	WorkflowHistoricProcessInstanceDto get(String historicProcessInstanceId);
 
 	InputStream getDiagram(String processInstanceId);
+
 }

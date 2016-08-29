@@ -248,6 +248,12 @@
       "NOT": "Neodesláno"
     }
   },
+  "dashboard": {
+    "profileDashboard" : {
+      "header": "Vaše základní údaje",
+      "goToProfil": "Přejít na detail profilu"
+    }
+  },
   "content": {
     "error": {
       "401": {

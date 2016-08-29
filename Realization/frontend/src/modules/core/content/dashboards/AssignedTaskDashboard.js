@@ -1,31 +1,24 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as Basic from '../../../../components/basic';
-import ConnectedAssignedTaskTable, { AssignedTaskTable } from '../task/AssignedTaskTable';
+import { WorkflowTaskInstanceManager } from '../../redux';
+import TaskInstanceTable from '../task/TaskInstanceTable';
 
 class AssignedTaskDashboard extends Basic.AbstractContent {
+  constructor(props, context) {
+    super(props, context);
+    this.workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
+  }
 
   render() {
-    const { userContext } = this.props;
-
     return (
-      <Basic.Panel rendered={false}>
-        <Basic.PanelHeader text="Přiřazené úkoly"/>
-        <ConnectedAssignedTaskTable
-          username={userContext.username}
-          columns={AssignedTaskTable.defaultProps.columns.filter(property => { return property !== 'relatedTaskId'; })}/>
+      <Basic.Panel>
+        <Basic.PanelHeader text={this.i18n('content.tasks-assigned.assigned')}/>
+        <TaskInstanceTable uiKey="task_instance_dashboard_table" taskInstanceManager={this.workflowTaskInstanceManager} filterOpened={false}/>
       </Basic.Panel>
     );
   }
 }
-
-AssignedTaskDashboard.propTypes = {
-  userContext: React.PropTypes.object
-};
-
-AssignedTaskDashboard.defaultProps = {
-  userContext: null
-};
 
 function select(state) {
   return {

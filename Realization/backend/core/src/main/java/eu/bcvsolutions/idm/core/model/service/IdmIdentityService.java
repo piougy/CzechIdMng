@@ -12,5 +12,10 @@ public interface IdmIdentityService {
 
 	IdmIdentity get(Long id);
 
+	/**
+	 * Start workflow for change permissions
+	 * @param identity
+	 * @return
+	 */
 	ProcessInstance changePermissions(IdmIdentity identity);
 }

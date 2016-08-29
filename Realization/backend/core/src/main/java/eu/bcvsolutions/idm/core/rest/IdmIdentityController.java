@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.security.service.SecurityService;
+import eu.bcvsolutions.idm.workflow.permissions.ChangeIdentityPermissionTest;
 
 @RestController
 @RequestMapping(value = "/api/")
@@ -98,10 +99,10 @@ public class IdmIdentityController {
 	/**
 	 * Change given identity's permissions (assigned roles)
 	 * @param identityId
-	 * @return
+	 * @return Instance of workflow user task, where applicant can fill his change permission request
 	 */
 	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
-	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
+	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));

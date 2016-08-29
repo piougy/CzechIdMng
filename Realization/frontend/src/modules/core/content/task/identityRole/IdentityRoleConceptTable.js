@@ -10,7 +10,8 @@ import * as Advanced from '../../../../../components/advanced';
 import {RoleManager, IdentityManager} from '../../../redux';
 
 /**
-* Table for keep identity role concept
+* Table for keep identity role concept. Input are all current assigned user's permissions
+* Designed for use in task detail.
 */
 
 const roleManager = new RoleManager();
@@ -32,7 +33,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    // We have to create concept from props here, because same instance this component could be used in past (in this case may be this.prosp and nextProps same)
+    // We have to create concept from props here, because same instance this component
+    //  could be used in past (in this case may be this.prosp and nextProps same)
     this._setConcept(this.props);
   }
 

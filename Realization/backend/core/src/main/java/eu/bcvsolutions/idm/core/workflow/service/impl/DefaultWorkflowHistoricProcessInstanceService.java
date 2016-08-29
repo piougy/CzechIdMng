@@ -15,6 +15,8 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.history.NativeHistoricProcessInstanceQuery;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
@@ -43,23 +45,28 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHistoricProcessInstanceService {
 
 	private static final String DEFINITION_ID_DELIMITER = ":";
-	
+
 	@Autowired
 	private HistoryService historyService;
 
 	@Autowired
 	private SecurityService securityService;
-	
+
 	@Autowired
 	private RuntimeService runtimeService;
-	
+
 	@Autowired
 	private RepositoryService repositoryService;
-	
+
 	@Autowired
 	private WorkflowProcessDefinitionService definitionService;
 
-
+	/**
+	 * Search process history. Process variables will be included only for get specific process history. 
+	 * It means filter.processInstanceId is filled.
+	 * @param filter
+	 * @return
+	 */
 	@Override
 	public ResourcesWrapper<WorkflowHistoricProcessInstanceDto> search(WorkflowFilterDto filter) {
 		String processDefinitionId = filter.getProcessDefinitionId();
@@ -69,9 +76,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 		HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
 
-		query.includeProcessVariables();
-
 		if (processInstanceId != null) {
+			// Process variables will be included only for get by instance ID
+			query.includeProcessVariables();
 			query.processInstanceId(processInstanceId);
 		}
 		if (processDefinitionId != null) {
@@ -81,10 +88,10 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			query.superProcessInstanceId(filter.getSuperProcessInstanceId());
 		}
 		if (filter.getProcessDefinitionKey() != null) {
-			//For case when we have only process id, we will convert him to key
+			// For case when we have only process id, we will convert him to key
 			query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
 		}
-		if (filter.getName() != null){
+		if (filter.getName() != null) {
 			query.processInstanceNameLikeIgnoreCase(filter.getName());
 		}
 		if (equalsVariables != null) {
@@ -94,11 +101,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		}
 		// check security ... only involved user or applicant can work with
 		// historic process instance
-		query.or();
+		// Applicant and Implementer is added to involved user after process
+		// (subprocess) started. This modification allow not use OR clause.
 		query.involvedUser(securityService.getUsername());
-		query.variableValueEquals(WorkflowProcessInstanceService.APPLICANT_USERNAME,
-				securityService.getUsername());
-		query.endOr();
 
 		if (WorkflowHistoricProcessInstanceService.SORT_BY_START_TIME.equals(filter.getSortByFields())) {
 			query.orderByProcessInstanceStartTime();
@@ -141,12 +146,14 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		filter.setProcessInstanceId(historicProcessInstanceId);
 		filter.setSortAsc(true);
 		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> resource = this.search(filter);
-		return resource.getResources() != null && !resource.getResources().isEmpty() ? resource.getResources().iterator().next() : null;
+		return resource.getResources() != null && !resource.getResources().isEmpty()
+				? resource.getResources().iterator().next() : null;
 	}
 
 	@Override
 	/**
-	 * Generate diagram for process instance. Highlight historic path (activity and flows)
+	 * Generate diagram for process instance. Highlight historic path (activity
+	 * and flows)
 	 */
 	public InputStream getDiagram(String processInstanceId) {
 		if (processInstanceId == null) {
@@ -182,14 +189,15 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 					"Process instance with id " + processInstanceId + " has no graphic description");
 		}
 	}
-	
+
 	/**
 	 * Convert process definition ID to process definition KEY.
+	 * 
 	 * @param processId
 	 * @return
 	 */
-	private String convertProcessIdToKey(String processId){
-		if(processId == null || !processId.contains(DEFINITION_ID_DELIMITER)){
+	private String convertProcessIdToKey(String processId) {
+		if (processId == null || !processId.contains(DEFINITION_ID_DELIMITER)) {
 			return processId;
 		}
 		return processId.split(DEFINITION_ID_DELIMITER)[0];
@@ -250,13 +258,22 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		if (instance == null) {
 			return null;
 		}
+		
 		String instanceName = instance.getName();
-		// If we don't have process name, then we try variable with key processInstanceName
-		if(instanceName == null && instance.getProcessVariables() != null 
-				&& instance.getProcessVariables().containsKey(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME)){
-			instanceName = (String) instance.getProcessVariables().get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
+		// If we don't have process name, then we try variable with key
+		// processInstanceName
+		if (instanceName == null && instance.getProcessVariables() != null && instance.getProcessVariables()
+				.containsKey(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME)) {
+			instanceName = (String) instance.getProcessVariables()
+					.get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
 		}
-		if(instanceName == null || instanceName.isEmpty()){
+		// If still don't have process name, then we try load variable name from historic variables
+		if (instanceName == null || instanceName.isEmpty()) {
+			HistoricVariableInstance variableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(instance.getId())
+					.variableName(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME).singleResult();
+			instanceName = variableInstance != null ? (String)variableInstance.getValue() : null;
+		}
+		if (instanceName == null || instanceName.isEmpty()) {
 			instanceName = definitionService.getById(instance.getProcessDefinitionId()).getName();
 		}
 

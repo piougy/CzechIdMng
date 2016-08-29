@@ -14,6 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
@@ -47,6 +48,30 @@ public class DefaultConfigurationService implements ConfigurationService {
 	}
 	
 	@Override
+	public void setValue(String key, String value) {
+		Assert.hasText(key);
+		//
+		IdmConfiguration configuration = configurationRepository.get(key);
+		if (configuration == null) {
+			configuration = new IdmConfiguration(key, value);
+		} else {
+			configuration.setValue(value);
+		}		
+		setConfiguration(configuration);
+	}
+	
+	@Override
+	public void setConfiguration(IdmConfiguration configuration) {
+		Assert.notNull(configuration);
+		Assert.hasText(configuration.getName());
+		//
+		if (shouldBeSecured(configuration.getName())) {
+			configuration.setSecured(true);
+		}
+		configurationRepository.save(configuration);
+	}
+	
+	@Override
 	public String getValue(String key, String defaultValue) {
 		log.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
@@ -77,6 +102,11 @@ public class DefaultConfigurationService implements ConfigurationService {
 	public boolean getBooleanValue(String key, boolean defaultValue) {
 		String value = getValue(key);
 		return value == null ? defaultValue : Boolean.valueOf(value);
+	}
+	
+	@Override
+	public void setBooleanValue(String key, boolean value) {
+		setValue(key, Boolean.valueOf(value).toString());
 	}
 
 	/**
@@ -185,5 +215,9 @@ public class DefaultConfigurationService implements ConfigurationService {
 			}
 			aBase.put(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	private static boolean shouldBeSecured(String key) {
+		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX);
 	}
 }

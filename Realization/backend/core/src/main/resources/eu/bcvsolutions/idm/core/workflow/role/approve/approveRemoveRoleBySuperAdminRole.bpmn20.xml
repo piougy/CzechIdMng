@@ -128,7 +128,7 @@ execution.setVariable("validTill", identityRoleEntity.validTill);
         <omgdi:waypoint x="929.0" y="195.0"></omgdi:waypoint>
         <omgdi:waypoint x="929.0" y="115.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="12.0" width="100.0" x="940.0" y="141.0"></omgdc:Bounds>
+          <omgdc:Bounds height="12.0" width="63.0" x="940.0" y="141.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">

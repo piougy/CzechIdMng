@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
-import eu.bcvsolutions.idm.core.workflow.domain.StartSubprocesEventListener;
+import eu.bcvsolutions.idm.core.workflow.domain.StartSubprocessEventListener;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
 import eu.bcvsolutions.idm.notification.service.EmailService;
 
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.notification.service.EmailService;
 public class WorkflowConfig {
 
 	@Autowired
-	private StartSubprocesEventListener startSubprocesEventListener;
+	private StartSubprocessEventListener startSubprocesEventListener;
 	//Only local variable (no autowired bean) 
 	private ProcessEngineConfigurationImpl processEngineConfiguration;
 

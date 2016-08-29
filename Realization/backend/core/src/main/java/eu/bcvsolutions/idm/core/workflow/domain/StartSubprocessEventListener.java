@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  */
 
 @Component
-public class StartSubprocesEventListener implements ActivitiEventListener {
+public class StartSubprocessEventListener implements ActivitiEventListener {
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmIdentityEventHandler.class);
 
 	@Autowired

@@ -32,10 +32,13 @@ import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.security.service.SecurityService;
+import eu.bcvsolutions.idm.workflow.permissions.ChangeIdentityPermissionTest;
 
 @RestController
-@RequestMapping(value = "/api/identities/")
+@RequestMapping(value = "/api/")
 public class IdmIdentityController {
+	
+	public static final String ENDPOINT_NAME = "identities";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -56,23 +59,21 @@ public class IdmIdentityController {
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
 
 	/**
-	 * Changes identity password
-	 * 
-	 * TODO: could be public, because previous password is required
+	 * Changes identity password. Could be public, because previous password is required.
 	 * 
 	 * @param identityId
 	 * @param passwordChangeDto
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = "public/" + ENDPOINT_NAME + "/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		// TODO: settingResource + SYSTEM_ADMIN
+		// TODO: hasAnyAuthority as permissionGroup
 		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()),
 				new String(passwordChangeDto.getOldPassword()))) {
 			throw new RestApplicationException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
@@ -88,7 +89,7 @@ public class IdmIdentityController {
 	 * @param identityId
 	 * @return list of granted authorities
 	 */
-	@RequestMapping(value = "{identityId}/authorities", method = RequestMethod.GET)
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
@@ -96,10 +97,10 @@ public class IdmIdentityController {
 	/**
 	 * Change given identity's permissions (assigned roles)
 	 * @param identityId
-	 * @return
+	 * @return Instance of workflow user task, where applicant can fill his change permission request
 	 */
-	@RequestMapping(value = "{identityId}/change-permissions", method = RequestMethod.PUT)
-	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {
+	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
+	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));

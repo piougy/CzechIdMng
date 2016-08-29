@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -65,7 +66,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	public void testSendSimple() {
 		assertEquals(0, idmNotificationRepository.count());
 		
-		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);
 		
@@ -77,7 +78,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	public void testFilterByDate() {
 		assertEquals(0, idmNotificationRepository.count());
 		
-		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		Date start = new Date();
 		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
@@ -99,12 +100,12 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Transactional
 	public void testEmailFilterBySender() {
 		
-		assertEquals(0, emailLogRepository.findByQuick(null, "svanda", null, null, null, null, null).getTotalElements());
-		assertEquals(0, emailLogRepository.findByQuick(null, "tomiska", null, null, null, null, null).getTotalElements());
+		assertEquals(0, emailLogRepository.findByQuick(null, InitTestData.TEST_USER_2, null, null, null, null, null).getTotalElements());
+		assertEquals(0, emailLogRepository.findByQuick(null, InitTestData.TEST_USER_1, null, null, null, null, null).getTotalElements());
 		
 		// send some email
-		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
-		IdmIdentity identity2 = identityRepository.findOneByUsername("svanda");
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		IdmIdentity identity2 = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
 		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
 		assertEquals(1, emailLogRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
 		assertEquals(0, emailLogRepository.findByQuick(null, null, identity2.getUsername(), null, null, null, null).getTotalElements());
@@ -114,7 +115,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	@Test
 	@Transactional
 	public void testEmailFilterBySent() {
-		IdmIdentity identity = identityRepository.findOneByUsername("tomiska");
+		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
 		assertEquals(0, emailLogRepository.findByQuick(null, null, null, true, null, null, null).getTotalElements());
 		

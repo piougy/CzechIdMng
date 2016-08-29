@@ -1,4 +1,4 @@
-describe('Basic FlashMessages', function() {
+describe('Basic FlashMessages', function flashMessageTest() {
   it('- mock redux flashmessage store via redux-mock-store');
 
   it('- add messages');

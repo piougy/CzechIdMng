@@ -11,6 +11,11 @@ import ComponentService from '../../../../services/ComponentService';
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const componentService = new ComponentService();
 
+/**
+ * Component for render detail of workflow task. Is responsible for choose corect task detil component.
+ * As default is DynamicTaskDetail, when have task secificate custom task detail (in formKey),
+ * than is loaded component by name and used it for task detail render.
+ */
 class Task extends Basic.AbstractContent {
 
   constructor(props) {

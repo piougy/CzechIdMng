@@ -34,11 +34,6 @@ export class OrganizationTable extends Basic.AbstractContent {
     this.context.store.dispatch(organizationManager.fetchEntities(searchParameters, rootKey));
   }
 
-  componentDidUpdate() {
-    // const { organizationTree } = this.props;
-    // this.refs.table.getWrappedInstance().reload();
-  }
-
   componentWillUnmount() {
     this.cancelFilter();
   }
@@ -63,6 +58,12 @@ export class OrganizationTable extends Basic.AbstractContent {
   }
 
   _useFilterByTree(nodeId, event) {
+    if (event) {
+      event.preventDefault();
+      // Stop propagation is important for prohibition of node tree expand.
+      // After click on link node, we want only filtering ... not node expand.
+      event.stopPropagation();
+    }
     const { organizationManager } = this.props;
     if (!nodeId) {
       return;
@@ -97,6 +98,9 @@ export class OrganizationTable extends Basic.AbstractContent {
     }
   }
 
+/**
+ * Decorator for organization tree. Add custom icons and allow filtering after click on node
+ */
   _orgTreeHeaderDecorator(props) {
     const style = props.style;
     const iconType = props.node.isLeaf ? 'group' : 'building';
@@ -123,7 +127,7 @@ export class OrganizationTable extends Basic.AbstractContent {
       <Basic.Row>
         <div className="col-lg-12">
           <div className="col-lg-3">
-            <Basic.Panel>
+            <Basic.Panel style={{ marginTop: 15 }}>
               {
               !_root
               ||
@@ -141,24 +145,30 @@ export class OrganizationTable extends Basic.AbstractContent {
               }
             </Basic.Panel>
           </div>
-          <div className="col-lg-9">
+          <div className="col-lg-9" style={{ paddingRight: 0, paddingLeft: 0 }}>
             <Advanced.Table
               ref="table"
               uiKey={uiKey}
               manager={organizationManager}
               showRowSelection
               rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+              style={{ borderLeft: '1px solid #ddd' }}
               filter={
                 <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                   <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                    <Basic.Row className="last">
-                      <div className="col-lg-4">
+                    <Basic.Row>
+                      <div className="col-lg-6">
                         <Advanced.Filter.TextField
                           ref="text"
                           placeholder={this.i18n('entity.Organization.name')}
                           label={this.i18n('entity.Organization.name')}/>
                       </div>
-                      <div className="col-lg-4">
+                      <div className="col-lg-6 text-right">
+                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                      </div>
+                    </Basic.Row>
+                    <Basic.Row className="last">
+                      <div className="col-lg-6">
                         {
                         <Advanced.Filter.SelectBox
                           ref="parent"
@@ -167,8 +177,7 @@ export class OrganizationTable extends Basic.AbstractContent {
                           manager={organizationManager}/>
                           }
                       </div>
-                      <div className="col-lg-4 text-right">
-                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                      <div className="col-lg-6">
                       </div>
                     </Basic.Row>
                   </Basic.AbstractForm>

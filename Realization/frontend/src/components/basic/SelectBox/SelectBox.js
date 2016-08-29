@@ -73,6 +73,9 @@ class SelectBox extends AbstractFormComponent {
 
   getValue() {
     if (!this.state.value) {
+      if (this.props.multiSelect === true) {
+        return [];
+      }
       return null;
     }
     // value is array ... multiselect
@@ -337,7 +340,8 @@ SelectBox.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   fieldLabel: NICE_LABEL,
   multiSelect: false,
-  returnProperty: 'id'
+  returnProperty: 'id',
+  searchInFields: []
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

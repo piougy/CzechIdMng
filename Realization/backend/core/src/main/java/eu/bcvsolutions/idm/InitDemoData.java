@@ -6,17 +6,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -27,16 +27,21 @@ import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
- * Initialize application
+ * Initialize demo data for application
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
 @Component
-public class InitApplication implements ApplicationListener<ContextRefreshedEvent> {
+@DependsOn("initApplicationData")
+public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitApplication.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
+	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
 
+	@Autowired
+	private InitApplicationData initApplicationData;
+	
 	@Autowired
 	private IdmIdentityRepository identityRepository;
 
@@ -54,36 +59,29 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
+		init();
+	}
+	
+	protected void init() {
+		// we need to be ensured admin and and admin role exists.
+		initApplicationData.init();
+		//
 		// TODO: runAs
 		SecurityContextHolder.getContext().setAuthentication(
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
-		// TODO: move to create script + flyway
 		try {
-			IdmRole existsSuperAdminRole = this.roleRepository.findOneByName("superAdminRole");
-			if (existsSuperAdminRole == null) {
-				log.info("Creating demo data ...");
-				//
-				final IdmRole superAdminRole = new IdmRole();
-				superAdminRole.setName("superAdminRole");
-				superAdminRole.setRoleType(IdmRoleType.SYSTEM);
-				superAdminRole.setApproveAddWorkflow("approveRoleBySuperAdminRole");
-				List<IdmRoleAuthority> authorities = new ArrayList<>();
-				securityService.getAvailableGroupPermissions().forEach(groupPermission -> {
-					groupPermission.getPermissions().forEach(basePermission -> {
-						IdmRoleAuthority privilege = new IdmRoleAuthority();
-						privilege.setRole(superAdminRole);
-						privilege.setTargetPermission(groupPermission);
-						privilege.setActionPermission(basePermission);
-						authorities.add(privilege);
-					});
-
-				});
-				superAdminRole.setAuthorities(authorities);
-				this.roleRepository.save(superAdminRole);
-				log.info(MessageFormat.format("Role created [id: {0}]", superAdminRole.getId()));
+			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
+			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
+			IdmOrganization rootOrganization = organizationRepository.findOneByParentIsNull();
+			//
+			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
+				log.info("Creating demo data ...");				
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName("userRole");
@@ -114,23 +112,6 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity = this.identityRepository.save(identity);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
 				//
-				IdmIdentity identityAdmin = new IdmIdentity();
-				identityAdmin.setUsername("admin");
-				identityAdmin.setFirstName("Hlavní");
-				identityAdmin.setPassword("admin".getBytes());
-				identityAdmin.setLastName("Administrátor");
-				identityAdmin = this.identityRepository.save(identityAdmin);
-				log.info(MessageFormat.format("Identity created [id: {0}]", identityAdmin.getId()));
-
-				IdmIdentityRole identityRole4 = new IdmIdentityRole();
-				identityRole4.setIdentity(identityAdmin);
-				identityRole4.setRole(roleManager);
-				identityRoleRepository.save(identityRole4);
-				IdmIdentityRole identityRole3 = new IdmIdentityRole();
-				identityRole3.setIdentity(identityAdmin);
-				identityRole3.setRole(superAdminRole);
-				identityRoleRepository.save(identityRole3);
-				//
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
 				identityRole1.setIdentity(identity);
 				identityRole1.setRole(role1);
@@ -159,20 +140,15 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identity3 = this.identityRepository.save(identity3);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
-				// create parent
-				IdmOrganization organizationRoot = new IdmOrganization();
-				organizationRoot.setName("Organization ROOT");
-				this.organizationRepository.save(organizationRoot);
-				//
 				IdmOrganization organization1 = new IdmOrganization();
 				organization1.setName("Organization One");
-				organization1.setParent(organizationRoot);
+				organization1.setParent(rootOrganization);
 				this.organizationRepository.save(organization1);
 				//
 				IdmOrganization organization2 = new IdmOrganization();
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
-				organization2.setParent(organizationRoot);
+				organization2.setParent(rootOrganization);
 				this.organizationRepository.save(organization2);
 				//
 				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();
@@ -183,36 +159,9 @@ public class InitApplication implements ApplicationListener<ContextRefreshedEven
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
-				//
-				// TODO: split test and demo data - use flyway?
-				// Users for JUnit testing
-				IdmIdentity testUser1 = new IdmIdentity();
-				testUser1.setUsername("testUser1");
-				testUser1.setPassword("heslo".getBytes());
-				testUser1.setFirstName("Test");
-				testUser1.setLastName("First User");
-				testUser1 = this.identityRepository.save(testUser1);
-				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));
-				this.identityRepository.save(testUser1);
-				
-
-				IdmIdentity testUser2 = new IdmIdentity();
-				testUser2.setUsername("testUser2");
-				testUser2.setPassword("heslo".getBytes());
-				testUser2.setFirstName("Test");
-				testUser2.setLastName("Second User");
-				testUser2 = this.identityRepository.save(testUser2);
-				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
-				this.identityRepository.save(testUser2);
-				
-				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
-				identityWorkingPosition2.setIdentity(testUser1);
-				identityWorkingPosition2.setPosition("vedoucí");
-				identityWorkingPosition2.setManager(testUser2);
-				identityWorkingPosition2.setOrganization(organization2);
-				identityWorkingPositionRepository.save(identityWorkingPosition2);
+				//				
+				configurationService.setBooleanValue(PARAMETER_DEMO_DATA_CREATED, true);
 			}
-			//
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

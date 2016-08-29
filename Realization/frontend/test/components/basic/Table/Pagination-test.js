@@ -1,10 +1,12 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import dirtyChai from 'dirty-chai';
+chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 
-describe('Basic Pagination', function() {
+describe('Basic Pagination', function paginationTest() {
   /**
    * Clean DOM afrer each test
    * @param
@@ -17,11 +19,11 @@ describe('Basic Pagination', function() {
     setTimeout(done);
   });*/
 
-  it('- total 105 - page size 10, 10 pages', function() {
+  it('- total 105 - page size 10, 10 pages', function test() {
     const pagination = TestUtils.renderIntoDocument(<Basic.Pagination total={105} paginationHandler={() => {}}/>);
 
-    expect(pagination.hasPrev()).to.be.false;
-    expect(pagination.hasNext()).to.be.true;
+    expect(pagination.hasPrev()).to.be.false();
+    expect(pagination.hasNext()).to.be.true();
     expect(pagination.state.currentPage).to.equal(0);
     expect(pagination.getMaxPage()).to.equal(10);
     // next page
@@ -29,10 +31,10 @@ describe('Basic Pagination', function() {
     expect(pagination.state.currentPage).to.equal(1);
   });
 
-  it('- total 105 - from 20, page size 25, 10 pages', function() {
+  it('- total 105 - from 20, page size 25, 10 pages', function test() {
     const pagination = TestUtils.renderIntoDocument(<Basic.Pagination total={105} page={4} size={25} paginationHandler={() => {}}/>);
-    expect(pagination.hasPrev()).to.be.true;
-    expect(pagination.hasNext()).to.be.false;
+    expect(pagination.hasPrev()).to.be.true();
+    expect(pagination.hasNext()).to.be.false();
     expect(pagination.state.currentPage).to.equal(4);
     expect(pagination.getMaxPage()).to.equal(4);
     // not exist page

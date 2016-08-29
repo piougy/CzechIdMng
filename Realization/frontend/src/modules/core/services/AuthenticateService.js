@@ -19,11 +19,11 @@ export default class AuthenticateService {
     .post(authPath, json, false) // false - we don't want to append auth token
     .then(response => {
       return response.json();
-    }).then(json => {
-      if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
+    }).then(jsonResponse => {
+      if (Utils.Response.hasError(jsonResponse)) {
+        throw Utils.Response.getFirstError(jsonResponse);
       }
-      return json;
+      return jsonResponse;
     });
   }
 
@@ -135,7 +135,7 @@ export default class AuthenticateService {
     for (let i = 0; i < len; i++) {
       temp += keylistint.charAt(Math.floor(Math.random() * keylistint.length));
     }
-    temp = temp.split('').sort(function() {return 0.5 - Math.random();}).join('');
+    temp = temp.split('').sort(function s() { return 0.5 - Math.random(); }).join('');
     return temp;
   }
 }

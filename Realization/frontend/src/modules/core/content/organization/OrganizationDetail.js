@@ -66,7 +66,7 @@ export default class OrganizationDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, organization } = this.props;
+    const { uiKey } = this.props;
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
@@ -75,24 +75,25 @@ export default class OrganizationDetail extends Basic.AbstractContent {
                 ref="name"
                 label={this.i18n('entity.Organization.name')}
                 required/>
+              <Basic.SelectBox
+                ref="parent"
+                label={this.i18n('entity.Organization.parent.name')}
+                manager={this.organizationManager}
+                required/>
               <Basic.Checkbox
                 ref="disabled"
                 label={this.i18n('entity.Organization.disabled')}/>
-                <Basic.SelectBox
-                  ref="parent"
-                  label={this.i18n('entity.Role.subRoles')}
-                  manager={this.organizationManager}/>
             </Basic.AbstractForm>
 
-            <Basic.PanelFooter >
+            <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}>
-                  {this.i18n('button.save')}
-                </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}>
+                {this.i18n('button.save')}
+              </Basic.Button>
             </Basic.PanelFooter>
           </form>
       </div>

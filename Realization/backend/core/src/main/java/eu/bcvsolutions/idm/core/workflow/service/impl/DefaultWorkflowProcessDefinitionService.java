@@ -74,7 +74,7 @@ public class DefaultWorkflowProcessDefinitionService implements WorkflowProcessD
 		query.latestVersion();
 		
 		if (filter.getCategory() != null && !StringUtils.isEmpty(filter.getCategory())){
-			query.processDefinitionCategoryLike('%' + filter.getCategory() + '%');
+			query.processDefinitionCategoryLike(filter.getCategory() + '%');
 		}
 		
 		filter.getSortByFields();

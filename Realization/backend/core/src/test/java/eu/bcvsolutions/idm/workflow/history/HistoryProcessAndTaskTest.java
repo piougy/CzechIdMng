@@ -10,12 +10,11 @@ import java.util.List;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
-import eu.bcvsolutions.idm.core.TestUtils;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -52,7 +51,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 
 	@Before
 	public void login() {
-		super.loginAsAdmin(TestUtils.TEST_USER_1);
+		super.loginAsAdmin(InitTestData.TEST_USER_1);
 	}
 	
 	@After
@@ -69,7 +68,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		assertNotNull(deploymentDto);
 
 		//Start instance of process
-		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, TestUtils.TEST_USER_1, null,
+		ProcessInstance instance = processInstanceService.startProcess(PROCESS_KEY, null, InitTestData.TEST_USER_1, null,
 				null);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(instance.getId());;
@@ -80,14 +79,14 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		assertNotNull(historicProcessDto);
 
 		this.logout();
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		// Applicant for this process is testUser1. For testUser2 must be result
 		// null
 		WorkflowHistoricProcessInstanceDto historicProcessDto2 = historicProcessService.get(instance.getId());
 		assertNull(historicProcessDto2);
 
 		this.logout();
-		this.loginAsAdmin(TestUtils.TEST_USER_1);
+		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 		completeTasksAndCheckHistory();
 	}
@@ -106,14 +105,14 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		taskInstanceService.completeTask(taskId, null);
 		
 		//Check task history
-		checkTaskHistory(taskId, TestUtils.TEST_USER_1);
+		checkTaskHistory(taskId, InitTestData.TEST_USER_1);
 		
 		//Second task is for testUser2 (is candidate) for testUser1 must be null
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(0, tasks.size());
 
 		this.logout();
-		this.loginAsAdmin(TestUtils.TEST_USER_2);
+		this.loginAsAdmin(InitTestData.TEST_USER_2);
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(1, tasks.size());
 		assertEquals("userTaskSecond", tasks.get(0).getName());
@@ -121,7 +120,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
 		taskInstanceService.completeTask(taskId, null);
 		
 		//Check task history
-		checkTaskHistory(taskId, TestUtils.TEST_USER_2);
+		checkTaskHistory(taskId, InitTestData.TEST_USER_2);
 
 		tasks = (List<WorkflowTaskInstanceDto>) taskInstanceService.search(filter).getResources();
 		assertEquals(0, tasks.size());

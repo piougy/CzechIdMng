@@ -9,7 +9,6 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 //
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
-import SearchParameters from '../../domain/SearchParameters';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();

@@ -2,6 +2,9 @@ package eu.bcvsolutions.idm.core.config.web;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
+import eu.bcvsolutions.idm.core.config.flyway.impl.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 
 /**
@@ -20,17 +25,17 @@ import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
  *
  */
 @Configuration
+@AutoConfigureAfter({ FlywayConfigCore.class })
 public class WebConfig {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
-
-	//@Value("#{'${idm.pub.core.security.allowed-origins}'.replaceAll(\"\\s*\",\"\").split(',')}")
-	//private List<String> allowedOrigins;
 
 	@Bean
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = corsConfiguration();
+        // TODO: depends on FlywayConfigCore 
+        // log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");

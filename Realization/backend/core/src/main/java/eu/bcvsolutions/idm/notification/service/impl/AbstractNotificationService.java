@@ -19,6 +19,11 @@ public abstract class AbstractNotificationService implements NotificationService
 	public boolean send(IdmMessage message, IdmIdentity recipient) {
 		return send(DEFAULT_TOPIC, message, recipient);
 	}
+	
+	@Override
+	public boolean send(IdmMessage message, List<IdmIdentity> recipients) {
+		return send(DEFAULT_TOPIC, message, recipients);
+	}
 
 	@Override
 	public boolean send(String topic, IdmMessage message, IdmIdentity recipient) {

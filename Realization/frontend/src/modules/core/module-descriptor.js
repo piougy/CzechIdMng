@@ -154,7 +154,7 @@ module.exports = {
         'icon': 'fa:sitemap',
         'order': 40,
         'iconColor': '#428BCA',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+      //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
           {
             'id': 'workflow-definitions',
@@ -168,7 +168,7 @@ module.exports = {
             'labelKey': 'navigation.menu.workflow.historicProcess',
             'order': 35,
             'path': '/workflow/history/processes',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           }
         ]
       },
@@ -269,7 +269,8 @@ module.exports = {
         'labelKey': 'content.password.change.title',
         'order': 10,
         'path': '/password/change',
-        'access': [ { 'type': 'DENY_ALL' } ]
+        'icon': false,
+        'access': [ { 'type': 'NOT_AUTHENTICATED' } ]
       },
       {
         'id': 'password-reset',

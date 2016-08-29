@@ -21,13 +21,17 @@ class Subordinates extends Basic.AbstractContent {
   componentDidUpdate() {
     const { userID } = this.props.params;
     if (userID && (!this.state.userID || this.state.userID !== userID)) {
-      this.setState(
-        {
-          userID
-        },
-        () => { this.refs.table.getWrappedInstance().cancelFilter(); }
-      );
+      this._refreshTable(userID);
     }
+  }
+
+  _refreshTable(userID) {
+    this.setState(
+      {
+        userID
+      },
+      () => { this.refs.table.getWrappedInstance().cancelFilter(); }
+    );
   }
 
   _selectNavigationItem() {

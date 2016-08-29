@@ -34,11 +34,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
-			.antMatchers("/api/**").fullyAuthenticated()
-			.anyRequest().authenticated()
-			.and()
-			.anonymous()
-			.disable();    	 
+			.antMatchers("/api/public/**").permitAll()
+			.antMatchers("/api/**").fullyAuthenticated() // TODO: controllers should choose security?
+			.anyRequest().authenticated();
     }
 	
 	@Override
@@ -47,9 +45,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers( //
 				"/api", // endpoint with supported services list
 				"/api/authentication", // login / out
-				"/api/public/**", // public
+				//"/api/public/**", // public
 				"/error/**",
-				"/api/browser/**"
+				"/api/browser/**" // TODO: close this endpoint before first version is released
 			);
 	}
    

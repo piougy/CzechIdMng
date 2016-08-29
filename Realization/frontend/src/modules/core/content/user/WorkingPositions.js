@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
+//
 import * as Basic from '../../../../components/basic';
 import * as Advanced from '../../../../components/advanced';
 import * as Utils from '../../utils';
@@ -117,7 +119,7 @@ class WorkingPositions extends Basic.AbstractContent {
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
       this.i18n(`action.delete.header`, { count: 1 })
-    ).then(result => {
+    ).then(() => {
       this.context.store.dispatch(this.identityWorkingPositionManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
         if (!error) {
           this.addMessage({ message: this.i18n('delete.success', { position: entity.position, username: userID }) });

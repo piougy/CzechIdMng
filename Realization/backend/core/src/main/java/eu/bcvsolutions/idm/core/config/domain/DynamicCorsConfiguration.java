@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.config.web;
+package eu.bcvsolutions.idm.core.config.domain;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
  */
 public class DynamicCorsConfiguration extends CorsConfiguration {
 	
-	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.core.config.allowed-origins";
+	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.core.security.allowed-origins";
 	public static final String PROPERTY_ALLOWED_ORIGIN_SEPARATOR = ",";
 	
 	@Autowired

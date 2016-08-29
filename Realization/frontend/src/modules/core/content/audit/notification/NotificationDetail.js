@@ -95,7 +95,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Basic.AbstractForm ref="form" className="form-horizontal"  >
+        <Basic.AbstractForm ref="form" className="form-horizontal">
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
 

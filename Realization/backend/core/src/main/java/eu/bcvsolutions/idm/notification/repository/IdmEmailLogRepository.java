@@ -6,6 +6,7 @@ import javax.persistence.TemporalType;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.query.Param;
@@ -13,8 +14,11 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
@@ -61,6 +65,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
         	+ "and "
         	+ "(?#{[5] == null ? 'null' : ''} = 'null' or e.created <= ?#{[5]})")
 	@RestResource(path = "quick", rel = "quick")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	Page<IdmNotificationLog> findByQuick(
 			@Param(value = "text") String text,
 			@Param(value = "sender") String sender,
@@ -69,6 +74,22 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
 			@Param(value = "createdFrom") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdFrom,
 			@Param(value = "createdTill") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdTill,
 			Pageable pageable);
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Iterable<IdmEmailLog> findAll();
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Page<IdmEmailLog> findAll(Pageable pageable);
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Iterable<IdmEmailLog> findAll(Sort sort);
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	IdmEmailLog findOne(@Param("id") Long id);
 	
 	@Override
 	@RestResource(exported = false)

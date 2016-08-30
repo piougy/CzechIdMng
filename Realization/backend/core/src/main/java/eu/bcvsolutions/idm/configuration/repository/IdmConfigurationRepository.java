@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 
 /**
@@ -47,50 +48,13 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	        + "e.name = :name")
 	IdmConfiguration get(@Param("name") String name);
 	
-	
-	/**
-	 * Returns all configurations based on current user authorities
-	 */
-	@Override
-	@PostFilter("filterObject.secured == false or hasAuthority('CONFIGURATIONSECURED_READ')")
-	Iterable<IdmConfiguration> findAll();
-	
-	/**
-	 * Returns all configurations based on current user authorities
-	 */
-	@Override
-	@Query(value = "select e from IdmConfiguration e" +
-	        " where "
-	        + "( "
-	        	+ "e.secured = :#{hasAuthority('CONFIGURATIONSECURED_READ')} "
-	        	+ "or e.secured = false"
-	        + ")")
-	Page<IdmConfiguration> findAll(Pageable pageable);
-	
-	/**
-	 * Returns all configurations based on current user authorities
-	 */
-	@Override
-	@PostFilter("filterObject.secured == false or hasAuthority('CONFIGURATIONSECURED_READ')")
-	Iterable<IdmConfiguration> findAll(Sort sort);	
-	
-	/**
-	 * Returns configuration by given identifier. Security is evaluated.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@Override
-	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('CONFIGURATIONSECURED_READ')")
-	IdmConfiguration findOne(@Param("id") Long id);
-	
 	/**
 	 * Returns configuration by given name. Security is evaluated.
 	 * 
 	 * @param name
 	 * @return
 	 */
-	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('CONFIGURATIONSECURED_READ')")
+	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	IdmConfiguration findOneByName(@Param("name") String name);
 	
 	/**
@@ -105,18 +69,59 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	        "(:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}) "
 	        + "and "
 	        + "( "
-	        	+ "e.secured = :#{hasAuthority('CONFIGURATIONSECURED_READ')} "
+	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
 	@RestResource(path = "quick", rel = "quick")
 	Page<IdmConfiguration> findByQuick(@Param(value = "text") String text, Pageable pageable);
 	
-	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_WRITE') or (hasAuthority('CONFIGURATION_WRITE') and #entity?.secured == false)")
+	/**
+	 * Returns all configurations based on current user authorities
+	 */
+	@Override
+	@PostFilter("filterObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	Iterable<IdmConfiguration> findAll();
+	
+	/**
+	 * Returns all configurations based on current user authorities
+	 */
+	@Override
+	@Query(value = "select e from IdmConfiguration e" +
+	        " where "
+	        + "( "
+	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
+	        	+ "or e.secured = false"
+	        + ")")
+	Page<IdmConfiguration> findAll(Pageable pageable);
+	
+	/**
+	 * Returns all configurations based on current user authorities
+	 */
+	@Override
+	@PostFilter("filterObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	Iterable<IdmConfiguration> findAll(Sort sort);	
+	
+	/**
+	 * Returns configuration by given identifier. Security is evaluated.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
+	IdmConfiguration findOne(@Param("id") Long id);
+	
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_WRITE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_WRITE + "') and #entity?.secured == false)")
 	IdmConfiguration save(@Param("entity") IdmConfiguration entity);
 	
-	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_DELETE') or (hasAuthority('CONFIGURATION_DELETE') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
+	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
 	void delete(@Param("id") Long id);
 	
-	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_DELETE') or (hasAuthority('CONFIGURATION_DELETE') and #entity?.secured == false)")
+	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and #entity?.secured == false)")
 	void delete(@Param("entity") IdmConfiguration entity);
 }

@@ -1,7 +1,3 @@
-
-
-import config from '../../../config.json';
-
 module.exports = {
   'id': 'core',
   'name': 'Core',
@@ -135,7 +131,7 @@ module.exports = {
         'icon': 'user',
         'order': 40,
         'path': '/users',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
       },
       {
         'id': 'organizations',
@@ -145,7 +141,7 @@ module.exports = {
         'order': 50,
         'iconColor': '#eb9316',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
       },
       {
         'id': 'roles',
@@ -155,7 +151,7 @@ module.exports = {
         'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
       },
       {
         'id': 'workflow',
@@ -163,21 +159,21 @@ module.exports = {
         'icon': 'fa:sitemap',
         'order': 40,
         'iconColor': '#428BCA',
-      //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+      //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
         'items': [
           {
             'id': 'workflow-definitions',
             'labelKey': 'navigation.menu.workflow.definitions',
             'order': 40,
             'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           },
           {
             'id': 'workflow-historic-processes',
             'labelKey': 'navigation.menu.workflow.historicProcess',
             'order': 35,
             'path': '/workflow/history/processes',
-          //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           }
         ]
       },
@@ -202,7 +198,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': [config.authorities.superAdminAuthority]
+                'authorities': ['SYSTEM_ADMIN']
               }
             ]
           },
@@ -215,7 +211,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': [config.authorities.superAdminAuthority]
+                'authorities': ['SYSTEM_ADMIN']
               }
             ]
           }
@@ -228,7 +224,7 @@ module.exports = {
         'order': 1000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', config.authorities.superAdminAuthority] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', 'SYSTEM_ADMIN'] } ],
         'items': [
           {
             'id': 'system-configuration',
@@ -243,7 +239,7 @@ module.exports = {
             'labelKey': 'content.system.app-modules.title',
             'order': 30,
             'path': '/app-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           }
         ]
       },

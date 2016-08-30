@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
-
 public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Autowired

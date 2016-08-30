@@ -27,6 +27,7 @@ public interface IdmIdentityRoleRepository extends BaseRepository<IdmIdentityRol
 	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	@RestResource(exported = false)
 	IdmIdentityRole save(@Param("entity") IdmIdentityRole entity);
 	

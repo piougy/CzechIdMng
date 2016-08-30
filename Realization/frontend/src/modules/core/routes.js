@@ -1,7 +1,3 @@
-
-
-import config from '../../../config.json';
-
 module.exports = {
   component: 'div',
   childRoutes: [
@@ -28,7 +24,7 @@ module.exports = {
     {
       path: 'user/new',
       component: require('./content/user/Create'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN' ] } ]
     },
     {
       path: 'user/:userID/',
@@ -79,7 +75,7 @@ module.exports = {
     {
       path: 'users',
       component: require('./content/user/Users'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'users/password/reset',
@@ -88,22 +84,22 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
     },
     {
       path: 'organizations/:entityId',
       component: require('./content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'organizations/new',
       component: require('./content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN' ] } ]
     },
     {
       path: 'roles',
       component: require('./content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'tasks/:userID',
@@ -126,12 +122,12 @@ module.exports = {
     {
       path: 'app-modules',
       component: require('./content/AppModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'workflow',
       component: 'div',
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
       childRoutes: [
         {
           path: 'definitions',
@@ -146,12 +142,12 @@ module.exports = {
     {
       path: 'workflow/definitions/:definitionId',
       component: require('./content/workflow/Definition'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',
       component: require('./content/workflow/HistoricProcessInstanceDetail'),
-      // access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+      // access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
       path: 'audit/',
@@ -160,22 +156,22 @@ module.exports = {
         {
           path: 'notifications',
           component: require('./content/audit/notification/Notifications'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
         },
         {
           path: 'notification/:entityId',
           component: require('./content/audit/notification/NotificationContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
         },
         {
           path: 'emails',
           component: require('./content/audit/email/Emails'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
         },
         {
           path: 'emails/:entityId',
           component: require('./content/audit/email/EmailContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
         },
       ]
     },

@@ -6,6 +6,7 @@ import javax.persistence.TemporalType;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.query.Param;
@@ -13,8 +14,10 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
@@ -61,6 +64,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
         	+ "and "
         	+ "(?#{[5] == null ? 'null' : ''} = 'null' or e.created <= ?#{[5]})")
 	@RestResource(path = "quick", rel = "quick")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	Page<IdmNotificationLog> findByQuick(
 			@Param(value = "text") String text,
 			@Param(value = "sender") String sender,
@@ -71,11 +75,31 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 			Pageable pageable);
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Iterable<IdmNotificationLog> findAll();
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Page<IdmNotificationLog> findAll(Pageable pageable);
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	Iterable<IdmNotificationLog> findAll(Sort sort);
+	
+	@Override
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
+	IdmNotificationLog findOne(@Param("id") Long id);
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_WRITE + "')")
+	IdmNotificationLog save(@Param("entity") IdmNotificationLog entity);
+	
+	@Override
 	@RestResource(exported = false)
 	void delete(Long id);
 
 	@Override
 	@RestResource(exported = false)
 	void delete(IdmNotificationLog entity);
-
 }

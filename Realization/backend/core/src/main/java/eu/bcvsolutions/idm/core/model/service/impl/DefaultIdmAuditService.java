@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,14 @@ public class DefaultIdmAuditService implements IdmAuditService {
 			Revision<Integer, ? extends AbstractEntity> revision = this.findRevision(classType, (Integer)revisionId, identityId);
 			result.add(revision);
 		}
+		// TODO: refactor to own class / or use query above
+		Collections.sort(result, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
+			@Override
+			public int compare(Revision<Integer, ? extends AbstractEntity> o1,
+					Revision<Integer, ? extends AbstractEntity> o2) {
+				return o2.compareTo(o1);
+			}
+		});		
 		return result;
 	}
 	

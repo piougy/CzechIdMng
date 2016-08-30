@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+//
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import uuid from 'uuid';
+import { SecurityManager } from 'core/redux';
 
 // Root key for tree
 const rootKey = 'tree_root';
@@ -150,7 +152,7 @@ export class OrganizationTable extends Basic.AbstractContent {
               ref="table"
               uiKey={uiKey}
               manager={organizationManager}
-              showRowSelection
+              showRowSelection={SecurityManager.hasAuthority('ORGANIZATION_DELETE')}
               rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
               style={{ borderLeft: '1px solid #ddd' }}
               filter={
@@ -186,7 +188,7 @@ export class OrganizationTable extends Basic.AbstractContent {
               filterOpened={!filterOpened}
               buttons={
                 [
-                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('ORGANIZATION_WRITE')}>
                     <Basic.Icon type="fa" icon="plus"/>
                     {' '}
                     {this.i18n('button.add')}

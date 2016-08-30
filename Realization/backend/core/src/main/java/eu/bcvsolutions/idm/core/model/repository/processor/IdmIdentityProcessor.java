@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
-import eu.bcvsolutions.idm.core.rest.IdmIdentityController;
+import eu.bcvsolutions.idm.core.rest.impl.DefaultIdmIdentityController;
 
 @Component
 public class IdmIdentityProcessor implements ResourceProcessor<Resource<IdmIdentity>> {
@@ -23,15 +23,14 @@ public class IdmIdentityProcessor implements ResourceProcessor<Resource<IdmIdent
 	public Resource<IdmIdentity> process(Resource<IdmIdentity> resource) {
 		// TODO: alps
 		String identityUserName = String.valueOf(idmIdentityLookup.getResourceIdentifier(resource.getContent()));
-		String identityId= String.valueOf(resource.getContent().getId());
-		Link passwordChangeLink = linkTo(methodOn(IdmIdentityController.class)
+		Link passwordChangeLink = linkTo(methodOn(DefaultIdmIdentityController.class)
 				.passwordChange(identityUserName, null)).withRel("password-change");
 		resource.add(passwordChangeLink);
-		Link authoritiesLink = linkTo(methodOn(IdmIdentityController.class)
+		Link authoritiesLink = linkTo(methodOn(DefaultIdmIdentityController.class)
 				.getGrantedAuthotrities(identityUserName)).withRel("authorities");
 		resource.add(authoritiesLink);
-		Link revisionLink = linkTo(methodOn(IdmIdentityController.class)
-				.findRevisions(identityId)).withRel("revisions");
+		Link revisionLink = linkTo(methodOn(DefaultIdmIdentityController.class)
+				.findRevisions(identityUserName)).withRel("revisions");
 		resource.add(revisionLink);
 		return resource;
 	}

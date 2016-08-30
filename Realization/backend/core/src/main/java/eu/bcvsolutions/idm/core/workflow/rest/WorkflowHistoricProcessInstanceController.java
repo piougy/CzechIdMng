@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +37,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
 @RequestMapping(value = "/api/workflow/history/processes/")
 public class WorkflowHistoricProcessInstanceController {
 
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
 
@@ -66,12 +69,13 @@ public class WorkflowHistoricProcessInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort,
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort,
 			@RequestParam(required = false) String name, @RequestParam(required = false) String processDefinition, @RequestParam(required = false) String superProcessInstanceId) {
 
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if(page != null){
+			filter.setPageNumber(page);
+		}
 		filter.setProcessDefinitionKey(processDefinition);
 		filter.setSuperProcessInstanceId(superProcessInstanceId);
 		filter.setName(name != null && !name.isEmpty() ? name : null);

@@ -45,7 +45,7 @@ class AbstractForm extends AbstractContextComponent {
   * Find all form-components keys and add them to componentsKey array;
   */
   findFormComponentsKeys(children, keys, basicForm) {
-    React.Children.map(children, function(child) {
+    React.Children.map(children, function findChildKey(child) {
       if (!child) {
         return null;
       }

@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import * as Utils from '../../utils';
-import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
+//
+import * as Utils from 'core/utils';
+import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
 
 /**
 * Table of Audit for entities

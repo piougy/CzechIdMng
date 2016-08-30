@@ -1,6 +1,7 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import * as Basic from '../../../../components/basic';
+//
+import * as Basic from 'app/components/basic';
 import { IdentityManager } from 'core/redux';
 import IdentityDetail from './IdentityDetail';
 
@@ -36,11 +37,7 @@ class Profile extends Basic.AbstractContent {
     const { identity } = this.props;
     const { userID } = this.props.params;
     return (
-      <div>
-        {
-          <IdentityDetail identity={identity} userID={userID} />
-        }
-      </div>
+      <IdentityDetail identity={identity} userID={userID} />
     );
   }
 }

@@ -50,30 +50,6 @@ module.exports = {
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
-            'id': 'profile-accounts',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.accounts',
-            'order': 40,
-            'path': '/user/:userID/accounts',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
-            'id': 'profile-approve',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.approve',
-            'order': 40,
-            'path': '/user/:userID/approve',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
-            'id': 'profile-subordinates',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.subordinates',
-            'order': 60,
-            'path': '/user/:userID/subordinates',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
             'id': 'profile-working-positions',
             'type': 'TAB',
             'labelKey': 'entity.IdentityWorkingPosition._type',
@@ -81,14 +57,6 @@ module.exports = {
             'path': '/user/:userID/workingPositions',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
-          },
-          {
-            'id': 'profile-delegates',
-            'type': 'TAB',
-            'labelKey': 'content.user.delegates.title',
-            'order': 70,
-            'path': '/user/:userID/delegates',
-            'access': [ { 'type': 'DENY_ALL' } ]
           },
           {
             'id': 'profile-audit',
@@ -111,18 +79,6 @@ module.exports = {
             ]
           }
         ]
-      },
-      {
-        'id': 'user-subordinates',
-        'label': 'Podřízení',
-        'labelKey': 'navigation.menu.subordinates.label',
-        'title': 'Můj tým',
-        'titleKey': 'navigation.menu.subordinates.title',
-        'icon': 'briefcase',
-        'order': 20,
-        'path': '/user/:loggedUsername/subordinates',
-        'includeItemsId': 'user-profile',
-        'access': [ { 'type': 'DENY_ALL' } ]
       },
       {
         'id': 'tasks',

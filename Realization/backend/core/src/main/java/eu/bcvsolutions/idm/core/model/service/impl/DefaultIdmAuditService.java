@@ -46,7 +46,7 @@ public class DefaultIdmAuditService implements IdmAuditService {
 		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, idRev);
 
 		Object entity = reader.find(classType, identityId, idRev);
-		return new Revision<Integer, AbstractEntity>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (AbstractEntity) entity);
+		return new Revision<>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (AbstractEntity) entity);
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class DefaultIdmAuditService implements IdmAuditService {
 		
 		List<Number> ids = reader.getRevisions(classType, identityId);
 		
-		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<Number>(ids));
+		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<>(ids));
 
 		
 		for (Number revisionId : revisionsResult.keySet()) {
@@ -68,18 +68,12 @@ public class DefaultIdmAuditService implements IdmAuditService {
 			result.add(revision);
 		}
 		// TODO: refactor to own class / or use query above
-		Collections.sort(result, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
-			@Override
-			public int compare(Revision<Integer, ? extends AbstractEntity> o1,
-					Revision<Integer, ? extends AbstractEntity> o2) {
-				return o2.compareTo(o1);
-			}
-		});		
+		Collections.sort(result, (Revision<Integer, ? extends AbstractEntity> o1, Revision<Integer, ? extends AbstractEntity> o2) -> o2.compareTo(o1));		
 		return result;
 	}
 	
 	private RevisionMetadata<?> getRevisionMetadata(Object object) {
-		return new AnnotationRevisionMetadata<Integer>(object, RevisionNumber.class, RevisionTimestamp.class);
+		return new AnnotationRevisionMetadata<>(object, RevisionNumber.class, RevisionTimestamp.class);
 	}
 
 	private AuditReader getAuditReader() {

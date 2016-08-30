@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
@@ -43,19 +43,20 @@ public class IdmRoleController implements IdmRevisionController {
 	@Autowired
 	private IdmAuditService auditService; 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Integer revId) {
 		IdmRole originalEntity = this.roleLookup.findOneByName(roleId);
 		if (originalEntity == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
 		Revision<Integer, ? extends AbstractEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
 		}
 		
 		IdmRole entity = (IdmRole) revision.getEntity();
@@ -66,12 +67,13 @@ public class IdmRoleController implements IdmRevisionController {
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@RequestMapping(value = "{roleId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("roleId") String roleId) {
 		IdmRole originalEntity = this.roleLookup.findOneByName(roleId);
 		if (originalEntity == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
@@ -79,7 +81,7 @@ public class IdmRoleController implements IdmRevisionController {
 		try {
 			 results = this.auditService.findRevisions(IdmRole.class, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
 		}
 		
 		RevisionAssembler<IdmRole> assembler = new RevisionAssembler<IdmRole>();

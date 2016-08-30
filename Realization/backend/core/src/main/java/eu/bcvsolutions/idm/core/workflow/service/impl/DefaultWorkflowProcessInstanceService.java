@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
@@ -87,7 +87,6 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		// Set current logged user (implementer) as starter of process
 		runtimeService.addUserIdentityLink(instance.getId(), securityService.getUsername(), IdentityLinkType.STARTER);
 		return instance;
-
 	}
 
 	@Override
@@ -181,7 +180,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		// query.includeProcessVariables();
 		ProcessInstance processInstance = query.singleResult();
 		if (processInstance == null) {
-			throw new RestApplicationException(CoreResultCode.FORBIDDEN,
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN,
 					"You do not have permission for delete process instance with ID: %s !",
 					ImmutableMap.of("processInstanceId", processInstanceId));
 		}

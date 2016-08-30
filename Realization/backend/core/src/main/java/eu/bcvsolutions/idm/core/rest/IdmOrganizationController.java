@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
@@ -47,19 +47,20 @@ public class IdmOrganizationController implements IdmRevisionController {
 	@Autowired
 	private IdmAuditService auditService; 
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@RequestMapping(value = "{organizationId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("organizationId") String organizationId, @PathVariable("revId") Integer revId) {
 		IdmOrganization organization = organizationRepository.findOne(Long.parseLong(organizationId));
 		if (organization == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
 		}
 		
 		Revision<Integer, ? extends AbstractEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmOrganization.class, revId, Long.parseLong(organizationId));
 		} catch (RevisionDoesNotExistException e) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}
 		
 		IdmOrganization entity = (IdmOrganization) revision.getEntity();
@@ -70,12 +71,13 @@ public class IdmOrganizationController implements IdmRevisionController {
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@RequestMapping(value = "{organizationId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("organizationId") String organizationId) {
 		IdmOrganization organization = organizationRepository.findOne(Long.parseLong(organizationId));
 		if (organization == null) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
@@ -83,7 +85,7 @@ public class IdmOrganizationController implements IdmRevisionController {
 		try {
 			revisions = this.auditService.findRevisions(IdmOrganization.class, Long.parseLong(organizationId));
 		} catch (RevisionDoesNotExistException e) {
-			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", organizationId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", organizationId));
 		}
 		
 		RevisionAssembler<IdmOrganization> assembler = new RevisionAssembler<IdmOrganization>();

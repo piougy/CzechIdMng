@@ -33,6 +33,7 @@ public class DefaultIdmAuditService implements IdmAuditService {
 	@PersistenceContext
     private EntityManager entityManager;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
@@ -44,6 +45,7 @@ public class DefaultIdmAuditService implements IdmAuditService {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) throws RevisionDoesNotExistException {	
 		List<Revision<Integer, ? extends AbstractEntity>> result = new ArrayList<>();

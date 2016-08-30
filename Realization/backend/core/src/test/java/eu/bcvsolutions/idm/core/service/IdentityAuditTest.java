@@ -22,7 +22,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
@@ -183,7 +183,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 				
 				try {
 					identityController.findRevisions(nonExistIdentityId);
-				} catch (RestApplicationException e) {
+				} catch (ResultCodeException e) {
 					exception = e;
 				} catch (Exception e) {
 					// do nothing
@@ -195,7 +195,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 				
 				try {
 					identityController.findRevision(nonExistIdentityId, Integer.MAX_VALUE);
-				} catch (RestApplicationException e) {
+				} catch (ResultCodeException e) {
 					exception = e;
 				} catch (Exception e) {
 					// do nothing

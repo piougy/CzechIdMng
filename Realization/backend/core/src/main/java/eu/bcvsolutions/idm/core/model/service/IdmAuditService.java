@@ -1,16 +1,10 @@
 package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
-import java.util.Map;
 
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.history.Revision;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 /**

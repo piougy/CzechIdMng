@@ -12,16 +12,21 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.utils.EntityUtils;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.security.domain.GroupPermission;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.DefaultGrantedAuthorityDto;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 /**
  * @author svandav
@@ -31,6 +36,9 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 
 	@Autowired
 	private IdmIdentityRepository idmIdentityRepository;
+	
+	@Autowired
+	private SecurityService securityService;
 
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(String username) {
@@ -40,7 +48,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		}
 
 		// unique set of authorities from all active identity roles and subroles
-		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		identity.getRoles().stream() //
 				.filter(EntityUtils::isValid) //
 				.forEach(identityRole -> {
@@ -56,15 +64,31 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	 * @param processedRoles
 	 * @return
 	 */
-	private Set<DefaultGrantedAuthority> getActiveRoleAuthorities(IdmRole role, Set<IdmRole> processedRoles) {
+	private Set<GrantedAuthority> getActiveRoleAuthorities(IdmRole role, Set<IdmRole> processedRoles) {
 		processedRoles.add(role);
-		Set<DefaultGrantedAuthority> grantedAuthorities = new HashSet<>();
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		if (role.isDisabled()) {
 			return grantedAuthorities;
 		}
-		role.getAuthorities().forEach(roleAuthority -> {
-			grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
-		});
+		for(IdmRoleAuthority roleAuthority : role.getAuthorities()) {
+			// check for wildcard permissions
+			// TODO: better approach will be extend hasAuhority / hasAnyAuhority evaluation
+			if (roleAuthority.getTarget().equals(IdmGroupPermission.SYSTEM.name())) {
+				grantedAuthorities.addAll(securityService.getAllAvailableAuthorities());
+				break;
+			}
+			if (roleAuthority.getAction().equals(IdmBasePermission.ADMIN.name())) {
+				for(GroupPermission groupPermission : securityService.getAvailableGroupPermissions()) {
+					if(groupPermission.getName().equals(roleAuthority.getTarget())) {
+						groupPermission.getPermissions().forEach(basePermission -> {
+							grantedAuthorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
+						});
+					}
+				}
+			} else {
+				grantedAuthorities.add(new DefaultGrantedAuthority(roleAuthority.getAuthority()));
+			}
+		};
 		// sub roles
 		role.getSubRoles().forEach(subRole -> {
 			if (!processedRoles.contains(subRole.getSub())) {

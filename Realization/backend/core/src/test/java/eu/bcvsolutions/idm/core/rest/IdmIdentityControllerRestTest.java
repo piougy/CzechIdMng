@@ -24,7 +24,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	private SecurityService securityService;
 
 	public RequestPostProcessor security() {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
         return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
 	}
 	

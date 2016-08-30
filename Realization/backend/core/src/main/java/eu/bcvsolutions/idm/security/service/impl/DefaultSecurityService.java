@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
@@ -92,21 +90,29 @@ public class DefaultSecurityService implements SecurityService {
 		// TODO: SPI / osgi for register module permissions
 		List<GroupPermission> groupPermissions = new ArrayList<>();
 		groupPermissions.addAll(Arrays.asList(IdmGroupPermission.values()));
-		groupPermissions.addAll(Arrays.asList(CustomGroupPermission.values()));
 		groupPermissions.addAll(Arrays.asList(NotificationGroupPermission.values()));
 		log.debug("Loaded available groupPermissions [size:{}]", groupPermissions.size());
 		return groupPermissions;
 	}
 	
 	@Override
-	public List<GrantedAuthority> getAvailableAuthorities() {
+	public List<GrantedAuthority> getAllAvailableAuthorities() {
+		return toAuthorities(getAvailableGroupPermissions());
+	}
+	
+	public static List<GrantedAuthority> toAuthorities(List<GroupPermission> groupPermissions) {
 		Set<GrantedAuthority> authorities = new HashSet<>();
-		getAvailableGroupPermissions().forEach(groupPermission -> {
-			groupPermission.getPermissions().forEach(basePermission -> {
-				authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
-			});					
-			
+		groupPermissions.forEach(groupPermission -> {
+			authorities.addAll(toAuthorities(groupPermission));				
 		});
+		return new ArrayList<>(authorities);
+	}
+	
+	public static List<GrantedAuthority> toAuthorities(GroupPermission groupPermission) {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		groupPermission.getPermissions().forEach(basePermission -> {
+			authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
+		});					
 		return new ArrayList<>(authorities);
 	}
 

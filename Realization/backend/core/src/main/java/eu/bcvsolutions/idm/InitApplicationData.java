@@ -62,7 +62,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	protected void init() {
 		// TODO: runAs
 		SecurityContextHolder.getContext().setAuthentication(
-				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		// TODO: could be moved to flyway install dump
 		try {
 			//

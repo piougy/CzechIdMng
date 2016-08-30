@@ -1,9 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
@@ -23,7 +22,8 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @Service
 public class DefaultIdmIdentityService implements IdmIdentityService {
-	public static String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
+	
+	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -56,6 +56,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	
 	/**
 	 * Find all identities usernames by assigned role
+	 * 
 	 * @param roleId
 	 * @return String with all found usernames separate with comma 
 	 */
@@ -130,8 +131,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 */
 	@Override
 	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
-		// TODO: hasAnyAuthority as permissionGroup
-		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()),
+		if (!securityService.hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN) && !StringUtils.equals(new String(identity.getPassword()),
 				new String(passwordChangeDto.getOldPassword()))) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}

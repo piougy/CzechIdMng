@@ -81,7 +81,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		//
 		// TODO: runAs
 		SecurityContextHolder.getContext().setAuthentication(
-				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);

@@ -38,6 +38,11 @@ export default class OrganizationDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
+
+    this.setState({
+      showLoading: true
+    }, this.refs.form.processStarted());
+
     const entity = this.refs.form.getData();
 
     if (entity.parent) {

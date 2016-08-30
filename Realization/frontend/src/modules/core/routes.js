@@ -64,7 +64,8 @@ module.exports = {
         },
         {
           path: 'revision',
-          component: require('./content/user/Audit')
+          component: require('./content/user/Audit'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]
     },
@@ -75,7 +76,7 @@ module.exports = {
     {
       path: 'users',
       component: require('./content/user/Users'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
     },
     {
       path: 'users/password/reset',
@@ -84,22 +85,22 @@ module.exports = {
     {
       path: 'organizations',
       component: require('./content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ],
     },
     {
       path: 'organizations/:entityId',
       component: require('./content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
     },
     {
       path: 'organizations/new',
       component: require('./content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN' ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_WRITE' ] } ]
     },
     {
       path: 'roles',
       component: require('./content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
     },
     {
       path: 'tasks/:userID',
@@ -127,11 +128,11 @@ module.exports = {
     {
       path: 'workflow',
       component: 'div',
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
       childRoutes: [
         {
           path: 'definitions',
-          component: require('./content/workflow/Definitions')
+          component: require('./content/workflow/Definitions'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
         },
         {
           path: 'history/processes',
@@ -146,8 +147,7 @@ module.exports = {
     },
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',
-      component: require('./content/workflow/HistoricProcessInstanceDetail'),
-      // access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      component: require('./content/workflow/HistoricProcessInstanceDetail')
     },
     {
       path: 'audit/',
@@ -156,22 +156,22 @@ module.exports = {
         {
           path: 'notifications',
           component: require('./content/audit/notification/Notifications'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
         {
           path: 'notification/:entityId',
           component: require('./content/audit/notification/NotificationContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
         {
           path: 'emails',
           component: require('./content/audit/email/Emails'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
         {
           path: 'emails/:entityId',
           component: require('./content/audit/email/EmailContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
       ]
     },

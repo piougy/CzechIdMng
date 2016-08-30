@@ -2,10 +2,11 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
-import SearchParameters from '../../domain/SearchParameters';
-import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager } from '../../redux';
+//
+import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
+import SearchParameters from 'core/domain/SearchParameters';
+import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager, SecurityManager } from 'core/redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import authorityHelp from '../role/AuthoritiesPanel_cs.md';
 
@@ -219,6 +220,17 @@ class Roles extends Basic.AbstractContent {
     });
   }
 
+  /**
+   * TODO: move to manager
+   *
+   * @return {[type]} [description]
+   */
+  _canChangePermissions() {
+    const { userContext } = this.props;
+    const { userID } = this.props.params;
+    return (userID === userContext.username) || SecurityManager.isAdmin(userContext);
+  }
+
   render() {
     const { userID } = this.props.params;
     const { _entities, _showLoading, authorities } = this.props;
@@ -262,7 +274,8 @@ class Roles extends Basic.AbstractContent {
                       <Basic.Button
                         style={{display: 'block'}}
                         level="warning"
-                        onClick={this._changePermissions.bind(this)}>
+                        onClick={this._changePermissions.bind(this)}
+                        rendered={this._canChangePermissions()}>
                         <Basic.Icon type="fa" icon="key"/>
                         {' '}
                         { this.i18n('changePermissions') }
@@ -499,12 +512,14 @@ class Roles extends Basic.AbstractContent {
 Roles.propTypes = {
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
-  authorities: PropTypes.arrayOf(React.PropTypes.object)
+  authorities: PropTypes.arrayOf(React.PropTypes.object),
+  userContext: PropTypes.object,
 };
 Roles.defaultProps = {
   _showLoading: true,
   _entities: [],
-  authorities: []
+  authorities: [],
+  userContext: null
 };
 
 function select(state, component) {
@@ -517,7 +532,8 @@ function select(state, component) {
     _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.userID}`),
     _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.userID}`),
     _addRoleProcessIds: addRoleProcessIds,
-    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`)
+    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`),
+    userContext: state.security.userContext
   };
 }
 

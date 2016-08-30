@@ -17,8 +17,10 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.history.AnnotationRevisionMetadata;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 
@@ -33,8 +35,9 @@ public class DefaultIdmAuditService implements IdmAuditService {
 	@PersistenceContext
     private EntityManager entityManager;
 	
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	public Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
 		
@@ -44,9 +47,9 @@ public class DefaultIdmAuditService implements IdmAuditService {
 		return new Revision<Integer, AbstractEntity>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (AbstractEntity) entity);
 	}
 	
-
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	public List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) throws RevisionDoesNotExistException {	
 		List<Revision<Integer, ? extends AbstractEntity>> result = new ArrayList<>();
 		AuditReader reader = AuditReaderFactory.get(entityManager);

@@ -96,8 +96,8 @@ module.exports = {
             'labelKey': 'entity.Audit.label',
             'order': 110,
             'path': '/user/:userID/revision',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
             'icon': 'fa:history',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ],
             'items': [
               {
                 'id': 'profile-audit-profile-personal',
@@ -142,7 +142,7 @@ module.exports = {
         'icon': 'user',
         'order': 40,
         'path': '/users',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
         'id': 'organizations',
@@ -152,7 +152,7 @@ module.exports = {
         'order': 50,
         'iconColor': '#eb9316',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
       },
       {
         'id': 'roles',
@@ -162,7 +162,7 @@ module.exports = {
         'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
       },
       {
         'id': 'workflow',
@@ -170,7 +170,6 @@ module.exports = {
         'icon': 'fa:sitemap',
         'order': 40,
         'iconColor': '#428BCA',
-      //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ],
         'items': [
           {
             'id': 'workflow-definitions',
@@ -184,7 +183,6 @@ module.exports = {
             'labelKey': 'navigation.menu.workflow.historicProcess',
             'order': 35,
             'path': '/workflow/history/processes',
-          //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           }
         ]
       },
@@ -196,7 +194,7 @@ module.exports = {
         'access': [
           {
             'type': 'HAS_ANY_AUTHORITY',
-            'authorities': [ 'SYSTEM_ADMIN' ]
+            'authorities': [ 'NOTIFICATION_READ' ]
           }
         ],
         'items': [
@@ -209,7 +207,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['SYSTEM_ADMIN']
+                'authorities': ['NOTIFICATION_READ']
               }
             ]
           },
@@ -222,7 +220,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['SYSTEM_ADMIN']
+                'authorities': ['NOTIFICATION_READ']
               }
             ]
           }
@@ -235,7 +233,7 @@ module.exports = {
         'order': 1000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', 'SYSTEM_ADMIN'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ],
         'items': [
           {
             'id': 'system-configuration',

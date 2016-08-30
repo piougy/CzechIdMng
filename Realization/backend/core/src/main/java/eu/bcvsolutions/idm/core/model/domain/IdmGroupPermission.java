@@ -18,16 +18,15 @@ public enum IdmGroupPermission implements GroupPermission {
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ORGANIZATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	WORKFLOW(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
-	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
 	//
-	public static final String IDENTITY_WRITE = "IDENTITY" + BasePermission.SEPARATOR + "READ";
-	public static final String IDENTITY_READ = "IDENTITY" + BasePermission.SEPARATOR + "WRITE";
+	public static final String IDENTITY_WRITE = "IDENTITY" + BasePermission.SEPARATOR + "WRITE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String CONFIGURATION_WRITE = "CONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
@@ -36,7 +35,14 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String CONFIGURATIONSECURED_READ = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "READ";
 	public static final String CONFIGURATIONSECURED_WRITE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "WRITE";
 	public static final String CONFIGURATIONSECURED_DELETE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "DELETE";
-	
+	//
+	public static final String ORGANIZATION_WRITE = "ORGANIZATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ORGANIZATION_DELETE = "ORGANIZATION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
 	
 	private final List<BasePermission> permissions;
 

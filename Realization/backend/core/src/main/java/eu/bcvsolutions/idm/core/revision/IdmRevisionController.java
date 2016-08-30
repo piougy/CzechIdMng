@@ -28,7 +28,7 @@ public interface IdmRevisionController {
 	 * @param revId
 	 * @return
 	 */
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("entityId") String entityId, @PathVariable("revId") Integer revId);
+	ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("entityId") String entityId, @PathVariable("revId") Integer revId);
 	
 	/**
 	 * Method find all revision for entityId (string).
@@ -38,5 +38,5 @@ public interface IdmRevisionController {
 	 * @param entityId
 	 * @return
 	 */
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("entityId") String entityId);
+	ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("entityId") String entityId);
 }

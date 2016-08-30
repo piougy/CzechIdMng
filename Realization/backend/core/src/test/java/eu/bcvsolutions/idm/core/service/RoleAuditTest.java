@@ -19,6 +19,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import eu.bcvsolutions.idm.InitApplicationData;
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
@@ -51,6 +53,7 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 	@Before
 	public void transactionTemplate() {
 		template = new TransactionTemplate(platformTransactionManager);
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 	
 	@After

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,8 @@ public class WorkflowTaskInstanceController {
 
 	@Autowired
 	private WorkflowTaskInstanceService workflowTaskInstanceService;
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 
 	/**
 	 * Search instances of tasks with same variables and for logged user
@@ -56,11 +59,13 @@ public class WorkflowTaskInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String processInstanceId) {
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort, @RequestParam(required = false) String processInstanceId) {
 		
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if (page != null) {
+			filter.setPageNumber(page);
+		}
+		filter.initSort(sort);
 		filter.setProcessInstanceId(processInstanceId);
 		return this.search(filter);
 	}

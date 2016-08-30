@@ -3,9 +3,6 @@
   "serverUrl": "http://localhost:8080/idm/api",
   "locales": "locales",
   "theme": "modules/core/themes/default",
-  "authorities": {
-    "superAdminAuthority": "SYSTEM_ADMIN"
-  },
   "logger": {
     "level": "INFO"
   }

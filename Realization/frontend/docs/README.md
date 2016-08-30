@@ -22,7 +22,7 @@ All components could be found in libraries:
 * [basic](../src/components/basic/) - basic "simple" components. Mainly without knowing about application content, localization etc. Contextual and other parameter can be setted through props.
 * [advanced](../src/components/advanced/) - advanced "context" components. Basic component compositions with some logic, context listeners etc.
 
-### Common super component classes
+### Common component super classes
 
 All components are descendants of one of classes:
 
@@ -30,7 +30,7 @@ All components are descendants of one of classes:
 * [AbstractContextComponent](../src/components/basic/AbstractContextComponent/README.md)
 * [AbstractContent](../src/components/basic/AbstractContent/README.md)
 
-### Form super component classes
+### Form component super classes
 
 All forms are descendants of one of classes:
 

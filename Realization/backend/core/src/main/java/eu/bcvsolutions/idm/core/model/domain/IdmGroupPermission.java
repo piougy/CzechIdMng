@@ -26,12 +26,16 @@ public enum IdmGroupPermission implements GroupPermission {
 	
 	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
 	//
-	public static final String IDENTITY_ADMIN = "IDENTITY" + BasePermission.SEPARATOR + "ADMIN";
 	public static final String IDENTITY_WRITE = "IDENTITY" + BasePermission.SEPARATOR + "READ";
 	public static final String IDENTITY_READ = "IDENTITY" + BasePermission.SEPARATOR + "WRITE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
 	//
-	
+	public static final String CONFIGURATION_WRITE = "CONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String CONFIGURATION_DELETE = "CONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String CONFIGURATIONSECURED_READ = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "READ";
+	public static final String CONFIGURATIONSECURED_WRITE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "WRITE";
+	public static final String CONFIGURATIONSECURED_DELETE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "DELETE";
 	
 	
 	private final List<BasePermission> permissions;

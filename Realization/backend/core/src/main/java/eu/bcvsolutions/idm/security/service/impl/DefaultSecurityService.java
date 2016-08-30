@@ -84,6 +84,14 @@ public class DefaultSecurityService implements SecurityService {
 		return result;
 	}
 	
+	/**
+	 * Returns true, if logged identity has SYSTEM_ADMIN authority. Could be used for single user mode.
+	 */
+	@Override
+	public boolean isAdmin() {
+		return hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN);
+	}
+	
 	@Override
 	public List<GroupPermission> getAvailableGroupPermissions() {
 		//

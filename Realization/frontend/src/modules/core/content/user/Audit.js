@@ -20,7 +20,7 @@ class Audit extends Basic.AbstractContent {
   }
 
   showDetail(revId, username) {
-    this.context.router.push('/user/' + username + '/audit/' + revId);
+    this.context.router.push('/user/' + username + '/revision/' + revId);
   }
 
   componentDidMount() {

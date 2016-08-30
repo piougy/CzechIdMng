@@ -13,6 +13,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
+import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.history.AnnotationRevisionMetadata;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
@@ -32,18 +33,21 @@ public class DefaultIdmAuditService implements IdmAuditService {
 	@PersistenceContext
     private EntityManager entityManager;
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) {
+	public Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
 		
 		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, idRev);
+
 		Object entity = reader.find(classType, identityId, idRev);
 		return new Revision<Integer, AbstractEntity>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (AbstractEntity) entity);
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) {	
+	public List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) throws RevisionDoesNotExistException {	
 		List<Revision<Integer, ? extends AbstractEntity>> result = new ArrayList<>();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		
@@ -52,6 +56,7 @@ public class DefaultIdmAuditService implements IdmAuditService {
 		List<Number> ids = reader.getRevisions(classType, identityId);
 		
 		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<Number>(ids));
+
 		
 		for (Number revisionId : revisionsResult.keySet()) {
 			Revision<Integer, ? extends AbstractEntity> revision = this.findRevision(classType, (Integer)revisionId, identityId);

@@ -8,8 +8,6 @@ import * as Advanced from '../../../../components/advanced';
 * Table of Audit for entities
 */
 
-const uiKey = 'audit-table';
-
 export class AuditTable extends Basic.AbstractContent {
 
   getContentKey() {
@@ -60,7 +58,7 @@ AuditTable.propTypes = {
 AuditTable.defaultProps = {
 };
 
-function select(state, component) {
+function select() {
   return {
   };
 }

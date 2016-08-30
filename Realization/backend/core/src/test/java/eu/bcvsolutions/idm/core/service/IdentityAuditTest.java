@@ -8,10 +8,12 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.DefaultRevisionEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -30,6 +35,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.rest.IdmIdentityController;
 
 /**
  * Test audit configuration on identity entity
@@ -50,6 +56,9 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
+	
+	@Autowired
+	private IdmIdentityController identityController;	
 	
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
@@ -152,6 +161,47 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 				AuditReader reader = AuditReaderFactory.get(entityManager);
 				assertEquals(2, reader.getRevisions(IdmIdentity.class, identity.getId()).size());
 				
+			}
+		});
+	}
+	
+	@Test
+	public void testIdentityController() {
+		template.execute(new TransactionCallbackWithoutResult() {
+			@Override
+			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
+				identity = constructTestIdentity();
+				identity = saveInTransaction(identity, identityRepository);
+				
+				String nonExistIdentityId = "NON_EXIST_IDENTITY_ID";
+				
+				ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> result = identityController.findRevisions(identity.getName());
+				
+				assertEquals(true, result.hasBody());
+				
+				Exception exception = null;
+				
+				try {
+					identityController.findRevisions(nonExistIdentityId);
+				} catch (ResultCodeException e) {
+					exception = e;
+				} catch (Exception e) {
+					// do nothing
+				}
+				
+				assertNotNull(exception);
+				
+				exception = null;
+				
+				try {
+					identityController.findRevision(nonExistIdentityId, Integer.MAX_VALUE);
+				} catch (ResultCodeException e) {
+					exception = e;
+				} catch (Exception e) {
+					// do nothing
+				}
+				
+				assertNotNull(exception);
 			}
 		});
 	}

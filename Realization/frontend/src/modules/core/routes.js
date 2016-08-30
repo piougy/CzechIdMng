@@ -66,7 +66,7 @@ module.exports = {
           path: 'revision',
           component: require('./content/user/Audit'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
-        },
+        }
       ]
     },
     {

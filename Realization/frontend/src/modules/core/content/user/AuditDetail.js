@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import * as Basic from '../../../../components/basic';
 import { IdentityManager, DataManager } from 'core/redux';
 import IdentityDetail from './IdentityDetail';
+import * as Advanced from '../../../../components/advanced';
+import Helmet from 'react-helmet';
 
 const identityManager = new IdentityManager();
 
@@ -22,7 +24,7 @@ class AuditDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { userID, revID } = this.props.params;
-    this.selectSidebarItem('profile-audit');
+    this.selectSidebarItem('profile-audit-profile-personal');
     this.context.store.dispatch(identityManager.fetchRevision(userID, revID, uiKey + revID));
   }
 
@@ -34,15 +36,26 @@ class AuditDetail extends Basic.AbstractContent {
     const { userID } = this.props.params;
     return (
       <div>
-        <Basic.Loading isStatic showLoading={showLoading} />
-        {
+          <Helmet title={this.i18n('navigation.menu.audit.profile')} />
+          <Basic.Loading isStatic showLoading={showLoading} />
+          {
           !auditIdentity
           ||
-          <div>
-            <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity.entity)} <small> Auditní log</small></span>} />
-            <IdentityDetail identity={auditIdentity.entity} userID={userID} readOnly />
-          </div>
-        }
+            <div>
+              <Basic.PageHeader>
+              {identityManager.getNiceLabel(auditIdentity.entity)} <small> {this.i18n('content.audit.profile.userDetail')} <Advanced.DateValue value={auditIdentity.metadata.delegate.revisionDate} showTime/> </small>
+              </Basic.PageHeader>
+              <Basic.Panel>
+                <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity.entity)} <small> Detail uživatele</small></span>} className="hidden">
+                </Basic.PanelHeader>
+                <div className="tab-vertical clearfix">
+                  <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
+                    <IdentityDetail identity={auditIdentity.entity} userID={userID} readOnly />
+                  </Advanced.TabPanel>
+                </div>
+              </Basic.Panel>
+            </div>
+          }
       </div>
     );
   }

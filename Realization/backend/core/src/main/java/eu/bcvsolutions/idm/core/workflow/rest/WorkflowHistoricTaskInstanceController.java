@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,8 @@ public class WorkflowHistoricTaskInstanceController {
 
 	@Autowired
 	private WorkflowHistoricTaskInstanceService workflowHistoricTaskInstanceService;
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 
 	/**
 	 * Search historic instances of tasks for logged user
@@ -40,7 +43,7 @@ public class WorkflowHistoricTaskInstanceController {
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> result = workflowHistoricTaskInstanceService.search(filter);
-	
+
 		List<WorkflowHistoricTaskInstanceDto> processes = (List<WorkflowHistoricTaskInstanceDto>) result.getResources();
 		List<ResourceWrapper<WorkflowHistoricTaskInstanceDto>> wrappers = new ArrayList<>();
 
@@ -55,7 +58,9 @@ public class WorkflowHistoricTaskInstanceController {
 	}
 
 	/**
-	 * Search historic instances of tasks with for logged user. Use quick search api
+	 * Search historic instances of tasks with for logged user. Use quick search
+	 * api
+	 * 
 	 * @param size
 	 * @param page
 	 * @param sort
@@ -63,11 +68,13 @@ public class WorkflowHistoricTaskInstanceController {
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String processInstanceId) {
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
+			@RequestParam(required = false) String sort, @RequestParam String processInstanceId) {
 
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if (page != null) {
+			filter.setPageNumber(page);
+		}
 		filter.setProcessInstanceId(processInstanceId);
 		filter.initSort(sort);
 
@@ -76,6 +83,7 @@ public class WorkflowHistoricTaskInstanceController {
 
 	/**
 	 * Get detail historic task instance by his ID (for logged user)
+	 * 
 	 * @param historicTaskInstanceId
 	 * @return
 	 */

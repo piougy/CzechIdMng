@@ -80,62 +80,72 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testCreateRole() {
-		organization = saveInTransaction(constructTestOrganization(null), organizationRepository);
-
-		assertNotNull(organization.getId());
-		
-		template.execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-				List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
-				
-				assertEquals(1, revisions.size());
-				
-				IdmOrganization org = (IdmOrganization) auditService.findRevision(IdmOrganization.class, 
-						revisions.get(revisions.size() - 1).getRevisionNumber(), organization.getId()).getEntity();
-				
-				assertEquals(organization.getId(), org.getId());
-				assertEquals(organization.getName(), org.getName());
-				assertEquals(organization.getModifier(), org.getModifier());
-			}
-		});
+		loginAsAdmin(adminModifier);
+		try {
+			organization = saveInTransaction(constructTestOrganization(null), organizationRepository);
+	
+			assertNotNull(organization.getId());
+			
+			template.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					
+					assertEquals(1, revisions.size());
+					
+					IdmOrganization org = (IdmOrganization) auditService.findRevision(IdmOrganization.class, 
+							revisions.get(revisions.size() - 1).getRevisionNumber(), organization.getId()).getEntity();
+					
+					assertEquals(organization.getId(), org.getId());
+					assertEquals(organization.getName(), org.getName());
+					assertEquals(organization.getModifier(), org.getModifier());
+				}
+			});
+		} finally {
+			logout();
+		}
 	}
 	
 	@Test
 	public void testChangeName() {
-		organization = constructTestOrganization(null);
-		organization = saveInTransaction(organization, organizationRepository);
-		
-		final String firstName = organization.getName();
-		
-		organization.setName(testName + "2");
-		organization = saveInTransaction(organization, organizationRepository);
-		
-		final String secondName = organization.getName();
-		
-		template.execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-				List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
-				assertEquals(2, revisions.size());
-				
-				Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
-					@Override
-					public int compare(Revision<Integer, ? extends AbstractEntity> o1,
-							Revision<Integer, ? extends AbstractEntity> o2) {
-						return o1.compareTo(o2);
-					}
-				});
-				
-				IdmOrganization revisionRole = (IdmOrganization) revisions.get(revisions.size() - 1).getEntity();
-				
-				assertEquals(secondName, revisionRole.getName());
-				
-				revisionRole = (IdmOrganization) revisions.get(revisions.size() - 2).getEntity();
-				
-				assertEquals(firstName, revisionRole.getName());
-			}
-		});
+		loginAsAdmin(adminModifier);
+		try {
+			organization = constructTestOrganization(null);
+			organization = saveInTransaction(organization, organizationRepository);
+			
+			final String firstName = organization.getName();
+			
+			organization.setName(testName + "2");
+			organization = saveInTransaction(organization, organizationRepository);
+			
+			final String secondName = organization.getName();
+			
+			template.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					assertEquals(2, revisions.size());
+					
+					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
+						@Override
+						public int compare(Revision<Integer, ? extends AbstractEntity> o1,
+								Revision<Integer, ? extends AbstractEntity> o2) {
+							return o1.compareTo(o2);
+						}
+					});
+					
+					IdmOrganization revisionRole = (IdmOrganization) revisions.get(revisions.size() - 1).getEntity();
+					
+					assertEquals(secondName, revisionRole.getName());
+					
+					revisionRole = (IdmOrganization) revisions.get(revisions.size() - 2).getEntity();
+					
+					assertEquals(firstName, revisionRole.getName());
+				}
+			});
+		} finally {
+			logout();
+		}
 	}
 	
 	@Test
@@ -186,25 +196,30 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testRevisionDetail() {
-		organization = constructTestOrganization(null);
-		for (int index = 0; index < 10; index++) {
-			organization.setName(testName + "_" + index);
-			organization = saveInTransaction(organization, organizationRepository);
-		}
-		template.execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-				List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
-				
-				assertEquals(10, revisions.size());
-				
-				for (Revision<Integer, ? extends AbstractEntity> rev : revisions) {
-					Revision<Integer, ? extends AbstractEntity> revSecond = auditService.findRevision(IdmOrganization.class, rev.getRevisionNumber(), organization.getId());
-					assertEquals(rev, revSecond);
-				}
-				
+		loginAsAdmin(adminModifier);
+		try {
+			organization = constructTestOrganization(null);
+			for (int index = 0; index < 10; index++) {
+				organization.setName(testName + "_" + index);
+				organization = saveInTransaction(organization, organizationRepository);
 			}
-		});
+			template.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					
+					assertEquals(10, revisions.size());
+					
+					for (Revision<Integer, ? extends AbstractEntity> rev : revisions) {
+						Revision<Integer, ? extends AbstractEntity> revSecond = auditService.findRevision(IdmOrganization.class, rev.getRevisionNumber(), organization.getId());
+						assertEquals(rev, revSecond);
+					}
+					
+				}
+			});
+		} finally {
+			logout();
+		}
 	}
 	
 	@Test

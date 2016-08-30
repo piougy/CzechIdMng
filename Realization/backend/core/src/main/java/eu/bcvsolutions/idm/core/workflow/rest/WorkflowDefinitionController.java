@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,9 +43,10 @@ public class WorkflowDefinitionController {
 
 	@Autowired
 	private WorkflowDeploymentService deploymentService;
-
 	@Autowired
 	private WorkflowProcessDefinitionService definitionService;
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 
 	/**
 	 * Upload new deployment to Activiti engine
@@ -61,11 +63,11 @@ public class WorkflowDefinitionController {
 
 		return new ResourceWrapper<>(deploymentService.create(name, fileName, data.getInputStream()));
 	}
-	
+
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowProcessDefinitionDto> result = definitionService.search(filter);
-	
+
 		List<WorkflowProcessDefinitionDto> processes = (List<WorkflowProcessDefinitionDto>) result.getResources();
 		List<ResourceWrapper<WorkflowProcessDefinitionDto>> wrappers = new ArrayList<>();
 
@@ -98,27 +100,32 @@ public class WorkflowDefinitionController {
 		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
 				HttpStatus.OK);
 	}
-	
+
 	/**
 	 * Search last version and active process definitions. Use quick search api.
+	 * 
 	 * @param size
 	 * @param page
 	 * @param sort
-	 * @param text - category
+	 * @param text
+	 *            - category
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String category) {
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
+			@RequestParam(required = false) String sort, @RequestParam(required = false) String category) {
 
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if (page != null) {
+			filter.setPageNumber(page);
+		}
 		filter.setCategory(category);
 		filter.initSort(sort);
 
 		return this.search(filter);
 	}
+
 	/**
 	 * Search last version process by key
 	 * 

@@ -40,9 +40,9 @@ class TabPanel extends Basic.AbstractContextComponent {
 
   getNavigationItems() {
     const { navigation, userContext, activeItem, activeNavigationItem, parentId } = this.props;
-    const { userID } = this.props.params;
+    const { userID, revID } = this.props.params;
 
-    const params = { userID };
+    const params = { userID, revID };
 
     return getNavigationItems(navigation, parentId || activeNavigationItem, null, userContext, params).map(item => {
       const labelParams = resolveNavigationParameters(userContext, params);

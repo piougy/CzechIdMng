@@ -131,7 +131,7 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 */
 	@Override
 	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
-		if (!securityService.hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN) && !StringUtils.equals(new String(identity.getPassword()),
+		if (!securityService.isAdmin() && !StringUtils.equals(new String(identity.getPassword()),
 				new String(passwordChangeDto.getOldPassword()))) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}

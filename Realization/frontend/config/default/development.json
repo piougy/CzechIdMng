@@ -15,9 +15,6 @@
       }
     }
   },
-  "authorities": {
-    "superAdminAuthority": "SYSTEM_ADMIN"
-  },
   "logger": {
     "level": "DEBUG"
   }

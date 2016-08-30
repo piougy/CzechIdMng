@@ -65,5 +65,12 @@ public interface SecurityService {
 	 * @return
 	 */
 	List<GrantedAuthority> getAllAvailableAuthorities();
+	
+	/**
+	 * Returns true, if logged identity is super administrator. Could be used for single user mode.
+	 * 
+	 * @return
+	 */
+	boolean isAdmin();
 
 }

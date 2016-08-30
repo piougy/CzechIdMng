@@ -66,7 +66,7 @@ class Definitions extends Basic.AbstractContent {
     formData.append( 'fileName', file.name);
     formData.append( 'data', file );
     this.workflowDefinitionService.upload(formData)
-    .then(json => {
+    .then(() => {
       this.setState({
         showLoading: false
       }, () => {
@@ -111,7 +111,7 @@ class Definitions extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.Table ref="table" data={definitions} showLoading={showLoading}>
+          <Basic.Table ref="table" data={definitions} showLoading={showLoading} noData={this.i18n('component.basic.Table.noData')}>
             <Basic.Column property="key" header={this.i18n('key')} width="10%"
               cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>}/>
             <Basic.Column property="name" header={this.i18n('name')} width="20%"/>

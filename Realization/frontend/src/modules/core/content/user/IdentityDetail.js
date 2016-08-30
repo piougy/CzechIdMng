@@ -85,9 +85,10 @@ export default class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, readOnly } = this.props;
+    const { userContext, identity, userID, readOnly } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
     const canEditMap = identityManager.canEditMap(userContext, identity);
+    const deactiveDisabled = !userContext || userID === userContext.username || !canEditMap.get('isSaveEnabled');
 
     return (
       <div>
@@ -114,7 +115,8 @@ export default class IdentityDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.Identity.disabled')}
-                  readOnly={!identity}>
+                  readOnly={deactiveDisabled || !identity}
+                  title={deactiveDisabled ? this.i18n('messages.deactiveDisabled') : ''}>
                 </Basic.Checkbox>
               </Basic.AbstractForm>
 

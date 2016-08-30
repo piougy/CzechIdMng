@@ -144,7 +144,8 @@
             "select": "Přejít na stranu {{page}}"
           },
           "from": "z"
-        }
+        },
+        "noData": "Nenalezeny žádné záznamy"
       },
       "ProgressBar": {
         "start": "Zpracovávám",
@@ -178,7 +179,8 @@
         },
         "button": {
           "refresh": "Znovu načíst záznamy"
-        }
+        },
+        "noData": "$t(component.basic.Table.noData)"
       },
       "Tree": {
         "loading": "Načítání ..."

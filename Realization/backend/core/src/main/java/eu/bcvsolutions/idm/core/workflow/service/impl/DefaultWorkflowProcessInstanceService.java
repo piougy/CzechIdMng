@@ -54,9 +54,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	@Autowired
 	private RepositoryService repositoryService;
 
-	/**
-	 * Start new workflow process
-	 */
+	
 	@Override
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			Long objectIdentifier, Map<String, Object> variables) {
@@ -177,8 +175,6 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		query.variableValueEquals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME,
 				securityService.getOriginalUsername());
 		query.endOr();
-		// query.active();
-		// query.includeProcessVariables();
 		ProcessInstance processInstance = query.singleResult();
 		if (processInstance == null) {
 			throw new RestApplicationException(CoreResultCode.FORBIDDEN,

@@ -99,7 +99,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.Audit.label',
             'order': 110,
-            'path': '/user/:userID/audit',
+            'path': '/user/:userID/revision',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           }

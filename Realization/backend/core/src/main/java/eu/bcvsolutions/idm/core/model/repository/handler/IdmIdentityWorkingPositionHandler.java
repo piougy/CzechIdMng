@@ -7,6 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 
 /**
@@ -15,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  */
 @Component
-@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
+@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
 @RepositoryEventHandler(IdmIdentityWorkingPosition.class)
 public class IdmIdentityWorkingPositionHandler {	
 	

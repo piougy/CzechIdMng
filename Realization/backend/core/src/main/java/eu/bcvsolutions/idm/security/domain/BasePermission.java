@@ -8,6 +8,9 @@ package eu.bcvsolutions.idm.security.domain;
  */
 public interface BasePermission {
 	
+	/**
+	 * Is used for joining permission to authority
+	 */
 	public static final String SEPARATOR = "_";
 
 	/**

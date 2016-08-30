@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.exception.CoreResultCode;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
@@ -38,11 +43,22 @@ public class IdmRoleController implements IdmRevisionController {
 	@Autowired
 	private IdmAuditService auditService; 
 
+	@SuppressWarnings("unchecked")
 	@Override
-	@RequestMapping(value = "{identityId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
-		IdmRole originalEntity = this.roleLookup.findOneByName(identityId);
-		Revision<Integer, ? extends AbstractEntity> revision = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
+	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Integer revId) {
+		IdmRole originalEntity = this.roleLookup.findOneByName(roleId);
+		if (originalEntity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
+		}
+		
+		Revision<Integer, ? extends AbstractEntity> revision;
+		try {
+			revision = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
+		} catch (RevisionDoesNotExistException e) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
+		}
+		
 		IdmRole entity = (IdmRole) revision.getEntity();
 		RevisionAssembler<IdmRole> assembler = new RevisionAssembler<IdmRole>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
@@ -51,13 +67,23 @@ public class IdmRoleController implements IdmRevisionController {
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	@RequestMapping(value = "{identityId}/revisions", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
-		IdmRole originalEntity = this.roleLookup.findOneByName(identityId);
+	@RequestMapping(value = "{roleId}/revisions", method = RequestMethod.GET)
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("roleId") String roleId) {
+		IdmRole originalEntity = this.roleLookup.findOneByName(roleId);
+		if (originalEntity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
+		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> results = this.auditService.findRevisions(IdmRole.class, originalEntity.getId());
+		List<Revision<Integer, ? extends AbstractEntity>> results;
+		try {
+			 results = this.auditService.findRevisions(IdmRole.class, originalEntity.getId());
+		} catch (RevisionDoesNotExistException e) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
+		}
+		
 		RevisionAssembler<IdmRole> assembler = new RevisionAssembler<IdmRole>();
 		
 		for	(Revision<Integer, ? extends AbstractEntity> revision : results) {

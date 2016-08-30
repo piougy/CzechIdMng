@@ -64,6 +64,6 @@ public interface SecurityService {
 	 * 
 	 * @return
 	 */
-	List<GrantedAuthority> getAvailableAuthorities();
+	List<GrantedAuthority> getAllAvailableAuthorities();
 
 }

@@ -358,7 +358,7 @@ export default class IdentityDetail extends Basic.AbstractContent {
 
               <Basic.PanelFooter>
                 <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
-                <Basic.Button type="submit" level="success" showLoading={showLoading} rendered={canEditMap.get('isSaveEnabled')}>{this.i18n('button.save')}</Basic.Button>
+                <Basic.Button type="submit" level="success" showLoading={showLoading} rendered={canEditMap.get('isSaveEnabled')} hidden={readOnly}>{this.i18n('button.save')}</Basic.Button>
               </Basic.PanelFooter>
             </Basic.Panel>
           </Basic.Row>

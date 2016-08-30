@@ -23,7 +23,7 @@ public class ConfigurationControllerRestTest extends AbstractRestTest {
 	private SecurityService securityService;
 
 	public RequestPostProcessor adminSecurity() {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
         return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
 	}
 	

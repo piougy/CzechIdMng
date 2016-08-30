@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 
@@ -33,15 +33,15 @@ public class IdmOrganizationEventHandler {
 	@HandleBeforeSave
 	public void handleBeforeSave(IdmOrganization organization) {
 		if (checkParents(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 
 		if (checkEmptyParent(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		if (checkChildren(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		
@@ -51,15 +51,15 @@ public class IdmOrganizationEventHandler {
 	@HandleBeforeCreate
 	public void handleBeforeCreate(IdmOrganization organization) {
 		if (checkParents(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 
 		if (checkEmptyParent(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		if (checkChildren(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		

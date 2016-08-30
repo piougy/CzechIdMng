@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.dto.ResultModels;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-public final class RestApplicationException extends CoreException {
+public final class ResultCodeException extends CoreException {
 	
 	private static final long serialVersionUID = -7022978890145637612L;
 	/**
@@ -21,47 +21,47 @@ public final class RestApplicationException extends CoreException {
 	 */
 	private ResultModels resultModels;
 	
-	private RestApplicationException(String message, Throwable throwable) {
+	private ResultCodeException(String message, Throwable throwable) {
 		super(message, throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode) {
+	public ResultCodeException (ResultCode resultCode) {
 		this(resultCode, (String) null);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, Throwable throwable) {
+	public ResultCodeException (ResultCode resultCode, Throwable throwable) {
 		this(resultCode, (String) null, throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, Map<String, Object> parameters, Throwable throwable) {
+	public ResultCodeException (ResultCode resultCode, Map<String, Object> parameters, Throwable throwable) {
 		this(new DefaultErrorModel(resultCode, parameters), throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, Map<String, Object> parameters) {
+	public ResultCodeException (ResultCode resultCode, Map<String, Object> parameters) {
 		this(new DefaultErrorModel(resultCode, parameters));
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message) {
+	public ResultCodeException (ResultCode resultCode, String message) {
 		this(new DefaultErrorModel(resultCode, message, null), null);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message, Throwable throwable) {
+	public ResultCodeException (ResultCode resultCode, String message, Throwable throwable) {
 		this(new DefaultErrorModel(resultCode, message, null), throwable);
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message, Map<String, Object> parameters) {
+	public ResultCodeException (ResultCode resultCode, String message, Map<String, Object> parameters) {
 		this(new DefaultErrorModel(resultCode, message, parameters));
 	}
 	
-	public RestApplicationException (ResultCode resultCode, String message, Map<String, Object> parameters, Throwable throwable) {
+	public ResultCodeException (ResultCode resultCode, String message, Map<String, Object> parameters, Throwable throwable) {
 		this(new DefaultErrorModel(resultCode, message, parameters), throwable);
 	}
 	
-	public RestApplicationException(ErrorModel resultModel) {
+	public ResultCodeException(ErrorModel resultModel) {
 		this(resultModel, (Throwable) null);
 	}
 	
-	public RestApplicationException(ErrorModel resultModel, Throwable throwable) {
+	public ResultCodeException(ErrorModel resultModel, Throwable throwable) {
 		this(resultModel.getMessage(), throwable);
 		this.resultModels = new ResultModels(resultModel);
 	}

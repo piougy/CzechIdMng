@@ -14,6 +14,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 public interface IdmIdentityService {
 
 	/**
+	 * Returns identity by given id
+	 * @param id
+	 * @return
+	 */
+	IdmIdentity get(Long id);
+	
+	/**
 	 * Returns identity by given username
 	 * @param username
 	 * @return
@@ -27,13 +34,6 @@ public interface IdmIdentityService {
 	 * @return
 	 */
 	String getNiceLabel(IdmIdentity identity);
-
-	/**
-	 * Returns identity by given id
-	 * @param id
-	 * @return
-	 */
-	IdmIdentity get(Long id);
 
 	/**
 	 * Start workflow for change permissions

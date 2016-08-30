@@ -10,8 +10,18 @@ public interface WorkflowHistoricTaskInstanceService {
 	public static final String SORT_BY_END_TIME = "endTime";
 	public static final String TASK_COMPLETE_DECISION = "taskCompleteDecision";
 
+	/**
+	 * Search historic tasks
+	 * @param filter
+	 * @return
+	 */
 	ResourcesWrapper<WorkflowHistoricTaskInstanceDto> search(WorkflowFilterDto filter);
 
+	/**
+	 * Search historic task by ID.
+	 * @param historicTaskInstanceId
+	 * @return
+	 */
 	WorkflowHistoricTaskInstanceDto get(String historicTaskInstanceId);
 
 }

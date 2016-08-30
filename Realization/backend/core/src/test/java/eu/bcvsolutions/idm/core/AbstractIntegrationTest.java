@@ -36,7 +36,7 @@ public abstract class AbstractIntegrationTest {
 	private SecurityService securityService;
 	
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(username, null, securityService.getAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(username, null, securityService.getAllAvailableAuthorities()));
 	}
 	
 	public void logout(){

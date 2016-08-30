@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.envers.DefaultRevisionEntity;
+import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.history.Revision;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +28,9 @@ public interface IdmAuditService {
 	 * @param idRev
 	 * @param identityId
 	 * @return
+	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId);
+	Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) throws RevisionDoesNotExistException;
 	
 	/**
 	 * Method for find all revisions by class type and id identity.
@@ -37,6 +39,7 @@ public interface IdmAuditService {
 	 * @param classType
 	 * @param identityId
 	 * @return
+	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId);
+	List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) throws RevisionDoesNotExistException;
 }

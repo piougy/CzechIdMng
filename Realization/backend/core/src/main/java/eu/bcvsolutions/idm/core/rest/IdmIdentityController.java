@@ -10,6 +10,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;
+import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
 import org.springframework.hateoas.Resource;
@@ -130,7 +131,17 @@ public class IdmIdentityController implements IdmRevisionController  {
 	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
 		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
-		Revision<Integer, ? extends AbstractEntity> revision = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
+		if (originalEntity == null) {
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+		}
+		
+		Revision<Integer, ? extends AbstractEntity> revision;
+		try {
+			revision = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
+		} catch (RevisionDoesNotExistException e) {
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
+		}
+		
 		IdmIdentity entity = (IdmIdentity) revision.getEntity();
 		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
@@ -143,12 +154,21 @@ public class IdmIdentityController implements IdmRevisionController  {
 	@RequestMapping(value = ENDPOINT_NAME + "/{identityId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
 		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
+		if (originalEntity == null) {
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> results = this.auditService.findRevisions(IdmIdentity.class, originalEntity.getId());
+		List<Revision<Integer, ? extends AbstractEntity>> revisions;
+		try {
+			revisions = this.auditService.findRevisions(IdmIdentity.class, originalEntity.getId());
+		} catch (RevisionDoesNotExistException e) {
+			throw new RestApplicationException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", originalEntity.getId()));
+		}
+		
 		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
 		
-		for	(Revision<Integer, ? extends AbstractEntity> revision : results) {
+		for	(Revision<Integer, ? extends AbstractEntity> revision : revisions) {
 			wrappers.add(assembler.toResource(this.getClass(), 
 					String.valueOf(this.identityLookup.getResourceIdentifier((IdmIdentity)revision.getEntity())),
 					revision, revision.getRevisionNumber()));

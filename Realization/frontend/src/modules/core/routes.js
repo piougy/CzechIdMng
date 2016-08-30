@@ -67,14 +67,14 @@ module.exports = {
           component: require('./content/user/Delegates')
         },
         {
-          path: 'audit',
+          path: 'revision',
           component: require('./content/user/Audit')
         },
-        {
-          path: 'audit/:revID',
-          component: require('./content/user/AuditDetail')
-        }
       ]
+    },
+    {
+      path: 'user/:userID/revision/:revID',
+      component: require('./content/user/AuditDetail')
     },
     {
       path: 'users',

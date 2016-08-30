@@ -19,9 +19,24 @@ import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 public interface IdmRevisionController {
 	
-	@RequestMapping(value = "{identityId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId);
+	/**
+	 * Method find one revision defined by entityId (string) and revision number (Integer)
+	 * Method will be implemented with 
+	 * @RequestMapping(value = "{identityId}/revisions/{revId}", method = RequestMethod.GET)
+	 * 
+	 * @param identityId
+	 * @param revId
+	 * @return
+	 */
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("entityId") String entityId, @PathVariable("revId") Integer revId);
 	
-	@RequestMapping(value = "{identityId}/revisions", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId);
+	/**
+	 * Method find all revision for entityId (string).
+	 * Method will be implemented with 
+	 * @RequestMapping(value = "{entityId}/revisions", method = RequestMethod.GET)
+	 * 
+	 * @param entityId
+	 * @return
+	 */
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("entityId") String entityId);
 }

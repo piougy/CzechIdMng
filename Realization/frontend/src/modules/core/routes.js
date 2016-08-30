@@ -65,7 +65,7 @@ module.exports = {
         {
           path: 'revision',
           component: require('./content/user/Audit')
-        },
+        }
       ]
     },
     {

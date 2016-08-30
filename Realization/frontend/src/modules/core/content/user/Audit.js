@@ -40,7 +40,7 @@ class Audit extends Basic.AbstractContent {
           {this.i18n('header')}
         </Basic.ContentHeader>
 
-        <Basic.Panel>
+        <Basic.Panel className="no-border last">
           <Basic.Loading isStatic showLoading={_showLoading} />
           {
             !auditEntities

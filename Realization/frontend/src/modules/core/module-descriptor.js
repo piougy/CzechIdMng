@@ -96,8 +96,19 @@ module.exports = {
             'labelKey': 'entity.Audit.label',
             'order': 110,
             'path': '/user/:userID/revision',
-            'icon': 'fa:building',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'icon': 'fa:history',
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ],
+            'items': [
+              {
+                'id': 'profile-audit-profile-personal',
+                'type': 'TAB',
+                'label': 'Osobní údaje',
+                'labelKey': 'content.user.sidebar.profile',
+                'order': 10,
+                'path': '/user/:userID/revision/:revID',
+                'icon': 'user'
+              }
+            ]
           }
         ]
       },

@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -146,6 +144,9 @@ export class Navigation extends Basic.AbstractContextComponent {
 
     const items = [];
     for (const levelItem of levelItems) {
+      if (levelItem.type !== 'DYNAMIC') {
+        continue;
+      }
       const children = this.renderSidebarItems(levelItem.id, level);
       const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
       if (children) {

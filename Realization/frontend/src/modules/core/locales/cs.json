@@ -119,6 +119,9 @@
         "definitions": "Workflow definice",
         "historicProcess": "Workflow historie",
         "title": "Workflow"
+      },
+      "audit": {
+        "profile": "Audit uživatele"
       }
     }
   },
@@ -1062,7 +1065,10 @@
       "modifier": "Změnu provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
-      "id": "ID"
+      "id": "ID",
+      "profile": {
+        "userDetail": "Auditní záznám z"
+      }
       }
   },
   "entity": {

@@ -1090,7 +1090,7 @@
       "name": "Název role",
       "roleType": "Typ role",
       "disabled": "Neaktivní",
-      "approvable": "Schalovaná",
+      "approvable": "Schvalovaná",
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",

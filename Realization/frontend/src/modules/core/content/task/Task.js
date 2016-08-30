@@ -52,13 +52,13 @@ class Task extends Basic.AbstractContent {
       DetailComponent = DynamicTaskDetail;
     }
     return (
-        <div>
-          {task ?
-          <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
-          :
-          <Basic.Well showLoading/>
-          }
-        </div>
+      <div>
+        {task ?
+        <DetailComponent task={task} uiKey="dynamic-task-detail" taskManager={workflowTaskInstanceManager} readOnly={readOnly}/>
+        :
+        <Basic.Well showLoading/>
+        }
+      </div>
     );
   }
 }

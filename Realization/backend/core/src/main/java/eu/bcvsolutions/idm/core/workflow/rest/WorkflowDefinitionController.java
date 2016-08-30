@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
@@ -146,14 +146,14 @@ public class WorkflowDefinitionController {
 		// check rights
 		WorkflowProcessDefinitionDto result = definitionService.get(definitionKey);
 		if (result == null) {
-			throw new RestApplicationException(CoreResultCode.FORBIDDEN);
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		InputStream is = definitionService.getDiagramByKey(definitionKey);
 		try {
 			return ResponseEntity.ok().contentLength(is.available()).contentType(MediaType.IMAGE_PNG)
 					.body(new InputStreamResource(is));
 		} catch (IOException e) {
-			throw new RestApplicationException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 

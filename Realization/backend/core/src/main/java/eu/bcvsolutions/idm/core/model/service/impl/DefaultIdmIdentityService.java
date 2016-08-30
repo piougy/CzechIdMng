@@ -11,11 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.exception.CoreResultCode;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
+import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @Service
 public class DefaultIdmIdentityService implements IdmIdentityService {
@@ -27,10 +31,13 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	
-	@Override
+	@Autowired
+	private SecurityService securityService;
+	
 	/**
 	 * Start workflow for change permissions
 	 */
+	@Override
 	public ProcessInstance changePermissions(IdmIdentity identity){
 		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW, IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), null);	
 	}
@@ -111,5 +118,24 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 			result.add(position.getManager());
 		}
 		return result;
+	}
+	
+	/**
+	 * Changes given identity's password
+	 * 
+	 * TODO: propagate password change to other systems
+	 * 
+	 * @param identity
+	 * @param passwordChangeDto
+	 */
+	@Override
+	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
+		// TODO: hasAnyAuthority as permissionGroup
+		if (!securityService.hasAnyAuthority("SYSTEM_ADMIN") && !StringUtils.equals(new String(identity.getPassword()),
+				new String(passwordChangeDto.getOldPassword()))) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+		}
+		identity.setPassword(passwordChangeDto.getNewPassword());
+		identityRepository.save(identity);
 	}
 }

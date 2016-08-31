@@ -307,18 +307,6 @@ export class RoleTable extends Basic.AbstractContent {
                           ref="disabled"
                           label={this.i18n('entity.Role.disabled')}/>
                       </div>
-                    </div>
-                    <div className="col-lg-4">
-                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                        <div className="clearfix"/>
-                      </h3>
-                      <AuthoritiesPanel
-                        ref="authorities"
-                        roleManager={roleManager}
-                        authorities={detail.entity.authorities}
-                        disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
 
                       <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
                         { this.i18n('setting.approval.header') }
@@ -339,6 +327,19 @@ export class RoleTable extends Basic.AbstractContent {
                         forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.remove') }
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
+                    </div>
+
+                    <div className="col-lg-4">
+                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
+                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
+                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
+                        <div className="clearfix"/>
+                      </h3>
+                      <AuthoritiesPanel
+                        ref="authorities"
+                        roleManager={roleManager}
+                        authorities={detail.entity.authorities}
+                        disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>

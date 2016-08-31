@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import Joi from 'joi';
+import { connect } from 'react-redux';
 //
 import * as Basic from 'app/components/basic';
 import { IdentityManager } from 'core/redux';
@@ -8,7 +9,7 @@ import ApiOperationTypeEnum from 'core/enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
 
-export default class IdentityDetail extends Basic.AbstractContent {
+class IdentityDetail extends Basic.AbstractContent {
 
   constructor(props) {
     super(props);
@@ -136,7 +137,16 @@ export default class IdentityDetail extends Basic.AbstractContent {
 IdentityDetail.propTypes = {
   identity: PropTypes.object,
   userID: PropTypes.string.isRequired,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  userContext: PropTypes.object
 };
 IdentityDetail.defaultProps = {
+  userContext: null
 };
+
+function select(state) {
+  return {
+    userContext: state.security.userContext
+  };
+}
+export default connect(select)(IdentityDetail);

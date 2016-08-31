@@ -400,7 +400,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
           hover={false}
           data={conceptData}
           rowClass={this._rowClass}
-          showRowSelection={false}>
+          showRowSelection={false}
+          noData={this.i18n('component.basic.Table.noData')}>
           <Basic.Column
             header=""
             className="detail-button"

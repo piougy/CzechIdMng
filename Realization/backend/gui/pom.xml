@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+
+	<groupId>eu.bcvsolutions.idm</groupId>
+	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>idm-gui</artifactId>
+	<packaging>war</packaging>
+
+	<name>CzechIdM GUI</name>
+	<description>CzechIdM GUI</description>
+
+	<build>
+		<finalName>idm-gui</finalName>
+		<plugins>
+			<plugin>
+			    <artifactId>maven-resources-plugin</artifactId>
+			    <version>3.0.1</version>
+			    <executions>
+			      <execution>
+			        <id>copy-resources</id>
+			        <phase>prepare-package</phase>
+			        <goals>
+			          <goal>copy-resources</goal>
+			        </goals>
+			        <configuration>
+			          <outputDirectory>target/idm-gui</outputDirectory>
+			          <resources>          
+			    	    <resource>
+				      <directory>../../frontend/dist</directory>
+				      <filtering>true</filtering>
+				    </resource>
+				  </resources>              
+				</configuration>            
+			      </execution>
+		            </executions>
+			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-war-plugin</artifactId>
+			    <version>2.6</version>
+			    <configuration>
+				<failOnMissingWebXml>false</failOnMissingWebXml>
+			    </configuration>
+			</plugin>
+			<plugin>
+			    <groupId>com.github.eirslett</groupId>
+			    <artifactId>frontend-maven-plugin</artifactId>
+			    <version>1.0</version>
+			    <configuration>
+				<workingDirectory>../../frontend</workingDirectory>
+				 <installDirectory>target</installDirectory>
+			    </configuration>
+				<executions>
+				    <execution>
+				        <id>install node and npm</id>
+				        <goals>
+				            <goal>install-node-and-npm</goal>
+				        </goals>
+				        <configuration>
+				            <nodeVersion>v5.3.0</nodeVersion>
+				            <npmVersion>3.5.2</npmVersion>
+				        </configuration>
+				    </execution>
+				    <execution>
+					<id>npm install modules</id>
+					<goals>
+					    <goal>npm</goal>
+					</goals>
+					<configuration>
+					    <arguments>install .</arguments>
+					</configuration>
+					<phase>generate-resources</phase>
+				    </execution>
+				    <execution>
+					<id>gulp build</id>
+					<goals>
+					    <goal>gulp</goal>
+					</goals>
+					<phase>generate-resources</phase>
+					<configuration>
+					    <arguments>build -s production</arguments>
+					    <installDirectory>target</installDirectory>
+					</configuration>
+				    </execution>
+				</executions>
+			</plugin>
+		        <plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>maven-jgitflow-plugin</artifactId>
+				<version>1.0-m4.3</version>
+				<configuration>
+				  <pushReleases>true</pushReleases>
+				  <keepBranch>false</keepBranch>
+				  <autoVersionSubmodules>true</autoVersionSubmodules>
+				  <noTag>true</noTag>
+				  <allowUntracked>true</allowUntracked>
+				  <pullDevelop>true</pullDevelop>
+				  <pullMaster>true</pullMaster>
+				  <allowSnapshots>true</allowSnapshots>
+				  <flowInitContext>
+				    <masterBranchName>master</masterBranchName>
+				    <developBranchName>develop</developBranchName>
+				  </flowInitContext>
+				</configuration> 
+		        </plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>default</spring.profiles.active>
+			</properties>
+			
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<spring.profiles.active>dev</spring.profiles.active>
+			</properties>
+			
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>http://localhost:8082/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+			
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<spring.profiles.active>release</spring.profiles.active>
+			</properties>
+			<distributionManagement>
+				<repository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>http://localhost:8082/repository/maven-releases/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+</project>

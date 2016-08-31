@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>eu.bcvsolutions.idm</groupId>
+	<artifactId>idm-agregator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>idm module agregator</name>
+	<description>This file serves only like the aggregator - it does not contain any source 
+		code, but running Maven goals on this project runs successively Maven goals 
+		on all of its modules.</description>
+
+
+	<modules>
+		<module>../parent</module>
+		<module>../core</module>
+		<module>../client</module>
+		<module>../gui</module>
+	</modules>
+	<build>
+	   <plugins>
+	      <plugin>
+		<groupId>com.atlassian.maven.plugins</groupId>
+		<artifactId>maven-jgitflow-plugin</artifactId>
+		<version>1.0-m4.3</version>
+		<configuration>
+		  <pushReleases>true</pushReleases>
+		  <keepBranch>false</keepBranch>
+		  <autoVersionSubmodules>true</autoVersionSubmodules>
+		  <noTag>true</noTag>
+		  <allowUntracked>true</allowUntracked>
+		  <pullDevelop>true</pullDevelop>
+		  <pullMaster>true</pullMaster>
+		  <allowSnapshots>true</allowSnapshots>
+		  <flowInitContext>
+		    <masterBranchName>master</masterBranchName>
+		    <developBranchName>develop</developBranchName>
+		  </flowInitContext>
+		</configuration> 
+	      </plugin>
+	   </plugins>
+	</build>
+</project>

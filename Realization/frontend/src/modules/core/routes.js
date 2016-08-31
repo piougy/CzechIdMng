@@ -159,6 +159,11 @@ module.exports = {
         },
       ]
     },
+    // About site
+    {
+      path: 'about',
+      component: require('./content/About')
+    },
     // error pages
     {
       path: 'unavailable',

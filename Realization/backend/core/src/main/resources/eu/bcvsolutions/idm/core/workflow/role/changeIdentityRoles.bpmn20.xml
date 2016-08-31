@@ -260,14 +260,14 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         </activiti:field>
         <activiti:field name="html">
           <activiti:expression><![CDATA[<html xmlns="http://www.w3.org/1999/xhtml">
-<head/>
-<title>Vráceno vedoucím</title>
-<body>
-<h2>Vaše žádost o oprávnění byla várcena vedoucím.</h2>
-<br>
-Poznámka vedoucího: <b>${managerDescription != null ? managerDescription : ""}</b>
+   <head>
+      <title>Vráceno vedoucím</title>
+   </head>
+   <body>
+         <h2>Vaše žádost o oprávnění byla várcena vedoucím.</h2>
 
-</body>
+	 <div>Poznámka vedoucího: <b>${managerDescription != null ? managerDescription : ""}</b></div>
+   </body>
 </html>]]></activiti:expression>
         </activiti:field>
       </extensionElements>

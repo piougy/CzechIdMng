@@ -86,7 +86,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 */
 	@Override
 	public void setEmailSent(Long emailLogId, Date sent) {
-		IdmEmailLog emailLog = emailLogRepository.findOne(emailLogId);
+		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
 		log.debug("Persist sent date [{}] to emailLogId [{}]", sent, emailLogId);

@@ -91,6 +91,18 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	IdmEmailLog findOne(@Param("id") Long id);
 	
+	/**
+	 * Returns email log by given id - for internal purpose.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@RestResource(exported = false)
+	@Query(value = "select e from #{#entityName} e" +
+	        " where "
+	        + "e.id = :id")
+	IdmEmailLog get(@Param("id") Long id);
+	
 	@Override
 	@RestResource(exported = false)
 	<S extends IdmEmailLog> S save(S entity);

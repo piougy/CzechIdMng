@@ -63,6 +63,11 @@ class DynamicTaskDetail extends Basic.AbstractContent {
       this.refs.confirm.show(this.i18n(decision.warningMessage ? decision.warningMessage : 'completeTaskConfirmDetail'), this.i18n('completeTaskConfirmTitle'))
       .then(() => {
         this._completeTask(decision);
+      }, () => {
+        // Rejected
+        this.setState({
+          showLoading: false
+        });
       });
     } else {
       this._completeTask(decision);

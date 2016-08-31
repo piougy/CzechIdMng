@@ -5,7 +5,6 @@ import org.springframework.data.history.Revision;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;

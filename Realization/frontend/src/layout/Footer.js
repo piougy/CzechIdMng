@@ -8,10 +8,17 @@ import packageInfo from '../../package.json';
 /**
  * Idm footer
  */
-class Footer extends Basic.AbstractContextComponent {
+class Footer extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+  }
+
+  showAbout(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.router.replace('/about');
   }
 
   /**
@@ -37,7 +44,9 @@ class Footer extends Basic.AbstractContextComponent {
           &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
           <a href="http://www.bcvsolutions.eu" target="_blank">{this.i18n('app.author')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">HelpDesk</a>
+          <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.helpdesk')}</a>
+          <span style={{margin: '0 10px'}}>|</span>
+          <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('app.about')}>{this.i18n('app.about')}</a>
         </div>
         <div className="pull-right">
           <Basic.Button type="button" className="btn-xs" aria-label="Left Align"

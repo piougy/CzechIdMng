@@ -2,6 +2,8 @@
   "app": {
     "name": "CzechIdM",
     "author": "BCV solutions s.r.o.",
+    "helpdesk": "HelpDesk",
+    "about": "O nás",
     "version": {
       "frontend": "Verze",
       "backend": "Verze rozhraní"

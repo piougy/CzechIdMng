@@ -2,12 +2,13 @@ import React, { PropTypes } from 'react';
 import uuid from 'uuid';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
-import * as Utils from '../../utils';
-import { DataManager, OrganizationManager } from '../../redux';
+//
+import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
+import * as Utils from 'core/utils';
+import { DataManager, OrganizationManager, SecurityManager } from 'core/redux';
 // TODO: LocalizationService.getCurrentLanguage()
-import filterHelp from '../../../../components/advanced/Filter/README_cs.md';
+import filterHelp from 'app/components/advanced/Filter/README_cs.md';
 
 /**
 * Table of users
@@ -86,7 +87,7 @@ export class UserTable extends Basic.AbstractContent {
     const { identityManager } = this.props;
     //
     this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`content.users.action.${bulkActionValue}.message`, { count: usernames.length, username: usernames[0] }),
+      this.i18n(`content.users.action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
       this.i18n(`content.users.action.${bulkActionValue}.header`, { count: usernames.length})
     ).then(() => {
       this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
@@ -146,7 +147,7 @@ export class UserTable extends Basic.AbstractContent {
           uiKey={uiKey}
           manager={identityManager}
           onRowDoubleClick={this.onRowDoubleClick.bind(this)}
-          showRowSelection
+          showRowSelection={SecurityManager.hasAuthority('IDENTITY_WRITE')}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -195,12 +196,18 @@ export class UserTable extends Basic.AbstractContent {
               { value: 'remove', niceLabel: this.i18n('content.users.action.remove.action'), action: this.onRemove.bind(this), disabled: true },
               { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: this.onActivate.bind(this) },
               { value: 'deactivate', niceLabel: this.i18n('content.users.action.deactivate.action'), action: this.onActivate.bind(this) },
-              { value: 'password-reset', niceLabel: this.i18n('content.users.action.reset.action'), action: this.onReset.bind(this) }
+              { value: 'password-reset', niceLabel: this.i18n('content.users.action.reset.action'), action: this.onReset.bind(this), disabled: true }
             ]
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" type="submit" className="btn-xs" onClick={this.addUser.bind(this)} rendered >
+              <Basic.Button
+                level="success"
+                key="add_button"
+                type="submit"
+                className="btn-xs"
+                onClick={this.addUser.bind(this)}
+                rendered={SecurityManager.hasAuthority('IDENTITY_WRITE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.user.create.button.add')}
               </Basic.Button>

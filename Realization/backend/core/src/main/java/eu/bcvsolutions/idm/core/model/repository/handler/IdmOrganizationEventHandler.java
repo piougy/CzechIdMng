@@ -5,21 +5,24 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 
 /**
- * Provisioning preparation
+ * Securing organization, adds validations (TODO move to validator - e.g. {@link eu.bcvsolutions.idm.core.model.validator.IdmRoleValidator)
  * 
- * @author Ondrej Kopr <ondrej.kopr@bcvsolutions.eu>
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  */
 @Component
 @RepositoryEventHandler(IdmOrganization.class)
@@ -31,17 +34,18 @@ public class IdmOrganizationEventHandler {
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleEventHandler.class);
 	
 	@HandleBeforeSave
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ORGANIZATION_WRITE + "')")
 	public void handleBeforeSave(IdmOrganization organization) {
 		if (checkParents(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 
 		if (checkEmptyParent(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		if (checkChildren(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		
@@ -49,21 +53,28 @@ public class IdmOrganizationEventHandler {
 	}
 	
 	@HandleBeforeCreate
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ORGANIZATION_WRITE + "')")
 	public void handleBeforeCreate(IdmOrganization organization) {
 		if (checkParents(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 
 		if (checkEmptyParent(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		if (checkChildren(organization)) {
-			throw new RestApplicationException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE,  "Organization ["+organization.getName() +"] have bad paren organization.", ImmutableMap.of("organization", "manager"));
 		}
 		
 		
 		log.debug("1 Role [{}] will be saved", organization);
+	}
+	
+	@HandleBeforeDelete
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ORGANIZATION_DELETE + "')")
+	public void handleBeforeDelete(IdmOrganization organization) {	
+		// nothing, just security
 	}
 	
 	private boolean checkEmptyParent(IdmOrganization organization) {

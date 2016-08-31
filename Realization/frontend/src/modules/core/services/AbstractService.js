@@ -197,4 +197,46 @@ export default class AbstractService {
     }
     return _searchParameters;
   }
+
+  /**
+   * Get given audits revisions for apiPath and username, role name, organizations ids
+   *
+   * @param apiPath {string}
+   * @param entityId {string, number}
+   * @return {Promise}
+   */
+  getRevisions(entityId) {
+    return RestApiService
+    .get(this.getApiPath() + `/${entityId}/revisions`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Get single revision for username, role name, organizations ids and id revision
+   *
+   * @param entityId {string, number}
+   * @param revId {number}
+   * @return {Promise}
+   */
+  getRevision(entityId, revId) {
+    return RestApiService
+    .get(this.getApiPath() + `/${entityId}/revisions/${revId}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }

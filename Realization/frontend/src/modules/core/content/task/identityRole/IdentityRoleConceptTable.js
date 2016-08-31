@@ -475,7 +475,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                   showLoading={_showLoading}
                   showLoadingIcon
                   showLoadingText={this.i18n('button.saving')}>
-                  {this.i18n('button.save')}
+                  {this.i18n('button.set')}
                 </Basic.Button>
               </Basic.Modal.Footer>
             </form>

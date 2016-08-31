@@ -68,9 +68,7 @@ class Messages extends Basic.AbstractContent {
         </span>
         {
           isEmpty
-          ?
-          null
-          :
+          ||
           (
             this.props.maxHistory === messages.length
             ?

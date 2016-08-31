@@ -60,7 +60,8 @@
     "sending": "Odesílám ...",
     "save": "Uložit",
     "saving": "Ukládám ...",
-    "yes": "Ano"
+    "yes": "Ano",
+    "set": "Nastavit"
   },
   "action": {
     "delete": {
@@ -118,6 +119,9 @@
         "definitions": "Workflow definice",
         "historicProcess": "Workflow historie",
         "title": "Workflow"
+      },
+      "audit": {
+        "profile": "Audit uživatele"
       }
     }
   },
@@ -140,7 +144,8 @@
             "select": "Přejít na stranu {{page}}"
           },
           "from": "z"
-        }
+        },
+        "noData": "Nenalezeny žádné záznamy"
       },
       "ProgressBar": {
         "start": "Zpracovávám",
@@ -174,7 +179,8 @@
         },
         "button": {
           "refresh": "Znovu načíst záznamy"
-        }
+        },
+        "noData": "$t(component.basic.Table.noData)"
       },
       "Tree": {
         "loading": "Načítání ..."
@@ -246,6 +252,12 @@
       "ALL": "Odesláno",
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
+    }
+  },
+  "dashboard": {
+    "profileDashboard" : {
+      "header": "Vaše základní údaje",
+      "goToProfil": "Přejít na detail profilu"
     }
   },
   "content": {
@@ -342,7 +354,7 @@
         },
         "message": {
           "passwordChange": {
-            "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity. Heslo lze měnit pouze jednou za 24 hodin.",
+            "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
             "required": "Vyžadována změna hesla pro CzechIdM",
             "success": {
               "title": "Změna hesla proběhla v pořádku",
@@ -503,6 +515,12 @@
         "IdentityRoleConceptTable": {
           "oldValue": "Původní hodnota {{oldValue}}",
           "oldValueNotExist": "Původní hodnota byla prázdná",
+          "create": {
+            "header": "Přidat oprávnění"
+          },
+          "edit": {
+            "header": "Upravit oprávnění"
+          },
           "action": {
             "deleteAdded": {
               "header": "Odstranění oprávnění",
@@ -1042,7 +1060,18 @@
           "completeTaskDecision": "$t(entity.WorkflowHistoricTaskInstance.completeTaskDecision)"
         }
       }
-    }
+    },
+    "audit": {
+      "header": "Audit",
+      "title": "Audit",
+      "modifier": "Změnu provedl",
+      "date": "Datum změny",
+      "empty": "Bez žádných záznamů",
+      "id": "ID",
+      "profile": {
+        "userDetail": "Auditní záznám z"
+      }
+      }
   },
   "entity": {
     "created": "Vytvořeno",
@@ -1069,7 +1098,7 @@
       "name": "Název role",
       "roleType": "Typ role",
       "disabled": "Neaktivní",
-      "approvable": "Schalovaná",
+      "approvable": "Schvalovaná",
       "superiorRoles": "Nadřazené role",
       "subRoles": "Podřazené role",
       "authorities": "Oprávnění",
@@ -1195,6 +1224,9 @@
       "name": "Klíč",
       "value": "Hodnota",
       "secured": "Systémové nastavení"
+    },
+    "Audit": {
+      "label": "Audit"
     }
   },
   "error": {
@@ -1263,6 +1295,9 @@
     },
     "CONFLICT": {
       "title": "Záznam koliduje s jiným unikátním záznamem"
+    },
+    "IDENTITY_NOT_FOUND": {
+      "message": "Identita [{{identity}}] neexistuje"
     }
   },
   "validationError": {

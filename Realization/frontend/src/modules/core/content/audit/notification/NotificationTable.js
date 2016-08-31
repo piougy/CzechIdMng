@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
-import { IdentityManager } from 'core/redux';
+import { IdentityManager, SecurityManager } from 'core/redux';
 import NotificationStateEnum from 'core/enums/NotificationStateEnum';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
@@ -146,7 +146,7 @@ export class NotificationTable extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('NOTIFICATION_WRITE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.send')}

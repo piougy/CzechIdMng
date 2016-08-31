@@ -58,5 +58,4 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity> {
 	@Override
 	@RestResource(exported = false)
 	void delete(IdmIdentity entity);
-
 }

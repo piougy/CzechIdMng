@@ -3,8 +3,9 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import Immutable from 'immutable';
-import * as Basic from '../../../../components/basic';
-import { DataManager, IdentityManager } from '../../redux';
+//
+import * as Basic from 'app/components/basic';
+import { DataManager, IdentityManager } from 'core/redux';
 
 const RESOURCE_IDM = 'czechidm';
 
@@ -173,7 +174,7 @@ class PasswordReset extends Basic.AbstractContent {
     this.refs.confirm.show(
       this.i18n('confirm.message', { count: identityResources.size, username: identityResources.keySeq().toArray()[0] }),
       this.i18n('confirm.title')
-    ).then(result => {
+    ).then(() => {
       // TODO: long runnig task on server
       this.setState({
         bulkAction: 'password-reset',
@@ -263,7 +264,7 @@ class PasswordReset extends Basic.AbstractContent {
       });
     });
 
-    const data = [];
+    const tableData = [];
     usernames.forEach(username => {
       const row = {
         username
@@ -273,7 +274,7 @@ class PasswordReset extends Basic.AbstractContent {
           [resource]: resource
         });
       });
-      data.push(row);
+      tableData.push(row);
     });
 
     const columns = [
@@ -347,10 +348,10 @@ class PasswordReset extends Basic.AbstractContent {
         <Basic.Panel>
           <Basic.PanelHeader text={this.i18n('header')}/>
 
-          <Basic.Alert icon="info-sign" text={this.i18n('info')} rendered={data.length > 0}/>
+          <Basic.Alert icon="info-sign" text={this.i18n('info')} rendered={tableData.length > 0}/>
 
           <Basic.Table
-            data={data}
+            data={tableData}
             noData={
               <span>{this.i18n('users.empty')}</span>
             }>

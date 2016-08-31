@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
@@ -42,9 +43,10 @@ public class WorkflowDefinitionController {
 
 	@Autowired
 	private WorkflowDeploymentService deploymentService;
-
 	@Autowired
 	private WorkflowProcessDefinitionService definitionService;
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 
 	/**
 	 * Upload new deployment to Activiti engine
@@ -61,11 +63,11 @@ public class WorkflowDefinitionController {
 
 		return new ResourceWrapper<>(deploymentService.create(name, fileName, data.getInputStream()));
 	}
-	
+
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowProcessDefinitionDto> result = definitionService.search(filter);
-	
+
 		List<WorkflowProcessDefinitionDto> processes = (List<WorkflowProcessDefinitionDto>) result.getResources();
 		List<ResourceWrapper<WorkflowProcessDefinitionDto>> wrappers = new ArrayList<>();
 
@@ -98,27 +100,32 @@ public class WorkflowDefinitionController {
 		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>>(resources,
 				HttpStatus.OK);
 	}
-	
+
 	/**
 	 * Search last version and active process definitions. Use quick search api.
+	 * 
 	 * @param size
 	 * @param page
 	 * @param sort
-	 * @param text - category
+	 * @param text
+	 *            - category
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessDefinitionDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false) String category) {
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
+			@RequestParam(required = false) String sort, @RequestParam(required = false) String category) {
 
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if (page != null) {
+			filter.setPageNumber(page);
+		}
 		filter.setCategory(category);
 		filter.initSort(sort);
 
 		return this.search(filter);
 	}
+
 	/**
 	 * Search last version process by key
 	 * 
@@ -146,14 +153,14 @@ public class WorkflowDefinitionController {
 		// check rights
 		WorkflowProcessDefinitionDto result = definitionService.get(definitionKey);
 		if (result == null) {
-			throw new RestApplicationException(CoreResultCode.FORBIDDEN);
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		InputStream is = definitionService.getDiagramByKey(definitionKey);
 		try {
 			return ResponseEntity.ok().contentLength(is.available()).contentType(MediaType.IMAGE_PNG)
 					.body(new InputStreamResource(is));
 		} catch (IOException e) {
-			throw new RestApplicationException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../../../components/basic';
-import { WorkflowProcessDefinitionService } from '../../services';
+import * as Basic from 'app/components/basic';
+import { WorkflowProcessDefinitionService } from 'core/services';
 
 /**
 * Workflow definition detail
@@ -20,7 +20,7 @@ class Definition extends Basic.AbstractContent {
     return 'content.workflow.definition';
   }
 
-  componentDidMount() {
+  componentWillMount() {
     const { definitionId } = this.props.params;
     this.setState({
       showLoading: true

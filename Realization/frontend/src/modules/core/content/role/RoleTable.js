@@ -2,14 +2,14 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import * as Basic from '../../../../components/basic';
-import * as Advanced from '../../../../components/advanced';
-import * as Utils from '../../utils';
-import RoleTypeEnum from '../../enums/RoleTypeEnum';
+import * as Basic from 'app/components/basic';
+import * as Advanced from 'app/components/advanced';
+import * as Utils from 'core/utils';
+import RoleTypeEnum from 'core/enums/RoleTypeEnum';
 //
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
-import {WorkflowProcessDefinitionManager} from '../../redux';
+import { WorkflowProcessDefinitionManager, SecurityManager} from 'core/redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
@@ -186,7 +186,7 @@ export class RoleTable extends Basic.AbstractContent {
           manager={roleManager}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
-          showRowSelection
+          showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -217,7 +217,12 @@ export class RoleTable extends Basic.AbstractContent {
           }
           buttons={
             [
-              <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) })}>
+              <Basic.Button
+                level="success"
+                key="add_button"
+                className="btn-xs"
+                onClick={this.showDetail.bind(this, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) })}
+                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -268,7 +273,7 @@ export class RoleTable extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined }/>
             <Basic.Modal.Body>
               <Basic.Loading showLoading={_showLoading}>
-                <Basic.AbstractForm ref="form">
+                <Basic.AbstractForm ref="form" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')}>
                   <Basic.Row>
                     <div className="col-lg-8">
                       <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
@@ -302,17 +307,6 @@ export class RoleTable extends Basic.AbstractContent {
                           ref="disabled"
                           label={this.i18n('entity.Role.disabled')}/>
                       </div>
-                    </div>
-                    <div className="col-lg-4">
-                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                        <div className="clearfix"/>
-                      </h3>
-                      <AuthoritiesPanel
-                        ref="authorities"
-                        roleManager={roleManager}
-                        authorities={detail.entity.authorities}/>
 
                       <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
                         { this.i18n('setting.approval.header') }
@@ -334,6 +328,19 @@ export class RoleTable extends Basic.AbstractContent {
                         multiSelect={false}
                         manager={workflowProcessDefinitionManager}/>
                     </div>
+
+                    <div className="col-lg-4">
+                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
+                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
+                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
+                        <div className="clearfix"/>
+                      </h3>
+                      <AuthoritiesPanel
+                        ref="authorities"
+                        roleManager={roleManager}
+                        authorities={detail.entity.authorities}
+                        disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
+                    </div>
                   </Basic.Row>
                 </Basic.AbstractForm>
               </Basic.Loading>
@@ -351,7 +358,8 @@ export class RoleTable extends Basic.AbstractContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

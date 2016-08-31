@@ -5,7 +5,7 @@
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent" name="End"></endEvent>
     <userTask id="applicantTask" name="Vytvoření žádosti žadatelem" activiti:candidateUsers="${implementerUsername},${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Vytvoření žádosti žadatelem</documentation>
+      <documentation>Změna oprávnění - vytvoření žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="createRequest" type="decision"></activiti:formProperty>
@@ -18,7 +18,7 @@
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="applicantTask" targetRef="exclusivegateway1"></sequenceFlow>
     <userTask id="managerTask" name="Schválení žádosti vedoucím" activiti:candidateUsers="#{defaultIdmIdentityService.findAllManagersByUserPositionsString(applicantIdentifier)}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Schválení žádosti vedoucím</documentation>
+      <documentation>Změna oprávnění - schválení žádosti vedoucím</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
@@ -45,7 +45,7 @@
       <documentation>Zrušeno žadatelem</documentation>
     </endEvent>
     <userTask id="applicantReturnedTask" name="Oprava žádosti žadatelem (vráceno vedoucím)" activiti:assignee=" ${applicantUsername}" activiti:formKey="dynamicRoleTaskDetail">
-      <documentation>Je požadována úprava žádosti žadatelem</documentation>
+      <documentation>Změna oprávnění - je požadována úprava žádosti žadatelem</documentation>
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>

@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.configuration.rest.ConfigurationController;
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 
 /**
  * Handles configuration active operations and redirect them to {@link ConfigurationService}.

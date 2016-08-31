@@ -1,30 +1,39 @@
 package eu.bcvsolutions.idm.core.model.repository.handler;
 
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
- * Provisioning preparation
+ * SRole security and provisioning preparation
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  */
 @Component
 @RepositoryEventHandler(IdmRole.class)
 public class IdmRoleEventHandler {
-	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleEventHandler.class);
 
 	@HandleBeforeSave
-	public void handleBeforeSave(IdmRole role) {		
-		log.debug("1 Role [{}] will be saved", role);
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
+	public void handleBeforeSave(IdmRole role) {
+		// nothing, just security
 	}
 	
 	@HandleBeforeCreate
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public void handleBeforeCreate(IdmRole role) {		
-		log.debug("1 Role [{}] will be created", role);
-	}	
+		// nothing, just security
+	}
+	
+	@HandleBeforeDelete
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
+	public void handleBeforeDelete(IdmRole role) {	
+		// nothing, just security
+	}
 }

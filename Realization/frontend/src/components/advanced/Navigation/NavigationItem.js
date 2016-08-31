@@ -26,13 +26,18 @@ export default class NavigationItem extends Basic.AbstractContextComponent {
       this.getLogger().error(`[Advanced.NavigationItem] item [${id}] in module descriptor has to be repaired. Target link is undefined and will be hidden.`);
       return null;
     }
+    // icon resolving
+    let _icon = ( icon === undefined || icon === null ? 'fa:circle-o' : icon );
+    if (showLoading) {
+      _icon = 'refresh';
+    }
 
     return (
       <li className={itemClassNames} {...others}>
         <Basic.Tooltip id={`${id}-tooltip`} placement={titlePlacement} value={title} delayShow={200}>
           {
             <Link to={to} className={linkClassNames}>
-              <Basic.Icon icon={showLoading ? 'refresh' : icon ? icon : 'fa:circle-o'} color={iconColor} showLoading={showLoading}/>
+              <Basic.Icon icon={_icon} color={iconColor} showLoading={showLoading}/>
               {text}
             </Link>
           }

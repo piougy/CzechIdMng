@@ -1,7 +1,3 @@
-
-
-import config from '../../../config.json';
-
 module.exports = {
   'id': 'core',
   'name': 'Core',
@@ -54,30 +50,6 @@ module.exports = {
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
-            'id': 'profile-accounts',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.accounts',
-            'order': 40,
-            'path': '/user/:userID/accounts',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
-            'id': 'profile-approve',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.approve',
-            'order': 40,
-            'path': '/user/:userID/approve',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
-            'id': 'profile-subordinates',
-            'type': 'TAB',
-            'labelKey': 'content.user.sidebar.subordinates',
-            'order': 60,
-            'path': '/user/:userID/subordinates',
-            'access': [ { 'type': 'DENY_ALL' } ]
-          },
-          {
             'id': 'profile-working-positions',
             'type': 'TAB',
             'labelKey': 'entity.IdentityWorkingPosition._type',
@@ -87,26 +59,26 @@ module.exports = {
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
-            'id': 'profile-delegates',
+            'id': 'profile-audit',
             'type': 'TAB',
-            'labelKey': 'content.user.delegates.title',
-            'order': 70,
-            'path': '/user/:userID/delegates',
-            'access': [ { 'type': 'DENY_ALL' } ]
+            'labelKey': 'entity.Audit.label',
+            'order': 110,
+            'path': '/user/:userID/revision',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
+            'icon': 'fa:history',
+            'items': [
+              {
+                'id': 'profile-audit-profile-personal',
+                'type': 'TAB',
+                'label': 'Osobní údaje',
+                'labelKey': 'content.user.sidebar.profile',
+                'order': 10,
+                'path': '/user/:userID/revision/:revID',
+                'icon': 'user'
+              }
+            ]
           }
         ]
-      },
-      {
-        'id': 'user-subordinates',
-        'label': 'Podřízení',
-        'labelKey': 'navigation.menu.subordinates.label',
-        'title': 'Můj tým',
-        'titleKey': 'navigation.menu.subordinates.title',
-        'icon': 'briefcase',
-        'order': 20,
-        'path': '/user/:loggedUsername/subordinates',
-        'includeItemsId': 'user-profile',
-        'access': [ { 'type': 'DENY_ALL' } ]
       },
       {
         'id': 'tasks',
@@ -126,7 +98,7 @@ module.exports = {
         'icon': 'user',
         'order': 40,
         'path': '/users',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
         'id': 'organizations',
@@ -136,7 +108,7 @@ module.exports = {
         'order': 50,
         'iconColor': '#eb9316',
         'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
       },
       {
         'id': 'roles',
@@ -146,7 +118,7 @@ module.exports = {
         'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
       },
       {
         'id': 'workflow',
@@ -154,21 +126,19 @@ module.exports = {
         'icon': 'fa:sitemap',
         'order': 40,
         'iconColor': '#428BCA',
-      //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ],
         'items': [
           {
             'id': 'workflow-definitions',
             'labelKey': 'navigation.menu.workflow.definitions',
             'order': 40,
             'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           },
           {
             'id': 'workflow-historic-processes',
             'labelKey': 'navigation.menu.workflow.historicProcess',
             'order': 35,
             'path': '/workflow/history/processes',
-          //  'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
           }
         ]
       },
@@ -180,7 +150,7 @@ module.exports = {
         'access': [
           {
             'type': 'HAS_ANY_AUTHORITY',
-            'authorities': [ 'SYSTEM_ADMIN' ]
+            'authorities': [ 'NOTIFICATION_READ' ]
           }
         ],
         'items': [
@@ -193,7 +163,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': [config.authorities.superAdminAuthority]
+                'authorities': ['NOTIFICATION_READ']
               }
             ]
           },
@@ -206,7 +176,7 @@ module.exports = {
             'access': [
               {
                 'type': 'HAS_ANY_AUTHORITY',
-                'authorities': [config.authorities.superAdminAuthority]
+                'authorities': ['NOTIFICATION_READ']
               }
             ]
           }
@@ -219,7 +189,7 @@ module.exports = {
         'order': 1000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', config.authorities.superAdminAuthority] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ],
         'items': [
           {
             'id': 'system-configuration',
@@ -234,7 +204,7 @@ module.exports = {
             'labelKey': 'content.system.app-modules.title',
             'order': 30,
             'path': '/app-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [config.authorities.superAdminAuthority] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           }
         ]
       },
@@ -269,7 +239,8 @@ module.exports = {
         'labelKey': 'content.password.change.title',
         'order': 10,
         'path': '/password/change',
-        'access': [ { 'type': 'DENY_ALL' } ]
+        'icon': false,
+        'access': [ { 'type': 'NOT_AUTHENTICATED' } ]
       },
       {
         'id': 'password-reset',

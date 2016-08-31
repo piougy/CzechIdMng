@@ -3,15 +3,19 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Component
 public class WorkflowFilterDto {
 	
 	public static final String ORDER_ASC = "asc";
 	public static final String ORDER_DESC = "desc";
 	
 	private int pageNumber = 0;
-	private int pageSize = 20;
+	private int pageSize = 10;
 	private boolean sortAsc = false;
 	private boolean sortDesc = false;
 	private String sortByFields;
@@ -25,6 +29,13 @@ public class WorkflowFilterDto {
 	private String id;
 	private String category;
 
+	public WorkflowFilterDto(int defaultPageSize) {
+		this.setPageSize(defaultPageSize);
+	}
+	
+	public WorkflowFilterDto() {
+	}
+	
 	public Map<String, Object> getEqualsVariables() {
 		if (equalsVariables == null) {
 			equalsVariables = new HashMap<>();
@@ -134,6 +145,12 @@ public class WorkflowFilterDto {
 
 	@JsonIgnore
 	public void initSort(String sort) {
+		if (sort == null) {
+			this.setSortByFields(null);
+			this.setSortAsc(true);
+			this.setSortDesc(false);
+			return;
+		}
 		String[] sorts = sort.split(",");
 		if(sorts != null && sorts.length > 1){
 			this.setSortByFields(sorts[0]);

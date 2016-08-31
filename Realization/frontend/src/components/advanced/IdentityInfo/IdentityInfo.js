@@ -48,56 +48,56 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       { 'panel-warning': _identity && _identity.disabled },
       className
     );
+    if (showLoading || (username && !_identity)) {
+      return (
+        <Basic.Well showLoading/>
+      );
+    }
+    if (!_identity) {
+      return null;
+    }
     //
     return (
-      <div>
-        {
-          showLoading || (username && !_identity)
-          ?
-          <Basic.Well showLoading/>
-          :
-          !_identity
-          ?
-          null
-          :
-          <Basic.Panel className={panelClassNames} {...others}>
-            <Basic.PanelHeader>
-              <Basic.Row>
-                <div className="col-lg-2">
+      <Basic.Panel className={panelClassNames} {...others}>
+        <Basic.PanelHeader>
+          <Basic.Row>
+            <div className="col-lg-2">
+              {
+                _identity.disabled
+                ?
+                <Basic.Icon type="fa" icon="user-times" className="fa-4x"/>
+                :
+                <span>
                   {
-                    _identity.disabled
-                    ?
-                    <Basic.Icon type="fa" icon="user-times" className="fa-4x"/>
-                    :
                     identityManager.isExterne(_identity)
                     ?
                     <Basic.Icon type="fa" icon="user-secret" className="fa-4x"/>
                     :
                     <Basic.Icon type="fa" icon="user" className="fa-4x"/>
                   }
+                </span>
+              }
+            </div>
+            <div className="col-lg-10">
+              <div><strong>{identityManager.getNiceLabel(_identity)}</strong></div>
+              <div>{_identity.email}</div>
+              <div>{_identity.phone}</div>
+              {
+                identityManager.isExterne(_identity)
+                ?
+                <div>
+                  <i>
+                    {this.i18n('component.advanced.IdentityInfo.isExterne')}
+                  </i>
                 </div>
-                <div className="col-lg-10">
-                  <div><strong>{identityManager.getNiceLabel(_identity)}</strong></div>
-                  <div>{_identity.email}</div>
-                  <div>{_identity.phone}</div>
-                  {
-                    identityManager.isExterne(_identity)
-                    ?
-                    <div>
-                      <i>
-                        {this.i18n('component.advanced.IdentityInfo.isExterne')}
-                      </i>
-                    </div>
-                    :
-                    null
-                  }
-                  <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
-                </div>
-              </Basic.Row>
-            </Basic.PanelHeader>
-          </Basic.Panel>
-        }
-      </div>
+                :
+                null
+              }
+              <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
+            </div>
+          </Basic.Row>
+        </Basic.PanelHeader>
+      </Basic.Panel>
     );
   }
 }

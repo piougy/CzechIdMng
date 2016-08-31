@@ -1,9 +1,6 @@
-
-
 import EntityManager from '../../modules/core/redux/data/EntityManager';
 import { AttachmentService } from '../../services';
 
-const ENABLED_MODULES = 'environment.modules.enabled';
 const attachmentService = new AttachmentService();
 
 /**

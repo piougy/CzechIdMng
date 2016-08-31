@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+//
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import uuid from 'uuid';
+import { SecurityManager } from 'core/redux';
 
 // Root key for tree
 const rootKey = 'tree_root';
@@ -83,6 +85,22 @@ export class OrganizationTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
   }
 
+  onDelete(bulkActionValue, selectedRows) {
+    const { uiKey, organizationManager } = this.props;
+    const selectedEntities = organizationManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    //
+    this.refs['confirm-' + bulkActionValue].show(
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: organizationManager.getNiceLabel(selectedEntities[0]), records: organizationManager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: organizationManager.getNiceLabels(selectedEntities).join(', ') })
+    ).then(() => {
+      this.context.store.dispatch(organizationManager.deleteEntities(selectedEntities, uiKey, () => {
+        this.refs.table.getWrappedInstance().reload();
+      }));
+    }, () => {
+      // nothing
+    });
+  }
+
   /**
    * Recive new form for create new organization else show detail for existing org.
    */
@@ -146,11 +164,12 @@ export class OrganizationTable extends Basic.AbstractContent {
             </Basic.Panel>
           </div>
           <div className="col-lg-9" style={{ paddingRight: 0, paddingLeft: 0 }}>
+            <Basic.Confirm ref="confirm-delete" level="danger"/>
             <Advanced.Table
               ref="table"
               uiKey={uiKey}
               manager={organizationManager}
-              showRowSelection
+              showRowSelection={SecurityManager.hasAuthority('ORGANIZATION_DELETE')}
               rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
               style={{ borderLeft: '1px solid #ddd' }}
               filter={
@@ -184,9 +203,14 @@ export class OrganizationTable extends Basic.AbstractContent {
                 </Advanced.Filter>
               }
               filterOpened={!filterOpened}
+              actions={
+                [
+                  { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+                ]
+             }
               buttons={
                 [
-                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} >
+                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('ORGANIZATION_WRITE')}>
                     <Basic.Icon type="fa" icon="plus"/>
                     {' '}
                     {this.i18n('button.add')}

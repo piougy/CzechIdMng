@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import * as Basic from 'app/components/basic';
-import { OrganizationManager } from 'core/redux';
+import { OrganizationManager, SecurityManager } from 'core/redux';
 
 /**
  * Organization detail content
@@ -38,6 +38,11 @@ export default class OrganizationDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
+
+    this.setState({
+      showLoading: true
+    }, this.refs.form.processStarted());
+
     const entity = this.refs.form.getData();
 
     if (entity.parent) {
@@ -70,7 +75,7 @@ export default class OrganizationDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" >
+            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ORGANIZATION_WRITE')} >
               <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.Organization.name')}
@@ -91,7 +96,8 @@ export default class OrganizationDetail extends Basic.AbstractContent {
                 type="submit"
                 level="success"
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                rendered={SecurityManager.hasAuthority('ORGANIZATION_WRITE')}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>

@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.model.domain.CustomGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
@@ -52,14 +51,18 @@ public class DefaultSecurityService implements SecurityService {
 
 	@Override
 	public AbstractAuthentication getAuthentication() {
-		return (AbstractAuthentication) SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (!(authentication instanceof AbstractAuthentication)) {
+			return null;
+		}
+		return (AbstractAuthentication) authentication;
 	}
 
 	@Override
 	public Set<String> getAllAuthorities() {
 		Set<String> authorities = new HashSet<>();
 		Authentication authentication = getAuthentication();		
-		if (!authentication.isAuthenticated()) {
+		if (authentication == null || !authentication.isAuthenticated()) {
 			return authorities;
 		}
 		for (GrantedAuthority authority : authentication.getAuthorities()) {
@@ -81,27 +84,43 @@ public class DefaultSecurityService implements SecurityService {
 		return result;
 	}
 	
+	/**
+	 * Returns true, if logged identity has SYSTEM_ADMIN authority. Could be used for single user mode.
+	 */
+	@Override
+	public boolean isAdmin() {
+		return hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN);
+	}
+	
 	@Override
 	public List<GroupPermission> getAvailableGroupPermissions() {
 		//
 		// TODO: SPI / osgi for register module permissions
 		List<GroupPermission> groupPermissions = new ArrayList<>();
 		groupPermissions.addAll(Arrays.asList(IdmGroupPermission.values()));
-		groupPermissions.addAll(Arrays.asList(CustomGroupPermission.values()));
 		groupPermissions.addAll(Arrays.asList(NotificationGroupPermission.values()));
 		log.debug("Loaded available groupPermissions [size:{}]", groupPermissions.size());
 		return groupPermissions;
 	}
 	
 	@Override
-	public List<GrantedAuthority> getAvailableAuthorities() {
+	public List<GrantedAuthority> getAllAvailableAuthorities() {
+		return toAuthorities(getAvailableGroupPermissions());
+	}
+	
+	public static List<GrantedAuthority> toAuthorities(List<GroupPermission> groupPermissions) {
 		Set<GrantedAuthority> authorities = new HashSet<>();
-		getAvailableGroupPermissions().forEach(groupPermission -> {
-			groupPermission.getPermissions().forEach(basePermission -> {
-				authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
-			});					
-			
+		groupPermissions.forEach(groupPermission -> {
+			authorities.addAll(toAuthorities(groupPermission));				
 		});
+		return new ArrayList<>(authorities);
+	}
+	
+	public static List<GrantedAuthority> toAuthorities(GroupPermission groupPermission) {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		groupPermission.getPermissions().forEach(basePermission -> {
+			authorities.add(new DefaultGrantedAuthority(groupPermission, basePermission));
+		});					
 		return new ArrayList<>(authorities);
 	}
 

@@ -317,7 +317,7 @@ Table.defaultProps = {
   data: [],
   selectedRows: [],
   showRowSelection: false,
-  noData: 'Nenalezeny žádné záznamy',
+  noData: 'No record found',
   hover: true
 };
 

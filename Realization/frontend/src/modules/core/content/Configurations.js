@@ -271,7 +271,10 @@ class Configurations extends Basic.AbstractContent {
         </Basic.ContentHeader>
 
         <Basic.Panel>
-          <Basic.Table data={fileConfigurations} showLoading={_fileConfigurationsShowLoading}>
+          <Basic.Table
+            data={fileConfigurations}
+            showLoading={_fileConfigurationsShowLoading}
+            noData={this.i18n('component.basic.Table.noData')}>
             <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
             <Basic.Column property="value" header={this.i18n('entity.Configuration.value')} />
             <Basic.Column
@@ -293,7 +296,10 @@ class Configurations extends Basic.AbstractContent {
             </Basic.ContentHeader>
 
             <Basic.Panel>
-              <Basic.Table data={environmentConfigurations} showLoading={_environmentConfigurationsShowLoading}>
+              <Basic.Table
+                data={environmentConfigurations}
+                showLoading={_environmentConfigurationsShowLoading}
+                noData={this.i18n('component.basic.Table.noData')}>
                 <Basic.Column property="name" header={this.i18n('entity.Configuration.name')} width="250px"/>
                 <Basic.Column property="value" header={this.i18n('entity.Configuration.value')}/>
               </Basic.Table>

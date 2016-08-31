@@ -50,14 +50,6 @@ class Login extends Basic.AbstractContent {
     this.context.store.dispatch(securityManager.login(formData.username, formData.password));
   }
 
-  passwordReset() {
-    this.context.router.push('/password/reset');
-  }
-
-  passwordChange() {
-    this.context.router.push('/password/change');
-  }
-
   render() {
     const { userContext } = this.props;
     //

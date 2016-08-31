@@ -253,7 +253,7 @@ class PasswordChange extends Basic.AbstractContent {
 PasswordChange.propTypes = {
   passwordChangeType: PropTypes.oneOf([DISABLED, ALL_ONLY, CUSTOM]),
   requireOldPassword: PropTypes.bool,
-  userContext: PropTypes.object,
+  userContext: PropTypes.object
 };
 PasswordChange.defaultProps = {
   passwordChangeType: ALL_ONLY,

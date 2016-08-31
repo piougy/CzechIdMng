@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { AuthenticateService, ConfigService, LocalizationService } from '../../services';
+import { AuthenticateService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 
 /**
@@ -14,7 +14,6 @@ export const LOGOUT = 'LOGOUT';
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
 
 const authenticateService = new AuthenticateService();
-const configService = new ConfigService();
 
 /**
  * Encapsulate user context / authentication and authorization (commig soon)
@@ -167,7 +166,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return SecurityManager.hasAuthority(configService.getConfig('authorities').superAdminAuthority, userContext);
+    return SecurityManager.hasAuthority('SYSTEM_ADMIN', userContext);
   }
 
   /**
@@ -210,7 +209,7 @@ export default class SecurityManager {
   }
 
   /**
-   * Return true, if user fits in at least one access item - @see ConfigService for available access types
+   * Return true, if user fits in at least one access item - {@see ConfigService} for available access types
    */
   static hasAccess(accessItems, userContext) {
     if (!accessItems) {

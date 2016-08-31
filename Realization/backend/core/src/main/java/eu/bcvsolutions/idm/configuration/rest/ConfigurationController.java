@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;;
+import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -41,7 +42,7 @@ public class ConfigurationController {
 	 * 
 	 * @return
 	 */
-	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('CONFIGURATIONSECURED_READ')")
+	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/configurations/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
@@ -53,7 +54,7 @@ public class ConfigurationController {
 	 * 
 	 * @return
 	 */
-	@PreAuthorize("hasAuthority('CONFIGURATIONSECURED_READ')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/configurations/environment", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFroEnvironment() {
 		// TODO: resource wrapper + assembler

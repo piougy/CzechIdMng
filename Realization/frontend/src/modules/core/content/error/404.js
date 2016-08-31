@@ -16,7 +16,7 @@ export default class Error404 extends AbstractContent {
     return 'content.error.404';
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.selectNavigationItem('home');
     const { query } = this.props.location;
      // 404 with record id

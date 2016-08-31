@@ -27,8 +27,8 @@ public class ExceptionControllerAdvice {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExceptionControllerAdvice.class);
 	
-	@ExceptionHandler(RestApplicationException.class)
-    ResponseEntity<ResultModels> handle(RestApplicationException ex) {
+	@ExceptionHandler(ResultCodeException.class)
+    ResponseEntity<ResultModels> handle(ResultCodeException ex) {
 		if (ex.getStatus().is5xxServerError()) {
 			log.error("[" + ex.getId() + "] ", ex);
 		} else if(ex.getStatus().is2xxSuccessful()) {

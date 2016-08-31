@@ -39,5 +39,4 @@ public interface IdmOrganizationRepository extends BaseRepository<IdmOrganizatio
 	
 	@RestResource(exported = false)
 	IdmOrganization findOneByParentIsNull();
-	
 }

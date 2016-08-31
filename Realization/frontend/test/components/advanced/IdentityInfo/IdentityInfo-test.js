@@ -28,7 +28,7 @@ describe('Advanced IdentityInfo', function identityInfo() {
     const shallowRenderer = TestUtils.createRenderer();
     shallowRenderer.render(<IdentityInfo />);
     const renderedComponent = shallowRenderer.getRenderOutput();
-    expect(renderedComponent.props.children).to.be.null();
+    expect(renderedComponent).to.be.null();
   });
 
   it.skip('internist versus externe identity should not be the same', function test() {

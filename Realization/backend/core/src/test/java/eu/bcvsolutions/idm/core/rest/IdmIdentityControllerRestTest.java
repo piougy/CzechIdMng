@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,15 +19,19 @@ import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
-
 public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Autowired
 	private SecurityService securityService;
 
 	public RequestPostProcessor security() {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
         return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
+	}
+	
+	@After
+	public void logout() {
+		SecurityContextHolder.clearContext();
 	}
 	
 	@Test

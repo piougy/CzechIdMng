@@ -16,8 +16,8 @@ export default class RestApiService {
     return fetch(this.getUrl(path), fetchConfig);
   }
 
-  static put(path, json) {
-    const fetchConfig = this._getFetchConfig('put', json);
+  static put(path, json, token = null) {
+    const fetchConfig = this._getFetchConfig('put', json, token);
     return fetch(this.getUrl(path), fetchConfig);
   }
 

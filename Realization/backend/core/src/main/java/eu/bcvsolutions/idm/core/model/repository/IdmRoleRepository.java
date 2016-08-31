@@ -24,6 +24,8 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		excerptProjection = IdmRoleExcerpt.class)
 public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	
+	public static final String ADMIN_ROLE = "superAdminRole";
+	
 	IdmRole findOneByName(@Param("name") String name);
 	
 	@Query(value = "select e from IdmRole e" +

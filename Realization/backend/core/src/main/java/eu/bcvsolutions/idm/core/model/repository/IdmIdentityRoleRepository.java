@@ -25,4 +25,17 @@ public interface IdmIdentityRoleRepository extends BaseRepository<IdmIdentityRol
 	Page<IdmIdentityRole> findByIdentityUsername(@Param("username") String username, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	@RestResource(exported = false)
+	IdmIdentityRole save(@Param("entity") IdmIdentityRole entity);
+	
+	@Override
+	@RestResource(exported = false)
+	void delete(Long id);
+
+	@Override
+	@RestResource(exported = false)
+	void delete(IdmIdentityRole entity);
 }

@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Joi from 'joi';
 import Immutable from 'immutable';
-import * as Basic from '../../../../components/basic';
-import { AuthenticateService } from '../../../../modules/core/services';
-import { IdentityManager, OrganizationManager } from '../../../../modules/core/redux';
-import ApiOperationTypeEnum from '../../../../modules/core/enums/ApiOperationTypeEnum';
+//
+import * as Basic from 'app/components/basic';
+import { AuthenticateService } from 'core/services';
+import { IdentityManager } from 'core/redux';
+import ApiOperationTypeEnum from 'core/enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
-const organizationManager = new OrganizationManager();
 
 class Profile extends Basic.AbstractContent {
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -36,6 +37,8 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
 @RequestMapping(value = "/api/workflow/history/processes/")
 public class WorkflowHistoricProcessInstanceController {
 
+	@Value("${spring.data.rest.defaultPageSize}")
+	private int defaultPageSize;
 	@Autowired
 	private WorkflowHistoricProcessInstanceService workflowHistoricProcessInstanceService;
 
@@ -66,12 +69,13 @@ public class WorkflowHistoricProcessInstanceController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> searchQuick(
-			@RequestParam int size, @RequestParam int page, @RequestParam String sort,
+			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort,
 			@RequestParam(required = false) String name, @RequestParam(required = false) String processDefinition, @RequestParam(required = false) String superProcessInstanceId) {
 
-		WorkflowFilterDto filter = new WorkflowFilterDto();
-		filter.setPageNumber(page);
-		filter.setPageSize(size);
+		WorkflowFilterDto filter = new WorkflowFilterDto(size != null ? size : defaultPageSize);
+		if(page != null){
+			filter.setPageNumber(page);
+		}
 		filter.setProcessDefinitionKey(processDefinition);
 		filter.setSuperProcessInstanceId(superProcessInstanceId);
 		filter.setName(name != null && !name.isEmpty() ? name : null);
@@ -101,14 +105,14 @@ public class WorkflowHistoricProcessInstanceController {
 		WorkflowHistoricProcessInstanceDto result = workflowHistoricProcessInstanceService
 				.get(historicProcessInstanceId);
 		if (result == null) {
-			throw new RestApplicationException(CoreResultCode.FORBIDDEN);
+			throw new ResultCodeException(CoreResultCode.FORBIDDEN);
 		}
 		InputStream is = workflowHistoricProcessInstanceService.getDiagram(historicProcessInstanceId);
 		try {
 			return ResponseEntity.ok().contentLength(is.available()).contentType(MediaType.IMAGE_PNG)
 					.body(new InputStreamResource(is));
 		} catch (IOException e) {
-			throw new RestApplicationException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
+			throw new ResultCodeException(CoreResultCode.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 

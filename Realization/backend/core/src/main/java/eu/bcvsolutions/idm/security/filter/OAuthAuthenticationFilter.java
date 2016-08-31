@@ -30,7 +30,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.exception.ErrorModel;
-import eu.bcvsolutions.idm.core.exception.RestApplicationException;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.dto.ResultModels;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
@@ -90,7 +90,7 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 
 			Authentication newAuthentication = authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
 			SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-		} catch (RestApplicationException ex) {			
+		} catch (ResultCodeException ex) {			
 			sendErrorModel(httpRequest, httpResponse, ex.getError().getError(), ex);
 			return;
 		} catch (AuthenticationException | InvalidSignatureException ex) {

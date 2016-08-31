@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
-import { SecurityManager } from '../../../modules/core/redux';
+import { SecurityManager, ConfigurationManager } from '../../../modules/core/redux';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
 import NavigationItem from './NavigationItem';
 
@@ -214,10 +214,10 @@ export class Navigation extends Basic.AbstractContextComponent {
         {'hidden': environment === 'production'}
       );
       environmentLabel = (
-        <p className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title')}>
+        <p className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
           <span className={environmentClassName}>
-            <span className="hidden-sm">{this.i18n('environment.' + environment + '.label')}</span>
-            <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short')}</span>
+            <span className="hidden-sm">{this.i18n('environment.' + environment + '.label', { defaultValue: environment })}</span>
+            <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short', { defaultValue: environment })}</span>
           </span>
         </p>
       );
@@ -295,7 +295,7 @@ Navigation.contextTypes = {
 };
 
 function select(state) {
-  let environment = 'development'; // settingManager.getValue(state, 'environment.stage');
+  let environment = ConfigurationManager.getPublicValue(state, 'idm.pub.app.stage');
   if (environment) {
     environment = environment.toLowerCase();
   }

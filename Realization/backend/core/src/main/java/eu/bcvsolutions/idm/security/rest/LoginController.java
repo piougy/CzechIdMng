@@ -39,8 +39,4 @@ public class LoginController {
 		return new ResourceWrapper<LoginDto>(loginService.login(loginDto.getUsername(), loginDto.getPassword()));
 	}
 	
-	@RequestMapping(method = RequestMethod.GET)
-	public void test() {
-		workflowProcessInstanceService.startProcess("testEmailer", null, null, null, null);
-	}
 }

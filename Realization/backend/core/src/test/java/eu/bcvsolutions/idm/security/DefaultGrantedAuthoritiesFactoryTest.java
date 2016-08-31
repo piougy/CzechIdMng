@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -44,7 +43,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 	private SecurityService securityService;
 	
 	@InjectMocks
-	private DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory = new DefaultGrantedAuthoritiesFactory();
+	private final DefaultGrantedAuthoritiesFactory defaultGrantedAuthoritiesFactory = new DefaultGrantedAuthoritiesFactory();
 	
 	private static final IdmRoleAuthority SUB_ROLE_AUTHORITY;
 	private static final IdmIdentity TEST_IDENTITY;

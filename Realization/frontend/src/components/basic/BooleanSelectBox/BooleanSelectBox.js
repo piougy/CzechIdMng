@@ -7,7 +7,7 @@ export default class BooleanSelectBox extends EnumSelectBox {
 
 BooleanSelectBox.propTypes = {
   ...EnumSelectBox.propTypes,
-  value: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+  value: PropTypes.oneOfType([PropTypes.object, React.PropTypes.string])
 };
 BooleanSelectBox.defaultProps = {
   ...EnumSelectBox.defaultProps,

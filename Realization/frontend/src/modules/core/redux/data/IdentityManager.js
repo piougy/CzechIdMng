@@ -60,7 +60,7 @@ export default class IdentityManager extends EntityManager {
    * @param {string} bulkActionName activate|deactivate
    */
   setUsersActivity(usernames, bulkActionName) {
-    return (dispatch) => {
+    return (dispatch, getState) => {
       dispatch(
         this.startBulkAction(
           {
@@ -79,7 +79,7 @@ export default class IdentityManager extends EntityManager {
           return this.getService().deactivate(username);
         }).then(json => {
           dispatch(this.updateBulkAction());
-          successUsernames.push(username);
+          successUsernames.push(this.getEntity(getState(), username).username);
           // new entity to redux store
           dispatch(this.receiveEntity(username, json));
         }).catch(error => {

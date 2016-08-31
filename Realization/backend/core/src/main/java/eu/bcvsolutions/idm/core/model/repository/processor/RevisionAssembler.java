@@ -1,5 +1,6 @@
-package eu.bcvsolutions.idm.core.revision;
+package eu.bcvsolutions.idm.core.model.repository.processor;
 
+import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 import org.springframework.data.history.Revision;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;

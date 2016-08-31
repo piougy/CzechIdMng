@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleLookup;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.IdmRoleController;
-import eu.bcvsolutions.idm.core.revision.RevisionAssembler;
+import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 
 /**
  * 

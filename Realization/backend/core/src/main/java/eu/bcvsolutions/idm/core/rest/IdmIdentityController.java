@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.Controller;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.revision.IdmRevisionController;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 
 /**

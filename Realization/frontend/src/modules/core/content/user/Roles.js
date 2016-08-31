@@ -285,7 +285,8 @@ class Roles extends Basic.AbstractContent {
                   </Basic.Toolbar>
                   <Basic.Table
                     data={entities}
-                    showRowSelection={false}>
+                    showRowSelection={false}
+                    noData={this.i18n('component.basic.Table.noData')}>
                     <Basic.Column
                       header=""
                       className="detail-button"

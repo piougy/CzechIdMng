@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import * as Basic from '../../../../components/basic';
+import Helmet from 'react-helmet';
+//
+import * as Basic from 'app/components/basic';
 import { IdentityManager, DataManager } from 'core/redux';
 import IdentityDetail from './IdentityDetail';
-import * as Advanced from '../../../../components/advanced';
-import Helmet from 'react-helmet';
+import * as Advanced from 'app/components/advanced';
 
 const identityManager = new IdentityManager();
 
@@ -39,8 +40,8 @@ class AuditDetail extends Basic.AbstractContent {
           <Helmet title={this.i18n('navigation.menu.audit.profile')} />
           <Basic.Loading isStatic showLoading={showLoading} />
           {
-          !auditIdentity
-          ||
+            !auditIdentity
+            ||
             <div>
               <Basic.PageHeader>
               {identityManager.getNiceLabel(auditIdentity.entity)} <small> {this.i18n('content.audit.profile.userDetail')} <Advanced.DateValue value={auditIdentity.metadata.delegate.revisionDate} showTime/> </small>

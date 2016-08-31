@@ -43,24 +43,8 @@ module.exports = {
           component: require('./content/user/Roles')
         },
         {
-          path: 'accounts',
-          component: require('./content/user/Accounts')
-        },
-        {
-          path: 'subordinates',
-          component: require('./content/user/Subordinates')
-        },
-        {
           path: 'workingPositions',
           component: require('./content/user/WorkingPositions')
-        },
-        {
-          path: 'approve',
-          component: require('./content/user/Approve')
-        },
-        {
-          path: 'delegates',
-          component: require('./content/user/Delegates')
         },
         {
           path: 'revision',

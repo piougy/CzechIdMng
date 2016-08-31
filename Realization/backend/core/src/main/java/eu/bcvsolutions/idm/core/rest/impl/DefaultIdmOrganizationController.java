@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.IdmOrganizationController;
-import eu.bcvsolutions.idm.core.revision.RevisionAssembler;
+import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 
 /**
  * 

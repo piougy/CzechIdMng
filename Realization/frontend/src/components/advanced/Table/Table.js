@@ -189,6 +189,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
   }
 
+  getNoData(noData) {
+    if (noData !== null && noData !== undefined) {
+      return noData;
+    }
+    // default noData
+    return this.i18n('component.advanced.Table.noData', { defaultValue: 'No record found' });
+  }
+
   render() {
     const {
       _entities,
@@ -208,6 +216,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       filterViewportOffsetTop,
       actions,
       buttons,
+      noData,
       ...others
     } = this.props;
     const {
@@ -369,7 +378,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               showRowSelection={showRowSelection}
               selectedRows={selectedRows}
               onRowSelect={this._onRowSelect.bind(this)}
-              rowClass={rowClass}>
+              rowClass={rowClass}
+              noData={this.getNoData(noData)}>
               {renderedColumns}
             </Basic.BasicTable.Table>
             <Basic.BasicTable.Pagination
@@ -457,6 +467,12 @@ AdvancedTable.propTypes = {
    * Buttons are shown on the right of toogle filter button
    */
   buttons: PropTypes.arrayOf(PropTypes.element),
+  /**
+   * If table data is empty, then this text will be shown
+   *
+   * @type {string}
+   */
+  noData: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
 
   //
   // Private properties, which are used internally for async data fetching

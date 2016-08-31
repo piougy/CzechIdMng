@@ -105,6 +105,16 @@ export class FlashMessages extends AbstractComponent {
     return message;
   }
 
+  _getAutoDismiss(message) {
+    let autoDismiss = 10;
+    if (message.level === 'error') {
+      autoDismiss = 0;
+    } else if (message.level === 'success') {
+      autoDismiss = 5;
+    }
+    return autoDismiss;
+  }
+
   /**
   * Adds message to UI
   */
@@ -137,7 +147,7 @@ export class FlashMessages extends AbstractComponent {
       position: message.position,
       onRemove: (n) => this._onRemove(n),
       dismissible: message.dismissible,
-      autoDismiss: (message.level === 'error' ? 0 : (message.level === 'success' ? 5 : 10)),
+      autoDismiss: this._getAutoDismiss(message),
       action: message.action
     });
   }

@@ -117,6 +117,7 @@ public class DefaultEmailer implements Emailer {
 			}			
 		}
 		headers.put("Subject", emailLog.getMessage().getSubject());
+		headers.put("contentType", "text/html");
 		
 		return headers;
 	}

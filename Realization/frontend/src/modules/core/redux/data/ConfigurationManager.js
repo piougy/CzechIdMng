@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Immutable from 'immutable';
 //
 import EntityManager from './EntityManager';
 import { ConfigurationService } from '../../services';
@@ -32,7 +33,11 @@ export default class ConfigurationManager extends EntityManager {
       this.getService().getPublicConfigurations()
         .then(json => {
           // TODO: create immutable ma from pubic properties
-          dispatch(this.dataManager.receiveData(uiKey, json));
+          let publicConfigurations = new Immutable.Map();
+          json.forEach(item => {
+            publicConfigurations = publicConfigurations.set(item.name, item);
+          });
+          dispatch(this.dataManager.receiveData(uiKey, publicConfigurations));
         })
         .catch(error => {
           // TODO: data uiKey
@@ -91,6 +96,20 @@ export default class ConfigurationManager extends EntityManager {
    */
   shouldBeGuarded(configurationName) {
     return _.intersection(_.split(configurationName, '.'), ConfigurationManager.GUARDED_PROPERTY_NAMES).length > 0;
+  }
+
+  /**
+   * Returns setting value
+   */
+  static getPublicValue(state, key) {
+    const publicConfigurations = DataManager.getData(state, ConfigurationManager.PUBLIC_CONFIGURATIONS);
+    if (!publicConfigurations) {
+      return null;
+    }
+    if (!publicConfigurations.has(key)) {
+      return null;
+    }
+    return publicConfigurations.get(key).value;
   }
 }
 

@@ -48,7 +48,7 @@ export class App extends Basic.AbstractContent {
 
   ping() {
     const { publicConfigurations } = this.props;
-    if (!publicConfigurations || publicConfigurations.length === null) {
+    if (!publicConfigurations || publicConfigurations.size === null) {
       this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
     }
   }
@@ -72,7 +72,7 @@ export class App extends Basic.AbstractContent {
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          ((!publicConfigurations || publicConfigurations.length === 0) && location.pathname !== '/unavailable')
+          ((!publicConfigurations || publicConfigurations.size === 0) && location.pathname !== '/unavailable')
           ?
           <Basic.Loading className="global" showLoading/>
           :

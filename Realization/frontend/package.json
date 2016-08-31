@@ -69,6 +69,7 @@
     "react-bootstrap": "0.29.0",
     "react-datetime": "2.2.0",
     "react-dom": "15.0.1",
+    "react-dropzone": "3.5.0",
     "react-helmet": "2.3.1",
     "react-notification-system": "0.2.7",
     "react-overlays": "0.6.3",
@@ -84,14 +85,14 @@
     "redux-promise": "0.5.0",
     "redux-thunk": "2.0.1",
     "stringify": "5.1.0",
-    "uuid": "2.0.1",
-    "react-dropzone": "3.5.0"
+    "uuid": "2.0.1"
   },
   "devDependencies": {
     "babel": "5.8.38",
     "babel-core": "5.8.38",
     "babel-eslint": "^4.1.8",
     "babel-plugin-dev-expression": "^0.1.0",
+    "babel-register": "^6.14.0",
     "babelify": "6.3.0",
     "browser-sync": "2.9.11",
     "browserify": "13.0.1",

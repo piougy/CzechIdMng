@@ -9,7 +9,7 @@ describe('LocalizationService', function localizationServiceTest() {
   });
 
   it('- author has to be BCV solutions s.r.o.', function test() {
-    expect(coreLocale.app.author).to.equal('BCV solutions s.r.o.');
+    expect(coreLocale.app.author.name).to.equal('BCV solutions s.r.o.');
   });
 
   it('- load localization');

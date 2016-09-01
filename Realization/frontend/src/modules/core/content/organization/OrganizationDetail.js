@@ -26,6 +26,7 @@ export default class OrganizationDetail extends Basic.AbstractContent {
         loadedOrganization.parent = organization._embedded.parent.id;
       }
       this.refs.form.setData(loadedOrganization);
+      this.refs.name.focus();
     }
   }
 

@@ -96,6 +96,13 @@ class Definitions extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
+          <Basic.Dropzone ref="dropzone"
+            multiple
+            accept="text/xml"
+            onDrop={this._onDrop.bind(this)}>
+          </Basic.Dropzone>
+        </Basic.Panel>
+        <Basic.Panel>
           <Advanced.Table
             ref="table"
             manager={this.getManager()}
@@ -111,13 +118,6 @@ class Definitions extends Basic.AbstractContent {
             <Advanced.Column property="description" header={this.i18n('description')} width="35%" sort />
             <Advanced.Column property="version" header={this.i18n('version')} width="5%" sort />
           </Advanced.Table>
-        </Basic.Panel>
-        <Basic.Panel>
-          <Basic.Dropzone ref="dropzone"
-            multiple
-            accept="text/xml"
-            onDrop={this._onDrop.bind(this)}>
-          </Basic.Dropzone>
         </Basic.Panel>
       </div>
     );

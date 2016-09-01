@@ -42,11 +42,11 @@ class Footer extends Basic.AbstractContent {
           </span>
           <span style={{margin: '0 10px'}} className="hidden">|</span>
           &copy; { moment(new Date()).format('YYYY') } &nbsp;&nbsp;
-          <a href="http://www.bcvsolutions.eu" target="_blank">{this.i18n('app.author')}</a>
+          <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
           <span style={{margin: '0 10px'}}>|</span>
           <a href="http://redmine.czechidm.com/projects/czechidmng" target="_blank">{this.i18n('app.helpdesk')}</a>
           <span style={{margin: '0 10px'}}>|</span>
-          <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('app.about')}>{this.i18n('app.about')}</a>
+          <a href="#" onClick={this.showAbout.bind(this)} title={this.i18n('content.about.link')}>{this.i18n('content.about.link')}</a>
         </div>
         <div className="pull-right">
           <Basic.Button type="button" className="btn-xs" aria-label="Left Align"

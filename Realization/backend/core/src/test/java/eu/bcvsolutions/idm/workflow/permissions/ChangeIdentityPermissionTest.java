@@ -126,7 +126,10 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
 		//User test 1 must have superAdminRole
-		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_ADMIN_ROLE);}).findFirst().isPresent());
+		IdmIdentityRole idmIdentityRole2 = idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_ADMIN_ROLE);}).findFirst().get();
+		Assert.notNull(idmIdentityRole2);
+		// Original creator must be equal with applicant
+		Assert.isTrue(InitTestData.TEST_USER_1.equals(idmIdentityRole2.getOriginalCreator()), "Original creator must be equal with applicant");
 		
 	}
 	
@@ -194,6 +197,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// Validity date must be same as required validity on start of this test 
 		Assert.isTrue(sdf.format(superAdminPermission.getValidFrom()).equals(sdf.format(validFrom)));
 		Assert.isTrue(sdf.format(superAdminPermission.getValidTill()).equals(sdf.format(validTill)));
+		//Original modifier must be equal with applicant
+		Assert.isTrue(InitTestData.TEST_USER_1.equals(superAdminPermission.getOriginalModifier()), "Original modifier must be equal with applicant");
 		
 	}
 	
@@ -248,6 +253,9 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		// Validity date must be same as required validity on start of this test 
 		Assert.isTrue(sdf.format(userRolePermission.getValidFrom()).equals(sdf.format(validFrom)));
 		Assert.isTrue(sdf.format(userRolePermission.getValidTill()).equals(sdf.format(validTill)));
+		//Original modifier must be equal with applicant
+		Assert.isTrue(InitTestData.TEST_USER_1.equals(userRolePermission.getOriginalModifier()), "Original modifier must be equal with applicant");
+		
 		
 	}
 	
@@ -293,9 +301,11 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
-		//User test 1 must have superAdminRole
-		Assert.isTrue(idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_USER_ROLE);}).findFirst().isPresent());
-		
+		//User test 1 must have user role
+		IdmIdentityRole idmIdentityRole2 = idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_USER_ROLE);}).findFirst().get();
+		Assert.notNull(idmIdentityRole2);
+		// Original creator must be equal with applicant
+		Assert.isTrue(InitTestData.TEST_USER_1.equals(idmIdentityRole2.getOriginalCreator()), "Original creator must be equal with applicant");
 	}
 	
 	@Test

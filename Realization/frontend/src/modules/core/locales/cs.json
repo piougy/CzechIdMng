@@ -1,12 +1,15 @@
 {
   "app": {
     "name": "CzechIdM",
-    "author": "BCV solutions s.r.o.",
+    "author": {
+      "name": "BCV solutions s.r.o.",
+      "homePage": "http://www.bcvsolutions.eu"
+    },
     "helpdesk": "HelpDesk",
-    "about": "O nás",
     "version": {
       "frontend": "Verze",
-      "backend": "Verze rozhraní"
+      "backend": "Verze rozhraní",
+      "releaseDate": "Datum vydání"
     }
   },
   "format": {
@@ -285,6 +288,12 @@
         "description": "Služba není momentálně dostupná.",
         "note": "Zkuste to prosím později."
       }
+    },
+    "about": {
+      "header": "O nás",
+      "title": "$t(content.about.header)",
+      "sourceCodeOn": "Projekt dostupný na",
+      "link": "$t(content.about.header)"
     },
     "login": {
       "header": "Přihlášení",

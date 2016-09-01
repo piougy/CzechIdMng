@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.rest;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -22,10 +24,9 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Autowired
 	private SecurityService securityService;
-
-	public RequestPostProcessor security() {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
-        return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
+	
+	private Authentication getAuthentication() {
+		return new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities());
 	}
 	
 	@After
@@ -36,7 +37,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	@Test
     public void userNotFound() throws Exception {
         mockMvc.perform(get("/api/identities/n_a_user")
-        		.with(security())
+        		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
     }
@@ -44,7 +45,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	@Test
     public void userFoundByUsername() throws Exception {
         mockMvc.perform(get("/api/identities/" + InitTestData.TEST_ADMIN_USERNAME)
-        		.with(security())
+        		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))

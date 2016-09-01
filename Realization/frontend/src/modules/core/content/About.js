@@ -15,22 +15,22 @@ export default class About extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Row>
-            <Basic.Panel className="text-center" >
+            <Basic.Panel className="text-center col-lg-4 col-lg-offset-4" >
               <div className="about-logo">
               </div>
                 <img style={{ marginTop: 15 }} />
                 <Basic.Row className="about-text" style={{ marginTop: 15 }}>
                   <big>Verze: 1.0.0</big>
                   <br />
-                  <big>Autor: BCV solutions s.r.o. </big>
+                  <big>BCV solutions s.r.o. </big>
                   <br />
                   <big>
                     <span className="glyphicon glyphicon-menu-left"></span>
                     <span className="glyphicon glyphicon-menu-right"></span>
-                    with <span className="glyphicon glyphicon-heart"></span> by
+                    on
                     {' '}
                     <a href="https://github.com/bcvsolutions/CzechIdMng">
-                      <img src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Logo.png" style={{ height: 15 }} />
+                      <img src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Logo.png" style={{ height: 15, marginBottom: 5 }} />
                     </a>
                   </big>
                 </Basic.Row>

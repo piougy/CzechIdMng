@@ -1,15 +1,16 @@
 package eu.bcvsolutions.idm.workingpositions;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -27,6 +28,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 	
 	@Test
 	public void getWorkingPositions() {	
+		SecurityMockMvcRequestPostProcessors.securityContext(null);
 		Exception ex = null;
 		int status = 0;
 		try {
@@ -42,7 +44,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = mockMvc.perform(get("/api/workingPositions/").with(security())).andReturn();
+			mvcResult = mockMvc.perform(get("/api/workingPositions/").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -54,8 +56,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		logout();
 	}
 	
-	private RequestPostProcessor security() {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
-        return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
+	private Authentication getAuthentication() {
+		return new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities());
 	}
 }

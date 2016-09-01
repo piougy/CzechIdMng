@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Lob;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,12 +16,10 @@ public class IdmMessage {
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "subject", length = DefaultFieldLengths.NAME)
 	private String subject;
-	
-	@Lob
+
 	@Column(name = "text_message")
 	private String textMessage;
 
-	@Lob
 	@Column(name = "html_message")
 	private String htmlMessage;
 	

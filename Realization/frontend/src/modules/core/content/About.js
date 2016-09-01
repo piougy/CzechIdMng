@@ -28,7 +28,7 @@ export default class About extends Basic.AbstractContent {
                   <big>
                     {this.i18n('content.about.sourceCodeOn')}
                     {' '}
-                    <a href="https://github.com/bcvsolutions/CzechIdMng">
+                    <a href="https://github.com/bcvsolutions/CzechIdMng" target="_blank">
                       <img src="https://assets-cdn.github.com/images/modules/logos_page/GitHub-Logo.png" style={{ height: 15, marginBottom: 5 }} />
                     </a>
                   </big>

@@ -290,7 +290,7 @@
       }
     },
     "about": {
-      "header": "O nás",
+      "header": "O aplikaci",
       "title": "$t(content.about.header)",
       "sourceCodeOn": "Projekt dostupný na",
       "link": "$t(content.about.header)"

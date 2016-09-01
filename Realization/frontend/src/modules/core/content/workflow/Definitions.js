@@ -2,7 +2,9 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../../../components/basic';
+import * as Advanced from 'app/components/advanced';
 import { WorkflowProcessDefinitionService } from '../../services';
+import { WorkflowProcessDefinitionManager } from 'core/redux';
 
 /**
 * Workflow definition list
@@ -13,6 +15,7 @@ class Definitions extends Basic.AbstractContent {
     super(props, context);
     this.state = {};
     this.workflowDefinitionService = new WorkflowProcessDefinitionService();
+    this.workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
   }
 
   getContentKey() {
@@ -20,29 +23,7 @@ class Definitions extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this._loadDefinitions();
     this.selectNavigationItem('workflow-definitions');
-  }
-
-  /**
-   * Load all active and last version workflow definitions
-   */
-  _loadDefinitions() {
-    const promise = this.workflowDefinitionService.getAllDefinitions();
-    this.setState({
-      showLoading: true
-    });
-    promise.then((json) => {
-      this.setState({
-        showLoading: false,
-        definitions: json._embedded.resources
-      });
-    }).catch(ex => {
-      this.setState({
-        showLoading: false
-      });
-      this.addError(ex);
-    });
   }
 
   /**
@@ -73,7 +54,7 @@ class Definitions extends Basic.AbstractContent {
         this.addMessage({
           message: this.i18n('fileUploded', {name: file.name})
         });
-        this._loadDefinitions();
+        this.refs.table.getWrappedInstance().reload();
       });
     })
     .catch(error => {
@@ -82,6 +63,10 @@ class Definitions extends Basic.AbstractContent {
       });
       this.addError(error);
     });
+  }
+
+  getManager() {
+    return this.workflowProcessDefinitionManager;
   }
 
   /**
@@ -102,7 +87,7 @@ class Definitions extends Basic.AbstractContent {
   }
 
   render() {
-    const { definitions, showLoading } = this.state;
+    const { showLoading } = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -111,14 +96,21 @@ class Definitions extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.Table ref="table" data={definitions} showLoading={showLoading} noData={this.i18n('component.basic.Table.noData')}>
-            <Basic.Column property="key" header={this.i18n('key')} width="10%"
-              cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>}/>
-            <Basic.Column property="name" header={this.i18n('name')} width="20%"/>
-            <Basic.Column property="resourceName" header={this.i18n('resourceName')} width="20%"/>
-            <Basic.Column property="description" header={this.i18n('description')} width="35%"/>
-            <Basic.Column property="version" header={this.i18n('version')} width="5%"/>
-          </Basic.Table>
+          <Advanced.Table
+            ref="table"
+            manager={this.getManager()}
+            searchParameters={this.getManager().getDefaultSearchParameters()}
+            showLoading={showLoading}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+            noData={this.i18n('component.basic.Table.noData')}>
+
+            <Advanced.Column property="key" header={this.i18n('key')} width="10%"
+              cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>} sort />
+            <Advanced.Column property="name" header={this.i18n('name')} width="20%" sort />
+            <Advanced.Column property="resourceName" header={this.i18n('resourceName')} width="20%" sort />
+            <Advanced.Column property="description" header={this.i18n('description')} width="35%" sort />
+            <Advanced.Column property="version" header={this.i18n('version')} width="5%" sort />
+          </Advanced.Table>
         </Basic.Panel>
         <Basic.Panel>
           <Basic.Dropzone ref="dropzone"

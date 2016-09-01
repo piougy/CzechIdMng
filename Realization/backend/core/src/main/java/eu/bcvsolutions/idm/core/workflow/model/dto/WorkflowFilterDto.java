@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

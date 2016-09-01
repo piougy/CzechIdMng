@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
-import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
  * Test repository for console logs

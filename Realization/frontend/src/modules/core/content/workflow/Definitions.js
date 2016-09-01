@@ -111,6 +111,13 @@ class Definitions extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
+          <Basic.Dropzone ref="dropzone"
+            multiple
+            accept="text/xml"
+            onDrop={this._onDrop.bind(this)}>
+          </Basic.Dropzone>
+        </Basic.Panel>
+        <Basic.Panel>
           <Basic.Table ref="table" data={definitions} showLoading={showLoading} noData={this.i18n('component.basic.Table.noData')}>
             <Basic.Column property="key" header={this.i18n('key')} width="10%"
               cell={<Basic.LinkCell property="key" to="workflow/definitions/:key"/>}/>
@@ -119,13 +126,6 @@ class Definitions extends Basic.AbstractContent {
             <Basic.Column property="description" header={this.i18n('description')} width="35%"/>
             <Basic.Column property="version" header={this.i18n('version')} width="5%"/>
           </Basic.Table>
-        </Basic.Panel>
-        <Basic.Panel>
-          <Basic.Dropzone ref="dropzone"
-            multiple
-            accept="text/xml"
-            onDrop={this._onDrop.bind(this)}>
-          </Basic.Dropzone>
         </Basic.Panel>
       </div>
     );

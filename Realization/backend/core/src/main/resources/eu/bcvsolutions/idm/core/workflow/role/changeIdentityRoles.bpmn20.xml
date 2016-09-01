@@ -264,9 +264,11 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
       <title>Vráceno vedoucím</title>
    </head>
    <body>
-         <h2>Vaše žádost o oprávnění byla várcena vedoucím.</h2>
+         <h2>Vaše žádost o oprávnění Vám byla vrácena vedoucím k přepracování.</h2>
 
 	 <div>Poznámka vedoucího: <b>${managerDescription != null ? managerDescription : ""}</b></div>
+
+	 <div>S pozdravem Vaše CzechIdM.</div>
    </body>
 </html>]]></activiti:expression>
         </activiti:field>

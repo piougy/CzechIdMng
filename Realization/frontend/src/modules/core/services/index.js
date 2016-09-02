@@ -1,7 +1,6 @@
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
 import AuthenticateService from './AuthenticateService';
-import ConfigService from './ConfigService';
 import IdentityService from './IdentityService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
 import OrganizationService from './OrganizationService';
@@ -21,7 +20,6 @@ const ServiceRoot = {
   RestApiService,
   AbstractService,
   AuthenticateService,
-  ConfigService,
   IdentityService,
   WorkflowProcessDefinitionService,
   OrganizationService,

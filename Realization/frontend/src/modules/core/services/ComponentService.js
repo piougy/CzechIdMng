@@ -1,7 +1,4 @@
-
-import ComponentLoader from '../modules/ComponentLoader';
-
-const componentLoader = new ComponentLoader();
+import ComponentLoader from '../utils/ComponentLoader';
 
 /**
 * Service for load module components
@@ -9,10 +6,11 @@ const componentLoader = new ComponentLoader();
 export default class ComponentService {
 
   constructor() {
+    this.componentLoader = new ComponentLoader();
   }
 
   getComponentDescriptor(moduleId) {
-    return componentLoader.getComponentDescriptor(moduleId);
+    return this.componentLoader.getComponentDescriptor(moduleId);
   }
 
   /**
@@ -22,7 +20,7 @@ export default class ComponentService {
    * @return {object} Component
    */
   getComponent(componentId) {
-    return componentLoader.getComponent(componentId);
+    return this.componentLoader.getComponent(componentId);
   }
 
   /**
@@ -32,7 +30,7 @@ export default class ComponentService {
    * @return {object} Component definition
    */
   getComponentDefinition(componentId) {
-    return componentLoader.getComponentDefinition(componentId);
+    return this.componentLoader.getComponentDefinition(componentId);
   }
 
   /**
@@ -42,6 +40,6 @@ export default class ComponentService {
    * @return {array[object]} array of component definitions with the given type
    */
   getComponentDefinitions(componentType) {
-    return componentLoader.getComponentDefinitions(componentType);
+    return this.componentLoader.getComponentDefinitions(componentType);
   }
 }

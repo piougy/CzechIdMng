@@ -8,11 +8,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MvcResult;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import eu.bcvsolutions.idm.core.AbstractRestTest;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -25,6 +40,12 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 	
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private IdmIdentityRepository identityRepository;
+	
+	@Autowired
+	private IdmIdentityWorkingPositionRepository workingPositionRepository;
 	
 	@Test
 	public void getWorkingPositions() {	
@@ -52,6 +73,105 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		assertNull(ex);
 		assertNotNull(mvcResult);		
 		assertEquals(200, mvcResult.getResponse().getStatus());
+		
+		logout();
+	}
+	
+	@Test
+	public void createWorkingPositions() {
+		SecurityMockMvcRequestPostProcessors.securityContext(null);
+
+		IdmIdentity user = identityRepository.findOneByUsername("kopr");
+		
+		Map<String, String> body = new HashMap<>();
+		body.put("identity", "identity/" + user.getUsername());
+		body.put("position", "TEST_POSITION");
+		final ObjectMapper mapper = new ObjectMapper();
+		
+        String jsonContent = null;
+		try {
+			jsonContent = mapper.writeValueAsString(body);
+		} catch (JsonProcessingException e1) {
+			e1.printStackTrace();
+		}
+		
+		int status = 0;
+		Exception ex = null;
+		try {
+			status = mockMvc.perform(post("/api/workingPositions/")
+					.content(jsonContent)
+					.contentType(MediaType.APPLICATION_JSON))
+					.andReturn()
+					.getResponse()
+					.getStatus();
+		} catch (Exception e) {
+			ex = e;
+		}
+		assertNull(ex);
+		
+		assertEquals(403, status);
+		
+		ex = null;
+		status = 0;
+		try {
+			status = mockMvc.perform(post("/api/workingPositions").with(authentication(getAuthentication()))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(jsonContent))
+						.andReturn()
+						.getResponse()
+						.getStatus();
+		} catch (Exception e) {
+			ex = e;
+		}
+		assertNull(ex);
+		
+		assertEquals(201, status);
+		
+		logout();
+	}
+	
+	@Test
+	public void deleteWorkingPositions() {
+		SecurityMockMvcRequestPostProcessors.securityContext(null);
+
+		IdmIdentity user = identityRepository.findOneByUsername("kopr");
+		Page<IdmIdentityWorkingPosition> pages = workingPositionRepository.findByIdentity(user, null);
+		
+		long positionId = 0;
+		for	(IdmIdentityWorkingPosition position : pages) {
+			positionId = position.getId();
+			break;
+		}
+		
+		int status = 0;
+		Exception ex = null;
+		try {
+			status = mockMvc.perform(delete("/api/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON))
+					.andReturn()
+					.getResponse()
+					.getStatus();
+		} catch (Exception e) {
+			ex = e;
+		}
+		assertNull(ex);
+		
+		assertEquals(403, status);
+		
+		
+		ex = null;
+		status = 0;
+		try {
+			status = mockMvc.perform(delete("/api/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON)
+						.with(authentication(getAuthentication())))
+						.andReturn()
+						.getResponse()
+						.getStatus();
+		} catch (Exception e) {
+			ex = e;
+		}
+		assertNull(ex);
+		
+		assertEquals(204, status);
 		
 		logout();
 	}

@@ -8,8 +8,10 @@ import java.util.Set;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowElement;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -53,6 +55,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 
 	@Autowired
 	private RepositoryService repositoryService;
+	
+	@Autowired
+	private HistoryService historyService;
 
 	
 	@Override
@@ -222,7 +227,18 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				dto.setCurrentActivityDocumentation(element.getDocumentation());
 			}
 		}
-
+		
+		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForProcessInstance(instance.getId());
+		if (identityLinks != null && !identityLinks.isEmpty()) {
+			List<String> candicateUsers = new ArrayList<>();
+			for	(HistoricIdentityLink identity : identityLinks) {
+				if (identity.getType().equals(IdentityLinkType.PARTICIPANT)) {
+					candicateUsers.add(identity.getUserId());
+				}
+			}
+			dto.setCandicateUsers(candicateUsers);
+		}
+		
 		return dto;
 	}
 

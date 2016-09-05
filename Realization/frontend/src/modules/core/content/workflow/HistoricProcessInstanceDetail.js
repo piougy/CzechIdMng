@@ -6,12 +6,15 @@ import * as Advanced from '../../../../components/advanced';
 import { WorkflowHistoricProcessInstanceManager, WorkflowHistoricTaskInstanceManager} from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 import HistoricProcessInstanceTable from './HistoricProcessInstanceTable';
+import CandicateUsersCell from './CandicateUsersCell';
 
 /**
 * Workflow process historic detail
 */
 const workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
 const workflowHistoricTaskInstanceManager = new WorkflowHistoricTaskInstanceManager();
+
+const MAX_CANDICATES = 2;
 
 class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
@@ -88,6 +91,9 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             manager={workflowHistoricTaskInstanceManager}>
             <Advanced.Column property="name" sort={false} face="text"/>
             <Advanced.Column property="assignee" sort={false} face="text"/>
+            <Advanced.Column
+                property="candicateUsers"
+                cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
             <Advanced.Column property="createTime" sort face="datetime"/>
             <Advanced.Column property="endTime" sort face="datetime"/>
             <Advanced.Column property="completeTaskDecision" sort={false} face="text"/>

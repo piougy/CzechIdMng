@@ -132,11 +132,11 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		dto.setCreateTime(instance.getCreateTime());
 		dto.setDueDate(instance.getDueDate());
 		
-		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForProcessInstance(instance.getProcessInstanceId());
+		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(instance.getId());
 		if (identityLinks != null && !identityLinks.isEmpty()) {
 			List<String> candicateUsers = new ArrayList<>();
 			for	(HistoricIdentityLink identity : identityLinks) {
-				if (identity.getType().equals(IdentityLinkType.PARTICIPANT)) {
+				if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
 					candicateUsers.add(identity.getUserId());
 				}
 			}

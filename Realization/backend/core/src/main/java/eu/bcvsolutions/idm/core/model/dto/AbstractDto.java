@@ -3,11 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Size;
-
-import org.hibernate.envers.Audited;
-import org.springframework.data.annotation.LastModifiedBy;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 

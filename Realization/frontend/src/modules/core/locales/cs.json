@@ -1199,7 +1199,8 @@
       "id": "ID",
       "priority": "Priorita",
       "createTime": "Datum vytvoření",
-      "completeTaskDecision": "Rozhodnutí"
+      "completeTaskDecision": "Rozhodnutí",
+      "candicateUsers": "Kandidáti"
     },
     "Notification": {
       "topic": "Téma",

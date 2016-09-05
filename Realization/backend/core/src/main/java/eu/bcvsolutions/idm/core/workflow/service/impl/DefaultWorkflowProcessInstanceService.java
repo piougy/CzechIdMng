@@ -11,6 +11,7 @@ import org.activiti.bpmn.model.FlowElement;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
@@ -18,6 +19,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.runtime.ProcessInstanceBuilder;
 import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.IdentityLinkType;
+import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -58,6 +60,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	
 	@Autowired
 	private HistoryService historyService;
+	
+	@Autowired
+	private TaskService taskService;
 
 	
 	@Override
@@ -220,7 +225,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 		dto.setProcessInstanceId(instance.getProcessInstanceId());
 		// Add current activity name and documentation
 		BpmnModel model = repositoryService.getBpmnModel(instance.getProcessDefinitionId());
-
+		
 		for (FlowElement element : model.getMainProcess().getFlowElements()) {
 			if (element.getId().equals(instance.getActivityId())) {
 				dto.setCurrentActivityName(element.getName());
@@ -228,15 +233,19 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			}
 		}
 		
-		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForProcessInstance(instance.getId());
-		if (identityLinks != null && !identityLinks.isEmpty()) {
-			List<String> candicateUsers = new ArrayList<>();
-			for	(HistoricIdentityLink identity : identityLinks) {
-				if (identity.getType().equals(IdentityLinkType.PARTICIPANT)) {
-					candicateUsers.add(identity.getUserId());
+		Task task = taskService.createTaskQuery().processInstanceId(instance.getProcessInstanceId()).singleResult();
+		
+		if (task != null) {
+			List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(task.getId());
+			if (identityLinks != null && !identityLinks.isEmpty()) {
+				List<String> candicateUsers = new ArrayList<>();
+				for	(HistoricIdentityLink identity : identityLinks) {
+					if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+						candicateUsers.add(identity.getUserId());
+					}
 				}
+				dto.setCandicateUsers(candicateUsers);
 			}
-			dto.setCandicateUsers(candicateUsers);
 		}
 		
 		return dto;

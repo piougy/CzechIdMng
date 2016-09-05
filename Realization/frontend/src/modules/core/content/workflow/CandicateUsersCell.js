@@ -1,29 +1,29 @@
 import React from 'react';
-import CandicateUserCell from './CandicateUserCell';
+import _ from 'lodash';
 
 /**
  * Cells for Candicates
  * maxEntry - max entry in candidates
  */
 const CandicateUsersCell = ({rowIndex, data, property, maxEntry}) => {
-  let moreResults = false;
+  let candidates = data[rowIndex][property];
+  const isMoreResults = candidates.length > maxEntry;
+  candidates = _.uniq(candidates);
+
+  if (maxEntry !== undefined) {
+    candidates = _.slice(candidates, 0, maxEntry);
+  }
+
+  candidates = _.join(candidates, ', ');
+
   return (
     <span>
+      {candidates}
       {
-        data[rowIndex][property].map(function iterate(candicate, index) {
-          if (moreResults || index >= maxEntry) {
-            moreResults = true;
-            return null;
-          }
-          return (
-            <CandicateUserCell candicate={candicate} />
-          );
-        })}
-        {
-          !moreResults
-          ||
-          '...'
-        }
+        !isMoreResults
+        ||
+        ', ...'
+      }
     </span>
   );
 };

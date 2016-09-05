@@ -1,9 +1,8 @@
-
-
 import Immutable from 'immutable';
 import EntityManager from './EntityManager';
 import SecurityManager from '../security/SecurityManager';
-import { ConfigService, IdentityService } from '../../services';
+import ConfigLoader from '../../utils/ConfigLoader';
+import { IdentityService } from '../../services';
 import DataManager from './DataManager';
 
 /**
@@ -14,7 +13,7 @@ export default class IdentityManager extends EntityManager {
   constructor() {
     super();
     this.identityService = new IdentityService();
-    this.configService = new ConfigService();
+    this.configLoader = new ConfigLoader();
     this.dataManager = new DataManager();
   }
 

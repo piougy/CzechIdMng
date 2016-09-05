@@ -1,6 +1,6 @@
 {
   "name": "czechidm-client",
-  "version": "0.0.1-snapshot",
+  "version": "1.0.0-snapshot",
   "description": "Client for czechidm identity manager",
   "main": "app.js",
   "repository": {

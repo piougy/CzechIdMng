@@ -5,7 +5,8 @@ import Immutable from 'immutable';
 // reused actions
 import FlashMessagesManager from '../../modules/core/redux/flash/FlashMessagesManager';
 // api
-import { ConfigService, LocalizationService } from '../../modules/core/services';
+import ConfigLoader from '../../modules/core/utils/ConfigLoader';
+import { LocalizationService } from '../../modules/core/services';
 import SecurityManager from '../../modules/core/redux/security/SecurityManager';
 /*
  * action types
@@ -70,10 +71,10 @@ export function i18nInit() {
  * @deprecated - navigation is loaded synchronously to layout reducer
  */
 export function navigationInit() {
-  const configService = new ConfigService();
+  const configLoader = new ConfigLoader();
   return {
     type: NAVIGATION_INIT,
-    navigation: configService.getNavigation()
+    navigation: configLoader.getNavigation()
   };
 }
 
@@ -109,12 +110,12 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
   }
   let navigationItems = [];
   if (!parentId) {
-    navigationItems = navigation.get(ConfigService.NAVIGATION_BY_PARENT).get('').toArray();
+    navigationItems = navigation.get(ConfigLoader.NAVIGATION_BY_PARENT).get('').toArray();
   } else {
-    if (!navigation.get(ConfigService.NAVIGATION_BY_PARENT).has(parentId)) {
+    if (!navigation.get(ConfigLoader.NAVIGATION_BY_PARENT).has(parentId)) {
       return [];
     }
-    navigationItems = navigation.get(ConfigService.NAVIGATION_BY_PARENT).get(parentId).toArray();
+    navigationItems = navigation.get(ConfigLoader.NAVIGATION_BY_PARENT).get(parentId).toArray();
   }
 
   return navigationItems.filter(item => {
@@ -148,8 +149,8 @@ export function getNavigationItem(navigation, id) {
   if (!navigation || !id) {
     return null;
   }
-  if (!navigation.get(ConfigService.NAVIGATION_BY_ID).has(id)) {
+  if (!navigation.get(ConfigLoader.NAVIGATION_BY_ID).has(id)) {
     return null;
   }
-  return navigation.get(ConfigService.NAVIGATION_BY_ID).get(id);
+  return navigation.get(ConfigLoader.NAVIGATION_BY_ID).get(id);
 }

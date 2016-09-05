@@ -8,11 +8,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -26,6 +26,10 @@ import eu.bcvsolutions.idm.security.service.LoginService;
 public class DefaultLoginService implements LoginService {
 
 	private static final Logger log = LoggerFactory.getLogger(DefaultLoginService.class);
+	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.core.security.jwt.expirationTimeout";
+	public static final int DEFAULT_EXPIRATION_TIMEOUT = 36000000;
+	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.core.security.jwt.secret.token";
+	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 
 //	@Autowired
 //	private PasswordEncoder passwordEncoder;
@@ -35,15 +39,12 @@ public class DefaultLoginService implements LoginService {
 
 	@Autowired
 	private ObjectMapper jsonMapper;
+	
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-
-	@Value("${security.jwt.expirationTimeout:36000000}")
-	private long expirationTimeout;
-
-	@Value("${security.jwt.secretPhrase:idmSecret}")
-	private String secretPhrase;
 
 	@Override
 	public LoginDto login(String username, String password) {
@@ -56,7 +57,7 @@ public class DefaultLoginService implements LoginService {
 
 		log.info("Identity with username [{}] is authenticated", username);
 
-		Date expiration = new Date(System.currentTimeMillis() + expirationTimeout);
+		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(username, expiration,
 				grantedAuthoritiesFactory.getGrantedAuthorities(username));
@@ -73,7 +74,7 @@ public class DefaultLoginService implements LoginService {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(username);
 		loginDto.setAuthentication(authenticationDto);
-		loginDto.setToken(JwtHelper.encode(authenticationJson, new MacSigner(secretPhrase)).getEncoded());
+		loginDto.setToken(JwtHelper.encode(authenticationJson, new MacSigner(configurationService.getValue(PROPERTY_SECRET_TOKEN, DEFAULT_SECRET_TOKEN))).getEncoded());
 		return loginDto;
 	}
 

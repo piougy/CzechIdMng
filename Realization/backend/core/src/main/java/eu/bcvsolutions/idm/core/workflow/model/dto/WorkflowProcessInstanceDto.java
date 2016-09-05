@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.model.dto;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WorkflowProcessInstanceDto {
@@ -18,6 +19,15 @@ public class WorkflowProcessInstanceDto {
 	protected String currentActivityName;
 	protected String currentActivityDocumentation;
 	protected WorkflowTaskDefinitionDto currentTaskDefinition;
+	protected List<String> candicateUsers;
+
+	public List<String> getCandicateUsers() {
+		return candicateUsers;
+	}
+
+	public void setCandicateUsers(List<String> candicateUsers) {
+		this.candicateUsers = candicateUsers;
+	}
 
 	public String getProcessDefinitionId() {
 		return processDefinitionId;

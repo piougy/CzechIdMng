@@ -9,6 +9,7 @@ import SearchParameters from 'core/domain/SearchParameters';
 import { IdentityRoleManager, IdentityManager, RoleManager, WorkflowProcessInstanceManager, DataManager, SecurityManager } from 'core/redux';
 import AuthoritiesPanel from '../role/AuthoritiesPanel';
 import authorityHelp from '../role/AuthoritiesPanel_cs.md';
+import CandicateUsersCell from 'core/content/workflow/CandicateUsersCell';
 
 const uiKey = 'identity-roles';
 const uiKeyAuthorities = 'identity-roles';
@@ -18,6 +19,8 @@ const identityManager = new IdentityManager();
 const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
+
+const MAX_CANDICATES = 2;
 
 class Roles extends Basic.AbstractContent {
 
@@ -433,6 +436,10 @@ class Roles extends Basic.AbstractContent {
                 header={this.i18n('content.roles.processPermissionChange.currentActivity')}
                 sort={false}
                 face="text"/>
+              <Advanced.Column
+                    property="candicateUsers"
+                    header={this.i18n('entity.WorkflowHistoricTaskInstance.candicateUsers')}
+                    cell={<CandicateUsersCell maxEntry={MAX_CANDICATES} />}/>
               <Advanced.Column
                 property="id"
                 header={this.i18n('label.id')}

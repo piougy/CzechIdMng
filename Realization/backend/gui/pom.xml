@@ -64,16 +64,16 @@
 				            <npmVersion>3.5.2</npmVersion>
 				        </configuration>
 				    </execution>
-				   <execution>
+				<!--    <execution>
 				       <id>npm set proxy</id>
 				       <phase>generate-resources</phase>
 				       <goals>
 				   	   <goal>npm</goal>
 				       </goals>
-				       <configuration>
+				      <configuration>
 					   <arguments>config set proxy http://localhost:8082/repository/npm/</arguments>
-				       </configuration>
-			            </execution>
+				       </configuration> 
+			            </execution>-->
 				    <execution>
 					<id>npm install modules</id>
 					<goals>

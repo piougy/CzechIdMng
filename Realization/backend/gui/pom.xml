@@ -62,6 +62,7 @@
 				        <configuration>
 				            <nodeVersion>v5.3.0</nodeVersion>
 				            <npmVersion>3.5.2</npmVersion>
+					    <downloadRoot>http://localhost:8082/repository/npm/</downloadRoot>
 				        </configuration>
 				    </execution>
 				<!--    <execution>
@@ -80,7 +81,7 @@
 					    <goal>npm</goal>
 					</goals>
 					<configuration>
-					    <arguments>install .</arguments>
+					    <arguments>--verbose install .</arguments>
 					</configuration>
 					<phase>generate-resources</phase>
 				    </execution>

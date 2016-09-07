@@ -62,7 +62,7 @@
 				        <configuration>
 				            <nodeVersion>v5.3.0</nodeVersion>
 				            <npmVersion>3.5.2</npmVersion>
-					    <downloadRoot>http://localhost:8082/repository/npm/</downloadRoot>
+					<!--    <downloadRoot>http://localhost:8082/repository/npmPR/</downloadRoot> -->
 				        </configuration>
 				    </execution>
 				<!--    <execution>
@@ -75,6 +75,17 @@
 					   <arguments>config set proxy http://localhost:8082/repository/npm/</arguments>
 				       </configuration> 
 			            </execution>-->
+
+ <!--<execution>
+					<id>npm publish modules</id>
+					<goals>
+					    <goal>npm</goal>
+					</goals>
+					<configuration>
+					    <arguments>publish -registry http://localhost:8082/repository/npm-hosted/</arguments>
+					</configuration>
+					<phase>generate-resources</phase>
+				    </execution> -->
 				    <execution>
 					<id>npm install modules</id>
 					<goals>
@@ -85,6 +96,7 @@
 					</configuration>
 					<phase>generate-resources</phase>
 				    </execution>
+				   
 				    <execution>
 					<id>gulp build</id>
 					<goals>

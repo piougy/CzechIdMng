@@ -5,6 +5,12 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 
+/**
+ * Configuration for {@link eu.bcvsolutions.idm.notification.service.Emailer}.
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class EmailerConfiguration {
 

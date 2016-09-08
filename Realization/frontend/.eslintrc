@@ -22,7 +22,8 @@
   "globals": {
       "$": false,
       "DEBUG": false,
-      "LOGGER": false
+      "LOGGER": false,
+      "serverUrl": true
   },
   "rules": {
     "quotes": [2, "single" ],

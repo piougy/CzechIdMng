@@ -222,8 +222,8 @@ gulp.task('config', (cb) => {
 });
 
 gulp.task('urlConfig', (cb) => {
-  var configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  fs.writeFile(path.join(__dirname, '/configUrl.js'), 'serverUrl="' + configuration["serverUrl"] + '";', cb);
+  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  fs.writeFile(path.join(__dirname, '/configUrl.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
   gulp.src('configUrl.js')
     .pipe(gulp.dest(paths.dist));
 });
@@ -260,7 +260,7 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
+  runSequence('clean', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'urlConfig', 'styles', 'lint', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
 });
 
 gulp.task('build', cb => {

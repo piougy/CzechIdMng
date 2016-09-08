@@ -1,7 +1,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../../../components/basic';
+import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import { WorkflowProcessDefinitionService } from 'core/services';
 import { WorkflowProcessDefinitionManager } from 'core/redux';

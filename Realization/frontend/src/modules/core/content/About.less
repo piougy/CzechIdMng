@@ -1,0 +1,31 @@
+.about-logo {
+  background-position: top left;
+  background-repeat: no-repeat;
+  text-decoration: none;
+  width: 201px;
+  margin-top: 0px;
+  height: 42px;
+  display: inline-block;
+  background-image: url("../@{theme}/images/czechidm-logo-big.png");
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    // fixing problem in mobile view vith nav header
+    margin-left: 15px;
+  }
+
+  @media (min-width: 768px) {
+    &.active {
+      border-bottom-width: 3px;
+      border-bottom-style: solid;
+      border-bottom-color: @idm-base-color;
+    }
+  }
+}
+
+.about-text {
+  line-height: 250%;
+}

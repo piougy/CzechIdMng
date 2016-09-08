@@ -33,7 +33,7 @@ const paths = {
   srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*', 'node_modules/font-awesome/fonts/*'],
   srcJsx: 'src/Index.js',
   srcCss: ['src/css/**/*.less', 'src/css/google.fonts.css', 'src/components/**/*.less', 'src/themes/**/*.less'],
-  srcImg: 'src/images/**',
+  srcImg: 'src/images/**', // client images
   srcLocale: 'src/modules/**/locales/**',
   srcThemes: 'src/modules/**/themes/**/images/**', // only images for now
   testSrc: 'test/**/*.js',

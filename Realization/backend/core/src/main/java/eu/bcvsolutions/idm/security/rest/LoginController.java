@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.service.LoginService;
 
@@ -27,9 +26,6 @@ public class LoginController {
 
 	@Autowired
 	private LoginService loginService;
-	
-	@Autowired
-	private WorkflowProcessInstanceService workflowProcessInstanceService;
 
 	@RequestMapping(method = RequestMethod.POST)
 	public ResourceWrapper<LoginDto> login(@Valid @RequestBody(required = true) LoginDto loginDto) {
@@ -39,8 +35,4 @@ public class LoginController {
 		return new ResourceWrapper<LoginDto>(loginService.login(loginDto.getUsername(), loginDto.getPassword()));
 	}
 	
-	@RequestMapping(method = RequestMethod.GET)
-	public void test() {
-		workflowProcessInstanceService.startProcess("testEmailer", null, null, null, null);
-	}
 }

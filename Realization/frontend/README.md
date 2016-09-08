@@ -3,11 +3,11 @@
 
 ## Usage
 
-In project folder:
+In frontent project folder:
 
 ### Install Node.js
 
-**Node.js version 4.x or higher is required.** Download and install Node.js by your OS.
+**Node.js version 4.x or higher is required (npm version 3.x or higher is required).** Download and install Node.js by your OS.
 
 For linux (fedora):
 
@@ -20,6 +20,10 @@ Check nodejs version:
 or
 
 `nodejs -v`
+
+Check npm version:
+
+`npm -v`
 
 For update nodejs from 0.x versions:
 * https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora

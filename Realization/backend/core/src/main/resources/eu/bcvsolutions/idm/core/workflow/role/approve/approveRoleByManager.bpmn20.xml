@@ -37,6 +37,10 @@ ir.setRole(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 
+//Set applicant as original creator
+ir.setOriginalCreator(applicantUsername);
+
+
 execution.setVariable("newIdmIdentityRole", ir);
 
 			</script>
@@ -106,6 +110,9 @@ if (!validFromDateNew.equals("no-change")){
 if (!validTillDateNew.equals("no-change")){
 	ir.setValidTill(validTillDateNew);
 }
+
+//Set applicant as original modifier
+ir.setOriginalModifier(applicantUsername);
 
 execution.setVariable("updatedIdmIdentityRole", ir);
 

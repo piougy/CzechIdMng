@@ -108,6 +108,23 @@ public class DefaultConfigurationService implements ConfigurationService {
 	public void setBooleanValue(String key, boolean value) {
 		setValue(key, Boolean.valueOf(value).toString());
 	}
+	
+	@Override
+	public Integer getIntegerValue(String key) {
+		String value = getValue(key);
+		return value == null ? null : Integer.valueOf(value);
+	}
+	
+	@Override
+	public Integer getIntegerValue(String key, Integer defaultValue) {
+		String value = getValue(key);
+		try {
+			return value == null ? defaultValue : Integer.valueOf(value);
+		} catch (NumberFormatException ex) {
+			log.warn("Property [{}] for key [{}] is not integer, returning default value [{}]", value, key, defaultValue, ex);
+			return defaultValue; 
+		}
+	}
 
 	/**
 	 * Returns all public configuration properties

@@ -11,8 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
@@ -59,13 +57,7 @@ public class BasicEmailTest extends AbstractWorkflowTest {
 				.getResourceAsStream("eu/bcvsolutions/idm/core/workflow/deploy/testEmailer.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "testEmailer.bpmn20.xml", is);
 		assertNotNull(deploymentDto);
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
-		System.out.println("auth: " + auth);
-		
 		assertEquals(0, emailLogRepository.findByQuick(EMAIL_TEXT, null, EMAIL_RECIPIENT, null, null, null, null).getTotalElements());
-		
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);
 		assertEquals(instance.getActivityId(), "endevent");

@@ -1,9 +1,7 @@
-
-
 import Immutable from 'immutable';
 import _ from 'lodash';
 //
-import ModuleLoader from '../../ModuleLoader'; // TODO: move module loader to core
+import ModuleLoader from './ModuleLoader';
 import config from '../../../../config.json'; // TODO: config has to be parametrized !!!
 
 const moduleLoader = new ModuleLoader();
@@ -33,7 +31,7 @@ const ITEM_DEFAULTS = {
 * Loads configuration
 * TODO: redux action -> manager
 */
-export default class ConfigService {
+export default class ConfigLoader {
 
   constructor() {
   }
@@ -136,13 +134,13 @@ export default class ConfigService {
       const item = _.merge({ parentId }, ITEM_DEFAULTS, rawItems[i]);
       const _parentId = item.parentId || parentId;
       //
-      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).get(_parentId) : new Immutable.Map();
+      let items = (navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).get(_parentId) : new Immutable.Map();
       // first or higher priority wins
       if (!items.has(item.id) || items.get(item.id).priority < item.priority) {
         items = items.set(item.id, item);
-        navigationItems = navigationItems.set(ConfigService.NAVIGATION_BY_ID, navigationItems.get(ConfigService.NAVIGATION_BY_ID).set(item.id, item));
+        navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_ID, navigationItems.get(ConfigLoader.NAVIGATION_BY_ID).set(item.id, item));
       }
-      navigationItems = navigationItems.set(ConfigService.NAVIGATION_BY_PARENT, navigationItems.get(ConfigService.NAVIGATION_BY_PARENT).set(_parentId, items));
+      navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_PARENT, navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).set(_parentId, items));
       navigationItems = this._appendNavigationItems(navigationItems, item.id, item.items);
     }
     return navigationItems;
@@ -153,9 +151,9 @@ export default class ConfigService {
       return navigationItems;
     }
     rawAccess.forEach(item => {
-      let items = (navigationItems.get(ConfigService.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(ConfigService.NAVIGATION_BY_PATH).get(item.path) : new Immutable.List();
+      let items = (navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).get(item.path) : new Immutable.List();
       items = items.push(item);
-      navigationItems = navigationItems.set(ConfigService.NAVIGATION_BY_PATH, navigationItems.get(ConfigService.NAVIGATION_BY_PATH).set(item.path, items));
+      navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_PATH, navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).set(item.path, items));
     });
     return navigationItems;
   }
@@ -167,17 +165,17 @@ export default class ConfigService {
    */
   getNavigation() {
     let navigationItems = new Immutable.Map({
-      [ConfigService.NAVIGATION_BY_PARENT]: new Immutable.Map({}),
-      [ConfigService.NAVIGATION_BY_ID]: new Immutable.Map({}),
-      [ConfigService.NAVIGATION_BY_PATH]: new Immutable.Map({})
+      [ConfigLoader.NAVIGATION_BY_PARENT]: new Immutable.Map({}),
+      [ConfigLoader.NAVIGATION_BY_ID]: new Immutable.Map({}),
+      [ConfigLoader.NAVIGATION_BY_PATH]: new Immutable.Map({})
     });
     moduleLoader.getEnabledModuleIds().map(moduleId => {
       navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order
     navigationItems = navigationItems.set(
-      ConfigService.NAVIGATION_BY_PARENT,
-      navigationItems.get(ConfigService.NAVIGATION_BY_PARENT)
+      ConfigLoader.NAVIGATION_BY_PARENT,
+      navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT)
         .mapEntries(([k, v]) => [k, v.sortBy(item => item.order)])
     );
     //
@@ -190,7 +188,7 @@ export default class ConfigService {
    */
   getNavigationItems(parentId = null) {
     // load all module descriptor
-    const navigationItems = this.getNavigation().get(ConfigService.NAVIGATION_BY_PARENT);
+    const navigationItems = this.getNavigation().get(ConfigLoader.NAVIGATION_BY_PARENT);
     // level by parentId
     if (!parentId) {
       return navigationItems.get('').toArray();
@@ -202,6 +200,6 @@ export default class ConfigService {
   }
 }
 
-ConfigService.NAVIGATION_BY_PARENT = 'byParent';
-ConfigService.NAVIGATION_BY_ID = 'byId';
-ConfigService.NAVIGATION_BY_PATH = 'byPath';
+ConfigLoader.NAVIGATION_BY_PARENT = 'byParent';
+ConfigLoader.NAVIGATION_BY_ID = 'byId';
+ConfigLoader.NAVIGATION_BY_PATH = 'byPath';

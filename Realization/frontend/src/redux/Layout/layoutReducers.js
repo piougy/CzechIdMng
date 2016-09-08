@@ -1,13 +1,12 @@
-
-
 import Immutable from 'immutable';
+//
 import { SELECT_NAVIGATION_ITEMS, SELECT_NAVIGATION_ITEM, I18N_READY, NAVIGATION_INIT, getNavigationItem } from './layoutActions';
-import { ConfigService } from '../../modules/core/services';
+import ConfigLoader from 'core/utils/ConfigLoader';
 
-const configService = new ConfigService();
+const configLoader = new ConfigLoader();
 
 const INITIAL_STATE = new Immutable.Map({
-  navigation: configService.getNavigation(), // all navigation items from enabled modules as Map
+  navigation: configLoader.getNavigation(), // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
   i18nReady: false              // localization context is ready
 });

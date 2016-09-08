@@ -1,4 +1,4 @@
-import { moduleDescriptors } from './modules';
+import { moduleDescriptors } from '../../modules';
 
 export default class ModuleLoader {
 

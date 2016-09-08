@@ -118,7 +118,27 @@ module.exports = {
         'iconColor': '#419641',
         'order': 35,
         'path': '/roles',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+        'items': [
+          {
+            'id': 'role-tabs',
+            'type': 'TAB',
+            'order': 10,
+            'priority': 0,
+            'items': [
+              {
+                'id': 'role-detail',
+                'type': 'TAB',
+                'label': 'content.roles.tabs.basic',
+                'labelKey': 'content.roles.tabs.basic',
+                'titleKey': 'content.roles.tabs.basic',
+                'order': 1,
+                'path': '/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              }
+            ]
+          },
+        ]
       },
       {
         'id': 'workflow',

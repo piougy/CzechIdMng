@@ -2,9 +2,9 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import * as Basic from '../../../components/basic';
-import { ConfigService } from '../../../modules/core/services';
-import ComponentService from '../../../services/ComponentService';
+import * as Basic from 'app/components/basic';
+import ConfigLoader from 'core/utils/ConfigLoader';
+import ComponentService from 'core/services/ComponentService';
 
 class AppModules extends Basic.AbstractContent {
 
@@ -14,7 +14,7 @@ class AppModules extends Basic.AbstractContent {
       moduleDescriptors: [],
       components: []
     };
-    this.configService = new ConfigService();
+    this.configLoader = new ConfigLoader();
     this.componentService = new ComponentService();
   }
 
@@ -35,8 +35,8 @@ class AppModules extends Basic.AbstractContent {
         <Basic.PageHeader text={this.i18n('header')}/>
 
         {
-          this.configService.getEnabledModuleIds().sort().map(moduleId => {
-            const moduleDescriptor = this.configService.getModuleDescriptor(moduleId);
+          this.configLoader.getEnabledModuleIds().sort().map(moduleId => {
+            const moduleDescriptor = this.configLoader.getModuleDescriptor(moduleId);
             const componentDescriptor = this.componentService.getComponentDescriptor(moduleId);
             //
             return (

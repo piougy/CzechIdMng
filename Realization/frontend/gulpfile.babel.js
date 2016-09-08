@@ -177,7 +177,7 @@ gulp.task('htmlReplace', () => {
         tpl: '<link rel="icon" href="%s" type="image/gif" />'
       },
       css: ['css/main.css', 'css/google.fonts.css'],
-      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'js/app.js']
+      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'configUrl.js', 'js/app.js']
     })
   )
   .pipe(gulp.dest(paths.dist));
@@ -221,6 +221,13 @@ gulp.task('config', (cb) => {
   fs.writeFile(path.join(__dirname, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb);
 });
 
+gulp.task('urlConfig', (cb) => {
+  var configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  fs.writeFile(path.join(__dirname, '/configUrl.js'), 'serverUrl="' + configuration["serverUrl"] + '";', cb);
+  gulp.src('configUrl.js')
+    .pipe(gulp.dest(paths.dist));
+});
+
 gulp.task('test', () => {
   const argv = yargs.alias('w', 'watch').help('help').alias('h', 'help')
   .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
@@ -258,7 +265,7 @@ gulp.task('watch', cb => {
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', ['browserify', 'config', 'styles', 'htmlReplace', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
+  runSequence('clean', ['browserify', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
 });
 
 gulp.task('default', ['watch']);

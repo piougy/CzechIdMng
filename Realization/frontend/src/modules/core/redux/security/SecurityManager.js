@@ -209,7 +209,7 @@ export default class SecurityManager {
   }
 
   /**
-   * Return true, if user fits in at least one access item - {@see ConfigService} for available access types
+   * Return true, if user fits in at least one access item - {@see ConfigLoader} for available access types
    */
   static hasAccess(accessItems, userContext) {
     if (!accessItems) {

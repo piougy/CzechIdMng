@@ -16,6 +16,9 @@ ir.setRole(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 
+//Set applicant as original creator
+ir.setOriginalCreator(applicantUsername);
+
 execution.setVariable("newIdmIdentityRole", ir);
 
 			</script>

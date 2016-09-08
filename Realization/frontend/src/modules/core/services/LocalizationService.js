@@ -1,10 +1,11 @@
-import ConfigService from '../services/ConfigService';
 import i18next from 'i18next';
 import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
+//
+import ConfigLoader from '../utils/ConfigLoader';
 
-const configService = new ConfigService();
+const configLoader = new ConfigLoader();
 const i18nextInstance = i18next
   .use(XHR)
   .use(Cache)
@@ -27,7 +28,7 @@ export default class LocalizationService {
         fallbackLng: 'cs',
 
         // have a common namespace used around the full app
-        ns: configService.getEnabledModuleIds(),
+        ns: configLoader.getEnabledModuleIds(),
         defaultNS: 'core',
 
         debug: false,
@@ -38,7 +39,7 @@ export default class LocalizationService {
 
         backend: {
           // path where resources get loaded from
-          loadPath: configService.getConfig('locales') + '/{{ns}}/locales/{{lng}}.json',
+          loadPath: configLoader.getConfig('locales') + '/{{ns}}/locales/{{lng}}.json',
 
           // path to post missing resources
           // addPath: 'locales/add/{{lng}}/{{ns}}',

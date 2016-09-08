@@ -24,6 +24,10 @@ public abstract class AbstractDto implements Serializable, BaseDto {
 	private String creator;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String modifier;
+	@Size(max = DefaultFieldLengths.NAME)
+	private String originalCreator;
+	@Size(max = DefaultFieldLengths.NAME)
+	private String originalModifier;
 
 	public AbstractDto() {
 	}
@@ -96,6 +100,22 @@ public abstract class AbstractDto implements Serializable, BaseDto {
 
 	public void setModifier(String modifier) {
 		this.modifier = modifier;
+	}
+
+	public String getOriginalCreator() {
+		return originalCreator;
+	}
+
+	public void setOriginalCreator(String originalCreator) {
+		this.originalCreator = originalCreator;
+	}
+
+	public String getOriginalModifier() {
+		return originalModifier;
+	}
+
+	public void setOriginalModifier(String originalModifier) {
+		this.originalModifier = originalModifier;
 	}
 
 }

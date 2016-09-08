@@ -85,6 +85,8 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 		identityRole.setIdentity(identity);
 		identityRole.setValidFrom(identityRoleDto.getValidFrom());
 		identityRole.setValidTill(identityRoleDto.getValidTill());
+		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
+		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
 	}
 

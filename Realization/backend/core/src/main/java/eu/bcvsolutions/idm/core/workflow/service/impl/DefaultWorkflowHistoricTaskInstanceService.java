@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
+import org.activiti.engine.task.IdentityLinkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 
 	@Autowired
 	private HistoryService historyService;
+	
 	@Autowired
 	private SecurityService securityService;
 
@@ -128,7 +131,18 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		dto.setAssignee(instance.getAssignee());
 		dto.setCreateTime(instance.getCreateTime());
 		dto.setDueDate(instance.getDueDate());
-
+		
+		List<HistoricIdentityLink> identityLinks = historyService.getHistoricIdentityLinksForTask(instance.getId());
+		if (identityLinks != null && !identityLinks.isEmpty()) {
+			List<String> candicateUsers = new ArrayList<>();
+			for	(HistoricIdentityLink identity : identityLinks) {
+				if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+					candicateUsers.add(identity.getUserId());
+				}
+			}
+			dto.setCandicateUsers(candicateUsers);
+		}
+		
 		return dto;
 	}
 

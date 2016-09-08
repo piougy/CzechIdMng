@@ -1,4 +1,6 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+//
 import { IdentityManager, NotificationManager } from 'core/redux';
 import * as Basic from 'app/components/basic';
 import NotificationRecipient from './NotificationRecipient';
@@ -8,7 +10,7 @@ import NotificationSentState from '../notification/NotificationSentState';
 /**
  * Notification detail content
  */
-export default class NotificationDetail extends Basic.AbstractContent {
+class NotificationDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -70,10 +72,12 @@ export default class NotificationDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { notification, isNew } = this.props;
+    const { notification, isNew, userContext } = this.props;
     let data;
     if (isNew) {
+      notification.sender = userContext.username;
       data = { ...notification };
+      this.refs.subject.focus();
     } else {
       data = {
         ...notification,
@@ -97,6 +101,7 @@ export default class NotificationDetail extends Basic.AbstractContent {
       <div>
         <Basic.AbstractForm ref="form" className="form-horizontal">
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
+          <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
 
           <Basic.SelectBox
@@ -137,9 +142,8 @@ export default class NotificationDetail extends Basic.AbstractContent {
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} />
           <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} />
+          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} />
 
           <Basic.LabelWrapper hidden={isNew}
             label={this.i18n('entity.Notification.sent')}>
@@ -214,9 +218,19 @@ export default class NotificationDetail extends Basic.AbstractContent {
 NotificationDetail.propTypes = {
   notification: PropTypes.object,
   identityOnly: PropTypes.bool,
-  isNew: PropTypes.bool
+  isNew: PropTypes.bool,
+  userContext: PropTypes.object
 };
 NotificationDetail.defaultProps = {
   identityOnly: false,
-  showLoading: false
+  showLoading: false,
+  userContext: null
 };
+
+function select(state) {
+  return {
+    userContext: state.security.userContext
+  };
+}
+
+export default connect(select)(NotificationDetail);

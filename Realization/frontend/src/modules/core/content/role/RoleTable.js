@@ -1,17 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-//
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
 import RoleTypeEnum from 'core/enums/RoleTypeEnum';
-//
-import authorityHelp from './AuthoritiesPanel_cs.md';
-import AuthoritiesPanel from './AuthoritiesPanel';
-import { WorkflowProcessDefinitionManager, SecurityManager} from 'core/redux';
+import { SecurityManager} from 'core/redux';
+import uuid from 'uuid';
 
-const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 /**
 * Table of roles
 */
@@ -21,21 +17,11 @@ export class RoleTable extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       filterOpened: this.props.filterOpened,
-      detail: {
-        show: false,
-        entity: {}
-      }
     };
   }
 
   getContentKey() {
     return 'content.roles';
-  }
-
-  componentDidMount() {
-  }
-
-  componentDidUpdate() {
   }
 
   useFilter(event) {
@@ -53,107 +39,12 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    const { roleManager, uiKey } = this.props;
-    const { detail } = this.state;
-    //
-    this.getLogger().debug(`[RoleTable] load entity detail [id:${entity.name}]`);
-    this.setState({
-      detail: {
-        ...detail,
-        showLoading: true,
-        show: true
-      }
-    });
-    //
-    if (Utils.Entity.isNew(entity)) {
-      this._setSelectedEntity(entity);
-    } else {
-      this.context.store.dispatch(roleManager.fetchEntity(entity.name, `${uiKey}-${entity.name}`, (loadedEntity, error) => {
-        if (error) {
-          this.addError(error);
-        } else {
-          // transform subroles to array of identifiers
-          loadedEntity.subRoles = loadedEntity.subRoles.map(subRole => {
-            return subRole._embedded.sub.id;
-          });
-          // transform superiorRoles
-          loadedEntity.superiorRoles = loadedEntity.superiorRoles.map(superiorRole => {
-            return superiorRole._embedded.superior.id;
-          });
-          this._setSelectedEntity(loadedEntity);
-        }
-      }));
-    }
-  }
-
-  _setSelectedEntity(entity) {
-    this.getLogger().debug(`[RoleTable] loaded entity detail [id:${entity.name}]`, entity);
-    this.setState({
-      detail: {
-        show: true,
-        showLoading: false,
-        entity
-      }
-    }, () => {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    });
-  }
-
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
-  }
-
-  save(event) {
-    const { roleManager, uiKey } = this.props;
-    //
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const entity = this.refs.form.getData();
-    // append selected authorities
-    entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
-    // append subroles
-    if (entity.subRoles) {
-      entity.subRoles = entity.subRoles.map(subRoleId => {
-        return {
-          sub: roleManager.getSelfLink(subRoleId)
-        };
-      });
-    }
-    // delete superior roles - we dont want to save them (they are ignored on BE anyway)
-    delete entity.superiorRoles;
-    //
-    this.getLogger().debug('[RoleTable] save entity', entity);
-    //
     if (entity.id === undefined) {
-      this.context.store.dispatch(roleManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
+      const uuidId = uuid.v1();
+      this.context.router.push(`/role/${uuidId}/new?new=1`);
     } else {
-      this.context.store.dispatch(roleManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.router.push('/role/' + entity.id + '/detail');
     }
-  }
-
-  _afterSave(entity, error) {
-    if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.closeDetail();
   }
 
   onDelete(bulkActionValue, selectedRows) {
@@ -173,8 +64,8 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns, _showLoading } = this.props;
-    const { filterOpened, detail } = this.state;
+    const { uiKey, roleManager, columns } = this.props;
+    const { filterOpened } = this.state;
 
     return (
       <div>
@@ -259,113 +150,6 @@ export class RoleTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
-
-        <Basic.Modal
-          bsSize="large"
-          show={detail.show}
-          showLoading={detail.showLoading}
-          onHide={this.closeDetail.bind(this)}
-          backdrop="static"
-          keyboard={!_showLoading}>
-
-          <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={ Utils.Entity.isNew(detail.entity) }/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined }/>
-            <Basic.Modal.Body>
-              <Basic.Loading showLoading={_showLoading}>
-                <Basic.AbstractForm ref="form" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')}>
-                  <Basic.Row>
-                    <div className="col-lg-8">
-                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
-                      <div className="form-horizontal">
-                        <Basic.TextField
-                          ref="name"
-                          label={this.i18n('entity.Role.name')}
-                          required/>
-                        <Basic.EnumSelectBox
-                          ref="roleType"
-                          label={this.i18n('entity.Role.roleType')}
-                          enum={RoleTypeEnum}
-                          required
-                          readOnly={!Utils.Entity.isNew(detail.entity)}/>
-                        <Basic.SelectBox
-                          ref="superiorRoles"
-                          label={this.i18n('entity.Role.superiorRoles')}
-                          manager={roleManager}
-                          multiSelect
-                          readOnly
-                          placeholder=""/>
-                        <Basic.SelectBox
-                          ref="subRoles"
-                          label={this.i18n('entity.Role.subRoles')}
-                          manager={roleManager}
-                          multiSelect/>
-                        <Basic.TextArea
-                          ref="description"
-                          label={this.i18n('entity.Role.description')}/>
-                        <Basic.Checkbox
-                          ref="disabled"
-                          label={this.i18n('entity.Role.disabled')}/>
-                      </div>
-
-                      <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                        { this.i18n('setting.approval.header') }
-                      </h3>
-                      <Basic.SelectBox
-                        labelSpan=""
-                        componentSpan=""
-                        ref="approveAddWorkflow"
-                        label={this.i18n('entity.Role.approveAddWorkflow')}
-                        forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.add') }
-                        multiSelect={false}
-                        manager={workflowProcessDefinitionManager}/>
-                      <Basic.SelectBox
-                        labelSpan=""
-                        componentSpan=""
-                        ref="approveRemoveWorkflow"
-                        label={this.i18n('entity.Role.approveRemoveWorkflow')}
-                        forceSearchParameters={ workflowProcessDefinitionManager.getDefaultSearchParameters().setFilter('category', 'eu.bcvsolutions.role.approve.remove') }
-                        multiSelect={false}
-                        manager={workflowProcessDefinitionManager}/>
-                    </div>
-
-                    <div className="col-lg-4">
-                      <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                        <span dangerouslySetInnerHTML={{ __html: this.i18n('setting.authority.header') }} className="pull-left"/>
-                        <Basic.HelpIcon content={authorityHelp} className="pull-right"/>
-                        <div className="clearfix"/>
-                      </h3>
-                      <AuthoritiesPanel
-                        ref="authorities"
-                        roleManager={roleManager}
-                        authorities={detail.entity.authorities}
-                        disabled={!SecurityManager.hasAuthority('ROLE_WRITE')}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Basic.Loading>
-            </Basic.Modal.Body>
-
-            <Basic.Modal.Footer>
-              <Basic.Button
-                level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
-              </Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoading={_showLoading}
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.Modal.Footer>
-          </form>
-
-        </Basic.Modal>
       </div>
     );
   }

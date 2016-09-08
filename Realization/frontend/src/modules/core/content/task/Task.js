@@ -1,12 +1,10 @@
-
-
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import * as Basic from '../../../../components/basic';
-import {WorkflowTaskInstanceManager } from '../../../../modules/core/redux';
+import * as Basic from 'app/components/basic';
+import {WorkflowTaskInstanceManager } from 'core/redux';
 import DynamicTaskDetail from './DynamicTaskDetail';
-import ComponentService from '../../../../services/ComponentService';
+import ComponentService from 'core/services/ComponentService';
 
 const workflowTaskInstanceManager = new WorkflowTaskInstanceManager();
 const componentService = new ComponentService();

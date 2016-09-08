@@ -50,7 +50,7 @@ public interface ConfigurationService {
 	String getValue(String key, String defaultValue);
 	
 	/**
-	 * Returns configured value as boolean for given key
+	 * Returns configured value as {@code Boolean} for given key
 	 * 
 	 * @param key
 	 * @return
@@ -58,12 +58,28 @@ public interface ConfigurationService {
 	Boolean getBooleanValue(String key);
 	
 	/**
-	 * Returns configured value as boolean for given key
+	 * Returns configured value as {@code boolean} for given key. Never throws exception - returns defaultValue.
 	 * 
 	 * @param key
 	 * @return
 	 */
 	boolean getBooleanValue(String key, boolean defaultValue);
+	
+	/**
+	 * Returns configured value as {@code Integer} for given key
+	 * 
+	 * @param key
+	 * @return
+	 */
+	Integer getIntegerValue(String key);
+	
+	/**
+	 * Returns configured value as {@code Integer} for given key. Never throws number format exception - returns defaultValue on exception.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	Integer getIntegerValue(String key, Integer defaultValue);
 	
 	/**
 	 * Set given configuration value. Creates new, if configuration with given key does not exist. 

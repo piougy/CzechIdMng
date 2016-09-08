@@ -24,6 +24,10 @@ if (!validTillDateNew.equals("no-change")){
 	ir.setValidTill(validTillDateNew);
 }
 
+//Set applicant as original modifier
+ir.setOriginalModifier(applicantUsername);
+
+
 execution.setVariable("updatedIdmIdentityRole", ir);
 
 			</script>
@@ -49,10 +53,10 @@ execution.setVariable("updatedIdmIdentityRole", ir);
         <omgdc:Bounds height="35.0" width="35.0" x="120.0" y="113.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
-        <omgdc:Bounds height="55.0" width="211.0" x="800.0" y="103.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="211.0" x="780.0" y="102.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="35.0" width="35.0" x="1110.0" y="113.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1100.0" y="112.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
         <omgdc:Bounds height="55.0" width="210.0" x="470.0" y="102.0"></omgdc:Bounds>
@@ -62,11 +66,11 @@ execution.setVariable("updatedIdmIdentityRole", ir);
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
         <omgdi:waypoint x="680.0" y="129.0"></omgdi:waypoint>
-        <omgdi:waypoint x="800.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="780.0" y="129.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="1011.0" y="130.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1110.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="991.0" y="129.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1100.0" y="129.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
         <omgdi:waypoint x="155.0" y="130.0"></omgdi:waypoint>

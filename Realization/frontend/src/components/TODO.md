@@ -1,1 +1,1 @@
-#11019 - move components to core and create sole npm module
+#11019 - move components to core and create solo npm module (bcv-idm-core)

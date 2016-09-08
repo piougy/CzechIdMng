@@ -50,14 +50,14 @@
 #### Get component by key (id)
 
 ```javascript
-import ComponentService from '/services/ComponentService';
+import ComponentService from 'core/services/ComponentService';
 DetailComponent = componentService.getComponent('someComponentKey');
 ```
 
 #### Get components by specific type
 
 ```javascript
-import ComponentService from '/services/ComponentService';
+import ComponentService from 'core/services/ComponentService';
 let dashboards = [];
 dashboards = this.componentService.getComponentDefinitions('dashboard');
 ```

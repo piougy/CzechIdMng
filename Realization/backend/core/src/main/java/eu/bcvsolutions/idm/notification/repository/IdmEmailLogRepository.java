@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
@@ -90,6 +89,18 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
 	IdmEmailLog findOne(@Param("id") Long id);
+	
+	/**
+	 * Returns email log by given id - for internal purpose.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@RestResource(exported = false)
+	@Query(value = "select e from #{#entityName} e" +
+	        " where "
+	        + "e.id = :id")
+	IdmEmailLog get(@Param("id") Long id);
 	
 	@Override
 	@RestResource(exported = false)

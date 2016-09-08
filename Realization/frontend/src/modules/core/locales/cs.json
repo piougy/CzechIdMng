@@ -1,10 +1,15 @@
 {
   "app": {
     "name": "CzechIdM",
-    "author": "BCV solutions s.r.o.",
+    "author": {
+      "name": "BCV solutions s.r.o.",
+      "homePage": "http://www.bcvsolutions.eu"
+    },
+    "helpdesk": "HelpDesk",
     "version": {
       "frontend": "Verze",
-      "backend": "Verze rozhraní"
+      "backend": "Verze rozhraní",
+      "releaseDate": "Datum vydání"
     }
   },
   "format": {
@@ -283,6 +288,12 @@
         "description": "Služba není momentálně dostupná.",
         "note": "Zkuste to prosím později."
       }
+    },
+    "about": {
+      "header": "O aplikaci",
+      "title": "$t(content.about.header)",
+      "sourceCodeOn": "Projekt dostupný na",
+      "link": "$t(content.about.header)"
     },
     "login": {
       "header": "Přihlášení",
@@ -603,7 +614,7 @@
       "header": "Role",
       "title": "Role",
       "edit": {
-        "header": "{{name}} <small>detail role</small>"
+        "header": "{{name}} detail role"
       },
       "create": {
         "header": "Nová role"
@@ -642,6 +653,9 @@
         "approval": {
           "header": "Schvalovací workflow"
         }
+      },
+      "tabs": {
+        "basic": "Základní informace"
       }
     },
     "user": {
@@ -1188,7 +1202,8 @@
       "id": "ID",
       "priority": "Priorita",
       "createTime": "Datum vytvoření",
-      "completeTaskDecision": "Rozhodnutí"
+      "completeTaskDecision": "Rozhodnutí",
+      "candicateUsers": "Kandidáti"
     },
     "Notification": {
       "topic": "Téma",

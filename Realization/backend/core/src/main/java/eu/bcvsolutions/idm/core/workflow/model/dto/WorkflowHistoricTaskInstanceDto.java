@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WorkflowHistoricTaskInstanceDto {
@@ -31,6 +32,7 @@ public class WorkflowHistoricTaskInstanceDto {
 	private Date dueDate;
 	private String completeTaskDecision;
 	private Map<String, Object> taskVariables;
+	private List<String> candicateUsers;
 
 	public String getProcessDefinitionId() {
 		return processDefinitionId;
@@ -145,6 +147,14 @@ public class WorkflowHistoricTaskInstanceDto {
 
 	public void setTaskVariables(Map<String, Object> taskVariables) {
 		this.taskVariables = taskVariables;
+	}
+	
+	public List<String> getCandicateUsers() {
+		return candicateUsers;
+	}
+
+	public void setCandicateUsers(List<String> candicateUsers) {
+		this.candicateUsers = candicateUsers;
 	}
 
 }

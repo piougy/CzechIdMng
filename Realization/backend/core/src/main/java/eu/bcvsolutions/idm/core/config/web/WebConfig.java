@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.config.web;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +25,6 @@ import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 @Configuration
 @AutoConfigureAfter({ FlywayConfigCore.class })
 public class WebConfig {
-
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebConfig.class);
 
 	@Bean
     public FilterRegistrationBean corsFilter() {

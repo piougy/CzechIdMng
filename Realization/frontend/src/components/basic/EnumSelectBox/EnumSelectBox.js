@@ -66,7 +66,7 @@ class EnumSelectBox extends SelectBox {
         niceLabel = this.props.enum.getNiceLabel(key);
       }
       const itemFullKey = niceLabel;
-      _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey});
+      _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey, value: key });
     }
     return item;
   }

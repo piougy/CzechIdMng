@@ -7,7 +7,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultIdmRoleController;
 
 /**
@@ -16,10 +16,10 @@ import eu.bcvsolutions.idm.core.rest.impl.DefaultIdmRoleController;
  *
  */
 
-public class IdmOrganizationProcessor implements ResourceProcessor<Resource<IdmOrganization>>{
+public class IdmTreeNodeProcessor implements ResourceProcessor<Resource<IdmTreeNode>>{
 
 	@Override
-	public Resource<IdmOrganization> process(Resource<IdmOrganization> resource) {
+	public Resource<IdmTreeNode> process(Resource<IdmTreeNode> resource) {
 		String identityId = String.valueOf(resource.getContent().getId());
 		
 		Link revisionLink = linkTo(methodOn(DefaultIdmRoleController.class)

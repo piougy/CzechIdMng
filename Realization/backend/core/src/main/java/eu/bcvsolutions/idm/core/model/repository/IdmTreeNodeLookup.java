@@ -6,28 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.support.EntityLookupSupport;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
- * 
+ * Lookup for treeNode
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
 @Component
-public class IdmOrganizationLookup extends EntityLookupSupport<IdmOrganization> {
+public class IdmTreeNodeLookup extends EntityLookupSupport<IdmTreeNode> {
 	
 	@Autowired
-	private IdmOrganizationRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Override
-	public Serializable getResourceIdentifier(IdmOrganization organization) {
-		return organization.getId();
+	public Serializable getResourceIdentifier(IdmTreeNode treeNode) {
+		return treeNode.getId();
 	}
 
 	@Override
 	public Object lookupEntity(Serializable id) {
-		return organizationRepository.findOne(Long.parseLong(id.toString()));
+		return treeNodeRepository.findOne(Long.parseLong(id.toString()));
 	}
 	
 	

@@ -21,11 +21,11 @@ import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
-import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationLookup;
-import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeLookup;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.rest.IdmOrganizationController;
+import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 
 /**
@@ -35,64 +35,64 @@ import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
  */
 
 @RestController
-@RequestMapping(value = "/api/organizations/")
-public class DefaultIdmOrganizationController implements IdmOrganizationController {
+@RequestMapping(value = "/api/treenodes/")
+public class DefaultIdmTreeNodeController implements IdmTreeNodeController {
 	
 	@Autowired
-	private IdmOrganizationLookup organizationLookup;
+	private IdmTreeNodeLookup treeNodeLookup;
 	
 	@Autowired
-	private IdmOrganizationRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
 	private IdmAuditService auditService; 
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "{organizationId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("organizationId") String organizationId, @PathVariable("revId") Integer revId) {
-		IdmOrganization organization = organizationRepository.findOne(Long.parseLong(organizationId));
-		if (organization == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
+	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Integer revId) {
+		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		if (treeNode == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
 		Revision<Integer, ? extends AbstractEntity> revision;
 		try {
-			revision = this.auditService.findRevision(IdmOrganization.class, revId, Long.parseLong(organizationId));
+			revision = this.auditService.findRevision(IdmTreeNode.class, revId, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}
 		
-		IdmOrganization entity = (IdmOrganization) revision.getEntity();
-		RevisionAssembler<IdmOrganization> assembler = new RevisionAssembler<IdmOrganization>();
+		IdmTreeNode entity = (IdmTreeNode) revision.getEntity();
+		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(this.organizationLookup.getResourceIdentifier(entity)), revision, revId);
+				String.valueOf(this.treeNodeLookup.getResourceIdentifier(entity)), revision, revId);
 
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "{organizationId}/revisions", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("organizationId") String organizationId) {
-		IdmOrganization organization = organizationRepository.findOne(Long.parseLong(organizationId));
-		if (organization == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("organization", organizationId));
+	@RequestMapping(value = "{treeNodeId}/revisions", method = RequestMethod.GET)
+	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("treeNodeId") String treeNodeId) {
+		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		if (treeNode == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> revisions = this.auditService.findRevisions(IdmOrganization.class, Long.parseLong(organizationId));
+		List<Revision<Integer, ? extends AbstractEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		try {
-			revisions = this.auditService.findRevisions(IdmOrganization.class, Long.parseLong(organizationId));
+			revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", organizationId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", treeNodeId));
 		}
 		
-		RevisionAssembler<IdmOrganization> assembler = new RevisionAssembler<IdmOrganization>();
+		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
 		
 		for	(Revision<Integer, ? extends AbstractEntity> revision : revisions) {
 			wrappers.add(assembler.toResource(this.getClass(), 
-					String.valueOf(this.organizationLookup.getResourceIdentifier((IdmOrganization)revision.getEntity())),
+					String.valueOf(this.treeNodeLookup.getResourceIdentifier((IdmTreeNode)revision.getEntity())),
 					revision, revision.getRevisionNumber()));
 		}
 		

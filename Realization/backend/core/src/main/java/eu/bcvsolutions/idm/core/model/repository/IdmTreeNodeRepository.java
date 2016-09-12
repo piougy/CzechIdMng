@@ -11,32 +11,32 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
-import eu.bcvsolutions.idm.core.model.repository.projection.IdmOrganizationExcerpt;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
 
 @RepositoryRestResource(//
-	collectionResourceRel = "organizations", //
-	path = "organizations", //
-	itemResourceRel = "organization", //
-	collectionResourceDescription = @Description("Organization structure") , //
-	itemResourceDescription = @Description("Organization structure"), //
-	excerptProjection = IdmOrganizationExcerpt.class
+	collectionResourceRel = "treenodes", //
+	path = "treenodes", //
+	itemResourceRel = "treenode", //
+	collectionResourceDescription = @Description("Tree nodes") , //
+	itemResourceDescription = @Description("Tree nodes"), //
+	excerptProjection = IdmTreeNodeExcerpt.class
 )
-public interface IdmOrganizationRepository extends BaseRepository<IdmOrganization> {
+public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode> {
 	
-	@Query(value = "select e from IdmOrganization e" +
+	@Query(value = "select e from IdmTreeNode e" +
 	        " where" +
 	        "(:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" + 
 	        " and (:parent is null or e.parent = :parent)")
 	@RestResource(path = "quick", rel = "quick")
-	Page<IdmIdentity> findByNameOrParentName(@Param(value = "text") String text, @Param(value = "parent") IdmOrganization parent, Pageable pageable);
+	Page<IdmIdentity> findByNameOrParentName(@Param(value = "text") String text, @Param(value = "parent") IdmTreeNode parent, Pageable pageable);
 
-	@Query(value = "select e from IdmOrganization e" +
+	@Query(value = "select e from IdmTreeNode e" +
 			" where" +
 			" (:parent is null and e.parent.id IS NULL) or (e.parent.id = :parent)")
 	@RestResource(path = "children", rel = "children")
 	List<IdmIdentity> findChildrenByParent(@Param(value = "parent") Long parent);
 	
 	@RestResource(exported = false)
-	IdmOrganization findOneByParentIsNull();
+	IdmTreeNode findOneByParentIsNull();
 }

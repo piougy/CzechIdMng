@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Web security configuration
- * 
+ *
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
@@ -29,16 +29,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
-    	 http.csrf().disable(); 
+    	 http.csrf().disable();
     	 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
 			.antMatchers("/api/public/**").permitAll()
 			.antMatchers("/api/**").fullyAuthenticated() // TODO: controllers should choose security?
-			.anyRequest().authenticated();
+			.anyRequest().permitAll();
     }
-	
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		// public controllers
@@ -50,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				"/api/browser/**" // TODO: close this endpoint before first version is released
 			);
 	}
-   
+
 	@Bean
 	public OAuthAuthenticationManager oAuthAuthenticationManager() {
 		return new OAuthAuthenticationManager();

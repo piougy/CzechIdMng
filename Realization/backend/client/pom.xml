@@ -25,7 +25,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>idm</finalName>
+		<finalName>${fnlName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -55,4 +55,121 @@
 		</resources>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>default</spring.profiles.active>
+				<fnlName>blob</fnlName>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<spring.profiles.active>dev</spring.profiles.active>
+			</properties>
+
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+			<build>
+				<finalName>idm-gui</finalName>
+				<plugins>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <outputDirectory>target/idm-gui</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/dist</directory>
+						      <filtering>true</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+					<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>2.6</version>
+					    <configuration>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					    </configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>http://localhost:8082/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+
+
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<spring.profiles.active>release</spring.profiles.active>
+			</properties>
+			<build>
+			<finalName>idm-gui</finalName>
+				<plugins>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <outputDirectory>target/idm-gui</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/dist</directory>
+						      <filtering>true</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+					<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>2.6</version>
+					    <configuration>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					    </configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<repository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>http://localhost:8082/repository/maven-releases/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 </project>

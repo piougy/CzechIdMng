@@ -1,0 +1,16 @@
+{
+  "name": "czechidm-acc",
+  "version": "0.1.0",
+  "description": "Module of CzechIdM 2.0 devstack for accounts managment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "CzechIdM",
+    "provisioning",
+    "IDM"
+  ],
+  "author": "BCV solutions s.r.o",
+  "license": "MIT"
+}

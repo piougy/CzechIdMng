@@ -1,16 +1,14 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Footer from './Footer';
-import * as Basic from '../components/basic';
-import * as Advanced from '../components/advanced';
-import { SecurityManager, ConfigurationManager, DataManager } from '../modules/core/redux';
+import {Basic, Advanced, SecurityManager, Managers} from 'czechidm-core';
 
 export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.securityManager = new SecurityManager();
-    this.configurationManager = new ConfigurationManager();
+    this.configurationManager = new Managers.ConfigurationManager();
   }
 
   /**
@@ -78,7 +76,6 @@ export class App extends Basic.AbstractContent {
           :
           <div>
             <Advanced.Navigation />
-
             <div id="content-container" className={SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
               {this.props.children}
               {
@@ -172,7 +169,7 @@ App.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    publicConfigurations: DataManager.getData(state, ConfigurationManager.PUBLIC_CONFIGURATIONS),
+    publicConfigurations: Managers.DataManager.getData(state, Managers.ConfigurationManager.PUBLIC_CONFIGURATIONS),
     bulk: state.data.bulk
   };
 }

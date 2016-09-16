@@ -49,6 +49,9 @@
     "es6-promise": "3.1.2",
     "font-awesome": "^4.6.1",
     "github-markdown-css": "2.2.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-each": "^0.2.0",
+    "gulp-replace": "^0.5.4",
     "i18next": "2.0.26",
     "i18next-browser-languagedetector": "0.0.14",
     "i18next-localstorage-cache": "0.0.4",
@@ -85,7 +88,8 @@
     "redux-promise": "0.5.0",
     "redux-thunk": "2.0.1",
     "stringify": "5.1.0",
-    "uuid": "2.0.1"
+    "uuid": "2.0.1",
+    "vinyl-fs": "2.4.3"
   },
   "devDependencies": {
     "babel": "5.8.38",
@@ -109,6 +113,7 @@
     "gulp-autoprefixer": "3.1.0",
     "gulp-bootlint": "0.6.4",
     "gulp-eslint": "1.0.0",
+    "gulp-flatmap": "^1.0.0",
     "gulp-html-replace": "1.5.1",
     "gulp-image": "1.0.2",
     "gulp-less": "3.0.3",
@@ -134,5 +139,8 @@
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.7.0",
     "yargs": "4.6.0"
+  },
+  "czechidmModules": {
+    "czechidm-core": "0.1.0"
   }
 }

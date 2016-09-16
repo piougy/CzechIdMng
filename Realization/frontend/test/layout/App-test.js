@@ -6,8 +6,7 @@ import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
 import { App } from '../../src/layout/App';
-import * as Basic from '../../src/components/basic';
-import * as Advanced from '../../src/components/advanced';
+import {Basic, Advanced} from 'czechidm-core';
 
 describe('App', function appTestSuite() {
   describe.skip('[without redux connected]', function appTest() {

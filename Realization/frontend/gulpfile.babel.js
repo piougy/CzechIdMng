@@ -24,6 +24,10 @@ import stringify from 'stringify';
 import yargs from 'yargs';
 import util from 'gulp-util';
 import pathmodify from 'pathmodify';
+import flatmap from 'gulp-flatmap';
+import replace from 'gulp-replace';
+import concat from 'gulp-concat';
+import vfs from 'vinyl-fs';
 
 require('babel/register');
 
@@ -32,10 +36,15 @@ const paths = {
   srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js', 'node_modules/metismenu/dist/metisMenu.min.js'],
   srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*', 'node_modules/font-awesome/fonts/*'],
   srcJsx: 'src/Index.js',
-  srcCss: ['src/css/**/*.less', 'src/css/google.fonts.css', 'src/components/**/*.less', 'src/themes/**/*.less'],
-  srcImg: 'src/images/**', // client images
-  srcLocale: 'src/modules/**/locales/**',
-  srcThemes: 'src/modules/**/themes/**/images/**', // only images for now
+  srcLess: ['src/css/**/*.less'],
+  srcCssSeparate: ['src/css/google.fonts.css'], // this css will be add as separate files (not conacat to main.less)
+  srcImg: 'images/**', // client images
+  srcThemes: ['images/**'], // only images for now
+  // srcLocale: 'src/locales/*.json',
+  srcModuleDescriptor: 'node_modules/**/module-descriptor.js',
+  srcModuleAssembler: 'src/modules/moduleAssembler.js', // default modules assembler
+  srcRouteAssembler: 'src/modules/routeAssembler.js', // default routes assembler
+  srcComponentAssembler: 'src/modules/componentAssembler.js', // default component assembler
   testSrc: 'test/**/*.js',
   dist: 'dist',
   distJs: 'dist/js',
@@ -43,16 +52,20 @@ const paths = {
   distCss: 'dist/css',
   distFont: 'dist/fonts',
   distLocale: 'dist/locales',
-  distThemes: 'dist/modules',
+  distThemes: 'dist/themes',
+  distModule: 'dist/modules',
   src: 'src/**/*.js'
 };
 
 const pathmodifyOptions = {
   mods: [
-    pathmodify.mod.dir('app', path.join(__dirname, 'src')),
-    pathmodify.mod.dir('core', path.join(__dirname, 'src/modules/core'))
+    pathmodify.mod.dir('app', path.join(__dirname, 'src'))
   ]
 };
+const compileMark = '// <compile mark>';
+let modulesAssemblerContent = '';
+let routesAssemblerContent = '';
+let componentsAssemblerContent = '';
 
 /**
  * Returns configuration for requestet environment
@@ -86,6 +99,116 @@ function selectStageAndProfile() {
   process.env.NODE_ENV = stage;
   process.env.NODE_PROFILE = profile;
 }
+
+gulp.task('copyModules', () => {
+  return vfs.src('./czechidm-modules/**', {followSymlinks: false})
+  .pipe(vfs.symlink('./node_modules'));
+});
+
+/**
+ * Load module-descriptors.
+ * Move them to dist.
+ * Generate content for module assembler (add to global variable).
+ */
+gulp.task('loadModules', () => {
+  return gulp.src(paths.srcModuleDescriptor)
+  .pipe(flatmap(function loadModule(stream, file) {
+    const descriptor = require(file.path);
+    if (descriptor.npmName) {
+      util.log('Loaded module-descriptor with ID:', descriptor.id);
+      const pathRelative = descriptor.npmName + '/module-descriptor.js';
+      // Add row to module assembler
+      modulesAssemblerContent = modulesAssemblerContent + ' moduleDescriptors = moduleDescriptors.set("'
+      + descriptor.id + '", require("' + pathRelative + '"));' + '\n';
+    }
+    return stream;
+  }));
+});
+
+/**
+ * Create final module assembler
+ * Add paths on module descriptors to modules assembler file.
+ * Move modules assembler to dist.
+ */
+gulp.task('createModuleAssembler', () => {
+  return gulp.src(paths.srcModuleAssembler)
+  .pipe(replace(compileMark, modulesAssemblerContent))
+  .pipe(gulp.dest(paths.distModule));
+});
+
+/**
+ * Load main styles form modules and add them to css paths array.
+ */
+gulp.task('loadModuleStyles', () => {
+  return gulp.src(paths.srcModuleDescriptor)
+  .pipe(flatmap(function loadModule(stream, file) {
+    const descriptor = require(file.path);
+    util.log('Loading style for module with ID:', descriptor.id);
+    if (descriptor.mainStyleFile) {
+      const fullStylePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainStyleFile;
+      util.log('Main module style file path:', fullStylePath);
+      paths.srcLess.push(fullStylePath);
+    }
+    return stream;
+  }));
+});
+
+gulp.task('loadModuleRoutes', () => {
+  return gulp.src(paths.srcModuleDescriptor)
+  .pipe(flatmap(function loadModule(stream, file) {
+    const descriptor = require(file.path);
+    if (descriptor.mainRouteFile && descriptor.npmName) {
+      util.log('Loading routes for module with ID:', descriptor.id);
+      const fullRoutePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainRouteFile;
+      util.log('Main module route file path:', fullRoutePath);
+      const relativeRoutePath = descriptor.npmName + '/' + descriptor.mainRouteFile;
+      // Add row to route assembler
+      routesAssemblerContent = routesAssemblerContent + 'require("' + relativeRoutePath + '"),' + '\n';
+    }
+    return stream;
+  }));
+});
+
+/**
+ * Create final routes assembler
+ * Add paths on module routes to modules assembler file.
+ * Move routes assembler to dist.
+ */
+gulp.task('createRouteAssembler', () => {
+  return gulp.src(paths.srcRouteAssembler)
+  .pipe(replace(compileMark, routesAssemblerContent))
+  .pipe(gulp.dest(paths.distModule));
+});
+
+
+gulp.task('loadModuleComponents', () => {
+  return gulp.src(paths.srcModuleDescriptor)
+  .pipe(flatmap(function loadModule(stream, file) {
+    const descriptor = require(file.path);
+    if (descriptor.mainComponentDescriptorFile && descriptor.npmName) {
+      util.log('Loading components for module with ID:', descriptor.id);
+      const fullComponentPath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainComponentDescriptorFile;
+      util.log('Main module route file path:', fullComponentPath);
+      const relativeComponentPath = descriptor.npmName + '/' + descriptor.mainComponentDescriptorFile;
+      // Add row to component assembler
+      componentsAssemblerContent = componentsAssemblerContent + ' componentDescriptors = componentDescriptors.set("'
+      + descriptor.id + '", require("' + relativeComponentPath + '"));' + '\n';
+    }
+    return stream;
+  }));
+});
+
+/**
+ * Create final component assembler
+ * Add requires on components descriptors (for each fined module) to components assembler file.
+ * Move components assembler to dist.
+ */
+gulp.task('createComponentAssembler', () => {
+  return gulp.src(paths.srcComponentAssembler)
+  .pipe(replace(compileMark, componentsAssemblerContent))
+  .pipe(gulp.dest(paths.distModule));
+});
+
 
 gulp.task('clean', cb => {
   rimraf('dist', cb);
@@ -143,9 +266,10 @@ gulp.task('browserify', () => {
 });
 
 gulp.task('styles', () => {
+  util.log('Styles will be compiled from this parts:', paths.srcLess);
   const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
   //
-  return gulp.src(paths.srcCss)
+  return gulp.src(paths.srcLess)
     .pipe(sourcemaps.init())
     .pipe(less({
       compress: true,
@@ -157,9 +281,12 @@ gulp.task('styles', () => {
     }))
     .pipe(autoprefixer('last 10 versions', 'ie 9'))
     .pipe(minifyCSS({keepBreaks: false}))
+    .pipe(concat('main.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(paths.distCss))
-    .pipe(reload({stream: true}));
+    .pipe(reload({stream: true}))
+    .pipe(gulp.src(paths.srcCssSeparate))
+    .pipe(gulp.dest(paths.distCss));
 });
 
 gulp.task('htmlReplace', () => {
@@ -190,8 +317,20 @@ gulp.task('images', () => {
 });
 
 gulp.task('themes', () => {
-  return gulp.src(paths.srcThemes)
-    .pipe(gulp.dest(paths.distThemes));
+  const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  if (config.theme) {
+    const themeFullPath = path.join(__dirname, '/node_modules/', config.theme);
+    util.log('Theme will load form path:', themeFullPath);
+    return gulp.src(path.join(themeFullPath, '/images/**'))
+    .pipe(gulp.dest(paths.distImg))
+    // Find theme styles and add them to srcLess array
+    .pipe(gulp.src(path.join(themeFullPath, '/css/*'))
+    .pipe(flatmap(function loadModule(stream, file) {
+      util.log('Add theme style from:', file.path);
+      paths.srcLess.push(file.path);
+      return stream;
+    })));
+  }
 });
 
 gulp.task('js', () => {
@@ -204,10 +343,22 @@ gulp.task('fonts', () => {
     .pipe(gulp.dest(paths.distFont));
 });
 
-gulp.task('locales', () => {
-  return gulp.src(paths.srcLocale)
-    .pipe(gulp.dest(paths.distLocale))
-    .pipe(reload({stream: true}));
+/**
+ * Load locales form modules and copy them to dist.
+ */
+gulp.task('loadModuleLocales', () => {
+  return gulp.src(paths.srcModuleDescriptor)
+  .pipe(flatmap(function loadModule(stream, file) {
+    const descriptor = require(file.path);
+    if (descriptor.mainLocalePath) {
+      util.log('Loading locale for module with ID:', descriptor.id);
+      const fullLocalesPath = path.join(file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')), descriptor.mainLocalePath, '*.json');
+      util.log('Main module locale file path:', fullLocalesPath);
+      return gulp.src(fullLocalesPath)
+      .pipe(gulp.dest(path.join(paths.distLocale, '/', descriptor.id, '/')));
+    }
+    return stream;
+  }));
 });
 
 gulp.task('lint', () => {
@@ -246,19 +397,19 @@ gulp.task('runTest', () => {
 });
 
 gulp.task('watchTask', () => {
-  gulp.watch(paths.srcCss, ['styles']);
+  gulp.watch(paths.srcLess, ['styles']);
   gulp.watch(paths.srcJsx, ['lint']);
-  gulp.watch(paths.srcLocale, ['locales']);
+  // gulp.watch(paths.srcLocale, ['locales']);
 });
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
 });
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', ['browserify', 'config', 'styles', 'htmlReplace', 'images', 'themes', 'js', 'fonts', 'locales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', ['browserify', 'config', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
 });
 
 gulp.task('default', ['watch']);

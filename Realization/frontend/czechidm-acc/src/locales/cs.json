@@ -1,0 +1,20 @@
+{
+  "module": {
+    "name": "Správa účtů",
+    "author": "BCV solutions s.r.o."
+  },
+  "navigation" : {
+    "menu" : {
+    }
+  },
+  "entity": {
+
+  },
+  "content": {
+    "user":{
+      "accounts": "Účty na systémech"
+    },
+    "dashboard": {
+      }
+    }
+}

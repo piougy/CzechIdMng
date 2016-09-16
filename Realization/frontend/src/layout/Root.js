@@ -3,17 +3,27 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import modules from '../../dist/modules/moduleAssembler';
 //
-import * as Basic from '../components/basic';
-import { i18nInit } from '../redux/Layout/layoutActions';
+import {Basic, LayoutActions} from 'czechidm-core';
 
 export class Root extends Basic.AbstractContent {
 
-  componentDidMount() {
-    this.context.store.dispatch(i18nInit());
+  constructor() {
+    super();
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    this.context.store.dispatch(LayoutActions.modulesInit(modules.moduleDescriptors));
+    this.context.store.dispatch(LayoutActions.i18nInit());
+  }
+
+
+  componentWillUpdate() {
+    const {modulesReady} = this.props;
+    if (modulesReady) {
+      this.context.store.dispatch(LayoutActions.navigationInit());
+    }
   }
 
   componentWillUnmount() {
@@ -25,7 +35,7 @@ export class Root extends Basic.AbstractContent {
   }
 
   render() {
-    const { i18nReady } = this.props;
+    const { i18nReady} = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
     return (
       <div>
@@ -57,7 +67,8 @@ Root.childContextTypes = {
 
 function select(state) {
   return {
-    i18nReady: state.layout.get('i18nReady')
+    i18nReady: state.layout.get('i18nReady'),
+    modulesReady: state.layout.get('modulesReady')
   };
 }
 

@@ -3,8 +3,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import * as Basic from 'app/components/basic';
-import ComponentService from 'core/services/ComponentService';
+import {Basic, ComponentService} from 'czechidm-core';
 
 const DEFAULT_SPAN = 6;
 const DASHBOARD_COMPONENT_TYPE = 'dashboard';

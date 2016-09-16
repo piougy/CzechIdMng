@@ -20,11 +20,7 @@ import filter from 'redux-localstorage-filter';
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
 import config from '../config.json';
-import { layout } from './redux/Layout/layoutReducers';
-import { messages } from './modules/core/redux/flash/reducer';
-import { data } from './modules/core/redux/data/reducer';
-import { security } from './modules/core/redux/security/reducer';
-import { SecurityManager } from './modules/core/redux';
+import {LayoutReducers, FlashReducers, DataReducers, SecurityReducers, SecurityManager} from 'czechidm-core';
 //
 // global promise init
 Promise.polyfill();
@@ -89,10 +85,10 @@ function adapter(storage) {
 }
 
 const reducersApp = combineReducers({
-  layout,
-  messages,
-  data,
-  security,
+  layout: LayoutReducers.layout,
+  messages: FlashReducers.messages,
+  data: DataReducers.data,
+  security: SecurityReducers.security,
   routing: routeReducer,
   logger: (state = logger) => {
     // TODO: can be moved to separate redecuer and
@@ -154,7 +150,7 @@ const routes = {
         access: [{ type: 'IS_AUTHENTICATED' }]
       },
       childRoutes: [
-        require('./modules/routes')
+        require('../dist/modules/routeAssembler')
       ]
     }
   ]

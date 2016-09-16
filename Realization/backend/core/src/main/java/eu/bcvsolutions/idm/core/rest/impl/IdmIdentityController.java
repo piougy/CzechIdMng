@@ -3,21 +3,23 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import org.activiti.engine.runtime.ProcessInstance;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
+import org.springframework.data.rest.core.support.EntityLookup;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
@@ -26,14 +28,13 @@ import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
+import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.rest.IdmIdentityController;
-import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
+import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
@@ -46,8 +47,8 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  *
  */
 @RestController
-@RequestMapping(value = "/api")
-public class DefaultIdmIdentityController implements IdmIdentityController {
+@RequestMapping(value = "/api/identities")
+public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity> implements IdmRevisionController {
 
 	@Autowired
 	private IdmIdentityLookup identityLookup;
@@ -55,7 +56,6 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 
-	@Autowired
 	private IdmIdentityService identityService;
 
 	@Autowired
@@ -64,37 +64,52 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 	@Autowired
 	private IdmAuditService auditService; 
 	
-	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/" + ENDPOINT_NAME + "/search", method = RequestMethod.GET)
-	public ResponseEntity<Void> searchOverride() {
-//		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity("search");
-//		if (identity == null) {
-//			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
-//		}
-//		
-//		throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
-		// TODO: override default spring data rest funkcionality - we need to return identity, if exists
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	@Autowired
+	public IdmIdentityController(IdmIdentityService identityService) {
+		super(identityService);
+		this.identityService = identityService;
 	}
 
-	/**
-	 * Changes identity password. Could be public, because previous password is required.
-	 * 
-	 * @param identityId
-	 * @param passwordChangeDto
-	 * @return
-	 */
 	@Override
-	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/public/" + ENDPOINT_NAME + "/{identityId}/password-change", method = RequestMethod.PUT)
-	public ResponseEntity<Void> passwordChange(@PathVariable String identityId,
-			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
-		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
-		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
-		}
-		identityService.passwordChange(identity, passwordChangeDto);
+	protected EntityLookup<IdmIdentity> getEntityLookup() {
+		return identityLookup;
+	}
+	
+	@Override
+	@RequestMapping(method = RequestMethod.POST)
+	// @PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> postCollectionResource(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
+		return super.postCollectionResource(nativeRequest, assembler);
+	}
+	
+	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	public ResponseEntity<Void> postCollectionResource(PersistentEntityResource payload) {
+		System.out.println("makaaam: " + payload);
+		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	@Override
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
+	//@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> putItemResource(
+			@PathVariable @NotNull String backendId,
+			HttpServletRequest nativeRequest,
+			PersistentEntityResourceAssembler assembler) throws Exception {
+		return super.putItemResource(backendId, nativeRequest, assembler);
+	}
+	
+	@Override
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
+	//@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> patchItemResource(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
+		return super.patchItemResource(backendId, nativeRequest, assembler);
+	}	
+	
+	@Override
+	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteItemResource(@PathVariable @NotNull String backendId) {
+		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
 	}
 
 	/**
@@ -103,8 +118,7 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 	 * @param identityId
 	 * @return list of granted authorities
 	 */
-	@Override
-	@RequestMapping(value = "/" + ENDPOINT_NAME + "/{identityId}/authorities", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
 	}
@@ -114,8 +128,7 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 	 * @param identityId
 	 * @return Instance of workflow user task, where applicant can fill his change permission request
 	 */
-	@Override
-	@RequestMapping(value = "/" + ENDPOINT_NAME + "/{identityId}/change-permissions", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
@@ -131,7 +144,7 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/" + ENDPOINT_NAME + "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
 		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
 		if (originalEntity == null) {
@@ -155,7 +168,7 @@ public class DefaultIdmIdentityController implements IdmIdentityController {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/" + ENDPOINT_NAME + "/{identityId}/revisions", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
 		IdmIdentity originalEntity = this.identityLookup.findOneByName(identityId);
 		if (originalEntity == null) {

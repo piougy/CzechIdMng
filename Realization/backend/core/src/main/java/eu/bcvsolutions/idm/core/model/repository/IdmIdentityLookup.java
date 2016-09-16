@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByNameLookup;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 @Component

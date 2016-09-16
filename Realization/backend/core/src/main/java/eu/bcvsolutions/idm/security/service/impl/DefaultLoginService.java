@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -38,7 +40,8 @@ public class DefaultLoginService implements LoginService {
 	private IdmIdentityRepository idmIdentityRepository;
 
 	@Autowired
-	private ObjectMapper jsonMapper;
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
 	@Autowired
 	private ConfigurationService configurationService;
@@ -66,7 +69,7 @@ public class DefaultLoginService implements LoginService {
 				.getIdmJwtAuthenticationDto(authentication);
 		String authenticationJson;
 		try {
-			authenticationJson = jsonMapper.writeValueAsString(authenticationDto);
+			authenticationJson = mapper.writeValueAsString(authenticationDto);
 		} catch (IOException e) {
 			throw new IdmAuthenticationException(e.getMessage());
 		}

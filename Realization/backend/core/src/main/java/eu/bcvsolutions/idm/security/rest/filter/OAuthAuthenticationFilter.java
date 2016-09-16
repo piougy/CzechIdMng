@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.filter;
+package eu.bcvsolutions.idm.security.rest.filter;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -26,6 +26,7 @@ import org.springframework.security.jwt.crypto.sign.SignerVerifier;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.DefaultErrorModel;
@@ -57,7 +58,8 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 	private OAuthAuthenticationManager authenticationManager;
 
 	@Autowired
-	private ObjectMapper jsonMapper;
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
@@ -82,7 +84,7 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 
 		try {
 			String decoded = JwtHelper.decodeAndVerify(token, verifier).getClaims();
-			IdmJwtAuthenticationDto authenticationDto = jsonMapper.readValue(decoded, IdmJwtAuthenticationDto.class);
+			IdmJwtAuthenticationDto authenticationDto = mapper.readValue(decoded, IdmJwtAuthenticationDto.class);
 
 			if (authenticationDto == null) {
 				return;
@@ -124,6 +126,6 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 		}
 		httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		httpResponse.setStatus(errorModel.getStatus().value());
-		httpResponse.getWriter().print(jsonMapper.writeValueAsString(new ResultModels(errorModel)));
+		httpResponse.getWriter().print(mapper.writeValueAsString(new ResultModels(errorModel)));
 	}
 }

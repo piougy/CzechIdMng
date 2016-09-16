@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -103,18 +104,29 @@ public class RepositoryConfig extends RepositoryRestMvcConfiguration {
 	 * @return
 	 */
 	@Bean
-    public EvaluationContextExtension securityExtension() {
-        return new EvaluationContextExtensionSupport() {
-        	@Override
-        	public String getExtensionId() {
-    			return "security";
-        	}
+	public EvaluationContextExtension securityExtension() {
+		return new EvaluationContextExtensionSupport() {
+			@Override
+			public String getExtensionId() {
+				return "security";
+			}
 
-        	@Override
-        	public SecurityExpressionRoot getRootObject() {
-        		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        		return new SecurityExpressionRoot(authentication) {};
-			}  	
-        };
+			@Override
+			public SecurityExpressionRoot getRootObject() {
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				return new SecurityExpressionRoot(authentication) {
+				};
+			}
+		};
+	}
+
+	/**
+	 * Could be used for manually resource projection
+	 * 
+	 * @return
+	 */
+	@Bean
+	public SpelAwareProxyProjectionFactory projectionFactory() {
+		return new SpelAwareProxyProjectionFactory();
 	}
 }

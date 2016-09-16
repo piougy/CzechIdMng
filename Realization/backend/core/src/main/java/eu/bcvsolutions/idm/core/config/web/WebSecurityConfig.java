@@ -13,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import eu.bcvsolutions.idm.security.filter.OAuthAuthenticationFilter;
+import eu.bcvsolutions.idm.security.rest.filter.OAuthAuthenticationFilter;
 import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
@@ -45,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers( //
 				"/api", // endpoint with supported services list
 				"/api/authentication", // login / out
+				"/api/test", // login / out
 				//"/api/public/**", // public
 				"/error/**",
 				"/api/browser/**" // TODO: close this endpoint before first version is released

@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.repository.IdentifiableByNameLookup;
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByNameLookup;
 
 @Component
 public class IdmConfigurationLookup extends IdentifiableByNameLookup<IdmConfiguration> {

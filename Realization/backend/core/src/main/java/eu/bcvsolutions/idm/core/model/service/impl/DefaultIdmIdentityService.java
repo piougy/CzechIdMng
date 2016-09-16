@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -24,7 +25,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @Service
-public class DefaultIdmIdentityService implements IdmIdentityService {
+public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity> implements IdmIdentityService {
 
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
@@ -42,6 +43,11 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Override
+	protected BaseRepository<IdmIdentity> getRepository() {
+		return identityRepository;
+	}
 
 	/**
 	 * Start workflow for change permissions
@@ -59,7 +65,8 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 
 	@Override
 	public IdmIdentity get(Long id) {
-		IdmIdentity entity = identityRepository.findOne(id);
+		IdmIdentity entity = super.get(id);
+		// TODO: where is this necesarry? Find and remove ...
 		entity.getRoles();
 		return entity;
 	}

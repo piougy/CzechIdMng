@@ -1,10 +1,8 @@
-package eu.bcvsolutions.idm.core.model.repository;
+package eu.bcvsolutions.idm.core.model.domain;
 
 import java.io.Serializable;
 
 import org.springframework.data.rest.core.support.EntityLookupSupport;
-
-import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 
 /**
  * Some entities could be found by name
@@ -13,13 +11,13 @@ import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
  *
  * @param <T>
  */
-public abstract class IdentifiableByNameLookup<T extends IdentifiableByName> extends EntityLookupSupport<T>{
+public abstract class IdentifiableByNameLookup<E extends IdentifiableByName> extends EntityLookupSupport<E>{
 	
-	public abstract T findOneByName(String name);
-	public abstract T findOne(Long id);
+	public abstract E findOneByName(String name);
+	public abstract E findOne(Long id);
 	
 	@Override
-	public Serializable getResourceIdentifier(T entity) {
+	public Serializable getResourceIdentifier(E entity) {
 		return entity.getName();
 	}
 

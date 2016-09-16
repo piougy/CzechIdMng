@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -46,6 +47,10 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 	
 	@Autowired
 	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	
+	@Autowired
+	@Qualifier("objectMapper")
+	protected ObjectMapper mapper;
 	
 	@Test
 	public void getWorkingPositions() {	
@@ -86,7 +91,6 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		Map<String, String> body = new HashMap<>();
 		body.put("identity", "identity/" + user.getUsername());
 		body.put("position", "TEST_POSITION");
-		final ObjectMapper mapper = new ObjectMapper();
 		
         String jsonContent = null;
 		try {

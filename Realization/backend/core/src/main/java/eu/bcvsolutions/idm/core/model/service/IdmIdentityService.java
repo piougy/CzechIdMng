@@ -11,14 +11,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityService {
-
-	/**
-	 * Returns identity by given id
-	 * @param id
-	 * @return
-	 */
-	IdmIdentity get(Long id);
+public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity> {
 	
 	/**
 	 * Returns identity by given username

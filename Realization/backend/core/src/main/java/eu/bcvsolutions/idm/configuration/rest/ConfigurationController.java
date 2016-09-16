@@ -23,8 +23,12 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;;
 @RequestMapping(value = "/api")
 public class ConfigurationController {
 	
+	private final ConfigurationService configurationService;
+	
 	@Autowired
-	private ConfigurationService configurationService; 
+	public ConfigurationController(ConfigurationService configurationService) {
+		this.configurationService = configurationService;
+	}
 	
 	/**
 	 * Returns all public configuration properties 

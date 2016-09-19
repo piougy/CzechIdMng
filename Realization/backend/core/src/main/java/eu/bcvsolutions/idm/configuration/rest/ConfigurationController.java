@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -20,8 +22,8 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;;
  *
  */
 @RestController
-@RequestMapping(value = "/api")
-public class ConfigurationController {
+@RequestMapping(value = BaseEntityController.BASE_PATH)
+public class ConfigurationController implements BaseEntityController<IdmConfiguration> {
 	
 	private final ConfigurationService configurationService;
 	

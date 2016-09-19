@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.IdmOrganizationController;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
  */
 
 @RestController
-@RequestMapping(value = "/api/organizations/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/organizations/")
 public class DefaultIdmOrganizationController implements IdmOrganizationController {
 	
 	@Autowired

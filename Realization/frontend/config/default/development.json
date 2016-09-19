@@ -1,6 +1,6 @@
 {
   "env": "development",
-  "serverUrl": "http://localhost:8080/idm/api",
+  "serverUrl": "http://localhost:8080/idm/api/v1",
   "locales": "dist/locales",
   "theme": "modules/core/themes/default",
   "overrideModuleDescriptor": {

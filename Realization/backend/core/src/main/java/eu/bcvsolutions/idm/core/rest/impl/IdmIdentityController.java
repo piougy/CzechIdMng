@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -47,7 +48,7 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  *
  */
 @RestController
-@RequestMapping(value = "/api/identities")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
 public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity> implements IdmRevisionController {
 
 	@Autowired

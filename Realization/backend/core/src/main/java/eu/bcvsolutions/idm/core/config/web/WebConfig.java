@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.impl.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 import eu.bcvsolutions.idm.core.model.domain.NotExportedAssociations;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 /**
  * Web configurations
@@ -59,7 +60,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	private RepositoryRestConfiguration config;
 	
 	@Autowired
-	public RepositoryResourceMappings resourceMappings;
+	private Associations associationLinks;
 
 	@Bean
     public FilterRegistrationBean corsFilter() {
@@ -75,7 +76,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         config.addAllowedMethod("POST");
         config.addAllowedMethod("DELETE");
         config.addAllowedMethod("PATCH");
-        source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration(BaseEntityController.BASE_PATH + "/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;
@@ -101,11 +102,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	    return new RestErrorAttributes();
 	}
 	
-	@Bean
-	public Associations associationLinks() {
-		return new NotExportedAssociations(resourceMappings, config);
-	}
-	
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		argumentResolvers.add(persistentEntityResourceHandlerMethodArgumentResolver);
@@ -116,7 +112,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		
 		PersistentEntityResourceAssemblerArgumentResolver peraResolver = new PersistentEntityResourceAssemblerArgumentResolver(
 				persistentEntities, linkProvider, config.getProjectionConfiguration(), projectionFactory,
-				associationLinks());
+				associationLinks);
 		
 		argumentResolvers.add(peraResolver);
 	}

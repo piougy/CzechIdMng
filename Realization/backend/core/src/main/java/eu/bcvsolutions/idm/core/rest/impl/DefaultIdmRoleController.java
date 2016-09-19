@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleLookup;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.IdmRoleController;
 
 /**
@@ -34,7 +35,7 @@ import eu.bcvsolutions.idm.core.rest.IdmRoleController;
  */
 
 @RestController
-@RequestMapping(value = "/api/roles/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/roles/")
 public class DefaultIdmRoleController implements IdmRoleController {
 
 	@Autowired

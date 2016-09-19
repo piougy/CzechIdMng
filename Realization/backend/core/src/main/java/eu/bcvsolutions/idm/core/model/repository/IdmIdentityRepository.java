@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmIdentityExcerpt;
 		path = "identities", //
 		itemResourceRel = "identity", //
 		excerptProjection = IdmIdentityExcerpt.class,
-		exported = false
+		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface IdmIdentityRepository extends BaseRepository<IdmIdentity> {
 

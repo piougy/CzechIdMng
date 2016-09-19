@@ -26,7 +26,7 @@ export default class IdentityManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'resourceWrappers';
+    return 'identities';
   }
 
   /**

@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityWorkingPositionService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 @RestController
-@RequestMapping(value = "/api/workingPositions")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workingPositions")
 public class IdmWorkingPositionController extends DefaultReadWriteEntityController<IdmIdentityWorkingPosition> {
 	
 	@Autowired

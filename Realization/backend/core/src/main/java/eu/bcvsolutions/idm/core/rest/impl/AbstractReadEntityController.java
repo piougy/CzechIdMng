@@ -24,8 +24,16 @@ import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
-public abstract class AbstractReadEntityController<E extends BaseEntity> {
+/**
+ * Read operations
+ * 
+ * @author Radek Tomiška
+ *
+ * @param <E>
+ */
+public abstract class AbstractReadEntityController<E extends BaseEntity> implements BaseEntityController<E> {
 	
 	private ReadEntityService<E> entityService;
 	
@@ -84,7 +92,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity> {
 	}
 	
 	// TODO: toResource
-	@SuppressWarnings("rawtypes")
 	protected ResourceSupport assembleEntity(E entity, PersistentEntityResourceAssembler assembler) {
 		if(getAssembler() != null) {
 			return getAssembler().toResource(entity);

@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 /**
  * Changes identity password. Could be public, because previous password is required.
@@ -44,7 +45,7 @@ public class PasswordChangeController {
 	 * @return
 	 */
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/api/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
+	@RequestMapping(value = BaseEntityController.BASE_PATH + "/public/identities/{identityId}/password-change", method = RequestMethod.PUT)
 	public ResponseEntity<Void> passwordChange(
 			@PathVariable String identityId,
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {

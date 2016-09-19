@@ -24,6 +24,8 @@ public class NotExportedAssociations extends Associations {
 	 * @return
 	 */
 	public boolean isLinkableAssociation(PersistentProperty<?> property) {
+		
+		// return super.isLinkableAssociation(property);
 
 		if (property == null || !property.isAssociation() || config.isLookupType(property.getActualType())) {
 			return false;
@@ -31,8 +33,12 @@ public class NotExportedAssociations extends Associations {
 
 		ResourceMetadata metadata = mappings.getMetadataFor(property.getOwner().getType());
 
+		if (metadata != null && metadata.getExcerptProjection() != null) {
+			return true;
+		}
+
 		metadata = mappings.getMetadataFor(property.getActualType());
-		return metadata == null ? false : true;
+		return metadata == null ? false : metadata.getExcerptProjection() != null;
 	}
 
 }

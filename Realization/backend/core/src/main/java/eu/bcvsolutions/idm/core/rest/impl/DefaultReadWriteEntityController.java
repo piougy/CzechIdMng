@@ -81,6 +81,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity> ext
 	@Override
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteItemResource(@PathVariable @NotNull String backendId) {
-		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
+		return super.deleteItemResource(backendId);
 	}
 }

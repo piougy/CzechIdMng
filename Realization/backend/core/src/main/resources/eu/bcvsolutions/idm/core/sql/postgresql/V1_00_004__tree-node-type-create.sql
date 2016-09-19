@@ -90,3 +90,7 @@ WITH (
   OIDS=FALSE
 );
 
+-- create default type and add to all nodes
+INSERT INTO idm_tree_type(id, name, created, creator) VALUES ((SELECT nextval('hibernate_sequence')), 'ORGANIZATIONS', (SELECT current_time), '[SYSTEM]');
+UPDATE idm_tree_node SET tree_type_id = (SELECT id FROM idm_tree_type WHERE name = 'ORGANIZATIONS');
+

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.service.impl;
+package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +16,11 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.configuration.repository.IdmConfigurationRepository;
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 /**
@@ -32,15 +33,20 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;
  *
  */
 @Service
-public class DefaultConfigurationService implements ConfigurationService {
+public class DefaultIdmConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration> implements IdmConfigurationService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfigurationService.class);
 
 	@Autowired
 	private ConfigurableEnvironment env;
 
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;
+	
+	@Override
+	protected BaseRepository<IdmConfiguration> getRepository() {
+		return configurationRepository;
+	}
 
 	@Override
 	public String getValue(String key) {
@@ -235,6 +241,6 @@ public class DefaultConfigurationService implements ConfigurationService {
 	}
 	
 	private static boolean shouldBeSecured(String key) {
-		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX);
+		return key.startsWith(IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX);
 	}
 }

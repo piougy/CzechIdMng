@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.repository.handler;
+package eu.bcvsolutions.idm.core.model.repository.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
@@ -7,16 +7,16 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.configuration.rest.ConfigurationController;
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.rest.impl.IdmConfigurationController;
 
 /**
- * Handles configuration active operations and redirect them to {@link ConfigurationService}.
+ * Handles configuration active operations and redirect them to {@link IdmConfigurationService}.
  * 
- * TODO: maybe will be better annd custom endpoint to {@link ConfigurationController} instead.
+ * TODO: maybe will be better annd custom endpoint to {@link IdmConfigurationController} instead.
  * 
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  */
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 public class IdmConfigurationEventHandler {
 	
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 	
 	@HandleBeforeSave
 	public void handleBeforeSave(IdmConfiguration configuration) {

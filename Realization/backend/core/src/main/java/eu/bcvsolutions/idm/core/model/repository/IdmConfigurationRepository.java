@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.repository;
+package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
 
@@ -13,9 +13,8 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
 /**
  * Application configuration
@@ -26,7 +25,8 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 @RepositoryRestResource( //
 		collectionResourceRel = "configurations", // 
 		path = "configurations", //
-		itemResourceRel = "configuration")
+		itemResourceRel = "configuration",
+		exported = false)
 public interface IdmConfigurationRepository extends BaseRepository<IdmConfiguration> {
 
 	/**
@@ -42,7 +42,6 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 * @param name
 	 * @return
 	 */
-	@RestResource(exported = false)
 	@Query(value = "select e from #{#entityName} e" +
 	        " where "
 	        + "e.name = :name")
@@ -72,7 +71,6 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
-	@RestResource(path = "quick", rel = "quick")
 	Page<IdmConfiguration> findByQuick(@Param(value = "text") String text, Pageable pageable);
 	
 	/**

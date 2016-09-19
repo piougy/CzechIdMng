@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.entity;
+package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 /**
  * Application scope configuration

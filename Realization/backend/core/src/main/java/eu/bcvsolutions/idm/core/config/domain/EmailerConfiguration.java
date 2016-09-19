@@ -1,9 +1,9 @@
-package eu.bcvsolutions.idm.configuration.domain;
+package eu.bcvsolutions.idm.core.config.domain;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 
 /**
  * Configuration for {@link eu.bcvsolutions.idm.notification.service.Emailer}.
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 public class EmailerConfiguration {
 
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 	
 	public static final String PROPERTY_PROTOCOL = "idm.sec.core.emailer.protocol";
 	protected static final String DEFAULT_PROTOCOL = "smtp"; 

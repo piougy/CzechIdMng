@@ -136,7 +136,7 @@ public class RepositoryConfig extends RepositoryRestMvcConfiguration {
 	}
 	
 	/**
-	 * We want to assemble embedded object to not exported repositories to.
+	 * We want to assemble embedded object to not exported repositories too.
 	 */
 	@Bean
 	@Override

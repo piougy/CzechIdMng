@@ -6,6 +6,12 @@ import org.springframework.data.rest.core.mapping.ResourceMappings;
 import org.springframework.data.rest.core.mapping.ResourceMetadata;
 import org.springframework.data.rest.webmvc.mapping.Associations;
 
+/**
+ * Spring data rest Associations extension - we want to assemble embedded object to not exported repositories too.
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public class NotExportedAssociations extends Associations {
 	
 	private final ResourceMappings mappings;
@@ -24,9 +30,6 @@ public class NotExportedAssociations extends Associations {
 	 * @return
 	 */
 	public boolean isLinkableAssociation(PersistentProperty<?> property) {
-		
-		// return super.isLinkableAssociation(property);
-
 		if (property == null || !property.isAssociation() || config.isLookupType(property.getActualType())) {
 			return false;
 		}

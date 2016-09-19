@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.rest;
+package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.List;
 
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
 
 /**
@@ -22,25 +22,15 @@ import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH)
-public class ConfigurationController implements BaseEntityController<IdmConfiguration> {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
+public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration> {
 	
-	private final ConfigurationService configurationService;
+	private final IdmConfigurationService configurationService;
 	
 	@Autowired
-	public ConfigurationController(ConfigurationService configurationService) {
+	public IdmConfigurationController(IdmConfigurationService configurationService) {
+		super(configurationService);
 		this.configurationService = configurationService;
-	}
-	
-	/**
-	 * Returns all public configuration properties 
-	 * 
-	 * @return
-	 */
-	@RequestMapping(path = "/public/configurations", method = RequestMethod.GET)
-	public List<ConfigurationDto> getAllPublicConfigurations() {
-		// TODO: resource wrapper + assembler
-		return configurationService.getAllPublicConfigurations();
 	}
 	
 	/**
@@ -49,7 +39,7 @@ public class ConfigurationController implements BaseEntityController<IdmConfigur
 	 * @return
 	 */
 	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	@RequestMapping(path = "/configurations/file", method = RequestMethod.GET)
+	@RequestMapping(path = "/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
 		return configurationService.getAllConfigurationsFromFiles();
@@ -61,10 +51,9 @@ public class ConfigurationController implements BaseEntityController<IdmConfigur
 	 * @return
 	 */
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	@RequestMapping(path = "/configurations/environment", method = RequestMethod.GET)
-	public List<ConfigurationDto> getAllConfigurationsFroEnvironment() {
+	@RequestMapping(path = "/environment", method = RequestMethod.GET)
+	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
 		// TODO: resource wrapper + assembler
 		return configurationService.getAllConfigurationsFromEnvironment();
 	}
-
 }

@@ -1,9 +1,10 @@
-package eu.bcvsolutions.idm.configuration.service;
+package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.configuration.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Provides configuration through application
@@ -11,7 +12,7 @@ import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-public interface ConfigurationService {
+public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration> {
 	
 	static final String PROPERTY_SEPARATOR = ".";
 	static final String SPLIT_PROPERTY_SEPARATOR = "\\.";

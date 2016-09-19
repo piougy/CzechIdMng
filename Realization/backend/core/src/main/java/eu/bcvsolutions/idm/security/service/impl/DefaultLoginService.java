@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
@@ -44,7 +44,7 @@ public class DefaultLoginService implements LoginService {
 	private ObjectMapper mapper;
 	
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;

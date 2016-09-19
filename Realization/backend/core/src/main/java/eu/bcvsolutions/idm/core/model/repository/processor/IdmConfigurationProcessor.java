@@ -1,10 +1,10 @@
-package eu.bcvsolutions.idm.configuration.repository.processor;
+package eu.bcvsolutions.idm.core.model.repository.processor;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 @Component

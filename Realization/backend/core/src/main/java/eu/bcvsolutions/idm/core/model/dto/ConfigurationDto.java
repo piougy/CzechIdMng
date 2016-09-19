@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.configuration.dto;
+package eu.bcvsolutions.idm.core.model.dto;
 
 /**
  * Configuration item

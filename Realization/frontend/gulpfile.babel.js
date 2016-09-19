@@ -304,7 +304,7 @@ gulp.task('htmlReplace', () => {
         tpl: '<link rel="icon" href="%s" type="image/gif" />'
       },
       css: ['css/main.css', 'css/google.fonts.css'],
-      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'js/app.js']
+      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'configUrl.js', 'js/app.js']
     })
   )
   .pipe(gulp.dest(paths.dist));
@@ -372,6 +372,13 @@ gulp.task('config', (cb) => {
   fs.writeFile(path.join(__dirname, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb);
 });
 
+gulp.task('urlConfig', (cb) => {
+  const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
+  fs.writeFile(path.join(__dirname, '/configUrl.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
+  gulp.src('configUrl.js')
+    .pipe(gulp.dest(paths.dist));
+});
+
 gulp.task('test', () => {
   const argv = yargs.alias('w', 'watch').help('help').alias('h', 'help')
   .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
@@ -404,12 +411,12 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
 });
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', ['browserify', 'config', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', ['browserify', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
 });
 
 gulp.task('default', ['watch']);

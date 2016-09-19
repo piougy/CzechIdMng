@@ -614,7 +614,7 @@
       "header": "Role",
       "title": "Role",
       "edit": {
-        "header": "{{name}} <small>detail role</small>"
+        "header": "{{name}} detail role"
       },
       "create": {
         "header": "Nová role"
@@ -653,6 +653,9 @@
         "approval": {
           "header": "Schvalovací workflow"
         }
+      },
+      "tabs": {
+        "basic": "Základní informace"
       }
     },
     "user": {

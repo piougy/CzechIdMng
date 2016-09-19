@@ -5,3 +5,4 @@ dist
 config.json
 nohup.out
 npm-debug.log
+configUrl.js

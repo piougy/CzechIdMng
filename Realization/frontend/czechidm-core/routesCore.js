@@ -84,7 +84,23 @@ module.exports = {
     {
       path: 'roles',
       component: require('./src/content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+    },
+    {
+      path: 'role/:entityId/',
+      component: require('./src/content/role/Role'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/role/Content')
+        },
+      ]
+    },
+    {
+      path: 'role/:entityId/new',
+      component: require('./src/content/role/Content'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
     },
     {
       path: 'tasks/:userID',

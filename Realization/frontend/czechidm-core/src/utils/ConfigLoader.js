@@ -47,7 +47,7 @@ export default class ConfigLoader {
    * @return {string}
    */
   getServerUrl() {
-    return this.getConfig('serverUrl');
+    return serverUrl;
   }
 
   /**

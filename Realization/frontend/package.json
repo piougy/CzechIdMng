@@ -141,6 +141,7 @@
     "yargs": "4.6.0"
   },
   "czechidmModules": {
-    "czechidm-core": "0.1.0"
+    "czechidm-core": "0.1.0",
+    "czechidm-acc": "0.1.0"
   }
 }

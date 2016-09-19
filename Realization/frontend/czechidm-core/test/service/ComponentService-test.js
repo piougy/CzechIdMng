@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
-import ComponentService from '../../src/modules/core/services/ComponentService';
+import ComponentService from '../../src/services/ComponentService';
 
 describe('ComponentService', function componentServiceTest() {
   const componentService = new ComponentService();

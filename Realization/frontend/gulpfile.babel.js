@@ -45,7 +45,7 @@ const paths = {
   srcModuleAssembler: 'src/modules/moduleAssembler.js', // default modules assembler
   srcRouteAssembler: 'src/modules/routeAssembler.js', // default routes assembler
   srcComponentAssembler: 'src/modules/componentAssembler.js', // default component assembler
-  testSrc: 'test/**/*.js',
+  testSrc: ['test/**/*.js', './czechidm-modules/*/test/**/**/*.js'],
   dist: 'dist',
   distJs: 'dist/js',
   distImg: 'dist/images',

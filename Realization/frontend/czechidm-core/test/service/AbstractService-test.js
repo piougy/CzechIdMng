@@ -2,8 +2,8 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
-import { AbstractService } from '../../src/modules/core/services';
-import SearchParameters from '../../src/modules/core/domain/SearchParameters';
+import { AbstractService } from '../../src/services';
+import SearchParameters from '../../src/domain/SearchParameters';
 
 /**
  * "Blank" AbstractService

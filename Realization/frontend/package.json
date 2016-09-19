@@ -20,9 +20,9 @@
   "scripts": {
     "test": "npm run tests-set",
     "test-lint": "npm run lint && npm run tests-set",
-    "tests-set": "mocha --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
+    "tests-set": "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",
     "lint": "eslint ./",
-    "test-watch": "mocha --watch --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
+    "test-watch": "mocha --watch ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js"
   },
   "browser": {
     "jsdom": false

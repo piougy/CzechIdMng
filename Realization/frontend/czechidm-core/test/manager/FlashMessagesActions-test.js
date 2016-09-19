@@ -8,8 +8,8 @@ chai.use(dirtyChai);
 const middlewares = [ thunk ];
 const mockStore = configureMockStore(middlewares);
 //
-import FlashMessagesManager, { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from '../../src/modules/core/redux/flash/FlashMessagesManager';
-import * as flashMessagesReducers from '../../src/modules/core/redux/flash/reducer';
+import FlashMessagesManager, { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from '../../src/redux/flash/FlashMessagesManager';
+import * as flashMessagesReducers from '../../src/redux/flash/reducer';
 
 
 // https://github.com/reactjs/redux/blob/master/docs/recipes/WritingTests.md

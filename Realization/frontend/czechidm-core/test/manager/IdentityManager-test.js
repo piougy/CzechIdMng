@@ -3,7 +3,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
-import { IdentityManager } from '../../src/modules/core/redux';
+import { IdentityManager } from '../../src/redux';
 
 describe('IdentityManager', function identityManagerTest() {
   const identityManager = new IdentityManager();

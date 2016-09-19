@@ -3,7 +3,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
-import { IdentityWorkingPositionService } from '../../src/modules/core/services';
+import { IdentityWorkingPositionService } from '../../src/services';
 
 describe('IdentityWorkingPositionService', function identityWorkingPositionServiceTestSuite() {
   const identityWorkingPositionService = new IdentityWorkingPositionService('test');

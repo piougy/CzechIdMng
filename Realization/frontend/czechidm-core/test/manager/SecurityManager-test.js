@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
-import { SecurityManager } from '../../src/modules/core/redux';
+import { SecurityManager } from '../../src/redux';
 
 describe('SecurityManager', function securityManagerTest() {
   const TEST_AUTHORITY = 'USER_READ';

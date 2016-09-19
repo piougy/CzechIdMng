@@ -12,7 +12,7 @@ export default class ModuleLoaderService {
     cb();
   }
 
-  static moduleDescriptor(key) {
+  static getModuleDescriptor(key) {
     return allModules[key];
   }
 

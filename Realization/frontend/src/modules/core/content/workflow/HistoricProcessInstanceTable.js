@@ -67,9 +67,9 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
           <div className="col-lg-4">
             <Advanced.Filter.TextField
               ref="name"
-              placeholder={this.i18n('entity.Organization.name')}
+              placeholder={this.i18n('entity.Tree.node.name')}
               value=""
-              label={this.i18n('entity.Organization.name')}/>
+              label={this.i18n('entity.Tree.node.name')}/>
           </div>
           <div className="col-lg-5">
             <Advanced.Filter.SelectBox

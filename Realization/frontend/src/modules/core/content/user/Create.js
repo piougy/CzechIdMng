@@ -208,7 +208,7 @@ class Profile extends Basic.AbstractContent {
                   <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
                   <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')}/>
                   <Basic.TextField ref="email" label={this.i18n('content.user.profile.email.label')} placeholder={this.i18n('content.user.profile.email.placeholder')} validation={Joi.string().email()}/>
-                  {/*
+                  {/* warning organization no longer exists
                   <Basic.SelectBox
                     ref="idmManager"
                     service={identityManager.getService()}

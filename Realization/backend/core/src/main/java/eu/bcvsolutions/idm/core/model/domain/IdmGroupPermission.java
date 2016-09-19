@@ -18,6 +18,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ);
@@ -38,6 +39,9 @@ public enum IdmGroupPermission implements GroupPermission {
 	//
 	public static final String TREENODE_WRITE = "TREENODE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String TREENODE_DELETE = "TREENODE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String TREETYPE_WRITE = "TREETYPE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";

@@ -15,17 +15,11 @@ ALTER TABLE idm_tree_node ADD CONSTRAINT idm_tree_node_pkey PRIMARY KEY (id);
 -- create FK on idm_tree_node
 ALTER TABLE idm_tree_node ADD CONSTRAINT fk_idm_tree_node_parent_id FOREIGN KEY (parent_id) REFERENCES idm_tree_node(id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
 
--- drop and create index on idm_tree_node
-DROP INDEX ux_organization_name;
+-- rename index on idm_tree_node
+ALTER INDEX ux_organization_name RENAME TO ux_tree_node_name;
 
-CREATE INDEX ux_tree_node_name
-  ON idm_tree_node
-  USING btree
-  (name COLLATE pg_catalog."default");
-
--- drop column and constraint on identity_working_position
-ALTER TABLE idm_identity_working_position DROP COLUMN organization_id;
-ALTER TABLE idm_identity_working_position ADD COLUMN tree_node_id bigint NOT NULL;
+-- rename column and constraint on identity_working_position
+ALTER TABLE idm_identity_working_position RENAME COLUMN organization_id TO tree_node_id;
 ALTER TABLE idm_identity_working_position ADD CONSTRAINT fk_idm_identity_working_position_tree_node_id FOREIGN KEY (tree_node_id) REFERENCES idm_tree_node (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 -- create new table tree_type and fk to tree_node and index
@@ -45,8 +39,6 @@ WITH (
   OIDS=FALSE
 );
 
-ALTER TABLE idm_tree_type
-  OWNER TO idmadmin;
 
 CREATE INDEX ux_idm_tree_type_name
   ON idm_tree_type
@@ -74,8 +66,7 @@ ALTER TABLE idm_tree_node_aud ADD CONSTRAINT idm_tree_node_aud_pkey PRIMARY KEY 
 -- add column on idm_tree_node
 ALTER TABLE idm_tree_node_aud ADD COLUMN tree_type_id bigint;
 
-ALTER TABLE idm_identity_working_position_aud DROP COLUMN organization_id;
-ALTER TABLE idm_identity_working_position_aud ADD COLUMN tree_node_id bigint NOT NULL;
+ALTER TABLE idm_identity_working_position_aud RENAME COLUMN organization_id TO tree_node_id;
 
 -- create new table tree_type_aud
 CREATE TABLE idm_tree_type_aud
@@ -83,13 +74,13 @@ CREATE TABLE idm_tree_type_aud
   id bigint NOT NULL,
   rev integer NOT NULL,
   revtype smallint,
-  created timestamp without time zone NOT NULL,
-  creator character varying(255) NOT NULL,
-  modified timestamp without time zone NOT NULL,
+  created timestamp without time zone,
+  creator character varying(255),
+  modified timestamp without time zone,
   modifier character varying(255),
   original_creator character varying(255),
   original_modifier character varying(255),
-  name character varying(255) NOT NULL,
+  name character varying(255),
   CONSTRAINT idm_tree_type_aud_pkey PRIMARY KEY (id, rev),
   CONSTRAINT fk_revinfo_rev FOREIGN KEY (rev)
       REFERENCES revinfo (rev) MATCH SIMPLE
@@ -98,8 +89,4 @@ CREATE TABLE idm_tree_type_aud
 WITH (
   OIDS=FALSE
 );
-
-ALTER TABLE idm_tree_type_aud
-  OWNER TO idmadmin;
-
 

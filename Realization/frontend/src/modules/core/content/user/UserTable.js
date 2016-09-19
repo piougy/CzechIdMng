@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from 'app/components/basic';
 import * as Advanced from 'app/components/advanced';
 import * as Utils from 'core/utils';
-import { DataManager, OrganizationManager, SecurityManager } from 'core/redux';
+import { DataManager, TreeNodeManager, SecurityManager } from 'core/redux';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from 'app/components/advanced/Filter/README_cs.md';
 
@@ -21,7 +21,7 @@ export class UserTable extends Basic.AbstractContent {
       filterOpened: this.props.filterOpened
     };
     this.dataManager = new DataManager();
-    this.organizationManager = new OrganizationManager();
+    this.treeNodeManager = new TreeNodeManager();
   }
 
   componentDidMount() {
@@ -49,7 +49,7 @@ export class UserTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    /*
+    /* warning organization no longer exists
     if (!this.refs.filterName.getValue() && !selectedOrganization) {
       this.cancelFilter();
       return;
@@ -111,9 +111,9 @@ export class UserTable extends Basic.AbstractContent {
     });
   }
 
-  _homeOrganizationFilter(node, event) {
+  _homeNodeFilter(node, event) {
     event.stopPropagation();
-    this.setState({selectedOrganization: node ? node.id : null}, ()=>{this.useFilter();});
+    this.setState({selectedNode: node ? node.id : null}, ()=>{this.useFilter();});
   }
 
   _orgTreeHeaderDecorator(props) {
@@ -125,7 +125,7 @@ export class UserTable extends Basic.AbstractContent {
       <div style={style.base}>
         <div style={style.title}>
           <i className={iconClass} style={iconStyle}/>
-          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeOrganizationFilter.bind(this, props.node)}>
+          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeNodeFilter.bind(this, props.node)}>
             { props.node.shortName }
           </Basic.Button>
         </div>
@@ -165,7 +165,7 @@ export class UserTable extends Basic.AbstractContent {
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
                 </Basic.Row>
-                {/*
+                {/* warning organization no longer exists
                 <Basic.Row>
                   <div className="col-lg-8">
                     <Basic.LabelWrapper readOnly ref="homeOrgTree" componentSpan="col-sm-12">

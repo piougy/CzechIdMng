@@ -1,13 +1,11 @@
-
-
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
-class OrganizationService extends AbstractService {
+class TreeTypeService extends AbstractService {
 
   const
   getApiPath() {
-    return '/organizations';
+    return '/treetypes';
   }
 
   getNiceLabel(entity) {
@@ -25,19 +23,6 @@ class OrganizationService extends AbstractService {
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(SearchParameters.NAME_QUICK).clearSort().setSort('name');
   }
-
-  /**
-   * Returns search parameters by parent ID, used in tree
-   */
-  getTreeSearchParameters() {
-    return super.getDefaultSearchParameters().setName(OrganizationService.TREE_SEARCH).clearSort().setSort('name');
-  }
 }
 
-/**
- * Search by parent ID for tree
- * @type {Number}
- */
-OrganizationService.TREE_SEARCH = 'children';
-
-export default OrganizationService;
+export default TreeTypeService;

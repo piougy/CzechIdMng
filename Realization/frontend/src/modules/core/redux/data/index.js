@@ -1,6 +1,7 @@
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
-import OrganizationManager from './OrganizationManager';
+import TreeNodeManager from './TreeNodeManager';
+import TreeTypeManager from './TreeTypeManager';
 import RoleManager from './RoleManager';
 import WorkflowTaskInstanceManager from './WorkflowTaskInstanceManager';
 import IdentityRoleManager from './IdentityRoleManager';
@@ -16,7 +17,8 @@ import EmailManager from './EmailManager';
 const ManagerRoot = {
   DataManager,
   IdentityManager,
-  OrganizationManager,
+  TreeNodeManager,
+  TreeTypeManager,
   RoleManager,
   WorkflowTaskInstanceManager,
   IdentityRoleManager,

@@ -16,11 +16,13 @@ import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
@@ -59,7 +61,10 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmRoleRepository roleRepository;
 
 	@Autowired
-	private IdmTreeNodeRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
+	
+	@Autowired
+	private IdmTreeTypeRepository treeTypeRepository;
 
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
@@ -85,7 +90,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmTreeNode rootOrganization = organizationRepository.findOneByParentIsNull();
+			IdmTreeNode rootOrganization = treeNodeRepository.findOneByParentIsNull();
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
@@ -127,11 +132,17 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 				this.identityRepository.save(testUser2);
 			
+				IdmTreeType type = new IdmTreeType();
+				type.setName("ROOT_TYPE");
+				this.treeTypeRepository.save(type);
+				
+				
 				IdmTreeNode organization = new IdmTreeNode();
 				organization.setName("Organization Test");
 				organization.setCreator("ja");
 				organization.setParent(rootOrganization);
-				this.organizationRepository.save(organization);
+				organization.setTreeType(type);
+				this.treeNodeRepository.save(organization);
 				
 				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
 				identityWorkingPosition2.setIdentity(testUser1);

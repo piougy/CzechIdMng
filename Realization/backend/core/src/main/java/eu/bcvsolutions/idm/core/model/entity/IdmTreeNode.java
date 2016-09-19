@@ -43,6 +43,7 @@ public class IdmTreeNode extends AbstractEntity {
 	@JoinColumn(name = "parent_id", referencedColumnName = "id")
 	private IdmTreeNode parent;
 	
+	@NotNull
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id")

@@ -101,21 +101,38 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
-        'id': 'organizations',
-        'labelKey': 'content.organizations.header',
-        'titleKey': 'content.organizations.title',
-        'icon': 'fa:building',
+        'id': 'tree',
+        'labelKey': 'content.tree.header',
+        'titleKey': 'content.tree.title',
+        'icon': 'tree-deciduous',
         'order': 50,
-        'iconColor': '#eb9316',
-        'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
+        'iconColor': '#419641',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+        'items': [
+          {
+            'id': 'tree-nodes',
+            'labelKey': 'content.tree.nodes.header',
+            'order': 10,
+            'icon': 'fa:cube',
+            'path': '/tree/nodes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+          },
+          {
+            'id': 'tree-types',
+            'labelKey': 'content.tree.types.header',
+            'order': 15,
+            'icon': 'fa:server',
+            'path': '/tree/types',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+          }
+        ]
       },
       {
         'id': 'roles',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
-        'iconColor': '#419641',
+        'iconColor': '#eb9316',
         'order': 35,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],

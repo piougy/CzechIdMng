@@ -592,22 +592,35 @@
         }
       }
     },
-    "organizations": {
-      "header": "Organizace",
-      "title": "Organizace",
+    "tree": {
+      "header": "Stromy",
+      "title": "Stromy",
       "filter": {
         "parentId": {
           "label": "Nadřazená jedn."
         }
       },
-      "edit": {
-        "header": "{{name}} <small>detail organizace</small>"
+      "typeNotFound": "Nebyl nalezen žádný typ.",
+      "newType": "Pokračujte prosím vytvořením nového typu.",
+      "typePick": "Vyberte typ",
+      "typePickPlaceHolder": "Vyberte typ",
+      "nodes": {
+        "header": "Prvky",
+        "title": "Prvky",
+        "edit": "detail prvku",
+        "create": "Nový prvek",
+        "save": {
+          "success": "Prvek [{{name}}] byl úspěšně uložen"
+        }
       },
-      "create": {
-        "header": "Nová organizace"
-      },
-      "save": {
-        "success": "Organizace [{{name}}] byla úspěšně uložena"
+      "types": {
+        "header": "Typy",
+        "title": "Typy",
+        "edit": "detail typu",
+        "create": "Nový typ",
+        "save": {
+          "success": "Typ [{{name}}] byl úspěšně uložen"
+        }
       }
     },
     "roles": {
@@ -1155,18 +1168,24 @@
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
       "manager": "Vedoucí",
-      "organization": "Organizace"
+      "treeNode": "Struktura"
     },
-    "Organization": {
+    "TreeNode": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
-      "parentId": "Nadřazená organizační jednotka",
+      "parentId": "Nadřazená prvek",
       "parent": {
-          "name": "Nadřazená organizační jed."
+          "name": "Nadřazený prv."
+      },
+      "treeType": {
+        "name": "Typ"
       }
+    },
+    "TreeType": {
+      "name": "Název"
     },
     "Delegate": {
       "_type": "Delegace",
@@ -1303,6 +1322,9 @@
     },
     "BAD_REQUEST": {
       "title": "Chybný požadavek"
+    },
+    "BAD_VALUE": {
+      "title": "Špatná volba"
     },
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",

@@ -8,12 +8,14 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
@@ -25,7 +27,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @Service
-public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity> implements IdmIdentityService {
+public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity, QuickFilter> implements IdmIdentityService {
 
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
@@ -70,6 +72,14 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		entity.getRoles();
 		return entity;
 	}
+	
+	@Override
+	public Page<IdmIdentity> find(QuickFilter filter, Pageable pageable) {
+		if (filter == null) {
+			return find(pageable);
+		}
+		return identityRepository.findQuick(filter.getText(), pageable);
+	}	
 
 	/**
 	 * Find all identities usernames by assigned role

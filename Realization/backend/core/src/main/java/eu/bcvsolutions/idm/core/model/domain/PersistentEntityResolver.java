@@ -23,10 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Idea - spring data rest
+ * Read raw http request and makes json - entity transformation.
  * 
- * @author Radek Tomiška
- *
+ * Idea - spring data rest
  */
 public class PersistentEntityResolver {
 
@@ -47,7 +46,7 @@ public class PersistentEntityResolver {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Object resolveEntity(HttpServletRequest nativeRequest, Class<?> domainType, Object objectToUpdate)
-			throws Exception {
+			throws HttpMessageNotReadableException {
 		ServletServerHttpRequest request = new ServletServerHttpRequest(nativeRequest);
 		IncomingRequest incoming = new IncomingRequest(request);
 		MediaType contentType = request.getHeaders().getContentType();

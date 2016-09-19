@@ -14,6 +14,8 @@ import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,18 +24,24 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.PersistentEntityResolver;
+import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
 
-public abstract class AbstractReadWriteController<E extends BaseEntity> extends AbstractReadEntityController<E> {
+/**
+ * CRUD operations
+ * 
+ * @author Radek Tomiška
+ *
+ * @param <E>
+ */
+public abstract class AbstractReadWriteController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	
 	@Autowired
 	private PersistentEntities persistentEntities; 
 	
 	@Autowired
 	private Associations associationLinks;
-	
-	private PersistentEntityResolver resolver;
 	
 	@Autowired
 	private List<HttpMessageConverter<?>> messageConverters;
@@ -42,58 +50,81 @@ public abstract class AbstractReadWriteController<E extends BaseEntity> extends 
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 	
-	public AbstractReadWriteController(ReadWriteEntityService<E> entityService) {
+	// TODO: constructor with autowire instead lazy entityResolver will be better
+	private PersistentEntityResolver entityResolver;
+	
+	public AbstractReadWriteController(ReadWriteEntityService<E, F> entityService) {
 		super(entityService);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> postCollectionResource(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {		
-		E createdIdentity = getEntityService().save((E)getResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), null));
-		return new ResponseEntity<>(assembleEntity(createdIdentity, assembler), HttpStatus.CREATED);
+	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
+		E createdIdentity = createEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityClass(), null));
+		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
+	}
+	
+	public E createEntity(E entity) {
+		// TODO: events
+		return getEntityService().save(entity);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> putItemResource(
+	public ResponseEntity<?> update(
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
-		E updateEntity = readItemResource(backendId);
+			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		E updateEntity = getEntity(backendId);
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = getEntityService().save((E)getResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
-		return new ResponseEntity<>(assembleEntity(updatedEntity, assembler), HttpStatus.OK);
+		E updatedEntity = updateEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
+	}
+	
+	public E updateEntity(E entity) {
+		Assert.notNull(entity, "Entity is required");		
+		return getEntityService().save(entity);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> patchItemResource(
+	public ResponseEntity<?> patch(
 			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
-		E updateEntity = readItemResource(backendId);
+			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		E updateEntity = getEntity(backendId);
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}		
-		E updatedEntity = getEntityService().save((E)getResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
-		return new ResponseEntity<>(assembleEntity(updatedEntity, assembler), HttpStatus.OK);
+		}
+		E updatedEntity = patchEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	
-	public ResponseEntity<?> deleteItemResource(@PathVariable @NotNull String backendId) {
-		E entity = readItemResource(backendId);
+	public E patchEntity(E entity) {
+		Assert.notNull(entity, "Entity is required");
+		return getEntityService().save(entity);
+	}
+	
+	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		getEntityService().delete(entity);
+		deleteEntity(entity);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 	
-	protected ReadWriteEntityService<E> getEntityService() {
-		return (ReadWriteEntityService<E>) super.getEntityService();
+	public void deleteEntity(E entity) {
+		Assert.notNull(entity, "Entity is required");
+		getEntityService().delete(entity);
 	}
 	
-	private PersistentEntityResolver getResolver() {
-		if (resolver == null) {
-			resolver = new PersistentEntityResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
+	protected ReadWriteEntityService<E, F> getEntityService() {
+		return (ReadWriteEntityService<E, F>) super.getEntityService();
+	}
+	
+	private PersistentEntityResolver getEntityResolver() {
+		if (entityResolver == null) {
+			entityResolver = new PersistentEntityResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
 		}
-		return resolver;
+		return entityResolver;
 	}
 
 }

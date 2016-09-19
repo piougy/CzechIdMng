@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
 
@@ -10,7 +11,7 @@ import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
  *
  * @param <E> {@link BaseEntity} type
  */
-public abstract class AbstractReadWriteEntityService<E extends BaseEntity> extends AbstractReadEntityService<E> implements ReadWriteEntityService<E> {
+public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityService<E, F> implements ReadWriteEntityService<E, F> {
 
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

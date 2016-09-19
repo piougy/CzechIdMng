@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/organizations/")
-public class IdmOrganizationController implements IdmRevisionController {
+public class IdmOrganizationController {
 	
 	@Autowired
 	private IdmOrganizationLookup organizationLookup;
@@ -48,7 +48,6 @@ public class IdmOrganizationController implements IdmRevisionController {
 	@Autowired
 	private IdmAuditService auditService; 
 	
-	@Override
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{organizationId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("organizationId") String organizationId, @PathVariable("revId") Integer revId) {
@@ -72,7 +71,6 @@ public class IdmOrganizationController implements IdmRevisionController {
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{organizationId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("organizationId") String organizationId) {

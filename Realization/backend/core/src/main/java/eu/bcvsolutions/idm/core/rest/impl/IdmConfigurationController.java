@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
@@ -23,7 +25,7 @@ import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
-public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration> {
+public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration, QuickFilter> {
 	
 	private final IdmConfigurationService configurationService;
 	
@@ -55,5 +57,12 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
 		// TODO: resource wrapper + assembler
 		return configurationService.getAllConfigurationsFromEnvironment();
+	}
+	
+	@Override
+	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
+		QuickFilter filter = new QuickFilter();
+		filter.setText((String)parameters.toSingleValueMap().get("text"));
+		return filter;
 	}
 }

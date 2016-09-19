@@ -13,11 +13,15 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
@@ -33,7 +37,7 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;
  *
  */
 @Service
-public class DefaultIdmConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration> implements IdmConfigurationService {
+public class DefaultIdmConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfigurationService.class);
 
@@ -46,6 +50,14 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	@Override
 	protected BaseRepository<IdmConfiguration> getRepository() {
 		return configurationRepository;
+	}
+	
+	@Override
+	public Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable) {
+		if (filter == null) {
+			return find(pageable);
+		}
+		return configurationRepository.findQuick(filter.getText(), pageable);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.core.support.EntityLookup;
@@ -22,22 +23,26 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 /**
- * Read operations
+ * Read operations (get, find)
  * 
  * @author Radek Tomiška
  *
  * @param <E>
  */
-public abstract class AbstractReadEntityController<E extends BaseEntity> implements BaseEntityController<E> {
+public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
-	private ReadEntityService<E> entityService;
+	@Autowired
+	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
 	
-	public AbstractReadEntityController(ReadEntityService<E> entityService) {
+	private ReadEntityService<E, F> entityService;
+	
+	public AbstractReadEntityController(ReadEntityService<E, F> entityService) {
 		this.entityService = entityService;
 	}
 	
@@ -52,51 +57,70 @@ public abstract class AbstractReadEntityController<E extends BaseEntity> impleme
 		return null;
 	}
 	
-	protected ReadEntityService<E> getEntityService() {
-		return (ReadEntityService<E>)entityService;
+	protected ReadEntityService<E, F> getEntityService() {
+		return (ReadEntityService<E, F>)entityService;
 	}
 	
-	public ResponseEntity<?> getItemResource(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		E entity = readItemResource(backendId);
+	protected Class<E> getEntityClass() {
+		return getEntityService().getEntityClass();
+	}
+	
+	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		E entity = getEntity(backendId);
 		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}		
-		return new ResponseEntity<>(assembleEntity(entity, assembler), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected E readItemResource(String backendId) {
+	public E getEntity(String backendId) {
+		// TODO: read events
 		if(getEntityLookup() == null) {
-			// TODO: backendId conversion
 			return getEntityService().get(Long.valueOf(backendId));
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Resources<?> searchCollectionResource(@PageableDefault Pageable pageable, 
-			@RequestParam MultiValueMap<String, Object> parameters, 
-			PagedResourcesAssembler<Object> pagedAssembler, PersistentEntityResourceAssembler assembler) {
-		if (getAssembler() == null) {
-			return pagedAssembler.toResource((Page<Object>)getEntityService().find(null, pageable), assembler);
-		} else {
-			return pagedAssembler.toResource((Page<Object>)getEntityService().find(null, pageable), getAssembler());
-		}
-	}
-	
-	public Resources<?> searchQuickCollectionResource(@PageableDefault Pageable pageable, 
-			@RequestParam MultiValueMap<String, Object> parameters, 
-			PagedResourcesAssembler<Object> pagedAssembler,
+	public Resources<?> find(
+			@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return searchCollectionResource(pageable, parameters, pagedAssembler, assembler);
+		// TODO: filter transform from parameters
+		return toResources((Page<Object>)findEntities(toFilter(parameters), pageable), assembler);
 	}
 	
-	// TODO: toResource
-	protected ResourceSupport assembleEntity(E entity, PersistentEntityResourceAssembler assembler) {
+	public Page<E> findEntities(F filter, Pageable pageable) {
+		// TODO: read event
+		return getEntityService().find(filter, pageable);
+	}	
+	
+	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
 		if(getAssembler() != null) {
 			return getAssembler().toResource(entity);
 		}
 		return assembler.toFullResource(entity);
 	}
 	
+	protected Resources<?> toResources(Page<Object> page, PersistentEntityResourceAssembler assembler) {
+		if (page.getContent().isEmpty()) {
+			return pagedResourcesAssembler.toEmptyResource(page, getEntityClass(), null); // TODO: base link
+		}
+		
+		if (getAssembler() == null) {
+			return pagedResourcesAssembler.toResource(page, assembler);
+		} else {
+			return pagedResourcesAssembler.toResource(page, getAssembler());
+		}
+	}
+	
+	/**
+	 * Transforms request parameters to {@link BaseFilter}.
+	 * @param parameters
+	 * @return
+	 */
+	protected F toFilter(MultiValueMap<String, Object> parameters) {
+		return null;
+	}
 }

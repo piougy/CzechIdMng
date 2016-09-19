@@ -71,7 +71,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
-	Page<IdmConfiguration> findByQuick(@Param(value = "text") String text, Pageable pageable);
+	Page<IdmConfiguration> findQuick(@Param(value = "text") String text, Pageable pageable);
 	
 	/**
 	 * Returns all configurations based on current user authorities

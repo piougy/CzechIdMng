@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.service.BaseEntityService;
@@ -19,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.service.ReadEntityService;
  * @see Pageable
  * @see Page
  */
-public abstract class AbstractReadEntityService<E extends BaseEntity> implements ReadEntityService<E> {
+public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;
 	
@@ -51,8 +52,13 @@ public abstract class AbstractReadEntityService<E extends BaseEntity> implements
 	}
 
 	@Override
-	public Page<E> find(Object filter, Pageable pageable) {
+	public Page<E> find(F filter, Pageable pageable) {
 		// TODO: use reflection to find appropriate repository method to given filter
+		return find(pageable);
+	}
+	
+	@Override
+	public Page<E> find(Pageable pageable) {
 		return getRepository().findAll(pageable);
 	}
 

@@ -12,11 +12,13 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
 import org.springframework.data.rest.core.support.EntityLookup;
-import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,8 +28,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
@@ -35,7 +39,6 @@ import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
@@ -49,7 +52,7 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
-public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity> implements IdmRevisionController {
+public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, QuickFilter> {
 
 	@Autowired
 	private IdmIdentityLookup identityLookup;
@@ -77,39 +80,31 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
-	@RequestMapping(method = RequestMethod.POST)
-	// @PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> postCollectionResource(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
-		return super.postCollectionResource(nativeRequest, assembler);
-	}
-	
-	@RequestMapping(value = "/test", method = RequestMethod.POST)
-	public ResponseEntity<Void> postCollectionResource(PersistentEntityResource payload) {
-		System.out.println("makaaam: " + payload);
-		
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		return super.create(nativeRequest, assembler);
 	}
 	
 	@Override
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	//@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> putItemResource(
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws Exception {
-		return super.putItemResource(backendId, nativeRequest, assembler);
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.update(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	//@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
-	public ResponseEntity<?> patchItemResource(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws Exception {
-		return super.patchItemResource(backendId, nativeRequest, assembler);
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.patch(backendId, nativeRequest, assembler);
 	}	
 	
+	/**
+	 * Delete identity is not supported now
+	 */
 	@Override
-	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteItemResource(@PathVariable @NotNull String backendId) {
+	public void deleteEntity(IdmIdentity identity) {
 		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
 	}
 
@@ -143,7 +138,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);
 	}
 	
-	@Override
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
@@ -167,7 +161,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
-	@Override
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
@@ -196,5 +190,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 				wrappers);
 		
 		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>>(resources, HttpStatus.OK);
+	}
+	
+	@Override
+	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
+		QuickFilter filter = new QuickFilter();
+		filter.setText((String)parameters.toSingleValueMap().get("text"));
+		return filter;
 	}
 }

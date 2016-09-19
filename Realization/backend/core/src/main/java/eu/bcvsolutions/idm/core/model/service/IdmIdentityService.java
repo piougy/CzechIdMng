@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service;
 import org.activiti.engine.runtime.ProcessInstance;
 
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
@@ -11,7 +12,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity> {
+public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, QuickFilter> {
 	
 	/**
 	 * Returns identity by given username

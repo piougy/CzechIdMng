@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.service;
 
+import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 
 /**
@@ -8,6 +9,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityWorkingPositionService extends ReadWriteEntityService<IdmIdentityWorkingPosition> {
+public interface IdmIdentityWorkingPositionService extends ReadWriteEntityService<IdmIdentityWorkingPosition, EmptyFilter> {
 	
 }

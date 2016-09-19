@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roles/")
-public class IdmRoleController implements IdmRevisionController {
+public class IdmRoleController {
 
 	@Autowired
 	private IdmRoleLookup roleLookup;
@@ -44,7 +44,6 @@ public class IdmRoleController implements IdmRevisionController {
 	@Autowired
 	private IdmAuditService auditService; 
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Integer revId) {
@@ -68,7 +67,6 @@ public class IdmRoleController implements IdmRevisionController {
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{roleId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("roleId") String roleId) {

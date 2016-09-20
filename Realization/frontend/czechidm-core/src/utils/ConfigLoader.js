@@ -2,7 +2,7 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 //
 import ModuleLoader from './ModuleLoader';
-import config from '../../config.json'; // TODO: config has to be parametrized !!!
+let _config = null;
 const moduleLoader = new ModuleLoader();
 
 // suported and default values for navigation item in module descriptor
@@ -35,11 +35,15 @@ export default class ConfigLoader {
   constructor() {
   }
 
+  static initConfig(jsonConfig){
+    _config = jsonConfig;
+  }
+
   /**
    * Returns config part by key or null
    */
   getConfig(key) {
-    return config[key];
+    return _config[key];
   }
 
   /**
@@ -74,8 +78,8 @@ export default class ConfigLoader {
 
 
   _getConfigModuleDescriptor(moduleId) {
-    if (config.overrideModuleDescriptor) {
-      return config.overrideModuleDescriptor[moduleId];
+    if (_config.overrideModuleDescriptor) {
+      return _config.overrideModuleDescriptor[moduleId];
     }
     return {};
   }

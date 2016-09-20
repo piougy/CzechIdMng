@@ -7,7 +7,7 @@ import ComponentService from '../../src/services/ComponentService';
 describe('ComponentService', function componentServiceTest() {
   const componentService = new ComponentService();
 
-  it('- load module components', function test() {
+  it.skip('- load module components', function test() {
     expect(componentService.getComponentDescriptor('core').id).to.equal('core');
     // expect(componentService.getComponentDescriptor('crt').id).to.equal('crt');
   });

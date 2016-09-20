@@ -19,5 +19,5 @@ if (typeof document === 'undefined') {
 }
 
 LOGGER.debug('test config init ... begin');
-fs.copySync(path.resolve(__dirname, '../config/default/development.json'), path.resolve(__dirname, '../config.json'));
+fs.copySync(path.resolve(__dirname, '../config/default/development.json'), path.resolve(__dirname, '../dist/config.json'));
 LOGGER.debug('test config init ... done');

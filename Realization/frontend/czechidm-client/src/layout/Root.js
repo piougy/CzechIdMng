@@ -4,8 +4,12 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import modules from '../../dist/modules/moduleAssembler';
+import { componentDescriptors } from '../../dist/modules/componentAssembler';
 //
 import {Basic, LayoutActions} from 'czechidm-core';
+import ComponentLoader from 'czechidm-core/src/utils/ComponentLoader';
+import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
+import config from '../../dist/config.json';
 
 export class Root extends Basic.AbstractContent {
 
@@ -15,7 +19,9 @@ export class Root extends Basic.AbstractContent {
 
   componentDidMount() {
     this.context.store.dispatch(LayoutActions.modulesInit(modules.moduleDescriptors));
+    ConfigLoader.initConfig(config);
     this.context.store.dispatch(LayoutActions.i18nInit());
+    ComponentLoader.initComponents(componentDescriptors);
   }
 
 

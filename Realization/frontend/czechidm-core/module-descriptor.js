@@ -4,7 +4,7 @@ module.exports = {
   'name': 'Core',
   'description': 'Core functionallity. Defines basic navigation structure, routes etc. Has lowest priority, could be overriden.',
   'mainStyleFile': 'src/css/main.less',
-  'mainRouteFile': 'routesCore.js',
+  'mainRouteFile': 'routes.js',
   'mainComponentDescriptorFile': 'component-descriptor.js',
   'mainLocalePath': 'src/locales/',
   'navigation': {

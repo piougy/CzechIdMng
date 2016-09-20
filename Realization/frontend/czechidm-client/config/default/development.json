@@ -2,7 +2,7 @@
   "env": "development",
   "serverUrl": "http://localhost:8080/idm/api",
   "locales": "dist/locales",
-  "theme": "czechidm-core/themes/default",
+  "theme": "czechidm-core/themes/red",
   "overrideModuleDescriptor": {
     "core":{
       "navigation": {

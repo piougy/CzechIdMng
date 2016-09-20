@@ -19,7 +19,7 @@ import filter from 'redux-localstorage-filter';
 //
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
-import config from '../config.json';
+import config from '../dist/config.json';
 import {LayoutReducers, FlashReducers, DataReducers, SecurityReducers, SecurityManager} from 'czechidm-core';
 //
 // global promise init

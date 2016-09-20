@@ -5,12 +5,9 @@ import ComponentLoader from '../utils/ComponentLoader';
 */
 export default class ComponentService {
 
-  constructor() {
-    this.componentLoader = new ComponentLoader();
-  }
 
   getComponentDescriptor(moduleId) {
-    return this.componentLoader.getComponentDescriptor(moduleId);
+    return ComponentLoader.getComponentDescriptor(moduleId);
   }
 
   /**
@@ -20,7 +17,7 @@ export default class ComponentService {
    * @return {object} Component
    */
   getComponent(componentId) {
-    return this.componentLoader.getComponent(componentId);
+    return ComponentLoader.getComponent(componentId);
   }
 
   /**
@@ -30,7 +27,7 @@ export default class ComponentService {
    * @return {object} Component definition
    */
   getComponentDefinition(componentId) {
-    return this.componentLoader.getComponentDefinition(componentId);
+    return ComponentLoader.getComponentDefinition(componentId);
   }
 
   /**
@@ -40,6 +37,6 @@ export default class ComponentService {
    * @return {array[object]} array of component definitions with the given type
    */
   getComponentDefinitions(componentType) {
-    return this.componentLoader.getComponentDefinitions(componentType);
+    return ComponentLoader.getComponentDefinitions(componentType);
   }
 }

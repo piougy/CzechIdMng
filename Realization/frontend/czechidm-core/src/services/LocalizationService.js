@@ -75,7 +75,6 @@ export default class LocalizationService {
         moduleIdsWithLocales.push(moduleId);
       }
     }
-    console.log("eeeeeeee",moduleIdsWithLocales);
     return moduleIdsWithLocales;
   }
 

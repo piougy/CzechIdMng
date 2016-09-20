@@ -28,6 +28,7 @@ import flatmap from 'gulp-flatmap';
 import replace from 'gulp-replace';
 import concat from 'gulp-concat';
 import vfs from 'vinyl-fs';
+import inject from 'gulp-inject';
 
 require('babel/register');
 
@@ -36,11 +37,12 @@ const paths = {
   srcJs: ['node_modules/bootstrap-less/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js', 'node_modules/metismenu/dist/metisMenu.min.js'],
   srcFont: ['node_modules/bootstrap-less/fonts/*', 'src/fonts/*', 'node_modules/font-awesome/fonts/*'],
   srcJsx: 'src/Index.js',
-  srcLess: ['src/css/**/*.less'],
+  srcLess: ['src/css/main.less'],
+  srcIncludedLess: [],
   srcCssSeparate: ['src/css/google.fonts.css'], // this css will be add as separate files (not conacat to main.less)
   srcImg: 'images/**', // client images
   srcThemes: ['images/**'], // only images for now
-  // srcLocale: 'src/locales/*.json',
+  srcLocale: [], // will filled during compile (with locales from submodules)
   srcModuleDescriptor: 'node_modules/**/module-descriptor.js',
   srcModuleAssembler: 'src/modules/moduleAssembler.js', // default modules assembler
   srcRouteAssembler: 'src/modules/routeAssembler.js', // default routes assembler
@@ -147,7 +149,7 @@ gulp.task('loadModuleStyles', () => {
     if (descriptor.mainStyleFile) {
       const fullStylePath = file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')) + descriptor.mainStyleFile;
       util.log('Main module style file path:', fullStylePath);
-      paths.srcLess.push(fullStylePath);
+      paths.srcIncludedLess.push(fullStylePath);
     }
     return stream;
   }));
@@ -266,11 +268,24 @@ gulp.task('browserify', () => {
 });
 
 gulp.task('styles', () => {
-  util.log('Styles will be compiled from this parts:', paths.srcLess);
+  util.log('Main application less:', paths.srcLess);
+  util.log('Less for include to main:', paths.srcIncludedLess);
   const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
   //
   return gulp.src(paths.srcLess)
     .pipe(sourcemaps.init())
+    /**
+     * Dynamically injects @import statements into the main app.less file, allowing
+     * .less files to be placed around the app structure with the component
+     * or page they apply to.
+     */
+    .pipe(inject(gulp.src(paths.srcIncludedLess, {read: false}), {
+      starttag: '/* inject:imports */',
+      endtag: '/* endinject */',
+      transform: function transform(filepath) {
+        return '@import "' + __dirname + filepath + '";';
+      }
+    }))
     .pipe(less({
       compress: true,
       globalVars: {
@@ -327,7 +342,7 @@ gulp.task('themes', () => {
     .pipe(gulp.src(path.join(themeFullPath, '/css/*'))
     .pipe(flatmap(function loadModule(stream, file) {
       util.log('Add theme style from:', file.path);
-      paths.srcLess.push(file.path);
+      paths.srcIncludedLess.push(file.path);
       return stream;
     })));
   }
@@ -354,11 +369,12 @@ gulp.task('loadModuleLocales', () => {
       util.log('Loading locale for module with ID:', descriptor.id);
       const fullLocalesPath = path.join(file.path.substring(0, file.path.lastIndexOf('module-descriptor.js')), descriptor.mainLocalePath, '*.json');
       util.log('Main module locale file path:', fullLocalesPath);
+      paths.srcLocale.push(fullLocalesPath); // For watch purpose
       return gulp.src(fullLocalesPath)
       .pipe(gulp.dest(path.join(paths.distLocale, '/', descriptor.id, '/')));
     }
     return stream;
-  }));
+  })).pipe(reload({stream: true}));
 });
 
 gulp.task('lint', () => {
@@ -369,14 +385,12 @@ gulp.task('lint', () => {
 });
 
 gulp.task('config', (cb) => {
-  fs.writeFile(path.join(__dirname, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb);
+  return fs.writeFile(path.join(__dirname, paths.dist, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb);
 });
 
 gulp.task('urlConfig', (cb) => {
   const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  fs.writeFile(path.join(__dirname, '/configUrl.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
-  gulp.src('configUrl.js')
-    .pipe(gulp.dest(paths.dist));
+  return fs.writeFile(path.join(__dirname, paths.dist, '/configUrl.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
 });
 
 gulp.task('test', () => {
@@ -404,19 +418,21 @@ gulp.task('runTest', () => {
 });
 
 gulp.task('watchTask', () => {
+  util.log('Locales are watch on paths:', paths.srcLocale);
   gulp.watch(paths.srcLess, ['styles']);
+  gulp.watch(paths.srcIncludedLess, ['styles']);
   gulp.watch(paths.srcJsx, ['lint']);
-  // gulp.watch(paths.srcLocale, ['locales']);
+  gulp.watch(paths.srcLocale, ['loadModuleLocales']);
 });
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', ['browserSync', 'watchTask', 'watchify', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', ['browserify', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales'], cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

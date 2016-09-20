@@ -99,7 +99,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
-		return toResources((Page<Object>)findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
+		return toResources(findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
 	}
 	
 	public Page<E> findEntities(F filter, Pageable pageable) {

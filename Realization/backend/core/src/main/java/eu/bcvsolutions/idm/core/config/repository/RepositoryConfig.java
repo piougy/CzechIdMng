@@ -3,25 +3,31 @@ package eu.bcvsolutions.idm.core.config.repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
+import org.springframework.data.rest.core.mapping.RepositoryResourceMappings;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
+import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import eu.bcvsolutions.idm.core.model.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.model.repository.handler.UsernameAuditor;
 import eu.bcvsolutions.idm.core.model.validator.IdmRoleValidator;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 /**
  * Spring data rest configuration
@@ -76,7 +82,7 @@ public class RepositoryConfig extends RepositoryRestMvcConfiguration {
 			config.exposeIdsFor(entityType.getJavaType());
 		});
 		// conventional base api endpoint. TODO: define version here?
-		config.setBasePath("/api");
+		config.setBasePath(BaseEntityController.BASE_PATH);
 		// it will be usefull for some clients (e.g. for putting new / updated
 		// resource to client storage - redux etc.)
 		config.setReturnBodyForPutAndPost(true);
@@ -103,18 +109,38 @@ public class RepositoryConfig extends RepositoryRestMvcConfiguration {
 	 * @return
 	 */
 	@Bean
-    public EvaluationContextExtension securityExtension() {
-        return new EvaluationContextExtensionSupport() {
-        	@Override
-        	public String getExtensionId() {
-    			return "security";
-        	}
+	public EvaluationContextExtension securityExtension() {
+		return new EvaluationContextExtensionSupport() {
+			@Override
+			public String getExtensionId() {
+				return "security";
+			}
 
-        	@Override
-        	public SecurityExpressionRoot getRootObject() {
-        		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        		return new SecurityExpressionRoot(authentication) {};
-			}  	
-        };
+			@Override
+			public SecurityExpressionRoot getRootObject() {
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				return new SecurityExpressionRoot(authentication) {
+				};
+			}
+		};
+	}
+
+	/**
+	 * Could be used for manually resource projection
+	 * 
+	 * @return
+	 */
+	@Bean
+	public SpelAwareProxyProjectionFactory projectionFactory() {
+		return new SpelAwareProxyProjectionFactory();
+	}
+	
+	/**
+	 * We want to assemble embedded object to not exported repositories too.
+	 */
+	@Bean
+	@Override
+	public Associations associationLinks() {
+		return new NotExportedAssociations(resourceMappings(), config());
 	}
 }

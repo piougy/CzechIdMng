@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.rest.IdmIdentityController;
+import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 
 /**
  * Test audit configuration on identity entity

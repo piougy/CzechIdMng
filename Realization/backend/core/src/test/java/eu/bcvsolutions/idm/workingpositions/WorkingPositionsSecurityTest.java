@@ -4,11 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -17,17 +23,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -47,13 +48,17 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 	@Autowired
 	private IdmIdentityWorkingPositionRepository workingPositionRepository;
 	
+	@Autowired
+	@Qualifier("objectMapper")
+	protected ObjectMapper mapper;
+	
 	@Test
 	public void getWorkingPositions() {	
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 		Exception ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(get("/api/workingPositions/")).andReturn().getResponse().getStatus();
+			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/workingPositions/")).andReturn().getResponse().getStatus();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -65,7 +70,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = mockMvc.perform(get("/api/workingPositions/").with(authentication(getAuthentication()))).andReturn();
+			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/workingPositions/").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -86,7 +91,6 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		Map<String, String> body = new HashMap<>();
 		body.put("identity", "identity/" + user.getUsername());
 		body.put("position", "TEST_POSITION");
-		final ObjectMapper mapper = new ObjectMapper();
 		
         String jsonContent = null;
 		try {
@@ -98,7 +102,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post("/api/workingPositions/")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/workingPositions/")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -114,7 +118,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(post("/api/workingPositions").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/workingPositions").with(authentication(getAuthentication()))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonContent))
 						.andReturn()
@@ -135,7 +139,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
-		Page<IdmIdentityWorkingPosition> pages = workingPositionRepository.findByIdentity(user, null);
+		List<IdmIdentityWorkingPosition> pages = workingPositionRepository.findAllByIdentity(user, null);
 		
 		long positionId = 0;
 		for	(IdmIdentityWorkingPosition position : pages) {
@@ -146,7 +150,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(delete("/api/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON))
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
 					.getResponse()
 					.getStatus();
@@ -161,7 +165,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(delete("/api/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON)
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON)
 						.with(authentication(getAuthentication())))
 						.andReturn()
 						.getResponse()

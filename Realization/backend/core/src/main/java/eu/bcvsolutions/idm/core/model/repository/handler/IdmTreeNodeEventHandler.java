@@ -29,7 +29,7 @@ public class IdmTreeNodeEventHandler {
 	@Autowired
 	private IdmTreeNodeRepository treeNodeRepository;
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleEventHandler.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmTreeNodeEventHandler.class);
 	
 	@HandleBeforeSave
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")

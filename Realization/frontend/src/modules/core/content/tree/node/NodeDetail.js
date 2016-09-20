@@ -87,7 +87,7 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, isNew, isRoot } = this.props;
+    const { uiKey, isNew, isRoot, type } = this.props;
     const { showLoading } = this.state;
 
     let parentRequired = true;
@@ -106,6 +106,7 @@ export default class NodeDetail extends Basic.AbstractContent {
               <Basic.SelectBox
                 ref="parent"
                 label={this.i18n('entity.TreeNode.parent.name')}
+                forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', this.treeTypeManager.getSelfLink(type))}
                 manager={this.treeNodeManager}
                 required={parentRequired}/>
                 <Basic.SelectBox

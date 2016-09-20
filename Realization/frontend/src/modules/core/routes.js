@@ -109,10 +109,11 @@ module.exports = {
     {
       path: 'role/:entityId/',
       component: require('./content/role/Role'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
       childRoutes: [
         {
           path: 'detail',
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           component: require('./content/role/Content')
         },
       ]
@@ -120,7 +121,7 @@ module.exports = {
     {
       path: 'role/:entityId/new',
       component: require('./content/role/Content'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
     },
     {
       path: 'tasks/:userID',

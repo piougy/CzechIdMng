@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
 			.antMatchers(BaseEntityController.BASE_PATH + "/public/**").permitAll()
 			.antMatchers(BaseEntityController.BASE_PATH + "/**").fullyAuthenticated() // TODO: controllers should choose security?
-			.anyRequest().authenticated();
+			.anyRequest().permitAll(); // gui could run in application context
     }
 	
 	@Override

@@ -34,7 +34,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userNotFound() throws Exception {
-        mockMvc.perform(get("/api/identities/n_a_user")
+        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identities/n_a_user")
         		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isNotFound());
@@ -42,7 +42,7 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void userFoundByUsername() throws Exception {
-        mockMvc.perform(get("/api/identities/" + InitTestData.TEST_ADMIN_USERNAME)
+        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identities/" + InitTestData.TEST_ADMIN_USERNAME)
         		.with(authentication(getAuthentication()))
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk())

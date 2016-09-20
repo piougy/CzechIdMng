@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
@@ -38,10 +40,11 @@ public class DefaultLoginService implements LoginService {
 	private IdmIdentityRepository idmIdentityRepository;
 
 	@Autowired
-	private ObjectMapper jsonMapper;
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
@@ -66,7 +69,7 @@ public class DefaultLoginService implements LoginService {
 				.getIdmJwtAuthenticationDto(authentication);
 		String authenticationJson;
 		try {
-			authenticationJson = jsonMapper.writeValueAsString(authenticationDto);
+			authenticationJson = mapper.writeValueAsString(authenticationDto);
 		} catch (IOException e) {
 			throw new IdmAuthenticationException(e.getMessage());
 		}

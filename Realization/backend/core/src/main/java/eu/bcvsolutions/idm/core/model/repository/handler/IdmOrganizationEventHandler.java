@@ -31,7 +31,7 @@ public class IdmOrganizationEventHandler {
 	@Autowired
 	private IdmOrganizationRepository organizationRepository;
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmRoleEventHandler.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmOrganizationEventHandler.class);
 	
 	@HandleBeforeSave
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ORGANIZATION_WRITE + "')")

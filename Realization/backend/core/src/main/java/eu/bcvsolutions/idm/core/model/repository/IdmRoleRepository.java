@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -21,7 +20,8 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		collectionResourceRel = "roles", // 
 		path = "roles", //
 		itemResourceRel = "role", //
-		excerptProjection = IdmRoleExcerpt.class)
+		excerptProjection = IdmRoleExcerpt.class,
+		exported = false)
 public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	
 	public static final String ADMIN_ROLE = "superAdminRole";
@@ -32,6 +32,5 @@ public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	        " where" +
 	        " (:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" +
 	        " and (:roleType is null or e.roleType = :roleType)")
-	@RestResource(path = "quick", rel = "quick")
-	Page<IdmRole> findByQuick(@Param(value = "text") String text, @Param(value = "roleType") IdmRoleType roleType, Pageable pageable);
+	Page<IdmRole> findQuick(@Param(value = "text") String text, @Param(value = "roleType") IdmRoleType roleType, Pageable pageable);
 }

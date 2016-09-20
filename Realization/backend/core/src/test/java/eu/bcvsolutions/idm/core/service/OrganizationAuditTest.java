@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.rest.IdmOrganizationController;
+import eu.bcvsolutions.idm.core.rest.impl.IdmOrganizationController;
 
 /**
  * Audit for organization test

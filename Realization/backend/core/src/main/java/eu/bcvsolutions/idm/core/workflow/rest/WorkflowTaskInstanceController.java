@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataWrapperDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -28,7 +29,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  */
 @RestController
-@RequestMapping(value = "/api/workflow/tasks/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/tasks/")
 public class WorkflowTaskInstanceController {
 
 	@Autowired

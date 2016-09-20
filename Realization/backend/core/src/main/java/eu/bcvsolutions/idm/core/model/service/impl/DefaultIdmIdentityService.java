@@ -8,14 +8,18 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -24,7 +28,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
 @Service
-public class DefaultIdmIdentityService implements IdmIdentityService {
+public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity, QuickFilter> implements IdmIdentityService {
 
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
@@ -42,6 +46,11 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Override
+	protected BaseRepository<IdmIdentity> getRepository() {
+		return identityRepository;
+	}
 
 	/**
 	 * Start workflow for change permissions
@@ -53,47 +62,26 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmIdentity getByUsername(String username) {
 		return identityRepository.findOneByUsername(username);
 	}
-
+	
 	@Override
-	public IdmIdentity get(Long id) {
-		IdmIdentity entity = identityRepository.findOne(id);
-		entity.getRoles();
-		return entity;
-	}
-
-	/**
-	 * Find all identities usernames by assigned role
-	 * 
-	 * @param roleId
-	 * @return String with all found usernames separate with comma
-	 */
-	public String findAllByRole(Long roleId) {
-		List<IdmIdentity> identities = this.finAllByRole(roleId);
-				
-		StringBuilder sb = new StringBuilder();
-		for (IdmIdentity i : identities) {
-			sb.append(i.getUsername());
-			sb.append(",");
-		}
-		return sb.toString();
+	@Transactional(readOnly = true)
+	public IdmIdentity getByName(String username) {
+		return this.getByUsername(username);
 	}
 	
-	/**
-	 * Find all identities by assigned role
-	 * @param roleId
-	 * @return List of IdmIdentity with assigned role
-	 */
-	public List<IdmIdentity> finAllByRole(Long roleId) {
-		List<IdmIdentity> identities = identityRepository.findAllByRole(roleId);
-		if (identities == null) {
-			return null;
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentity> find(QuickFilter filter, Pageable pageable) {
+		if (filter == null) {
+			return find(pageable);
 		}
-		return identities;
-	}
-
+		return identityRepository.findQuick(filter.getText(), pageable);
+	}	
+	
 	@Override
 	public String getNiceLabel(IdmIdentity identity) {
 		if (identity == null) {
@@ -116,12 +104,49 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	}
 
 	/**
+	 * Find all identities usernames by assigned role
+	 * 
+	 * @param roleId
+	 * @return String with all found usernames separate with comma
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public String findAllByRoleAsString(Long roleId) {
+		List<IdmIdentity> identities = this.findAllByRole(roleId);
+				
+		StringBuilder sb = new StringBuilder();
+		for (IdmIdentity i : identities) {
+			sb.append(i.getUsername());
+			sb.append(",");
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Find all identities by assigned role
+	 * 
+	 * @param roleId
+	 * @return List of IdmIdentity with assigned role
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentity> findAllByRole(Long roleId) {
+		List<IdmIdentity> identities = identityRepository.findAllByRole(roleId);
+		if (identities == null) {
+			return null;
+		}
+		return identities;
+	}
+
+	/**
 	 * Method find all managers by user positions and return managers username,
 	 * separate by commas
 	 * 
 	 * @param id
 	 * @return String - usernames separate by commas
 	 */
+	@Override
+	@Transactional(readOnly = true)
 	public String findAllManagersByUserPositionsString(Long id) {
 		List<String> list = this.findAllManagersByUserPositions(id).stream().map(IdmIdentity::getUsername)
 				.collect(Collectors.toList());
@@ -133,18 +158,20 @@ public class DefaultIdmIdentityService implements IdmIdentityService {
 	 * @param id
 	 * @return List of IdmIdentities 
 	 */
+	@Override
+	@Transactional(readOnly = true)
 	public List<IdmIdentity> findAllManagersByUserPositions(Long id) {
 		List<IdmIdentity> result = new ArrayList<>();
 		
 		IdmIdentity user = this.get(id);
-		Page<IdmIdentityWorkingPosition> positions = workingPositionRepository.findByIdentity(user, null);
+		List<IdmIdentityWorkingPosition> positions = workingPositionRepository.findAllByIdentity(user, null);
 		
 		for	(IdmIdentityWorkingPosition position : positions) {
 			result.add(position.getManager());
 		}
 		
 		if (result.isEmpty()) {
-			return this.finAllByRole(this.getAdminRoleId());
+			return this.findAllByRole(this.getAdminRoleId());
 		}
 		
 		return result;

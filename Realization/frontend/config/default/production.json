@@ -1,6 +1,6 @@
 {
   "env": "production",
-  "serverUrl": "http://localhost:8080/idm/api",
+  "serverUrl": "http://localhost:8080/idm/api/v1",
   "locales": "locales",
   "theme": "modules/core/themes/default",
   "logger": {

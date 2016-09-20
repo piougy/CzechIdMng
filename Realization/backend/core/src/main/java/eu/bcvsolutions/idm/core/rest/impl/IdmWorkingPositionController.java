@@ -1,12 +1,14 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,7 +36,7 @@ public class IdmWorkingPositionController extends DefaultReadWriteEntityControll
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
-	public ResponseEntity<?> patch(String backendId, HttpServletRequest nativeRequest,
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		// TODO Auto-generated method stub
 		return super.patch(backendId, nativeRequest, assembler);
@@ -42,14 +44,14 @@ public class IdmWorkingPositionController extends DefaultReadWriteEntityControll
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
-	public ResponseEntity<?> update(String backendId, HttpServletRequest nativeRequest,
+	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
-	public ResponseEntity<?> delete(String backendId) {
+	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 }

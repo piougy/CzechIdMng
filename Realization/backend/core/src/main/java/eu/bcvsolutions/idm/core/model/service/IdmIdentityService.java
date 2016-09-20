@@ -1,6 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
@@ -12,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, QuickFilter> {
+public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, QuickFilter>, IdentifiableByNameEntityService<IdmIdentity> {
 	
 	/**
 	 * Returns identity by given username
@@ -43,4 +48,36 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @param passwordChangeDto
 	 */
 	void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto);
+	
+	/**
+	 * Find all identities usernames by assigned role
+	 * 
+	 * @param roleId
+	 * @return String with all found usernames separate with comma
+	 */
+	String findAllByRoleAsString(Long roleId);
+	
+	/**
+	 * Find all identities by assigned role
+	 * 
+	 * @param roleId
+	 * @return List of IdmIdentity with assigned role
+	 */
+	List<IdmIdentity> findAllByRole(Long roleId);
+
+	/**
+	 * Method find all managers by user positions and return managers username,
+	 * separate by commas
+	 * 
+	 * @param id
+	 * @return String - usernames separate by commas
+	 */
+	String findAllManagersByUserPositionsString(Long id);
+
+	/**
+	 * Method find all managers by user positions and return managers identity
+	 * @param id
+	 * @return List of IdmIdentities 
+	 */
+	List<IdmIdentity> findAllManagersByUserPositions(Long id);
 }

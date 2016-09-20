@@ -38,7 +38,6 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity> {
 	        " or lower(e.description) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
 	Page<IdmIdentity> findQuick(@Param(value = "text") String text, Pageable pageable);
 	
-
 	@Transactional(timeout = 5)
 	@Query(value = "SELECT e FROM IdmIdentity e "
 			+ "JOIN e.roles roles "

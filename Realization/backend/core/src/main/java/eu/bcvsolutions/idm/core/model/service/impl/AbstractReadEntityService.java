@@ -4,6 +4,7 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
@@ -47,17 +48,20 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public E get(Long id) {
 		return getRepository().findOne(id);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<E> find(F filter, Pageable pageable) {
 		// TODO: use reflection to find appropriate repository method to given filter
 		return find(pageable);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<E> find(Pageable pageable) {
 		return getRepository().findAll(pageable);
 	}

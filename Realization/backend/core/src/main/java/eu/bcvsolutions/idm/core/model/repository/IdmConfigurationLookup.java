@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.domain.IdentifiableByNameLookup;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 
 @Component
 public class IdmConfigurationLookup extends IdentifiableByNameLookup<IdmConfiguration> {
@@ -13,27 +14,18 @@ public class IdmConfigurationLookup extends IdentifiableByNameLookup<IdmConfigur
 	@Autowired 
 	private ApplicationContext applicationContext;
 	
-	private IdmConfigurationRepository configurationRepository;
-
-	@Override
-	public IdmConfiguration findOneByName(String name) {
-		return getRepository().findOneByName(name);
-	}
-
-	@Override
-	public IdmConfiguration findOne(Long id) {
-		return getRepository().findOne(id);
-	}
+	private IdmConfigurationService configurationService;
 	
 	/**
 	 * We need to inject repository lazily - we need security AOP to take effect
 	 *   
 	 * @return
 	 */
-	private IdmConfigurationRepository getRepository() {
-		if (configurationRepository == null) { 
-			configurationRepository = applicationContext.getBean(IdmConfigurationRepository.class);
+	@Override
+	protected IdmConfigurationService getEntityService() {
+		if (configurationService == null) { 
+			configurationService = applicationContext.getBean(IdmConfigurationService.class);
 		}
-		return configurationRepository;
+		return configurationService;
 	}
 }

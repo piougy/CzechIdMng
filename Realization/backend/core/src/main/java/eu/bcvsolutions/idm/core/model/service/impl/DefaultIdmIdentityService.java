@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
@@ -61,56 +62,26 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IdmIdentity getByUsername(String username) {
 		return identityRepository.findOneByUsername(username);
 	}
-
+	
 	@Override
-	public IdmIdentity get(Long id) {
-		IdmIdentity entity = super.get(id);
-		// TODO: where is this necesarry? Find and remove ...
-		entity.getRoles();
-		return entity;
+	@Transactional(readOnly = true)
+	public IdmIdentity getByName(String username) {
+		return this.getByUsername(username);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmIdentity> find(QuickFilter filter, Pageable pageable) {
 		if (filter == null) {
 			return find(pageable);
 		}
 		return identityRepository.findQuick(filter.getText(), pageable);
 	}	
-
-	/**
-	 * Find all identities usernames by assigned role
-	 * 
-	 * @param roleId
-	 * @return String with all found usernames separate with comma
-	 */
-	public String findAllByRole(Long roleId) {
-		List<IdmIdentity> identities = this.finAllByRole(roleId);
-				
-		StringBuilder sb = new StringBuilder();
-		for (IdmIdentity i : identities) {
-			sb.append(i.getUsername());
-			sb.append(",");
-		}
-		return sb.toString();
-	}
 	
-	/**
-	 * Find all identities by assigned role
-	 * @param roleId
-	 * @return List of IdmIdentity with assigned role
-	 */
-	public List<IdmIdentity> finAllByRole(Long roleId) {
-		List<IdmIdentity> identities = identityRepository.findAllByRole(roleId);
-		if (identities == null) {
-			return null;
-		}
-		return identities;
-	}
-
 	@Override
 	public String getNiceLabel(IdmIdentity identity) {
 		if (identity == null) {
@@ -133,12 +104,49 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	}
 
 	/**
+	 * Find all identities usernames by assigned role
+	 * 
+	 * @param roleId
+	 * @return String with all found usernames separate with comma
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public String findAllByRoleAsString(Long roleId) {
+		List<IdmIdentity> identities = this.findAllByRole(roleId);
+				
+		StringBuilder sb = new StringBuilder();
+		for (IdmIdentity i : identities) {
+			sb.append(i.getUsername());
+			sb.append(",");
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Find all identities by assigned role
+	 * 
+	 * @param roleId
+	 * @return List of IdmIdentity with assigned role
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentity> findAllByRole(Long roleId) {
+		List<IdmIdentity> identities = identityRepository.findAllByRole(roleId);
+		if (identities == null) {
+			return null;
+		}
+		return identities;
+	}
+
+	/**
 	 * Method find all managers by user positions and return managers username,
 	 * separate by commas
 	 * 
 	 * @param id
 	 * @return String - usernames separate by commas
 	 */
+	@Override
+	@Transactional(readOnly = true)
 	public String findAllManagersByUserPositionsString(Long id) {
 		List<String> list = this.findAllManagersByUserPositions(id).stream().map(IdmIdentity::getUsername)
 				.collect(Collectors.toList());
@@ -150,18 +158,20 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 * @param id
 	 * @return List of IdmIdentities 
 	 */
+	@Override
+	@Transactional(readOnly = true)
 	public List<IdmIdentity> findAllManagersByUserPositions(Long id) {
 		List<IdmIdentity> result = new ArrayList<>();
 		
 		IdmIdentity user = this.get(id);
-		Page<IdmIdentityWorkingPosition> positions = workingPositionRepository.findByIdentity(user, null);
+		List<IdmIdentityWorkingPosition> positions = workingPositionRepository.findAllByIdentity(user, null);
 		
 		for	(IdmIdentityWorkingPosition position : positions) {
 			result.add(position.getManager());
 		}
 		
 		if (result.isEmpty()) {
-			return this.finAllByRole(this.getAdminRoleId());
+			return this.findAllByRole(this.getAdminRoleId());
 		}
 		
 		return result;

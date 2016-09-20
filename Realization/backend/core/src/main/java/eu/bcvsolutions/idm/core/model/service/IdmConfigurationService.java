@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
  * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
  *
  */
-public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter> {
+public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter>, IdentifiableByNameEntityService<IdmConfiguration> {
 	
 	static final String PROPERTY_SEPARATOR = ".";
 	static final String SPLIT_PROPERTY_SEPARATOR = "\\.";

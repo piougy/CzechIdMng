@@ -36,12 +36,24 @@ public class NotExportedAssociations extends Associations {
 
 		ResourceMetadata metadata = mappings.getMetadataFor(property.getOwner().getType());
 
-		if (metadata != null && metadata.getExcerptProjection() != null) {
+		if (metadata != null && isLinkableRepository(metadata, property)) {
 			return true;
 		}
 
 		metadata = mappings.getMetadataFor(property.getActualType());
-		return metadata == null ? false : metadata.getExcerptProjection() != null;
+		return metadata == null ? false : isLinkableRepository(metadata, null);
+	}
+	
+	/**
+	 * We want to assemble embedded object to not exported repositories with excerpt projection too
+	 * @param metadata
+	 * @return
+	 */
+	protected boolean isLinkableRepository(ResourceMetadata metadata, PersistentProperty<?> property) {
+		if (property != null) {			
+			return metadata.isExported(property);
+		}
+		return metadata.isExported() || metadata.getExcerptProjection() != null;
 	}
 
 }

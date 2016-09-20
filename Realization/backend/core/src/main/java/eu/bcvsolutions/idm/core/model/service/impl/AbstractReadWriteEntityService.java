@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
@@ -21,6 +23,7 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	 * @return the saved entity
 	 */
 	@Override
+	@Transactional
 	public E save(E entity) {
 		return getRepository().save(entity);
 	}
@@ -32,6 +35,7 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	@Override
+	@Transactional
 	public void delete(E entity) {
 		getRepository().delete(entity);
 	}

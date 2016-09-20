@@ -111,8 +111,8 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 		return username;
 	}
 
-	@JsonIgnore
 	@Override
+	@JsonIgnore
 	public String getName() {
 		return getUsername();
 	}

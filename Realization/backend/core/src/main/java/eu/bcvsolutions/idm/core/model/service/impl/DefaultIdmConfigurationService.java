@@ -16,6 +16,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
@@ -53,6 +54,13 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public IdmConfiguration getByName(String name) {
+		return configurationRepository.findOneByName(name);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable) {
 		if (filter == null) {
 			return find(pageable);
@@ -61,11 +69,13 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public String getValue(String key) {
 		return getValue(key, null);
 	}
 	
 	@Override
+	@Transactional
 	public void setValue(String key, String value) {
 		Assert.hasText(key);
 		//
@@ -79,6 +89,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	}
 	
 	@Override
+	@Transactional
 	public void setConfiguration(IdmConfiguration configuration) {
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
@@ -90,6 +101,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public String getValue(String key, String defaultValue) {
 		log.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
@@ -111,29 +123,34 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Boolean getBooleanValue(String key) {
 		String value = getValue(key);
 		return value == null ? null : Boolean.valueOf(value);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public boolean getBooleanValue(String key, boolean defaultValue) {
 		String value = getValue(key);
 		return value == null ? defaultValue : Boolean.valueOf(value);
 	}
 	
 	@Override
+	@Transactional
 	public void setBooleanValue(String key, boolean value) {
 		setValue(key, Boolean.valueOf(value).toString());
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Integer getIntegerValue(String key) {
 		String value = getValue(key);
 		return value == null ? null : Integer.valueOf(value);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Integer getIntegerValue(String key, Integer defaultValue) {
 		String value = getValue(key);
 		try {
@@ -150,6 +167,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	 * @return
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<ConfigurationDto> getAllPublicConfigurations() {
 		Map<String, Object> configurations = new HashMap<>();
 		// defaults from property file

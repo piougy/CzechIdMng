@@ -4,12 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -17,12 +22,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -140,7 +139,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
-		Page<IdmIdentityWorkingPosition> pages = workingPositionRepository.findByIdentity(user, null);
+		List<IdmIdentityWorkingPosition> pages = workingPositionRepository.findAllByIdentity(user, null);
 		
 		long positionId = 0;
 		for	(IdmIdentityWorkingPosition position : pages) {

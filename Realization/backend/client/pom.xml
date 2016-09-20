@@ -151,15 +151,6 @@
 				<finalName>idm-backend</finalName>
 
 			</build>
-	<!--		<distributionManagement>
-				<snapshotRepository>
-					<id>nexus</id>
-					<name>Nexus Staging repo</name>
-					<url>http://localhost:8082/repository/maven-snapshots/</url>
-				</snapshotRepository>
-			</distributionManagement> -->
-
-
 		</profile>
 		<profile>
 			<id>release</id>
@@ -167,13 +158,6 @@
 				<spring.profiles.active>release</spring.profiles.active>
 				<customFinalName>idm-backend</customFinalName>
 			</properties>
-	<!--		<distributionManagement>
-				<repository>
-					<id>nexus</id>
-					<name>Nexus Staging repo</name>
-					<url>http://localhost:8082/repository/maven-releases/</url>
-				</repository>
-			</distributionManagement> -->
 		</profile>
 	</profiles>
 </project>

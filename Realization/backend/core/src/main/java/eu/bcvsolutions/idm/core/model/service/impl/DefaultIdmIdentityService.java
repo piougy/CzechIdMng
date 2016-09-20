@@ -167,7 +167,9 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		List<IdmIdentityWorkingPosition> positions = workingPositionRepository.findAllByIdentity(user, null);
 		
 		for	(IdmIdentityWorkingPosition position : positions) {
-			result.add(position.getManager());
+			if(position.getManager() != null) {
+				result.add(position.getManager());
+			}
 		}
 		
 		if (result.isEmpty()) {

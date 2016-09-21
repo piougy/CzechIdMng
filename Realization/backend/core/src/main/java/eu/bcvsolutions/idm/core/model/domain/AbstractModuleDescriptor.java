@@ -43,7 +43,10 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	public List<GroupPermission> getPermissions() {
 		return Collections.emptyList();
 	}
-
 	
+	@Override
+	public boolean isDisableable() {
+		return true;
+	}
 	
 }

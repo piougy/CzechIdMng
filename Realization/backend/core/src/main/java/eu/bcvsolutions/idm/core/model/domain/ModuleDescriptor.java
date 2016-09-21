@@ -48,5 +48,12 @@ public interface ModuleDescriptor extends Plugin<String> {
 	 * @return
 	 */
 	List<GroupPermission> getPermissions();
+	
+	/**
+	 * Returns true, if module can be disabled if is installed
+	 * 
+	 * @return
+	 */
+	boolean isDisableable();
 
 }

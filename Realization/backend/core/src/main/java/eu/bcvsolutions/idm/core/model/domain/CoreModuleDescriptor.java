@@ -19,6 +19,14 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 		return MODULE_ID;
 	}
 	
+	/**
+	 * Core module can't be disabled
+	 */
+	@Override
+	public boolean isDisableable() {
+		return false;
+	}
+	
 	@Override
 	public List<GroupPermission> getPermissions() {
 		List<GroupPermission> groupPermissions = new ArrayList<>();

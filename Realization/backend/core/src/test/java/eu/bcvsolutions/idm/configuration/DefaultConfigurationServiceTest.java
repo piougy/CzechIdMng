@@ -10,10 +10,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.configuration.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.configuration.repository.IdmConfigurationRepository;
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
+import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 
 public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	
@@ -23,7 +23,7 @@ public class DefaultConfigurationServiceTest extends AbstractIntegrationTest {
 	private static final String TEST_GUARDED_PROPERTY_VALUE = "secret_password";
 
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 	
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 
 /**
  * Guarded string used for storing sensitive data.
@@ -117,7 +117,7 @@ public final class GuardedString {
 		Assert.notNull(propertyName, "Property name is required");
 		//
 		if(CollectionUtils.containsAny(
-				Arrays.asList(propertyName.split(ConfigurationService.SPLIT_PROPERTY_SEPARATOR)), 
+				Arrays.asList(propertyName.split(IdmConfigurationService.SPLIT_PROPERTY_SEPARATOR)), 
 				Arrays.asList(GuardedString.GUARDED_PROPERTY_NAMES))) {
 			return true;
 		}

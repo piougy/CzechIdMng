@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.rest.IdmRoleController;
+import eu.bcvsolutions.idm.core.rest.impl.IdmRoleController;
 
 public class RoleAuditTest extends AbstractIntegrationTest {
 	

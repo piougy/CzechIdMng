@@ -40,17 +40,17 @@ public class RevisionAssembler<T extends AbstractEntity> extends ResourceAssembl
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<? extends IdmRevisionController> clazz, String entityIdentifier, T entity, Integer revId) {
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, T entity, Integer revId) {
 		ResourceWrapper<T> wrapper = new ResourceWrapper<T>(entity);
-		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
-		wrapper.add(selfLink);
+		//Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
+		//wrapper.add(selfLink);
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<? extends IdmRevisionController> clazz, String entityIdentifier, Revision<Integer, ? extends AbstractEntity> entity, Integer revId) {
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Integer, ? extends AbstractEntity> entity, Integer revId) {
 		ResourceWrapper<Revision<Integer, ? extends AbstractEntity>> wrapper = new ResourceWrapper<Revision<Integer, ? extends AbstractEntity>>(entity);
-		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
-		wrapper.add(selfLink);
+//		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
+//		wrapper.add(selfLink);
 		return wrapper;
 	}
 

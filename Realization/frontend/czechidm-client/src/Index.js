@@ -43,7 +43,9 @@ log4js.configure({
 const logger = log4js.getLogger();
 logger.setLevel(!config.logger || !config.logger.level ? 'DEBUG' : config.logger.level);
 global.LOGGER = logger;
+
 // debug setting
+// global DEBUG is true only if is application compiled/runned via watchify task. When is application only build, then is always DEBUG set on FALSE.
 if (typeof DEBUG === 'undefined') {
   global.DEBUG = true;
 }

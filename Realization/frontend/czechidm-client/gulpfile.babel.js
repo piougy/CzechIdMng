@@ -418,7 +418,6 @@ gulp.task('runTest', () => {
 });
 
 gulp.task('watchTask', () => {
-  util.log('Locales are watch on paths:', paths.srcLocale);
   gulp.watch(paths.srcLess, ['styles']);
   gulp.watch(paths.srcIncludedLess, ['styles']);
   gulp.watch(paths.srcJsx, ['lint']);
@@ -432,7 +431,7 @@ gulp.task('watch', cb => {
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

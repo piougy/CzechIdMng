@@ -39,11 +39,8 @@ export default class LocalizationService {
 
         backend: {
           // path where resources get loaded from
-          loadPath: configLoader.getConfig('locales') + '/{{ns}}/{{lng}}.json',
-
-          // path to post missing resources
-          // addPath: 'locales/add/{{lng}}/{{ns}}',
-
+          // Global DEBUG is set in index.js. True is only if is run with watchify task
+          loadPath: (window.DEBUG ? 'dist/locales' : 'locales') + '/{{ns}}/{{lng}}.json',
           // your backend server supports multiloading
           // /locales/resources.json?lng=de+en&ns=ns1+ns2
           allowMultiLoading: false,

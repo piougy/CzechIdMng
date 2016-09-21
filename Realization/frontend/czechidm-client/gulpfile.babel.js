@@ -398,10 +398,11 @@ gulp.task('test', () => {
   .usage('Usage (for only one run test): gulp test --profile [name of profile] --stage [development/test/production]\nUsage (for permanent watch on src and test changes): gulp test --watch').argv;
   const watchArg = argv.watch;
   if (watchArg) {
-    gulp.watch([paths.src, paths.testSrc], ['runTest']);
+    runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes');
+    gulp.watch([paths.testSrc, paths.bundle], ['runTest']);
   } else {
     selectStageAndProfile();
-    runSequence('clean', ['runTest']);
+    runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest');
   }
 });
 

@@ -97,17 +97,15 @@ After when we have installed all required modules, we have to copy them together
 
 ## Test
 
-`npm run test`
-or better
+`gulp test`
+
+For watch use test-watch (will work after compiling application ... it means after run "gulp" or "gulp build" or "gulp test")
+
 `npm run test-watch`
 
-__Test via gulp (for profile "default" and stage "test". Profile and stage arguments are supported. Profiles could be defined in [configuration](./config)):__
+__Test via gulp (for profile "default" and stage "test". Profile and stage arguments are supported. Profiles could be defined in [configuration](./czechidm-client/config)):__
 
 `gulp test -p default -s test`
-
-or for livereload (check src and test dir)
-
-`gulp test -w`  (profile and stage arguments are not supported)
 
 ## Development mode with livereload
 
@@ -133,14 +131,3 @@ When we want unmount some optional module, we have to delete it (or his symlink)
 `npm prune`
 
 `gulp makeModules`
-
-### [Docs](./docs/README.md)
-
-
-### npm link for components development (draft)
-* create module: https://docs.npmjs.com/getting-started/creating-node-modules
-* publish module https://docs.npmjs.com/getting-started/scoped-packages
-* Nexus: https://books.sonatype.com/nexus-book/reference/npm-deploying-packages.html
-* npm link:
-  * https://docs.npmjs.com/cli/link
-  * http://justjs.com/posts/npm-link-developing-your-own-npm-modules-without-tears

@@ -426,8 +426,7 @@
 		    <version>3.6</version>
 		    <configuration>
 		        <linkXRef>false</linkXRef>
-		        <targetJdk>1.8</targetJdk>
-		       
+		        <targetJdk>1.8</targetJdk>		       
 		    </configuration>
 		</plugin>
 	    </plugins>

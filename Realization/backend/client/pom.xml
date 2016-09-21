@@ -25,7 +25,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>idm</finalName>
+		<finalName>${customFinalName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -55,4 +55,109 @@
 		</resources>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>default</spring.profiles.active>
+				<customFinalName>idm</customFinalName>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+					    <groupId>com.github.eirslett</groupId>
+					    <artifactId>frontend-maven-plugin</artifactId>
+					    <version>1.0</version>
+					    <configuration>
+						<workingDirectory>../../frontend</workingDirectory>
+						 <installDirectory>target</installDirectory>
+					    </configuration>
+						<executions>
+						    <execution>
+							<id>install node and npm</id>
+							<goals>
+							    <goal>install-node-and-npm</goal>
+							</goals>
+							<configuration>
+							    <nodeVersion>v5.3.0</nodeVersion>
+							    <npmVersion>3.5.2</npmVersion>
+							</configuration>
+						    </execution>
+						    <execution>
+							<id>npm install modules</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments>--verbose install .</arguments>
+							</configuration>
+							<phase>generate-resources</phase>
+						    </execution>
+						    <execution>
+							<id>gulp build</id>
+							<goals>
+							    <goal>gulp</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+							    <arguments>build -s production</arguments>
+							    <installDirectory>target</installDirectory>
+							</configuration>
+						    </execution>
+						</executions>
+					</plugin>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <outputDirectory>target/idm</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/dist</directory>
+						      <filtering>true</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<spring.profiles.active>dev</spring.profiles.active>
+			</properties>
+
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+				<customFinalName>idm-backend</customFinalName>
+			</properties>
+			<build>
+				<finalName>idm-backend</finalName>
+
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<spring.profiles.active>release</spring.profiles.active>
+				<customFinalName>idm-backend</customFinalName>
+			</properties>
+		</profile>
+	</profiles>
 </project>

@@ -75,6 +75,7 @@ We can install other application modules. For example we will install optional a
 All application modules are in **czechidm-modules** directory (in czechidm-client). Go to him and create symlink on acc module.
 
 `cd czechidm-modules`
+
 `ln -s ../../czechidm-acc`
 
 Go to the acc module. You can use symlink in czechidm-modules.
@@ -124,11 +125,13 @@ When you are done, a production ready version of the JS bundle can be created:
 
 Builded application will be located in `dist` folder. Application could be deployed to any http server (e.g. Apache).
 
-## Unmount submodules
+## Unmount submodule
 When we want unmount some optional module, we have to delete it (or his symlink) from czechidm-modules. Then clear all modules from client node_modules and make new compilation of modules.
 
 `rm -r czechidm-modules/czechidm-acc`
+
 `npm prune`
+
 `gulp makeModules`
 
 ### [Docs](./docs/README.md)

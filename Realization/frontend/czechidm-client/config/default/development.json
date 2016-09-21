@@ -1,0 +1,20 @@
+{
+  "env": "development",
+  "serverUrl": "http://localhost:8080/idm/api/v1",
+  "theme": "czechidm-core/themes/red",
+  "overrideModuleDescriptor": {
+    "core":{
+      "navigation": {
+        "items": [
+          {
+            "id": "tasks",
+            "disabled": false
+          }
+        ]
+      }
+    }
+  },
+  "logger": {
+    "level": "DEBUG"
+  }
+}

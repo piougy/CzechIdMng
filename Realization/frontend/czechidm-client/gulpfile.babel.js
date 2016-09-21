@@ -102,7 +102,7 @@ function selectStageAndProfile() {
   process.env.NODE_PROFILE = profile;
 }
 
-gulp.task('copyModules', () => {
+gulp.task('makeModules', () => {
   return vfs.src('./czechidm-modules/**', {followSymlinks: false})
   .pipe(vfs.symlink('./node_modules'));
 });
@@ -426,12 +426,12 @@ gulp.task('watchTask', () => {
 
 gulp.task('watch', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'lint', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserSync', 'watchTask', 'watchify', cb);
 });
 
 gulp.task('build', cb => {
   selectStageAndProfile();
-  runSequence('clean', 'copyModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
+  runSequence('clean', 'makeModules', 'loadModules', 'createModuleAssembler', 'loadModuleStyles', 'loadModuleRoutes', 'createRouteAssembler', 'loadModuleComponents', 'createComponentAssembler', 'themes', 'runTest', 'config', 'urlConfig', 'styles', 'htmlReplace', 'images', 'js', 'fonts', 'loadModuleLocales', 'browserify', cb);
 });
 
 gulp.task('default', ['watch']);

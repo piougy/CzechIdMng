@@ -10,7 +10,7 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>idm-module-example</artifactId>
+	<artifactId>idm-example</artifactId>
 	<packaging>jar</packaging>
 
 	<name>CzechIdM Module Example</name>

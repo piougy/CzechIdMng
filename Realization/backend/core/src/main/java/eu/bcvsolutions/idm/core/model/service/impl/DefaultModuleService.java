@@ -55,6 +55,10 @@ public class DefaultModuleService implements ModuleService {
 		});
 		return Collections.unmodifiableList(registeredModules);
 	}
+	
+	public ModuleDescriptor getModule(String moduleId) {
+		return moduleDescriptorRegistry.getPluginFor(moduleId);
+	}
 
 	@Override
 	public List<ModuleDescriptor> getEnabledModules() {

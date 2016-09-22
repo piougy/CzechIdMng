@@ -25,6 +25,14 @@ public interface ModuleService {
 	 * @return
 	 */
 	List<ModuleDescriptor> getRegisteredModules();
+	
+	/**
+	 * Returns module descriptor by given moduleId.
+	 * 
+	 * @param moduleId
+	 * @return
+	 */
+	ModuleDescriptor getModule(String moduleId);
 
 	/**
 	 * Returns all enabled modules in this application.

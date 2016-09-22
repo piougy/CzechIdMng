@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.model.domain.AbstractModuleDescriptor;
 @Component
 public class ExampleModuleDescriptor extends AbstractModuleDescriptor {
 
-	public static final String MODULE_ID = "module-example";
+	public static final String MODULE_ID = "example";
 	
 	@Override
 	public String getId() {

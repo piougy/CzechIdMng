@@ -39,20 +39,20 @@ or locally:
 
 `npm install gulp`
 
-## Install the dependencies for client module
+## Install the dependencies for application module
 
-First go to directory **czechidm-client**. It is basic application module keep dependencies on other sub-module.
+First go to directory **czechidm-app**. It is basic application module keep dependencies on other sub-module.
 This module will start whole application.
 
-`cd czechidm-client`
+`cd czechidm-app`
 
-Run script **modules-link** defined in package.json. This script will create directory **node_modules** in parent directory and create symlink on him in **czechidm-client**. This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html). The goal is to have only one node_modules directory (for all ours modules) with React.
+Run script **modules-link** defined in package.json. This script will create directory **node_modules** in parent directory and create symlink on him in **czechidm-app**. This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html). The goal is to have only one node_modules directory (for all ours modules) with React.
 
 **IMPORTANT!** Module-link script does not work on Windows. If are you Windows user, then you have to create symlink on node_modules (in parent directory) manually (use command 'mklink /D').
 
 `npm run modules-link`
 
-Install basic dependencies for client module (will be common for all submodules ).
+Install basic dependencies for application module (will be common for all submodules ).
 
 `npm install`
 
@@ -66,7 +66,7 @@ Install dependencies for production scope. It is important for prevent problem w
 
 `npm install --production`
 
-Go to client module.
+Go to app module.
 
 `cd ../../`
 
@@ -74,7 +74,7 @@ Go to client module.
 
 We can install other application modules. We will install optional example module **czechidm-example**.
 
-All application modules are in **czechidm-modules** directory (in czechidm-client). Go to him and create symlink on example module.
+All application modules are in **czechidm-modules** directory (in czechidm-app). Go to him and create symlink on example module.
 
 **IMPORTANT!** If are you Windows user, then you have to create symlink with command 'mklink /D'.
 
@@ -90,12 +90,12 @@ Install dependencies for production scope.
 
 `npm install --production`
 
-Go to client module.
+Go to app module.
 
 `cd ../../`
 
 ## Make all modules together
-After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to client node_modules.
+After when we have installed all required modules, we have to copy them together. Its means create symlinks from czechidm-modules to app node_modules.
 
 `gulp makeModules`
 
@@ -107,7 +107,7 @@ For watch use test-watch (will work after compiling application ... it means aft
 
 `npm run test-watch`
 
-__Test via gulp (for profile "default" and stage "test". Profile and stage arguments are supported. Profiles could be defined in [configuration](./czechidm-client/config)):__
+__Test via gulp (for profile "default" and stage "test". Profile and stage arguments are supported. Profiles could be defined in [configuration](./czechidm-app/config)):__
 
 `gulp test -p default -s test`
 
@@ -128,7 +128,7 @@ When you are done, a production ready version of the JS bundle can be created:
 Builded application will be located in `dist` folder. Application could be deployed to any http server (e.g. Apache).
 
 ## Unmount submodule
-When we want unmount some optional module, we have to delete it (or his symlink) from czechidm-modules. Then clear all modules from client node_modules and make new compilation of modules.
+When we want unmount some optional module, we have to delete it (or his symlink) from czechidm-modules. Then clear all modules from app node_modules and make new compilation of modules.
 
 `rm -r czechidm-modules/czechidm-example`
 

@@ -10,11 +10,11 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>idm-core</artifactId>
+	<artifactId>idm-module-example</artifactId>
 	<packaging>jar</packaging>
 
-	<name>CzechIdM Core</name>
-	<description>Core services, entities, domain objects.</description>
+	<name>CzechIdM Module Example</name>
+	<description>CzechIdM Module Example / Skeleton. Contains module descriptor, flyway configuration etc. Could be used as new module template.</description>
 
 	<build>
 		<plugins>
@@ -26,13 +26,21 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
-			            <manifestEntries>
-			              <Specification-Title>${project.description}</Specification-Title>
-			            </manifestEntries>
+						<manifestEntries>
+							<Specification-Title>${project.description}</Specification-Title>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>idm-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

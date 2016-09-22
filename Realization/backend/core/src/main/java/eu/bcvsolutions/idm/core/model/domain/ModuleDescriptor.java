@@ -43,6 +43,13 @@ public interface ModuleDescriptor extends Plugin<String> {
 	String getVersion();
 	
 	/**
+	 * Module vendor
+	 * 
+	 * @return
+	 */
+	String getVendor();
+	
+	/**
 	 * Module permissions
 	 * 
 	 * @return

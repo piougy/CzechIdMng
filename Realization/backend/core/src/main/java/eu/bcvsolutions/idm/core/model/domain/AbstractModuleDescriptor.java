@@ -18,14 +18,12 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 		return getId().equals(delimiter);
 	}
 
+	/**
+	 * Returns module version from pom project
+	 */
 	@Override
 	public String getName() {
-		return getClass().getName();
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
+		return getClass().getPackage().getImplementationTitle();
 	}
 
 	/**
@@ -34,6 +32,22 @@ public abstract class AbstractModuleDescriptor implements ModuleDescriptor {
 	@Override
 	public String getVersion() {
 		return getClass().getPackage().getImplementationVersion();
+	}
+	
+	/**
+	 * Returns module vendor from pom project
+	 */
+	@Override
+	public String getVendor() {
+		return getClass().getPackage().getImplementationVendor();
+	}
+	
+	/**
+	 * Returns description from pom project
+	 */
+	@Override
+	public String getDescription() {
+		return getClass().getPackage().getSpecificationTitle();
 	}
 
 	/**

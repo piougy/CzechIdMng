@@ -1,0 +1,24 @@
+{
+  "module": {
+    "name": "Ukázkový modul",
+    "author": "BCV solutions s.r.o."
+  },
+  "navigation" : {
+    "menu" : {
+    }
+  },
+  "entity": {
+
+  },
+  "content": {
+    "user":{
+      "example": "Ukázková záložka"
+    },
+    "example": {
+      "menu": "Ukázkové menu",
+      "title": "Ukázka hlavního menu, přidaného prostřednictvím czechidm-example modulu."
+    },
+    "dashboard": {
+      }
+    }
+}

@@ -7,7 +7,7 @@ In frontent project folder:
 
 ### Install Node.js
 
-**Node.js version 4.x or higher is required (npm version 3.x or higher is required).** Download and install Node.js by your OS.
+**Node.js version 4.x or higher is required (npm version 3.6 or higher is required).** Download and install Node.js by your OS.
 
 For linux (fedora):
 
@@ -48,6 +48,8 @@ This module will start whole application.
 
 Run script **modules-link** defined in package.json. This script will create directory **node_modules** in parent directory and create symlink on him in **czechidm-client**. This prevents the problem with multiple copies of React (https://facebook.github.io/react/warnings/refs-must-have-owner.html). The goal is to have only one node_modules directory (for all ours modules) with React.
 
+**IMPORTANT!** Module-link script does not work on Windows. If are you Windows user, then you have to create symlink on node_modules (in parent directory) manually (use command 'mklink /D').
+
 `npm run modules-link`
 
 Install basic dependencies for client module (will be common for all submodules ).
@@ -70,17 +72,19 @@ Go to client module.
 
 ## (Optional) Install the dependencies for other sub modules
 
-We can install other application modules. For example we will install optional account management module **czechidm-acc**.
+We can install other application modules. We will install optional example module **czechidm-example**.
 
-All application modules are in **czechidm-modules** directory (in czechidm-client). Go to him and create symlink on acc module.
+All application modules are in **czechidm-modules** directory (in czechidm-client). Go to him and create symlink on example module.
+
+**IMPORTANT!** If are you Windows user, then you have to create symlink with command 'mklink /D'.
 
 `cd czechidm-modules`
 
-`ln -s ../../czechidm-acc`
+`ln -s ../../czechidm-example`
 
-Go to the acc module. You can use symlink in czechidm-modules.
+Go to the example module. You can use symlink in czechidm-modules.
 
-`cd czechidm-acc`
+`cd czechidm-example`
 
 Install dependencies for production scope.
 
@@ -126,7 +130,7 @@ Builded application will be located in `dist` folder. Application could be deplo
 ## Unmount submodule
 When we want unmount some optional module, we have to delete it (or his symlink) from czechidm-modules. Then clear all modules from client node_modules and make new compilation of modules.
 
-`rm -r czechidm-modules/czechidm-acc`
+`rm -r czechidm-modules/czechidm-example`
 
 `npm prune`
 

@@ -2,20 +2,24 @@
 
 Java application deployable to Tomcat 8 application server.
 
-## Project modules
+## Project modules [mandatory]
 * `parent` - maven parent of all following submodules with common dependencies.
 * `core` - contains base idm functionality (entities, repositories, services etc.).
 * `app` - contains example .war application - all modules (core + business modules) and their configuration.
-* `gui` - frontend as .war package [optional]
-* `module-aggregator` - complex builder of all modules [optional]
-* `acc` - Account management module [optional]
-* `module-example` - Example application module / skeleton [optional]
+
+### Application modules [optional]
+* `acc` - Account management module
+* `module-example` - Example application module / skeleton
+
+### Optional maven modules
+* `gui` - frontend as .war package
+* `module-aggregator` - complex builder of all modules
 
 ## Installation
 
 * Install `Tomcat 8.0.*`, `JDK 8` and `maven` (at least 3.1 is required)
 * Open all project in your favorite IDE (we are using eclipse).
-* build (all project modules in order above) + deploy `.war` file located in `client` module target folder to Tomcat
+* build all mandatory project modules parent/core/app in order above + deploy `.war` file located in `client` module target folder to Tomcat.
 
 ## Configuration
 

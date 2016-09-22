@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import org.springframework.plugin.core.SimplePluginRegistry;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.AbstractUnitTest;
-import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.ModuleDescriptor;
@@ -79,7 +79,7 @@ public class DefaultModuleServiceTest extends AbstractUnitTest {
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 
-	@Test(expected = ResultCodeException.class)
+	@Test(expected = ModuleNotDisableableException.class)
 	public void testIsDisableable() {
 		defaultModuleService.disable(ModuleDescriptorOne.MODULE_ID);
 	}

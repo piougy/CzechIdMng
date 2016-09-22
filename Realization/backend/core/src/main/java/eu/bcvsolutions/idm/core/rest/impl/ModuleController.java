@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,17 +19,17 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.ModuleDescriptor;
-import eu.bcvsolutions.idm.core.model.domain.PersistentEntityResolver;
 import eu.bcvsolutions.idm.core.model.dto.ModuleDescriptorDto;
 import eu.bcvsolutions.idm.core.model.service.ModuleService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 
 /**
  * Module controler can enable / disable module etc.
  * 
- * @author tomiska
- *
+ * @author Radek Tomiška
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/modules")
@@ -36,15 +37,15 @@ public class ModuleController {
 
 	private final ModuleService moduleService;
 	
-	private final PersistentEntityResolver entityResolver;
+	private final RequestResourceResolver requestResourceResolver;
 
 	@Autowired
-	public ModuleController(ModuleService moduleService, PersistentEntityResolver entityResolver) {
+	public ModuleController(ModuleService moduleService, RequestResourceResolver requestResourceResolver) {
 		Assert.notNull(moduleService, "ModuleService is required");
-		Assert.notNull(entityResolver, "PersistentEntityResolver is required");
+		Assert.notNull(requestResourceResolver, "PersistentEntityResolver is required");
 		//
 		this.moduleService = moduleService;
-		this.entityResolver = entityResolver;
+		this.requestResourceResolver = requestResourceResolver;
 	}
 
 	/**
@@ -53,6 +54,7 @@ public class ModuleController {
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
 	public List<ModuleDescriptorDto> getAll() {
 		// TODO: assembler
 		return moduleService.getRegisteredModules() //
@@ -68,8 +70,9 @@ public class ModuleController {
 	 * 
 	 * @param moduleId
 	 * @return
-	 */
+	 */	
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
 	public ModuleDescriptorDto get(@PathVariable @NotNull String moduleId) {
 		ModuleDescriptor moduleDescriptor = moduleService.getModule(moduleId);
 		if (moduleDescriptor == null) {
@@ -87,12 +90,13 @@ public class ModuleController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
 	public ModuleDescriptorDto put(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto)entityResolver.resolveEntity(nativeRequest, ModuleDescriptorDto.class, null);		
+		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);		
 		moduleService.setEnabled(moduleId, !md.isDisabled());	
 		return get(moduleId);	
 	}
@@ -105,12 +109,13 @@ public class ModuleController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
 	public ModuleDescriptorDto patch(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
 		ModuleDescriptor updatedModuleDescriptor = moduleService.getModule(moduleId);
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto)entityResolver.resolveEntity(nativeRequest, ModuleDescriptorDto.class, toResource(updatedModuleDescriptor));
+		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, toResource(updatedModuleDescriptor));
 		
 		moduleService.setEnabled(moduleId, !md.isDisabled());		
 		return get(moduleId);	

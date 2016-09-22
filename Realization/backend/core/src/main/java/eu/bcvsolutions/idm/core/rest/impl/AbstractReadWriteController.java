@@ -23,10 +23,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.PersistentEntityResolver;
 import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 
 /**
  * CRUD operations
@@ -42,7 +42,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	private ObjectMapper mapper;
 	
 	@Autowired
-	private PersistentEntityResolver entityResolver;
+	private RequestResourceResolver requestResourceResolver;
 	
 	public AbstractReadWriteController(ReadWriteEntityService<E, F> entityService) {
 		super(entityService);
@@ -50,7 +50,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
-		E createdIdentity = createEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityClass(), null));
+		E createdIdentity = createEntity((E)requestResourceResolver.resolve(nativeRequest, getEntityClass(), null));
 		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
 	}
 	
@@ -67,7 +67,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = updateEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = updateEntity((E)requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	
@@ -84,7 +84,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = patchEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = patchEntity((E)requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	

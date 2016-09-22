@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.domain;
+package eu.bcvsolutions.idm.core.rest.domain;
 
 import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;

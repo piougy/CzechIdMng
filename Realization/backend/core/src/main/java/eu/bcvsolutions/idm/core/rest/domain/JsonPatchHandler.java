@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.domain;
+package eu.bcvsolutions.idm.core.rest.domain;
 
 import java.io.InputStream;
 

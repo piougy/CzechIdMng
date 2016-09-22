@@ -11,10 +11,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.ModuleService;
@@ -101,7 +98,7 @@ public class DefaultModuleService implements ModuleService {
 		ModuleDescriptor moduleDescriptor = moduleDescriptorRegistry.getPluginFor(moduleId);
 		Assert.notNull(moduleDescriptor, "Module [" + moduleId + "] does not exist");
 		if (!enabled && !moduleDescriptor.isDisableable()) {
-			throw new ResultCodeException(CoreResultCode.MODULE_NOT_DISABLEABLE, ImmutableMap.of("module", moduleId));
+			throw new ModuleNotDisableableException(moduleId);
 		}		
 		//
 		// TODO: license check if module is enabling

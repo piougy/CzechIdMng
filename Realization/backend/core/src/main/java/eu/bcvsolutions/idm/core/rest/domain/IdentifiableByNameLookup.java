@@ -1,9 +1,10 @@
-package eu.bcvsolutions.idm.core.model.domain;
+package eu.bcvsolutions.idm.core.rest.domain;
 
 import java.io.Serializable;
 
 import org.springframework.data.rest.core.support.EntityLookupSupport;
 
+import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.IdentifiableByNameEntityService;
 

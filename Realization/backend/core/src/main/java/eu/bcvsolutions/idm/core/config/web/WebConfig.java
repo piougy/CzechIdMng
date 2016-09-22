@@ -29,9 +29,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.impl.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
-import eu.bcvsolutions.idm.core.model.domain.NotExportedAssociations;
-import eu.bcvsolutions.idm.core.model.domain.PersistentEntityResolver;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.NotExportedAssociations;
+import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 
 /**
  * Web configurations
@@ -125,7 +125,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 	
 	@Bean
-	public PersistentEntityResolver persistentEntityResolver() {
-		return new PersistentEntityResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
+	public RequestResourceResolver requestResourceResolver() {
+		return new RequestResourceResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
 	}
 }

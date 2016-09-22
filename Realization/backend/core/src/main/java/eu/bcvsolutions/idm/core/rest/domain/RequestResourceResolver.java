@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.domain;
+package eu.bcvsolutions.idm.core.rest.domain;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * Idea - spring data rest
  */
-public class PersistentEntityResolver {
+public class RequestResourceResolver {
 
 	private static final String ERROR_MESSAGE = "Could not read an object of type %s from the request!";
 	private static final String NO_CONVERTER_FOUND = "No suitable HttpMessageConverter found to read request body into object of type %s from request with content type of %s!";
@@ -35,7 +35,7 @@ public class PersistentEntityResolver {
 	private final DomainObjectReader reader;
 	private final List<HttpMessageConverter<?>> messageConverters;
 
-	public PersistentEntityResolver(List<HttpMessageConverter<?>> messageConverters, DomainObjectReader reader) {
+	public RequestResourceResolver(List<HttpMessageConverter<?>> messageConverters, DomainObjectReader reader) {
 
 		Assert.notEmpty(messageConverters, "MessageConverters must not be null or empty!");
 		Assert.notNull(reader, "DomainObjectReader must not be null!");
@@ -45,7 +45,7 @@ public class PersistentEntityResolver {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Object resolveEntity(HttpServletRequest nativeRequest, Class<?> domainType, Object objectToUpdate)
+	public <T> T resolve(HttpServletRequest nativeRequest, Class<T> domainType, T objectToUpdate)
 			throws HttpMessageNotReadableException {
 		ServletServerHttpRequest request = new ServletServerHttpRequest(nativeRequest);
 		IncomingRequest incoming = new IncomingRequest(request);
@@ -54,7 +54,7 @@ public class PersistentEntityResolver {
 			if (!converter.canRead(PersistentEntityResource.class, contentType)) {
 				continue;
 			}
-			Object obj = read(domainType, incoming, converter, objectToUpdate);
+			T obj = (T)read(domainType, incoming, converter, objectToUpdate);
 
 			if (obj == null) {
 				throw new HttpMessageNotReadableException(String.format(ERROR_MESSAGE, domainType));

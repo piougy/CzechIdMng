@@ -6,11 +6,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.plugin.core.config.EnablePluginRegistries;
 
 import eu.bcvsolutions.idm.core.config.flyway.IdmFlywayAutoConfiguration;
+import eu.bcvsolutions.idm.core.model.domain.ModuleDescriptor;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
+@EnablePluginRegistries(ModuleDescriptor.class)
 public class IdmApplication extends SpringBootServletInitializer {
 	
 	@Override

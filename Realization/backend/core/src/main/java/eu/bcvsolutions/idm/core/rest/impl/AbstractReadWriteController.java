@@ -38,19 +38,10 @@ import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
 public abstract class AbstractReadWriteController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	
 	@Autowired
-	private PersistentEntities persistentEntities; 
-	
-	@Autowired
-	private Associations associationLinks;
-	
-	@Autowired
-	private List<HttpMessageConverter<?>> messageConverters;
-	
-	@Autowired
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
 	
-	// TODO: constructor with autowire instead lazy entityResolver will be better
+	@Autowired
 	private PersistentEntityResolver entityResolver;
 	
 	public AbstractReadWriteController(ReadWriteEntityService<E, F> entityService) {
@@ -59,7 +50,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
-		E createdIdentity = createEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityClass(), null));
+		E createdIdentity = createEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityClass(), null));
 		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
 	}
 	
@@ -76,7 +67,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = updateEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = updateEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	
@@ -93,7 +84,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = patchEntity((E)getEntityResolver().resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = patchEntity((E)entityResolver.resolveEntity(nativeRequest, getEntityService().getEntityClass(), updateEntity));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	
@@ -118,13 +109,6 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	
 	protected ReadWriteEntityService<E, F> getEntityService() {
 		return (ReadWriteEntityService<E, F>) super.getEntityService();
-	}
-	
-	private PersistentEntityResolver getEntityResolver() {
-		if (entityResolver == null) {
-			entityResolver = new PersistentEntityResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
-		}
-		return entityResolver;
 	}
 
 }

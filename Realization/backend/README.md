@@ -5,7 +5,11 @@ Java application deployable to Tomcat 8 application server.
 ## Project modules
 * `parent` - maven parent of all following submodules with common dependencies.
 * `core` - contains base idm functionality (entities, repositories, services etc.).
-* `client` - contains example .war application - all modules (core + business modules) and their configuration.
+* `app` - contains example .war application - all modules (core + business modules) and their configuration.
+* `gui` - frontend as .war package [optional]
+* `module-aggregator` - complex builder of all modules [optional]
+* `acc` - Account management module [optional]
+* `module-example` - Example application module / skeleton [optional]
 
 ## Installation
 

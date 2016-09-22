@@ -17,6 +17,7 @@ import org.springframework.data.rest.core.mapping.RepositoryResourceMappings;
 import org.springframework.data.rest.core.support.SelfLinkProvider;
 import org.springframework.data.rest.webmvc.config.PersistentEntityResourceAssemblerArgumentResolver;
 import org.springframework.data.rest.webmvc.config.PersistentEntityResourceHandlerMethodArgumentResolver;
+import org.springframework.data.rest.webmvc.json.DomainObjectReader;
 import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.impl.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 import eu.bcvsolutions.idm.core.model.domain.NotExportedAssociations;
+import eu.bcvsolutions.idm.core.model.domain.PersistentEntityResolver;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 
 /**
@@ -120,5 +122,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	@Override
 	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
 		converters.addAll(messageConverters);
+	}
+	
+	@Bean
+	public PersistentEntityResolver persistentEntityResolver() {
+		return new PersistentEntityResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
 	}
 }

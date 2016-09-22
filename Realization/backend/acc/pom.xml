@@ -10,11 +10,11 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>idm-core</artifactId>
+	<artifactId>idm-acc</artifactId>
 	<packaging>jar</packaging>
 
-	<name>CzechIdM Core</name>
-	<description>Core services, entities, domain objects.</description>
+	<name>CzechIdM Acc</name>
+	<description>CzechIdM Account Management</description>
 
 	<build>
 		<plugins>
@@ -34,5 +34,13 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>idm-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

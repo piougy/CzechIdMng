@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.rest.BaseEntityController;;
 /**
  * Configuration controller - add custom methods to configuration repository
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RestController

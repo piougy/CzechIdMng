@@ -5,7 +5,7 @@ package eu.bcvsolutions.idm.core.model.dto;
  * 
  * TODO: include guarded string to guarded properties
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class ConfigurationDto {

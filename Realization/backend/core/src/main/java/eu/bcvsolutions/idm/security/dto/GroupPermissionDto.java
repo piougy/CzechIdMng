@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Group permission representation
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class GroupPermissionDto  implements Serializable {

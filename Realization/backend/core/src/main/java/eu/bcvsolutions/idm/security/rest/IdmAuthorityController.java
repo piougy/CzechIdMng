@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 /**
  * Provides autorities configurable for idm roles
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RestController

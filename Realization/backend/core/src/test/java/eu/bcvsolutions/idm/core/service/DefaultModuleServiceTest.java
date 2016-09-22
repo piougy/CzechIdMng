@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 /**
  * Test for {@link DefaultSecurityService}
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DefaultModuleServiceTest extends AbstractUnitTest {
@@ -63,9 +63,9 @@ public class DefaultModuleServiceTest extends AbstractUnitTest {
 		when(configurationService.getBooleanValue(any(String.class), any(Boolean.class))).thenReturn(true);
 
 		List<GroupPermission> allPermissions = new ArrayList<>();
-		for (List<GroupPermission> permissions : ALL_PERMISSIONS) {
+		ALL_PERMISSIONS.stream().forEach((permissions) -> {
 			allPermissions.addAll(permissions);
-		}
+		});
 
 		assertTrue(allPermissions.containsAll(defaultModuleService.getAvailablePermissions()));
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));

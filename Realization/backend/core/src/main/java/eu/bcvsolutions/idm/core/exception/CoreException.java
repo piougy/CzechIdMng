@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Basic exception with named parameters
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class CoreException extends RuntimeException {

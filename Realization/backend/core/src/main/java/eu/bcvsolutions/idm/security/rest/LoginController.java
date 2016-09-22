@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.security.service.LoginService;
 /**
  * Identity authentication
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RestController

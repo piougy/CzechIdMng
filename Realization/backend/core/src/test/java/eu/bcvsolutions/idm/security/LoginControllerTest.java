@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.security.rest.LoginController;
 /**
  * Login to application with test user
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class LoginControllerTest extends AbstractIntegrationTest {

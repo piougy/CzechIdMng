@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 /**
  * Web configurations
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Configuration

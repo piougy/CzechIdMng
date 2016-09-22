@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 /**
  * Spring data rest configuration
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Configuration

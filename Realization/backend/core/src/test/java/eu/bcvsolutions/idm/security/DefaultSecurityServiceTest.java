@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 /**
  * Test for {@link DefaultSecurityService}
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DefaultSecurityServiceTest extends AbstractUnitTest {

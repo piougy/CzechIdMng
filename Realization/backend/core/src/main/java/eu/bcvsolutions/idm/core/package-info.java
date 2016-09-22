@@ -1,7 +1,7 @@
 /**
  * Core module - required module
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 package eu.bcvsolutions.idm.core;

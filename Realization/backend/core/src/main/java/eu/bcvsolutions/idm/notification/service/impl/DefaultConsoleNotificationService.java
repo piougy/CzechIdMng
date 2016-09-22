@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.notification.service.ConsoleNotificationService;
 /**
  * For testing purpose only
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Component("consoleNotificationService")

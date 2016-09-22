@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 /**
  * Repository for notification system
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RepositoryRestResource(//

@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 /**
  * Test audit configuration on identity entity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class IdentityAuditTest extends AbstractIntegrationTest {

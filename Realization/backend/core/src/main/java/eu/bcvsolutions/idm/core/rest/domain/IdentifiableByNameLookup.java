@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.model.service.IdentifiableByNameEntityService;
 /**
  * Some entities could be found by name
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  * @param <T>
  */

@@ -1,7 +1,7 @@
 /**
  * Account management module - evidence for provisioning.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 package eu.bcvsolutions.idm.acc;

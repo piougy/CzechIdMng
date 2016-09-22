@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
  * - all private properties should start with {@value #IDM_PRIVATE_PROPERTY_PREFIX} prefix. This properties are visible by logged identity authority
  * - after prefix moduleId should be given - e.g. idm.pub.core.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter>, IdentifiableByNameEntityService<IdmConfiguration> {

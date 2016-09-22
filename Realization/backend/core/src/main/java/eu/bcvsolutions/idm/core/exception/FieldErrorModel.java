@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * Form field validation error
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class FieldErrorModel extends DefaultErrorModel {

@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 /**
  * Universal operation result response
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface ResultModel {

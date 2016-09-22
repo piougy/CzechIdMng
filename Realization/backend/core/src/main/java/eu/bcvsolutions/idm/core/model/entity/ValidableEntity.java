@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Entity with validity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface ValidableEntity {

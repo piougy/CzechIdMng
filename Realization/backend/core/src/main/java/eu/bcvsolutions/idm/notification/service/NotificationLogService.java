@@ -5,7 +5,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 /**
  * Extend default notification service for simle noticitaion log sending
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface NotificationLogService extends NotificationService {
@@ -15,7 +15,7 @@ public interface NotificationLogService extends NotificationService {
 	/**
 	 * Sends existing notification to routing
 	 * 
-	 * @param notification
+	 * @param notificationLog
 	 * @return
 	 */
 	boolean sendNotificationLog(IdmNotificationLog notificationLog);

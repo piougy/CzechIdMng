@@ -3,7 +3,7 @@
  * 
  * Notification will be send different ways (email, sms, websocket, jms ...)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 package eu.bcvsolutions.idm.notification;

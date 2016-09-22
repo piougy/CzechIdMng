@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 /**
  * Test configuration change for DynamicCorsConfiguration
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DynamicCorsConfigurationTest extends AbstractUnitTest {

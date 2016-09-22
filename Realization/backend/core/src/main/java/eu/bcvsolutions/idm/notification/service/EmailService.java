@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 /**
  * Sending emails to queue (email will be sent asynchronously)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface EmailService extends NotificationService {

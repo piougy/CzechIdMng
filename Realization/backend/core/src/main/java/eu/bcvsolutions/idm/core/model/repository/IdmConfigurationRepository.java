@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 /**
  * Application configuration
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RepositoryRestResource( //

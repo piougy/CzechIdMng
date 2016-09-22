@@ -104,6 +104,7 @@ public final class GuardedString {
 		return new GuardedString(newGs, false);
 	}
 
+	@Override
 	public GuardedString clone() {
 		GuardedString gs = new GuardedString();
 

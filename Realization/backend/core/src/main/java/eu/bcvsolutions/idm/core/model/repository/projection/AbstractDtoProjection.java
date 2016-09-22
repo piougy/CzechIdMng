@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Projection for abstract entity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface AbstractDtoProjection extends BaseDtoProjection {

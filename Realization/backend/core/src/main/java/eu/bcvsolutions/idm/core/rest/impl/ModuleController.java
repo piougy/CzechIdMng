@@ -55,9 +55,8 @@ public class ModuleController {
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
-	public List<ModuleDescriptorDto> getAll() {
-		// TODO: assembler
-		return moduleService.getRegisteredModules() //
+	public List<ModuleDescriptorDto> getInstalledModules() {
+		return moduleService.getInstalledModules() //
 				.stream() //
 				.map(moduleDescriptor -> { //
 					return toResource(moduleDescriptor);
@@ -96,7 +95,7 @@ public class ModuleController {
 		if (updatedModuleDescriptor == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", moduleId));
 		}
-		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);		
+		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, null);
 		moduleService.setEnabled(moduleId, !md.isDisabled());	
 		return get(moduleId);	
 	}

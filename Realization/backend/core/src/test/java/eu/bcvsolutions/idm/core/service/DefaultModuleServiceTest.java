@@ -97,7 +97,7 @@ public class DefaultModuleServiceTest extends AbstractUnitTest {
 		when(configurationService.getBooleanValue(any(String.class), any(Boolean.class))).thenReturn(false);
 
 		assertEquals(1, defaultModuleService.getEnabledModules().size());
-		assertEquals(2, defaultModuleService.getRegisteredModules().size());
+		assertEquals(2, defaultModuleService.getInstalledModules().size());
 		verify(configurationService).getBooleanValue(any(String.class), any(Boolean.class));
 	}
 

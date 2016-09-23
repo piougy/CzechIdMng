@@ -72,7 +72,7 @@
 					    <artifactId>frontend-maven-plugin</artifactId>
 					    <version>1.0</version>
 					    <configuration>
-						<workingDirectory>../../frontend</workingDirectory>
+						<workingDirectory>../../frontend/czechidm-client</workingDirectory>
 						 <installDirectory>target</installDirectory>
 					    </configuration>
 						<executions>
@@ -87,14 +87,44 @@
 							</configuration>
 						    </execution>
 						    <execution>
+							<id>link node-modules or skip if exists</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments>run modules-link-or-skip</arguments>
+							</configuration>
+						    </execution>
+						    <execution>
 							<id>npm install modules</id>
 							<goals>
 							    <goal>npm</goal>
 							</goals>
 							<configuration>
-							    <arguments>--verbose install .</arguments>
+							    <arguments>install .</arguments>
 							</configuration>
 							<phase>generate-resources</phase>
+						    </execution>
+						    <execution>
+							<id>install dependencies</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments> install --production</arguments>
+							    <workingDirectory>../../frontend/czechidm-client/czechidm-modules/czechidm-core</workingDirectory>
+							    <installDirectory>target</installDirectory>
+						        </configuration>
+						    </execution>
+						    <execution>
+							<id>make all modules togetherd</id>
+							<goals>
+							    <goal>gulp</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+							    <arguments>makeModules</arguments>
+							</configuration>
 						    </execution>
 						    <execution>
 							<id>gulp build</id>
@@ -123,7 +153,7 @@
 						  <outputDirectory>target/idm</outputDirectory>
 						  <resources>
 					    	    <resource>
-						      <directory>../../frontend/dist</directory>
+						      <directory>../../frontend/czechidm-client/dist</directory>
 						      <filtering>true</filtering>
 						    </resource>
 						  </resources>
@@ -159,5 +189,28 @@
 				<customFinalName>idm-backend</customFinalName>
 			</properties>
 		</profile>
+<!--		  <profile>
+		    <id>Windows</id>
+		    <activation>
+		      <os>
+			<family>Windows</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension></script.extension>
+		    </properties>
+		  </profile>
+		  <profile>
+		    <id>unix</id>
+		    <activation>
+		      <os>
+			<family>unix</family>
+		      </os>
+		    </activation>
+		    <properties>
+				<customFinalName>idm-backend</customFinalName>
+		      <script.extension>modules-link-or-skip</script.extension>
+		    </properties>
+		  </profile> -->
 	</profiles>
 </project>

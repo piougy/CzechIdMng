@@ -5,6 +5,7 @@ module.exports = {
   'description': 'Example module for CzechIdM 2.0 devstack. This module can be duplicated and renamed for create new optional czechidm module.',
   // 'mainStyleFile': 'src/css/main.less',
   // 'mainRouteFile': 'routes.js',
+  'mainComponentDescriptorFile': 'component-descriptor.js',
   'mainLocalePath': 'src/locales/',
   'navigation': {
     'items': [

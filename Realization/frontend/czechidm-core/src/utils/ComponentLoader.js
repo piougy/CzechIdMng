@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
 
 let _components = new Immutable.Map();
+let _componentDescriptors = new Immutable.Map();
 export default class ComponentLoader {
 
   constructor() {
@@ -8,13 +9,14 @@ export default class ComponentLoader {
   }
 
   static initComponents(componentDescriptors) {
-    componentDescriptors.toArray().map(descriptor => {
+    _componentDescriptors = componentDescriptors;
+    _componentDescriptors.toArray().map(descriptor => {
       this._fillComponents(descriptor);
     });
   }
 
   static getComponentDescriptor(moduleName) {
-    return _components.get(moduleName);
+    return _componentDescriptors.get(moduleName);
   }
 
   static getComponent(componentId) {

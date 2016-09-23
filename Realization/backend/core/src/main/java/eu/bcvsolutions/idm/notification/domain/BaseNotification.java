@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 /**
  * Common message properties for notification system
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface BaseNotification {

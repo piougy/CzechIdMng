@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.model.dto.ResultModel;
 /**
  * Adds http status to universal response result model
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface ErrorModel extends ResultModel {

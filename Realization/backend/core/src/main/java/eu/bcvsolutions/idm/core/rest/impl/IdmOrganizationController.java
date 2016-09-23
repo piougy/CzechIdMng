@@ -18,8 +18,6 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationLookup;
@@ -28,6 +26,8 @@ import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 
 /**
  * 

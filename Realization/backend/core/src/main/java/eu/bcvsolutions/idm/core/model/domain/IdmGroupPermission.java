@@ -20,7 +20,8 @@ public enum IdmGroupPermission implements GroupPermission {
 	ORGANIZATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ);
+	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
+	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -43,6 +44,9 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
+	//
+	public static final String MODULE_READ = "MODULE" + BasePermission.SEPARATOR + "READ";
+	public static final String MODULE_WRITE = "MODULE" + BasePermission.SEPARATOR + "WRITE";
 	
 	private final List<BasePermission> permissions;
 

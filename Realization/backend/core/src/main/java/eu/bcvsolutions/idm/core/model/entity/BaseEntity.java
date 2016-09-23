@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Base entity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface BaseEntity extends Serializable {

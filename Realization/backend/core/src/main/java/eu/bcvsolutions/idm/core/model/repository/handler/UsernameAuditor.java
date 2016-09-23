@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 /**
  * Retrieve auditor for auditable entity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  */
 public class UsernameAuditor implements AuditorAware<String> {
 	

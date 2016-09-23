@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * SuperiorRole inculde subRole (Admin > User)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Entity

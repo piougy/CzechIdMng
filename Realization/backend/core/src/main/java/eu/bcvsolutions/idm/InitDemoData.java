@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 /**
  * Initialize demo data for application
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Component

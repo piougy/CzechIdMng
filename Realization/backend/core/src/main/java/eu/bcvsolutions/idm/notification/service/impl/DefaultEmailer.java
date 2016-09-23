@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.notification.service.Emailer;
 /**
  * Default email sender implementation
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Component("emailer")

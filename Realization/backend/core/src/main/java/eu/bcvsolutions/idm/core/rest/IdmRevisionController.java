@@ -4,8 +4,8 @@ import org.hibernate.envers.DefaultRevisionEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 
 /**
  * Interface for implements revision to another controller.

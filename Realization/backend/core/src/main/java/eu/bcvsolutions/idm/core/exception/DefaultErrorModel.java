@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.model.dto.DefaultResultModel;
 
 /**
  * Adds http status to default result response
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @JsonInclude(Include.NON_NULL)

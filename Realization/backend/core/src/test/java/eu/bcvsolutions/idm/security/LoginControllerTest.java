@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.rest.LoginController;
@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.security.rest.LoginController;
 /**
  * Login to application with test user
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class LoginControllerTest extends AbstractIntegrationTest {

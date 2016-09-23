@@ -19,8 +19,8 @@ import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Web security configuration
- *
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * 
+ * @author Radek Tomiška 
  *
  */
 @Configuration

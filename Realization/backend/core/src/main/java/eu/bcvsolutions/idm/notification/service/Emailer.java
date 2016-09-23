@@ -5,7 +5,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 /**
  * Email sender
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface Emailer {

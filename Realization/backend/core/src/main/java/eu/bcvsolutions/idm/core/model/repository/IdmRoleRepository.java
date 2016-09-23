@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 /**
  * Roles repository
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RepositoryRestResource( //

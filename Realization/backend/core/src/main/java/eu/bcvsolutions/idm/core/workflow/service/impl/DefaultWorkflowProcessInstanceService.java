@@ -28,9 +28,9 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;

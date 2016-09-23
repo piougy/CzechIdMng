@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.entity;
 /**
  * Represents entity composition
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  * @param <T>
  */

@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import eu.bcvsolutions.idm.core.AbstractUnitTest;
+import eu.bcvsolutions.idm.core.model.service.ModuleService;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 /**
  * Test for {@link DefaultSecurityService}
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DefaultSecurityServiceTest extends AbstractUnitTest {
@@ -41,12 +42,15 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 	@Mock
 	private SecurityContext securityContext;
 	
-	@InjectMocks
-	private DefaultSecurityService defaultSecurityService = new DefaultSecurityService();
+	@Mock
+	private ModuleService moduleService; 
+	
+	private DefaultSecurityService defaultSecurityService;
 
 	@Before
 	public void init() {
 		SecurityContextHolder.setContext(securityContext);
+		defaultSecurityService = new DefaultSecurityService(moduleService);
 	}
 	
 	@After

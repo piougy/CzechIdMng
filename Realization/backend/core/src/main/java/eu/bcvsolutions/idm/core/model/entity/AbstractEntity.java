@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 /**
  * Common entity
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @MappedSuperclass

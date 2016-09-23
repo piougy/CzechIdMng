@@ -12,6 +12,7 @@ import WorkflowProcessDefinitionManager from './WorkflowProcessDefinitionManager
 import NotificationManager from './NotificationManager';
 import ConfigurationManager from './ConfigurationManager';
 import EmailManager from './EmailManager';
+import BackendModuleManager from './BackendModuleManager';
 
 const ManagerRoot = {
   DataManager,
@@ -27,7 +28,8 @@ const ManagerRoot = {
   WorkflowProcessDefinitionManager,
   NotificationManager,
   ConfigurationManager,
-  EmailManager
+  EmailManager,
+  BackendModuleManager
 };
 
 ManagerRoot.version = '0.0.1';

@@ -126,6 +126,11 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {
+      path: 'be-modules',
+      component: require('./src/content/module/BackendModules'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+    },
+    {
       path: 'workflow',
       component: 'div',
       childRoutes: [

@@ -230,6 +230,13 @@ module.exports = {
             'order': 30,
             'path': '/app-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          },
+          {
+            'id': 'be-modules',
+            'labelKey': 'content.system.be-modules.title',
+            'order': 30,
+            'path': '/be-modules',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
           }
         ]
       },

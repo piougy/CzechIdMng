@@ -38,6 +38,7 @@ class AppModules extends Basic.AbstractContent {
           this.configLoader.getEnabledModuleIds().sort().map(moduleId => {
             const moduleDescriptor = this.configLoader.getModuleDescriptor(moduleId);
             const componentDescriptor = this.componentService.getComponentDescriptor(moduleId);
+            console.log("ddddd", moduleId, moduleDescriptor, componentDescriptor);
             //
             return (
               <Basic.Panel>
@@ -49,7 +50,7 @@ class AppModules extends Basic.AbstractContent {
                 <Basic.PanelHeader text={this.i18n('components.header')}/>
 
                 <Basic.Table
-                  data={componentDescriptor.components}
+                  data={componentDescriptor ? componentDescriptor.components : null}
                   rowClass={({rowIndex, data}) => { return data[rowIndex].module !== this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''; }}>
                   <Basic.Column
                     property="id"

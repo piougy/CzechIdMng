@@ -1352,6 +1352,18 @@
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identita [{{identity}}] neexistuje"
+    },
+    "MODULE_NOT_DISABLEABLE": {
+      "title": "Modul [{{module}}] není možné disablovat",
+      "message": "Funkce modulu jsou pro aplikaci nepostradatelné."
+    },
+    "MODULE_DISABLED": {
+      "title": "Modul je deaktivovaný",
+      "message": "Modul [{{module}}] není nainstalovaný nebo je deaktivovaný."
+    },
+    "CONFIGURATION_DISABLED": {
+      "title": "Funkce je deaktivovaná",
+      "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
     }
   },
   "validationError": {

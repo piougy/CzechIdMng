@@ -1,14 +1,17 @@
 package eu.bcvsolutions.idm.security.exception;
 
-import eu.bcvsolutions.idm.core.exception.CoreException;
+import com.google.common.collect.ImmutableMap;
 
-public class ConfigurationDisabledException extends CoreException {
+import eu.bcvsolutions.idm.core.exception.CoreResultCode;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+
+public class ConfigurationDisabledException extends ResultCodeException  {
 
 	private static final long serialVersionUID = 1L;
 	private final String property;
 
 	public ConfigurationDisabledException(String property) {
-		super("Configuration property [" + property + "] is disabled");
+		super(CoreResultCode.CONFIGURATION_DISABLED, ImmutableMap.of("property", property));
 		this.property = property;
 	}
 

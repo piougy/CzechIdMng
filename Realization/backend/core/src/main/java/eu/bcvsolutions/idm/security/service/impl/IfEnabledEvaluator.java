@@ -44,9 +44,12 @@ public class IfEnabledEvaluator {
 	 * @throws ModuleDisabledException if any module is disabled
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
-	@Before(value = "target(bean) && @annotation(auditable)", argNames="bean,auditable")
+	@Before(value = "target(bean) && (@annotation(auditable) || @within(auditable))", argNames="bean,auditable")
 	public void checkIsEnabled(JoinPoint jp, Object bean, IfEnabled ifEnabled) {
+		// modules
 		checkEnabledModules(ifEnabled.module());
+		checkEnabledModules(ifEnabled.value());
+		// properties
 		checkEnabledProperties(ifEnabled.property());
 	}
 	
@@ -57,7 +60,7 @@ public class IfEnabledEvaluator {
 	 * @return
 	 * @throws ModuleDisabledException
 	 */
-	public boolean checkEnabledModules(String[] modules) throws ModuleDisabledException {
+	private boolean checkEnabledModules(String[] modules) throws ModuleDisabledException {
 		Assert.notNull(modules);	
 		//
 		for(String moduleId : modules) {
@@ -75,7 +78,7 @@ public class IfEnabledEvaluator {
 	 * @return
 	 * @throws ConfigurationDisabledException
 	 */
-	public boolean checkEnabledProperties(String[] properties) throws ConfigurationDisabledException {
+	private boolean checkEnabledProperties(String[] properties) throws ConfigurationDisabledException {
 		Assert.notNull(properties);
 		//
 		for(String property : properties) {

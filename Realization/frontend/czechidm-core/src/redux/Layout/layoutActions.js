@@ -7,7 +7,8 @@ import FlashMessagesManager from '../../redux/flash/FlashMessagesManager';
 // api
 import ConfigLoader from '../../utils/ConfigLoader';
 import { LocalizationService, ModuleLoaderService} from '../../services';
-import SecurityManager from '../../redux/security/SecurityManager';
+import SecurityManager from '../security/SecurityManager';
+import ConfigurationManager from '../data/ConfigurationManager'
 /*
  * action types
  */
@@ -101,9 +102,11 @@ export function modulesInit(modules) {
  */
 export function navigationInit() {
   const configLoader = new ConfigLoader();
-  return {
-    type: NAVIGATION_INIT,
-    navigation: configLoader.getNavigation()
+  return (dispatch, getState) => {
+    dispatch({
+      type: NAVIGATION_INIT,
+      navigation: configLoader.getNavigation()
+    });
   };
 }
 

@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
 //
 import EntityManager from './EntityManager';
+import ConfigurationManager from './ConfigurationManager';
 import { BackendModuleService } from '../../services';
 import DataManager from './DataManager';
 
@@ -13,6 +14,7 @@ export default class BackendModuleManager extends EntityManager {
     super();
     this.service = new BackendModuleService();
     this.dataManager = new DataManager();
+    this.configurationManager = new ConfigurationManager();
   }
 
   getService() {
@@ -43,18 +45,25 @@ export default class BackendModuleManager extends EntityManager {
     };
   }
 
-  /**
-   * Returns setting value
-   */
-  static isEnabled(state, moduleId) {
-    const installedModules = DataManager.getData(state, BackendModuleManager.UI_KEY_MODULES);
-    if (!installedModules) {
-      return false;
+  setEnabled(moduleId, enable = true, cb = null) {
+    if (!moduleId) {
+      return null;
     }
-    if (!installedModules.has(moduleId)) {
-      return false;
-    }
-    return !installedModules.get(moduleId).disabled;
+    const uiKey = BackendModuleManager.UI_KEY_MODULES;
+    const entity = { id: moduleId, disabled: !enable };
+    return (dispatch, getState) => {
+      dispatch(this.requestEntity(moduleId, uiKey));
+      this.getService().patchById(moduleId, entity)
+      .then(json => {
+        let installedModules = DataManager.getData(getState(), BackendModuleManager.UI_KEY_MODULES);
+        installedModules = installedModules.set(json.id, json);
+        dispatch(this.configurationManager.fetchPublicConfigurations());
+        dispatch(this.dataManager.receiveData(uiKey, installedModules));
+      })
+      .catch(error => {
+        dispatch(this.receiveError(entity, uiKey, error, cb));
+      });
+    };
   }
 }
 

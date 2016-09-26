@@ -26,7 +26,7 @@ export class Root extends Basic.AbstractContent {
 
 
   componentWillUpdate() {
-    const {modulesReady} = this.props;
+    const { modulesReady } = this.props;
     if (modulesReady) {
       this.context.store.dispatch(LayoutActions.navigationInit());
     }

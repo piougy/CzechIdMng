@@ -9,7 +9,6 @@ export class App extends Basic.AbstractContent {
     super(props, context);
     this.securityManager = new SecurityManager();
     this.configurationManager = new Managers.ConfigurationManager();
-    this.backendModuleManager = new Managers.BackendModuleManager();
   }
 
   /**
@@ -46,12 +45,9 @@ export class App extends Basic.AbstractContent {
   }
 
   ping() {
-    const { publicConfigurations, installedModules } = this.props;
+    const { publicConfigurations } = this.props;
     if (!publicConfigurations || publicConfigurations.size === null) {
       this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
-    }
-    if (installedModules === null) {
-      this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
     }
   }
 
@@ -68,13 +64,13 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { publicConfigurations, location, userContext, bulk, installedModules } = this.props;
+    const { publicConfigurations, location, userContext, bulk } = this.props;
     //
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          ((!publicConfigurations || publicConfigurations.size === 0 || !installedModules) && location.pathname !== '/unavailable')
+          ((!publicConfigurations || publicConfigurations.size === 0) && location.pathname !== '/unavailable')
           ?
           <Basic.Loading className="global" showLoading/>
           :
@@ -165,8 +161,7 @@ App.propTypes = {
 App.defaultProps = {
   publicConfigurations: null,
   userContext: null,
-  bulk: { action: {} },
-  installedModules: []
+  bulk: { action: {} }
 };
 
 // Which props do we want to inject, given the global state?
@@ -175,8 +170,7 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     publicConfigurations: Managers.DataManager.getData(state, Managers.ConfigurationManager.PUBLIC_CONFIGURATIONS),
-    bulk: state.data.bulk,
-    installedModules: Managers.DataManager.getData(state, Managers.BackendModuleManager.UI_KEY_MODULES)
+    bulk: state.data.bulk
   };
 }
 

@@ -31,10 +31,9 @@ class BackendModules extends Basic.AbstractContent {
       this.i18n(`action.${enable ? '' : 'de'}activate.message`, { count: 1, record: entity.name }),
       this.i18n(`action.${enable ? '' : 'de'}activate.header`, { count: 1 })
     ).then(() => {
-      this.context.store.dispatch(this.backendModuleManager.patchEntity({ id: entity.id, disabled: !enable }, BackendModuleManager.UI_KEY_MODULES, (patchedEntity, error) => {
+      this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, module: patchedEntity.name }) });
-          this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
+          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: patchedEntity.name }) });
         } else {
           this.addError(error);
         }
@@ -83,7 +82,8 @@ class BackendModules extends Basic.AbstractContent {
             property="disabled"
             header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Module.disabled')}</Basic.Cell>}
             cell={<Basic.BooleanCell className="column-face-bool"/>}
-            width="100px"/>
+            width="100px"
+            rendered={false}/>
             <Basic.Column
               header={this.i18n('label.action')}
               className="action"

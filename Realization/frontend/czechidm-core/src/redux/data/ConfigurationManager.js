@@ -110,6 +110,17 @@ export default class ConfigurationManager extends EntityManager {
     }
     return publicConfigurations.get(key).value;
   }
+
+  /**
+   * Returns true, when module is enabled, false when disabled, null when configuration is not found.
+   */
+  static isModuleEnabled(state, moduleId) {
+    const isModuleEnabled = ConfigurationManager.getPublicValue(state, `idm.pub.${moduleId}.enabled`);
+    if (isModuleEnabled === null) {
+      return null;
+    }
+    return isModuleEnabled === 'true';
+  }
 }
 
 ConfigurationManager.PUBLIC_CONFIGURATIONS = 'public-configurations';

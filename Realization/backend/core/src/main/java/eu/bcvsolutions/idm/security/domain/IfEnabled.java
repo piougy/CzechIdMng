@@ -14,12 +14,13 @@ import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.ModuleService;
 
 /**
- * Checks, if given modules are enabled before method invocation.
+ * Checks, if given modules or configuration properties are enabled before method invocation.
  * 
  * @author Radek Tomiška
  *
  * @see ModuleDescriptor
  * @see ModuleService
+ * @see IdmConfigurationService
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -44,7 +45,7 @@ public @interface IfEnabled {
 	 * 
 	 * @return
 	 */	
-	@AliasFor("vaue")
+	@AliasFor("value")
 	String[] module() default {};
 	
 	/**

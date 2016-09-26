@@ -51,7 +51,7 @@ export class App extends Basic.AbstractContent {
       this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
     }
     if (installedModules === null) {
-      this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
+      // this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
     }
   }
 
@@ -74,7 +74,7 @@ export class App extends Basic.AbstractContent {
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          ((!publicConfigurations || publicConfigurations.size === 0 || !installedModules) && location.pathname !== '/unavailable')
+          ((!publicConfigurations || publicConfigurations.size === 0 /* || !installedModules*/) && location.pathname !== '/unavailable')
           ?
           <Basic.Loading className="global" showLoading/>
           :

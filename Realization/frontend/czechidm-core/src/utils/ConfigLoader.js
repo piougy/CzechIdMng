@@ -35,7 +35,7 @@ export default class ConfigLoader {
   constructor() {
   }
 
-  static initConfig(jsonConfig){
+  static initConfig(jsonConfig) {
     _config = jsonConfig;
   }
 

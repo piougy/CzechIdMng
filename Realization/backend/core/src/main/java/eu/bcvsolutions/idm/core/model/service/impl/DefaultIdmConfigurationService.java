@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;
  * 
  * TODO: cache
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Service

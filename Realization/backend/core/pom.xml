@@ -14,6 +14,25 @@
 	<packaging>jar</packaging>
 
 	<name>CzechIdM Core</name>
-	<description>CzechIdM Core</description>	
-	
+	<description>Core services, entities, domain objects.</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+			            <manifestEntries>
+			              <Specification-Title>${project.description}</Specification-Title>
+			            </manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
  * Main idm class - identity. Identity and their roles - whole application runs
  * around it :)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Entity

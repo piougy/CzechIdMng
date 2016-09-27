@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
  * * admin user admin/admin
  * * superAdminRole with system admin authority
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Component("initApplicationData")

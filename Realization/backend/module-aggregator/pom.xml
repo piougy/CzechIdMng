@@ -8,15 +8,15 @@
 	<packaging>pom</packaging>
 
 	<name>idm module agregator</name>
-	<description>This file serves only like the aggregator - it does not contain any source 
-		code, but running Maven goals on this project runs successively Maven goals 
+	<description>This file serves only like the aggregator - it does not contain any source
+		code, but running Maven goals on this project runs successively Maven goals
 		on all of its modules.</description>
 
 
 	<modules>
 		<module>../parent</module>
 		<module>../core</module>
-		<module>../client</module>
+		<module>../app</module>
 		<module>../gui</module>
 	</modules>
 	<build>
@@ -38,7 +38,7 @@
 		    <masterBranchName>master</masterBranchName>
 		    <developBranchName>develop</developBranchName>
 		  </flowInitContext>
-		</configuration> 
+		</configuration>
 	      </plugin>
 	      <plugin>
 	        <groupId>org.apache.maven.plugins</groupId>

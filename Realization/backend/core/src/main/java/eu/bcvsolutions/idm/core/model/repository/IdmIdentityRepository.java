@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmIdentityExcerpt;
 /**
  * Repository for identities
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RepositoryRestResource(//

@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 /**
  * Unit test will use mockito and junit test framework
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Ignore

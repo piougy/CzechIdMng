@@ -5,7 +5,7 @@ import org.springframework.hateoas.Identifiable;
 /**
  * Any dto has identifier
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface BaseDto extends Identifiable<Long> {

@@ -4,7 +4,7 @@ import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowDefinitionController;
 

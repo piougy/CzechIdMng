@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * Dto for password change
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  */
 public class PasswordChangeDto implements Serializable {
 

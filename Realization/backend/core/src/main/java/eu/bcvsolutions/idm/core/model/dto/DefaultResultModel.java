@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.IllegalFormatException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,7 +32,7 @@ public class DefaultResultModel implements ResultModel {
 	/**
 	 * Parameters - for localization etc.
 	 */
-	private final Map<String, Object> parameters = new HashMap<>();
+	private final Map<String, Object> parameters = new LinkedHashMap<>();
 	
 	private String module;
 	
@@ -66,7 +66,7 @@ public class DefaultResultModel implements ResultModel {
 	 * 
 	 * @param resultCode
 	 * @param message Overrides automatic resultCode message
-	 * @param parameters
+	 * @param parameters Linked hash map is needed - use ImmutableMap.of(..) or construct LinkedHashMap for preserve params order.
 	 */
 	public DefaultResultModel(ResultCode resultCode, String message, Map<String, Object> parameters) {
 		this();
@@ -76,7 +76,8 @@ public class DefaultResultModel implements ResultModel {
 		this.statusCode = resultCode.getStatus().value();
 		String messageFormat = (StringUtils.isEmpty(message)) ? resultCode.getMessage() : message;
 		try {
-			this.message = String.format(messageFormat, parameters);
+			// Linked hash map is needed - use ImmutableMap.of(..) or construct LinkedHashMap for preserve params order.
+			this.message = String.format(messageFormat, parameters != null ? parameters.values().toArray() : null);
 		} catch(IllegalFormatException ex) {
 			this.message = messageFormat;
 		}

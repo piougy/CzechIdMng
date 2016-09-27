@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
  * 
  * TODO: QueryDslPredicateExecutor<E>
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @NoRepositoryBean

@@ -1,0 +1,8 @@
+{
+  "env": "TEST",
+  "serverUrl": "http://localhost:8080/idm/api/v1",
+  "theme": "czechidm-core/themes/default",
+  "logger": {
+    "level": "INFO"
+  }
+}

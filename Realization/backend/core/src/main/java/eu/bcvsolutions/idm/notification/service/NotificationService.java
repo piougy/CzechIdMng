@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 /**
  * Notification system
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface NotificationService {
@@ -27,7 +27,7 @@ public interface NotificationService {
 	 * Sends given message to given identities.
 	 * 
 	 * @param message
-	 * @param recipient
+	 * @param recipients
 	 * @return
 	 */
 	boolean send(IdmMessage message, List<IdmIdentity> recipients);
@@ -47,7 +47,7 @@ public interface NotificationService {
 	 * 
 	 * @param topic
 	 * @param message
-	 * @param recipient
+	 * @param recipients
 	 * @return
 	 */
 	boolean send(String topic, IdmMessage message, List<IdmIdentity> recipients);

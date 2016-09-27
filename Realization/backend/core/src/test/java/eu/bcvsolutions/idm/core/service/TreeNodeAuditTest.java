@@ -26,8 +26,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -37,6 +35,8 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 
 /**
  * Audit for organization test

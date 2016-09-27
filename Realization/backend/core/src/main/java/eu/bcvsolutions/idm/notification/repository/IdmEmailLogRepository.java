@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 /**
  * Repository for sended emails
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @RepositoryRestResource(//

@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
 /**
  * Application scope configuration
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Entity

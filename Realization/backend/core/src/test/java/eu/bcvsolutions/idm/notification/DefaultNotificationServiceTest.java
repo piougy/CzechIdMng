@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 /**
  * Test for {@link DefaultSecurityService}
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
@@ -57,6 +57,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@After
+	@Override
 	public void logout() {
 		super.logout();
 	}
@@ -88,11 +89,6 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, start, null, null).getTotalElements());
-		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, middle, null, null).getTotalElements());
-		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, after, null, null).getTotalElements());
-		
-		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, after, null).getTotalElements());
-		assertEquals(1, idmNotificationRepository.findByQuick(null, null, null, null, start, middle, null).getTotalElements());
 		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
 	}
 	

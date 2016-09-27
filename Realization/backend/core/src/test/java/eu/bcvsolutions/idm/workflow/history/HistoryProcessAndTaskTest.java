@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;

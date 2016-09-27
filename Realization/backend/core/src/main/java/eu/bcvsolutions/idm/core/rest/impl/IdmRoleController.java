@@ -27,8 +27,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -37,6 +35,8 @@ import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 
 /**
  * IdmRole endpoint

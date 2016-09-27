@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 /**
  * Cors configuration extension - allowed origins could be configured dynamically through {@link IdmConfigurationService}.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DynamicCorsConfiguration extends CorsConfiguration {

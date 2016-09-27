@@ -32,11 +32,11 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.model.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 
 /**
  * Read operations (get, find)

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 /**
  * Test repository for console logs
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška
  *
  */
 @RepositoryRestResource(exported = false)

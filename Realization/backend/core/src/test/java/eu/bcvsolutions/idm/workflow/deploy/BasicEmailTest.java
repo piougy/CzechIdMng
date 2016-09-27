@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.notification.service.EmailService;
 /**
  * Sipmle test for sending emails from workflow
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class BasicEmailTest extends AbstractWorkflowTest {

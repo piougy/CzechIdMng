@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.domain;
 /**
  * Interface to mark objects that are identifiable by an NAME of any type.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  * @param <NAME>
  */

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
-import * as Basic from 'app/components/basic';
-import { TreeTypeManager, SecurityManager } from 'core/redux';
+import * as Basic from '../../../components/basic';
+import { TreeTypeManager, SecurityManager } from '../../../redux';
 
 /**
  * Type detail content

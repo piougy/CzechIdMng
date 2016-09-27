@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import * as Basic from 'app/components/basic';
-import { TreeTypeManager } from 'core/redux';
+import * as Basic from '../../../components/basic';
+import { TreeTypeManager } from '../../../redux';
 import TypeDetail from './TypeDetail';
 
 const treeTypeManager = new TreeTypeManager();

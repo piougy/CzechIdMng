@@ -1386,7 +1386,16 @@
     "CONFIGURATION_DISABLED": {
       "title": "Funkce je deaktivovaná",
       "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
+    },
+    "TREE_TYPE_CANNOT_DELETE": {
+      "title": "Existuje závislost",
+      "message": "Na typu existuje závislost, nemůže být smazán."
+    },
+    "TREE_NODE_CANNOT_DELETE": {
+      "title": "Existuje závislost",
+      "message": "Na prvku existuje závislost, nemůže být smazán."
     }
+
   },
   "validationError": {
     "string": {

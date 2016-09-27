@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import * as Basic from 'app/components/basic';
-import * as Advanced from 'app/components/advanced';
+import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
 import uuid from 'uuid';
-import { SecurityManager } from 'core/redux';
+import { SecurityManager } from '../../../redux';
 
 /**
 * Table of type

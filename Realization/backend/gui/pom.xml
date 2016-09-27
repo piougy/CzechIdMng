@@ -16,19 +16,28 @@
 			    <artifactId>frontend-maven-plugin</artifactId>
 			    <version>1.0</version>
 			    <configuration>
-				<workingDirectory>../../frontend</workingDirectory>
+				<workingDirectory>../../frontend/czechidm-app</workingDirectory>
 				 <installDirectory>target</installDirectory>
 			    </configuration>
 				<executions>
 				    <execution>
-				        <id>install node and npm</id>
-				        <goals>
-				            <goal>install-node-and-npm</goal>
-				        </goals>
-				        <configuration>
-				            <nodeVersion>v5.3.0</nodeVersion>
-				            <npmVersion>3.5.2</npmVersion>
-				        </configuration>
+					<id>install node and npm</id>
+					<goals>
+					    <goal>install-node-and-npm</goal>
+					</goals>
+					<configuration>
+					    <nodeVersion>v5.3.0</nodeVersion>
+					    <npmVersion>3.5.2</npmVersion>
+					</configuration>
+				    </execution>
+				    <execution>
+					<id>link node-modules or skip if exists</id>
+					<goals>
+					    <goal>npm</goal>
+					</goals>
+					<configuration>
+					    <arguments>run ${script.extension}</arguments>
+					</configuration>
 				    </execution>
 				    <execution>
 					<id>npm install modules</id>
@@ -39,6 +48,27 @@
 					    <arguments>install .</arguments>
 					</configuration>
 					<phase>generate-resources</phase>
+				    </execution>
+				    <execution>
+					<id>install dependencies</id>
+					<goals>
+					    <goal>npm</goal>
+					</goals>
+					<configuration>
+					    <arguments> install --production</arguments>
+					    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+					    <installDirectory>target</installDirectory>
+				        </configuration>
+				    </execution>
+				    <execution>
+					<id>make all modules togetherd</id>
+					<goals>
+					    <goal>gulp</goal>
+					</goals>
+					<phase>generate-resources</phase>
+					<configuration>
+					    <arguments>makeModules</arguments>
+					</configuration>
 				    </execution>
 				    <execution>
 					<id>gulp build</id>
@@ -151,7 +181,7 @@
 						  <outputDirectory>target/idm-gui</outputDirectory>
 						  <resources>
 					    	    <resource>
-						      <directory>../../frontend/dist</directory>
+						      <directory>../../frontend/czechidm-app/dist</directory>
 						      <filtering>true</filtering>
 						    </resource>
 						  </resources>
@@ -201,7 +231,7 @@
 						  <outputDirectory>target/idm-gui</outputDirectory>
 						  <resources>
 					    	    <resource>
-						      <directory>../../frontend/dist</directory>
+						      <directory>../../frontend/czechidm-app/dist</directory>
 						      <filtering>true</filtering>
 						    </resource>
 						  </resources>
@@ -227,5 +257,27 @@
 				</repository>
 			</distributionManagement>
 		</profile>
+		  <profile>
+		    <id>Windows</id>
+		    <activation>
+		      <os>
+			<family>Windows</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension></script.extension>
+		    </properties>
+		  </profile>
+		  <profile>
+		    <id>unix</id>
+		    <activation>
+		      <os>
+			<family>unix</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension>modules-link-or-skip</script.extension>
+		    </properties>
+		  </profile>
 	</profiles>
 </project>

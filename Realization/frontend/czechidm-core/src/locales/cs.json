@@ -40,6 +40,7 @@
     "select": "Vyberte ..."
   },
   "button": {
+    "activate": "Aktivovat",
     "add": "Přidat",
     "back": "Zpět",
     "cancel": "Zrušit",
@@ -81,6 +82,32 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány"
+    },
+    "activate": {
+      "action": "Aktivovat",
+      "header_1": "Aktivovat záznam",
+      "header_2": "Aktivovat záznamy",
+      "header_5": "$t(action.activate.header_2)",
+      "message_1": "Opravdu chcete aktivovat vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při activaci záznamu [{{record}}] nastala chyba",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně aktivován",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány"
+    },
+    "deactivate": {
+      "action": "Deaktivovat",
+      "header_1": "Deaktivovat záznam",
+      "header_2": "Deaktivovat záznamy",
+      "header_5": "$t(action.deactivate.header_2)",
+      "message_1": "Opravdu chcete deaktivovat vybraný záznam [<strong>{{record}}</strong>]?",
+      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "Při aktivaci záznamu [{{record}}] nastala chyba",
+      "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
+      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
+      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
     }
   },
   "environment": {
@@ -910,7 +937,7 @@
     "system": {
       "app-modules": {
         "header": "Aplikační moduly a komponenty",
-        "title": "Moduly a komponenty",
+        "title": "Moduly (frontend)",
         "components": {
           "header": "Komponenty",
           "priority": "Priorita",
@@ -918,6 +945,10 @@
           "order": "Pořadí",
           "overriden": "Komponenta přetížena v modulu: {{moduleId}}"
         }
+      },
+      "be-modules": {
+        "header": "Moduly <small>backend</small>",
+        "title": "Moduly (backend)"
       }
     },
     "notifications": {
@@ -1242,6 +1273,14 @@
     },
     "Audit": {
       "label": "Audit"
+    },
+    "Module": {
+      "id": "Id",
+      "name": "Název modulu",
+      "vendor": "Poskytovatel",
+      "version": "Verze",
+      "description": "Popis",
+      "disabled": "Neaktivní"
     }
   },
   "error": {
@@ -1313,6 +1352,18 @@
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identita [{{identity}}] neexistuje"
+    },
+    "MODULE_NOT_DISABLEABLE": {
+      "title": "Modul [{{module}}] není možné disablovat",
+      "message": "Funkce modulu jsou pro aplikaci nepostradatelné."
+    },
+    "MODULE_DISABLED": {
+      "title": "Modul je deaktivovaný",
+      "message": "Modul [{{module}}] není nainstalovaný nebo je deaktivovaný."
+    },
+    "CONFIGURATION_DISABLED": {
+      "title": "Funkce je deaktivovaná",
+      "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
     }
   },
   "validationError": {

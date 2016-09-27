@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.dto.ResultModels;
  * @author Radek Tomiška 
  *
  */
-public final class ResultCodeException extends CoreException {
+public class ResultCodeException extends CoreException {
 	
 	private static final long serialVersionUID = -7022978890145637612L;
 	/**

@@ -49,7 +49,7 @@ class AppModules extends Basic.AbstractContent {
                 <Basic.PanelHeader text={this.i18n('components.header')}/>
 
                 <Basic.Table
-                  data={componentDescriptor.components}
+                  data={componentDescriptor ? componentDescriptor.components : null}
                   rowClass={({rowIndex, data}) => { return data[rowIndex].module !== this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''; }}>
                   <Basic.Column
                     property="id"

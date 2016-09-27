@@ -32,7 +32,6 @@ export default class ConfigurationManager extends EntityManager {
       dispatch(this.dataManager.requestData(uiKey));
       this.getService().getPublicConfigurations()
         .then(json => {
-          // TODO: create immutable ma from pubic properties
           let publicConfigurations = new Immutable.Map();
           json.forEach(item => {
             publicConfigurations = publicConfigurations.set(item.name, item);

@@ -45,7 +45,7 @@ public class DefaultModuleService implements ModuleService {
 	}
 
 	@Override
-	public List<ModuleDescriptor> getRegisteredModules() {
+	public List<ModuleDescriptor> getInstalledModules() {
 		List<ModuleDescriptor> registeredModules = new ArrayList<>();
 		moduleDescriptorRegistry.forEach(moduleDescriptor -> {
 			registeredModules.add(moduleDescriptor);
@@ -60,7 +60,7 @@ public class DefaultModuleService implements ModuleService {
 	@Override
 	public List<ModuleDescriptor> getEnabledModules() {
 		return Collections.unmodifiableList( //
-				getRegisteredModules() //
+				getInstalledModules() //
 				.stream() //
 				.filter(moduleDescriptor -> { //
 					return isEnabled(moduleDescriptor);

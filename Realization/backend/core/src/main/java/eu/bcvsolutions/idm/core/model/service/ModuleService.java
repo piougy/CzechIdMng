@@ -24,7 +24,7 @@ public interface ModuleService {
 	 * 
 	 * @return
 	 */
-	List<ModuleDescriptor> getRegisteredModules();
+	List<ModuleDescriptor> getInstalledModules();
 	
 	/**
 	 * Returns module descriptor by given moduleId.

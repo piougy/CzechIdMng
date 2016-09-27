@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Footer from './Footer';
-import {Basic, Advanced, SecurityManager, Managers} from 'czechidm-core';
+import { Basic, Advanced, SecurityManager, Managers } from 'czechidm-core';
 
 export class App extends Basic.AbstractContent {
 
@@ -9,6 +9,7 @@ export class App extends Basic.AbstractContent {
     super(props, context);
     this.securityManager = new SecurityManager();
     this.configurationManager = new Managers.ConfigurationManager();
+    this.backendModuleManager = new Managers.BackendModuleManager();
   }
 
   /**
@@ -45,9 +46,12 @@ export class App extends Basic.AbstractContent {
   }
 
   ping() {
-    const { publicConfigurations } = this.props;
+    const { publicConfigurations, installedModules } = this.props;
     if (!publicConfigurations || publicConfigurations.size === null) {
       this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
+    }
+    if (installedModules === null) {
+      // this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
     }
   }
 
@@ -64,13 +68,13 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { publicConfigurations, location, userContext, bulk } = this.props;
+    const { publicConfigurations, location, userContext, bulk, installedModules } = this.props;
     //
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          ((!publicConfigurations || publicConfigurations.size === 0) && location.pathname !== '/unavailable')
+          ((!publicConfigurations || publicConfigurations.size === 0 /* || !installedModules*/) && location.pathname !== '/unavailable')
           ?
           <Basic.Loading className="global" showLoading/>
           :
@@ -162,6 +166,7 @@ App.defaultProps = {
   publicConfigurations: null,
   userContext: null,
   bulk: { action: {} },
+  installedModules: []
 };
 
 // Which props do we want to inject, given the global state?
@@ -170,7 +175,8 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     publicConfigurations: Managers.DataManager.getData(state, Managers.ConfigurationManager.PUBLIC_CONFIGURATIONS),
-    bulk: state.data.bulk
+    bulk: state.data.bulk,
+    installedModules: Managers.DataManager.getData(state, Managers.BackendModuleManager.UI_KEY_MODULES)
   };
 }
 

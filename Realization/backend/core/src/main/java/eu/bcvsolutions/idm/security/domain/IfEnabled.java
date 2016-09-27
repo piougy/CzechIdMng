@@ -7,17 +7,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.core.annotation.AliasFor;
+
 import eu.bcvsolutions.idm.core.model.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.ModuleService;
 
 /**
- * Checks, if given modules are enabled before method invocation.
+ * Checks, if given modules or configuration properties are enabled before method invocation.
  * 
  * @author Radek Tomiška
  *
  * @see ModuleDescriptor
  * @see ModuleService
+ * @see IdmConfigurationService
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -26,13 +29,24 @@ import eu.bcvsolutions.idm.core.model.service.ModuleService;
 public @interface IfEnabled {
 	
 	/**
+	 * Module ids (alias)
+	 * 
+	 * @see ModuleService
+	 * 
+	 * @return
+	 */
+	@AliasFor("module")
+	String[] value() default {};
+	
+	/**
 	 * Module ids
 	 * 
 	 * @see ModuleService
 	 * 
 	 * @return
 	 */	
-	String[] module();
+	@AliasFor("value")
+	String[] module() default {};
 	
 	/**
 	 * configuration property value

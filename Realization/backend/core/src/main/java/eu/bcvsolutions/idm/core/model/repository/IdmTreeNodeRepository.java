@@ -30,7 +30,7 @@ public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode> {
 	        "and (:treeType is null or e.treeType = :treeType)" +
 	        " and (:parent is null or e.parent = :parent)")
 	@RestResource(path = "quick", rel = "quick")
-	Page<IdmTreeNode> findByNameOrParentName(@Param(value = "text") String text, @Param(value = "parent") IdmTreeNode parent, 
+	Page<IdmTreeNode> findQuick(@Param(value = "text") String text, @Param(value = "parent") IdmTreeNode parent, 
 			@Param(value = "treeType") IdmTreeType treeType, Pageable pageable);
 
 	@Query(value = "select e from IdmTreeNode e" +
@@ -51,7 +51,4 @@ public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode> {
 			" and (:treeType is null or e.treeType.id = :treeType)")
 	@RestResource(path = "roots", rel = "roots")
 	List<IdmTreeNode> findRoots(@Param(value = "treeType") Long treeType);
-
-	@RestResource(exported = false)
-	IdmTreeNode findOneByParentIsNull();
 }

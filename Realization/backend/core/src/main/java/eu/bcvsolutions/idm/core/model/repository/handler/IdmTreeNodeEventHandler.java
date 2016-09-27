@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 
 /**
- * Securing organization, adds validations (TODO move to validator - e.g. {@link eu.bcvsolutions.idm.core.model.validator.IdmRoleValidator)
+ * Securing nodes, adds validations (TODO move to validator - e.g. {@link eu.bcvsolutions.idm.core.model.validator.IdmRoleValidator)
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  */

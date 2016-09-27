@@ -1,14 +1,14 @@
-
-
 import { formatPattern } from 'react-router/lib/PatternUtils';
 import Immutable from 'immutable';
 // reused actions
 import FlashMessagesManager from '../../redux/flash/FlashMessagesManager';
 // api
 import ConfigLoader from '../../utils/ConfigLoader';
-import { LocalizationService, ModuleLoaderService} from '../../services';
+import ComponentLoader from '../../utils/ComponentLoader';
+import ModuleLoader from '../../utils/ModuleLoader';
+import { LocalizationService } from '../../services';
 import SecurityManager from '../security/SecurityManager';
-import ConfigurationManager from '../data/ConfigurationManager'
+import ConfigurationManager from '../data/ConfigurationManager';
 /*
  * action types
  */
@@ -16,9 +16,15 @@ export const SELECT_NAVIGATION_ITEMS = 'SELECT_NAVIGATION_ITEMS';
 export const SELECT_NAVIGATION_ITEM = 'SELECT_NAVIGATION_ITEM';
 export const I18N_INIT = 'I18N_INIT';
 export const I18N_READY = 'I18N_READY';
+export const APP_INIT = 'APP_INIT';
+export const APP_READY = 'APP_READY';
+export const APP_UNAVAILABLE = 'APP_UNAVAILABLE';
 export const NAVIGATION_INIT = 'NAVIGATION_INIT';
-export const MODULES_LOADER_INIT = 'MODULES_LOADER_INIT';
-export const MODULES_LOADER_READY = 'MODULES_LOADER_READY';
+export const NAVIGATION_READY = 'NAVIGATION_READY';
+export const MODULES_INIT = 'MODULES_INIT';
+export const MODULES_READY = 'MODULES_READY';
+export const CONFIGURATION_INIT = 'CONFIGURATION_INIT';
+export const CONFIGURATION_READY = 'CONFIGURATION_READY';
 
 /**
  * Select navigation items
@@ -43,70 +49,121 @@ export function selectNavigationItem(selectedNavigationItemId) {
 }
 
 /**
+ * Reloads whole navigation
+ */
+function navigationInit() {
+  return (dispatch) => {
+    dispatch({
+      type: NAVIGATION_INIT
+    });
+    const configLoader = new ConfigLoader();
+    dispatch({
+      type: NAVIGATION_READY,
+      navigation: configLoader.getNavigation(),
+      ready: true
+    });
+    dispatch({
+      type: APP_READY,
+      ready: true
+    });
+  };
+}
+
+export function backendConfigurationInit() {
+  return (dispatch, getState) => {
+    const configurationManager = new ConfigurationManager();
+    dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
+      if (!error) {
+        dispatch({
+          type: CONFIGURATION_READY,
+          ready: true
+        });
+        // disable modules by configuration
+        ModuleLoader.getModuleDescriptors().forEach(moduleDescriptor => {
+          if (moduleDescriptor.backendId) { // FE module depends on be module
+            const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.backendId) || false;
+            ModuleLoader.enable(moduleDescriptor.id, isEnabled);
+          } else {
+            const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
+            ModuleLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
+          }
+        });
+        dispatch(navigationInit());
+      } else {
+        const flashMessagesManager = new FlashMessagesManager();
+        dispatch(flashMessagesManager.addUnavailableMessage());
+        dispatch({
+          type: APP_UNAVAILABLE
+        });
+      }
+    }));
+  };
+}
+
+/**
 * After localization is initied - set to ready, before inicialization will be false
 */
-export function i18nReady(ready) {
-  return {
-    type: I18N_READY,
-    ready
+function i18nReady(ready) {
+  return (dispatch) => {
+    dispatch({
+      type: I18N_READY,
+      ready
+    });
+    dispatch(backendConfigurationInit());
   };
 }
 
 /**
 * Init i18n localization service
 */
-export function i18nInit() {
+function i18nInit() {
   return (dispatch) => {
-    const localizationService = new LocalizationService(
+    LocalizationService.init(new ConfigLoader(),
       (error) => {
         if (error) {
           const flashMessagesManager = new FlashMessagesManager();
           dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
+        } else {
+          dispatch(i18nReady(true));
         }
-        dispatch(i18nReady(true, localizationService));
       }
     );
   };
 }
 
-/**
-* After modules are initied - set to ready, before inicialization will be false
-*/
-export function modulesReady(ready) {
-  return {
-    type: MODULES_LOADER_READY,
-    ready
+function frontendConfigurationInit(config) {
+  return (dispatch) => {
+    dispatch({
+      type: CONFIGURATION_INIT
+    });
+    // FE configuration
+    ConfigLoader.initConfig(config);
+    dispatch(i18nInit());
   };
 }
 
 /**
 * Init modules
 */
-export function modulesInit(modules) {
+function modulesInit(config, moduleDescriptores, componentDescriptors) {
   return (dispatch) => {
-    const moduleLoaderService = new ModuleLoaderService(modules,
-      (error) => {
-        if (error) {
-          const flashMessagesManager = new FlashMessagesManager();
-          dispatch(flashMessagesManager.addMessage({level: 'error', title: 'modules.loader.error', message: error }));
-        }
-        dispatch(modulesReady(true, moduleLoaderService));
-      }
-    );
+    dispatch({
+      type: MODULES_INIT
+    });
+    ModuleLoader.init(moduleDescriptores);
+    ComponentLoader.initComponents(componentDescriptors);
+    dispatch({
+      type: MODULES_READY,
+      ready: true
+    });
+    dispatch(frontendConfigurationInit(config));
   };
 }
 
-/**
- * Reloads whole navigation
- * @deprecated - navigation is loaded synchronously to layout reducer
- */
-export function navigationInit() {
-  const configLoader = new ConfigLoader();
-  return (dispatch, getState) => {
-    dispatch({
-      type: NAVIGATION_INIT,
-      navigation: configLoader.getNavigation()
-    });
+export function appInit(config, moduleDescriptors, componentDescriptors) {
+  return (dispatch) => {
+    // init application - start asynchronous inicialization: modules / localization / configuration / navigation
+    dispatch(modulesInit(config, moduleDescriptors, componentDescriptors));
   };
 }
 

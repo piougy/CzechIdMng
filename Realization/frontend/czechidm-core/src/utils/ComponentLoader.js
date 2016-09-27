@@ -2,11 +2,8 @@ import Immutable from 'immutable';
 
 let _components = new Immutable.Map();
 let _componentDescriptors = new Immutable.Map();
+
 export default class ComponentLoader {
-
-  constructor() {
-
-  }
 
   static initComponents(componentDescriptors) {
     _componentDescriptors = componentDescriptors;

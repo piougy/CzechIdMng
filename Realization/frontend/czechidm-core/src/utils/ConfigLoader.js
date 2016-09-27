@@ -2,8 +2,8 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 //
 import ModuleLoader from './ModuleLoader';
+
 let _config = null;
-const moduleLoader = new ModuleLoader();
 
 // suported and default values for navigation item in module descriptor
 const ITEM_DEFAULTS = {
@@ -28,14 +28,10 @@ const ITEM_DEFAULTS = {
 
 /**
 * Loads configuration
-* TODO: redux action -> manager
 */
 export default class ConfigLoader {
 
-  constructor() {
-  }
-
-  static initConfig(jsonConfig){
+  static initConfig(jsonConfig) {
     _config = jsonConfig;
   }
 
@@ -60,7 +56,7 @@ export default class ConfigLoader {
    * @return {array[string]}
    */
   getEnabledModuleIds() {
-    return moduleLoader.getEnabledModuleIds();
+    return ModuleLoader.getEnabledModuleIds();
   }
 
   /**
@@ -70,7 +66,7 @@ export default class ConfigLoader {
    * @return {ModuleDescriptor} json object
    */
   getModuleDescriptor(moduleId) {
-    const loaderModuleDescriptor = moduleLoader.getModuleDescriptor(moduleId);
+    const loaderModuleDescriptor = ModuleLoader.getModuleDescriptor(moduleId);
     const configModuleDescriptor = this._getConfigModuleDescriptor(moduleId);
     // Merge module descriptor with override values from configuration
     return _.mergeWith(loaderModuleDescriptor, configModuleDescriptor, this._overrideModuleDescriptorMerge.bind(this));
@@ -173,7 +169,7 @@ export default class ConfigLoader {
       [ConfigLoader.NAVIGATION_BY_ID]: new Immutable.Map({}),
       [ConfigLoader.NAVIGATION_BY_PATH]: new Immutable.Map({})
     });
-    moduleLoader.getEnabledModuleIds().map(moduleId => {
+    ModuleLoader.getEnabledModuleIds().map(moduleId => {
       navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order

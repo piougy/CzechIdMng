@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 //
 import TabPanelItem from './TabPanelItem';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
 import * as Basic from '../../basic';
 
 /**

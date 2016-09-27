@@ -89,19 +89,7 @@ export default class FlashMessagesManager {
         // timeout to prevent showing message on ajax call interuption
         setTimeout(
           () => {
-            dispatch(this.addMessage({
-              key: 'error-app-load',
-              level: 'error',
-              title: LocalizationService.i18n('content.error.503.description'),
-              message: LocalizationService.i18n('content.error.503.note'),
-              dismissible: false/* ,
-              action: {
-                label: 'Odeslat na podporu',
-                callback: () => {
-                  alert('Comming soon.')
-                }
-              }*/
-            }));
+            dispatch(this.addUnavailableMessage());
             dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
@@ -121,6 +109,24 @@ export default class FlashMessagesManager {
     };
   }
 
+  addUnavailableMessage() {
+    return dispatch => {
+      dispatch(this.addMessage({
+        key: 'error-app-load',
+        level: 'error',
+        title: LocalizationService.i18n('content.error.503.description'),
+        message: LocalizationService.i18n('content.error.503.note'),
+        dismissible: false/* ,
+        action: {
+          label: 'Odeslat na podporu',
+          callback: () => {
+            alert('Comming soon.')
+          }
+        }*/
+      }));
+    };
+  }
+
   // TODO: cyclic dependency in security manager
   _logoutImmediatelly() {
     const authenticateService = new AuthenticateService();
@@ -130,11 +136,10 @@ export default class FlashMessagesManager {
     };
   }
 
-  // TODO: cyclic dependency in configuration manager - refactor action constants
+  // TODO: cyclic dependency in configuration manager - refactor action constants to separate file
   _clearConfiguations() {
     return {
-      type: 'CLEAR_DATA',
-      uiKey: 'public-configurations'
+      type: 'APP_UNAVAILABLE'
     };
   }
 

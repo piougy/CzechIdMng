@@ -25,7 +25,7 @@ export default class ConfigurationManager extends EntityManager {
     return 'configurations';
   }
 
-  fetchPublicConfigurations() {
+  fetchPublicConfigurations(cb = null) {
     const uiKey = ConfigurationManager.PUBLIC_CONFIGURATIONS;
     //
     return (dispatch) => {
@@ -37,10 +37,13 @@ export default class ConfigurationManager extends EntityManager {
             publicConfigurations = publicConfigurations.set(item.name, item);
           });
           dispatch(this.dataManager.receiveData(uiKey, publicConfigurations));
+          if (cb) {
+            cb(publicConfigurations);
+          }
         })
         .catch(error => {
           // TODO: data uiKey
-          dispatch(this.receiveError(null, uiKey, error));
+          dispatch(this.receiveError(null, uiKey, error, cb));
         });
     };
   }

@@ -136,15 +136,14 @@ const store = createStoreWithMiddleware(reducer);
 reduxRouterMiddleware.listenForReplays(store);
 //
 // application routes root
-import Root from './layout/Root';
 import App from './layout/App';
 const routes = {
-  component: Root,
+  component: 'div',
   childRoutes: [
     {
       path: '/',
       getComponent: (location, cb) => {
-        cb(null, { app: App });
+        cb(null, App );
       },
       indexRoute: {
         component: require('./layout/Dashboard'),

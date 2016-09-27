@@ -4,6 +4,7 @@ import EntityManager from './EntityManager';
 import ConfigurationManager from './ConfigurationManager';
 import { BackendModuleService } from '../../services';
 import DataManager from './DataManager';
+import { backendConfigurationInit } from '../layout/layoutActions';
 
 /**
  * Provides informations  about modules from backend and their administrative methods.
@@ -57,8 +58,8 @@ export default class BackendModuleManager extends EntityManager {
       .then(json => {
         let installedModules = DataManager.getData(getState(), BackendModuleManager.UI_KEY_MODULES);
         installedModules = installedModules.set(json.id, json);
-        dispatch(this.configurationManager.fetchPublicConfigurations());
         dispatch(this.dataManager.receiveData(uiKey, installedModules));
+        dispatch(backendConfigurationInit());
       })
       .catch(error => {
         dispatch(this.receiveError(entity, uiKey, error, cb));

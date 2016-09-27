@@ -38,7 +38,6 @@ class AppModules extends Basic.AbstractContent {
           this.configLoader.getEnabledModuleIds().sort().map(moduleId => {
             const moduleDescriptor = this.configLoader.getModuleDescriptor(moduleId);
             const componentDescriptor = this.componentService.getComponentDescriptor(moduleId);
-            console.log("ddddd", moduleId, moduleDescriptor, componentDescriptor);
             //
             return (
               <Basic.Panel>

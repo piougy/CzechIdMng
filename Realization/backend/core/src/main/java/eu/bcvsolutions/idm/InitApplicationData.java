@@ -51,7 +51,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private IdmIdentityRoleRepository identityRoleRepository;
 	
 	@Autowired
-	private IdmTreeNodeRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
 	private IdmTreeTypeRepository treeTypeRepository;
@@ -123,11 +123,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create organization root
-			if (organizationRepository.findOneByParentIsNull() == null) {
+			if (treeNodeRepository.findRoots(null).isEmpty()) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setName("Organization ROOT");
 				organizationRoot.setTreeType(treeType);
-				this.organizationRepository.save(organizationRoot);
+				this.treeNodeRepository.save(organizationRoot);
 			}
 		} finally {
 			SecurityContextHolder.clearContext();

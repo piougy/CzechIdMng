@@ -40,7 +40,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
-
+	private static final String DEFAULT_TREE_TYPE = "TREE_ORGANIZATIONS";
+	private static final int FIRST_ROOT = 0; 
+	
 	@Autowired
 	private InitApplicationData initApplicationData;
 	
@@ -83,7 +85,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmTreeNode rootOrganization = treeNodeRepository.findOneByParentIsNull();
+			//
+			List<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null);
+			IdmTreeNode rootOrganization = null;
+			if (!rootsList.isEmpty()) {
+				rootOrganization = rootsList.get(FIRST_ROOT);
+			} else {
+				IdmTreeNode organizationRoot = new IdmTreeNode();
+				organizationRoot.setName("Organization ROOT");
+				organizationRoot.setTreeType(treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE));
+				this.treeNodeRepository.save(organizationRoot);
+			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
 				log.info("Creating demo data ...");				
@@ -146,7 +158,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeRepository.findOneByName("TREE_ORGANIZATIONS");
+				IdmTreeType treeType = treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE);
 				//
 				IdmTreeNode organization1 = new IdmTreeNode();
 				organization1.setName("Organization One");

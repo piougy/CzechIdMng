@@ -50,6 +50,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
 	public static final String TEST_USER_ROLE = "testUserRole";
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
+	private static final int FIRST_ROOT = 0; 
 
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -90,7 +91,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmTreeNode rootOrganization = treeNodeRepository.findOneByParentIsNull();
+			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null).get(FIRST_ROOT);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		

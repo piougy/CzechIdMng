@@ -11,7 +11,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.configuration.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
@@ -25,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepos
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -66,7 +66,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private SecurityService securityService;
 	
 	@Autowired
-	private ConfigurationService configurationService;
+	private IdmConfigurationService configurationService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {

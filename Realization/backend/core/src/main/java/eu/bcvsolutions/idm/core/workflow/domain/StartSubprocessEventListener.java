@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.repository.handler.IdmIdentityEventHandler;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 /**
@@ -22,7 +21,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 
 @Component
 public class StartSubprocessEventListener implements ActivitiEventListener {
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmIdentityEventHandler.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StartSubprocessEventListener.class);
 
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;

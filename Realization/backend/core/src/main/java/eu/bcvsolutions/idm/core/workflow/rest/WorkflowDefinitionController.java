@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -38,7 +39,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  *
  */
 @RestController
-@RequestMapping(value = "/api/workflow/definitions")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/definitions")
 public class WorkflowDefinitionController {
 
 	@Autowired

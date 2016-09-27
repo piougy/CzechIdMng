@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.tree;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -21,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.SecurityService;
 
@@ -95,7 +99,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(post("/api/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -149,7 +153,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post("/api/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -183,7 +187,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		Exception ex = null;
 		// test save without privileges
 		try {
-			status = mockMvc.perform(post("/api/treenodes")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -197,7 +201,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = mockMvc.perform(post("/api/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -223,7 +227,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		status = 0;
 		ex = null;
 		try {
-			status = mockMvc.perform(post("/api/treenodes/").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes/").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()

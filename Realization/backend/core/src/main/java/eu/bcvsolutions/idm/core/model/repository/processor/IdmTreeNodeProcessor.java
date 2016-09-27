@@ -8,7 +8,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.rest.impl.DefaultIdmRoleController;
+import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class IdmTreeNodeProcessor implements ResourceProcessor<Resource<IdmTreeN
 	public Resource<IdmTreeNode> process(Resource<IdmTreeNode> resource) {
 		String identityId = String.valueOf(resource.getContent().getId());
 		
-		Link revisionLink = linkTo(methodOn(DefaultIdmRoleController.class)
+		Link revisionLink = linkTo(methodOn(IdmTreeNodeController.class)
 				.findRevisions(identityId)).withRel("revisions");
 		resource.add(revisionLink);
 		return resource;

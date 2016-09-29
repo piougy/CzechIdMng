@@ -159,20 +159,26 @@ const routes = {
 
 // fills default onEnter on all routes
 // TODO: implement route overriding with priority
-function appendCheckAccess(route) {
+function appendCheckAccess(route, moduleId) {
   if (!route.onEnter) {
     route.onEnter = SecurityManager.checkAccess;
   }
   if (!route.access) {
     route.access = [{ type: 'IS_AUTHENTICATED' }];
   }
+  // fill module to route from parent route
+  if (route.module === undefined) {
+    route.module = moduleId;
+  } else {
+    moduleId = route.module;
+  }
   if (route.childRoutes) {
     route.childRoutes.forEach(childRoute => {
-      appendCheckAccess(childRoute);
+      appendCheckAccess(childRoute, moduleId);
     });
   }
 }
-appendCheckAccess(routes);
+appendCheckAccess(routes, null);
 
 
 //

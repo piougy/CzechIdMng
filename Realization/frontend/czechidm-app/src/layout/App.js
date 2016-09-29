@@ -9,6 +9,7 @@ import { Basic, Advanced, SecurityManager, LayoutActions } from 'czechidm-core';
 import config from '../../dist/config.json';
 import { moduleDescriptors } from '../../dist/modules/moduleAssembler';
 import { componentDescriptors } from '../../dist/modules/componentAssembler';
+import ModuleLoader from 'czechidm-core/src/utils/ModuleLoader';
 
 /**
  * Application entry point
@@ -37,7 +38,7 @@ export class App extends Basic.AbstractContent {
   * Look out: This method is aplication entry point
   */
   componentDidUpdate() {
-    const { location, userContext } = this.props;
+    const { location, routes, userContext, appReady } = this.props;
     // select navigation
     if (location.pathname === '/') {
       this.selectNavigationItem('home');
@@ -47,6 +48,22 @@ export class App extends Basic.AbstractContent {
         username: userContext.username,
         password: this.refs.password.getValue() // prevent filled password
       });
+    }
+
+    // onEnter makes this redirection now
+    // console.log('router', this.context.router);
+    // console.log('location', this.props.location);
+    // check if is user logged, if not will do redirect to login page
+    /* if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
+      this.context.router.replace('/login');
+    }*/
+
+    // check access to disable module route - has to be here, because SecurityManager.checkaccess is called to early (configuration is loaded asynchronouslly).
+    if (appReady) {
+      const currentRoute = routes[routes.length - 1];
+      if (currentRoute.module && !ModuleLoader.isEnabled(currentRoute.module)) {
+        this.context.router.replace('/unavailable');
+      }
     }
   }
 

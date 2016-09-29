@@ -1,4 +1,5 @@
 module.exports = {
+  module: 'core',
   component: 'div',
   childRoutes: [
     {
@@ -84,7 +85,7 @@ module.exports = {
     {
       path: 'roles',
       component: require('./src/content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
     },
     {
       path: 'role/:entityId/',

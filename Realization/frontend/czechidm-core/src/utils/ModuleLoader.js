@@ -11,7 +11,14 @@ export default class ModuleLoader {
     _moduleDescriptors = moduleDescriptors;
   }
 
+  static isInited() {
+    return _moduleDescriptors.size > 0;
+  }
+
   static getModuleDescriptor(moduleId) {
+    if (!_moduleDescriptors.has(moduleId)) {
+      return null;
+    }
     return _moduleDescriptors.get(moduleId);
   }
 
@@ -24,6 +31,14 @@ export default class ModuleLoader {
     _moduleDescriptors = _moduleDescriptors.set(moduleId, _.merge({}, moduleDescriptor, { enabled }));
   }
 
+  static isEnabled(moduleId) {
+    const moduleDescriptor = ModuleLoader.getModuleDescriptor(moduleId);
+    if (moduleDescriptor === null) {
+      return false;
+    }
+    return moduleDescriptor.enabled === undefined || moduleDescriptor.enabled === null || moduleDescriptor.enabled !== false;
+  }
+
   /**
    * Returns ids of all enabled modules
    * TODO: use static config.json - some modules can be used as internal dependency
@@ -31,7 +46,7 @@ export default class ModuleLoader {
   static getEnabledModuleIds() {
     const enabledModuleIds = [];
     ModuleLoader.getModuleDescriptors().forEach(moduleDescriptor => {
-      if (moduleDescriptor.enabled === undefined || moduleDescriptor.enabled === null || moduleDescriptor.enabled !== false) {
+      if (ModuleLoader.isEnabled(moduleDescriptor.id)) {
         enabledModuleIds.push(moduleDescriptor.id);
       }
     });

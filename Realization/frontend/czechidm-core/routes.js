@@ -122,8 +122,8 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
-      path: 'app-modules',
-      component: require('./src/content/AppModules'),
+      path: 'fe-modules',
+      component: require('./src/content/module/FrontendModules'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
     },
     {

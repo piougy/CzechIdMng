@@ -85,7 +85,7 @@ export default class FlashMessagesManager {
         }, message);
       }
       // error redirect handler
-      if (this._isServerUnavailableError(error)) {
+      if (this.isServerUnavailableError(error)) {
         // timeout to prevent showing message on ajax call interuption
         setTimeout(
           () => {
@@ -172,7 +172,7 @@ export default class FlashMessagesManager {
   /**
    * Returns true, if BE is not available
    */
-  _isServerUnavailableError(error) {
+  isServerUnavailableError(error) {
     if (error.message && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
       return true;
     }

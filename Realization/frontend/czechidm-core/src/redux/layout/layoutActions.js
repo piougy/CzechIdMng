@@ -5,7 +5,6 @@ import FlashMessagesManager from '../../redux/flash/FlashMessagesManager';
 // api
 import ConfigLoader from '../../utils/ConfigLoader';
 import ComponentLoader from '../../utils/ComponentLoader';
-import ModuleLoader from '../../utils/ModuleLoader';
 import { LocalizationService } from '../../services';
 import SecurityManager from '../security/SecurityManager';
 import ConfigurationManager from '../data/ConfigurationManager';
@@ -56,10 +55,9 @@ function navigationInit() {
     dispatch({
       type: NAVIGATION_INIT
     });
-    const configLoader = new ConfigLoader();
     dispatch({
       type: NAVIGATION_READY,
-      navigation: configLoader.getNavigation(),
+      navigation: ConfigLoader.getNavigation(),
       ready: true
     });
     dispatch({
@@ -79,19 +77,23 @@ export function backendConfigurationInit() {
           ready: true
         });
         // disable modules by configuration
-        ModuleLoader.getModuleDescriptors().forEach(moduleDescriptor => {
+        ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.backendId) || false;
-            ModuleLoader.enable(moduleDescriptor.id, isEnabled);
+            ConfigLoader.enable(moduleDescriptor.id, isEnabled);
           } else {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
-            ModuleLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
+            ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
           }
         });
         dispatch(navigationInit());
       } else {
         const flashMessagesManager = new FlashMessagesManager();
-        dispatch(flashMessagesManager.addUnavailableMessage());
+        if (flashMessagesManager.isServerUnavailableError(error)) {
+          dispatch(flashMessagesManager.addUnavailableMessage());
+        } else {
+          dispatch(flashMessagesManager.addError(error));
+        }
         dispatch({
           type: APP_UNAVAILABLE
         });
@@ -118,7 +120,7 @@ function i18nReady(ready) {
 */
 function i18nInit() {
   return (dispatch) => {
-    LocalizationService.init(new ConfigLoader(),
+    LocalizationService.init(ConfigLoader,
       (error) => {
         if (error) {
           const flashMessagesManager = new FlashMessagesManager();
@@ -131,32 +133,20 @@ function i18nInit() {
   };
 }
 
-function frontendConfigurationInit(config) {
-  return (dispatch) => {
-    dispatch({
-      type: CONFIGURATION_INIT
-    });
-    // FE configuration
-    ConfigLoader.initConfig(config);
-    dispatch(i18nInit());
-  };
-}
-
 /**
 * Init modules
 */
-function modulesInit(config, moduleDescriptores, componentDescriptors) {
+function modulesInit(config, moduleDescriptors, componentDescriptors) {
   return (dispatch) => {
-    dispatch({
-      type: MODULES_INIT
-    });
-    ModuleLoader.init(moduleDescriptores);
+    dispatch({ type: MODULES_INIT });
+    dispatch({ type: CONFIGURATION_INIT });
+    ConfigLoader.init(config, moduleDescriptors);
     ComponentLoader.initComponents(componentDescriptors);
     dispatch({
       type: MODULES_READY,
       ready: true
     });
-    dispatch(frontendConfigurationInit(config));
+    dispatch(i18nInit());
   };
 }
 

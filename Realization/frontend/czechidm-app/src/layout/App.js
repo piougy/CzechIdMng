@@ -9,7 +9,7 @@ import { Basic, Advanced, SecurityManager, LayoutActions } from 'czechidm-core';
 import config from '../../dist/config.json';
 import { moduleDescriptors } from '../../dist/modules/moduleAssembler';
 import { componentDescriptors } from '../../dist/modules/componentAssembler';
-import ModuleLoader from 'czechidm-core/src/utils/ModuleLoader';
+import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 
 /**
  * Application entry point
@@ -61,7 +61,7 @@ export class App extends Basic.AbstractContent {
     // check access to disable module route - has to be here, because SecurityManager.checkaccess is called to early (configuration is loaded asynchronouslly).
     if (appReady) {
       const currentRoute = routes[routes.length - 1];
-      if (currentRoute.module && !ModuleLoader.isEnabled(currentRoute.module)) {
+      if (currentRoute.module && !ConfigLoader.isEnabledModule(currentRoute.module)) {
         this.context.router.replace('/unavailable');
       }
     }

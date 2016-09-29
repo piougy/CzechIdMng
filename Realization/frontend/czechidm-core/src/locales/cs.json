@@ -37,7 +37,8 @@
     "selectAll": "Vybrat vše / nic",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
-    "select": "Vyberte ..."
+    "select": "Vyberte ...",
+    "disabled": "Neaktivní"
   },
   "button": {
     "activate": "Aktivovat",
@@ -935,7 +936,7 @@
       "title": "Audit"
     },
     "system": {
-      "app-modules": {
+      "fe-modules": {
         "header": "Aplikační moduly a komponenty",
         "title": "Moduly (frontend)",
         "components": {

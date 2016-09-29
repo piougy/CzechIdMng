@@ -225,10 +225,10 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
-            'id': 'system-modules',
-            'labelKey': 'content.system.app-modules.title',
+            'id': 'fe-modules',
+            'labelKey': 'content.system.fe-modules.title',
             'order': 30,
-            'path': '/app-modules',
+            'path': '/fe-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
           },
           {

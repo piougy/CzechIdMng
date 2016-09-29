@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		exported = false)
 public interface IdmRoleRepository extends BaseRepository<IdmRole> {
 	
-	public static final String ADMIN_ROLE = "superAdminRole";
+	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
 	
 	IdmRole findOneByName(@Param("name") String name);
 	

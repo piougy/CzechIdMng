@@ -25,7 +25,7 @@ module.exports = {
     {
       path: 'user/new',
       component: require('./src/content/user/Create'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN' ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
     },
     {
       path: 'user/:userID/',
@@ -124,7 +124,7 @@ module.exports = {
     {
       path: 'fe-modules',
       component: require('./src/content/module/FrontendModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'be-modules',
@@ -138,7 +138,7 @@ module.exports = {
         {
           path: 'definitions',
           component: require('./src/content/workflow/Definitions'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         },
         {
           path: 'history/processes',
@@ -149,7 +149,7 @@ module.exports = {
     {
       path: 'workflow/definitions/:definitionId',
       component: require('./src/content/workflow/Definition'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',

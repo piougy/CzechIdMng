@@ -157,7 +157,7 @@ module.exports = {
             'labelKey': 'navigation.menu.workflow.definitions',
             'order': 40,
             'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
             'id': 'workflow-historic-processes',
@@ -229,7 +229,7 @@ module.exports = {
             'labelKey': 'content.system.fe-modules.title',
             'order': 30,
             'path': '/fe-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
             'id': 'be-modules',

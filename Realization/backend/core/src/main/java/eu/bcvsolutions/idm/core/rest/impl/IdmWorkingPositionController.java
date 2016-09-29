@@ -28,14 +28,14 @@ public class IdmWorkingPositionController extends DefaultReadWriteEntityControll
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		// TODO Auto-generated method stub
@@ -43,14 +43,14 @@ public class IdmWorkingPositionController extends DefaultReadWriteEntityControll
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SYSTEM_ADMIN + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}

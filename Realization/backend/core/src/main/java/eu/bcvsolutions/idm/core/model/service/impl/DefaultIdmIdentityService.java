@@ -188,8 +188,9 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 * @param passwordChangeDto
 	 */
 	@Override
+	@Transactional
 	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
-		if (!securityService.hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN) && !StringUtils
+		if (!securityService.isAdmin() && !StringUtils
 				.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 		}

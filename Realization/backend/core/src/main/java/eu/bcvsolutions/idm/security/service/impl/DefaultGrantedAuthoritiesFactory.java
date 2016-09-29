@@ -73,7 +73,7 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		for(IdmRoleAuthority roleAuthority : role.getAuthorities()) {
 			// check for wildcard permissions
 			// TODO: better approach will be extend hasAuhority / hasAnyAuhority evaluation
-			if (roleAuthority.getTarget().equals(IdmGroupPermission.SYSTEM.name())) {
+			if (roleAuthority.getTarget().equals(IdmGroupPermission.APP.name())) {
 				grantedAuthorities.addAll(securityService.getAllAvailableAuthorities());
 				break;
 			}

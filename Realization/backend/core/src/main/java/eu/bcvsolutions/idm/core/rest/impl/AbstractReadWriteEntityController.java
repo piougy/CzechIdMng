@@ -1,19 +1,13 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mapping.context.PersistentEntities;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.json.DomainObjectReader;
-import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +29,7 @@ import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
  *
  * @param <E>
  */
-public abstract class AbstractReadWriteController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
+public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	
 	@Autowired
 	@Qualifier("objectMapper")
@@ -44,7 +38,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
 	
-	public AbstractReadWriteController(ReadWriteEntityService<E, F> entityService) {
+	public AbstractReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
 		super(entityService);
 	}
 	

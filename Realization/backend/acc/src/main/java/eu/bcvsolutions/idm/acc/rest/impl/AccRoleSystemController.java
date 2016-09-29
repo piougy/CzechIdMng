@@ -1,53 +1,59 @@
-package eu.bcvsolutions.idm.core.rest.impl;
+package eu.bcvsolutions.idm.acc.rest.impl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
-import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
+import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
+import eu.bcvsolutions.idm.security.domain.IfEnabled;;
 
 /**
- * Default CRUD controller for given {@link BaseEntity}.
+ * Role could assign identity account on target system.
  * 
  * @author Radek Tomiška
  *
- * @param <E> controlled {@link BaseEntity} type.
  */
-public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F>{
-
-	public DefaultReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
-		super(entityService);
+@RestController
+@IfEnabled(AccModuleDescriptor.MODULE_ID)
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/roleSystems")
+public class AccRoleSystemController extends DefaultReadWriteEntityController<AccRoleSystem, EmptyFilter> {
+	
+	@Autowired
+	public AccRoleSystemController(AccRoleSystemService roleSysteService) {
+		super(roleSysteService);
 	}
 	
 	@Override
 	@RequestMapping(method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
 	
-	/**
-	 * All endpoints will support find quick method.
-	 * 
-	 * @param parameters
-	 * @param pageable
-	 * @param assembler
-	 * @return
-	 */
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -56,18 +62,21 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	}
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> update(
 			@PathVariable @NotNull String backendId,
@@ -77,6 +86,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	}
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
 			throws HttpMessageNotReadableException {
@@ -84,6 +94,7 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	}
 	
 	@Override
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);

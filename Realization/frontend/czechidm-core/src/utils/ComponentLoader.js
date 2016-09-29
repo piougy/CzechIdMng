@@ -35,7 +35,7 @@ export default class ComponentLoader {
   static getComponentDefinitions(type) {
     return _components
       .filter(component => {
-        return !component.disabled && (!type || component.type === type) && ConfigLoader.isEnabled(component.module);
+        return !component.disabled && (!type || component.type === type) && ConfigLoader.isEnabledModule(component.module);
       })
       .sortBy(item => item.order);
   }

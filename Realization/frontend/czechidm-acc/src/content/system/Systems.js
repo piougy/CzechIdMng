@@ -3,12 +3,18 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic } from 'czechidm-core';
+import { SystemManager } from '../../redux';
 
 
 class Systems extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.systemManager = new SystemManager();
+  }
+
+  getManager() {
+    return this.systemManager;
   }
 
   getContentKey() {
@@ -21,7 +27,9 @@ class Systems extends Basic.AbstractContent {
 
   render() {
     return (
-      <span>acc</span>
+      <div>
+        TODO: viz configurations content.
+      </div>
     );
   }
 }

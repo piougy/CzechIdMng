@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 //
 import Footer from './Footer';
-import { Basic, Advanced, SecurityManager, LayoutActions } from 'czechidm-core';
+import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
 //
 // this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
 import config from '../../dist/config.json';
@@ -18,7 +18,7 @@ export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.securityManager = new SecurityManager();
+    this.securityManager = new Managers.SecurityManager();
   }
 
   getChildContext() {
@@ -94,7 +94,7 @@ export class App extends Basic.AbstractContent {
           <div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation />
-            <div id="content-container" className={SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
+            <div id="content-container" className={Managers.SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
               {this.props.children}
               {
                 /* TODO: move to redux and hide it, when is needed */

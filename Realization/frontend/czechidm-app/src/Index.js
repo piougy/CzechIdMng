@@ -20,7 +20,7 @@ import filter from 'redux-localstorage-filter';
 import { syncHistory, routeReducer } from 'react-router-redux';
 //
 import config from '../dist/config.json';
-import {LayoutReducers, FlashReducers, DataReducers, SecurityReducers, SecurityManager} from 'czechidm-core';
+import { Reducers, Managers } from 'czechidm-core';
 //
 // global promise init
 Promise.polyfill();
@@ -87,10 +87,10 @@ function adapter(storage) {
 }
 
 const reducersApp = combineReducers({
-  layout: LayoutReducers.layout,
-  messages: FlashReducers.messages,
-  data: DataReducers.data,
-  security: SecurityReducers.security,
+  layout: Reducers.layout,
+  messages: Reducers.messages,
+  data: Reducers.data,
+  security: Reducers.security,
   routing: routeReducer,
   logger: (state = logger) => {
     // TODO: can be moved to separate redecuer and
@@ -147,7 +147,7 @@ const routes = {
       },
       indexRoute: {
         component: require('./layout/Dashboard'),
-        onEnter: SecurityManager.checkAccess,
+        onEnter: Managers.SecurityManager.checkAccess,
         access: [{ type: 'IS_AUTHENTICATED' }]
       },
       childRoutes: [
@@ -161,7 +161,7 @@ const routes = {
 // TODO: implement route overriding with priority
 function appendCheckAccess(route, moduleId) {
   if (!route.onEnter) {
-    route.onEnter = SecurityManager.checkAccess;
+    route.onEnter = Managers.SecurityManager.checkAccess;
   }
   if (!route.access) {
     route.access = [{ type: 'IS_AUTHENTICATED' }];

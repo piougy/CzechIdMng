@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -23,4 +26,10 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 public interface SysSystemRepository extends BaseRepository<SysSystem> {
 
 	SysSystem findOneByName(@Param("name") String name);
+	
+	@Query(value = "select e from SysSystem e" +
+	        " where" +
+	        " lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
+	Page<SysSystem> findQuick(@Param(value = "text") String text, Pageable pageable);
+	
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
 import { RoleManager } from '../../redux';
 import RoleDetail from './RoleDetail';
@@ -20,9 +19,8 @@ class Content extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    const isNew = this._getIsNew();
     this.selectNavigationItems(['roles', 'role-detail']);
-    if (isNew) {
+    if (this._isNew()) {
       this.context.store.dispatch(roleManager.receiveEntity(entityId, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) }));
     } else {
       this.context.store.dispatch(roleManager.fetchEntity(entityId));
@@ -32,30 +30,24 @@ class Content extends Basic.AbstractContent {
   componentDidUpdate() {
   }
 
-  _getIsNew() {
+  _isNew() {
     const { query } = this.props.location;
     return (query) ? query.new : null;
   }
 
   render() {
     const { role, showLoading } = this.props;
-    if (this._getIsNew()) {
+    if (this._isNew()) {
       return (
         <Basic.Row>
           <div className="col-lg-offset-1 col-lg-10">
-            <Helmet title={this.i18n('create.header')} />
-              {
+            {
               !role
               ||
-              <Basic.Panel>
-                <Basic.PanelHeader text={this.i18n('create.header')} />
-                <div style={ {margin: 10 }}>
-                  <RoleDetail entity={role} showLoading={showLoading} isNew={this._getIsNew()} />
-                </div>
-              </Basic.Panel>
-              }
-            </div>
-          </Basic.Row>
+              <RoleDetail entity={role} showLoading={showLoading} />
+            }
+          </div>
+        </Basic.Row>
       );
     }
     return (
@@ -63,11 +55,7 @@ class Content extends Basic.AbstractContent {
       {
         !role
         ||
-        <Basic.Row>
-          <Basic.Panel className="col-lg-12 no-border last">
-            <RoleDetail entity={role} showLoading={showLoading} isNew={this._getIsNew()} />
-          </Basic.Panel>
-        </Basic.Row>
+        <RoleDetail entity={role} showLoading={showLoading} />
       }
       </div>
     );

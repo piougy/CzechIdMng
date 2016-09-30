@@ -114,13 +114,13 @@ module.exports = {
       childRoutes: [
         {
           path: 'detail',
-          component: require('./src/content/role/Content')
+          component: require('./src/content/role/RoleContent')
         },
       ]
     },
     {
       path: 'role/:entityId/new',
-      component: require('./src/content/role/Content'),
+      component: require('./src/content/role/RoleContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
     },
     {

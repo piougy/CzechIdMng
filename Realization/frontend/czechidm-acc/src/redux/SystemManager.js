@@ -8,6 +8,10 @@ export default class SystemManager extends Managers.EntityManager {
     this.service = new SystemService();
   }
 
+  getModule() {
+    return 'acc';
+  }
+
   getService() {
     return this.service;
   }

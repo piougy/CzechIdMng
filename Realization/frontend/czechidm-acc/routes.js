@@ -8,12 +8,18 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ' ] } ]
     },
     {
+      path: 'system/:entityId',
+      component: require('./src/content/system/SystemContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
       path: 'user/:userID/',
       component: require('czechidm-core/src/content/user/User'),
       childRoutes: [
         {
           path: 'accounts',
-          component: require('./src/content/user/Accounts')
+          component: require('./src/content/user/Accounts'),
+          access: [ { 'type': 'DENY_ALL', 'authorities': ['SYSTEM_READ' ] } ]
         }
       ]
     },
@@ -25,7 +31,7 @@ module.exports = {
         {
           path: 'systems',
           component: require('./src/content/role/RoleSystems'),
-          access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+          access: [ { 'type': 'DENY_ALL', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
         },
       ]
     },

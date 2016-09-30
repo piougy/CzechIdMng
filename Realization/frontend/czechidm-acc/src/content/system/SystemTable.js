@@ -2,18 +2,14 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
-import * as Utils from '../../utils';
-import RoleTypeEnum from '../../enums/RoleTypeEnum';
+import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 //
-import {SecurityManager} from '../../redux';
 import uuid from 'uuid';
 
 /**
-* Table of roles
+* Table of target sysstems
 */
-export class RoleTable extends Basic.AbstractContent {
+export class SystemTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -23,7 +19,7 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.roles';
+    return 'acc:content.systems';
   }
 
   useFilter(event) {
@@ -43,21 +39,21 @@ export class RoleTable extends Basic.AbstractContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/role/${uuidId}/new?new=1`);
+      this.context.router.push(`/system/${uuidId}?new=1`);
     } else {
-      this.context.router.push('/role/' + entity.id + '/detail');
+      this.context.router.push('/system/' + entity.id);
     }
   }
 
   onDelete(bulkActionValue, selectedRows) {
-    const { roleManager, uiKey } = this.props;
-    const selectedEntities = roleManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
+    const { manager, uiKey } = this.props;
+    const selectedEntities = manager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
     this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: roleManager.getNiceLabel(selectedEntities[0]), records: roleManager.getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: roleManager.getNiceLabels(selectedEntities).join(', ') })
+      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: manager.getNiceLabel(selectedEntities[0]), records: manager.getNiceLabels(selectedEntities).join(', ') }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: manager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, () => {
+      this.context.store.dispatch(manager.deleteEntities(selectedEntities, uiKey, () => {
         this.refs.table.getWrappedInstance().reload();
       }));
     }, () => {
@@ -66,7 +62,7 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns } = this.props;
+    const { uiKey, manager, columns } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -76,10 +72,10 @@ export class RoleTable extends Basic.AbstractContent {
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
-          manager={roleManager}
+          manager={manager}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
-          showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
+          showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE')}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -87,14 +83,10 @@ export class RoleTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('entity.Role.name')}
-                      label={this.i18n('entity.Role.name')}/>
+                      placeholder={this.i18n('acc:entity.System.name')}
+                      label={this.i18n('acc:entity.System.name')}/>
                   </div>
                   <div className="col-lg-4">
-                    <Basic.EnumSelectBox
-                      ref="roleType"
-                      label={this.i18n('entity.Role.roleType')}
-                      enum={RoleTypeEnum}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -114,8 +106,8 @@ export class RoleTable extends Basic.AbstractContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) })}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+                onClick={this.showDetail.bind(this, { })}
+                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -137,19 +129,8 @@ export class RoleTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="role/:name/detail" property="name" width="20%" sort face="text" rendered={_.includes(columns, 'name')}/>
-          <Advanced.Column property="roleType" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
-          <Advanced.Column
-            header={this.i18n('entity.Role.approvable')}
-            className="detail-button"
-            cell={
-              ({ rowIndex, data }) => {
-                return (
-                  <input type="checkbox" disabled checked={data[rowIndex].approveAddWorkflow || data[rowIndex].approveRemoveWorkflow} />
-                );
-              }
-            }
-            sort={false}/>
+          <Advanced.Column property="name" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>
@@ -157,15 +138,15 @@ export class RoleTable extends Basic.AbstractContent {
   }
 }
 
-RoleTable.propTypes = {
+SystemTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
-  roleManager: PropTypes.object.isRequired,
+  manager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool
 };
 
-RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable'],
+SystemTable.defaultProps = {
+  columns: ['name', 'description', 'disabled'],
   filterOpened: false,
   _showLoading: false
 };
@@ -173,8 +154,8 @@ RoleTable.defaultProps = {
 function select(state, component) {
   return {
     _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
-    _showLoading: component.roleManager.isShowLoading(state, `${component.uiKey}-detail`)
+    _showLoading: component.manager.isShowLoading(state, `${component.uiKey}-detail`)
   };
 }
 
-export default connect(select, null, null, { withRef: true })(RoleTable);
+export default connect(select, null, null, { withRef: true })(SystemTable);

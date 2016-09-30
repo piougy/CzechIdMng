@@ -49,12 +49,11 @@ export class NodeTable extends Basic.AbstractContent {
   }
 
   useFilter(event) {
-    const { treeNodeManager, treeTypeManager, type } = this.props;
+    const { type } = this.props;
 
     if (event) {
       event.preventDefault();
     }
-    console.log(this.refs.filterForm.getData());
     const data = {
       ... this.refs.filterForm.getData(),
       parent: this.refs.filterForm.getData().parent,
@@ -70,7 +69,6 @@ export class NodeTable extends Basic.AbstractContent {
       // After click on link node, we want only filtering ... not node expand.
       event.stopPropagation();
     }
-    const { treeNodeManager } = this.props;
     if (!nodeId) {
       return;
     }

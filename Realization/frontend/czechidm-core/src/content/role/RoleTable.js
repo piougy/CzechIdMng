@@ -137,7 +137,7 @@ export class RoleTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="name" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.ColumnLink to="role/:name/detail" property="name" width="20%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="roleType" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
           <Advanced.Column
             header={this.i18n('entity.Role.approvable')}

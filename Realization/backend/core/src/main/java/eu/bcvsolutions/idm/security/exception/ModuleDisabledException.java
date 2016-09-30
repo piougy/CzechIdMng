@@ -4,7 +4,16 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.service.ModuleService;
 
+/**
+ * Module is disabled.
+ * 
+ * @author Radek Tomiška
+ * 
+ * @see ModuleService
+ *
+ */
 public class ModuleDisabledException extends ResultCodeException {
 	
 	private static final long serialVersionUID = 1L;

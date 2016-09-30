@@ -130,7 +130,7 @@ Single navigation item parameters:
       'icon': 'user',
       'order': 40,
       'path': '/users',
-      'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       'id': 'system',
@@ -154,7 +154,7 @@ Single navigation item parameters:
           'labelKey': 'content.system.app-modules.title',
           'order': 30,
           'path': '/app-modules',
-          'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [ 'SYSTEM_ADMIN' ] } ]
+          'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': [ 'APP_ADMIN' ] } ]
         }
       ]
     },

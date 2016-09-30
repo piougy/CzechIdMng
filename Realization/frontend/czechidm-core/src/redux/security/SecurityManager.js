@@ -166,7 +166,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return SecurityManager.hasAuthority('SYSTEM_ADMIN', userContext);
+    return SecurityManager.hasAuthority('APP_ADMIN', userContext);
   }
 
   /**
@@ -198,6 +198,13 @@ export default class SecurityManager {
     return _.includes(userContext.authorities, authority);
   }
 
+  /**
+   * Returns true, if user has any of given authorities, false otherwise.
+   *
+   * @param  {arrayOf(string)}  authorities
+   * @param  {userContext}  userContext
+   * @return {Boolean}
+   */
   static hasAnyAuthority(authorities, userContext = null) {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
@@ -206,6 +213,23 @@ export default class SecurityManager {
       return false;
     }
     return _.intersection(userContext.authorities, authorities).length > 0;
+  }
+
+  /**
+   * Returns true, if user has all of given authorities, false otherwise.
+   *
+   * @param  {arrayOf(string)}  authorities
+   * @param  {userContext}  userContext
+   * @return {Boolean}
+   */
+  static hasAllAuthorities(authorities, userContext = null) {
+    if (!userContext) {
+      userContext = AuthenticateService.getUserContext();
+    }
+    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
+      return false;
+    }
+    return _.difference(authorities, userContext.authorities).length === 0;
   }
 
   /**
@@ -218,7 +242,7 @@ export default class SecurityManager {
     if (!accessItems || accessItems.length === 0) {
       return false;
     }
-    /*
+
     const hasDenyAll = accessItems.some(accessItem => {
       if (accessItem.type && accessItem.type === 'DENY_ALL') {
         return true;
@@ -226,7 +250,8 @@ export default class SecurityManager {
     });
     if (hasDenyAll) {
       return false;
-    }*/
+    }
+
     return accessItems.some(accessItem => {
       if (accessItem.type) {
         switch (accessItem.type) {
@@ -243,6 +268,9 @@ export default class SecurityManager {
           }
           case 'HAS_ANY_AUTHORITY': {
             return SecurityManager.hasAnyAuthority(accessItem.authorities, userContext);
+          }
+          case 'HAS_ALL_AUTHORITIES': {
+            return SecurityManager.hasAllAuthorities(accessItem.authorities, userContext);
           }
           default : {
             return null;

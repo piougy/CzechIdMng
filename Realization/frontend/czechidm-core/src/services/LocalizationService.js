@@ -2,10 +2,7 @@ import i18next from 'i18next';
 import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
-//
-import ConfigLoader from '../utils/ConfigLoader';
 
-const configLoader = new ConfigLoader();
 const i18nextInstance = i18next
   .use(XHR)
   .use(Cache)
@@ -20,7 +17,7 @@ export default class LocalizationService {
   /**
   * i18n inicialization
   */
-  constructor(cb) {
+  static init(configLoader, cb) {
     // init localization
     i18nextInstance
       .init({
@@ -28,7 +25,7 @@ export default class LocalizationService {
         fallbackLng: 'cs',
 
         // have a common namespace used around the full app
-        ns: this._getModuleIdsWithLocales(),
+        ns: this._getModuleIdsWithLocales(configLoader),
         defaultNS: 'core',
 
         debug: false,
@@ -64,7 +61,7 @@ export default class LocalizationService {
   /**
    * Find ids modules with defined locales
    */
-  _getModuleIdsWithLocales() {
+  static _getModuleIdsWithLocales(configLoader) {
     const moduleIdsWithLocales = [];
     for (const moduleId of configLoader.getEnabledModuleIds()) {
       const descriptor = configLoader.getModuleDescriptor(moduleId);

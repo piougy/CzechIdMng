@@ -1,3 +1,4 @@
+import EntityManager from './EntityManager';
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import TreeNodeManager from './TreeNodeManager';
@@ -16,6 +17,7 @@ import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
 
 const ManagerRoot = {
+  EntityManager,
   DataManager,
   IdentityManager,
   TreeNodeManager,

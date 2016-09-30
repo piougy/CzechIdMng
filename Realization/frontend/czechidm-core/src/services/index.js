@@ -16,7 +16,6 @@ import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceS
 import NotificationService from './NotificationService';
 import ConfigurationService from './ConfigurationService';
 import EmailService from './EmailService';
-import ModuleLoaderService from './ModuleLoaderService';
 import BackendModuleService from './BackendModuleService';
 
 
@@ -39,7 +38,6 @@ const ServiceRoot = {
   NotificationService,
   ConfigurationService,
   EmailService,
-  ModuleLoaderService,
   BackendModuleService
 };
 

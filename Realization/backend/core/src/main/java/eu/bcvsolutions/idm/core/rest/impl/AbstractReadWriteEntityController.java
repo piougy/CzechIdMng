@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
  *
  * @param <E>
  */
-public abstract class AbstractReadWriteController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
+public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	
 	@Autowired
 	@Qualifier("objectMapper")
@@ -38,7 +38,7 @@ public abstract class AbstractReadWriteController<E extends BaseEntity, F extend
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
 	
-	public AbstractReadWriteController(ReadWriteEntityService<E, F> entityService) {
+	public AbstractReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
 		super(entityService);
 	}
 	

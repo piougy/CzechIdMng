@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -41,7 +42,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	//
 	@Audited
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String username;
 

@@ -1,30 +1,44 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import Helmet from 'react-helmet';
+//
 import Footer from './Footer';
-import { Basic, Advanced, SecurityManager, Managers } from 'czechidm-core';
+import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
+//
+// this parts are genetater dynamicaly to dist - after build wil be packed by browserify to sources
+import config from '../../dist/config.json';
+import { moduleDescriptors } from '../../dist/modules/moduleAssembler';
+import { componentDescriptors } from '../../dist/modules/componentAssembler';
+import ConfigLoader from 'czechidm-core/src/utils/ConfigLoader';
 
+/**
+ * Application entry point
+ */
 export class App extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.securityManager = new SecurityManager();
-    this.configurationManager = new Managers.ConfigurationManager();
-    this.backendModuleManager = new Managers.BackendModuleManager();
+    this.securityManager = new Managers.SecurityManager();
+  }
+
+  getChildContext() {
+    return {
+    };
   }
 
   /**
-  * Look out: This method is supposted to be aplication entry point
+  * Look out: This method is aplication entry point
   */
   componentDidMount() {
-    this.hideAllMessages();
-    this.ping();
+    this.hideAllMessages(); // move to init app
+    this.context.store.dispatch(LayoutActions.appInit(config, moduleDescriptors, componentDescriptors));
   }
 
   /**
-  * Look out: This method is supposted to be aplication entry point
+  * Look out: This method is aplication entry point
   */
   componentDidUpdate() {
-    const { location, userContext } = this.props;
+    const { location, routes, userContext, appReady } = this.props;
     // select navigation
     if (location.pathname === '/') {
       this.selectNavigationItem('home');
@@ -35,7 +49,7 @@ export class App extends Basic.AbstractContent {
         password: this.refs.password.getValue() // prevent filled password
       });
     }
-    this.ping();
+
     // onEnter makes this redirection now
     // console.log('router', this.context.router);
     // console.log('location', this.props.location);
@@ -43,15 +57,13 @@ export class App extends Basic.AbstractContent {
     /* if (!this.props.userContext.isAuthenticated && this.props.location.pathname !== '/login') {
       this.context.router.replace('/login');
     }*/
-  }
 
-  ping() {
-    const { publicConfigurations, installedModules } = this.props;
-    if (!publicConfigurations || publicConfigurations.size === null) {
-      this.context.store.dispatch(this.configurationManager.fetchPublicConfigurations());
-    }
-    if (installedModules === null) {
-      // this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
+    // check access to disable module route - has to be here, because SecurityManager.checkaccess is called to early (configuration is loaded asynchronouslly).
+    if (appReady) {
+      const currentRoute = routes[routes.length - 1];
+      if (currentRoute.module && !ConfigLoader.isEnabledModule(currentRoute.module)) {
+        this.context.router.replace('/unavailable');
+      }
     }
   }
 
@@ -68,19 +80,21 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { publicConfigurations, location, userContext, bulk, installedModules } = this.props;
+    const { location, userContext, bulk, appReady } = this.props;
+    const titleTemplate = '%s | ' + this.i18n('app.name');
     //
     return (
       <div id="content-wrapper">
         <Basic.FlashMessages ref="messages"/>
         {
-          ((!publicConfigurations || publicConfigurations.size === 0 /* || !installedModules*/) && location.pathname !== '/unavailable')
+          !appReady
           ?
           <Basic.Loading className="global" showLoading/>
           :
           <div>
+            <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation />
-            <div id="content-container" className={SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
+            <div id="content-container" className={Managers.SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
               {this.props.children}
               {
                 /* TODO: move to redux and hide it, when is needed */
@@ -149,24 +163,23 @@ export class App extends Basic.AbstractContent {
 
 App.propTypes = {
   /**
-   * Application public configuration loaded from BE
-   */
-  publicConfigurations: PropTypes.arrayOf(PropTypes.object),
-  /**
    * Logged user context
    */
   userContext: PropTypes.object,
   /**
    * Globally bulk action
    */
-  bulk: PropTypes.object
+  bulk: PropTypes.object,
+  appReady: PropTypes.bool
 };
 
 App.defaultProps = {
-  publicConfigurations: null,
   userContext: null,
   bulk: { action: {} },
-  installedModules: []
+  appReady: false
+};
+
+App.childContextTypes = {
 };
 
 // Which props do we want to inject, given the global state?
@@ -174,9 +187,8 @@ App.defaultProps = {
 function select(state) {
   return {
     userContext: state.security.userContext,
-    publicConfigurations: Managers.DataManager.getData(state, Managers.ConfigurationManager.PUBLIC_CONFIGURATIONS),
     bulk: state.data.bulk,
-    installedModules: Managers.DataManager.getData(state, Managers.BackendModuleManager.UI_KEY_MODULES)
+    appReady: state.layout.get('appReady')
   };
 }
 

@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.security.domain.IfEnabled;
  */
 @Deprecated
 @RestController
-@IfEnabled("acc")
+@IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/accounts")
 public class AccountController {
 

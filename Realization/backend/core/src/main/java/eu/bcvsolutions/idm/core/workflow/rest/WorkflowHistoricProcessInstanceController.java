@@ -21,8 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
@@ -34,7 +35,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
  *
  */
 @RestController
-@RequestMapping(value = "/api/workflow/history/processes/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/history/processes/")
 public class WorkflowHistoricProcessInstanceController {
 
 	@Value("${spring.data.rest.defaultPageSize}")

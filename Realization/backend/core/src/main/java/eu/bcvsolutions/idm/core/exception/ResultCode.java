@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
  * Enum class for formatting response messages (mainly errors). 
  * Every enum contains a string message and corresponding https status code.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  */
 public interface ResultCode {
 	

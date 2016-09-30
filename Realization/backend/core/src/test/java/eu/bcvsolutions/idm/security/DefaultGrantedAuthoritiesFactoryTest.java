@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
@@ -109,7 +109,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		IdmRole role = new IdmRole();
 		role.setName("role");
 		IdmRoleAuthority roleAuthority = new IdmRoleAuthority();
-		roleAuthority.setTargetPermission(IdmGroupPermission.SYSTEM);
+		roleAuthority.setTargetPermission(IdmGroupPermission.APP);
 		roleAuthority.setActionPermission(IdmBasePermission.ADMIN);
 		role.getAuthorities().add(roleAuthority);
 		

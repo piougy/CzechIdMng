@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 
 /**
  * Test for identity service find managers and role.
@@ -46,7 +47,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	private IdmRoleRepository roleRepository;
 	
 	@Autowired
-	private DefaultIdmIdentityService identityService;
+	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;

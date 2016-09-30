@@ -7,13 +7,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.core.model.service.ModuleService;
 import eu.bcvsolutions.idm.security.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.security.domain.GroupPermission;
@@ -29,6 +31,15 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
 public class DefaultSecurityService implements SecurityService {
 	
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSecurityService.class);
+	
+	private final ModuleService moduleService;
+	
+	@Autowired
+	public DefaultSecurityService(ModuleService moduleService) {
+		Assert.notNull(moduleService, "Module service is required!");
+		
+		this.moduleService = moduleService;
+	}
 
 	@Override
 	public String getUsername() {
@@ -85,20 +96,16 @@ public class DefaultSecurityService implements SecurityService {
 	}
 	
 	/**
-	 * Returns true, if logged identity has SYSTEM_ADMIN authority. Could be used for single user mode.
+	 * Returns true, if logged identity has APP_ADMIN authority. Could be used for single user mode.
 	 */
 	@Override
 	public boolean isAdmin() {
-		return hasAnyAuthority(IdmGroupPermission.SYSTEM_ADMIN);
+		return hasAnyAuthority(IdmGroupPermission.APP_ADMIN);
 	}
 	
 	@Override
 	public List<GroupPermission> getAvailableGroupPermissions() {
-		//
-		// TODO: SPI / osgi for register module permissions
-		List<GroupPermission> groupPermissions = new ArrayList<>();
-		groupPermissions.addAll(Arrays.asList(IdmGroupPermission.values()));
-		groupPermissions.addAll(Arrays.asList(NotificationGroupPermission.values()));
+		List<GroupPermission> groupPermissions = moduleService.getAvailablePermissions();
 		log.debug("Loaded available groupPermissions [size:{}]", groupPermissions.size());
 		return groupPermissions;
 	}

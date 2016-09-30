@@ -1,13 +1,14 @@
 package eu.bcvsolutions.idm.core.model.repository.processor;
 
 import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+
 import org.springframework.data.history.Revision;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 /**
@@ -40,17 +41,17 @@ public class RevisionAssembler<T extends AbstractEntity> extends ResourceAssembl
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<? extends IdmRevisionController> clazz, String entityIdentifier, T entity, Integer revId) {
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, T entity, Integer revId) {
 		ResourceWrapper<T> wrapper = new ResourceWrapper<T>(entity);
-		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
-		wrapper.add(selfLink);
+		//Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
+		//wrapper.add(selfLink);
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<? extends IdmRevisionController> clazz, String entityIdentifier, Revision<Integer, ? extends AbstractEntity> entity, Integer revId) {
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Integer, ? extends AbstractEntity> entity, Integer revId) {
 		ResourceWrapper<Revision<Integer, ? extends AbstractEntity>> wrapper = new ResourceWrapper<Revision<Integer, ? extends AbstractEntity>>(entity);
-		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
-		wrapper.add(selfLink);
+//		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
+//		wrapper.add(selfLink);
 		return wrapper;
 	}
 

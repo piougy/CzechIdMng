@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * We want return the same error everywhere. This class overrides default spring errors (4xx)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public class RestErrorAttributes extends DefaultErrorAttributes {

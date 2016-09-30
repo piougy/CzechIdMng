@@ -13,13 +13,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import eu.bcvsolutions.idm.security.filter.OAuthAuthenticationFilter;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.security.rest.filter.OAuthAuthenticationFilter;
 import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Web security configuration
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Configuration
@@ -34,20 +35,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	 http.addFilterAfter(oAuthAuthenticationFilter(), BasicAuthenticationFilter.class)
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
-			.antMatchers("/api/public/**").permitAll()
-			.antMatchers("/api/**").fullyAuthenticated() // TODO: controllers should choose security?
-			.anyRequest().authenticated();
+			.antMatchers(BaseEntityController.BASE_PATH + "/public/**").permitAll()
+			.antMatchers(BaseEntityController.BASE_PATH + "/**").fullyAuthenticated() // TODO: controllers should choose security?
+			.anyRequest().permitAll(); // gui could run in application context
     }
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		// public controllers
 		web.ignoring().antMatchers( //
-				"/api", // endpoint with supported services list
-				"/api/authentication", // login / out
-				//"/api/public/**", // public
-				"/error/**",
-				"/api/browser/**" // TODO: close this endpoint before first version is released
+				BaseEntityController.BASE_PATH, // endpoint with supported services list
+				BaseEntityController.BASE_PATH + "/authentication", // login / out
+				"/error/**"
 			);
 	}
    

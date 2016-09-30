@@ -1,0 +1,156 @@
+@import "node_modules/normalize.less/normalize.less";
+@import "node_modules/bootstrap-less/bootstrap/bootstrap.less";
+@import "node_modules/font-awesome/less/font-awesome.less"; // TODO: move to icon.less
+@import "variables.less";
+/* inject:imports */
+
+/* endinject */
+
+//fixme
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #fcfcfc;
+  text-align: left;
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-size: 14px;
+  color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 { }
+
+h1 { font-size: 26px; line-height: 30px; }
+
+h1 small {
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 36px;
+}
+
+h2 small {
+  font-size: 18px;
+}
+
+h3 {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+h3 small {
+  font-size: 14px;
+}
+
+h4,
+h5,
+h6 {
+  line-height: 18px;
+}
+
+h4 {
+  font-size: 14px;
+  padding-top:5px;
+  padding-bottom: 5px;
+}
+
+h4 small {
+  font-size: 12px;
+}
+
+h5 {
+  font-size: 12px;
+}
+
+h6 {
+  font-size: 11px;
+  color: #999999;
+  text-transform: uppercase;
+}
+
+.content-footer {
+
+}
+
+
+a {
+  color: @idm-link-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: @idm-link-color-hover;
+  }
+
+  &:visited {
+    text-decoration: none;
+    color: @idm-link-color;
+  }
+}
+
+.list-group {
+  a {
+    font-weight: bolder;
+    color: @idm-nav-color;
+  }
+}
+
+.no-margin {
+  margin: 0 !important;
+}
+
+#content-wrapper {
+  width: 100%;
+}
+
+#content-container {
+  margin-top: 20px;
+  padding: 0 15px 0px 15px;
+  min-height: 568px;
+}
+
+@media(min-width:768px) {
+  #content-container.with-sidebar {
+    position: inherit;
+    margin: 0 0 0 250px;
+    padding: 20px 30px 0px 30px;
+    border-left: 1px solid #bbb;
+  }
+}
+
+footer {
+  margin: 10px 0px 25px 0px;
+
+  a {
+    color: @idm-nav-color !important;
+
+    &:hover {
+      color: @idm-link-color-hover !important;
+    }
+  }
+}
+
+/**
+* Login page
+*/
+.login-container {
+  width: 400px;
+  margin: 70px auto 0 auto;
+}
+
+/**
+ * TODO: testing only ...
+ */
+.huge {
+  font-size: 40px;
+}

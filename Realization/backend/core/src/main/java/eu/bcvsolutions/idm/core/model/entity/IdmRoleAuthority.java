@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.security.domain.GroupPermission;
 /**
  * Role privileges
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Entity

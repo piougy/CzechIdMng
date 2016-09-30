@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.exception.ErrorModel;
  * Model wrapper for errors and infos response
  * - simply adds errors or info element to response
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  */
 @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
 @org.codehaus.jackson.map.annotate.JsonSerialize(include=org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPTY)

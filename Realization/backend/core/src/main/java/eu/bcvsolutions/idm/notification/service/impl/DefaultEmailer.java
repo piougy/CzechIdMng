@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import eu.bcvsolutions.idm.configuration.domain.EmailerConfiguration;
+import eu.bcvsolutions.idm.core.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.service.EmailService;
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.notification.service.Emailer;
 /**
  * Default email sender implementation
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Component("emailer")

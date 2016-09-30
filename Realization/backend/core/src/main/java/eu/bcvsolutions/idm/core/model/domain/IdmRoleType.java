@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.domain;
 /**
  * Role could be used for different purpose
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public enum IdmRoleType {

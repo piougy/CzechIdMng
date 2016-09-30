@@ -1,9 +1,0 @@
-{
-  "env": "TEST",
-  "serverUrl": "http://localhost:8080/idm/api",
-  "locales": "locales",
-  "theme": "modules/core/themes/default",
-  "logger": {
-    "level": "INFO"
-  }
-}

@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.security.service.SecurityService;
  * 
  * http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/integration-testing.html
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Ignore

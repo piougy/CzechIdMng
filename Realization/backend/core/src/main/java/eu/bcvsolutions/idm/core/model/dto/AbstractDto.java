@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 /**
  * Common dto
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public abstract class AbstractDto implements Serializable, BaseDto {

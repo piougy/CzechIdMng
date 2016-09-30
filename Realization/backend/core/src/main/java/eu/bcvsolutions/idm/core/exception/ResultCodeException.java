@@ -10,10 +10,10 @@ import eu.bcvsolutions.idm.core.model.dto.ResultModels;
  * This error class propagates exception into front end. It contains a message and HTTP status code and unique id.
  * Every error has it's unique id under which you can find it in log.
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
-public final class ResultCodeException extends CoreException {
+public class ResultCodeException extends CoreException {
 	
 	private static final long serialVersionUID = -7022978890145637612L;
 	/**

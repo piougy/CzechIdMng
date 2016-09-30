@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -29,7 +30,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdentifiableByName;
  * Main idm class - identity. Identity and their roles - whole application runs
  * around it :)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Entity
@@ -41,7 +42,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	//
 	@Audited
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String username;
 
@@ -112,6 +113,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	}
 
 	@Override
+	@JsonIgnore
 	public String getName() {
 		return getUsername();
 	}

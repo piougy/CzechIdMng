@@ -26,7 +26,7 @@ public class ConfigurationControllerRestTest extends AbstractRestTest {
 	
 	@Test
     public void readAllPublic() throws Exception {
-        mockMvc.perform(get("/api/public/configurations")
+        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/public/configurations")
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk());
     }

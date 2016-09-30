@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.security.domain;
 /**
  * Base application permission
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 public interface BasePermission {

@@ -14,17 +14,18 @@ import eu.bcvsolutions.idm.security.domain.GroupPermission;
  */
 public enum IdmGroupPermission implements GroupPermission {
 	
-	SYSTEM(IdmBasePermission.ADMIN), // wildcard - system admin has all permissions
+	APP(IdmBasePermission.ADMIN), // wildcard - system admin has all permissions
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ORGANIZATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ);
+	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
+	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
-	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String APP_ADMIN = "APP" + BasePermission.SEPARATOR + "ADMIN";
 	//
 	public static final String IDENTITY_WRITE = "IDENTITY" + BasePermission.SEPARATOR + "WRITE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
@@ -39,10 +40,14 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ORGANIZATION_WRITE = "ORGANIZATION" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ORGANIZATION_DELETE = "ORGANIZATION" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
+	//
+	public static final String MODULE_READ = "MODULE" + BasePermission.SEPARATOR + "READ";
+	public static final String MODULE_WRITE = "MODULE" + BasePermission.SEPARATOR + "WRITE";
 	
 	private final List<BasePermission> permissions;
 

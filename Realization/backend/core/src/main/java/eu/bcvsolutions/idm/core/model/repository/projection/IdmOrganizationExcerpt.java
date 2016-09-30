@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
 /**
  * Trimmed organization - projection is used in collections (search etc.)
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  *
  */
 @Projection(name = "excerpt", types = IdmOrganization.class)

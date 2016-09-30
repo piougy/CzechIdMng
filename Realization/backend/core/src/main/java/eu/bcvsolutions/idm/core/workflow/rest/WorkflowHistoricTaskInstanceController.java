@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.bcvsolutions.idm.core.model.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.model.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceSer
  *
  */
 @RestController
-@RequestMapping(value = "/api/workflow/history/tasks/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/history/tasks/")
 public class WorkflowHistoricTaskInstanceController {
 
 	@Autowired

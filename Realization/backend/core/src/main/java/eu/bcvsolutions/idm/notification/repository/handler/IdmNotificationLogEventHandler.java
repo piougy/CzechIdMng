@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.notification.service.NotificationLogService;
 /**
  * Sending notifications through rest
  * 
- * @author Radek Tomiška <radek.tomiska@bcvsolutions.eu>
+ * @author Radek Tomiška 
  */
 @Component
 @RepositoryEventHandler(IdmNotificationLog.class)

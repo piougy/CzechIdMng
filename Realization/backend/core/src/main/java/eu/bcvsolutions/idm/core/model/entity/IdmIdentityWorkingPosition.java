@@ -13,6 +13,13 @@ import javax.persistence.TemporalType;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+/**
+ * 
+ * 
+ * @author Radek Tomiška
+ * @deprecated Will be renamed to IdentityContract
+ */
+@Deprecated
 @Entity
 @Table(name = "idm_identity_working_position")
 public class IdmIdentityWorkingPosition extends AbstractEntity implements ValidableEntity {

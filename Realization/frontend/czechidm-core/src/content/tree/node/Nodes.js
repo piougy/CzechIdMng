@@ -86,7 +86,7 @@ class Nodes extends Basic.AbstractContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.PageHeader>
-          <Basic.Icon value="fa:cube"/>
+          <Basic.Icon value="apple"/>
           {' '}
           {this.i18n('header')}
         </Basic.PageHeader>

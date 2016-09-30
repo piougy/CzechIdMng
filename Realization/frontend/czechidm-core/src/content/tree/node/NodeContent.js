@@ -60,7 +60,7 @@ class NodeContent extends Basic.AbstractContent {
           !node
           ||
           <Basic.PageHeader>
-            <Basic.Icon value="fa:cube"/>
+            <Basic.Icon value="apple"/>
             {' '}
             {
               this._getIsNew()

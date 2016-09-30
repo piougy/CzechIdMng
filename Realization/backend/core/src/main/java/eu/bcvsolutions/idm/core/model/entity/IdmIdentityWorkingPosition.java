@@ -52,8 +52,8 @@ public class IdmIdentityWorkingPosition extends AbstractEntity implements Valida
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "organization_id", referencedColumnName = "id")
-	private IdmOrganization organization;
+	@JoinColumn(name = "tree_node_id", referencedColumnName = "id")
+	private IdmTreeNode treeNode;
 	
 	public IdmIdentityWorkingPosition() {
 	}
@@ -102,11 +102,11 @@ public class IdmIdentityWorkingPosition extends AbstractEntity implements Valida
 		this.manager = manager;
 	}
 
-	public IdmOrganization getOrganization() {
-		return organization;
+	public IdmTreeNode getTreeNode() {
+		return treeNode;
 	}
 
-	public void setOrganization(IdmOrganization organization) {
-		this.organization = organization;
+	public void setTreeNode(IdmTreeNode treeNode) {
+		this.treeNode = treeNode;
 	}
 }

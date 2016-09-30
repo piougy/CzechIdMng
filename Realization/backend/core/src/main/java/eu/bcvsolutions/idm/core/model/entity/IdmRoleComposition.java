@@ -9,8 +9,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 /**
  * SuperiorRole inculde subRole (Admin > User)

@@ -1,11 +1,8 @@
 package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.QuickFilter;

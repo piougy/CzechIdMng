@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityWorkingPositionManager, IdentityManager, OrganizationManager, SecurityManager } from '../../redux';
+import { IdentityWorkingPositionManager, IdentityManager, TreeNodeManager, SecurityManager } from '../../redux';
 
 const uiKey = 'identity-working-positions';
 
@@ -16,7 +16,7 @@ class WorkingPositions extends Basic.AbstractContent {
     super(props, context);
     this.identityWorkingPositionManager = new IdentityWorkingPositionManager();
     this.identityManager = new IdentityManager();
-    this.organizationManager = new OrganizationManager();
+    this.treeNodeManager = new TreeNodeManager();
     this.state = {
       detail: {
         show: false,
@@ -43,7 +43,7 @@ class WorkingPositions extends Basic.AbstractContent {
     /* eslint no-undef: 1 */
     const entityFormData = _.merge({}, entity, {
       manager: entity.id && entity._embedded.manager ? entity._embedded.manager.username : null,
-      organization: entity.id && entity._embedded.organization ? entity._embedded.organization.id : null
+      treeNode: entity.id && entity._embedded.treeNode ? entity._embedded.treeNode.id : null
     });
 
     this.setState({
@@ -78,7 +78,7 @@ class WorkingPositions extends Basic.AbstractContent {
     const { userID } = this.props.params;
     entity.identity = this.identityManager.getSelfLink(userID);
     entity.manager = this.identityManager.getSelfLink(entity.manager);
-    entity.organization = this.organizationManager.getSelfLink(entity.organization);
+    entity.treeNode = this.treeNodeManager.getSelfLink(entity.treeNode);
     //
     if (entity.id === undefined) {
       this.context.store.dispatch(this.identityWorkingPositionManager.createEntity(entity, `${uiKey}-${userID}`, (savedEntity, error) => {
@@ -207,8 +207,8 @@ class WorkingPositions extends Basic.AbstractContent {
                 }
               />
               <Basic.Column
-                property="organization"
-                header={this.i18n('entity.IdentityWorkingPosition.organization')}
+                property="treeNode"
+                header={this.i18n('entity.IdentityWorkingPosition.treeNode')}
                 cell={
                   ({ rowIndex, data }) => {
                     return (
@@ -216,7 +216,7 @@ class WorkingPositions extends Basic.AbstractContent {
                         {
                           !data[rowIndex]._embedded
                           ||
-                          this.organizationManager.getNiceLabel(data[rowIndex]._embedded.organization)
+                          this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.treeNode)
                         }
                       </span>
                     );
@@ -274,9 +274,9 @@ class WorkingPositions extends Basic.AbstractContent {
                   manager={this.identityManager}
                   label={this.i18n('entity.IdentityWorkingPosition.manager')}/>
                 <Basic.SelectBox
-                  ref="organization"
-                  manager={this.organizationManager}
-                  label={this.i18n('entity.IdentityWorkingPosition.organization')}/>
+                  ref="treeNode"
+                  manager={this.treeNodeManager}
+                  label={this.i18n('entity.IdentityWorkingPosition.treeNode')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

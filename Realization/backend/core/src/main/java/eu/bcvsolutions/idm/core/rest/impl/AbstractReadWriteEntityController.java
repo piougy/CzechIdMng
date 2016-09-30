@@ -42,7 +42,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		super(entityService);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
 		E createdIdentity = createEntity((E)requestResourceResolver.resolve(nativeRequest, getEntityClass(), null));
 		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
@@ -53,7 +52,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		return getEntityService().save(entity);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> update(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -70,7 +68,6 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 		return getEntityService().save(entity);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> patch(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {

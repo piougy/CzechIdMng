@@ -28,13 +28,15 @@ import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
 import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.rest.impl.IdmOrganizationController;
 
 /**
  * Audit for organization test
@@ -43,16 +45,19 @@ import eu.bcvsolutions.idm.core.rest.impl.IdmOrganizationController;
  *
  */
 
-public class OrganizationAuditTest extends AbstractIntegrationTest {
+public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
 	
 	@Autowired
-	private IdmOrganizationRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
-	private IdmOrganizationController organizationController;
+	private IdmTreeTypeRepository treeTypeRepository;
+	
+	@Autowired
+	private IdmTreeNodeController treeNodeController;
 	
 	@Autowired
 	private IdmAuditService auditService;
@@ -60,10 +65,12 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	private IdmOrganization organization = null;
+	private IdmTreeType type = null;
+	private IdmTreeNode node = null;
 	private TransactionTemplate template;
 	
-	private final String testName = "test_audit_organization";
+	private final String testTypeName = "test_audit_type";
+	private final String testName = "test_audit_node";
 	private final String adminModifier = "admin";
 	
 	@Before
@@ -73,32 +80,33 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	
 	@After
 	@Transactional
-	public void deleteOrganization() {
+	public void deleteNode() {
 		// we need to ensure "rollback" manually the same as we are starting transaction manually		
-		organizationRepository.delete(organization);
+		treeNodeRepository.delete(node);
 	}
 	
 	@Test
-	public void testCreateRole() {
+	public void testCreateNode() {
 		loginAsAdmin(adminModifier);
 		try {
-			organization = saveInTransaction(constructTestOrganization(null), organizationRepository);
+			type = saveInTransaction(constructTestType(this.testTypeName), treeTypeRepository);
+			node = saveInTransaction(constructTestNode(null, type), treeNodeRepository);
 	
-			assertNotNull(organization.getId());
+			assertNotNull(node.getId());
 			
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(1, revisions.size());
 					
-					IdmOrganization org = (IdmOrganization) auditService.findRevision(IdmOrganization.class, 
-							revisions.get(revisions.size() - 1).getRevisionNumber(), organization.getId()).getEntity();
+					IdmTreeNode org = (IdmTreeNode) auditService.findRevision(IdmTreeNode.class, 
+							revisions.get(revisions.size() - 1).getRevisionNumber(), node.getId()).getEntity();
 					
-					assertEquals(organization.getId(), org.getId());
-					assertEquals(organization.getName(), org.getName());
-					assertEquals(organization.getModifier(), org.getModifier());
+					assertEquals(node.getId(), org.getId());
+					assertEquals(node.getName(), org.getName());
+					assertEquals(node.getModifier(), org.getModifier());
 				}
 			});
 		} finally {
@@ -110,20 +118,23 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	public void testChangeName() {
 		loginAsAdmin(adminModifier);
 		try {
-			organization = constructTestOrganization(null);
-			organization = saveInTransaction(organization, organizationRepository);
+			type = constructTestType(this.testTypeName);
+			saveInTransaction(type, treeTypeRepository);
 			
-			final String firstName = organization.getName();
+			node = constructTestNode(null, type);
+			node = saveInTransaction(node, treeNodeRepository);
 			
-			organization.setName(testName + "2");
-			organization = saveInTransaction(organization, organizationRepository);
+			final String firstName = node.getName();
 			
-			final String secondName = organization.getName();
+			node.setName(testName + "2");
+			node = saveInTransaction(node, treeNodeRepository);
+			
+			final String secondName = node.getName();
 			
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					assertEquals(2, revisions.size());
 					
 					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
@@ -134,11 +145,11 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 						}
 					});
 					
-					IdmOrganization revisionRole = (IdmOrganization) revisions.get(revisions.size() - 1).getEntity();
+					IdmTreeNode revisionRole = (IdmTreeNode) revisions.get(revisions.size() - 1).getEntity();
 					
 					assertEquals(secondName, revisionRole.getName());
 					
-					revisionRole = (IdmOrganization) revisions.get(revisions.size() - 2).getEntity();
+					revisionRole = (IdmTreeNode) revisions.get(revisions.size() - 2).getEntity();
 					
 					assertEquals(firstName, revisionRole.getName());
 				}
@@ -150,26 +161,29 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testCheckModifier() {
-		organization = constructTestOrganization(null);
-		organization.setName(testName + "_2");
-		organization = saveInTransaction(organization, organizationRepository);		
+		type = constructTestType(this.testTypeName);
+		saveInTransaction(type, treeTypeRepository);
 		
-		final String firstModifier = organization.getModifier();
+		node = constructTestNode(null, type);
+		node.setName(testName + "_2");
+		node = saveInTransaction(node, treeNodeRepository);		
+		
+		final String firstModifier = node.getModifier();
 		
 		loginAsAdmin(adminModifier);
 		
 		try {
-			organization.setName(testName + "_3");
-			organization = saveInTransaction(organization, organizationRepository);
+			node.setName(testName + "_3");
+			node = saveInTransaction(node, treeNodeRepository);
 			
-			final String secondModifier = organization.getModifier();
+			final String secondModifier = node.getModifier();
 			
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					Long id = organization.getId();
+					Long id = node.getId();
 					
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, id);
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
 					assertEquals(2, revisions.size());
 					
 					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
@@ -180,11 +194,11 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 						}
 					});
 					
-					IdmOrganization revisionOrganization = (IdmOrganization) revisions.get(revisions.size() - 2).getEntity();
+					IdmTreeNode revisionOrganization = (IdmTreeNode) revisions.get(revisions.size() - 2).getEntity();
 					
 					assertEquals(firstModifier, revisionOrganization.getModifier());
 					
-					revisionOrganization = (IdmOrganization) revisions.get(revisions.size() - 1).getEntity();
+					revisionOrganization = (IdmTreeNode) revisions.get(revisions.size() - 1).getEntity();
 					
 					assertEquals(secondModifier, revisionOrganization.getModifier());
 				}
@@ -198,20 +212,23 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 	public void testRevisionDetail() {
 		loginAsAdmin(adminModifier);
 		try {
-			organization = constructTestOrganization(null);
+			type = constructTestType(this.testTypeName);
+			saveInTransaction(type, treeTypeRepository);
+			
+			node = constructTestNode(null, type);
 			for (int index = 0; index < 10; index++) {
-				organization.setName(testName + "_" + index);
-				organization = saveInTransaction(organization, organizationRepository);
+				node.setName(testName + "_" + index);
+				node = saveInTransaction(node, treeNodeRepository);
 			}
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmOrganization.class, organization.getId());
+					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(10, revisions.size());
 					
 					for (Revision<Integer, ? extends AbstractEntity> rev : revisions) {
-						Revision<Integer, ? extends AbstractEntity> revSecond = auditService.findRevision(IdmOrganization.class, rev.getRevisionNumber(), organization.getId());
+						Revision<Integer, ? extends AbstractEntity> revSecond = auditService.findRevision(IdmTreeNode.class, rev.getRevisionNumber(), node.getId());
 						assertEquals(rev, revSecond);
 					}
 					
@@ -229,19 +246,22 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					organization = constructTestOrganization(null);
-					organization = saveInTransaction(organization, organizationRepository);
+					type = constructTestType(testTypeName);
+					saveInTransaction(type, treeTypeRepository);
+					
+					node = constructTestNode(null, type);
+					node = saveInTransaction(node, treeNodeRepository);
 					
 					String nonExistOrganizationId = "" + Integer.MAX_VALUE;
 					
-					ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> result = organizationController.findRevisions(organization.getId().toString());
+					ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> result = treeNodeController.findRevisions(node.getId().toString());
 					
 					assertEquals(true, result.hasBody());
 					
 					Exception exception = null;
 					
 					try {
-						organizationController.findRevisions(nonExistOrganizationId);
+						treeNodeController.findRevisions(nonExistOrganizationId);
 					} catch (ResultCodeException e) {
 						exception = e;
 					} catch (Exception e) {
@@ -253,7 +273,7 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 					exception = null;
 					
 					try {
-						organizationController.findRevision(nonExistOrganizationId, Integer.MAX_VALUE);
+						treeNodeController.findRevision(nonExistOrganizationId, Integer.MAX_VALUE);
 					} catch (ResultCodeException e) {
 						exception = e;
 					} catch (Exception e) {
@@ -268,15 +288,22 @@ public class OrganizationAuditTest extends AbstractIntegrationTest {
 		}
 	}
 	
-	private IdmOrganization constructTestOrganization(IdmOrganization parent) {
-		IdmOrganization organization = new IdmOrganization();
-		organization.setName(testName);
+	private IdmTreeType constructTestType(String name) {
+		IdmTreeType type = new IdmTreeType();
+		type.setName(name);
+		return type;
+	}
+	
+	private IdmTreeNode constructTestNode(IdmTreeNode parent, IdmTreeType type) {
+		IdmTreeNode node = new IdmTreeNode();
+		node.setName(testName);
+		node.setTreeType(type);
 		
 		if (parent != null) {
-			organization.setParent(parent);
+			node.setParent(parent);
 		}
 		
-		return organization;
+		return node;
 	}
 	
 	private <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T> repository) {

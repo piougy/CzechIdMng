@@ -199,7 +199,7 @@ export default class AbstractService {
   }
 
   /**
-   * Get given audits revisions for apiPath and username, role name, organizations ids
+   * Get given audits revisions for apiPath and username, role name, tree nodes ids
    *
    * @param apiPath {string}
    * @param entityId {string, number}
@@ -220,7 +220,7 @@ export default class AbstractService {
   }
 
   /**
-   * Get single revision for username, role name, organizations ids and id revision
+   * Get single revision for username, role name, tree nodes ids and id revision
    *
    * @param entityId {string, number}
    * @param revId {number}

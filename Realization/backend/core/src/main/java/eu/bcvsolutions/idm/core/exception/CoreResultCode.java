@@ -43,6 +43,10 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_DOES_NOT_MEET_POLICY(HttpStatus.BAD_REQUEST, "Password does not match password policy: %s"),
 	PASSWORD_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "You cannot change your password yet. Please try it again after %s"),
 	TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY(HttpStatus.BAD_REQUEST, "You cannot create self delegation (%s)"),	
+	// tree
+	TREE_NODE_BAD_PARRENT(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad parent."),
+	TREE_NODE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree node: %s, cannot be deleted."),
+	TREE_TYPE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree type: %s, cannot be deleted."),
 	//
 	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable"),
 	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled"),

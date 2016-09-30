@@ -118,7 +118,7 @@ module.exports = {
             'id': 'tree-nodes',
             'labelKey': 'content.tree.nodes.header',
             'order': 10,
-            'icon': 'fa:cube',
+            'icon': 'apple',
             'path': '/tree/nodes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
           },

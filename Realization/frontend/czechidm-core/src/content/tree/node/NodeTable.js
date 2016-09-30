@@ -229,6 +229,9 @@ export class NodeTable extends Basic.AbstractContent {
                 showLoading={showLoading}
                 filter={
                   <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                    {
+                      showLoading
+                      ||
                     <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                       <Basic.Row>
                         <div className="col-lg-6">
@@ -252,6 +255,7 @@ export class NodeTable extends Basic.AbstractContent {
                         </div>
                       </Basic.Row>
                     </Basic.AbstractForm>
+                  }
                   </Advanced.Filter>
                 }
                 filterOpened={!filterOpened}

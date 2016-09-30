@@ -94,7 +94,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Resources<?> find(
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 

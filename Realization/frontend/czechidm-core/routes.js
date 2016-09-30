@@ -68,19 +68,39 @@ module.exports = {
       component: require('./src/content/user/PasswordReset')
     },
     {
-      path: 'organizations',
-      component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ],
-    },
-    {
-      path: 'organizations/:entityId',
-      component: require('./src/content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
-    },
-    {
-      path: 'organizations/new',
-      component: require('./src/content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_WRITE' ] } ]
+      path: 'tree',
+      childRoutes: [
+        {
+          path: 'nodes',
+          component: require('./src/content/tree/node/Nodes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+        },
+        {
+          path: 'nodes/:entityId',
+          component: require('./src/content/tree/node/NodeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+        },
+        {
+          path: 'nodes/new',
+          component: require('./src/content/tree/node/NodeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE' ] } ]
+        },
+        {
+          path: 'types',
+          component: require('./src/content/tree/type/Types'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ],
+        },
+        {
+          path: 'types/new',
+          component: require('./src/content/tree/type/TypeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE' ] } ]
+        },
+        {
+          path: 'types/:entityId',
+          component: require('./src/content/tree/type/TypeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+        },
+      ]
     },
     {
       path: 'roles',

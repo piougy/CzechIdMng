@@ -14,13 +14,15 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -38,7 +40,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
-
+	private static final String DEFAULT_TREE_TYPE = "TREE_ORGANIZATIONS";
+	private static final int FIRST_ROOT = 0; 
+	
 	@Autowired
 	private InitApplicationData initApplicationData;
 	
@@ -52,7 +56,10 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmIdentityRoleRepository identityRoleRepository;
 
 	@Autowired
-	private IdmOrganizationRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
+	
+	@Autowired
+	private IdmTreeTypeRepository treeTypeRepository;
 
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
@@ -78,7 +85,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmOrganization rootOrganization = organizationRepository.findOneByParentIsNull();
+			//
+			List<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null);
+			IdmTreeNode rootOrganization = null;
+			if (!rootsList.isEmpty()) {
+				rootOrganization = rootsList.get(FIRST_ROOT);
+			} else {
+				IdmTreeNode organizationRoot = new IdmTreeNode();
+				organizationRoot.setName("Organization ROOT");
+				organizationRoot.setTreeType(treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE));
+				this.treeNodeRepository.save(organizationRoot);
+			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
 				log.info("Creating demo data ...");				
@@ -140,22 +157,27 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity3 = this.identityRepository.save(identity3);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
-				IdmOrganization organization1 = new IdmOrganization();
+				// get tree type for organization
+				IdmTreeType treeType = treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE);
+				//
+				IdmTreeNode organization1 = new IdmTreeNode();
 				organization1.setName("Organization One");
 				organization1.setParent(rootOrganization);
-				this.organizationRepository.save(organization1);
+				organization1.setTreeType(treeType);
+				this.treeNodeRepository.save(organization1);
 				//
-				IdmOrganization organization2 = new IdmOrganization();
+				IdmTreeNode organization2 = new IdmTreeNode();
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
 				organization2.setParent(rootOrganization);
-				this.organizationRepository.save(organization2);
+				organization2.setTreeType(treeType);
+				this.treeNodeRepository.save(organization2);
 				//
 				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();
 				identityWorkingPosition.setIdentity(identityAdmin);
 				identityWorkingPosition.setPosition("vedoucí");
 				identityWorkingPosition.setManager(identity2);
-				identityWorkingPosition.setOrganization(organization2);
+				identityWorkingPosition.setTreeNode(organization2);
 				identityWorkingPositionRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");

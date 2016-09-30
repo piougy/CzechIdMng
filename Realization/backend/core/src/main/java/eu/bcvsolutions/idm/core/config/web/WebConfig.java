@@ -13,7 +13,6 @@ import org.springframework.core.Ordered;
 import org.springframework.data.mapping.context.PersistentEntities;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.core.mapping.RepositoryResourceMappings;
 import org.springframework.data.rest.core.support.SelfLinkProvider;
 import org.springframework.data.rest.webmvc.config.PersistentEntityResourceAssemblerArgumentResolver;
 import org.springframework.data.rest.webmvc.config.PersistentEntityResourceHandlerMethodArgumentResolver;
@@ -30,7 +29,6 @@ import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.impl.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 
 /**

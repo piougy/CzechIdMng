@@ -202,51 +202,49 @@ class Profile extends Basic.AbstractContent {
 
               <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
                 <Basic.AbstractForm ref="form" className="form-horizontal">
-                  <Basic.Row>
-                    <div className="col-lg-7">
-                      <Basic.TextField ref="username" label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
-                      <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
-                      <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>
-                      <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
-                      <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')}/>
-                      <Basic.TextField ref="email" label={this.i18n('content.user.profile.email.label')} placeholder={this.i18n('content.user.profile.email.placeholder')} validation={Joi.string().email()}/>
-                      {/*
-                      <Basic.SelectBox
-                        ref="idmManager"
-                        service={identityManager.getService()}
-                        searchInFields={['lastName', 'name','email']}
-                        label={this.i18n('entity.Identity.idmManager')}
-                        readOnly={!canEditMap.get('idmManager')}
-                      />
-                      <Basic.SelectBox
-                        ref="homeOrganisation"
-                        service={organizationManager.getService()}
-                        searchInFields={['name']}
-                        label={this.i18n('entity.Identity.homeOrganisation')}
-                        required
-                      />
-                      */}
-                      <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
-                      <Basic.TextArea ref="description" label={this.i18n('content.user.profile.description.label')} placeholder={this.i18n('content.user.profile.description.placeholder')} rows={4} />
-                    </div>
-                    <div className="col-lg-5">
-                      <Basic.Checkbox ref="generatePassword" label={this.i18n('content.user.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
-                      <Basic.TextField
-                        type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                        ref="password"
-                        label={this.i18n('entity.Identity.password')}
-                        required={!generatePassword}
-                        readOnly={generatePassword || generatePasswordShowLoading}
-                        validate={this._validatePassword.bind(this, 'passwordAgain', true)}/>
-                      <Basic.TextField
-                        type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                        ref="passwordAgain"
-                        label={this.i18n('entity.Identity.passwordAgain')}
-                        required={!generatePassword}
-                        readOnly={generatePassword || generatePasswordShowLoading}
-                        validate={this._validatePassword.bind(this, 'password', false)}/>
-                    </div>
-                  </Basic.Row>
+                  <div className="col-lg-7">
+                    <Basic.TextField ref="username" label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
+                    <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
+                    <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>
+                    <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
+                    <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')}/>
+                    <Basic.TextField ref="email" label={this.i18n('content.user.profile.email.label')} placeholder={this.i18n('content.user.profile.email.placeholder')} validation={Joi.string().email()}/>
+                    {/* warning organization no longer exists
+                    <Basic.SelectBox
+                      ref="idmManager"
+                      service={identityManager.getService()}
+                      searchInFields={['lastName', 'name','email']}
+                      label={this.i18n('entity.Identity.idmManager')}
+                      readOnly={!canEditMap.get('idmManager')}
+                    />
+                    <Basic.SelectBox
+                      ref="homeOrganisation"
+                      service={organizationManager.getService()}
+                      searchInFields={['name']}
+                      label={this.i18n('entity.Identity.homeOrganisation')}
+                      required
+                    />
+                    */}
+                    <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
+                    <Basic.TextArea ref="description" label={this.i18n('content.user.profile.description.label')} placeholder={this.i18n('content.user.profile.description.placeholder')} rows={4} />
+                  </div>
+                  <div className="col-lg-5">
+                    <Basic.Checkbox ref="generatePassword" label={this.i18n('content.user.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+                    <Basic.TextField
+                      type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
+                      ref="password"
+                      label={this.i18n('entity.Identity.password')}
+                      required={!generatePassword}
+                      readOnly={generatePassword || generatePasswordShowLoading}
+                      validate={this._validatePassword.bind(this, 'passwordAgain', true)}/>
+                    <Basic.TextField
+                      type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
+                      ref="passwordAgain"
+                      label={this.i18n('entity.Identity.passwordAgain')}
+                      required={!generatePassword}
+                      readOnly={generatePassword || generatePasswordShowLoading}
+                      validate={this._validatePassword.bind(this, 'password', false)}/>
+                  </div>
                 </Basic.AbstractForm>
               </Basic.PanelBody>
 

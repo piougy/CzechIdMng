@@ -31,13 +31,9 @@ For update nodejs from 0.x versions:
 
 ### Install gulp
 
-Globally as root:
+**Gulp version 3.9.0 is required.
 
-`sudo npm install -g gulp`
-
-or locally:
-
-`npm install gulp`
+`npm install gulp@3.9.0`
 
 ## Install the dependencies for application module
 

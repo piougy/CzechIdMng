@@ -45,7 +45,7 @@ class Nodes extends Basic.AbstractContent {
         const isNoType = types._embedded.treetypes.length === 0 ? true : false;
 
         if (!isNoType) {
-          this.props.history.pushState(this.state, '/tree/nodes/', {type: types._embedded.treetypes[0].id});
+          this.props.history.push('/tree/nodes/', {type: types._embedded.treetypes[0].id});
         }
 
         this.setState({

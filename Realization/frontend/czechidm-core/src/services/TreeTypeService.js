@@ -5,7 +5,7 @@ class TreeTypeService extends AbstractService {
 
   const
   getApiPath() {
-    return '/tree/types';
+    return '/treetypes';
   }
 
   getNiceLabel(entity) {

@@ -54,10 +54,11 @@ export class NodeTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
+    console.log(this.refs.filterForm.getData());
     const data = {
       ... this.refs.filterForm.getData(),
-      parent: treeNodeManager.getSelfLink(this.refs.filterForm.getData().parent),
-      treeType: treeTypeManager.getSelfLink(type.id)
+      parent: this.refs.filterForm.getData().parent,
+      treeType: type.id
     };
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
@@ -75,7 +76,7 @@ export class NodeTable extends Basic.AbstractContent {
     }
     const data = {
       ... this.refs.filterForm.getData(),
-      parent: treeNodeManager.getSelfLink(nodeId)
+      parent: nodeId
     };
     this.refs.parent.setValue(nodeId);
     this.refs.table.getWrappedInstance().useFilterData(data);
@@ -132,14 +133,21 @@ export class NodeTable extends Basic.AbstractContent {
 
     const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', entity.id);
     this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootKey, (loadedRoot) => {
-      this.setState({
-        root: loadedRoot._embedded.treenodes[0],
-        type: entity,
-        showLoading: false
-      });
+      if (loadedRoot !== null) {
+        this.setState({
+          root: loadedRoot._embedded.treenodes[0],
+          type: entity,
+          showLoading: false
+        });
+      } else {
+        this.setState({
+          type: entity,
+          showLoading: false
+        });
+      }
       this.refs.table.getWrappedInstance().reload();
     }));
-    this.context.router.pushState(this.state, '/tree/nodes/', {type: entity.id});
+    this.context.router.push('/tree/nodes/?type=' + entity.id);
   }
 
 /**
@@ -169,13 +177,16 @@ export class NodeTable extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-12">
-          <div className="col-lg-3">
+        <div className="col-lg-3 col-xs-12 pull-left">
+          <div className="col-lg-12" style={{ borderBottom: '1px solid #ddd', marginTop: '-11px' }}>
+            <h3>{this.i18n('content.tree.typePick')}</h3>
+          </div>
+          <div className="col-lg-12">
             {
             !type
             ||
             <Basic.AbstractForm ref="treePick" uiKey="tree-pick" className="form-horizontal" >
               <span>
-              <h3>{this.i18n('content.tree.typePick')}</h3>
               <Basic.SelectBox
                 ref="treeType"
                 value={type.name}
@@ -187,7 +198,7 @@ export class NodeTable extends Basic.AbstractContent {
             </Basic.AbstractForm>
             }
             {
-            showLoading
+            !root
             ||
             <Basic.Panel style={{ marginTop: 15 }}>
             <Advanced.Tree
@@ -203,13 +214,14 @@ export class NodeTable extends Basic.AbstractContent {
               />
             </Basic.Panel>
              }
-          </div>
-            <div className="col-lg-9" style={{ paddingRight: 0, paddingLeft: 0 }}>
+            </div>
+            </div>
+            <div className="col-lg-9 col-xs-12 pull-right" style={{ paddingRight: 0, paddingLeft: 0 }}>
               <Basic.Confirm ref="confirm-delete" level="danger"/>
               <Advanced.Table
                 ref="table"
                 uiKey={tableUiKey}
-                forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', treeTypeManager.getSelfLink(type.id))}
+                forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
                 manager={treeNodeManager}
                 showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
                 rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
@@ -230,18 +242,14 @@ export class NodeTable extends Basic.AbstractContent {
                         </div>
                       </Basic.Row>
                       <Basic.Row className="last">
-                        {
-                        showLoading
-                        ||
                         <div className="col-lg-6">
                           <Advanced.Filter.SelectBox
                             ref="parent"
                             placeholder={this.i18n('entity.TreeNode.parentId')}
                             label={this.i18n('entity.TreeNode.parent.name')}
-                            forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', treeTypeManager.getSelfLink(type.id))}
+                            forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
                             manager={treeNodeManager}/>
                         </div>
-                        }
                       </Basic.Row>
                     </Basic.AbstractForm>
                   </Advanced.Filter>

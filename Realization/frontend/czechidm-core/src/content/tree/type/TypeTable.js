@@ -86,7 +86,6 @@ export class TypeTable extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-12">
-          <div className="col-lg-12" style={{ paddingRight: 0, paddingLeft: 0 }}>
             <Basic.Confirm ref="confirm-delete" level="danger"/>
             <Advanced.Table
               ref="table"
@@ -94,7 +93,6 @@ export class TypeTable extends Basic.AbstractContent {
               manager={treeTypeManager}
               showRowSelection={SecurityManager.hasAuthority('TREETYPE_DELETE')}
               rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-              style={{ borderLeft: '1px solid #ddd' }}
               filter={
                 <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                   <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -142,7 +140,6 @@ export class TypeTable extends Basic.AbstractContent {
                 sort={false}/>
               <Advanced.Column property="name" sort/>
             </Advanced.Table>
-          </div>
         </div>
       </Basic.Row>
     );

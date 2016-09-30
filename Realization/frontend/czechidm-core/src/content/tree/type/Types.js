@@ -31,7 +31,6 @@ class Types extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.PageHeader>
           <Basic.Icon value="fa:server"/>

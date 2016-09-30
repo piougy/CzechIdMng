@@ -106,7 +106,7 @@ export default class NodeDetail extends Basic.AbstractContent {
               <Basic.SelectBox
                 ref="parent"
                 label={this.i18n('entity.TreeNode.parent.name')}
-                forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', this.treeTypeManager.getSelfLink(type))}
+                forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
                 manager={this.treeNodeManager}
                 required={parentRequired}/>
                 <Basic.SelectBox

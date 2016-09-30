@@ -28,8 +28,6 @@ class Role extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.PanelHeader text={<span>{roleManager.getNiceLabel(role)} <small> Detail role</small></span>} className="hidden">
-          </Basic.PanelHeader>
           <div className="tab-vertical clearfix">
             <Advanced.TabPanel parentId="role-tabs" params={this.props.params}>
               {this.props.children}

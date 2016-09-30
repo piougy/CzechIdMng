@@ -31,7 +31,7 @@ For update nodejs from 0.x versions:
 
 ### Install gulp
 
-**Gulp version 3.9.0 is required.
+**Gulp version 3.9.0 is required.**
 
 `npm install gulp@3.9.0`
 

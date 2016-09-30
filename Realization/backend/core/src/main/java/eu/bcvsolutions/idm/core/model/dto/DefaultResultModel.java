@@ -16,6 +16,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import eu.bcvsolutions.idm.core.exception.ResultCode;
 
+/**
+ * Detault response model
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @JsonInclude(Include.NON_NULL)
 public class DefaultResultModel implements ResultModel {
 	

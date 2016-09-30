@@ -20,11 +20,34 @@
       "header": "Napojené systémy",
       "title": "$t(acc:content.systems.header)"
     },
+    "system": {
+      "detail" : {
+        "header": "Napojený systém",
+        "title": "$t(acc:content.system.detail.header)",
+        "edit": {
+          "header": "{{name}} <small>detail napojeného systému</small>"
+        },
+        "create": {
+          "header": "Nový napojený systém"
+        },
+        "save": {
+          "success": "Systém [{{name}}] byl úspěšně uložen"
+        }
+      }
+    },
     "role": {
       "systems": {
         "header": "$t(acc:content.systems.header)",
         "title": "$t(acc:content.systems.header)"
       }
+    }
+  },
+  "entity": {
+    "System": {
+      "_type": "Koncový systém",
+      "name": "Název systému",
+      "disabled": "Neaktivní",
+      "description": "Popis"
     }
   }
 }

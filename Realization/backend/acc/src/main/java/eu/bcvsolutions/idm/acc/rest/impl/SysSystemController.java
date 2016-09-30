@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.lookup.SysSystemLookup;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.impl.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.security.domain.IfEnabled;;
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.security.domain.IfEnabled;;
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
-public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, EmptyFilter> {
+public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
 	
 	@Autowired
 	private SysSystemLookup systemLookup;
@@ -108,5 +108,12 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
+		QuickFilter filter = new QuickFilter();
+		filter.setText((String)parameters.toSingleValueMap().get("text"));
+		return filter;
 	}
 }

@@ -115,7 +115,7 @@ export class NodeTable extends Basic.AbstractContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/tree/nodes/${uuidId}?new=1&type=${type.id}`);
     } else {
-      this.context.router.push('/tree/nodes/' + entity.id);
+      this.context.router.push(`/tree/nodes/${entity.id}?type=${type.id}`);
     }
   }
 

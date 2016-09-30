@@ -1208,9 +1208,9 @@
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
-      "parentId": "Nadřazená prvek",
+      "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazený prv."
+          "name": "Nadřazený prvek"
       },
       "treeType": {
         "name": "Typ"

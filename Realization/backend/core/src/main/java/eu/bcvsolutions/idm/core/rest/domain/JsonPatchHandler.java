@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 /**
  * Component to apply JSON Patch and JSON Merge Patch payloads to existing domain objects. The implementation uses the

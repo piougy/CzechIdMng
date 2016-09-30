@@ -22,7 +22,8 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 		itemResourceRel = "treetype",
 		collectionResourceDescription = @Description("Tree types"),
 		itemResourceDescription = @Description("Tree types"),
-		excerptProjection = IdmTreeTypeExcerpt.class
+		excerptProjection = IdmTreeTypeExcerpt.class,
+		exported = false
 	)
 public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType> {
 	

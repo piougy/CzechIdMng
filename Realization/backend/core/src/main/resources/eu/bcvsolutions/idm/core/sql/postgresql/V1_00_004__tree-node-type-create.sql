@@ -95,5 +95,5 @@ INSERT INTO idm_tree_type(id, name, created, creator, modified) VALUES ((SELECT 
 UPDATE idm_tree_node SET tree_type_id = (SELECT id FROM idm_tree_type WHERE name = 'ORGANIZATIONS');
 
 -- add not null contraint to tree_type_id column
-ALTER TABLE idm_tree_node_aud ALTER tree_type_id SET NOT NULL;
+ALTER TABLE idm_tree_node ALTER tree_type_id SET NOT NULL;
 

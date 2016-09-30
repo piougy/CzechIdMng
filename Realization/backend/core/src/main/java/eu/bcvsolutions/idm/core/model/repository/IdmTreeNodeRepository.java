@@ -11,27 +11,27 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
 
-@RepositoryRestResource(//
-	collectionResourceRel = "treenodes", //
-	path = "treenodes", //
-	itemResourceRel = "treenode", //
-	collectionResourceDescription = @Description("Tree nodes") , //
-	itemResourceDescription = @Description("Tree nodes"), //
-	excerptProjection = IdmTreeNodeExcerpt.class
+@RepositoryRestResource(
+	collectionResourceRel = "treenodes",
+	path = "treenodes",
+	itemResourceRel = "treenode",
+	collectionResourceDescription = @Description("Tree nodes"),
+	itemResourceDescription = @Description("Tree nodes"),
+	excerptProjection = IdmTreeNodeExcerpt.class,
+	exported = false
 )
 public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode> {
 	
 	@Query(value = "select e from IdmTreeNode e" +
 	        " where" +
 	        "(:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" + 
-	        "and (:treeType is null or e.treeType = :treeType)" +
-	        " and (:parent is null or e.parent = :parent)")
+	        "and (:treeType is null or e.treeType.id = :treeType)" +
+	        " and (:parent is null or e.parent.id = :parent)")
 	@RestResource(path = "quick", rel = "quick")
-	Page<IdmTreeNode> findQuick(@Param(value = "text") String text, @Param(value = "parent") IdmTreeNode parent, 
-			@Param(value = "treeType") IdmTreeType treeType, Pageable pageable);
+	Page<IdmTreeNode> findQuick(@Param(value = "text") String text, @Param(value = "parent") Long parentId, 
+			@Param(value = "treeType") Long treeTypeId, Pageable pageable);
 
 	@Query(value = "select e from IdmTreeNode e" +
 			" where" +

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.config.repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,9 +14,7 @@ import org.springframework.data.repository.query.spi.EvaluationContextExtensionS
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
-import org.springframework.data.rest.core.mapping.RepositoryResourceMappings;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
-import org.springframework.data.rest.webmvc.json.DomainObjectReader;
 import org.springframework.data.rest.webmvc.mapping.Associations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
@@ -29,7 +26,6 @@ import eu.bcvsolutions.idm.core.model.repository.handler.UsernameAuditor;
 import eu.bcvsolutions.idm.core.model.validator.IdmRoleValidator;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.domain.NotExportedAssociations;
-import eu.bcvsolutions.idm.core.rest.domain.RequestResourceResolver;
 
 /**
  * Spring data rest configuration

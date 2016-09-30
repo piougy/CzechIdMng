@@ -12,9 +12,9 @@ class User extends Basic.AbstractContent {
 
   componentDidMount() {
     this._selectNavigationItem();
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     //
-    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(userID));
+    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
   }
 
   componentDidUpdate() {
@@ -22,9 +22,9 @@ class User extends Basic.AbstractContent {
   }
 
   _selectNavigationItem() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     const { userContext, selectedSidebarItem } = this.props;
-    if (userID === userContext.username && selectedSidebarItem !== 'profile-subordinates') {
+    if (entityId === userContext.username && selectedSidebarItem !== 'profile-subordinates') {
       this.selectNavigationItems(['user-profile', null]);
     } else {
       this.selectNavigationItems(['user-subordinates', null]);
@@ -68,11 +68,11 @@ User.defaultProps = {
 };
 
 function select(state, component) {
-  const { userID } = component.params;
+  const { entityId } = component.params;
   const selectedNavigationItems = state.layout.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
   return {
-    identity: identityManager.getEntity(state, userID),
+    identity: identityManager.getEntity(state, entityId),
     userContext: state.security.userContext,
     selectedSidebarItem
   };

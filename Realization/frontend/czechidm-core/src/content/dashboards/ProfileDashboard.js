@@ -5,7 +5,7 @@ import * as Advanced from '../../components/advanced';
 export default class ProfileDashboard extends Basic.AbstractContent {
 
   _goToProfil() {
-    this.context.router.push('/user/' + this.props.userID + '/profile');
+    this.context.router.push('/user/' + this.props.entityId + '/profile');
   }
 
   getContentKey() {
@@ -17,7 +17,7 @@ export default class ProfileDashboard extends Basic.AbstractContent {
       <Basic.Panel style={{maxWidth: '500px'}}>
         <Basic.PanelHeader text={this.i18n('header')}/>
         <Basic.PanelBody >
-          <Advanced.IdentityInfo username={this.props.userID}/>
+          <Advanced.IdentityInfo username={this.props.entityId}/>
           <div className="col-lg-8 col-lg-offset-2">
             <Basic.Button className="btn-block" level="success" onClick={this._goToProfil.bind(this)}>
               {this.i18n('goToProfil')}

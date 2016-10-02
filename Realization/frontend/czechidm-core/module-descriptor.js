@@ -30,7 +30,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.profile',
             'order': 10,
             'priority': 0,
-            'path': '/user/:userID/profile',
+            'path': '/user/:entityId/profile',
             'icon': 'user'
           },
           {
@@ -39,10 +39,10 @@ module.exports = {
             'label': 'Změna hesla',
             'labelKey': 'content.user.sidebar.password',
             'order': 20,
-            'path': '/user/:userID/password',
+            'path': '/user/:entityId/password',
             'icon': 'lock',
             'conditions': [
-              'userID === userContext.username'
+              'entityId === userContext.username'
             ]
           },
           {
@@ -50,7 +50,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'content.user.sidebar.roles',
             'order': 30,
-            'path': '/user/:userID/roles',
+            'path': '/user/:entityId/roles',
             'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -59,7 +59,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.IdentityWorkingPosition._type',
             'order': 50,
-            'path': '/user/:userID/workingPositions',
+            'path': '/user/:entityId/workingPositions',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -68,7 +68,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.Audit.label',
             'order': 110,
-            'path': '/user/:userID/revision',
+            'path': '/user/:entityId/revision',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
             'icon': 'fa:history',
             'items': [
@@ -78,7 +78,7 @@ module.exports = {
                 'label': 'Osobní údaje',
                 'labelKey': 'content.user.sidebar.profile',
                 'order': 10,
-                'path': '/user/:userID/revision/:revID',
+                'path': '/user/:entityId/revision/:revID',
                 'icon': 'user'
               }
             ]
@@ -93,7 +93,7 @@ module.exports = {
         'title': 'Moje úkoly',
         'titleKey': 'navigation.menu.tasks.title',
         'icon': 'tasks',
-        'path': '/tasks/:userID',
+        'path': '/tasks/:entityId',
         'order': 30
       },
       {
@@ -264,7 +264,7 @@ module.exports = {
         'labelKey': 'navigation.menu.userLabel',
         'icon': 'user',
         'order': 10,
-        'path': '/user/:userID/profile'
+        'path': '/user/:entityId/profile'
       },
       {
         'id': 'messages',

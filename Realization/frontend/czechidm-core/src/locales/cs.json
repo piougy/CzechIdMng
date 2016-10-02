@@ -144,7 +144,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Nastavení",
-      "userLabel": "{{userID}}",
+      "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
       "system": "Systém",

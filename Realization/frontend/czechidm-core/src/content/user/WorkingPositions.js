@@ -35,8 +35,8 @@ class WorkingPositions extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectSidebarItem('profile-working-positions');
-    const { userID } = this.props.params;
-    this.context.store.dispatch(this.getManager().fetchWorkingPositions(userID, `${uiKey}-${userID}`));
+    const { entityId } = this.props.params;
+    this.context.store.dispatch(this.getManager().fetchWorkingPositions(entityId, `${uiKey}-${entityId}`));
   }
 
   showDetail(entity) {
@@ -75,28 +75,28 @@ class WorkingPositions extends Basic.AbstractContent {
       return;
     }
     const entity = this.refs.form.getData();
-    const { userID } = this.props.params;
-    entity.identity = this.identityManager.getSelfLink(userID);
+    const { entityId } = this.props.params;
+    entity.identity = this.identityManager.getSelfLink(entityId);
     entity.manager = this.identityManager.getSelfLink(entity.manager);
     entity.treeNode = this.treeNodeManager.getSelfLink(entity.treeNode);
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.identityWorkingPositionManager.createEntity(entity, `${uiKey}-${userID}`, (savedEntity, error) => {
+      this.context.store.dispatch(this.identityWorkingPositionManager.createEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('create.success', { position: entity.position, username: userID }) });
+          this.addMessage({ message: this.i18n('create.success', { position: entity.position, username: entityId }) });
           this._afterSave(error);
         } else if (error.statusCode === 202) {
-          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { position: entity.position, username: userID }) });
+          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { position: entity.position, username: entityId }) });
           this.closeDetail();
         } else {
           this._afterSave(error);
         }
       }));
     } else {
-      this.context.store.dispatch(this.identityWorkingPositionManager.patchEntity(entity, `${uiKey}-${userID}`, (savedEntity, error) => {
+      this.context.store.dispatch(this.identityWorkingPositionManager.patchEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         this._afterSave(error);
         if (!error) {
-          this.addMessage({ message: this.i18n('edit.success', { position: entity.position, username: userID }) });
+          this.addMessage({ message: this.i18n('edit.success', { position: entity.position, username: entityId }) });
         }
       }));
     }
@@ -115,14 +115,14 @@ class WorkingPositions extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
-      this.context.store.dispatch(this.identityWorkingPositionManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
+      this.context.store.dispatch(this.identityWorkingPositionManager.deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('delete.success', { position: entity.position, username: userID }) });
+          this.addMessage({ message: this.i18n('delete.success', { position: entity.position, username: entityId }) });
         } else {
           this.addError(error);
         }
@@ -315,8 +315,8 @@ WorkingPositions.defaultProps = {
 
 function select(state, component) {
   return {
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${component.params.userID}`),
-    _entities: Utils.Ui.getEntities(state, `${uiKey}-${component.params.userID}`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${component.params.entityId}`),
+    _entities: Utils.Ui.getEntities(state, `${uiKey}-${component.params.entityId}`)
   };
 }
 

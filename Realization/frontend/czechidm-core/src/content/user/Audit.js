@@ -24,9 +24,9 @@ class Audit extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     this.selectSidebarItem('profile-audit');
-    this.context.store.dispatch(identityManager.fetchRevisions(userID, uiKey + userID));
+    this.context.store.dispatch(identityManager.fetchRevisions(entityId, uiKey + entityId));
   }
 
   render() {
@@ -62,10 +62,10 @@ Audit.defaultProps = {
 };
 
 function select(state, component) {
-  const { userID } = component.params;
+  const { entityId } = component.params;
   return {
-    auditEntities: DataManager.getData(state, uiKey + userID),
-    _showLoading: identityManager.isShowLoading(state, null, uiKey + userID)
+    auditEntities: DataManager.getData(state, uiKey + entityId),
+    _showLoading: identityManager.isShowLoading(state, null, uiKey + entityId)
   };
 }
 

@@ -28,16 +28,16 @@ class Profile extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     this.selectNavigationItems(['user-profile', 'profile-personal']);
-    this.context.store.dispatch(identityManager.fetchEntity(userID));
+    this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 
   render() {
     const { identity } = this.props;
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     return (
-      <IdentityDetail identity={identity} userID={userID} />
+      <IdentityDetail identity={identity} entityId={entityId} />
     );
   }
 }
@@ -49,9 +49,9 @@ Profile.defaultProps = {
 };
 
 function select(state, component) {
-  const { userID } = component.params;
+  const { entityId } = component.params;
   return {
-    identity: identityManager.getEntity(state, userID)
+    identity: identityManager.getEntity(state, entityId)
   };
 }
 

@@ -24,9 +24,9 @@ class AuditDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { userID, revID } = this.props.params;
+    const { entityId, revID } = this.props.params;
     this.selectSidebarItem('profile-audit-profile-personal');
-    this.context.store.dispatch(identityManager.fetchRevision(userID, revID, uiKey + revID));
+    this.context.store.dispatch(identityManager.fetchRevision(entityId, revID, uiKey + revID));
   }
 
   componentDidUpdate() {
@@ -34,7 +34,7 @@ class AuditDetail extends Basic.AbstractContent {
 
   render() {
     const { auditIdentity, showLoading } = this.props;
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     return (
       <div>
           <Helmet title={this.i18n('navigation.menu.audit.profile')} />
@@ -51,7 +51,7 @@ class AuditDetail extends Basic.AbstractContent {
                 </Basic.PanelHeader>
                 <div className="tab-vertical clearfix">
                   <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
-                    <IdentityDetail identity={auditIdentity.entity} userID={userID} readOnly />
+                    <IdentityDetail identity={auditIdentity.entity} entityId={entityId} readOnly />
                   </Advanced.TabPanel>
                 </div>
               </Basic.Panel>

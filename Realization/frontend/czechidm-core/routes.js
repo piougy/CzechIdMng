@@ -28,7 +28,7 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
     },
     {
-      path: 'user/:userID/',
+      path: 'user/:entityId/',
       component: require('./src/content/user/User'),
       childRoutes: [
         {
@@ -55,7 +55,7 @@ module.exports = {
       ]
     },
     {
-      path: 'user/:userID/revision/:revID',
+      path: 'user/:entityId/revision/:revID',
       component: require('./src/content/user/AuditDetail')
     },
     {
@@ -124,7 +124,7 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
     },
     {
-      path: 'tasks/:userID',
+      path: 'tasks/:entityId',
       component: require('./src/content/task/TaskInstances'),
       access: [ { 'type': 'IS_AUTHENTICATED'}]
     },

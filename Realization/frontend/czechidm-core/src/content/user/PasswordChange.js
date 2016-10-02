@@ -39,8 +39,8 @@ class PasswordChange extends Basic.AbstractContent {
    */
   _canPasswordChange() {
     const { passwordChangeType, userContext } = this.props;
-    const { userID } = this.props.params;
-    return (passwordChangeType && passwordChangeType !== DISABLED && userID === userContext.username) || SecurityManager.isAdmin(userContext);
+    const { entityId } = this.props.params;
+    return (passwordChangeType && passwordChangeType !== DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
   }
 
   _initForm() {
@@ -74,7 +74,7 @@ class PasswordChange extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     const formData = this.refs.form.getData();
     if (formData.newPassword !== formData.newPasswordAgain) {
       return;
@@ -85,7 +85,7 @@ class PasswordChange extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
     //
     const requestData = {
-      identity: userID,
+      identity: entityId,
       oldPassword: btoa(formData.oldPassword),  // base64
       newPassword: btoa(formData.newPassword),  // base64
       resources: []
@@ -98,7 +98,7 @@ class PasswordChange extends Basic.AbstractContent {
       }
     });
 
-    identityService.passwordChange(userID, requestData)
+    identityService.passwordChange(entityId, requestData)
     .then(response => {
       this.setState({
         showLoading: false
@@ -122,7 +122,7 @@ class PasswordChange extends Basic.AbstractContent {
       resources += requestData.resources.join();
 
       this.addMessage({
-        message: this.i18n('message.success', { resources, username: userID })
+        message: this.i18n('message.success', { resources, username: entityId })
       });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
@@ -143,10 +143,10 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   _getOptions() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     const { accounts } = this.state;
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'czechidm (' + userID + ')'}
+      { value: RESOURCE_IDM, niceLabel: 'czechidm (' + entityId + ')'}
     ];
     if (accounts) {
       accounts.map(account => {

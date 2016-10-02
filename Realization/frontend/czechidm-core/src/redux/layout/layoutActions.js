@@ -170,8 +170,8 @@ export function resolveNavigationParameters(userContext = null, params = null) {
   if (userContext) {
     //
     parameterValues = parameterValues.set('loggedUsername', userContext.username || 'guest');
-    if (!parameterValues.has('userID')) {
-      parameterValues = parameterValues.set('userID', userContext.username || 'guest');
+    if (!parameterValues.has('entityId')) {
+      parameterValues = parameterValues.set('entityId', userContext.username || 'guest');
     }
   }
   return parameterValues.toJS();

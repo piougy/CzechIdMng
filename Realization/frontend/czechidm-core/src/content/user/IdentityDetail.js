@@ -66,13 +66,13 @@ class IdentityDetail extends Basic.AbstractContent {
       showLoading: true,
       setDataToForm: false // Form will not be set new data (we are waiting to saved data)
     });
-    const { userID } = this.props;
+    const { entityId } = this.props;
     const result = _.merge({}, json);
 
-    identityManager.getService().patchById(userID, result)
+    identityManager.getService().patchById(entityId, result)
     .then(() => {
-      this.context.store.dispatch(identityManager.fetchEntity(userID));
-      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: userID }) });
+      this.context.store.dispatch(identityManager.fetchEntity(entityId));
+      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entityId }) });
     }).catch(ex => {
       this.transformData(null, ex, ApiOperationTypeEnum.UPDATE);
       this.setState({
@@ -86,10 +86,10 @@ class IdentityDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { userContext, identity, userID, readOnly } = this.props;
+    const { userContext, identity, entityId, readOnly } = this.props;
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
     const canEditMap = identityManager.canEditMap(userContext, identity);
-    const deactiveDisabled = !userContext || userID === userContext.username || !canEditMap.get('isSaveEnabled');
+    const deactiveDisabled = !userContext || entityId === userContext.username || !canEditMap.get('isSaveEnabled');
 
     return (
       <div>
@@ -136,7 +136,7 @@ class IdentityDetail extends Basic.AbstractContent {
 
 IdentityDetail.propTypes = {
   identity: PropTypes.object,
-  userID: PropTypes.string.isRequired,
+  entityId: PropTypes.string.isRequired,
   readOnly: PropTypes.bool,
   userContext: PropTypes.object
 };

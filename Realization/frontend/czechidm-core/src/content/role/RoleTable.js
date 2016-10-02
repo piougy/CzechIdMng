@@ -137,11 +137,13 @@ export class RoleTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="role/:name/detail" property="name" width="20%" sort face="text" rendered={_.includes(columns, 'name')}/>
-          <Advanced.Column property="roleType" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+          <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+          <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column
             header={this.i18n('entity.Role.approvable')}
-            className="detail-button"
+            width="75px"
+            className="column-face-bool"
             cell={
               ({ rowIndex, data }) => {
                 return (
@@ -150,7 +152,7 @@ export class RoleTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
+          <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>
     );
@@ -165,7 +167,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable'],
+  columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
   filterOpened: false,
   _showLoading: false
 };

@@ -39,7 +39,7 @@ module.exports = {
         'order': 20,
         'path': '/role/:entityId/systems',
         'icon': 'link',
-        'access': [ { 'type': 'DENY_ALL', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+        'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
       }
     ]
   }

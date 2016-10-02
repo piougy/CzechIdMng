@@ -90,25 +90,26 @@ class Nodes extends Basic.AbstractContent {
           {' '}
           {this.i18n('header')}
         </Basic.PageHeader>
-        {
-        !isNoType
-        ?
-        <Basic.Panel showLoading={showLoading} >
+
+        <Basic.Panel>
           {
-            !type
-            ||
-            <NodeTable treeNodeManager={this.getManager()} treeTypeManager={this.getTypeManager()} type={type} />
+            showLoading
+            ?
+            <Basic.Loading isStatic showLoading/>
+            :
+            <span>
+              {
+                !isNoType
+                ?
+                <NodeTable treeNodeManager={this.getManager()} treeTypeManager={this.getTypeManager()} type={type} />
+                :
+                <div className="alert alert-info">
+                  {this.i18n('content.tree.typeNotFound')} <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>
+                </div>
+              }
+            </span>
           }
         </Basic.Panel>
-        :
-        <Basic.Loading showLoading={showLoading}>
-          <Basic.Panel>
-            <div className="alert alert-info">
-              {this.i18n('content.tree.typeNotFound')} <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>
-            </div>
-          </Basic.Panel>
-        </Basic.Loading>
-        }
       </div>
     );
   }

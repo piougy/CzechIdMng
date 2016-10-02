@@ -1,7 +1,9 @@
 import SystemManager from './SystemManager';
+import RoleSystemManager from './RoleSystemManager';
 
 const ManagerRoot = {
-  SystemManager
+  SystemManager,
+  RoleSystemManager
 };
 
 ManagerRoot.version = '0.0.1';

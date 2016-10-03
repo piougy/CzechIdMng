@@ -6,7 +6,7 @@ package eu.bcvsolutions.idm.core.model.dto;
  *
  */
 
-public class TreeNodeFilter extends QuickFilter implements BaseFilter {
+public class TreeNodeFilter extends QuickFilter {
 	
 	private Long treeType;
 	
@@ -38,7 +38,7 @@ public class TreeNodeFilter extends QuickFilter implements BaseFilter {
 	
 	private Long parseToLong(String number) {
 		if (number != null) {
-			return Long.parseLong(number);
+			return Long.valueOf(number);
 		} else{
 			return null;
 		}

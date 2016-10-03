@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -18,15 +19,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.AccRoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
 import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
+import eu.bcvsolutions.idm.core.exception.CoreResultCode;
+import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.domain.IfEnabled;
+import groovy.transform.Immutable;;
 
 /**
  * Role could assign identity account on target system.
@@ -37,7 +42,7 @@ import eu.bcvsolutions.idm.security.domain.IfEnabled;;
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roleSystems")
-public class AccRoleSystemController extends DefaultReadWriteEntityController<AccRoleSystem, EmptyFilter> {
+public class AccRoleSystemController extends DefaultReadWriteEntityController<AccRoleSystem, AccRoleSystemFilter> {
 	
 	@Autowired
 	public AccRoleSystemController(AccRoleSystemService roleSysteService) {
@@ -98,5 +103,28 @@ public class AccRoleSystemController extends DefaultReadWriteEntityController<Ac
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected AccRoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		AccRoleSystemFilter filter = new AccRoleSystemFilter();
+		// TODO: automatic property resolving 
+		String roleId = (String)parameters.toSingleValueMap().get("roleId");
+		if(StringUtils.isNotEmpty(roleId)) {
+			try {
+				filter.setRoleId(Long.valueOf(roleId));
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("roleId", roleId));
+			}		
+		}
+		String systemId = (String)parameters.toSingleValueMap().get("systemId");
+		if(StringUtils.isNotEmpty(systemId)) {
+			try {
+				filter.setSystemId(Long.valueOf(systemId));
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("systemId", systemId));
+			}		
+		}
+		return filter;
 	}
 }

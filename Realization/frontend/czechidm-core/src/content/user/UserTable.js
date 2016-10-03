@@ -38,11 +38,15 @@ export class UserTable extends Basic.AbstractContent {
   }
 
   /**
-  * Redirec to new user form
+  * Redirec to user form
   */
-  addUser() {
-    const uuidId = uuid.v1();
-    this.context.router.push(`user/new?id=${uuidId}`);
+  showDetail(entity) {
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/user/new?id=${uuidId}`);
+    } else {
+      this.context.router.push('/user/' + entity.id + '/profile');
+    }
   }
 
   useFilter(event) {
@@ -206,13 +210,26 @@ export class UserTable extends Basic.AbstractContent {
                 key="add_button"
                 type="submit"
                 className="btn-xs"
-                onClick={this.addUser.bind(this)}
+                onClick={this.showDetail.bind(this, {})}
                 rendered={SecurityManager.hasAuthority('IDENTITY_WRITE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.user.create.button.add')}
               </Basic.Button>
             ]
           }>
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
+              }
+            }
+            sort={false}/>
           <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
           <Advanced.ColumnLink to="user/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
           <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>

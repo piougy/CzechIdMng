@@ -2,10 +2,12 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic } from 'czechidm-core';
+import { Basic, Advanced, Domain } from 'czechidm-core';
+import { RoleSystemManager } from '../../redux';
 
+const manager = new RoleSystemManager();
 
-class Accounts extends Basic.AbstractContent {
+class RoleSystems extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -20,19 +22,27 @@ class Accounts extends Basic.AbstractContent {
   }
 
   render() {
+    const { entityId } = this.props.params;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        role systems
+        <Advanced.Table
+          ref="table"
+          uiKey="role-system-table"
+          manager={manager}
+          forceSearchParameters={forceSearchParameters}>
+          <Advanced.Column property="_embedded.system.name" header={this.i18n('acc:entity.System.name')} sort face="text" />
+        </Advanced.Table>
       </div>
     );
   }
 }
 
-Accounts.propTypes = {
+RoleSystems.propTypes = {
 };
-Accounts.defaultProps = {
+RoleSystems.defaultProps = {
 };
 
 function select(state, component) {
@@ -40,4 +50,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(Accounts);
+export default connect(select)(RoleSystems);

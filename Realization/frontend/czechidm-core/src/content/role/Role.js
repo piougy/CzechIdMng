@@ -6,25 +6,28 @@ import { RoleManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
 
 
-const roleManager = new RoleManager();
+const manager = new RoleManager();
 
 class Role extends Basic.AbstractContent {
 
   componentDidMount() {
+    const { entityId } = this.props.params;
+    //
+    this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
 
   componentDidUpdate() {
   }
 
   render() {
-    const { role } = this.props;
+    const { entity, showLoading } = this.props;
 
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
-        <Basic.PageHeader>
-          {roleManager.getNiceLabel(role)} <small> {this.i18n('content.roles.edit.header')}</small>
+        <Basic.PageHeader showLoading={showLoading}>
+          {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
         </Basic.PageHeader>
 
         <Basic.Panel>
@@ -40,14 +43,16 @@ class Role extends Basic.AbstractContent {
 }
 
 Role.propTypes = {
-  role: PropTypes.object,
+  entity: PropTypes.object,
   userContext: PropTypes.object,
-  selectedSidebarItem: PropTypes.string
+  selectedSidebarItem: PropTypes.string,
+  showLoading: PropTypes.bool
 };
 Role.defaultProps = {
-  identity: null,
+  entity: null,
   userContext: null,
-  selectedSidebarItem: null
+  selectedSidebarItem: null,
+  showLoading: false
 };
 
 function select(state, component) {
@@ -55,9 +60,10 @@ function select(state, component) {
   const selectedNavigationItems = state.layout.get('selectedNavigationItems');
   const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
   return {
-    role: roleManager.getEntity(state, entityId),
+    entity: manager.getEntity(state, entityId),
     userContext: state.security.userContext,
-    selectedSidebarItem
+    selectedSidebarItem,
+    showLoading: manager.isShowLoading(state, null, entityId)
   };
 }
 

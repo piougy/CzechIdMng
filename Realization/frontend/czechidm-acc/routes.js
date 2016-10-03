@@ -31,7 +31,7 @@ module.exports = {
         {
           path: 'systems',
           component: require('./src/content/role/RoleSystems'),
-          access: [ { 'type': 'DENY_ALL', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
         },
       ]
     },

@@ -1,7 +1,9 @@
 import SystemService from './SystemService';
+import RoleSystemService from './RoleSystemService';
 
 const ServiceRoot = {
-  SystemService
+  SystemService,
+  RoleSystemService
 };
 
 ServiceRoot.version = '0.1.0';

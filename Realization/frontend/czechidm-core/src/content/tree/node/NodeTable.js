@@ -107,15 +107,15 @@ export class NodeTable extends Basic.AbstractContent {
   * Recive new form for create new node else show detail for existing org.
   */
   showDetail(entity, event) {
-    const { type } = this.state;
     if (event) {
       event.preventDefault();
     }
     if (entity.id === undefined) {
+      const { type } = this.state;
       const uuidId = uuid.v1();
       this.context.router.push(`/tree/nodes/${uuidId}?new=1&type=${type.id}`);
     } else {
-      this.context.router.push(`/tree/nodes/${entity.id}?type=${type.id}`);
+      this.context.router.push(`/tree/nodes/${entity.id}`);
     }
   }
 
@@ -163,7 +163,6 @@ export class NodeTable extends Basic.AbstractContent {
           <Basic.Button level="link" onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
             {props.node.name}
           </Basic.Button>
-
         </div>
       </div>
     );

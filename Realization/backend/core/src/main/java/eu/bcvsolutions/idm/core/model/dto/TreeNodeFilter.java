@@ -19,10 +19,6 @@ public class TreeNodeFilter extends QuickFilter {
 	public void setTreeType(Long treeType) {
 		this.treeType = treeType;
 	}
-	
-	public void setTreeType(String treeType) {
-		this.treeType = this.parseToLong(treeType);
-	}
 
 	public Long getTreeNode() {
 		return treeNode;
@@ -30,17 +26,4 @@ public class TreeNodeFilter extends QuickFilter {
 
 	public void setTreeNode(Long treeNode) {
 		this.treeNode = treeNode;
-	}
-	
-	public void setTreeNode(String treeNode) {
-		this.treeNode = this.parseToLong(treeNode);
-	}
-	
-	private Long parseToLong(String number) {
-		if (number != null) {
-			return Long.valueOf(number);
-		} else{
-			return null;
-		}
-	}
-}
+	}}

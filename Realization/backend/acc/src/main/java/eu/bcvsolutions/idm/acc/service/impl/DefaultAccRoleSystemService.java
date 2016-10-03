@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.acc.dto.AccRoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
 import eu.bcvsolutions.idm.acc.repository.AccRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.AbstractReadWriteEntityServic
  *
  */
 @Service
-public class DefaultAccRoleSystemService extends AbstractReadWriteEntityService<AccRoleSystem, AccRoleSystemFilter> implements AccRoleSystemService {
+public class DefaultAccRoleSystemService extends AbstractReadWriteEntityService<AccRoleSystem, RoleSystemFilter> implements AccRoleSystemService {
 
 	@Autowired
 	private AccRoleSystemRepository roleSystemRepository;
@@ -32,7 +32,7 @@ public class DefaultAccRoleSystemService extends AbstractReadWriteEntityService<
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<AccRoleSystem> find(AccRoleSystemFilter filter, Pageable pageable) {
+	public Page<AccRoleSystem> find(RoleSystemFilter filter, Pageable pageable) {
 		if (filter == null) {
 			return find(pageable);
 		}

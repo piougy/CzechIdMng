@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
  * @author Radek Tomiška
  *
  */
-public class AccRoleSystemFilter implements BaseFilter {
+public class RoleSystemFilter implements BaseFilter {
 	
 	private Long roleId;
 	

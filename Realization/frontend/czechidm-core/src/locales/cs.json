@@ -655,6 +655,7 @@
       "header": "Role",
       "title": "Role",
       "edit": {
+        "title": "Deatil role",
         "header": "{{name}} detail role"
       },
       "create": {

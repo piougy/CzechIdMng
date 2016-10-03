@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
-import { Basic, Managers } from 'czechidm-core';
+import Helmet from 'react-helmet';
+//
+import { Basic, Managers, Utils } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 /**
@@ -18,8 +20,6 @@ export default class SystemDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
-    this.selectNavigationItem('sys-systems');
-
     if (entity !== undefined) {
       this.refs.form.setData(entity);
       this.refs.name.focus();
@@ -68,23 +68,29 @@ export default class SystemDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, entity } = this.props;
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('acc:entity.System.name')}
-                required/>
-              <Basic.TextArea
-                ref="description"
-                label={this.i18n('acc:entity.System.description')}/>
-              <Basic.Checkbox
-                ref="disabled"
-                label={this.i18n('acc:entity.System.disabled')}/>
-            </Basic.AbstractForm>
+        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+            <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
+
+            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+                <Basic.TextField
+                  ref="name"
+                  label={this.i18n('acc:entity.System.name')}
+                  required/>
+                <Basic.TextArea
+                  ref="description"
+                  label={this.i18n('acc:entity.System.description')}/>
+                <Basic.Checkbox
+                  ref="disabled"
+                  label={this.i18n('acc:entity.System.disabled')}/>
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.Button
@@ -96,7 +102,8 @@ export default class SystemDetail extends Basic.AbstractContent {
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>
-          </form>
+          </Basic.Panel>
+        </form>
       </div>
     );
   }

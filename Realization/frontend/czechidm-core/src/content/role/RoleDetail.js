@@ -125,7 +125,7 @@ class RoleDetail extends Basic.AbstractContent {
     const { _showLoading } = this.state;
     return (
       <div>
-        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.header', { name: roleManager.getNiceLabel(entity) })} />
+        <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>

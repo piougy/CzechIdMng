@@ -8,9 +8,21 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ' ] } ]
     },
     {
-      path: 'system/:entityId',
+      path: 'system/:entityId/',
+      component: require('./src/content/system/System'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ],
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/system/SystemContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ' ] } ]
+        }
+      ]
+    },
+    {
+      path: 'system/:entityId/new',
       component: require('./src/content/system/SystemContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
     },
     {
       path: 'user/:userID/',

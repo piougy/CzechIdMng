@@ -37,27 +37,16 @@ class Content extends Basic.AbstractContent {
 
   render() {
     const { role, showLoading } = this.props;
-    if (this._isNew()) {
-      return (
-        <Basic.Row>
-          <div className="col-lg-offset-1 col-lg-10">
-            {
-              !role
-              ||
-              <RoleDetail entity={role} showLoading={showLoading} />
-            }
-          </div>
-        </Basic.Row>
-      );
-    }
     return (
-      <div>
-      {
-        !role
-        ||
-        <RoleDetail entity={role} showLoading={showLoading} />
-      }
-      </div>
+      <Basic.Row>
+        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
+          {
+            !role
+            ||
+            <RoleDetail entity={role} showLoading={showLoading} />
+          }
+        </div>
+      </Basic.Row>
     );
   }
 }

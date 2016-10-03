@@ -43,8 +43,6 @@ class User extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(identity)} <small> Detail uživatele</small></span>} className="hidden">
-          </Basic.PanelHeader>
           <div className="tab-vertical clearfix">
             <Advanced.TabPanel parentId="user-profile" params={this.props.params}>
               {this.props.children}

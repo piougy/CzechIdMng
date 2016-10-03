@@ -39,9 +39,9 @@ export class SystemTable extends Basic.AbstractContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${uuidId}?new=1`);
+      this.context.router.push(`/system/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push('/system/' + entity.id);
+      this.context.router.push(`/system/${entity.id}/detail`);
     }
   }
 
@@ -129,7 +129,7 @@ export class SystemTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
-          <Advanced.ColumnLink to="system/:name" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
+          <Advanced.ColumnLink to="system/:name/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="disabled" sort face="bool" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>

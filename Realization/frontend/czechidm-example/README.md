@@ -118,7 +118,7 @@ Single navigation item parameters:
           'labelKey': 'content.user.sidebar.profile',
           'order': 10,
           'priority': 0,
-          'path': '/user/:userID/profile',
+          'path': '/user/:entityId/profile',
           'icon': 'user'
         }
       ]

@@ -6,8 +6,8 @@ import uuid from 'uuid';
 import { SecurityManager } from '../../../redux';
 
 /**
-* Table of type
-*/
+ * Table of type
+ */
 export class TypeTable extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -86,60 +86,60 @@ export class TypeTable extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-12">
-            <Basic.Confirm ref="confirm-delete" level="danger"/>
-            <Advanced.Table
-              ref="table"
-              uiKey={uiKey}
-              manager={treeTypeManager}
-              showRowSelection={SecurityManager.hasAuthority('TREETYPE_DELETE')}
-              rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-              filter={
-                <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                  <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                    <Basic.Row>
-                      <div className="col-lg-6">
-                        <Advanced.Filter.TextField
-                          ref="text"
-                          placeholder={this.i18n('entity.TreeType.name')}
-                          label={this.i18n('entity.TreeType.name')}/>
-                      </div>
-                      <div className="col-lg-6 text-right">
-                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                      </div>
-                    </Basic.Row>
-                  </Basic.AbstractForm>
-                </Advanced.Filter>
-              }
-              filterOpened={!filterOpened}
-              actions={
-                [
-                  { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-                ]
-             }
-              buttons={
-                [
-                  <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
-                    <Basic.Icon type="fa" icon="plus"/>
-                    {' '}
-                    {this.i18n('button.add')}
-                  </Basic.Button>
-                ]
-              }>
-              <Advanced.Column
-                header=""
-                className="detail-button"
-                cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <Advanced.DetailButton
-                        title={this.i18n('button.detail')}
-                        onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                    );
-                  }
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Advanced.Table
+            ref="table"
+            uiKey={uiKey}
+            manager={treeTypeManager}
+            showRowSelection={SecurityManager.hasAuthority('TREETYPE_DELETE')}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="text"
+                        placeholder={this.i18n('entity.TreeType.name')}
+                        label={this.i18n('entity.TreeType.name')}/>
+                    </div>
+                    <div className="col-lg-6 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
+            }
+            filterOpened={!filterOpened}
+            actions={
+              [
+                { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+              ]
+            }
+            buttons={
+              [
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                  <Basic.Icon type="fa" icon="plus"/>
+                  {' '}
+                  {this.i18n('button.add')}
+                </Basic.Button>
+              ]
+            }>
+            <Advanced.Column
+              header=""
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <Advanced.DetailButton
+                      title={this.i18n('button.detail')}
+                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
                 }
-                sort={false}/>
-              <Advanced.Column property="name" sort/>
-            </Advanced.Table>
+              }
+              sort={false}/>
+            <Advanced.Column property="name" sort/>
+          </Advanced.Table>
         </div>
       </Basic.Row>
     );

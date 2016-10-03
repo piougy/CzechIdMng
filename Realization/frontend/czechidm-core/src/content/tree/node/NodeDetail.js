@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import _ from 'lodash';
+import * as Utils from '../../../utils';
 
 /**
  * Node detail content
@@ -26,6 +27,7 @@ export default class NodeDetail extends Basic.AbstractContent {
     this.selectNavigationItem('tree-nodes');
     if (node !== undefined) {
       const loadedNode = _.merge({ }, node);
+      // if exist _embedded - edit node, if not exist create new
       if (node._embedded) {
         if (!isRoot) {
           loadedNode.parent = node._embedded.parent.id;
@@ -87,51 +89,51 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, isNew, isRoot, type } = this.props;
+    const { uiKey, isRoot, type, node } = this.props;
     const { showLoading } = this.state;
 
     let parentRequired = true;
-    if (isNew || isRoot) {
+    if (Utils.Entity.isNew(node) || isRoot) {
       parentRequired = false;
     }
 
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')} >
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.TreeNode.name')}
-                required/>
-              <Basic.SelectBox
-                ref="parent"
-                label={this.i18n('entity.TreeNode.parent.name')}
-                forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
-                manager={this.treeNodeManager}
-                required={parentRequired}/>
-                <Basic.SelectBox
-                  ref="treeType"
-                  label={this.i18n('entity.TreeNode.treeType.name')}
-                  manager={this.treeTypeManager}
-                  required
-                  readOnly/>
-              <Basic.Checkbox
-                ref="disabled"
-                label={this.i18n('entity.TreeNode.disabled')}/>
-            </Basic.AbstractForm>
+          <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')} >
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.TreeNode.name')}
+              required/>
+            <Basic.SelectBox
+              ref="parent"
+              label={this.i18n('entity.TreeNode.parent.name')}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              manager={this.treeNodeManager}
+              required={parentRequired}/>
+            <Basic.SelectBox
+              ref="treeType"
+              label={this.i18n('entity.TreeNode.treeType.name')}
+              manager={this.treeTypeManager}
+              required
+              readOnly/>
+            <Basic.Checkbox
+              ref="disabled"
+              label={this.i18n('entity.TreeNode.disabled')}/>
+          </Basic.AbstractForm>
 
-            <Basic.PanelFooter showLoading={showLoading}>
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </form>
+          <Basic.PanelFooter showLoading={showLoading}>
+            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}>
+              {this.i18n('button.save')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </form>
       </div>
     );
   }
@@ -140,10 +142,6 @@ export default class NodeDetail extends Basic.AbstractContent {
 NodeDetail.propTypes = {
   node: PropTypes.object,
   type: PropTypes.number,
-  isNew: PropTypes.bool,
   isRoot: PropTypes.bool,
   uiKey: PropTypes.string.isRequired,
-};
-NodeDetail.defaultProps = {
-  isNew: false
 };

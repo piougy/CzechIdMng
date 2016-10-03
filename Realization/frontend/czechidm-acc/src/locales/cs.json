@@ -37,8 +37,17 @@
     },
     "role": {
       "systems": {
-        "header": "$t(acc:content.systems.header)",
-        "title": "$t(acc:content.systems.header)"
+        "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
+        "title": "$t(acc:content.systems.header)",
+        "edit": {
+          "header": "Detail napojeného systému pro roli"
+        },
+        "create": {
+          "header": "Nový napojený systém pro roli"
+        },
+        "save": {
+          "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        }
       }
     }
   },
@@ -48,6 +57,12 @@
       "name": "Název systému",
       "disabled": "Neaktivní",
       "description": "Popis"
+    },
+    "RoleSystem": {
+      "_type": "Role přiřazuje účet na systému",
+      "type": "Typ přiřazení",
+      "role": "Role",
+      "system": "Systém"
     }
   }
 }

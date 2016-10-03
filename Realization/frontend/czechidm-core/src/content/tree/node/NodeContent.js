@@ -45,11 +45,16 @@ class NodeContent extends Basic.AbstractContent {
     return (query) ? query.new : null;
   }
 
-  _getNodeType(node) {
-    if (node && node._embedded) {
+  /**
+  * Method _getDefaultType return treeType from params if exist,
+  * else return type from loaded node
+  */
+  _getDefaultType() {
+    const { query } = this.props.location;
+    const { node } = this.props;
+    if (node._embedded) {
       return node._embedded.treeType.id;
     }
-    const { query } = this.props.location;
     return (query) ? query.type : null;
   }
 
@@ -79,7 +84,7 @@ class NodeContent extends Basic.AbstractContent {
           {
             !node
             ||
-            <NodeDetail node={node} type={this._getNodeType(node)} isNew={this._getIsNew()} isRoot={this._getIsRoot()} />
+            <NodeDetail node={node} type={this._getDefaultType()} isRoot={this._getIsRoot()} />
           }
         </Basic.Panel>
 

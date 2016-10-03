@@ -16,6 +16,11 @@ module.exports = {
           path: 'detail',
           component: require('./src/content/system/SystemContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ' ] } ]
+        },
+        {
+          path: 'entities',
+          component: require('./src/content/system/SystemEntities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ' ] } ]
         }
       ]
     },

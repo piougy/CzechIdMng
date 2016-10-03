@@ -28,6 +28,14 @@ module.exports = {
             'icon': 'fa:newspaper-o',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
+          {
+            'id': 'system-entities',
+            'type': 'TAB',
+            'labelKey': 'acc:content.system.entities.title',
+            'order': 1,
+            'path': '/system/:entityId/entities',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          }
         ]
       },
       {

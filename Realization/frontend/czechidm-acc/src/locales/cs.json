@@ -35,6 +35,19 @@
           "success": "Systém [{{name}}] byl úspěšně uložen"
         },
         "basic": "Základní informace"
+      },
+      "entities": {
+        "header": "Entity na koncovém systému <small>uložené v idm</small>",
+        "title": "Entity na systému",
+        "edit": {
+          "header": "Detail entity na koncovém systému"
+        },
+        "create": {
+          "header": "Nová entita na koncovém systému"
+        },
+        "save": {
+          "success": "Entita [{{name}}] na systému byla úspěšně uložen"
+        }
       }
     },
     "role": {
@@ -65,6 +78,11 @@
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém"
+    },
+    "SystemEntity": {
+      "_type": "Entita na systému",
+      "entityType": "Typ entity",
+      "uid": "Identifikátor na systému"
     }
   }
 }

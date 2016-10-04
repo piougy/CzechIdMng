@@ -4,14 +4,15 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SystemEntityManager, SystemManager } from '../../redux';
-import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import { IdentityAccountManager, AccountManager } from '../../redux';
+import AccountTypeEnum from '../../domain/AccountTypeEnum';
 
-const uiKey = 'system-entities-table';
-const manager = new SystemEntityManager();
-const systemManager = new SystemManager();
+const uiKey = 'identity-accounts-table';
+const manager = new IdentityAccountManager();
+const accountManager = new AccountManager();
+const identityManager = new Managers.IdentityManager();
 
-class SystemEntitiesContent extends Basic.AbstractContent {
+class IdentityAccountsContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -28,16 +29,17 @@ class SystemEntitiesContent extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.entities';
+    return 'acc:content.identity.accounts';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-entities']);
+    this.selectSidebarItem('identity-accounts');
   }
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
+      identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
+      account: entity.account ? entity.account.id : null
     });
 
     this.setState({
@@ -68,7 +70,10 @@ class SystemEntitiesContent extends Basic.AbstractContent {
       return;
     }
     const entity = this.refs.form.getData();
-    entity.system = systemManager.getSelfLink(entity.system);
+    entity.identity = identityManager.getSelfLink(entity.identity);
+    entity.account = {
+      id: entity.account
+    };
     //
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -125,7 +130,7 @@ class SystemEntitiesContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     const { _showLoading } = this.props;
     const { detail } = this.state;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('identity', entityId);
 
     return (
       <div>
@@ -140,8 +145,8 @@ class SystemEntitiesContent extends Basic.AbstractContent {
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
-              manager={this.getManager()}
-              forceSearchParameters={forceSearchParameters}
+            manager={this.getManager()}
+            forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
@@ -156,7 +161,7 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY) })}
+                  onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
                   rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -169,17 +174,17 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
-                      <Advanced.Filter.EnumSelectBox
-                        ref="entityType"
-                        label={this.i18n('acc:entity.SystemEntity.entityType')}
-                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                        enum={SystemEntityTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="uid"
                         label={this.i18n('filter.uid.label')}
                         placeholder={this.i18n('filter.uid.placeholder')}/>
+                    </div>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.EnumSelectBox
+                        ref="type"
+                        label={this.i18n('acc:entity.Account.type')}
+                        placeholder={this.i18n('acc:entity.Account.type')}
+                        enum={AccountTypeEnum}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -201,8 +206,10 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                   );
                 }
               }/>
-            <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
-            <Advanced.Column property="uid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
+            <Advanced.Column property="account._embedded.system.name" header={this.i18n('acc:entity.System.name')} face="text" />
+            <Advanced.Column property="account.type" header={this.i18n('acc:entity.Account.type')} sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column property="account._embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
+            <Advanced.Column property="ownership" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -219,27 +226,14 @@ class SystemEntitiesContent extends Basic.AbstractContent {
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.SelectBox
-                  ref="system"
-                  manager={systemManager}
-                  label={this.i18n('acc:entity.SystemEntity.system')}
-                  readOnly
+                  ref="account"
+                  manager={accountManager}
+                  label={this.i18n('acc:entity.Account._type')}
                   required/>
-                <Basic.TextField
-                  ref="uid"
-                  label={this.i18n('acc:entity.SystemEntity.uid')}
-                  required/>
-                <Basic.EnumSelectBox
-                  ref="entityType"
-                  enum={SystemEntityTypeEnum}
-                  label={this.i18n('acc:entity.SystemEntity.entityType')}
-                  required/>
+                <Basic.Checkbox
+                  ref="ownership"
+                  label={this.i18n('acc:entity.IdentityAccount.ownership')}/>
               </Basic.AbstractForm>
-
-              {/*
-              <Basic.ContentHeader>
-                Vazby <small> v idm</small>
-              </Basic.ContentHeader>
-              TODO: accounts*/}
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>
@@ -265,20 +259,17 @@ class SystemEntitiesContent extends Basic.AbstractContent {
   }
 }
 
-SystemEntitiesContent.propTypes = {
-  system: PropTypes.object,
+IdentityAccountsContent.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SystemEntitiesContent.defaultProps = {
-  system: null,
+IdentityAccountsContent.defaultProps = {
   _showLoading: false,
 };
 
-function select(state, component) {
+function select(state) {
   return {
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }
 
-export default connect(select)(SystemEntitiesContent);
+export default connect(select)(IdentityAccountsContent);

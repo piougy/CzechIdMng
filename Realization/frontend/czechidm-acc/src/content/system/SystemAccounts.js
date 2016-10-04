@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { AccountManager, SystemEntityManager, SystemManager } from '../../redux';
 import AccountTypeEnum from '../../domain/AccountTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'system-accounts-table';
 const manager = new AccountManager();
@@ -129,6 +130,7 @@ class SystemAccountsContent extends Basic.AbstractContent {
     const { _showLoading } = this.props;
     const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
+    const forceSystemEntitySearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId).setFilter('entityType', SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY));
 
     return (
       <div>
@@ -172,17 +174,17 @@ class SystemAccountsContent extends Basic.AbstractContent {
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="uid"
-                        label={this.i18n('filter.uid.label')}
-                        placeholder={this.i18n('filter.uid.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4">
                       <Advanced.Filter.EnumSelectBox
                         ref="type"
                         label={this.i18n('acc:entity.Account.type')}
                         placeholder={this.i18n('acc:entity.Account.type')}
                         enum={AccountTypeEnum}/>
+                    </div>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.TextField
+                        ref="uid"
+                        label={this.i18n('filter.uid.label')}
+                        placeholder={this.i18n('filter.uid.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -204,8 +206,8 @@ class SystemAccountsContent extends Basic.AbstractContent {
                   );
                 }
               }/>
+            <Advanced.Column property="type" header={this.i18n('acc:entity.Account.type')} width="75px" sort face="enum" enumClass={AccountTypeEnum} />
             <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
-            <Advanced.Column property="type" header={this.i18n('acc:entity.Account.type')} sort face="enum" enumClass={AccountTypeEnum} />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -231,7 +233,7 @@ class SystemAccountsContent extends Basic.AbstractContent {
                   ref="systemEntity"
                   manager={systemEntityManager}
                   label={this.i18n('acc:entity.Account.systemEntity')}
-                  forceSearchParameters={forceSearchParameters}/>
+                  forceSearchParameters={forceSystemEntitySearchParameters}/>
                 <Basic.EnumSelectBox
                   ref="type"
                   enum={AccountTypeEnum}

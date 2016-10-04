@@ -48,15 +48,14 @@ module.exports = {
         ]
       },
       {
-        'id': 'profile-accounts',
+        'id': 'identity-accounts',
         'parentId': 'user-profile',
         'type': 'TAB',
-        'labelKey': 'acc:content.user.accounts',
+        'labelKey': 'acc:content.identity.accounts.title',
         'order': 15,
         'priority': 0,
-        'path': '/user/:userID/accounts',
-        'icon': 'fa:external-link',
-        'access': [ { 'type': 'DENY_ALL' } ]
+        'path': '/user/:entityId/accounts',
+        'icon': 'fa:external-link'
       },
       {
         'id': 'role-systems',

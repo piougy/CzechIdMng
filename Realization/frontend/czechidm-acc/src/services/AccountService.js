@@ -2,7 +2,7 @@ import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
 import AccountTypeEnum from '../domain/AccountTypeEnum';
 
-export default class SystemEntityService extends Services.AbstractService {
+export default class AccountService extends Services.AbstractService {
 
   constructor() {
     super();
@@ -12,7 +12,7 @@ export default class SystemEntityService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${AccountTypeEnum.getNiceLabel(entity.type)}:${entity._embedded.systemEntity ? entity._embedded.systemEntity.uid : ''}`;
+    return `${AccountTypeEnum.getNiceLabel(entity.type)}:${entity._embedded.system.name}:${entity._embedded.systemEntity ? entity._embedded.systemEntity.uid : ''}`;
   }
 
   getApiPath() {

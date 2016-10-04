@@ -35,13 +35,12 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
     },
     {
-      path: 'user/:userID/',
+      path: 'user/:entityId/',
       component: require('czechidm-core/src/content/user/User'),
       childRoutes: [
         {
           path: 'accounts',
-          component: require('./src/content/user/Accounts'),
-          access: [ { 'type': 'DENY_ALL', 'authorities': ['SYSTEM_READ'] } ]
+          component: require('./src/content/identity/IdentityAccounts')
         }
       ]
     },

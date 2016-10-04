@@ -3,10 +3,9 @@ package eu.bcvsolutions.idm.acc.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 
@@ -26,17 +25,14 @@ public interface AccIdentityAccountRepository extends BaseRepository<AccIdentity
 	
 	@Query(value = "select e from AccIdentityAccount e left join e.role r" +
 	        " where" +
-	        " (?#{[0]} is null or e.account.id = ?#{[0]})" +
+	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
 	        " and" +
-	        " (?#{[1]} is null or e.identity.id = ?#{[1]})" +
+	        " (?#{[0].identity} is null or e.identity = ?#{[0].identity})" +
 	        " and" +
-	        " (?#{[2]} is null or r.id = ?#{[2]})" + 
+	        " (?#{[0].roleId} is null or r.id = ?#{[0].roleId})" + 
 	        " and" +
-	        " (?#{[3]} is null or e.account.system.id = ?#{[3]})")
+	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})")
 	Page<AccIdentityAccount> findQuick(
-			@Param(value = "accountId") Long accountId, 
-			@Param(value = "identityId") Long identityId,
-			@Param(value = "roleId") Long roleId,
-			@Param(value = "systemId") Long systemId,
+			IdentityAccountFilter filter,
 			Pageable pageable);
 }

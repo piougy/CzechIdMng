@@ -171,6 +171,7 @@ export class NodeTable extends Basic.AbstractContent {
   render() {
     const { treeNodeManager, treeTypeManager } = this.props;
     const { filterOpened, root, showLoading, type } = this.state;
+    const showTree = !showLoading && root !== undefined;
     return (
       <Basic.Row>
         <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
@@ -194,7 +195,7 @@ export class NodeTable extends Basic.AbstractContent {
               </Basic.AbstractForm>
             }
             {
-              !root
+              !showTree
               ||
               <Basic.Panel>
                 <Advanced.Tree

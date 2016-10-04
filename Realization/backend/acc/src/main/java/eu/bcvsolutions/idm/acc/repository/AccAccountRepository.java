@@ -33,7 +33,7 @@ public interface AccAccountRepository extends BaseRepository<AccAccount> {
 	        " and" +
 	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" + 
 	        " and" +
-	        " (lower(se.uid) like ?#{[0].uid == null ? '%' : '%'.concat([0].uid.toLowerCase()).concat('%')})" +
+	        " (?#{[0].uid} is null or lower(se.uid) like ?#{[0].uid == null ? '%' : '%'.concat([0].uid.toLowerCase()).concat('%')})" +
 	        " and" +
 	        " (?#{[0].accountType} is null or e.type = ?#{[0].accountType})")
 	Page<AccAccount> findQuick(AccountFilter filter, Pageable pageable);

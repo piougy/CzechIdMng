@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.service.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
@@ -46,14 +47,18 @@ import eu.bcvsolutions.idm.security.domain.IfEnabled;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identityAccounts")
 public class AccIdentityAccountController extends DefaultReadWriteEntityController<AccIdentityAccount, IdentityAccountFilter> {
 	
+	// TODO: lookups overs spring plugin
 	private final IdmIdentityLookup identityLookup;
+	private final AccAccountService accountService;
 	
 	@Autowired
-	public AccIdentityAccountController(AccIdentityAccountService identityAccountService, IdmIdentityLookup identityLookup) {
+	public AccIdentityAccountController(AccIdentityAccountService identityAccountService, IdmIdentityLookup identityLookup, AccAccountService accountService) {
 		super(identityAccountService);
 		//
 		Assert.notNull(identityLookup);
+		Assert.notNull(accountService);
 		this.identityLookup = identityLookup;
+		this.accountService = accountService;
 	}
 	
 	@Override
@@ -64,6 +69,7 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 		return super.find(parameters, pageable, assembler);
 	}
 	
+	@Override
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -92,7 +98,7 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
-	}
+	}	
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_WRITE + "')")

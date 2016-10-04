@@ -11,21 +11,20 @@ const uiKey = 'identity-accounts-table';
 const manager = new IdentityAccountManager();
 const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
+const roleManager = new Managers.RoleManager();
 
-class IdentityAccountsContent extends Basic.AbstractContent {
+class IdentityAccountsContent extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      detail: {
-        show: false,
-        entity: {}
-      }
-    };
   }
 
   getManager() {
     return manager;
+  }
+
+  getUiKey() {
+    return uiKey;
   }
 
   getContentKey() {
@@ -39,91 +38,32 @@ class IdentityAccountsContent extends Basic.AbstractContent {
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
       identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
-      account: entity.account ? entity.account.id : null
+      account: entity.account ? entity.account.id : null,
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role.id : null,
     });
-
-    this.setState({
-      detail: {
-        show: true,
-        entity: entityFormData
-      }
-    }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.uid.focus();
+    //
+    super.showDetail(entityFormData, () => {
+      this.refs.account.focus();
     });
   }
 
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
-  }
-
-  save(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const entity = this.refs.form.getData();
-    entity.identity = identityManager.getSelfLink(entity.identity);
-    entity.account = {
-      id: entity.account
+  save(entity, event) {
+    const formEntity = this.refs.form.getData();
+    formEntity.identity = identityManager.getSelfLink(formEntity.identity);
+    formEntity.account = {
+      id: formEntity.account
     };
+    formEntity.role = roleManager.getSelfLink(formEntity.role);
     //
-    if (entity.id === undefined) {
-      this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    } else {
-      this.context.store.dispatch(this.getManager().patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+    super.save(formEntity, event);
   }
 
-  _afterSave(entity, error) {
-    if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
+  afterSave(entity, error) {
+    if (!error) {
+      this.addMessage({ message: this.i18n('save.success', { name: entity.account.uid }) });
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.uid }) });
-    this.closeDetail();
-  }
-
-  onDelete(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
-  useFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
-  }
-
-  cancelFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    super.afterSave(entity, error);
   }
 
   render() {
@@ -168,30 +108,6 @@ class IdentityAccountsContent extends Basic.AbstractContent {
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                  <Basic.Row className="last">
-                    <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="uid"
-                        label={this.i18n('filter.uid.label')}
-                        placeholder={this.i18n('filter.uid.placeholder')}/>
-                    </div>
-                    <div className="col-lg-4">
-                      <Advanced.Filter.EnumSelectBox
-                        ref="type"
-                        label={this.i18n('acc:entity.Account.type')}
-                        placeholder={this.i18n('acc:entity.Account.type')}
-                        enum={AccountTypeEnum}/>
-                    </div>
-                    <div className="col-lg-4 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
             }>
             <Advanced.Column
               property=""
@@ -209,6 +125,7 @@ class IdentityAccountsContent extends Basic.AbstractContent {
             <Advanced.Column property="account._embedded.system.name" header={this.i18n('acc:entity.System.name')} face="text" />
             <Advanced.Column property="account.type" header={this.i18n('acc:entity.Account.type')} sort face="enum" enumClass={AccountTypeEnum} />
             <Advanced.Column property="account._embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
+            <Advanced.Column property="_embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>
@@ -220,7 +137,7 @@ class IdentityAccountsContent extends Basic.AbstractContent {
           backdrop="static"
           keyboard={!_showLoading}>
 
-          <form onSubmit={this.save.bind(this)}>
+          <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
@@ -230,6 +147,10 @@ class IdentityAccountsContent extends Basic.AbstractContent {
                   manager={accountManager}
                   label={this.i18n('acc:entity.Account._type')}
                   required/>
+                <Basic.SelectBox
+                  ref="role"
+                  manager={roleManager}
+                  label={this.i18n('acc:entity.IdentityAccount.role')}/>
                 <Basic.Checkbox
                   ref="ownership"
                   label={this.i18n('acc:entity.IdentityAccount.ownership')}/>

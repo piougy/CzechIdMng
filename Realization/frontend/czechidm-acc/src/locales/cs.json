@@ -136,7 +136,8 @@
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",
-      "ownership": "Vlastní účet"
+      "ownership": "Vlastní účet",
+      "role": "Přiřazen dle role"
     }
   },
   "enums" : {

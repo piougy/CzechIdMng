@@ -52,7 +52,7 @@ module.exports = {
         'parentId': 'user-profile',
         'type': 'TAB',
         'labelKey': 'acc:content.identity.accounts.title',
-        'order': 15,
+        'order': 45,
         'priority': 0,
         'path': '/user/:entityId/accounts',
         'icon': 'fa:external-link'
@@ -60,7 +60,7 @@ module.exports = {
       {
         'id': 'role-systems',
         'type': 'TAB',
-        'parentId': 'role-tabs',
+        'parentId': 'roles',
         'labelKey': 'acc:content.role.systems.title',
         'titleKey': 'acc:content.role.systems.title',
         'order': 20,

@@ -13,20 +13,18 @@ const manager = new AccountManager();
 const systemEntityManager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
-class SystemAccountsContent extends Basic.AbstractContent {
+class SystemAccountsContent extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      detail: {
-        show: false,
-        entity: {}
-      }
-    };
   }
 
   getManager() {
     return manager;
+  }
+
+  getUiKey() {
+    return uiKey;
   }
 
   getContentKey() {
@@ -42,87 +40,24 @@ class SystemAccountsContent extends Basic.AbstractContent {
       system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId,
       systemEntity: entity._embedded && entity._embedded.systemEntity ? entity._embedded.systemEntity.id : null
     });
-
-    this.setState({
-      detail: {
-        show: true,
-        entity: entityFormData
-      }
-    }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.uid.focus();
+    super.showDetail(entityFormData, () => {
+      this.refs.systemEntity.focus();
     });
   }
 
-  closeDetail() {
-    this.setState({
-      detail: {
-        show: false,
-        entity: {}
-      }
-    });
-  }
-
-  save(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.refs.form.isFormValid()) {
-      return;
-    }
-    const entity = this.refs.form.getData();
-    entity.system = systemManager.getSelfLink(entity.system);
-    entity.systemEntity = systemEntityManager.getSelfLink(entity.systemEntity);
+  save(entity, event) {
+    const formEntity = this.refs.form.getData();
+    formEntity.system = systemManager.getSelfLink(formEntity.system);
+    formEntity.systemEntity = systemEntityManager.getSelfLink(formEntity.systemEntity);
     //
-    if (entity.id === undefined) {
-      this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
-      }));
-    } else {
-      this.context.store.dispatch(this.getManager().patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+    super.save(formEntity, event);
   }
 
-  _afterSave(entity, error) {
-    if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
-      return;
+  afterSave(entity, error) {
+    if (!error) {
+      this.addMessage({ message: this.i18n('save.success', { name: entity.uid }) });
     }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.uid }) });
-    this.closeDetail();
-  }
-
-  onDelete(bulkActionValue, selectedRows) {
-    const selectedEntities = this.getManager().getEntitiesByIds(this.context.store.getState(), selectedRows);
-    //
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: this.getManager().getNiceLabel(selectedEntities[0]), records: this.getManager().getNiceLabels(selectedEntities).join(', ') }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: this.getManager().getNiceLabels(selectedEntities).join(', ') })
-    ).then(() => {
-      this.context.store.dispatch(this.getManager().deleteEntities(selectedEntities, uiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
-      }));
-    }, () => {
-      // nothing
-    });
-  }
-
-  useFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
-  }
-
-  cancelFilter(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    super.afterSave(entity, error);
   }
 
   render() {
@@ -218,7 +153,7 @@ class SystemAccountsContent extends Basic.AbstractContent {
           backdrop="static"
           keyboard={!_showLoading}>
 
-          <form onSubmit={this.save.bind(this)}>
+          <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
@@ -272,17 +207,14 @@ class SystemAccountsContent extends Basic.AbstractContent {
 }
 
 SystemAccountsContent.propTypes = {
-  system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
 SystemAccountsContent.defaultProps = {
-  system: null,
   _showLoading: false,
 };
 
-function select(state, component) {
+function select(state) {
   return {
-    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }

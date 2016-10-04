@@ -13,6 +13,8 @@ import ComponentService from './src/services/ComponentService';
 //
 import SearchParameters from './src/domain/SearchParameters';
 
+import AbstractEnum from './src/enums/AbstractEnum';
+
 const ModuleRoot = {
   Basic,
   Advanced,
@@ -29,6 +31,9 @@ const ModuleRoot = {
   Utils,
   Domain: {
     SearchParameters
+  },
+  Enums: {
+    AbstractEnum
   }
 };
 ModuleRoot.version = '0.0.1';

@@ -36,6 +36,6 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteEntityServic
 		if (filter == null) {
 			return find(pageable);
 		}
-		return systemEntityRepository.findQuick(filter.getSystemId(), pageable);
+		return systemEntityRepository.findQuick(filter.getSystemId(), filter.getUid(), filter.getEntityType(), pageable);
 	}
 }

@@ -114,7 +114,7 @@ export class RoleTable extends Basic.AbstractContent {
                 level="success"
                 key="add_button"
                 className="btn-xs"
-                onClick={this.showDetail.bind(this, { roleType: RoleTypeEnum.findKeyBySymbol(RoleTypeEnum.TECHNICAL) })}
+                onClick={this.showDetail.bind(this, { })}
                 rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}

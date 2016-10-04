@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.acc.repository.projection.SysSystemEntityExcerpt;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 
 /**
- * Target system configuration
+ * Entity on target system
  * 
  * @author Radek Tomiška
  *
@@ -31,7 +31,15 @@ public interface SysSystemEntityRepository extends BaseRepository<SysSystemEntit
 	
 	@Query(value = "select e from SysSystemEntity e" +
 	        " where" +
-	        " (?#{[0]} is null or e.system.id = ?#{[0]})")
-	Page<SysSystemEntity> findQuick(@Param(value = "systemId") Long systemId, Pageable pageable);
+	        " (?#{[0]} is null or e.system.id = ?#{[0]})" +
+	        " and" +
+	        " (lower(e.uid) like ?#{[1] == null ? '%' : '%'.concat([1].toLowerCase()).concat('%')})" +
+	        " and" + 
+	        " (?#{[2]} is null or e.entityType = ?#{[2]})")
+	Page<SysSystemEntity> findQuick(
+			@Param(value = "systemId") Long systemId,
+			@Param(value = "uid") String uid,
+			@Param(value = "entityType") SystemEntityType entityType,
+			Pageable pageable);
 	
 }

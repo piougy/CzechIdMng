@@ -19,6 +19,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.Identifiable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 
 /**
@@ -42,34 +45,40 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	@CreatedDate
 	@Column(name = "created", nullable = false)
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
+	@JsonProperty(access = Access.READ_ONLY)
 	private Date created;
 
 	@Audited
 	@LastModifiedDate
 	@Column(name = "modified", nullable = false)
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
+	@JsonProperty(access = Access.READ_ONLY)
 	private Date modified;
 
 	@Audited
 	@CreatedBy
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "creator", length = DefaultFieldLengths.NAME, nullable = false)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String creator;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_creator", length = DefaultFieldLengths.NAME)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String originalCreator;
 
 	@Audited
 	@LastModifiedBy
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "modifier", length = DefaultFieldLengths.NAME)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String modifier;
 	
 	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
+	@JsonProperty(access = Access.READ_ONLY)
 	private String originalModifier;
 
 	public AbstractEntity() {

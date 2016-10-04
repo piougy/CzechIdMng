@@ -34,9 +34,9 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
 import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeController;
 
 /**
  * Audit for organization test

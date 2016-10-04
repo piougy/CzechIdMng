@@ -27,7 +27,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.exception.CoreResultCode;
 import eu.bcvsolutions.idm.core.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleLookup;
@@ -47,7 +48,7 @@ import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
-public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, QuickFilter> {
+public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, RoleFilter> {
 
 	@Autowired
 	private IdmRoleLookup roleLookup;
@@ -146,9 +147,10 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	}
 	
 	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
+	protected RoleFilter toFilter(MultiValueMap<String, Object> parameters) {
+		RoleFilter filter = new RoleFilter();
+		filter.setText(this.convertStringParameter(parameters, "text"));
+		filter.setRoleType(this.convertEnumParameter(parameters, "roleType", IdmRoleType.class));
 		return filter;
 	}
 }

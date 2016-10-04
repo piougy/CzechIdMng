@@ -47,6 +47,12 @@
         },
         "save": {
           "success": "Entita [{{name}}] na systému byla úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
         }
       }
     },
@@ -82,7 +88,14 @@
     "SystemEntity": {
       "_type": "Entita na systému",
       "entityType": "Typ entity",
-      "uid": "Identifikátor na systému"
+      "uid": "Identifikátor na systému",
+      "system": "Napojený systém"
+    }
+  },
+  "enums" : {
+    "SystemEntityTypeEnum": {
+      "IDENTITY": "Identita",
+      "GROUP": "Skupina"
     }
   }
 }

@@ -24,6 +24,7 @@ import org.springframework.hateoas.core.EmbeddedWrappers;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -170,6 +171,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return null;
 	}
 	
+	protected String convertStringParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    Assert.notNull(parameterName);
+	    //
+		return (String)parameters.toSingleValueMap().get(parameterName);
+	}
+	
 	/**
 	 * Converts parameter to {@code Long} from given parameters.
 	 * 
@@ -178,7 +186,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected Long convertLongParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = (String)parameters.toSingleValueMap().get(parameterName);
+		String valueAsString = convertStringParameter(parameters, parameterName);
 		if(StringUtils.isNotEmpty(valueAsString)) {
 			try {
 				return Long.valueOf(valueAsString);
@@ -187,5 +195,19 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			}		
 		}
 		return null;
+	}
+	
+	protected <T extends Enum<T>> T convertEnumParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
+		Assert.notNull(enumClass);
+	    //
+	    String valueAsString = convertStringParameter(parameters, parameterName);
+	    if(StringUtils.isEmpty(valueAsString)) {
+	    	return null;
+	    }
+        try {
+            return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
+        } catch(IllegalArgumentException ex) {
+        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+        }
 	}
 }

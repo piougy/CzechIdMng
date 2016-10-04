@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.SysSystemEntityService;
@@ -105,6 +106,8 @@ public class SysSystemEntityController extends AbstractReadWriteEntityController
 	protected SystemEntityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SystemEntityFilter filter = new SystemEntityFilter();
 		filter.setSystemId(convertLongParameter(parameters, "systemId"));
+		filter.setEntityType(convertEnumParameter(parameters, "entityType", SystemEntityType.class));
+		filter.setUid(convertStringParameter(parameters, "uid"));
 		return filter;
 	}
 }

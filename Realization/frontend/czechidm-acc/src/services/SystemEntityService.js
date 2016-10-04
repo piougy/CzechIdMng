@@ -1,5 +1,6 @@
 import { Services } from 'czechidm-core';
 import { Domain } from 'czechidm-core';
+import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
 
 export default class SystemEntityService extends Services.AbstractService {
 
@@ -11,7 +12,7 @@ export default class SystemEntityService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.system.name}:${entity.entityType} (${entity.uid})`;
+    return `${entity.system.name}:${SystemEntityTypeEnum.getNiceLabel(entity.entityType)}:${entity.uid}`;
   }
 
   getApiPath() {

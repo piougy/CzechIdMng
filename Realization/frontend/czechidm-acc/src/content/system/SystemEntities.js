@@ -5,6 +5,7 @@ import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { SystemEntityManager, SystemManager } from '../../redux';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'system-entities-table';
 const manager = new SystemEntityManager();
@@ -31,7 +32,7 @@ class SystemEntitiesContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-sysstems', 'system-entities']);
+    this.selectNavigationItems(['sys-systems', 'system-entities']);
   }
 
   showDetail(entity) {
@@ -106,6 +107,20 @@ class SystemEntitiesContent extends Basic.AbstractContent {
     });
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   render() {
     const { entityId } = this.props.params;
     const { _showLoading } = this.props;
@@ -137,12 +152,41 @@ class SystemEntitiesContent extends Basic.AbstractContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                <Basic.Button
+                  level="success"
+                  key="add_button"
+                  className="btn-xs"
+                  onClick={this.showDetail.bind(this, { entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY) })}
+                  rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
+            }
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                  <Basic.Row className="last">
+                    <div className="col-lg-4">
+                      <Advanced.Filter.TextField
+                        ref="uid"
+                        label={this.i18n('filter.uid.label')}
+                        placeholder={this.i18n('filter.uid.placeholder')}/>
+                    </div>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.EnumSelectBox
+                        ref="entityType"
+                        label={this.i18n('acc:entity.SystemEntity.entityType')}
+                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
+                        enum={SystemEntityTypeEnum}/>
+                    </div>
+                    <div className="col-lg-4 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
             }>
             <Advanced.Column
               property=""
@@ -158,12 +202,12 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                 }
               }/>
             <Advanced.Column property="uid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
-            <Advanced.Column property="entityType" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="text" />
+            <Advanced.Column property="entityType" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
           </Advanced.Table>
         </Basic.Panel>
 
         <Basic.Modal
-          bsSize="default"
+          bsSize="large"
           show={detail.show}
           onHide={this.closeDetail.bind(this)}
           backdrop="static"
@@ -184,11 +228,18 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                   ref="uid"
                   label={this.i18n('acc:entity.SystemEntity.uid')}
                   required/>
-                <Basic.TextField
+                <Basic.EnumSelectBox
                   ref="entityType"
+                  enum={SystemEntityTypeEnum}
                   label={this.i18n('acc:entity.SystemEntity.entityType')}
                   required/>
               </Basic.AbstractForm>
+
+              {/*
+              <Basic.ContentHeader>
+                Vazby <small> v idm</small>
+              </Basic.ContentHeader>
+              TODO: accounts*/}
             </Basic.Modal.Body>
 
             <Basic.Modal.Footer>

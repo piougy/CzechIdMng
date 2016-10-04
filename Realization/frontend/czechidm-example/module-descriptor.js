@@ -19,7 +19,7 @@ module.exports = {
         'icon': 'gift',
         'iconColor': '#FF8A80',
         'order': 9,
-        'path': '/user/:userID/roles',
+        'path': '/user/:entityId/roles',
         'priority': 0
       },
       {
@@ -29,7 +29,7 @@ module.exports = {
         'labelKey': 'example:content.user.example',
         'order': 1,
         'priority': 0,
-        'path': '/user/:userID/examples',
+        'path': '/user/:entityId/examples',
         'icon': 'gift'
       }
     ]

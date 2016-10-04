@@ -41,9 +41,10 @@ public class AccRoleSystem extends AbstractEntity {
 	@JoinColumn(name = "system_id", referencedColumnName = "id")
 	private SysSystem system;
 	
+	@NotNull
 	@Audited
-	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "type", length = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "type", length = DefaultFieldLengths.NAME, nullable = false)
 	private String type;
 
 	public IdmRole getRole() {

@@ -30,5 +30,5 @@ public interface AccRoleSystemRepository extends BaseRepository<AccRoleSystem> {
 	        " (?#{[0]} is null or e.role.id = ?#{[0]})" +
 	        " and" +
 	        " (?#{[1]} is null or e.system.id = ?#{[1]})")
-	Page<AccRoleSystem> findQuick(@Param(value = "role") Long roleId, @Param(value = "system") Long systemId, Pageable pageable);
+	Page<AccRoleSystem> findQuick(@Param(value = "roleId") Long roleId, @Param(value = "systemId") Long systemId, Pageable pageable);
 }

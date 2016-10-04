@@ -30,7 +30,7 @@ class Dashboard extends Basic.AbstractContent {
 
       return (
         <div className={'col-lg-' + (component.span ? component.span : DEFAULT_SPAN)}>
-          <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} userID={userContext.username}/>
+          <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} entityId={userContext.username}/>
         </div>
       );
     });

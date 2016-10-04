@@ -1,22 +1,17 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../components/basic';
-import { RoleManager } from '../../redux';
-import * as Advanced from '../../components/advanced';
+import { Basic, Advanced } from 'czechidm-core';
+import { SystemManager } from '../../redux';
 
+const manager = new SystemManager();
 
-const manager = new RoleManager();
-
-class Role extends Basic.AbstractContent {
+class System extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
     //
     this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
-  }
-
-  componentDidUpdate() {
   }
 
   render() {
@@ -27,12 +22,14 @@ class Role extends Basic.AbstractContent {
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
         <Basic.PageHeader showLoading={showLoading}>
-          {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
+          <Basic.Icon value="link"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity) }) }}/>
         </Basic.PageHeader>
 
         <Basic.Panel>
           <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="role-tabs" params={this.props.params}>
+            <Advanced.TabPanel parentId="sys-systems" params={this.props.params}>
               {this.props.children}
             </Advanced.TabPanel>
           </div>
@@ -42,11 +39,11 @@ class Role extends Basic.AbstractContent {
   }
 }
 
-Role.propTypes = {
+System.propTypes = {
   entity: PropTypes.object,
   showLoading: PropTypes.bool
 };
-Role.defaultProps = {
+System.defaultProps = {
   entity: null,
   showLoading: false
 };
@@ -59,4 +56,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(Role);
+export default connect(select)(System);

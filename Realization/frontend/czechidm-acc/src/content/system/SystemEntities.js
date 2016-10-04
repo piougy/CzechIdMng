@@ -4,14 +4,13 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { RoleSystemManager, SystemManager } from '../../redux';
+import { SystemEntityManager, SystemManager } from '../../redux';
 
-const uiKey = 'role-systems-table';
-const manager = new RoleSystemManager();
+const uiKey = 'system-entities-table';
+const manager = new SystemEntityManager();
 const systemManager = new SystemManager();
-const roleManager = new Managers.RoleManager();
 
-class RoleSystems extends Basic.AbstractContent {
+class SystemEntitiesContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -28,17 +27,16 @@ class RoleSystems extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'acc:content.role.systems';
+    return 'acc:content.system.entities';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['roles', 'role-systems']);
+    this.selectNavigationItems(['sys-sysstems', 'system-entities']);
   }
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      role: entity.id && entity._embedded.role ? entity._embedded.role.id : this.props.params.entityId,
-      system: entity.id && entity._embedded.system ? entity._embedded.system.id : null
+      system: entity.id && entity.system ? entity.system.id : this.props.params.entityId
     });
 
     this.setState({
@@ -48,7 +46,7 @@ class RoleSystems extends Basic.AbstractContent {
       }
     }, () => {
       this.refs.form.setData(entityFormData);
-      this.refs.system.focus();
+      this.refs.uid.focus();
     });
   }
 
@@ -69,7 +67,6 @@ class RoleSystems extends Basic.AbstractContent {
       return;
     }
     const entity = this.refs.form.getData();
-    entity.role = roleManager.getSelfLink(entity.role);
     entity.system = systemManager.getSelfLink(entity.system);
     //
     if (entity.id === undefined) {
@@ -90,7 +87,7 @@ class RoleSystems extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
-    this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
+    this.addMessage({ message: this.i18n('save.success', { name: entity.uid }) });
     this.closeDetail();
   }
 
@@ -111,11 +108,9 @@ class RoleSystems extends Basic.AbstractContent {
 
   render() {
     const { entityId } = this.props.params;
-    const { _showLoading, role } = this.props;
+    const { _showLoading } = this.props;
     const { detail } = this.state;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
-
-    const _role = role || {};
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
 
     return (
       <div>
@@ -132,9 +127,9 @@ class RoleSystems extends Basic.AbstractContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}
+            showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
-              Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])
+              Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
               ?
               [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
               :
@@ -162,8 +157,8 @@ class RoleSystems extends Basic.AbstractContent {
                   );
                 }
               }/>
-            <Advanced.Column property="_embedded.system.name" header={this.i18n('acc:entity.RoleSystem.system')} sort face="text" />
-            <Advanced.Column property="type" header={this.i18n('acc:entity.RoleSystem.type')} sort face="text" />
+            <Advanced.Column property="uid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
+            <Advanced.Column property="entityType" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="text" />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -175,24 +170,23 @@ class RoleSystems extends Basic.AbstractContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { role: _role.name })} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name, role: _role.name })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.SelectBox
-                  ref="role"
-                  manager={roleManager}
-                  label={this.i18n('acc:entity.RoleSystem.role')}
-                  readOnly
-                  required/>
-                <Basic.SelectBox
                   ref="system"
                   manager={systemManager}
-                  label={this.i18n('acc:entity.RoleSystem.system')}
+                  label={this.i18n('acc:entity.SystemEntity.system')}
+                  readOnly
                   required/>
                 <Basic.TextField
-                  ref="type"
-                  label={this.i18n('acc:entity.RoleSystem.type')}
+                  ref="uid"
+                  label={this.i18n('acc:entity.SystemEntity.uid')}
+                  required/>
+                <Basic.TextField
+                  ref="entityType"
+                  label={this.i18n('acc:entity.SystemEntity.entityType')}
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -220,20 +214,20 @@ class RoleSystems extends Basic.AbstractContent {
   }
 }
 
-RoleSystems.propTypes = {
-  role: PropTypes.object,
+SystemEntitiesContent.propTypes = {
+  system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-RoleSystems.defaultProps = {
-  role: null,
+SystemEntitiesContent.defaultProps = {
+  system: null,
   _showLoading: false,
 };
 
 function select(state, component) {
   return {
-    role: Utils.Entity.getEntity(state, roleManager.getEntityType(), component.params.entityId),
+    system: Utils.Entity.getEntity(state, systemManager.getEntityType(), component.params.entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }
 
-export default connect(select)(RoleSystems);
+export default connect(select)(SystemEntitiesContent);

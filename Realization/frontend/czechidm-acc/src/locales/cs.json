@@ -25,6 +25,7 @@
         "header": "Napojený systém",
         "title": "$t(acc:content.system.detail.header)",
         "edit": {
+          "title": "Detail systému",
           "header": "{{name}} <small>detail napojeného systému</small>"
         },
         "create": {
@@ -32,13 +33,36 @@
         },
         "save": {
           "success": "Systém [{{name}}] byl úspěšně uložen"
+        },
+        "basic": "Základní informace"
+      },
+      "entities": {
+        "header": "Entity na koncovém systému <small>uložené v idm</small>",
+        "title": "Entity na systému",
+        "edit": {
+          "header": "Detail entity na koncovém systému"
+        },
+        "create": {
+          "header": "Nová entita na koncovém systému"
+        },
+        "save": {
+          "success": "Entita [{{name}}] na systému byla úspěšně uložen"
         }
       }
     },
     "role": {
       "systems": {
-        "header": "$t(acc:content.systems.header)",
-        "title": "$t(acc:content.systems.header)"
+        "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
+        "title": "$t(acc:content.systems.header)",
+        "edit": {
+          "header": "Detail napojeného systému pro roli"
+        },
+        "create": {
+          "header": "Nový napojený systém pro roli"
+        },
+        "save": {
+          "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        }
       }
     }
   },
@@ -48,6 +72,17 @@
       "name": "Název systému",
       "disabled": "Neaktivní",
       "description": "Popis"
+    },
+    "RoleSystem": {
+      "_type": "Role přiřazuje účet na systému",
+      "type": "Typ přiřazení",
+      "role": "Role",
+      "system": "Systém"
+    },
+    "SystemEntity": {
+      "_type": "Entita na systému",
+      "entityType": "Typ entity",
+      "uid": "Identifikátor na systému"
     }
   }
 }

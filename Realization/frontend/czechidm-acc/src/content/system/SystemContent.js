@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
-import { Basic, Utils } from 'czechidm-core';
+//
+import { Basic } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemDetail from './SystemDetail';
 
@@ -21,12 +21,10 @@ class SystemContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('sys-systems');
+    this.selectNavigationItems(['sys-systems', 'system-detail']);
     const { entityId } = this.props.params;
-    const { query } = this.props.location;
-    const isNew = (query) ? query.new : null;
 
-    if (isNew) {
+    if (this._isNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
     } else {
       this.getLogger().debug(`[SystemContent] loading entity detail [id:${entityId}]`);
@@ -34,19 +32,16 @@ class SystemContent extends Basic.AbstractContent {
     }
   }
 
+  _isNew() {
+    const { query } = this.props.location;
+    return (query) ? query.new : null;
+  }
+
   render() {
     const { entity, showLoading } = this.props;
     return (
-      <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader showLoading={showLoading}>
-          <Basic.Icon value="link"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.header', { name: manager.getNiceLabel(entity) })} }/>
-        </Basic.PageHeader>
-
-        <Basic.Panel>
+      <Basic.Row>
+        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
             showLoading
             ?
@@ -54,9 +49,8 @@ class SystemContent extends Basic.AbstractContent {
             :
             <SystemDetail entity={entity} />
           }
-        </Basic.Panel>
-
-      </div>
+        </div>
+      </Basic.Row>
     );
   }
 }

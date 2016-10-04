@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -166,6 +167,25 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected F toFilter(MultiValueMap<String, Object> parameters) {
+		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code Long} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected Long convertLongParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = (String)parameters.toSingleValueMap().get(parameterName);
+		if(StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return Long.valueOf(valueAsString);
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+			}		
+		}
 		return null;
 	}
 }

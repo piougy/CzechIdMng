@@ -4,7 +4,7 @@ import {Basic} from 'czechidm-core';
 export default class ExampleDashboard extends Basic.AbstractContent {
 
   _goToProfil() {
-    this.context.router.push('/user/' + this.props.userID + '/profile');
+    this.context.router.push('/user/' + this.props.entityId + '/profile');
   }
 
   getContentKey() {

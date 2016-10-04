@@ -99,7 +99,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree/nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -146,14 +146,15 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		Map<String, String> body = new HashMap<>();
 		body.put("id", node2.getId().toString());
 		body.put("name", "TEST_NODE_2_update");
-		body.put("parent", "treenodes/" + node4.getId().toString());
+		body.put("treeType", "tree/types/" + node4.getTreeType().getId().toString());
+		body.put("parent", "tree/nodes/" + node4.getId().toString());
 		
 		String jsonContent = toJson(body);
 		
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree/nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -201,7 +202,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree/nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -220,14 +221,14 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		// change treeType
 		body.put("id", node.getId().toString());
 		body.put("name", node.getName() + "_update");
-		body.put("treeType", "treetypes/" + type2.getId().toString());
+		body.put("treeType", "tree/types/" + type2.getId().toString());
 		
 		jsonContent = toJson(body);
 		
 		status = 0;
 		ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treenodes/").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree/nodes/").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()

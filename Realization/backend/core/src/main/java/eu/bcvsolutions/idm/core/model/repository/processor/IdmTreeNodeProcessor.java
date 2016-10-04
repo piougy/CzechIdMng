@@ -8,7 +8,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.rest.IdmTreeNodeController;
+import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeController;
 
 /**
  * 

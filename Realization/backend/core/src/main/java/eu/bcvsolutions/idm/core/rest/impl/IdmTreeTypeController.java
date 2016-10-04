@@ -8,6 +8,7 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,5 +59,12 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
+	}
+	
+	@Override
+	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
+		QuickFilter filter = new QuickFilter();
+		filter.setText((String)parameters.toSingleValueMap().get("text"));
+		return filter;
 	}
 }

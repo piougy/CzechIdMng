@@ -36,7 +36,7 @@ export class TypeTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     const data = {
-      name: this.refs.filterForm.getData().text
+      ... this.refs.filterForm.getData(),
     };
     this.refs.table.getWrappedInstance().useFilterData(data);
   }

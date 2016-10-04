@@ -32,6 +32,5 @@ public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType> {
 	@Query(value = "select e from IdmTreeType e" +
 	        " where" +
 	        "(:name is null or lower(e.name) like :#{#name == null ? '%' : '%'.concat(#name.toLowerCase()).concat('%')})")
-	@RestResource(path = "quick", rel = "quick")
 	Page<IdmTreeType> findByName(@Param(value = "name") String name, Pageable pageable);
 }

@@ -41,6 +41,10 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
   prepareFilledAuthorities(authorities, availableAuthorities) {
     let filledAuthorities = new Immutable.OrderedMap();
     if (availableAuthorities) {
+      // sort authorities by name
+      availableAuthorities = _.sortBy(availableAuthorities, function sort(authority) {
+        return authority.name;
+      });
       const authorityNames = !authorities ? [] : authorities.map(authority => {
         return authority.authority;
       });

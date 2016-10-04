@@ -72,11 +72,13 @@ We can install other application modules. We will install optional example modul
 
 All application modules are in **czechidm-modules** directory (in czechidm-app). Go to him and create symlink on example module.
 
-**IMPORTANT!** If are you Windows user, then you have to create symlink with command 'mklink /D'.
-
 `cd czechidm-modules`
 
 `ln -s ../../czechidm-example`
+
+**IMPORTANT!** If are you Windows user, then you have to create symlink with command 'mklink /D' e.g.
+
+`mklink /D d:\Projekty\BCV\CzechIdMng\Realization\frontend\czechidm-app\czechidm-modules\czechidm-acc d:\Projekty\BCV\CzechIdMng\Realization\frontend\czechidm-acc`
 
 Go to the example module. You can use symlink in czechidm-modules.
 

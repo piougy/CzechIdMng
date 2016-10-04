@@ -30,10 +30,13 @@ public interface AccIdentityAccountRepository extends BaseRepository<AccIdentity
 	        " and" +
 	        " (?#{[1]} is null or e.identity.id = ?#{[1]})" +
 	        " and" +
-	        " (?#{[2]} is null or r.id = ?#{[2]})")
+	        " (?#{[2]} is null or r.id = ?#{[2]})" + 
+	        " and" +
+	        " (?#{[3]} is null or e.account.system.id = ?#{[3]})")
 	Page<AccIdentityAccount> findQuick(
 			@Param(value = "accountId") Long accountId, 
 			@Param(value = "identityId") Long identityId,
 			@Param(value = "roleId") Long roleId,
+			@Param(value = "systemId") Long systemId,
 			Pageable pageable);
 }

@@ -29,10 +29,19 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-accounts',
+            'type': 'TAB',
+            'labelKey': 'acc:content.system.accounts.title',
+            'order': 20,
+            'path': '/system/:entityId/accounts',
+            'icon': 'fa:external-link',
+            'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['SYSTEM_READ', 'ACCOUNT_READ'] } ]
+          },
+          {
             'id': 'system-entities',
             'type': 'TAB',
             'labelKey': 'acc:content.system.entities.title',
-            'order': 1,
+            'order': 20,
             'path': '/system/:entityId/entities',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
@@ -46,7 +55,7 @@ module.exports = {
         'order': 15,
         'priority': 0,
         'path': '/user/:userID/accounts',
-        'icon': 'link',
+        'icon': 'fa:external-link',
         'access': [ { 'type': 'DENY_ALL' } ]
       },
       {

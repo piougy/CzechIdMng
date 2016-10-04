@@ -39,7 +39,7 @@ public class SysSystemEntity extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "entity_type", nullable = false)
-	private SystemEntityType entityType = SystemEntityType.IDENTITY;
+	private SystemEntityType entityType;
 	
 	@NotNull
 	@ManyToOne(optional = false)

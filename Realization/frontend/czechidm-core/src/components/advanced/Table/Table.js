@@ -261,6 +261,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           <Basic.BasicTable.SortHeaderCell
             header={header}
             sortHandler={this._handleSort.bind(this)}
+            sortProperty={column.props.sortProperty || column.props.property}
             searchParameters={_searchParameters}
             className={commonProps.className}/>
         );

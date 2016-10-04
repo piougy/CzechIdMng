@@ -13,6 +13,7 @@ public class IdentityAccountFilter implements BaseFilter {
 	private Long accountId;
 	private Long identityId;
 	private Long roleId;
+	private Long systemId;
 
 	public Long getAccountId() {
 		return accountId;
@@ -36,5 +37,13 @@ public class IdentityAccountFilter implements BaseFilter {
 
 	public void setRoleId(Long roleId) {
 		this.roleId = roleId;
+	}
+	
+	public void setSystemId(Long systemId) {
+		this.systemId = systemId;
+	}
+	
+	public Long getSystemId() {
+		return systemId;
 	}
 }

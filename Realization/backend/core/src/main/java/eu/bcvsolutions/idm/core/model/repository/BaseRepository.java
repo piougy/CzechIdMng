@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.core.model.entity.BaseEntity;
  * Common repository for base entities
  * 
  * TODO: QueryDslPredicateExecutor<E>
+ * TODO:  F extends BaseFilter
  * 
  * @author Radek Tomiška 
  *
@@ -20,4 +21,6 @@ public interface BaseRepository<E extends BaseEntity> extends PagingAndSortingRe
 	@Override
 	@Transactional(timeout = 10)
 	Iterable<E> findAll();
+	
+	
 }

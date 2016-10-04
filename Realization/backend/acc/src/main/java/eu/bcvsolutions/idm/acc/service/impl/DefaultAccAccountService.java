@@ -36,6 +36,6 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		if (filter == null) {
 			return find(pageable);
 		}
-		return accountRepository.findQuick(filter.getSystemId(), filter.getSystemEntityId(), pageable);
+		return accountRepository.findQuick(filter, pageable);
 	}
 }

@@ -102,6 +102,7 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 		filter.setAccountId(convertLongParameter(parameters, "accountId"));
 		filter.setIdentityId(convertLongParameter(parameters, "identityId"));
 		filter.setRoleId(convertLongParameter(parameters, "roleId"));
+		filter.setSystemId(convertLongParameter(parameters, "systemId"));
 		return filter;
 	}
 }

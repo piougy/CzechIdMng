@@ -4,14 +4,15 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SystemEntityManager, SystemManager } from '../../redux';
-import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import { AccountManager, SystemEntityManager, SystemManager } from '../../redux';
+import AccountTypeEnum from '../../domain/AccountTypeEnum';
 
-const uiKey = 'system-entities-table';
-const manager = new SystemEntityManager();
+const uiKey = 'system-accounts-table';
+const manager = new AccountManager();
+const systemEntityManager = new SystemEntityManager();
 const systemManager = new SystemManager();
 
-class SystemEntitiesContent extends Basic.AbstractContent {
+class SystemAccountsContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -28,16 +29,17 @@ class SystemEntitiesContent extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.entities';
+    return 'acc:content.system.accounts';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-entities']);
+    this.selectNavigationItems(['sys-systems', 'system-accounts']);
   }
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
+      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId,
+      systemEntity: entity._embedded && entity._embedded.systemEntity ? entity._embedded.systemEntity.id : null
     });
 
     this.setState({
@@ -69,6 +71,7 @@ class SystemEntitiesContent extends Basic.AbstractContent {
     }
     const entity = this.refs.form.getData();
     entity.system = systemManager.getSelfLink(entity.system);
+    entity.systemEntity = systemEntityManager.getSelfLink(entity.systemEntity);
     //
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
@@ -140,8 +143,8 @@ class SystemEntitiesContent extends Basic.AbstractContent {
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
-              manager={this.getManager()}
-              forceSearchParameters={forceSearchParameters}
+            manager={this.getManager()}
+            forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
@@ -156,7 +159,7 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY) })}
+                  onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
                   rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -176,10 +179,10 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.EnumSelectBox
-                        ref="entityType"
-                        label={this.i18n('acc:entity.SystemEntity.entityType')}
-                        placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
-                        enum={SystemEntityTypeEnum}/>
+                        ref="type"
+                        label={this.i18n('acc:entity.Account.type')}
+                        placeholder={this.i18n('acc:entity.Account.type')}
+                        enum={AccountTypeEnum}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -201,8 +204,8 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                   );
                 }
               }/>
-            <Advanced.Column property="uid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
-            <Advanced.Column property="entityType" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
+            <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
+            <Advanced.Column property="type" header={this.i18n('acc:entity.Account.type')} sort face="enum" enumClass={AccountTypeEnum} />
           </Advanced.Table>
         </Basic.Panel>
 
@@ -221,23 +224,24 @@ class SystemEntitiesContent extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="system"
                   manager={systemManager}
-                  label={this.i18n('acc:entity.SystemEntity.system')}
+                  label={this.i18n('acc:entity.Account.system')}
                   readOnly
                   required/>
-                <Basic.TextField
-                  ref="uid"
-                  label={this.i18n('acc:entity.SystemEntity.uid')}
-                  required/>
+                <Basic.SelectBox
+                  ref="systemEntity"
+                  manager={systemEntityManager}
+                  label={this.i18n('acc:entity.Account.systemEntity')}
+                  forceSearchParameters={forceSearchParameters}/>
                 <Basic.EnumSelectBox
-                  ref="entityType"
-                  enum={SystemEntityTypeEnum}
-                  label={this.i18n('acc:entity.SystemEntity.entityType')}
+                  ref="type"
+                  enum={AccountTypeEnum}
+                  label={this.i18n('acc:entity.Account.type')}
                   required/>
               </Basic.AbstractForm>
 
               {/*
               <Basic.ContentHeader>
-                Vazby <small> v idm</small>
+                Identity nalinkované na účet
               </Basic.ContentHeader>
               TODO: accounts*/}
             </Basic.Modal.Body>
@@ -265,11 +269,11 @@ class SystemEntitiesContent extends Basic.AbstractContent {
   }
 }
 
-SystemEntitiesContent.propTypes = {
+SystemAccountsContent.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SystemEntitiesContent.defaultProps = {
+SystemAccountsContent.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -281,4 +285,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemEntitiesContent);
+export default connect(select)(SystemAccountsContent);

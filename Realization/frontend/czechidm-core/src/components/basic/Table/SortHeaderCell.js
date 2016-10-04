@@ -33,12 +33,12 @@ class SortHeaderCell extends AbstractComponent {
     if (event) {
       event.preventDefault();
     }
-    const { property, sortHandler } = this.props;
+    const { sortProperty, property, sortHandler } = this.props;
     if (!sortHandler) {
       // if handleSort is not set, then its nothing to do
       return null;
     }
-    sortHandler(property, order);
+    sortHandler(sortProperty || property, order);
   }
 
   render() {

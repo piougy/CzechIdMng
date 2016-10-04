@@ -32,7 +32,7 @@ class Role extends Basic.AbstractContent {
 
         <Basic.Panel>
           <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="role-tabs" params={this.props.params}>
+            <Advanced.TabPanel parentId="roles" params={this.props.params}>
               {this.props.children}
             </Advanced.TabPanel>
           </div>

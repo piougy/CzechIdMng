@@ -134,6 +134,7 @@ module.exports = {
       },
       {
         'id': 'roles',
+        'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
@@ -143,23 +144,15 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-tabs',
+            'id': 'role-detail',
             'type': 'TAB',
-            'order': 10,
-            'priority': 0,
-            'items': [
-              {
-                'id': 'role-detail',
-                'type': 'TAB',
-                'label': 'content.roles.tabs.basic',
-                'labelKey': 'content.roles.tabs.basic',
-                'titleKey': 'content.roles.tabs.basic',
-                'order': 1,
-                'path': '/role/:entityId/detail',
-                'icon': 'fa:newspaper-o'
-              }
-            ]
-          },
+            'label': 'content.roles.tabs.basic',
+            'labelKey': 'content.roles.tabs.basic',
+            'titleKey': 'content.roles.tabs.basic',
+            'order': 1,
+            'path': '/role/:entityId/detail',
+            'icon': 'fa:newspaper-o'
+          }
         ]
       },
       {

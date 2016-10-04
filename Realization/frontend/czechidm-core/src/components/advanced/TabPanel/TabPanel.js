@@ -1,16 +1,11 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import TabPanelItem from './TabPanelItem';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
 import * as Basic from '../../basic';
-
-/**
- * Index of active item in array selectedNavigationItems
- * @type {Number}
- */
-const ACTIVE_ITEM = 1;
 
 /**
  * Sidebar renders tabs by given navigation parent (parentId)
@@ -52,7 +47,6 @@ class TabPanel extends Basic.AbstractContextComponent {
     return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
       const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
-      //
       switch (item.type) {
         case 'TAB':
         case 'DYNAMIC': {
@@ -64,7 +58,7 @@ class TabPanel extends Basic.AbstractContextComponent {
               icon={item.icon}
               iconColor={item.iconColor}
               title={this.i18n(item.titleKey, { defaultValue: item.title })}
-              active={selectedNavigationItems[ACTIVE_ITEM] === item.id}>
+              active={_.includes(selectedNavigationItems, item.id)}>
               {
                 (item.labelKey || item.label)
                 ?

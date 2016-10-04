@@ -27,7 +27,7 @@ class User extends Basic.AbstractContent {
     if (entityId === userContext.username && selectedSidebarItem !== 'profile-subordinates') {
       this.selectNavigationItems(['user-profile', null]);
     } else {
-      this.selectNavigationItems(['user-subordinates', null]);
+      this.selectNavigationItems(['users', null]);
     }
   }
 

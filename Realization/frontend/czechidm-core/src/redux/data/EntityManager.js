@@ -33,6 +33,16 @@ export default class EntityManager {
   }
 
   /**
+   * Could be used for localiyation resolving etc.
+   *
+   * @return {string} moduleId
+   */
+  getModule() {
+    // TODO: maybe could be resolved automatically from module descriptors and context?
+    return 'core';
+  }
+
+  /**
    * Resource name
    *
    * @return {string}

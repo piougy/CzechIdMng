@@ -109,7 +109,7 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		IdmRole role = new IdmRole();
 		role.setName("role");
 		IdmRoleAuthority roleAuthority = new IdmRoleAuthority();
-		roleAuthority.setTargetPermission(IdmGroupPermission.SYSTEM);
+		roleAuthority.setTargetPermission(IdmGroupPermission.APP);
 		roleAuthority.setActionPermission(IdmBasePermission.ADMIN);
 		role.getAuthorities().add(roleAuthority);
 		

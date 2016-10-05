@@ -5,7 +5,6 @@ import org.springframework.data.rest.core.support.SelfLinkProvider;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 

@@ -1,12 +1,11 @@
 import Immutable from 'immutable';
+//
+import ConfigLoader from './ConfigLoader';
 
 let _components = new Immutable.Map();
 let _componentDescriptors = new Immutable.Map();
+
 export default class ComponentLoader {
-
-  constructor() {
-
-  }
 
   static initComponents(componentDescriptors) {
     _componentDescriptors = componentDescriptors;
@@ -36,7 +35,7 @@ export default class ComponentLoader {
   static getComponentDefinitions(type) {
     return _components
       .filter(component => {
-        return !component.disabled && (!type || component.type === type);
+        return !component.disabled && (!type || component.type === type) && ConfigLoader.isEnabledModule(component.module);
       })
       .sortBy(item => item.order);
   }

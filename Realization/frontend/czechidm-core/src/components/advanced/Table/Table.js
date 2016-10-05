@@ -254,13 +254,14 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       // construct basic column from advanced column definition
       let header = column.props.header;
       if (!header && column.props.property) {
-        header = this.i18n('entity.' + manager.getEntityType() + '.' + column.props.property);
+        header = this.i18n(`${manager.getModule()}:entity.${manager.getEntityType()}.${column.props.property}`);
       }
       if (column.props.sort) {
         header = (
           <Basic.BasicTable.SortHeaderCell
             header={header}
             sortHandler={this._handleSort.bind(this)}
+            sortProperty={column.props.sortProperty || column.props.property}
             searchParameters={_searchParameters}
             className={commonProps.className}/>
         );

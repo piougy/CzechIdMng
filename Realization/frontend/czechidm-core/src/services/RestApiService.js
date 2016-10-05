@@ -2,8 +2,6 @@ import fetch from 'isomorphic-fetch';
 import AuthenticateService from './AuthenticateService';
 import ConfigLoader from '../utils/ConfigLoader';
 
-const configLoader = new ConfigLoader();
-
 export default class RestApiService {
 
   static get(path, token = null) {
@@ -56,7 +54,7 @@ export default class RestApiService {
     if (path.lastIndexOf('http', 0) === 0) {
       return path;
     }
-    return `${configLoader.getServerUrl()}${path}`;
+    return `${ConfigLoader.getServerUrl()}${path}`;
   }
 
   static _getFetchConfig(methodType, body, token = null) {

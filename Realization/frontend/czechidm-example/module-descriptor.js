@@ -1,6 +1,7 @@
 module.exports = {
   'id': 'example',
   'npmName': 'czechidm-example',
+  'backendId': 'example',
   'name': 'Example module for CzechIdM 2.0 devstack.',
   'description': 'Example module for CzechIdM 2.0 devstack. This module can be duplicated and renamed for create new optional czechidm module.',
   // 'mainStyleFile': 'src/css/main.less',
@@ -18,7 +19,7 @@ module.exports = {
         'icon': 'gift',
         'iconColor': '#FF8A80',
         'order': 9,
-        'path': '/user/:userID/roles',
+        'path': '/user/:entityId/roles',
         'priority': 0
       },
       {
@@ -28,7 +29,7 @@ module.exports = {
         'labelKey': 'example:content.user.example',
         'order': 1,
         'priority': 0,
-        'path': '/user/:userID/examples',
+        'path': '/user/:entityId/examples',
         'icon': 'gift'
       }
     ]

@@ -83,9 +83,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		Date start = new Date();
 		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
-		Date middle = new Date();		
-		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);
-		Date after = new Date();		
+		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);		
 		
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
 		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, start, null, null).getTotalElements());

@@ -3,7 +3,8 @@ import AbstractService from './AbstractService';
 import AuthenticateService from './AuthenticateService';
 import IdentityService from './IdentityService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
-import OrganizationService from './OrganizationService';
+import TreeNodeService from './TreeNodeService';
+import TreeTypeService from './TreeTypeService';
 import LocalizationService from './LocalizationService';
 import RoleService from './RoleService';
 import WorkflowTaskInstanceService from './WorkflowTaskInstanceService';
@@ -15,7 +16,6 @@ import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceS
 import NotificationService from './NotificationService';
 import ConfigurationService from './ConfigurationService';
 import EmailService from './EmailService';
-import ModuleLoaderService from './ModuleLoaderService';
 import BackendModuleService from './BackendModuleService';
 
 
@@ -25,7 +25,8 @@ const ServiceRoot = {
   AuthenticateService,
   IdentityService,
   WorkflowProcessDefinitionService,
-  OrganizationService,
+  TreeNodeService,
+  TreeTypeService,
   LocalizationService,
   RoleService,
   WorkflowTaskInstanceService,
@@ -37,7 +38,6 @@ const ServiceRoot = {
   NotificationService,
   ConfigurationService,
   EmailService,
-  ModuleLoaderService,
   BackendModuleService
 };
 

@@ -9,28 +9,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 
 @Service
-public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRole, QuickFilter>  implements IdmRoleService {
+public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRole, RoleFilter>  implements IdmRoleService {
 
 	@Autowired
 	private IdmRoleRepository idmRoleRepository;
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmRole> find(QuickFilter filter, Pageable pageable) {
+	public Page<IdmRole> find(RoleFilter filter, Pageable pageable) {
 		if (filter == null) {
 			return find(pageable);
 		}
-		// TODO: roleType
-		return idmRoleRepository.findQuick(filter.getText(), null, pageable);
+		return idmRoleRepository.findQuick(filter.getText(), filter.getRoleType(), pageable);
 	}
 
 	@Override

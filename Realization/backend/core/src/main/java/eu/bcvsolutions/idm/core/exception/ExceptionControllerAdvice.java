@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -94,6 +95,12 @@ public class ExceptionControllerAdvice {
 		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
+	@ExceptionHandler(AccessDeniedException.class)
+	ResponseEntity<ResultModels> handle(AccessDeniedException ex) {	
+		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.FORBIDDEN, ex.getMessage());
+		log.warn("[" + errorModel.getId() + "] ", ex);
+        return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+    }
 	
 	@ExceptionHandler(CoreException.class)
 	ResponseEntity<ResultModels> handle(CoreException ex) {	

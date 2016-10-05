@@ -14,10 +14,11 @@ import eu.bcvsolutions.idm.security.domain.GroupPermission;
  */
 public enum IdmGroupPermission implements GroupPermission {
 	
-	SYSTEM(IdmBasePermission.ADMIN), // wildcard - system admin has all permissions
+	APP(IdmBasePermission.ADMIN), // wildcard - system admin has all permissions
 	IDENTITY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	ROLE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	ORGANIZATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	TREENODE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
@@ -25,7 +26,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
-	public static final String SYSTEM_ADMIN = "SYSTEM" + BasePermission.SEPARATOR + "ADMIN";
+	public static final String APP_ADMIN = "APP" + BasePermission.SEPARATOR + "ADMIN";
 	//
 	public static final String IDENTITY_WRITE = "IDENTITY" + BasePermission.SEPARATOR + "WRITE";
 	public static final String IDENTITY_DELETE = "IDENTITY" + BasePermission.SEPARATOR + "DELETE";
@@ -37,9 +38,13 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String CONFIGURATIONSECURED_WRITE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "WRITE";
 	public static final String CONFIGURATIONSECURED_DELETE = "CONFIGURATIONSECURED" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String ORGANIZATION_WRITE = "ORGANIZATION" + BasePermission.SEPARATOR + "WRITE";
-	public static final String ORGANIZATION_DELETE = "ORGANIZATION" + BasePermission.SEPARATOR + "DELETE";
+	public static final String TREENODE_WRITE = "TREENODE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String TREENODE_DELETE = "TREENODE" + BasePermission.SEPARATOR + "DELETE";
 	//
+	public static final String TREETYPE_WRITE = "TREETYPE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String TREETYPE_DELETE = "TREETYPE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
 	//

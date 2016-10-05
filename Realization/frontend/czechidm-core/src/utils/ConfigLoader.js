@@ -1,12 +1,11 @@
 import Immutable from 'immutable';
 import _ from 'lodash';
-//
-import ModuleLoader from './ModuleLoader';
+
 let _config = null;
-const moduleLoader = new ModuleLoader();
+let _moduleDescriptors = new Immutable.Map();
 
 // suported and default values for navigation item in module descriptor
-const ITEM_DEFAULTS = {
+const MODULE_DESCRIPTOR_DEFAULTS = {
   'id': undefined,
   'type': 'DYNAMIC',
   'section': 'main',
@@ -28,21 +27,18 @@ const ITEM_DEFAULTS = {
 
 /**
 * Loads configuration
-* TODO: redux action -> manager
 */
 export default class ConfigLoader {
 
-  constructor() {
-  }
-
-  static initConfig(jsonConfig) {
+  static init(jsonConfig, moduleDescriptors) {
     _config = jsonConfig;
+    _moduleDescriptors = moduleDescriptors;
   }
 
   /**
    * Returns config part by key or null
    */
-  getConfig(key) {
+  static getConfig(key) {
     return _config[key];
   }
 
@@ -50,17 +46,15 @@ export default class ConfigLoader {
    * Returns BE server base url
    * @return {string}
    */
-  getServerUrl() {
+  static getServerUrl() {
     return serverUrl;
   }
 
-  /**
-   * Returns enabled module ids
-   *
-   * @return {array[string]}
-   */
-  getEnabledModuleIds() {
-    return moduleLoader.getEnabledModuleIds();
+  static _getModuleDescriptor(moduleId) {
+    if (!_moduleDescriptors.has(moduleId)) {
+      return null;
+    }
+    return _moduleDescriptors.get(moduleId);
   }
 
   /**
@@ -69,15 +63,68 @@ export default class ConfigLoader {
    * @param  {string} moduleId
    * @return {ModuleDescriptor} json object
    */
-  getModuleDescriptor(moduleId) {
-    const loaderModuleDescriptor = moduleLoader.getModuleDescriptor(moduleId);
+  static getModuleDescriptor(moduleId) {
+    const loaderModuleDescriptor = this._getModuleDescriptor(moduleId);
     const configModuleDescriptor = this._getConfigModuleDescriptor(moduleId);
     // Merge module descriptor with override values from configuration
     return _.mergeWith(loaderModuleDescriptor, configModuleDescriptor, this._overrideModuleDescriptorMerge.bind(this));
   }
 
+  static getModuleDescriptors() {
+    const moduleDescriptors = [];
+    _moduleDescriptors.forEach(moduleDescriptor => {
+      moduleDescriptors.push(this.getModuleDescriptor(moduleDescriptor.id));
+    });
+    return moduleDescriptors;
+  }
 
-  _getConfigModuleDescriptor(moduleId) {
+  /**
+   * Returns enabled module ids
+   *
+   * @return {array[string]}
+   */
+  static getEnabledModuleIds() {
+    const enabledModuleIds = [];
+    this.getModuleDescriptors().forEach(moduleDescriptor => {
+      if (this.isEnabled(moduleDescriptor)) {
+        enabledModuleIds.push(moduleDescriptor.id);
+      }
+    });
+    return enabledModuleIds;
+  }
+
+  /**
+   * Return true, if frontend module is enabled, otherwise false (not enabled or module is not installed).
+   *
+   * @param  {moduleDescriptor} moduleDescriptor
+   * @return {Boolean}
+   */
+  static isEnabled(moduleDescriptor) {
+    if (moduleDescriptor === null) {
+      return false;
+    }
+    return moduleDescriptor.enabled === undefined || moduleDescriptor.enabled === null || moduleDescriptor.enabled !== false;
+  }
+
+  /**
+   * Return true, if frontend mudel is enabled, otherwise false (not enabled or module is not installed).
+   *
+   * @param  {string} moduleId
+   * @return {Boolean}
+   */
+  static isEnabledModule(moduleId) {
+    // enabled setting could be overriden by frontend configuration
+    const moduleDescriptor = this.getModuleDescriptor(moduleId);
+    return this.isEnabled(moduleDescriptor);
+  }
+
+  static enable(moduleId, enabled = true) {
+    const moduleDescriptor = this._getModuleDescriptor(moduleId);
+    _moduleDescriptors = _moduleDescriptors.set(moduleId, _.merge({}, moduleDescriptor, { enabled }));
+  }
+
+
+  static _getConfigModuleDescriptor(moduleId) {
     if (_config.overrideModuleDescriptor) {
       return _config.overrideModuleDescriptor[moduleId];
     }
@@ -87,7 +134,7 @@ export default class ConfigLoader {
   /**
    * Function for lodash mergeWith. Is use for custom merge override module descriptors from configuration.
    */
-  _overrideModuleDescriptorMerge(objValue, srcValue) {
+  static _overrideModuleDescriptorMerge(objValue, srcValue) {
     let standardMerge = false;
     if (_.isArray(objValue)) {
       for (const value of objValue) {
@@ -114,7 +161,7 @@ export default class ConfigLoader {
    * Append module navigation to items
    * - works with order, priority etc
    */
-  _resolveNavigation(navigationItems, moduleId) {
+  static _resolveNavigation(navigationItems, moduleId) {
     const moduleDescriptor = this.getModuleDescriptor(moduleId);
 
     if (!moduleDescriptor.navigation) {
@@ -128,36 +175,36 @@ export default class ConfigLoader {
     return navigationItems;
   }
 
-  _appendNavigationItems(navigationItems, parentId, rawItems) {
+  static _appendNavigationItems(navigationItems, parentId, rawItems) {
     if (!rawItems) {
       return navigationItems;
     }
     //
     for (let i = 0; i < rawItems.length; i++) {
       // append default values
-      const item = _.merge({ parentId }, ITEM_DEFAULTS, rawItems[i]);
+      const item = _.merge({ parentId }, MODULE_DESCRIPTOR_DEFAULTS, rawItems[i]);
       const _parentId = item.parentId || parentId;
       //
-      let items = (navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).get(_parentId) : new Immutable.Map();
+      let items = (navigationItems.get(this.NAVIGATION_BY_PARENT).has(_parentId)) ? navigationItems.get(this.NAVIGATION_BY_PARENT).get(_parentId) : new Immutable.Map();
       // first or higher priority wins
       if (!items.has(item.id) || items.get(item.id).priority < item.priority) {
         items = items.set(item.id, item);
-        navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_ID, navigationItems.get(ConfigLoader.NAVIGATION_BY_ID).set(item.id, item));
+        navigationItems = navigationItems.set(this.NAVIGATION_BY_ID, navigationItems.get(this.NAVIGATION_BY_ID).set(item.id, item));
       }
-      navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_PARENT, navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT).set(_parentId, items));
+      navigationItems = navigationItems.set(this.NAVIGATION_BY_PARENT, navigationItems.get(this.NAVIGATION_BY_PARENT).set(_parentId, items));
       navigationItems = this._appendNavigationItems(navigationItems, item.id, item.items);
     }
     return navigationItems;
   }
 
-  _appendNavigationAccess(navigationItems, rawAccess) {
+  static _appendNavigationAccess(navigationItems, rawAccess) {
     if (!rawAccess) {
       return navigationItems;
     }
     rawAccess.forEach(item => {
-      let items = (navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).get(item.path) : new Immutable.List();
+      let items = (navigationItems.get(this.NAVIGATION_BY_PATH).has(item.path)) ? navigationItems.get(this.NAVIGATION_BY_PATH).get(item.path) : new Immutable.List();
       items = items.push(item);
-      navigationItems = navigationItems.set(ConfigLoader.NAVIGATION_BY_PATH, navigationItems.get(ConfigLoader.NAVIGATION_BY_PATH).set(item.path, items));
+      navigationItems = navigationItems.set(this.NAVIGATION_BY_PATH, navigationItems.get(this.NAVIGATION_BY_PATH).set(item.path, items));
     });
     return navigationItems;
   }
@@ -167,19 +214,19 @@ export default class ConfigLoader {
    *
    * @return Immutable.Map({ byParent: Immutable.Map, byId: Immutable.Map. byPath: })
    */
-  getNavigation() {
+  static getNavigation() {
     let navigationItems = new Immutable.Map({
-      [ConfigLoader.NAVIGATION_BY_PARENT]: new Immutable.Map({}),
-      [ConfigLoader.NAVIGATION_BY_ID]: new Immutable.Map({}),
-      [ConfigLoader.NAVIGATION_BY_PATH]: new Immutable.Map({})
+      [this.NAVIGATION_BY_PARENT]: new Immutable.Map({}),
+      [this.NAVIGATION_BY_ID]: new Immutable.Map({}),
+      [this.NAVIGATION_BY_PATH]: new Immutable.Map({})
     });
-    moduleLoader.getEnabledModuleIds().map(moduleId => {
+    this.getEnabledModuleIds().map(moduleId => {
       navigationItems = this._resolveNavigation(navigationItems, moduleId);
     });
     // order
     navigationItems = navigationItems.set(
-      ConfigLoader.NAVIGATION_BY_PARENT,
-      navigationItems.get(ConfigLoader.NAVIGATION_BY_PARENT)
+      this.NAVIGATION_BY_PARENT,
+      navigationItems.get(this.NAVIGATION_BY_PARENT)
         .mapEntries(([k, v]) => [k, v.sortBy(item => item.order)])
     );
     //
@@ -192,7 +239,7 @@ export default class ConfigLoader {
    */
   getNavigationItems(parentId = null) {
     // load all module descriptor
-    const navigationItems = this.getNavigation().get(ConfigLoader.NAVIGATION_BY_PARENT);
+    const navigationItems = this.getNavigation().get(this.NAVIGATION_BY_PARENT);
     // level by parentId
     if (!parentId) {
       return navigationItems.get('').toArray();

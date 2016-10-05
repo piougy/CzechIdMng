@@ -6,32 +6,33 @@ import { RoleManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
 
 
-const roleManager = new RoleManager();
+const manager = new RoleManager();
 
 class Role extends Basic.AbstractContent {
 
   componentDidMount() {
+    const { entityId } = this.props.params;
+    //
+    this.context.store.dispatch(manager.fetchEntityIfNeeded(entityId));
   }
 
   componentDidUpdate() {
   }
 
   render() {
-    const { role } = this.props;
+    const { entity, showLoading } = this.props;
 
     return (
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
-        <Basic.PageHeader>
-          {roleManager.getNiceLabel(role)} <small> {this.i18n('content.roles.edit.header')}</small>
+        <Basic.PageHeader showLoading={showLoading}>
+          {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <Basic.PanelHeader text={<span>{roleManager.getNiceLabel(role)} <small> Detail role</small></span>} className="hidden">
-          </Basic.PanelHeader>
           <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="role-tabs" params={this.props.params}>
+            <Advanced.TabPanel parentId="roles" params={this.props.params}>
               {this.props.children}
             </Advanced.TabPanel>
           </div>
@@ -42,24 +43,19 @@ class Role extends Basic.AbstractContent {
 }
 
 Role.propTypes = {
-  role: PropTypes.object,
-  userContext: PropTypes.object,
-  selectedSidebarItem: PropTypes.string
+  entity: PropTypes.object,
+  showLoading: PropTypes.bool
 };
 Role.defaultProps = {
-  identity: null,
-  userContext: null,
-  selectedSidebarItem: null
+  entity: null,
+  showLoading: false
 };
 
 function select(state, component) {
   const { entityId } = component.params;
-  const selectedNavigationItems = state.layout.get('selectedNavigationItems');
-  const selectedSidebarItem = (selectedNavigationItems.length > 1) ? selectedNavigationItems[1] : null;
   return {
-    role: roleManager.getEntity(state, entityId),
-    userContext: state.security.userContext,
-    selectedSidebarItem
+    entity: manager.getEntity(state, entityId),
+    showLoading: manager.isShowLoading(state, null, entityId)
   };
 }
 

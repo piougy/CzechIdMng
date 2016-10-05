@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
  *
  * @param <E> controlled {@link BaseEntity} type.
  */
-public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteController<E, F>{
+public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F>{
 
 	public DefaultReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
 		super(entityService);

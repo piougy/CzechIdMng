@@ -194,14 +194,14 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onChange(value) {
+    this.setState({
+      value
+    }, () => {
+      this.validate();
+    });
+
     if (this.props.onChange) {
       this.props.onChange(value);
-    } else {
-      this.setState({
-        value
-      }, () => {
-        this.validate();
-      });
     }
   }
 
@@ -289,7 +289,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect} = this.props;
+    const { placeholder, fieldLabel, multiSelect, clearable } = this.props;
     return (
       <Select.Async
         ref="selectComponent"
@@ -307,7 +307,8 @@ class SelectBox extends AbstractFormComponent {
         placeholder={this.getPlaceholder(placeholder)}
         searchingText={this.i18n('component.basic.SelectBox.searchingText')}
         searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        loadOptions={this.getOptions}/>
+        loadOptions={this.getOptions}
+        clearable={clearable} />
     );
   }
 }
@@ -333,7 +334,11 @@ SelectBox.propTypes = {
   /**
   * If object is selected, then this property value will be returned
   */
-  returnProperty: PropTypes.string
+  returnProperty: PropTypes.string,
+  /**
+   * Selected options can be cleared
+   */
+  clearable: PropTypes.bool
 };
 
 SelectBox.defaultProps = {
@@ -341,7 +346,8 @@ SelectBox.defaultProps = {
   fieldLabel: NICE_LABEL,
   multiSelect: false,
   returnProperty: 'id',
-  searchInFields: []
+  searchInFields: [],
+  clearable: true
 };
 
 SelectBox.NICE_LABEL = NICE_LABEL;

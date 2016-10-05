@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import * as Basic from '../../basic';
 import {ConfigurationManager} from '../../../redux/data';
 import {SecurityManager} from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
 import NavigationItem from './NavigationItem';
 
 /**

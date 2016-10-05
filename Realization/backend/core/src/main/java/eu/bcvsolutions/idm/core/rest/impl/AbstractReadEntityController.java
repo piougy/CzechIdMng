@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import org.springframework.hateoas.core.EmbeddedWrappers;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -89,12 +91,15 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	public E getEntity(String backendId) {
 		// TODO: read events
 		if(getEntityLookup() == null) {
-			return getEntityService().get(Long.valueOf(backendId));
+			try {
+				return getEntityService().get(Long.valueOf(backendId));
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			}
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Resources<?> find(
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
@@ -168,5 +173,45 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	protected F toFilter(MultiValueMap<String, Object> parameters) {
 		return null;
+	}
+	
+	protected String convertStringParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    Assert.notNull(parameterName);
+	    //
+		return (String)parameters.toSingleValueMap().get(parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code Long} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected Long convertLongParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if(StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return Long.valueOf(valueAsString);
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+			}		
+		}
+		return null;
+	}
+	
+	protected <T extends Enum<T>> T convertEnumParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
+		Assert.notNull(enumClass);
+	    //
+	    String valueAsString = convertStringParameter(parameters, parameterName);
+	    if(StringUtils.isEmpty(valueAsString)) {
+	    	return null;
+	    }
+        try {
+            return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
+        } catch(IllegalArgumentException ex) {
+        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+        }
 	}
 }

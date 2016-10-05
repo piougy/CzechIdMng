@@ -14,12 +14,14 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
-import eu.bcvsolutions.idm.core.model.entity.IdmOrganization;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmOrganizationRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -48,6 +50,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
 	public static final String TEST_USER_ROLE = "testUserRole";
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
+	private static final int FIRST_ROOT = 0; 
 
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -59,7 +62,10 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmRoleRepository roleRepository;
 
 	@Autowired
-	private IdmOrganizationRepository organizationRepository;
+	private IdmTreeNodeRepository treeNodeRepository;
+	
+	@Autowired
+	private IdmTreeTypeRepository treeTypeRepository;
 
 	@Autowired
 	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
@@ -85,7 +91,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmOrganization rootOrganization = organizationRepository.findOneByParentIsNull();
+			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null).get(FIRST_ROOT);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
@@ -127,17 +133,23 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
 				this.identityRepository.save(testUser2);
 			
-				IdmOrganization organization = new IdmOrganization();
+				IdmTreeType type = new IdmTreeType();
+				type.setName("ROOT_TYPE");
+				this.treeTypeRepository.save(type);
+				
+				
+				IdmTreeNode organization = new IdmTreeNode();
 				organization.setName("Organization Test");
 				organization.setCreator("ja");
 				organization.setParent(rootOrganization);
-				this.organizationRepository.save(organization);
+				organization.setTreeType(type);
+				this.treeNodeRepository.save(organization);
 				
 				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
 				identityWorkingPosition2.setIdentity(testUser1);
 				identityWorkingPosition2.setPosition("vedoucí");
 				identityWorkingPosition2.setManager(testUser2);
-				identityWorkingPosition2.setOrganization(organization);
+				identityWorkingPosition2.setTreeNode(organization);
 				identityWorkingPositionRepository.save(identityWorkingPosition2);
 				//
 				log.info("Test data was created.");

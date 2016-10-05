@@ -6,7 +6,7 @@ import moment from 'moment';
 export default class EntityUtils {
 
   /**
-   * Returns entity, if entity is contained in applicateion state.
+   * Returns entity, if entity is contained in application state.
    * Can be used in select state.
    *
    * @param  {state} state - application state

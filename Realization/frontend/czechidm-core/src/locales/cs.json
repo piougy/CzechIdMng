@@ -37,7 +37,8 @@
     "selectAll": "Vybrat vše / nic",
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
-    "select": "Vyberte ..."
+    "select": "Vyberte ...",
+    "disabled": "Neaktivní"
   },
   "button": {
     "activate": "Aktivovat",
@@ -143,7 +144,7 @@
       },
       "messages": "Hlášení",
       "configuration": "Nastavení",
-      "userLabel": "{{userID}}",
+      "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
       "system": "Systém",
@@ -619,28 +620,42 @@
         }
       }
     },
-    "organizations": {
-      "header": "Organizace",
-      "title": "Organizace",
+    "tree": {
+      "header": "Stromy",
+      "title": "Stromy",
       "filter": {
         "parentId": {
           "label": "Nadřazená jedn."
         }
       },
-      "edit": {
-        "header": "{{name}} <small>detail organizace</small>"
+      "typeNotFound": "Nebyl nalezen žádný typ.",
+      "newType": "Pokračujte prosím vytvořením nového typu.",
+      "typePick": "Vyberte typ",
+      "typePickPlaceHolder": "Vyberte typ",
+      "nodes": {
+        "header": "Prvky",
+        "title": "Prvky",
+        "edit": "detail prvku",
+        "create": "Nový prvek",
+        "save": {
+          "success": "Prvek [{{name}}] byl úspěšně uložen"
+        }
       },
-      "create": {
-        "header": "Nová organizace"
-      },
-      "save": {
-        "success": "Organizace [{{name}}] byla úspěšně uložena"
+      "types": {
+        "header": "Typy",
+        "title": "Typy",
+        "edit": "detail typu",
+        "create": "Nový typ",
+        "save": {
+          "success": "Typ [{{name}}] byl úspěšně uložen"
+        }
       }
     },
     "roles": {
       "header": "Role",
       "title": "Role",
       "edit": {
+        "title": "Detail role",
         "header": "{{name}} detail role"
       },
       "create": {
@@ -935,7 +950,7 @@
       "title": "Audit"
     },
     "system": {
-      "app-modules": {
+      "fe-modules": {
         "header": "Aplikační moduly a komponenty",
         "title": "Moduly (frontend)",
         "components": {
@@ -1116,7 +1131,7 @@
       "profile": {
         "userDetail": "Auditní záznám z"
       }
-      }
+    }
   },
   "entity": {
     "created": "Vytvořeno",
@@ -1186,18 +1201,24 @@
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
       "manager": "Vedoucí",
-      "organization": "Organizace"
+      "treeNode": "Struktura"
     },
-    "Organization": {
+    "TreeNode": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
-      "parentId": "Nadřazená organizační jednotka",
+      "parentId": "Nadřazený prvek",
       "parent": {
-          "name": "Nadřazená organizační jed."
+          "name": "Nadřazený prvek"
+      },
+      "treeType": {
+        "name": "Typ"
       }
+    },
+    "TreeType": {
+      "name": "Název"
     },
     "Delegate": {
       "_type": "Delegace",
@@ -1343,6 +1364,9 @@
     "BAD_REQUEST": {
       "title": "Chybný požadavek"
     },
+    "BAD_VALUE": {
+      "title": "Špatná volba"
+    },
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",
       "message": "Role s daným názvem již existuje"
@@ -1364,7 +1388,16 @@
     "CONFIGURATION_DISABLED": {
       "title": "Funkce je deaktivovaná",
       "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
+    },
+    "TREE_TYPE_CANNOT_DELETE": {
+      "title": "Existuje závislost",
+      "message": "Na typu existuje závislost, nemůže být smazán."
+    },
+    "TREE_NODE_CANNOT_DELETE": {
+      "title": "Existuje závislost",
+      "message": "Na prvku existuje závislost, nemůže být smazán."
     }
+
   },
   "validationError": {
     "string": {

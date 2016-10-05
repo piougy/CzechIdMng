@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { DataManager, OrganizationManager, SecurityManager } from '../../redux';
+import { DataManager, TreeNodeManager, SecurityManager } from '../../redux';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
@@ -21,7 +21,7 @@ export class UserTable extends Basic.AbstractContent {
       filterOpened: this.props.filterOpened
     };
     this.dataManager = new DataManager();
-    this.organizationManager = new OrganizationManager();
+    this.treeNodeManager = new TreeNodeManager();
   }
 
   componentDidMount() {
@@ -38,18 +38,22 @@ export class UserTable extends Basic.AbstractContent {
   }
 
   /**
-  * Redirec to new user form
+  * Redirec to user form
   */
-  addUser() {
-    const uuidId = uuid.v1();
-    this.context.router.push(`user/new?id=${uuidId}`);
+  showDetail(entity) {
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/user/new?id=${uuidId}`);
+    } else {
+      this.context.router.push('/user/' + entity.id + '/profile');
+    }
   }
 
   useFilter(event) {
     if (event) {
       event.preventDefault();
     }
-    /*
+    /* warning organization no longer exists
     if (!this.refs.filterName.getValue() && !selectedOrganization) {
       this.cancelFilter();
       return;
@@ -111,9 +115,9 @@ export class UserTable extends Basic.AbstractContent {
     });
   }
 
-  _homeOrganizationFilter(node, event) {
+  _homeNodeFilter(node, event) {
     event.stopPropagation();
-    this.setState({selectedOrganization: node ? node.id : null}, ()=>{this.useFilter();});
+    this.setState({selectedNode: node ? node.id : null}, ()=>{this.useFilter();});
   }
 
   _orgTreeHeaderDecorator(props) {
@@ -125,7 +129,7 @@ export class UserTable extends Basic.AbstractContent {
       <div style={style.base}>
         <div style={style.title}>
           <i className={iconClass} style={iconStyle}/>
-          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeOrganizationFilter.bind(this, props.node)}>
+          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeNodeFilter.bind(this, props.node)}>
             { props.node.shortName }
           </Basic.Button>
         </div>
@@ -165,7 +169,7 @@ export class UserTable extends Basic.AbstractContent {
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
                 </Basic.Row>
-                {/*
+                {/* warning organization no longer exists
                 <Basic.Row>
                   <div className="col-lg-8">
                     <Basic.LabelWrapper readOnly ref="homeOrgTree" componentSpan="col-sm-12">
@@ -206,13 +210,26 @@ export class UserTable extends Basic.AbstractContent {
                 key="add_button"
                 type="submit"
                 className="btn-xs"
-                onClick={this.addUser.bind(this)}
+                onClick={this.showDetail.bind(this, {})}
                 rendered={SecurityManager.hasAuthority('IDENTITY_WRITE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.user.create.button.add')}
               </Basic.Button>
             ]
           }>
+          <Advanced.Column
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                );
+              }
+            }
+            sort={false}/>
           <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
           <Advanced.ColumnLink to="user/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
           <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>

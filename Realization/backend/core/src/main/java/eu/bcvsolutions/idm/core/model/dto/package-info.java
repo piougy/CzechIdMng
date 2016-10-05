@@ -1,7 +1,6 @@
 /**
+ * Core DTOs
  * 
- */
-/**
  * @author Radek Tomiška 
  *
  */

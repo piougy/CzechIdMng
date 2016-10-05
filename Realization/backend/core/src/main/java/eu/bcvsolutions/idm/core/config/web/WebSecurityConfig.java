@@ -46,7 +46,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers( //
 				BaseEntityController.BASE_PATH, // endpoint with supported services list
 				BaseEntityController.BASE_PATH + "/authentication", // login / out
-				"/error/**"
+				"/error/**",
+				BaseEntityController.BASE_PATH + "/doc", // documentation is public
+				BaseEntityController.BASE_PATH + "/doc/**"
 			);
 	}
 

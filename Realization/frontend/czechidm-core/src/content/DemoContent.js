@@ -42,7 +42,7 @@ class DemoContent extends Basic.AbstractContent {
   }
 
   render() {
-    const userID = 'admin';
+    const entityId = 'admin';
     const randomNames = [];
     for (let i = 0; i < 10; i ++) {
       randomNames.push({
@@ -118,7 +118,7 @@ class DemoContent extends Basic.AbstractContent {
                       ref="selectBox"
                       label="Select box"
                       service={this.identityService}
-                      value = {userID}
+                      value = {entityId}
                       searchInFields={['lastName', 'name', 'email']}
                       placeholder="Vyberte uživatele ..."
                       multiSelect={false}
@@ -128,7 +128,7 @@ class DemoContent extends Basic.AbstractContent {
                       ref="selectBoxMulti"
                       label="Select box multi"
                       service={this.identityService}
-                      value = {[userID]}
+                      value = {[entityId]}
                       searchInFields={['lastName', 'name', 'email']}
                       placeholder="Vyberte uživatele ..."
                       multiSelect

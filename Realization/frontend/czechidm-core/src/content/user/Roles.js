@@ -40,9 +40,9 @@ class Roles extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectSidebarItem('profile-roles');
-    const { userID } = this.props.params;
-    this.context.store.dispatch(identityRoleManager.fetchRoles(userID, `${uiKey}-${userID}`));
-    this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
+    const { entityId } = this.props.params;
+    this.context.store.dispatch(identityRoleManager.fetchRoles(entityId, `${uiKey}-${entityId}`));
+    this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -112,18 +112,18 @@ class Roles extends Basic.AbstractContent {
       return;
     }
     const entity = this.refs.form.getData();
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     const role = roleManager.getEntity(this.context.store.getState(), entity.role);
-    entity.identity = identityManager.getSelfLink(userID);
+    entity.identity = identityManager.getSelfLink(entityId);
     entity.role = role._links.self.href;
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(identityRoleManager.createEntity(entity, `${uiKey}-${userID}`, (savedEntity, error) => {
+      this.context.store.dispatch(identityRoleManager.createEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('create.success', { role: role.name, username: userID }) });
+          this.addMessage({ message: this.i18n('create.success', { role: role.name, username: entityId }) });
           this._afterSave(error);
         } else if (error.statusCode === 202) {
-          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { role: role.name, username: userID }) });
+          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { role: role.name, username: entityId }) });
           this.refs.tableProcesses.getWrappedInstance().reload();
           this.closeDetail();
         } else {
@@ -131,10 +131,10 @@ class Roles extends Basic.AbstractContent {
         }
       }));
     } else {
-      this.context.store.dispatch(identityRoleManager.patchEntity(entity, `${uiKey}-${userID}`, (savedEntity, error) => {
+      this.context.store.dispatch(identityRoleManager.patchEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         this._afterSave(error);
         if (!error) {
-          this.addMessage({ message: this.i18n('edit.success', { role: role.name, username: userID }) });
+          this.addMessage({ message: this.i18n('edit.success', { role: role.name, username: entityId }) });
         }
       }));
     }
@@ -146,8 +146,8 @@ class Roles extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
-    const { userID } = this.props.params;
-    this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
+    const { entityId } = this.props.params;
+    this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
     this.closeDetail();
   }
 
@@ -155,15 +155,15 @@ class Roles extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     this.refs['confirm-delete'].show(
       this.i18n(`action.delete.message`, { count: 1, record: entity._embedded.role.name }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
-      this.context.store.dispatch(identityRoleManager.deleteEntity(entity, `${uiKey}-${userID}`, (deletedEntity, error) => {
+      this.context.store.dispatch(identityRoleManager.deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('delete.success', { role: deletedEntity._embedded.role.name, username: userID }) });
-          this.context.store.dispatch(identityManager.fetchAuthorities(userID, `${uiKeyAuthorities}-${userID}`));
+          this.addMessage({ message: this.i18n('delete.success', { role: deletedEntity._embedded.role.name, username: entityId }) });
+          this.context.store.dispatch(identityManager.fetchAuthorities(entityId, `${uiKeyAuthorities}-${entityId}`));
         } else {
           this.addError(error);
         }
@@ -204,11 +204,11 @@ class Roles extends Basic.AbstractContent {
   }
 
   _changePermissions() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     this.setState({
       showLoading: true
     });
-    const promise = identityManager.getService().changePermissions(userID);
+    const promise = identityManager.getService().changePermissions(entityId);
     promise.then((json) => {
       this.setState({
         showLoading: false
@@ -230,19 +230,19 @@ class Roles extends Basic.AbstractContent {
    */
   _canChangePermissions() {
     const { userContext } = this.props;
-    const { userID } = this.props.params;
-    return (userID === userContext.username) || SecurityManager.isAdmin(userContext);
+    const { entityId } = this.props.params;
+    return (entityId === userContext.username) || SecurityManager.isAdmin(userContext);
   }
 
   render() {
-    const { userID } = this.props.params;
+    const { entityId } = this.props.params;
     const { _entities, _showLoading, authorities } = this.props;
     const { detail } = this.state;
     let force = new SearchParameters();
-    force = force.setFilter('identity', userID);
+    force = force.setFilter('identity', entityId);
     force = force.setFilter('category', 'eu.bcvsolutions.role.approve');
     let forcePermissions = new SearchParameters();
-    forcePermissions = forcePermissions.setFilter('identity', userID);
+    forcePermissions = forcePermissions.setFilter('identity', entityId);
     forcePermissions = forcePermissions.setFilter('category', 'eu.bcvsolutions.identity.roles.change');
 
     //
@@ -537,10 +537,10 @@ function select(state, component) {
   }
 
   return {
-    _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.userID}`),
-    _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.userID}`),
+    _showLoading: identityRoleManager.isShowLoading(state, `${uiKey}-${component.params.entityId}`),
+    _entities: identityRoleManager.getEntities(state, `${uiKey}-${component.params.entityId}`),
     _addRoleProcessIds: addRoleProcessIds,
-    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.userID}`),
+    authorities: DataManager.getData(state, `${uiKeyAuthorities}-${component.params.entityId}`),
     userContext: state.security.userContext
   };
 }

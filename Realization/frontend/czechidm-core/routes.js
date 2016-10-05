@@ -1,4 +1,5 @@
 module.exports = {
+  module: 'core',
   component: 'div',
   childRoutes: [
     {
@@ -24,10 +25,10 @@ module.exports = {
     {
       path: 'user/new',
       component: require('./src/content/user/Create'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN' ] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
     },
     {
-      path: 'user/:userID/',
+      path: 'user/:entityId/',
       component: require('./src/content/user/User'),
       childRoutes: [
         {
@@ -54,7 +55,7 @@ module.exports = {
       ]
     },
     {
-      path: 'user/:userID/revision/:revID',
+      path: 'user/:entityId/revision/:revID',
       component: require('./src/content/user/AuditDetail')
     },
     {
@@ -67,24 +68,44 @@ module.exports = {
       component: require('./src/content/user/PasswordReset')
     },
     {
-      path: 'organizations',
-      component: require('./src/content/organization/Organizations'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ],
-    },
-    {
-      path: 'organizations/:entityId',
-      component: require('./src/content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
-    },
-    {
-      path: 'organizations/new',
-      component: require('./src/content/organization/OrganizationContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_WRITE' ] } ]
+      path: 'tree',
+      childRoutes: [
+        {
+          path: 'nodes',
+          component: require('./src/content/tree/node/Nodes'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+        },
+        {
+          path: 'nodes/:entityId',
+          component: require('./src/content/tree/node/NodeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+        },
+        {
+          path: 'nodes/new',
+          component: require('./src/content/tree/node/NodeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE' ] } ]
+        },
+        {
+          path: 'types',
+          component: require('./src/content/tree/type/Types'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ],
+        },
+        {
+          path: 'types/new',
+          component: require('./src/content/tree/type/TypeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE' ] } ]
+        },
+        {
+          path: 'types/:entityId',
+          component: require('./src/content/tree/type/TypeContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+        },
+      ]
     },
     {
       path: 'roles',
       component: require('./src/content/role/Roles'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
     },
     {
       path: 'role/:entityId/',
@@ -93,17 +114,17 @@ module.exports = {
       childRoutes: [
         {
           path: 'detail',
-          component: require('./src/content/role/Content')
+          component: require('./src/content/role/RoleContent')
         },
       ]
     },
     {
       path: 'role/:entityId/new',
-      component: require('./src/content/role/Content'),
+      component: require('./src/content/role/RoleContent'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
     },
     {
-      path: 'tasks/:userID',
+      path: 'tasks/:entityId',
       component: require('./src/content/task/TaskInstances'),
       access: [ { 'type': 'IS_AUTHENTICATED'}]
     },
@@ -121,9 +142,9 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
-      path: 'app-modules',
-      component: require('./src/content/AppModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      path: 'fe-modules',
+      component: require('./src/content/module/FrontendModules'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'be-modules',
@@ -137,7 +158,7 @@ module.exports = {
         {
           path: 'definitions',
           component: require('./src/content/workflow/Definitions'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
         },
         {
           path: 'history/processes',
@@ -148,7 +169,7 @@ module.exports = {
     {
       path: 'workflow/definitions/:definitionId',
       component: require('./src/content/workflow/Definition'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {
       path: 'workflow/history/processes/:historicProcessInstanceId',

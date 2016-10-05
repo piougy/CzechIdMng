@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import TabPanelItem from './TabPanelItem';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/Layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
 import * as Basic from '../../basic';
 
 /**
@@ -39,14 +40,13 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   getNavigationItems() {
-    const { navigation, userContext, activeItem, activeNavigationItem, parentId } = this.props;
-    const { userID, revID, entityId } = this.props.params;
+    const { navigation, userContext, parentId, selectedNavigationItems } = this.props;
+    const { revID, entityId } = this.props.params;
 
-    const params = { userID, revID, entityId };
-    return getNavigationItems(navigation, parentId || activeNavigationItem, null, userContext, params).map(item => {
+    const params = { revID, entityId };
+    return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
       const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
-      //
       switch (item.type) {
         case 'TAB':
         case 'DYNAMIC': {
@@ -58,7 +58,7 @@ class TabPanel extends Basic.AbstractContextComponent {
               icon={item.icon}
               iconColor={item.iconColor}
               title={this.i18n(item.titleKey, { defaultValue: item.title })}
-              active={activeItem === item.id}>
+              active={_.includes(selectedNavigationItems, item.id)}>
               {
                 (item.labelKey || item.label)
                 ?
@@ -94,8 +94,6 @@ class TabPanel extends Basic.AbstractContextComponent {
 
 TabPanel.propTypes = {
   navigation: PropTypes.object,
-  activeNavigationItem: PropTypes.string,
-  activeItem: PropTypes.string,
   userContext: PropTypes.object,
   /**
    * which navigation parent wil be rendered - sub menus to render
@@ -104,19 +102,14 @@ TabPanel.propTypes = {
 };
 TabPanel.defaultProps = {
   navigation: null,
-  activeNavigationItem: null,
-  activeItem: null,
   userContext: null
 };
 
 function select(state) {
   const selectedNavigationItems = state.layout.get('selectedNavigationItems');
-  const activeNavigationItem = (selectedNavigationItems.length > 0 ? selectedNavigationItems[0] : null);
-  const selectedSidebarItem = (selectedNavigationItems.length > 1 ? selectedNavigationItems[1] : null);
   return {
     navigation: state.layout.get('navigation'),
-    activeNavigationItem,
-    activeItem: selectedSidebarItem,
+    selectedNavigationItems,
     userContext: state.security.userContext
   };
 }

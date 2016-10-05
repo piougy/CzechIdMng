@@ -85,23 +85,11 @@ export default class FlashMessagesManager {
         }, message);
       }
       // error redirect handler
-      if (this._isServerUnavailableError(error)) {
+      if (this.isServerUnavailableError(error)) {
         // timeout to prevent showing message on ajax call interuption
         setTimeout(
           () => {
-            dispatch(this.addMessage({
-              key: 'error-app-load',
-              level: 'error',
-              title: LocalizationService.i18n('content.error.503.description'),
-              message: LocalizationService.i18n('content.error.503.note'),
-              dismissible: false/* ,
-              action: {
-                label: 'Odeslat na podporu',
-                callback: () => {
-                  alert('Comming soon.')
-                }
-              }*/
-            }));
+            dispatch(this.addUnavailableMessage());
             dispatch(this._clearConfiguations());
           }
           , this.getServerUnavailableTimeout());
@@ -121,6 +109,24 @@ export default class FlashMessagesManager {
     };
   }
 
+  addUnavailableMessage() {
+    return dispatch => {
+      dispatch(this.addMessage({
+        key: 'error-app-load',
+        level: 'error',
+        title: LocalizationService.i18n('content.error.503.description'),
+        message: LocalizationService.i18n('content.error.503.note'),
+        dismissible: false/* ,
+        action: {
+          label: 'Odeslat na podporu',
+          callback: () => {
+            alert('Comming soon.')
+          }
+        }*/
+      }));
+    };
+  }
+
   // TODO: cyclic dependency in security manager
   _logoutImmediatelly() {
     const authenticateService = new AuthenticateService();
@@ -130,11 +136,10 @@ export default class FlashMessagesManager {
     };
   }
 
-  // TODO: cyclic dependency in configuration manager - refactor action constants
+  // TODO: cyclic dependency in configuration manager - refactor action constants to separate file
   _clearConfiguations() {
     return {
-      type: 'CLEAR_DATA',
-      uiKey: 'public-configurations'
+      type: 'APP_UNAVAILABLE'
     };
   }
 
@@ -167,7 +172,7 @@ export default class FlashMessagesManager {
   /**
    * Returns true, if BE is not available
    */
-  _isServerUnavailableError(error) {
+  isServerUnavailableError(error) {
     if (error.message && (error.message.indexOf('NetworkError') > -1 || error.message.indexOf('Failed to fetch') > -1 || (error.statusCode && (error.statusCode === '400' || error.statusCode === '503')))) {
       return true;
     }

@@ -30,7 +30,7 @@ module.exports = {
             'labelKey': 'content.user.sidebar.profile',
             'order': 10,
             'priority': 0,
-            'path': '/user/:userID/profile',
+            'path': '/user/:entityId/profile',
             'icon': 'user'
           },
           {
@@ -39,10 +39,10 @@ module.exports = {
             'label': 'Změna hesla',
             'labelKey': 'content.user.sidebar.password',
             'order': 20,
-            'path': '/user/:userID/password',
+            'path': '/user/:entityId/password',
             'icon': 'lock',
             'conditions': [
-              'userID === userContext.username'
+              'entityId === userContext.username'
             ]
           },
           {
@@ -50,7 +50,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'content.user.sidebar.roles',
             'order': 30,
-            'path': '/user/:userID/roles',
+            'path': '/user/:entityId/roles',
             'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -59,7 +59,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.IdentityWorkingPosition._type',
             'order': 50,
-            'path': '/user/:userID/workingPositions',
+            'path': '/user/:entityId/workingPositions',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -68,7 +68,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.Audit.label',
             'order': 110,
-            'path': '/user/:userID/revision',
+            'path': '/user/:entityId/revision',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
             'icon': 'fa:history',
             'items': [
@@ -78,7 +78,7 @@ module.exports = {
                 'label': 'Osobní údaje',
                 'labelKey': 'content.user.sidebar.profile',
                 'order': 10,
-                'path': '/user/:userID/revision/:revID',
+                'path': '/user/:entityId/revision/:revID',
                 'icon': 'user'
               }
             ]
@@ -93,7 +93,7 @@ module.exports = {
         'title': 'Moje úkoly',
         'titleKey': 'navigation.menu.tasks.title',
         'icon': 'tasks',
-        'path': '/tasks/:userID',
+        'path': '/tasks/:entityId',
         'order': 30
       },
       {
@@ -106,43 +106,53 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
-        'id': 'organizations',
-        'labelKey': 'content.organizations.header',
-        'titleKey': 'content.organizations.title',
-        'icon': 'fa:building',
+        'id': 'tree',
+        'labelKey': 'content.tree.header',
+        'titleKey': 'content.tree.title',
+        'icon': 'tree-deciduous',
         'order': 50,
-        'iconColor': '#eb9316',
-        'path': '/organizations',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ORGANIZATION_READ'] } ]
+        'iconColor': '#419641',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+        'items': [
+          {
+            'id': 'tree-nodes',
+            'labelKey': 'content.tree.nodes.header',
+            'order': 10,
+            'icon': 'apple',
+            'path': '/tree/nodes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+          },
+          {
+            'id': 'tree-types',
+            'labelKey': 'content.tree.types.header',
+            'order': 15,
+            'icon': 'fa:server',
+            'path': '/tree/types',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+          }
+        ]
       },
       {
         'id': 'roles',
+        'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
-        'iconColor': '#419641',
+        'iconColor': '#eb9316',
         'order': 35,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-tabs',
+            'id': 'role-detail',
             'type': 'TAB',
-            'order': 10,
-            'priority': 0,
-            'items': [
-              {
-                'id': 'role-detail',
-                'type': 'TAB',
-                'label': 'content.roles.tabs.basic',
-                'labelKey': 'content.roles.tabs.basic',
-                'titleKey': 'content.roles.tabs.basic',
-                'order': 1,
-                'path': '/role/:entityId/detail',
-                'icon': 'fa:newspaper-o'
-              }
-            ]
-          },
+            'label': 'content.roles.tabs.basic',
+            'labelKey': 'content.roles.tabs.basic',
+            'titleKey': 'content.roles.tabs.basic',
+            'order': 1,
+            'path': '/role/:entityId/detail',
+            'icon': 'fa:newspaper-o'
+          }
         ]
       },
       {
@@ -157,7 +167,7 @@ module.exports = {
             'labelKey': 'navigation.menu.workflow.definitions',
             'order': 40,
             'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
             'id': 'workflow-historic-processes',
@@ -225,11 +235,11 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
-            'id': 'system-modules',
-            'labelKey': 'content.system.app-modules.title',
+            'id': 'fe-modules',
+            'labelKey': 'content.system.fe-modules.title',
             'order': 30,
-            'path': '/app-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_ADMIN'] } ]
+            'path': '/fe-modules',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
             'id': 'be-modules',
@@ -247,7 +257,7 @@ module.exports = {
         'labelKey': 'navigation.menu.userLabel',
         'icon': 'user',
         'order': 10,
-        'path': '/user/:userID/profile'
+        'path': '/user/:entityId/profile'
       },
       {
         'id': 'messages',

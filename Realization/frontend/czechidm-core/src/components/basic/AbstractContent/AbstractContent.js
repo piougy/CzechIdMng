@@ -1,7 +1,7 @@
 import { PropTypes } from 'react';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
-import { selectNavigationItems, selectNavigationItem } from '../../../redux/Layout/layoutActions';
+import { selectNavigationItems, selectNavigationItem } from '../../../redux/layout/layoutActions';
 
 /**
 * Basic content = page representation

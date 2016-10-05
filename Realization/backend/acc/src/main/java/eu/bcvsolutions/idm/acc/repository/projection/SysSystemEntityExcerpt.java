@@ -8,8 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.model.repository.projection.AbstractDtoProjection;
 
 /**
- * Enptity on target system excerpt
- * 
+ * Entity on target system
  * 
  * @author Radek Tomiška
  *

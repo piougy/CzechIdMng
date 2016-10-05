@@ -38,7 +38,7 @@ public class AccAccount extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "entity_type", nullable = false)
-	private AccountType type = AccountType.PERSONAL;
+	private AccountType type;
 	
 	@Audited
 	@NotNull

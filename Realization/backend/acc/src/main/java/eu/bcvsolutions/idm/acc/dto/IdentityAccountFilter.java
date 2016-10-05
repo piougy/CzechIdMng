@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
 import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Filter for accounts
@@ -11,8 +12,9 @@ import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
 public class IdentityAccountFilter implements BaseFilter {
 
 	private Long accountId;
-	private Long identityId;
+	private IdmIdentity identity;
 	private Long roleId;
+	private Long systemId;
 
 	public Long getAccountId() {
 		return accountId;
@@ -22,12 +24,12 @@ public class IdentityAccountFilter implements BaseFilter {
 		this.accountId = accountId;
 	}
 
-	public Long getIdentityId() {
-		return identityId;
+	public void setIdentity(IdmIdentity identity) {
+		this.identity = identity;
 	}
-
-	public void setIdentityId(Long identityId) {
-		this.identityId = identityId;
+	
+	public IdmIdentity getIdentity() {
+		return identity;
 	}
 
 	public Long getRoleId() {
@@ -36,5 +38,13 @@ public class IdentityAccountFilter implements BaseFilter {
 
 	public void setRoleId(Long roleId) {
 		this.roleId = roleId;
+	}
+	
+	public void setSystemId(Long systemId) {
+		this.systemId = systemId;
+	}
+	
+	public Long getSystemId() {
+		return systemId;
 	}
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.service.AccAccountService;
@@ -104,6 +105,9 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 		AccountFilter filter = new AccountFilter();
 		filter.setSystemId(convertLongParameter(parameters, "systemId"));
 		filter.setSystemEntityId(convertLongParameter(parameters, "systemEntityId"));
+		filter.setIdentityId(convertLongParameter(parameters, "identityId"));
+		filter.setUid(convertStringParameter(parameters, "uid"));
+		filter.setAccountType(convertEnumParameter(parameters, "type", AccountType.class));
 		return filter;
 	}
 }

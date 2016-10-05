@@ -91,7 +91,11 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	public E getEntity(String backendId) {
 		// TODO: read events
 		if(getEntityLookup() == null) {
-			return getEntityService().get(Long.valueOf(backendId));
+			try {
+				return getEntityService().get(Long.valueOf(backendId));
+			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+			}
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}

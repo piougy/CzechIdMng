@@ -36,6 +36,6 @@ public class DefaultAccIdentityAccountService extends AbstractReadWriteEntitySer
 		if (filter == null) {
 			return find(pageable);
 		}
-		return identityAccountRepository.findQuick(filter.getAccountId(), filter.getIdentityId(), filter.getRoleId(), pageable);
+		return identityAccountRepository.findQuick(filter, pageable);
 	}
 }

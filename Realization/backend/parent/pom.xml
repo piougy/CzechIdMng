@@ -386,6 +386,18 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>dev-mysql</id>
+			<properties>
+				<spring.profiles.active>dev-mysql</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
 			<id>test</id>
 			<properties>
 				<spring.profiles.active>test</spring.profiles.active>

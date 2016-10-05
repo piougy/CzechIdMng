@@ -29,30 +29,38 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-accounts',
+            'type': 'TAB',
+            'labelKey': 'acc:content.system.accounts.title',
+            'order': 20,
+            'path': '/system/:entityId/accounts',
+            'icon': 'fa:external-link',
+            'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['SYSTEM_READ', 'ACCOUNT_READ'] } ]
+          },
+          {
             'id': 'system-entities',
             'type': 'TAB',
             'labelKey': 'acc:content.system.entities.title',
-            'order': 1,
+            'order': 20,
             'path': '/system/:entityId/entities',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]
       },
       {
-        'id': 'profile-accounts',
+        'id': 'identity-accounts',
         'parentId': 'user-profile',
         'type': 'TAB',
-        'labelKey': 'acc:content.user.accounts',
-        'order': 15,
+        'labelKey': 'acc:content.identity.accounts.title',
+        'order': 45,
         'priority': 0,
-        'path': '/user/:userID/accounts',
-        'icon': 'link',
-        'access': [ { 'type': 'DENY_ALL' } ]
+        'path': '/user/:entityId/accounts',
+        'icon': 'fa:external-link'
       },
       {
         'id': 'role-systems',
         'type': 'TAB',
-        'parentId': 'role-tabs',
+        'parentId': 'roles',
         'labelKey': 'acc:content.role.systems.title',
         'titleKey': 'acc:content.role.systems.title',
         'order': 20,

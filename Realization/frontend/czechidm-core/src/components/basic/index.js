@@ -1,6 +1,7 @@
 import AbstractComponent from './AbstractComponent/AbstractComponent';
 import AbstractContextComponent from './AbstractContextComponent/AbstractContextComponent';
 import AbstractContent from './AbstractContent/AbstractContent';
+import AbstractTableContent from './AbstractContent/AbstractTableContent';
 import AbstractForm from './AbstractForm/AbstractForm';
 import AbstractFormComponent from './AbstractFormComponent/AbstractFormComponent';
 import BasicForm from './BasicForm/BasicForm';
@@ -42,6 +43,7 @@ const Components = {
   AbstractComponent,
   AbstractContextComponent,
   AbstractContent,
+  AbstractTableContent,
   AbstractForm,
   AbstractFormComponent,
   BasicForm,

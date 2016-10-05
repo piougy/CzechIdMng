@@ -11,9 +11,6 @@
 
   },
   "content": {
-    "user":{
-      "accounts": "Účty na systémech"
-    },
     "dashboard": {
     },
     "systems": {
@@ -54,6 +51,25 @@
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
+      },
+      "accounts": {
+        "header": "Účty na koncovém systému <small>uložené v idm</small>",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
       }
     },
     "role": {
@@ -68,6 +84,27 @@
         },
         "save": {
           "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        }
+      }
+    },
+    "identity": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
         }
       }
     }
@@ -90,12 +127,27 @@
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
       "system": "Napojený systém"
+    },
+    "Account": {
+      "_type": "Účet na koncovém systému",
+      "type": "Typ účtu",
+      "system": "Systém",
+      "systemEntity": "Navázané entita"
+    },
+    "IdentityAccount": {
+      "_type": "Účet identity na koncovém systému",
+      "ownership": "Vlastní účet",
+      "role": "Přiřazen dle role"
     }
   },
   "enums" : {
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
       "GROUP": "Skupina"
+    },
+    "AccountTypeEnum": {
+      "PERSONAL": "Osobní",
+      "TECHNICAL": "Technický"
     }
   }
 }

@@ -59,7 +59,7 @@ Now we need to install mandatory core module. Go to core directory. You can use 
 
 `cd czechidm-modules/czechidm-core`
 
-Install dependencies for production scope. It is important for prevent problem with multiple copies of React. In production dependency scope is not React present. Peer dependency warnings are OK.
+Install NPM dependencies. Most of dependency are installed within czechidm-core module. It is important for prevent problem with multiple copies of React.  In this module is React present only in peer dependency. Peer dependency warnings are OK.
 
 `npm install`
 
@@ -85,7 +85,7 @@ Go to the example module. You can use symlink in czechidm-modules.
 
 `cd czechidm-example`
 
-Install dependencies for production scope.
+Install NPM dependencies.
 
 `npm install`
 

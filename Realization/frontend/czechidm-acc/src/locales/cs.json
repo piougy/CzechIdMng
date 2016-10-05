@@ -147,7 +147,7 @@
     },
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
-      "TECHNICAL": "Technický"
+      "TECHNICAL": "Systémový"
     }
   }
 }

@@ -10,7 +10,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityLookup;
+import eu.bcvsolutions.idm.core.model.repository.lookup.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 import eu.bcvsolutions.idm.core.rest.impl.PasswordChangeController;
 

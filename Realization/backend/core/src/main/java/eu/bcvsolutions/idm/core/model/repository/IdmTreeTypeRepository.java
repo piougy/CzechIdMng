@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 
@@ -25,12 +25,13 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 		excerptProjection = IdmTreeTypeExcerpt.class,
 		exported = false
 	)
-public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType> {
+public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType, QuickFilter> {
 	
 	IdmTreeType findOneByName(@Param("name") String name);
 	
+	@Override
 	@Query(value = "select e from IdmTreeType e" +
 	        " where" +
-	        "(:name is null or lower(e.name) like :#{#name == null ? '%' : '%'.concat(#name.toLowerCase()).concat('%')})")
-	Page<IdmTreeType> findByName(@Param(value = "name") String name, Pageable pageable);
+	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
+	Page<IdmTreeType> find(QuickFilter filter, Pageable pageable);
 }

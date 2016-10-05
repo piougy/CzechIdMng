@@ -2,15 +2,18 @@ package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 @RepositoryRestResource(//
 		collectionResourceRel = "workingPositions", //
@@ -18,8 +21,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 		itemResourceRel = "workingPosition", //
 		exported = false
 )
-public interface IdmIdentityWorkingPositionRepository extends BaseRepository<IdmIdentityWorkingPosition> {
+public interface IdmIdentityWorkingPositionRepository extends BaseRepository<IdmIdentityWorkingPosition, EmptyFilter> {
 
+	@Override
+	@Query(value = "select e from IdmIdentityWorkingPosition e")
+	Page<IdmIdentityWorkingPosition> find(EmptyFilter filter, Pageable pageable);
+	
 	List<IdmIdentityWorkingPosition> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
 	
 	@Query(value = "select e from IdmIdentityWorkingPosition e" +

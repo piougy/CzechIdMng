@@ -48,7 +48,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	private SecurityService securityService;
 	
 	@Override
-	protected BaseRepository<IdmIdentity> getRepository() {
+	protected BaseRepository<IdmIdentity, QuickFilter> getRepository() {
 		return identityRepository;
 	}
 
@@ -72,15 +72,6 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	public IdmIdentity getByName(String username) {
 		return this.getByUsername(username);
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmIdentity> find(QuickFilter filter, Pageable pageable) {
-		if (filter == null) {
-			return find(pageable);
-		}
-		return identityRepository.findQuick(filter.getText(), pageable);
-	}	
 	
 	@Override
 	public String getNiceLabel(IdmIdentity identity) {

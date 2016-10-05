@@ -44,6 +44,11 @@ public class SysSystem extends AbstractEntity {
 	@Column(name = "description")
 	private String description;
 	
+//	@Audited
+//	@NotNull
+//	@Column(name = "virtual", nullable = false)
+//	private boolean virtual;
+	
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -72,4 +77,11 @@ public class SysSystem extends AbstractEntity {
 		this.description = description;
 	}
 
+//	public void setVirtual(boolean virtual) {
+//		this.virtual = virtual;
+//	}
+//	
+//	public boolean isVirtual() {
+//		return virtual;
+//	}
 }

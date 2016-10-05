@@ -16,10 +16,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
  * Repository for sended emails
@@ -32,7 +32,12 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 	path = "emails", //
 	itemResourceRel = "email"
 )
-public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
+public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, EmptyFilter> {
+	
+	@Override
+	@Query(value = "select e from IdmEmailLog e")
+	@RestResource(exported = false)
+	Page<IdmEmailLog> find(EmptyFilter filter, Pageable pageable);
 	
 	// TODO: refactor using jpa criteria - is not possible to use named parameters now (because optional date parameters) and readability is lost ... 
 	@Query(value = "select e from IdmEmailLog e left join e.sender s" +
@@ -65,7 +70,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog> {
         	+ "(?#{[5] == null ? 'null' : ''} = 'null' or e.created <= ?#{[5]})")
 	@RestResource(path = "quick", rel = "quick")
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	Page<IdmNotificationLog> findByQuick(
+	Page<IdmEmailLog> findByQuick(
 			@Param(value = "text") String text,
 			@Param(value = "sender") String sender,
 			@Param(value = "recipient") String recipient,

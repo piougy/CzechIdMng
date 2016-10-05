@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
 /**
@@ -26,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 		path = "configurations", //
 		itemResourceRel = "configuration",
 		exported = false)
-public interface IdmConfigurationRepository extends BaseRepository<IdmConfiguration> {
+public interface IdmConfigurationRepository extends BaseRepository<IdmConfiguration, QuickFilter> {
 
 	/**
 	 * Public configurations only
@@ -62,15 +63,16 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 * @param pageable
 	 * @return
 	 */
+	@Override
 	@Query(value = "select e from IdmConfiguration e" +
 	        " where " +
-	        "(:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}) "
+	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')}) "
 	        + "and "
 	        + "( "
 	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "
 	        	+ "or e.secured = false"
 	        + ")")
-	Page<IdmConfiguration> findQuick(@Param(value = "text") String text, Pageable pageable);
+	Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable);
 	
 	/**
 	 * Returns all configurations based on current user authorities

@@ -306,7 +306,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 		return node;
 	}
 	
-	private <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T> repository) {
+	private <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T, ?> repository) {
 		return template.execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return repository.save(object);

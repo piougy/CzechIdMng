@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.repository;
+package eu.bcvsolutions.idm.core.model.repository.lookup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

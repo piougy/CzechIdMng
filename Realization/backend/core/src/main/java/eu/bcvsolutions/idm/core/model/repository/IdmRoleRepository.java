@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
+import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 
@@ -22,15 +22,16 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		itemResourceRel = "role", //
 		excerptProjection = IdmRoleExcerpt.class,
 		exported = false)
-public interface IdmRoleRepository extends BaseRepository<IdmRole> {
+public interface IdmRoleRepository extends BaseRepository<IdmRole, RoleFilter> {
 	
 	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
 	
 	IdmRole findOneByName(@Param("name") String name);
 	
+	@Override
 	@Query(value = "select e from IdmRole e" +
 	        " where" +
-	        " (:text is null or lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')})" +
-	        " and (:roleType is null or e.roleType = :roleType)")
-	Page<IdmRole> findQuick(@Param(value = "text") String text, @Param(value = "roleType") IdmRoleType roleType, Pageable pageable);
+	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +
+	        " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})")
+	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
 }

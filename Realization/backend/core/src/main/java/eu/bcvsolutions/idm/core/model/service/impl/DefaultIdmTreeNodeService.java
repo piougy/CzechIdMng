@@ -31,7 +31,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	private IdmIdentityWorkingPositionRepository workingPositionRepository;
 
 	@Override
-	protected BaseRepository<IdmTreeNode> getRepository() {
+	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
 		return this.treeNodeRepository;
 	}
 	
@@ -50,15 +50,6 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	public IdmTreeNode save(IdmTreeNode entity) {
 		this.testNode(entity);
 		return super.save(entity);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable) {
-		if (filter == null) {
-			return find(pageable);
-		}
-		return this.treeNodeRepository.findQuick(filter.getText(), filter.getTreeNode(), filter.getTreeType(), pageable);
 	}
 	
 	@Override

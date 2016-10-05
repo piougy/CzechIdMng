@@ -32,11 +32,10 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeLookup;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
@@ -50,9 +49,6 @@ import eu.bcvsolutions.idm.core.rest.domain.ResourcesWrapper;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "/nodes")
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
-
-	@Autowired
-	private IdmTreeNodeLookup treeNodeLookup;
 	
 	@Autowired
 	private IdmTreeNodeRepository treeNodeRepository;
@@ -113,7 +109,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		IdmTreeNode entity = (IdmTreeNode) revision.getEntity();
 		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(this.treeNodeLookup.getResourceIdentifier(entity)), revision, revId);
+				String.valueOf(entity.getId()), revision, revId);
 
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
@@ -138,7 +134,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		
 		for	(Revision<Integer, ? extends AbstractEntity> revision : revisions) {
 			wrappers.add(assembler.toResource(this.getClass(), 
-					String.valueOf(this.treeNodeLookup.getResourceIdentifier((IdmTreeNode)revision.getEntity())),
+					String.valueOf(revision.getEntity().getId()),
 					revision, revision.getRevisionNumber()));
 		}
 		

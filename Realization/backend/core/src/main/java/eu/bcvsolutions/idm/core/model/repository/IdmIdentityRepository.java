@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmIdentityExcerpt;
 
@@ -25,18 +26,19 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmIdentityExcerpt;
 		excerptProjection = IdmIdentityExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface IdmIdentityRepository extends BaseRepository<IdmIdentity> {
+public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, QuickFilter> {
 
 	IdmIdentity findOneByUsername(@Param("username") String username);
 
+	@Override
 	@Query(value = "select e from IdmIdentity e" +
 	        " where" +
-	        " lower(e.username) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}" +
-	        " or lower(e.firstName) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}" +
-	        " or lower(e.lastName) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}" +
-	        " or lower(e.email) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}" +
-	        " or lower(e.description) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
-	Page<IdmIdentity> findQuick(@Param(value = "text") String text, Pageable pageable);
+	        " lower(e.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+	        " or lower(e.firstName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+	        " or lower(e.lastName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+	        " or lower(e.email) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+	        " or lower(e.description) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}")
+	Page<IdmIdentity> find(QuickFilter filter, Pageable pageable);
 	
 	@Transactional(timeout = 5)
 	@Query(value = "SELECT e FROM IdmIdentity e "

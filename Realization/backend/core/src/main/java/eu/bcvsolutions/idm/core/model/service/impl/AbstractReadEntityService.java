@@ -35,7 +35,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	 * 
 	 * @return
 	 */
-	protected abstract BaseRepository<E> getRepository();
+	protected abstract BaseRepository<E, F> getRepository();
 
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service
@@ -56,8 +56,10 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	@Override
 	@Transactional(readOnly = true)
 	public Page<E> find(F filter, Pageable pageable) {
-		// TODO: use reflection to find appropriate repository method to given filter
-		return find(pageable);
+		if (filter == null) {
+			return find(pageable);
+		}
+		return getRepository().find(filter, pageable);
 	}
 	
 	@Override

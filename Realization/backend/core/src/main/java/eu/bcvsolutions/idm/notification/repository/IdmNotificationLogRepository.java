@@ -16,8 +16,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import eu.bcvsolutions.idm.core.model.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
@@ -31,7 +33,12 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 	path = "notifications", //
 	itemResourceRel = "notification"
 )
-public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog> {
+public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog, EmptyFilter> {
+	
+	@Override
+	@Query(value = "select e from IdmNotificationLog e")
+	@RestResource(exported = false)
+	Page<IdmNotificationLog> find(EmptyFilter filter, Pageable pageable);
 	
 	// TODO: refactor using jpa criteria - is not possible to use named parameters now (because optional date parameters) and readability is lost ... 
 	@Query(value = "select e from IdmNotificationLog e left join e.sender s" +

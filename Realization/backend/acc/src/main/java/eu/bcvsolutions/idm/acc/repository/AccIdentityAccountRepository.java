@@ -21,8 +21,9 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 		itemResourceRel = "identityAccount", //
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface AccIdentityAccountRepository extends BaseRepository<AccIdentityAccount> {
+public interface AccIdentityAccountRepository extends BaseRepository<AccIdentityAccount, IdentityAccountFilter> {
 	
+	@Override
 	@Query(value = "select e from AccIdentityAccount e left join e.role r" +
 	        " where" +
 	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
@@ -32,7 +33,5 @@ public interface AccIdentityAccountRepository extends BaseRepository<AccIdentity
 	        " (?#{[0].roleId} is null or r.id = ?#{[0].roleId})" + 
 	        " and" +
 	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})")
-	Page<AccIdentityAccount> findQuick(
-			IdentityAccountFilter filter,
-			Pageable pageable);
+	Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable);
 }

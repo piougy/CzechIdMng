@@ -19,7 +19,7 @@ public class IdmIdentityWorkingPositionServiceImpl extends AbstractReadWriteEnti
 	private IdmIdentityWorkingPositionRepository repository;
 
 	@Override
-	protected BaseRepository<IdmIdentityWorkingPosition> getRepository() {
+	protected BaseRepository<IdmIdentityWorkingPosition, EmptyFilter> getRepository() {
 		return repository;
 	}
 	

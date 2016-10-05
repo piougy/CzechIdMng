@@ -48,7 +48,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	private IdmConfigurationRepository configurationRepository;
 	
 	@Override
-	protected BaseRepository<IdmConfiguration> getRepository() {
+	protected BaseRepository<IdmConfiguration, QuickFilter> getRepository() {
 		return configurationRepository;
 	}
 	
@@ -56,15 +56,6 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	@Transactional(readOnly = true)
 	public IdmConfiguration getByName(String name) {
 		return configurationRepository.findOneByName(name);
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable) {
-		if (filter == null) {
-			return find(pageable);
-		}
-		return configurationRepository.findQuick(filter.getText(), pageable);
 	}
 
 	@Override

@@ -3,10 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,17 +32,8 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	private IdmIdentityWorkingPositionRepository workingPositionRepository;
 	
 	@Override
-	protected BaseRepository<IdmTreeType> getRepository() {
+	protected BaseRepository<IdmTreeType, QuickFilter> getRepository() {
 		return this.treeTypeRepository;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Page<IdmTreeType> find(QuickFilter filter, Pageable pageable) {
-		if (filter == null) {
-			return find(pageable);
-		}
-		return this.treeTypeRepository.findByName(filter.getText(), pageable);
 	}
 	
 	@Override

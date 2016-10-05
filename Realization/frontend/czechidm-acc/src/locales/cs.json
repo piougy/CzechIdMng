@@ -114,7 +114,8 @@
       "_type": "Koncový systém",
       "name": "Název systému",
       "disabled": "Neaktivní",
-      "description": "Popis"
+      "description": "Popis",
+      "virtual": "Virtuální"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",
@@ -132,7 +133,8 @@
       "_type": "Účet na koncovém systému",
       "type": "Typ účtu",
       "system": "Systém",
-      "systemEntity": "Navázané entita"
+      "systemEntity": "Navázané entita",
+      "uid": "Identifikátor"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",

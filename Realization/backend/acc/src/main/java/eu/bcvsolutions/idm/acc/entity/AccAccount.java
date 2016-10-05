@@ -6,20 +6,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
 
 /**
@@ -29,16 +33,24 @@ import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "acc_account")
+@Table(name = "acc_account", indexes = { 
+		@Index(name = "ux_account_system_entity", columnList = "system_entity_id", unique = true),
+		@Index(name = "ux_account_uid", columnList = "uid,system_id", unique = true) 
+		})
 public class AccAccount extends AbstractEntity {
 	
 	private static final long serialVersionUID = -565558977675057360L;
 
+	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.UID)
+	@Column(name = "uid", length = DefaultFieldLengths.UID, nullable = false)
+	private String uid;
+	
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@Column(name = "entity_type", nullable = false)
-	private AccountType type;
+	@Column(name = "account_type", nullable = false)
+	private AccountType accountType;
 	
 	@Audited
 	@NotNull
@@ -57,12 +69,12 @@ public class AccAccount extends AbstractEntity {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<AccIdentityAccount> identityAccounts;
 
-	public AccountType getType() {
-		return type;
+	public void setAccountType(AccountType accountType) {
+		this.accountType = accountType;
 	}
-
-	public void setType(AccountType type) {
-		this.type = type;
+	
+	public AccountType getAccountType() {
+		return accountType;
 	}
 
 	public SysSystem getSystem() {
@@ -87,5 +99,13 @@ public class AccAccount extends AbstractEntity {
 	
 	public List<AccIdentityAccount> getIdentityAccounts() {
 		return identityAccounts;
+	}
+	
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	
+	public String getUid() {
+		return uid;
 	}
 }

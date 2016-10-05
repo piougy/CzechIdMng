@@ -11,7 +11,6 @@ const uiKey = 'identity-accounts-table';
 const manager = new IdentityAccountManager();
 const accountManager = new AccountManager();
 const identityManager = new Managers.IdentityManager();
-const roleManager = new Managers.RoleManager();
 
 class IdentityAccountsContent extends Basic.AbstractTableContent {
 
@@ -38,8 +37,7 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
       identity: entity._embedded && entity._embedded.identity ? entity._embedded.identity.id : this.props.params.entityId,
-      account: entity.account ? entity.account.id : null,
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role.id : null,
+      account: entity.account ? entity.account.id : null
     });
     //
     super.showDetail(entityFormData, () => {
@@ -53,7 +51,6 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
     formEntity.account = {
       id: formEntity.account
     };
-    formEntity.role = roleManager.getSelfLink(formEntity.role);
     //
     super.save(formEntity, event);
   }
@@ -124,8 +121,8 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
               }/>
             <Advanced.Column property="account._embedded.system.name" header={this.i18n('acc:entity.System.name')} face="text" />
             <Advanced.Column property="account.type" header={this.i18n('acc:entity.Account.type')} sort face="enum" enumClass={AccountTypeEnum} />
-            <Advanced.Column property="account._embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
-            <Advanced.Column property="_embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
+            <Advanced.Column property="account.uid" header={this.i18n('acc:entity.Account.uid')} face="text" />
+            <Advanced.Column property="identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
           </Advanced.Table>
         </Basic.Panel>
@@ -148,10 +145,6 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
                   label={this.i18n('acc:entity.Account._type')}
                   readOnly={!Utils.Entity.isNew(detail.entity)}
                   required/>
-                <Basic.SelectBox
-                  ref="role"
-                  manager={roleManager}
-                  label={this.i18n('acc:entity.IdentityAccount.role')}/>
                 <Basic.Checkbox
                   ref="ownership"
                   label={this.i18n('acc:entity.IdentityAccount.ownership')}/>

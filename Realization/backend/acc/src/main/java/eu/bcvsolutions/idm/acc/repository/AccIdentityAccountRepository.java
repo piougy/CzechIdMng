@@ -24,13 +24,13 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 public interface AccIdentityAccountRepository extends BaseRepository<AccIdentityAccount, IdentityAccountFilter> {
 	
 	@Override
-	@Query(value = "select e from AccIdentityAccount e left join e.role r" +
+	@Query(value = "select e from AccIdentityAccount e left join e.identityRole ir" +
 	        " where" +
 	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
 	        " and" +
 	        " (?#{[0].identity} is null or e.identity = ?#{[0].identity})" +
 	        " and" +
-	        " (?#{[0].roleId} is null or r.id = ?#{[0].roleId})" + 
+	        " (?#{[0].roleId} is null or ir.role.id = ?#{[0].roleId})" + 
 	        " and" +
 	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})")
 	Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable);

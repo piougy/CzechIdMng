@@ -20,4 +20,6 @@ public interface SysSystemExcerpt extends AbstractDtoProjection {
 	String getDescription();
 	
 	boolean isDisabled();
+	
+	boolean isVirtual();
 }

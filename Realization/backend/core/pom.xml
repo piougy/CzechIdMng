@@ -15,10 +15,10 @@
 
 	<name>CzechIdM Core</name>
 	<description>Core services, entities, domain objects.</description>
-	
+
 	<modules>
-		<module>idm-core-api</module>
-		<module>idm-core-impl</module>
+		<module>core-api</module>
+		<module>core-impl</module>
 	</modules>
 
 </project>

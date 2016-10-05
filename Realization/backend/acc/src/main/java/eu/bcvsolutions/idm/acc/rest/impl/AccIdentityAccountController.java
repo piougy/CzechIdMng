@@ -26,15 +26,14 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.service.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.AccIdentityAccountService;
-import eu.bcvsolutions.idm.core.exception.CoreResultCode;
-import eu.bcvsolutions.idm.core.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.lookup.IdmIdentityLookup;
-import eu.bcvsolutions.idm.core.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.domain.IfEnabled;;
+import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityLookup;
+import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
  * Identity accounts on target system
@@ -49,16 +48,13 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 	
 	// TODO: lookups overs spring plugin
 	private final IdmIdentityLookup identityLookup;
-	private final AccAccountService accountService;
 	
 	@Autowired
-	public AccIdentityAccountController(AccIdentityAccountService identityAccountService, IdmIdentityLookup identityLookup, AccAccountService accountService) {
+	public AccIdentityAccountController(AccIdentityAccountService identityAccountService, IdmIdentityLookup identityLookup) {
 		super(identityAccountService);
 		//
 		Assert.notNull(identityLookup);
-		Assert.notNull(accountService);
 		this.identityLookup = identityLookup;
-		this.accountService = accountService;
 	}
 	
 	@Override

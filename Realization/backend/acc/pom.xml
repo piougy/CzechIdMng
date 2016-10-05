@@ -38,7 +38,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>idm-core</artifactId>
+			<artifactId>idm-core-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

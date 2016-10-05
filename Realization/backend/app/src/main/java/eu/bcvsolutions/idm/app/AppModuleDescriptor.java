@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.app;
 
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.domain.AbstractModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 
 @Component
 public class AppModuleDescriptor extends AbstractModuleDescriptor {

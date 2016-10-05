@@ -23,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
  * Account on target system

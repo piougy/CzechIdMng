@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.repository.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.core.model.repository.projection.AbstractDtoProjection;
+import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
 
 /**
  * Target System excerpt

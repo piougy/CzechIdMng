@@ -12,7 +12,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 

@@ -18,8 +18,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import eu.bcvsolutions.idm.core.model.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
  * Target system setting - is used for accont management and provisioning

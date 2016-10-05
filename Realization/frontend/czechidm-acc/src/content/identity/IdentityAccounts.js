@@ -48,9 +48,11 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
   save(entity, event) {
     const formEntity = this.refs.form.getData();
     formEntity.identity = identityManager.getSelfLink(formEntity.identity);
-    formEntity.account = {
-      id: formEntity.account
-    };
+    if (Utils.Entity.isNew(entity)) {
+      formEntity.account = {
+        id: formEntity.account
+      };
+    }
     //
     super.save(formEntity, event);
   }

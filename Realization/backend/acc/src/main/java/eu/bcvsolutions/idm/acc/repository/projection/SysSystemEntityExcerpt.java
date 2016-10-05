@@ -5,7 +5,7 @@ import org.springframework.data.rest.core.config.Projection;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.core.model.repository.projection.AbstractDtoProjection;
+import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
 
 /**
  * Entity on target system

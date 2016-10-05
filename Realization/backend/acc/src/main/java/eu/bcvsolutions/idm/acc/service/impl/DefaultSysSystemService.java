@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
-import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.AbstractReadWriteEntityService;
 
 /**

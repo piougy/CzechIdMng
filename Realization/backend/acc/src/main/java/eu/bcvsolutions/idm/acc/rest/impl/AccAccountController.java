@@ -24,9 +24,9 @@ import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.service.AccAccountService;
-import eu.bcvsolutions.idm.core.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
  * Accounts on target system

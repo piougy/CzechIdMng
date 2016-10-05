@@ -131,10 +131,10 @@
     },
     "Account": {
       "_type": "Účet na koncovém systému",
-      "type": "Typ účtu",
+      "accountType": "Typ účtu",
       "system": "Systém",
-      "systemEntity": "Navázané entita",
-      "uid": "Identifikátor"
+      "systemEntity": "Navázané entita na systému",
+      "uid": "Identifikátor účtu"
     },
     "IdentityAccount": {
       "_type": "Účet identity na koncovém systému",

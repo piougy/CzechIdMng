@@ -107,7 +107,7 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 		filter.setSystemEntityId(convertLongParameter(parameters, "systemEntityId"));
 		filter.setIdentityId(convertLongParameter(parameters, "identityId"));
 		filter.setUid(convertStringParameter(parameters, "uid"));
-		filter.setAccountType(convertEnumParameter(parameters, "type", AccountType.class));
+		filter.setAccountType(convertEnumParameter(parameters, "accountType", AccountType.class));
 		return filter;
 	}
 }

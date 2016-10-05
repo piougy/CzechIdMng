@@ -12,7 +12,7 @@ export default class IdentityAccountService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return `${AccountTypeEnum.getNiceLabel(entity.account.type)}:${entity.account._embedded.system.name}:${entity.account._embedded.systemEntity ? entity.account._embedded.systemEntity.uid : ''}`;
+    return `${AccountTypeEnum.getNiceLabel(entity.account.accountType)}:${entity.account._embedded.system.name}:${entity.account._embedded.systemEntity ? entity.account._embedded.systemEntity.uid : ''}`;
   }
 
   getApiPath() {
@@ -20,6 +20,6 @@ export default class IdentityAccountService extends Services.AbstractService {
   }
 
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('account.systemEntity.uid');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('account.uid');
   }
 }

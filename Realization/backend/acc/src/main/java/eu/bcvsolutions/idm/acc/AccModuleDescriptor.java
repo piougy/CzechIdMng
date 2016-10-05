@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.AbstractModuleDescriptor;
-import eu.bcvsolutions.idm.security.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
+import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
 @Component
 public class AccModuleDescriptor extends AbstractModuleDescriptor {

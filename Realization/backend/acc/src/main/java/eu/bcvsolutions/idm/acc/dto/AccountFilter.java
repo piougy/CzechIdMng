@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.core.model.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 
 /**
  * Filter for accounts

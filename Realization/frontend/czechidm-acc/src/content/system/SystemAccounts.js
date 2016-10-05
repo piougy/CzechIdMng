@@ -41,7 +41,7 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
       systemEntity: entity._embedded && entity._embedded.systemEntity ? entity._embedded.systemEntity.id : null
     });
     super.showDetail(entityFormData, () => {
-      this.refs.systemEntity.focus();
+      this.refs.uid.focus();
     });
   }
 
@@ -96,7 +96,7 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { type: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
+                  onClick={this.showDetail.bind(this, { accountType: AccountTypeEnum.findKeyBySymbol(AccountTypeEnum.PERSONAL) })}
                   rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -110,9 +110,9 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.EnumSelectBox
-                        ref="type"
-                        label={this.i18n('acc:entity.Account.type')}
-                        placeholder={this.i18n('acc:entity.Account.type')}
+                        ref="accountType"
+                        label={this.i18n('acc:entity.Account.accountType')}
+                        placeholder={this.i18n('acc:entity.Account.accountType')}
                         enum={AccountTypeEnum}/>
                     </div>
                     <div className="col-lg-4">
@@ -141,7 +141,8 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="type" header={this.i18n('acc:entity.Account.type')} width="75px" sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column property="accountType" header={this.i18n('acc:entity.Account.accountType')} width="75px" sort face="enum" enumClass={AccountTypeEnum} />
+            <Advanced.Column property="uid" header={this.i18n('acc:entity.Account.uid')} face="text" />
             <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
           </Advanced.Table>
         </Basic.Panel>
@@ -164,15 +165,19 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                   label={this.i18n('acc:entity.Account.system')}
                   readOnly
                   required/>
+                <Basic.TextField
+                  ref="uid"
+                  label={this.i18n('acc:entity.Account.uid')}
+                  required/>
                 <Basic.SelectBox
                   ref="systemEntity"
                   manager={systemEntityManager}
                   label={this.i18n('acc:entity.Account.systemEntity')}
                   forceSearchParameters={forceSystemEntitySearchParameters}/>
                 <Basic.EnumSelectBox
-                  ref="type"
+                  ref="accountType"
                   enum={AccountTypeEnum}
-                  label={this.i18n('acc:entity.Account.type')}
+                  label={this.i18n('acc:entity.Account.accountType')}
                   required/>
               </Basic.AbstractForm>
 

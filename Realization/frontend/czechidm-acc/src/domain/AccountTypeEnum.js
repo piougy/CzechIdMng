@@ -28,6 +28,9 @@ export default class AccountTypeEnum extends Enums.AbstractEnum {
       case this.PERSONAL: {
         return 'success';
       }
+      case this.TECHNICAL: {
+        return 'primary';
+      }
       default: {
         return 'default';
       }

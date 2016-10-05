@@ -136,7 +136,7 @@
 						  <resources>
 					    	    <resource>
 						      <directory>../../frontend/czechidm-app/dist</directory>
-						      <filtering>true</filtering>
+						      <filtering>false</filtering>
 						    </resource>
 						  </resources>
 						</configuration>

@@ -18,7 +18,7 @@ class Profile extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.profile';
+    return 'content.identity.profile';
   }
 
   componentWillMount() {
@@ -29,7 +29,7 @@ class Profile extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectNavigationItems(['user-profile', 'profile-personal']);
+    this.selectNavigationItems(['identity-profile', 'profile-personal']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 

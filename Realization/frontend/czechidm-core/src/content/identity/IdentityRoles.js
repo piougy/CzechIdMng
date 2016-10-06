@@ -35,7 +35,7 @@ class Roles extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.roles';
+    return 'content.identity.roles';
   }
 
   componentDidMount() {
@@ -178,12 +178,12 @@ class Roles extends Basic.AbstractContent {
       event.preventDefault();
     }
     this.refs['confirm-delete'].show(
-      this.i18n('content.user.roles.changeRoleProcesses.deleteConfirm', {'processId': entity.id}),
+      this.i18n('content.identity.roles.changeRoleProcesses.deleteConfirm', {'processId': entity.id}),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
       this.context.store.dispatch(workflowProcessInstanceManager.deleteEntity(entity, null, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('content.user.roles.changeRoleProcesses.deleteSuccess', {'processId': entity.id})});
+          this.addMessage({ message: this.i18n('content.identity.roles.changeRoleProcesses.deleteSuccess', {'processId': entity.id})});
         } else {
           this.addError(error);
         }

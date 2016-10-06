@@ -138,7 +138,7 @@
       },
       "tasks" : "Úkoly",
       "task" : "Úkol",
-      "users": {
+      "identities": {
         "label": "Uživatelé",
         "title": "Seznam uživatelů"
       },
@@ -285,6 +285,14 @@
       "ALL": "Odesláno",
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
+    },
+    "AccessTypeEnum": {
+      "DENY_ALL": "Přístup zamítnut všem",
+      "PERMIT_ALL": "Přístup povolen všem",
+      "NOT_AUTHENTICATED": "Pouze bez přihlášení",
+      "IS_AUTHENTICATED": "Je třeba přihlášení",
+      "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
+      "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
     }
   },
   "dashboard": {
@@ -580,7 +588,7 @@
           }
         }
     },
-    "users": {
+    "identities": {
       "header": "Uživatelé",
       "title": "Uživatelé",
       "filter": {
@@ -594,10 +602,10 @@
           "action": "Deaktivovat",
           "header_1": "Deaktivace uživatele",
           "header_2": "Deaktivace uživatelů",
-          "header_5": "$t(content.users.action.deactivate.header_2)",
+          "header_5": "$t(content.identities.action.deactivate.header_2)",
           "message_1": "Opravdu chcete deaktivovat vybraného uživatele <strong>{{username}}</strong>?",
           "message_2": "Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané uživatele?",
-          "message_5": "$t(content.users.action.deactivate.message_2)",
+          "message_5": "$t(content.identities.action.deactivate.message_2)",
           "error": "Při deaktivaci uživatele {{username}} nastala chyba",
           "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
         },
@@ -605,7 +613,7 @@
           "action": "Aktivovat",
           "header_1": "Aktivace uživatele",
           "header_2": "Aktivace uživatelů",
-          "header_5": "$t(content.users.action.activate.header_2)",
+          "header_5": "$t(content.identities.action.activate.header_2)",
           "message_1": "Opravdu chcete aktivovat vybraného uživatele <strong>{{username}}</strong>?",
           "message_2": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybrané uživatele?",
           "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
@@ -700,7 +708,7 @@
         "basic": "Základní informace"
       }
     },
-    "user": {
+    "identity": {
       "sidebar": {
         "profile": "Osobní údaje",
         "password": "Změna hesla",
@@ -865,17 +873,17 @@
           "selectAllResource": "$t(label.selectAll) od daného systému"
         }
       },
-      "userRoleDetail": {
+      "identityRoleDetail": {
         "label": "Detail záznamu"
       },
       "accounts": {
         "header": "Účty na systémech",
-        "title": "$t(content.user.accounts.header)",
+        "title": "$t(content.identity.accounts.header)",
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
       "workingPositions": {
         "header": "Pracovně právní vztahy",
-        "title": "$t(content.user.workingPositions.header)",
+        "title": "$t(content.identity.workingPositions.header)",
         "detail": {
           "invalidWorkingPosition":"Detail neplatného PPV",
           "validWorkingPosition":"Detail PPV",
@@ -899,7 +907,7 @@
       },
       "approve": {
         "header": "Schvalovatel pro role",
-        "title": "$t(content.user.approve.header)"
+        "title": "$t(content.identity.approve.header)"
       },
       "create": {
         "header": "Vytvoření nového uživatele",
@@ -914,7 +922,7 @@
       },
       "delegates": {
         "header": "Delegace úkolů",
-        "title": "$t(content.user.delegates.header)",
+        "title": "$t(content.identity.delegates.header)",
         "empty": "Nenalezeny žádné nastavené delegace.",
         "message": {
           "save": {
@@ -1430,5 +1438,13 @@
      "unvalid" : "Datum není validní!"
     },
     "passwords_not_same": "Hesla musí být shodná!"
+  },
+  "security": {
+    "access": {
+      "denied": "Nedostatečná oprávnění",
+      "link": {
+        "denied": "Pro zobrazení detailu záznamu nemáte oprávnění"
+      }
+    }
   }
 }

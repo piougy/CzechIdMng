@@ -273,7 +273,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         cell = column.props.cell;
       } else if (column.type.__AdvancedColumnLink__) {
         cell = (
-          <Basic.BasicTable.LinkCell to={column.props.to} {...commonProps}/>
+          <Basic.BasicTable.LinkCell to={column.props.to} target={column.props.target} access={column.props.access} {...commonProps}/>
         );
       } else {
         switch (column.props.face) {
@@ -461,7 +461,7 @@ AdvancedTable.propTypes = {
    */
   filterViewportOffsetTop: PropTypes.number,
   /**
-   * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: this.onActivate.bind(this) }
+   * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) }
    */
   actions: PropTypes.arrayOf(PropTypes.object),
   /**

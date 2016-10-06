@@ -38,6 +38,7 @@ import EnumLabel from './EnumLabel/EnumLabel';
 import Collapse from './Collapse/Collapse';
 import Tooltip from './Tooltip/Tooltip';
 import Dropzone from './Dropzone/Dropzone';
+import Popover from './Popover/Popover';
 
 const Components = {
   AbstractComponent,
@@ -93,7 +94,8 @@ const Components = {
   EnumLabel,
   Collapse,
   Tooltip,
-  Dropzone
+  Dropzone,
+  Popover
 };
 
 Components.version = '0.0.1';

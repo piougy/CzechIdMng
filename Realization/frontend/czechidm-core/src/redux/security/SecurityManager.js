@@ -166,7 +166,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    return SecurityManager.hasAuthority('APP_ADMIN', userContext);
+    return this.hasAuthority('APP_ADMIN', userContext);
   }
 
   /**
@@ -179,7 +179,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    if (!SecurityManager.isAuthenticated(userContext)) {
+    if (!this.isAuthenticated(userContext)) {
       return false;
     }
     return username === userContext.username;
@@ -192,7 +192,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authority) {
+    if (!this.isAuthenticated(userContext) || !userContext.authorities || !authority) {
       return false;
     }
     return _.includes(userContext.authorities, authority);
@@ -209,7 +209,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
+    if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
     return _.intersection(userContext.authorities, authorities).length > 0;
@@ -226,7 +226,7 @@ export default class SecurityManager {
     if (!userContext) {
       userContext = AuthenticateService.getUserContext();
     }
-    if (!SecurityManager.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
+    if (!this.isAuthenticated(userContext) || !userContext.authorities || !authorities) {
       return false;
     }
     return _.difference(authorities, userContext.authorities).length === 0;
@@ -239,43 +239,64 @@ export default class SecurityManager {
     if (!accessItems) {
       return false;
     }
-    if (!accessItems || accessItems.length === 0) {
+    if (!Array.isArray(accessItems)) {
+      accessItems = [accessItems];
+    }
+
+    if (accessItems.length === 0) {
       return false;
     }
 
-    const hasDenyAll = accessItems.some(accessItem => {
-      if (accessItem.type && accessItem.type === 'DENY_ALL') {
-        return true;
-      }
-    });
+    const hasDenyAll = this.isDenyAll(accessItems);
     if (hasDenyAll) {
       return false;
     }
 
-    return accessItems.some(accessItem => {
+    const hasPermitAll = accessItems.some(accessItem => {
+      if (accessItem.type && accessItem.type === 'PERMIT_ALL') {
+        return true;
+      }
+    });
+    if (hasPermitAll) {
+      return true;
+    }
+
+    return accessItems.every(accessItem => {
       if (accessItem.type) {
         switch (accessItem.type) {
-          case 'PERMIT_ALL': {
-            return true;
-          }
           case 'NOT_AUTHENTICATED': {
-            return !SecurityManager.isAuthenticated(userContext);
+            return !this.isAuthenticated(userContext);
           }
           case 'IS_AUTHENTICATED': {
-            if (SecurityManager.isAuthenticated(userContext)) {
-              return true;
-            }
+            return this.isAuthenticated(userContext);
           }
           case 'HAS_ANY_AUTHORITY': {
-            return SecurityManager.hasAnyAuthority(accessItem.authorities, userContext);
+            return this.hasAnyAuthority(accessItem.authorities, userContext);
           }
           case 'HAS_ALL_AUTHORITIES': {
-            return SecurityManager.hasAllAuthorities(accessItem.authorities, userContext);
+            return this.hasAllAuthorities(accessItem.authorities, userContext);
           }
           default : {
-            return null;
+            return false;
           }
         }
+      }
+    });
+  }
+
+  static isDenyAll(accessItems) {
+    if (!accessItems) {
+      return false;
+    }
+    if (accessItems.length === 0) {
+      return false;
+    }
+    if (!Array.isArray(accessItems)) {
+      accessItems = [accessItems];
+    }
+    return accessItems.some(accessItem => {
+      if (accessItem.type && accessItem.type === 'DENY_ALL') {
+        return true;
       }
     });
   }
@@ -286,7 +307,7 @@ export default class SecurityManager {
   static checkAccess(nextState, replace) {
     const userContext = AuthenticateService.getUserContext();
     const lastRoute = nextState.routes.slice(-1)[0];
-    //
+    // warn: SecurityManager can not be defined as this - is caled from router
     if (!SecurityManager.hasAccess(lastRoute.access, userContext)) {
       replace({
         pathname: (SecurityManager.isAuthenticated(userContext)) ? '/error/403' : '/login',

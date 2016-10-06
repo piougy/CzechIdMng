@@ -19,17 +19,17 @@ module.exports = {
         'icon': 'gift',
         'iconColor': '#FF8A80',
         'order': 9,
-        'path': '/user/:entityId/roles',
+        'path': '/identity/:entityId/roles',
         'priority': 0
       },
       {
         'id': 'personal-tab-example',
-        'parentId': 'user-profile',
+        'parentId': 'identity-profile',
         'type': 'TAB',
-        'labelKey': 'example:content.user.example',
+        'labelKey': 'example:content.identity.example',
         'order': 1,
         'priority': 0,
-        'path': '/user/:entityId/examples',
+        'path': '/identity/:entityId/examples',
         'icon': 'gift'
       }
     ]

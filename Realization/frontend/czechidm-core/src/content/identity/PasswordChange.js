@@ -29,7 +29,7 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.passwordChange';
+    return 'content.identity.passwordChange';
   }
 
   /**

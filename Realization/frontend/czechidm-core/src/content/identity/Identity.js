@@ -8,7 +8,7 @@ import * as Advanced from '../../components/advanced';
 
 const identityManager = new IdentityManager();
 
-class User extends Basic.AbstractContent {
+class IdentityContent extends Basic.AbstractContent {
 
   componentDidMount() {
     this._selectNavigationItem();
@@ -25,9 +25,9 @@ class User extends Basic.AbstractContent {
     const { entityId } = this.props.params;
     const { userContext, selectedSidebarItem } = this.props;
     if (entityId === userContext.username && selectedSidebarItem !== 'profile-subordinates') {
-      this.selectNavigationItems(['user-profile', null]);
+      this.selectNavigationItems(['identity-profile', null]);
     } else {
-      this.selectNavigationItems(['users', null]);
+      this.selectNavigationItems(['identities', null]);
     }
   }
 
@@ -39,12 +39,12 @@ class User extends Basic.AbstractContent {
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
         <Basic.PageHeader>
-          {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.user.profile.userDetail')}</small>
+          {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
 
         <Basic.Panel>
           <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="user-profile" params={this.props.params}>
+            <Advanced.TabPanel parentId="identity-profile" params={this.props.params}>
               {this.props.children}
             </Advanced.TabPanel>
           </div>
@@ -54,12 +54,12 @@ class User extends Basic.AbstractContent {
   }
 }
 
-User.propTypes = {
+IdentityContent.propTypes = {
   identity: PropTypes.object,
   userContext: PropTypes.object,
   selectedSidebarItem: PropTypes.string
 };
-User.defaultProps = {
+IdentityContent.defaultProps = {
   identity: null,
   userContext: null,
   selectedSidebarItem: null
@@ -76,4 +76,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(User);
+export default connect(select)(IdentityContent);

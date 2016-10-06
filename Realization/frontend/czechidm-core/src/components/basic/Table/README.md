@@ -129,7 +129,7 @@ class Team extends AbstractContent {
     console.log('onRowDoubleClick', rowIndex, data, event);
     // redirect to profile
     const username = data[rowIndex]['name'];
-    this.context.router.push('/user/' + username + '/profile');
+    this.context.router.push('/identity/' + username + '/profile');
   }
 
   render() {

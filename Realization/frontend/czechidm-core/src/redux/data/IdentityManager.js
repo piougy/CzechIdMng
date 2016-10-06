@@ -62,7 +62,7 @@ export default class IdentityManager extends EntityManager {
         this.startBulkAction(
           {
             name: bulkActionName,
-            title: this.i18n(`content.users.action.${bulkActionName}.header`, { count: usernames.length })
+            title: this.i18n(`content.identities.action.${bulkActionName}.header`, { count: usernames.length })
           },
           usernames.length
         )
@@ -80,7 +80,7 @@ export default class IdentityManager extends EntityManager {
           // new entity to redux store
           dispatch(this.receiveEntity(username, json));
         }).catch(error => {
-          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.users.action.${bulkActionName}.error`, { username }) }, error));
+          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username }) }, error));
           throw error;
         });
       }, Promise.resolve())
@@ -91,7 +91,7 @@ export default class IdentityManager extends EntityManager {
       .then(() => {
         dispatch(this.flashMessagesManager.addMessage({
           level: successUsernames.length === usernames.length ? 'success' : 'info',
-          message: this.i18n(`content.users.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
+          message: this.i18n(`content.identities.action.${bulkActionName}.success`, { usernames: successUsernames.join(', ') })
         }));
         dispatch(this.stopBulkAction());
       });

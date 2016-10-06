@@ -23,7 +23,7 @@ export class UserRoleTable extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.roles';
+    return 'content.identity.roles';
   }
 
   componentDidMount() {

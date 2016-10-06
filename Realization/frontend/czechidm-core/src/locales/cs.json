@@ -285,6 +285,14 @@
       "ALL": "Odesláno",
       "PARTLY": "Částečně",
       "NOT": "Neodesláno"
+    },
+    "AccessTypeEnum": {
+      "DENY_ALL": "Přístup zamítnut všem",
+      "PERMIT_ALL": "Přístup povolen všem",
+      "NOT_AUTHENTICATED": "Pouze bez přihlášení",
+      "IS_AUTHENTICATED": "Je třeba přihlášení",
+      "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
+      "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
     }
   },
   "dashboard": {
@@ -1430,5 +1438,13 @@
      "unvalid" : "Datum není validní!"
     },
     "passwords_not_same": "Hesla musí být shodná!"
+  },
+  "security": {
+    "access": {
+      "denied": "Nedostatečná oprávnění",
+      "link": {
+        "denied": "Pro zobrazení detailu záznamu nemáte oprávnění"
+      }
+    }
   }
 }

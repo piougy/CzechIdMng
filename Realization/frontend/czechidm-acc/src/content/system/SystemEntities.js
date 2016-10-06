@@ -138,7 +138,15 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
                 }
               }/>
             <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
-            <Advanced.Column property="uid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
+            <Advanced.ColumnLink
+              to={
+                ({ rowIndex, data }) => {
+                  this.showDetail(data[rowIndex]);
+                }
+              }
+              property="uid"
+              header={this.i18n('acc:entity.SystemEntity.uid')}
+              sort />
           </Advanced.Table>
         </Basic.Panel>
 

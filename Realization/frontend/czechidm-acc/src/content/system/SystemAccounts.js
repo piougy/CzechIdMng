@@ -142,7 +142,14 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                 }
               }/>
             <Advanced.Column property="accountType" header={this.i18n('acc:entity.Account.accountType')} width="75px" sort face="enum" enumClass={AccountTypeEnum} />
-            <Advanced.Column property="uid" header={this.i18n('acc:entity.Account.uid')} face="text" />
+            <Advanced.ColumnLink
+              to={
+                ({ rowIndex, data }) => {
+                  this.showDetail(data[rowIndex]);
+                }
+              }
+              property="uid"
+              header={this.i18n('acc:entity.Account.uid')}/>
             <Advanced.Column property="_embedded.systemEntity.uid" header={this.i18n('acc:entity.Account.systemEntity')} face="text" />
           </Advanced.Table>
         </Basic.Panel>

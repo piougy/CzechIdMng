@@ -123,7 +123,12 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
               }/>
             <Advanced.Column property="account.accountType" width="75px" header={this.i18n('acc:entity.Account.accountType')} sort face="enum" enumClass={AccountTypeEnum} />
             <Advanced.Column property="account.uid" header={this.i18n('acc:entity.Account.uid')} sort face="text" />
-            <Advanced.Column property="account._embedded.system.name" header={this.i18n('acc:entity.System.name')} face="text" />
+            <Advanced.ColumnLink
+              to="/system/:_target/detail"
+              target="account._embedded.system.id"
+              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] }}
+              property="account._embedded.system.name"
+              header={this.i18n('acc:entity.System.name')} />
             <Advanced.Column property="identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />
             <Advanced.Column property="ownership" width="75px" header={this.i18n('acc:entity.IdentityAccount.ownership')} sort face="bool" />
           </Advanced.Table>

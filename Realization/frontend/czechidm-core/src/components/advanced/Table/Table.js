@@ -273,7 +273,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
         cell = column.props.cell;
       } else if (column.type.__AdvancedColumnLink__) {
         cell = (
-          <Basic.BasicTable.LinkCell to={column.props.to} {...commonProps}/>
+          <Basic.BasicTable.LinkCell to={column.props.to} target={column.props.target} access={column.props.access} {...commonProps}/>
         );
       } else {
         switch (column.props.face) {

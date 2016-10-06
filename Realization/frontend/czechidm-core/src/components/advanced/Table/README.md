@@ -36,7 +36,9 @@ All parameters from AdvancedColumn are supported. Added parameters:
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
-| to | string.isRequired  | React router links "to". Parameters can be used and theirs value is propagated from data[rowIndex].property | | |
+| to | string.isRequired  | React router links `to`. Parameters can be used and theirs value is propagated from data[rowIndex].property | |
+| target | string  | optional entity property could be used as `_target` property in `to` property above.  | | |
+| access | string  | link could be accessed, if current user has access to target agenda. Otherwise propertyValue without link is rendered.  | | |
 
 
 ## Usage

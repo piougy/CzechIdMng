@@ -15,7 +15,7 @@
 
 	<name>CzechIdM Core</name>
 	<description>Core services, entities, domain objects.</description>
-	
+
 	<modules>
 		<module>core-api</module>
 		<module>core-impl</module>

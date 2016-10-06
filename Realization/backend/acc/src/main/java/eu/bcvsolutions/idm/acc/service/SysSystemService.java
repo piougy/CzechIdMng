@@ -1,9 +1,9 @@
 package eu.bcvsolutions.idm.acc.service;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.model.service.IdentifiableByNameEntityService;
-import eu.bcvsolutions.idm.core.model.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
  * Target system configuration service 

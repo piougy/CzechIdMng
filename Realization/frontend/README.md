@@ -17,10 +17,6 @@ Check nodejs version:
 
 `node -v`
 
-or
-
-`nodejs -v`
-
 Check npm version:
 
 `npm -v`
@@ -29,11 +25,16 @@ For update nodejs from 0.x versions:
 * https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora
 * http://tecadmin.net/upgrade-nodejs-via-npm/#
 
-### Install gulp
+### Install gulp as global
 
 **Gulp version 3.9.0 is required.**
 
-`npm install gulp@3.9.0`
+`npm install gulp@3.9.0 -g`
+
+Check gulp version:
+
+`gulp -v`
+
 
 ## Install the dependencies for application module
 
@@ -58,9 +59,9 @@ Now we need to install mandatory core module. Go to core directory. You can use 
 
 `cd czechidm-modules/czechidm-core`
 
-Install dependencies for production scope. It is important for prevent problem with multiple copies of React. In production dependency scope is not React present.
+Install NPM dependencies. Most of dependency are installed within czechidm-core module. It is important for prevent problem with multiple copies of React.  In this module is React present only in peer dependency. Peer dependency warnings are OK.
 
-`npm install --production`
+`npm install`
 
 Go to app module.
 
@@ -84,9 +85,9 @@ Go to the example module. You can use symlink in czechidm-modules.
 
 `cd czechidm-example`
 
-Install dependencies for production scope.
+Install NPM dependencies.
 
-`npm install --production`
+`npm install`
 
 Go to app module.
 

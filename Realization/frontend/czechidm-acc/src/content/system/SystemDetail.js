@@ -87,6 +87,9 @@ export default class SystemDetail extends Basic.AbstractContent {
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}/>
                 <Basic.Checkbox
+                  ref="virtual"
+                  label={this.i18n('acc:entity.System.virtual')}/>
+                <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
               </Basic.AbstractForm>

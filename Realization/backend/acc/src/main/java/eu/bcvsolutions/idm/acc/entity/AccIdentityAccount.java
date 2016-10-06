@@ -12,9 +12,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.core.model.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
 /*
  * Identity account
@@ -41,8 +41,8 @@ public class AccIdentityAccount extends AbstractEntity {
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_id", referencedColumnName = "id")
-	private IdmRole role; // identity account is based on role system mapping
+	@JoinColumn(name = "identity_role_id", referencedColumnName = "id")
+	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
 	
 	@Audited
 	@NotNull
@@ -65,19 +65,19 @@ public class AccIdentityAccount extends AbstractEntity {
 		this.identity = identity;
 	}
 
-	public IdmRole getRole() {
-		return role;
-	}
-
-	public void setRole(IdmRole role) {
-		this.role = role;
-	}
-
 	public boolean isOwnership() {
 		return ownership;
 	}
 
 	public void setOwnership(boolean ownership) {
 		this.ownership = ownership;
+	}
+	
+	public void setIdentityRole(IdmIdentityRole identityRole) {
+		this.identityRole = identityRole;
+	}
+	
+	public IdmIdentityRole getIdentityRole() {
+		return identityRole;
 	}
 }

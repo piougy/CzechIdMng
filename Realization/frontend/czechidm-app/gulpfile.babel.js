@@ -213,11 +213,11 @@ gulp.task('createComponentAssembler', () => {
 
 
 gulp.task('clean', cb => {
-  rimraf('dist', cb);
+  return rimraf('dist', cb);
 });
 
 gulp.task('browserSync', () => {
-  browserSync({
+  return browserSync({
     server: {
       baseDir: './'
     }
@@ -246,7 +246,7 @@ gulp.task('watchify', () => {
 });
 
 gulp.task('browserify', () => {
-  browserify(paths.srcJsx)
+  return browserify(paths.srcJsx)
   .plugin(pathmodify, pathmodifyOptions)
   .transform(stringify)
   .transform(babelify)
@@ -331,7 +331,7 @@ gulp.task('images', () => {
   .pipe(gulp.dest(paths.distImg));
 });
 
-gulp.task('themes', () => {
+gulp.task('themes', (cb) => {
   const config = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
   if (config.theme) {
     const themeFullPath = path.join(__dirname, '/node_modules/', config.theme);
@@ -346,6 +346,7 @@ gulp.task('themes', () => {
       return stream;
     })));
   }
+  cb();
 });
 
 gulp.task('js', () => {

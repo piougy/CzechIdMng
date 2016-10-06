@@ -24,10 +24,10 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.SysSystemEntityService;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.rest.impl.AbstractReadWriteEntityController;
-import eu.bcvsolutions.idm.security.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
  * Entities on target system

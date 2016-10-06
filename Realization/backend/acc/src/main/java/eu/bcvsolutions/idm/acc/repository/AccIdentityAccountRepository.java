@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 
 /**
  * Target system configuration
@@ -21,18 +21,17 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 		itemResourceRel = "identityAccount", //
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface AccIdentityAccountRepository extends BaseRepository<AccIdentityAccount> {
+public interface AccIdentityAccountRepository extends BaseRepository<AccIdentityAccount, IdentityAccountFilter> {
 	
-	@Query(value = "select e from AccIdentityAccount e left join e.role r" +
+	@Override
+	@Query(value = "select e from AccIdentityAccount e left join e.identityRole ir" +
 	        " where" +
 	        " (?#{[0].accountId} is null or e.account.id = ?#{[0].accountId})" +
 	        " and" +
 	        " (?#{[0].identity} is null or e.identity = ?#{[0].identity})" +
 	        " and" +
-	        " (?#{[0].roleId} is null or r.id = ?#{[0].roleId})" + 
+	        " (?#{[0].roleId} is null or ir.role.id = ?#{[0].roleId})" + 
 	        " and" +
 	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})")
-	Page<AccIdentityAccount> findQuick(
-			IdentityAccountFilter filter,
-			Pageable pageable);
+	Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable);
 }

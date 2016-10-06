@@ -6,4 +6,3 @@ config.json
 nohup.out
 npm-debug.log
 configUrl.js
-czechidm-modules/**

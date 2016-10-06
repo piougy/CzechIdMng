@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
-import eu.bcvsolutions.idm.core.rest.domain.IdentifiableByNameLookup;
+import eu.bcvsolutions.idm.core.api.rest.lookup.IdentifiableByNameLookup;
 
 @Component
 public class SysSystemLookup extends IdentifiableByNameLookup<SysSystem> {

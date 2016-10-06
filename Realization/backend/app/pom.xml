@@ -24,6 +24,10 @@
 		</dependency>
 	</dependencies>
 
+	<properties>
+		<skip.gui>false</skip.gui>
+	</properties>
+
 	<build>
 		<finalName>idm</finalName>
 		<plugins>
@@ -43,6 +47,103 @@
 					</archive>
 				</configuration>
 			</plugin>
+					<plugin>
+					    <groupId>com.github.eirslett</groupId>
+					    <artifactId>frontend-maven-plugin</artifactId>
+					    <version>1.0</version>
+					    <configuration>
+						<workingDirectory>../../frontend/czechidm-app</workingDirectory>
+						 <installDirectory>target</installDirectory>
+						<skip>${skip.gui}</skip>
+					    </configuration>
+						<executions>
+						    <execution>
+							<id>install node and npm</id>
+							<goals>
+							    <goal>install-node-and-npm</goal>
+							</goals>
+							<configuration>
+							    <nodeVersion>v6.4.0</nodeVersion>
+							    <npmVersion>3.10.7</npmVersion>
+							</configuration>
+						    </execution>
+						    <execution>
+							<id>link node-modules or skip if exists</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments>run modules-link-or-skip</arguments>
+							</configuration>
+						    </execution>
+						    <execution>
+							<id>npm install modules</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments>install .</arguments>
+							</configuration>
+							<phase>generate-resources</phase>
+						    </execution>
+						    <execution>
+							<id>install dependencies</id>
+							<goals>
+							    <goal>npm</goal>
+							</goals>
+							<configuration>
+							    <arguments> install --production</arguments>
+							    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+							    <installDirectory>target</installDirectory>
+						        </configuration>
+						    </execution>
+						    <execution>
+							<id>make all modules together</id>
+							<goals>
+							    <goal>gulp</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+							    <arguments>makeModules</arguments>
+							</configuration>
+						    </execution>
+						    <execution>
+							<id>gulp build</id>
+							<goals>
+							    <goal>gulp</goal>
+							</goals>
+							<phase>generate-resources</phase>
+							<configuration>
+							    <arguments>build -p default</arguments>
+							    <installDirectory>target</installDirectory>
+							</configuration>
+						    </execution>
+						</executions>
+					</plugin>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <skip>${skip.gui}</skip>
+						  <outputDirectory>target/idm</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/czechidm-app/dist</directory>
+						      <filtering>false</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+
 		</plugins>
 		<resources>
 			<resource>
@@ -64,6 +165,58 @@
 	</build>
 
 	<profiles>
+		<profile>
+
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>default</spring.profiles.active>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+				<customFinalName>idm-backend</customFinalName>
+		     		<skip.gui>true</skip.gui>
+			</properties>
+			<build>
+				<finalName>idm-backend</finalName>
+
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<spring.profiles.active>release</spring.profiles.active>
+				<customFinalName>idm-backend</customFinalName>
+			</properties>
+		</profile>
+		  <profile>
+		    <id>Windows</id>
+		    <activation>
+		      <os>
+			<family>Windows</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension></script.extension>
+		    </properties>
+		  </profile>
+		  <profile>
+		    <id>unix</id>
+		    <activation>
+		      <os>
+			<family>unix</family>
+		      </os>
+		    </activation>
+		    <properties>
+			<customFinalName>idm-FUCKTHISNAME</customFinalName>
+		      <script.extension>modules-link-or-skip</script.extension>
+		    </properties>
+		  </profile>
 		<profile>
 			<id>dev</id>
 			<!-- Optional modules - could be added without dependency -->
@@ -97,5 +250,6 @@
 			</dependencies>
 		</profile>
 	</profiles>
+
 
 </project>

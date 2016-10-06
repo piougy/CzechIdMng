@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<version>1.0.0-SNAPSHOT</version>
 	<artifactId>idm-gui</artifactId>
@@ -12,91 +10,66 @@
 	<description>CzechIdM GUI</description>
 
 	<build>
-		<finalName>idm-gui</finalName>
 		<plugins>
-			<plugin>
-			    <artifactId>maven-resources-plugin</artifactId>
-			    <version>3.0.1</version>
-			    <executions>
-			      <execution>
-			        <id>copy-resources</id>
-			        <phase>prepare-package</phase>
-			        <goals>
-			          <goal>copy-resources</goal>
-			        </goals>
-			        <configuration>
-			          <outputDirectory>target/idm-gui</outputDirectory>
-			          <resources>          
-			    	    <resource>
-				      <directory>../../frontend/dist</directory>
-				      <filtering>true</filtering>
-				    </resource>
-				  </resources>              
-				</configuration>            
-			      </execution>
-		            </executions>
-			</plugin>
-			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-war-plugin</artifactId>
-			    <version>2.6</version>
-			    <configuration>
-				<failOnMissingWebXml>false</failOnMissingWebXml>
-			    </configuration>
-			</plugin>
 			<plugin>
 			    <groupId>com.github.eirslett</groupId>
 			    <artifactId>frontend-maven-plugin</artifactId>
 			    <version>1.0</version>
 			    <configuration>
-				<workingDirectory>../../frontend</workingDirectory>
+				<workingDirectory>../../frontend/czechidm-app</workingDirectory>
 				 <installDirectory>target</installDirectory>
 			    </configuration>
 				<executions>
-
 				    <execution>
-				        <id>install node and npm</id>
-				        <goals>
-				            <goal>install-node-and-npm</goal>
-				        </goals>
-				        <configuration>
-				            <nodeVersion>v5.3.0</nodeVersion>
-				            <npmVersion>3.5.2</npmVersion>
-					<!--    <downloadRoot>http://localhost:8082/repository/npmPR/</downloadRoot> -->
-				        </configuration>
+					<id>install node and npm</id>
+					<goals>
+					    <goal>install-node-and-npm</goal>
+					</goals>
+					<configuration>
+					    <nodeVersion>v6.4.0</nodeVersion>
+					    <npmVersion>3.10.7</npmVersion>
+					</configuration>
 				    </execution>
-				<!--    <execution>
-				       <id>npm set proxy</id>
-				       <phase>generate-resources</phase>
-				       <goals>
-				   	   <goal>npm</goal>
-				       </goals>
-				      <configuration>
-					   <arguments>config set proxy http://localhost:8082/repository/npm/</arguments>
-				       </configuration> 
-			            </execution>-->
-
- <!--<execution>
-					<id>npm publish modules</id>
+				    <execution>
+					<id>link node-modules or skip if exists</id>
 					<goals>
 					    <goal>npm</goal>
 					</goals>
 					<configuration>
-					    <arguments>publish -registry http://localhost:8082/repository/npm-hosted/</arguments>
+					    <arguments>run modules-link-or-skip</arguments>
 					</configuration>
-					<phase>generate-resources</phase>
-				    </execution> -->
+				    </execution>
 				    <execution>
 					<id>npm install modules</id>
 					<goals>
 					    <goal>npm</goal>
 					</goals>
 					<configuration>
-					    <arguments>--verbose install .</arguments>
+					    <arguments>install .</arguments>
 					</configuration>
 					<phase>generate-resources</phase>
 				    </execution>
-				   
+				    <execution>
+					<id>install dependencies</id>
+					<goals>
+					    <goal>npm</goal>
+					</goals>
+					<configuration>
+					    <arguments> install --production</arguments>
+					    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+					    <installDirectory>target</installDirectory>
+				        </configuration>
+				    </execution>
+				    <execution>
+					<id>make all modules together</id>
+					<goals>
+					    <goal>gulp</goal>
+					</goals>
+					<phase>generate-resources</phase>
+					<configuration>
+					    <arguments>makeModules</arguments>
+					</configuration>
+				    </execution>
 				    <execution>
 					<id>gulp build</id>
 					<goals>
@@ -104,7 +77,7 @@
 					</goals>
 					<phase>generate-resources</phase>
 					<configuration>
-					    <arguments>build -s production</arguments>
+					    <arguments>build -p default</arguments>
 					    <installDirectory>target</installDirectory>
 					</configuration>
 				    </execution>
@@ -127,34 +100,59 @@
 				    <masterBranchName>master</masterBranchName>
 				    <developBranchName>develop</developBranchName>
 				  </flowInitContext>
-				</configuration> 
+				</configuration>
 		        </plugin>
 		</plugins>
 	</build>
 
 	<profiles>
 		<profile>
-			<id>default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<spring.profiles.active>default</spring.profiles.active>
-			</properties>
-			
-		</profile>
-		<profile>
 			<id>dev</id>
 			<properties>
 				<spring.profiles.active>dev</spring.profiles.active>
 			</properties>
-			
+
 		</profile>
 		<profile>
 			<id>test</id>
 			<properties>
 				<spring.profiles.active>test</spring.profiles.active>
 			</properties>
+			<build>
+				<finalName>idm-gui</finalName>
+				<plugins>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <outputDirectory>target/idm-gui</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/czechidm-app/dist</directory>
+						      <filtering>false</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+					<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>2.6</version>
+					    <configuration>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					    </configuration>
+					</plugin>
+				</plugins>
+			</build>
 			<distributionManagement>
 				<snapshotRepository>
 					<id>nexus</id>
@@ -162,13 +160,49 @@
 					<url>http://localhost:8082/repository/maven-snapshots/</url>
 				</snapshotRepository>
 			</distributionManagement>
-			
+
+
 		</profile>
 		<profile>
 			<id>release</id>
 			<properties>
 				<spring.profiles.active>release</spring.profiles.active>
 			</properties>
+			<build>
+			<finalName>idm-gui</finalName>
+				<plugins>
+					<plugin>
+					    <artifactId>maven-resources-plugin</artifactId>
+					    <version>3.0.1</version>
+					    <executions>
+					      <execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+						  <goal>copy-resources</goal>
+						</goals>
+						<configuration>
+						  <outputDirectory>target/idm-gui</outputDirectory>
+						  <resources>
+					    	    <resource>
+						      <directory>../../frontend/czechidm-app/dist</directory>
+						      <filtering>false</filtering>
+						    </resource>
+						  </resources>
+						</configuration>
+					      </execution>
+					    </executions>
+					</plugin>
+					<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>2.6</version>
+					    <configuration>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					    </configuration>
+					</plugin>
+				</plugins>
+			</build>
 			<distributionManagement>
 				<repository>
 					<id>nexus</id>
@@ -177,5 +211,27 @@
 				</repository>
 			</distributionManagement>
 		</profile>
+		  <profile>
+		    <id>Windows</id>
+		    <activation>
+		      <os>
+			<family>Windows</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension></script.extension>
+		    </properties>
+		  </profile>
+		  <profile>
+		    <id>unix</id>
+		    <activation>
+		      <os>
+			<family>unix</family>
+		      </os>
+		    </activation>
+		    <properties>
+		      <script.extension>modules-link-or-skip</script.extension>
+		    </properties>
+		  </profile>
 	</profiles>
 </project>

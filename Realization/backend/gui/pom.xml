@@ -26,8 +26,8 @@
 					    <goal>install-node-and-npm</goal>
 					</goals>
 					<configuration>
-					    <nodeVersion>v5.3.0</nodeVersion>
-					    <npmVersion>3.6.0</npmVersion>
+					    <nodeVersion>v6.4.0</nodeVersion>
+					    <npmVersion>3.10.7</npmVersion>
 					</configuration>
 				    </execution>
 				    <execution>
@@ -36,7 +36,7 @@
 					    <goal>npm</goal>
 					</goals>
 					<configuration>
-					    <arguments>run ${script.extension}</arguments>
+					    <arguments>run modules-link-or-skip</arguments>
 					</configuration>
 				    </execution>
 				    <execution>
@@ -61,7 +61,7 @@
 				        </configuration>
 				    </execution>
 				    <execution>
-					<id>make all modules togetherd</id>
+					<id>make all modules together</id>
 					<goals>
 					    <goal>gulp</goal>
 					</goals>
@@ -77,7 +77,7 @@
 					</goals>
 					<phase>generate-resources</phase>
 					<configuration>
-					    <arguments>build -s production</arguments>
+					    <arguments>build -p default</arguments>
 					    <installDirectory>target</installDirectory>
 					</configuration>
 				    </execution>
@@ -106,52 +106,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<spring.profiles.active>default</spring.profiles.active>
-			</properties>
-			<build>
-				<finalName>idm</finalName>
-				<plugins>
-					<plugin>
-					    <artifactId>maven-resources-plugin</artifactId>
-					    <version>3.0.1</version>
-					    <executions>
-					      <execution>
-						<id>copy-resources</id>
-						<phase>prepare-package</phase>
-						<goals>
-						  <goal>copy-resources</goal>
-						</goals>
-						<configuration>
-						  <outputDirectory>../client/target/idm/</outputDirectory>
-						  <resources>
-					    	    <resource>
-						      <directory>../../frontend/dist</directory>
-						      <filtering>true</filtering>
-						    </resource>
-						  </resources>
-						</configuration>
-					      </execution>
-					    </executions>
-					</plugin>
-					<plugin>
-					    <groupId>org.apache.maven.plugins</groupId>
-					    <artifactId>maven-war-plugin</artifactId>
-					    <version>2.6</version>
-					    <configuration>
-						<webappDirectory>../client/target/idm</webappDirectory>
-						<failOnMissingWebXml>false</failOnMissingWebXml>
-					    </configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
 		<profile>
 			<id>dev</id>
 			<properties>
@@ -182,7 +136,7 @@
 						  <resources>
 					    	    <resource>
 						      <directory>../../frontend/czechidm-app/dist</directory>
-						      <filtering>true</filtering>
+						      <filtering>false</filtering>
 						    </resource>
 						  </resources>
 						</configuration>
@@ -232,7 +186,7 @@
 						  <resources>
 					    	    <resource>
 						      <directory>../../frontend/czechidm-app/dist</directory>
-						      <filtering>true</filtering>
+						      <filtering>false</filtering>
 						    </resource>
 						  </resources>
 						</configuration>

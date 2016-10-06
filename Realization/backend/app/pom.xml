@@ -98,7 +98,7 @@
 						        </configuration>
 						    </execution>
 						    <execution>
-							<id>make all modules togetherd</id>
+							<id>make all modules together</id>
 							<goals>
 							    <goal>gulp</goal>
 							</goals>

@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "modules-link": "mkdir ../node_modules && ln -s ../node_modules",
+    "modules-link-or-skip": "mkdir -p ../node_modules && test -L node_modules || ln -s ../node_modules",
     "test": "npm run tests-set",
     "test-lint": "npm run lint && npm run tests-set",
     "tests-set": "mocha ./test/**/*.js ./czechidm-modules/*/test/**/**/*.js --reporter nyan --compilers js:babel/register --recursive --check-leaks --require ./test/setup.js",

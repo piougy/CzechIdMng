@@ -8,7 +8,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSystemExcerpt;
-import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 
 /**
  * Target system configuration
@@ -23,13 +24,14 @@ import eu.bcvsolutions.idm.core.model.repository.BaseRepository;
 		excerptProjection = SysSystemExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface SysSystemRepository extends BaseRepository<SysSystem> {
+public interface SysSystemRepository extends BaseRepository<SysSystem, QuickFilter> {
 
 	SysSystem findOneByName(@Param("name") String name);
 	
+	@Override
 	@Query(value = "select e from SysSystem e" +
 	        " where" +
-	        " lower(e.name) like :#{#text == null ? '%' : '%'.concat(#text.toLowerCase()).concat('%')}")
-	Page<SysSystem> findQuick(@Param(value = "text") String text, Pageable pageable);
+	        " lower(e.name) like :#{#filter.text == null ? '%' : '%'.concat(#filter.text.toLowerCase()).concat('%')}")
+	Page<SysSystem> find(@Param(value = "filter") QuickFilter filter, Pageable pageable);
 	
 }

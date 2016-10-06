@@ -5,6 +5,8 @@ Java application deployable to Tomcat 8 application server.
 ## Project modules [mandatory]
 * `parent` - maven parent of all following submodules with common dependencies.
 * `core` - contains base idm functionality (entities, repositories, services etc.).
+  * `core-api` - core interfaces
+  * `core-impl` - core services, entities and rest implementation
 * `app` - contains example .war application - all modules (core + business modules) and their configuration.
 
 ### Application modules [optional]

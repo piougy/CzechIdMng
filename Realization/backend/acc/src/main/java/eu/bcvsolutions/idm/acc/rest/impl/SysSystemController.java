@@ -24,11 +24,11 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.lookup.SysSystemLookup;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.rest.impl.AbstractReadWriteEntityController;
-import eu.bcvsolutions.idm.security.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
  * Target system setting controller

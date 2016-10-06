@@ -49,12 +49,12 @@ module.exports = {
       },
       {
         'id': 'identity-accounts',
-        'parentId': 'user-profile',
+        'parentId': 'identity-profile',
         'type': 'TAB',
         'labelKey': 'acc:content.identity.accounts.title',
         'order': 45,
         'priority': 0,
-        'path': '/user/:entityId/accounts',
+        'path': '/identity/:entityId/accounts',
         'icon': 'fa:external-link'
       },
       {

@@ -10,7 +10,7 @@ module.exports = {
   'navigation': {
     'items': [
       {
-        'id': 'user-profile',
+        'id': 'identity-profile',
         'type': 'DYNAMIC',
         'section': 'main',
         'label': 'Profil',
@@ -21,25 +21,25 @@ module.exports = {
         'iconColor': '#428BCA',
         'order': 10,
         'priority': 0,
-        'path': '/user/:loggedUsername/profile',
+        'path': '/identity/:loggedUsername/profile',
         'items': [
           {
             'id': 'profile-personal',
             'type': 'TAB',
             'label': 'Osobní údaje',
-            'labelKey': 'content.user.sidebar.profile',
+            'labelKey': 'content.identity.sidebar.profile',
             'order': 10,
             'priority': 0,
-            'path': '/user/:entityId/profile',
+            'path': '/identity/:entityId/profile',
             'icon': 'user'
           },
           {
             'id': 'profile-password',
             'type': 'TAB',
             'label': 'Změna hesla',
-            'labelKey': 'content.user.sidebar.password',
+            'labelKey': 'content.identity.sidebar.password',
             'order': 20,
-            'path': '/user/:entityId/password',
+            'path': '/identity/:entityId/password',
             'icon': 'lock',
             'conditions': [
               'entityId === userContext.username'
@@ -48,9 +48,9 @@ module.exports = {
           {
             'id': 'profile-roles',
             'type': 'TAB',
-            'labelKey': 'content.user.sidebar.roles',
+            'labelKey': 'content.identity.sidebar.roles',
             'order': 30,
-            'path': '/user/:entityId/roles',
+            'path': '/identity/:entityId/roles',
             'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -59,7 +59,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.IdentityWorkingPosition._type',
             'order': 50,
-            'path': '/user/:entityId/workingPositions',
+            'path': '/identity/:entityId/workingPositions',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
@@ -68,7 +68,7 @@ module.exports = {
             'type': 'TAB',
             'labelKey': 'entity.Audit.label',
             'order': 110,
-            'path': '/user/:entityId/revision',
+            'path': '/identity/:entityId/revision',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
             'icon': 'fa:history',
             'items': [
@@ -76,9 +76,9 @@ module.exports = {
                 'id': 'profile-audit-profile-personal',
                 'type': 'TAB',
                 'label': 'Osobní údaje',
-                'labelKey': 'content.user.sidebar.profile',
+                'labelKey': 'content.identity.sidebar.profile',
                 'order': 10,
-                'path': '/user/:entityId/revision/:revID',
+                'path': '/identity/:entityId/revision/:revID',
                 'icon': 'user'
               }
             ]
@@ -97,12 +97,12 @@ module.exports = {
         'order': 30
       },
       {
-        'id': 'users',
-        'labelKey': 'navigation.menu.users.label',
-        'titleKey': 'navigation.menu.users.title',
+        'id': 'identities',
+        'labelKey': 'navigation.menu.identities.label',
+        'titleKey': 'navigation.menu.identities.title',
         'icon': 'user',
         'order': 40,
-        'path': '/users',
+        'path': '/identities',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
@@ -251,13 +251,13 @@ module.exports = {
         ]
       },
       {
-        'id': 'user-profile-system',
+        'id': 'identities-profile-system',
         'section': 'system',
         'label': 'Můj profil',
         'labelKey': 'navigation.menu.userLabel',
         'icon': 'user',
         'order': 10,
-        'path': '/user/:entityId/profile'
+        'path': '/identity/:entityId/profile'
       },
       {
         'id': 'messages',

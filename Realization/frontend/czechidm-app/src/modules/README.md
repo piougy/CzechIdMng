@@ -98,7 +98,7 @@ Single navigation item parameters:
 'navigation': {
   'items': [
     {
-      'id': 'user-profile',
+      'id': 'identity-profile',
       'type': 'DYNAMIC',
       'section': 'main',
       'label': 'Profil',
@@ -109,27 +109,27 @@ Single navigation item parameters:
       'iconColor': '#428BCA',
       'order': 10,
       'priority': 0,
-      'path': '/user/:loggedUsername/profile',
+      'path': '/identity/:loggedUsername/profile',
       'items': [
         {
           'id': 'profile-personal',
           'type': 'TAB',
           'label': 'Osobní údaje',
-          'labelKey': 'content.user.sidebar.profile',
+          'labelKey': 'content.identity.sidebar.profile',
           'order': 10,
           'priority': 0,
-          'path': '/user/:userID/profile',
+          'path': '/identity/:userID/profile',
           'icon': 'user'
         }
       ]
     },
     {
-      'id': 'users',
-      'labelKey': 'navigation.menu.users.label',
-      'titleKey': 'navigation.menu.users.title',
+      'id': 'identities',
+      'labelKey': 'navigation.menu.identities.label',
+      'titleKey': 'navigation.menu.identities.title',
       'icon': 'user',
       'order': 40,
-      'path': '/users',
+      'path': '/identities',
       'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
     },
     {

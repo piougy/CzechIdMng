@@ -461,7 +461,7 @@ AdvancedTable.propTypes = {
    */
   filterViewportOffsetTop: PropTypes.number,
   /**
-   * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: this.onActivate.bind(this) }
+   * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) }
    */
   actions: PropTypes.arrayOf(PropTypes.object),
   /**

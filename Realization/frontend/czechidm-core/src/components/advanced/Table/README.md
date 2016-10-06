@@ -15,7 +15,7 @@ Encapsulates all features from BasicTable component.
 | filter | element | Filter definition ||
 | filterOpened | bool | If filter is opened by default | false |
 | filterCollapsible | bool | If filter can be collapsed |  |
-| actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: this.onActivate.bind(this) } |  |
+| actions | arrayOf(object) | Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) } |  |
 | buttons | arrayOf(element) | Buttons are shown on the right of toogle filter button | ||
 
 
@@ -71,8 +71,8 @@ class Team extends Basic.AbstractContent {
   onRowDoubleClick(event, rowIndex, data) {
     console.log('onRowDoubleClick', rowIndex, data, event);
     // redirect to profile
-    const username = data[rowIndex]['name'];
-    this.context.router.push('/user/' + username + '/profile');
+    const username = data[rowIndex]['username'];
+    this.context.router.push('/identity/' + username + '/profile');
   }
 
   useFilter(event) {
@@ -135,19 +135,19 @@ class Team extends Basic.AbstractContent {
             showRowSelection={true}
             actions={
               [
-                { value: 'remove', niceLabel: this.i18n('content.users.action.remove.action'), action: () => alert('not implemented'), disabled: true },
-                { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: () => alert('not implemented') }
+                { value: 'remove', niceLabel: this.i18n('content.identities.action.remove.action'), action: () => alert('not implemented'), disabled: true },
+                { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: () => alert('not implemented') }
               ]
             }
             buttons={
               [
                 <Basic.Button type="submit" className="btn-xs" onClick={() => alert('not implemented')} rendered={true}>
                   <Basic.Icon type="fa" icon="user-plus"/>
-                  {this.i18n('content.user.create.button.add')}
+                  {this.i18n('content.identity.create.button.add')}
                 </Basic.Button>
               ]
             }>
-            <Advanced.ColumnLink to="user/:username/profile" property="name" width="20%" sort={true} face="text"/>
+            <Advanced.ColumnLink to="identity/:username/profile" property="name" width="20%" sort={true} face="text"/>
             <Advanced.Column property="lastName" width="15%" sort={true} face="text" />
             <Advanced.Column property="firstName" width="15%" face="text" />
             <Advanced.Column property="email" width="15%" face="text" />

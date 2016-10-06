@@ -58,7 +58,7 @@ class Profile extends Basic.AbstractContent {
     if (formData.password !== formData.passwordAgain) {
       this.addMessage({
         key: 'form-error',
-        message: this.i18n('content.user.profile.validation.passwordsNotMatch'),
+        message: this.i18n('content.identity.profile.validation.passwordsNotMatch'),
         level: 'warning'
       });
       return;
@@ -81,20 +81,20 @@ class Profile extends Basic.AbstractContent {
       }, () => {
         this.refs.form.processEnded();
         this.addMessage({
-          message: this.i18n('content.user.create.message.success', { username: json.username})
+          message: this.i18n('content.identity.create.message.success', { username: json.username})
         });
         switch (editContinue) {
           case 'EDIT': {
-            this.context.router.replace(`user/${json.username}/profile`);
+            this.context.router.replace(`identity/${json.username}/profile`);
             break;
           }
           case 'NEW': {
             this.initData();
-            this.context.router.replace(`user/new`);
+            this.context.router.replace(`identity/new`);
             break;
           }
           default : {
-            this.context.router.push(`users`);
+            this.context.router.push(`identities`);
           }
         }
       });
@@ -195,20 +195,20 @@ class Profile extends Basic.AbstractContent {
     return (
       <Basic.Row>
         <div className="col-lg-offset-1 col-lg-10">
-          <Helmet title={this.i18n('content.user.create.title')} />
+          <Helmet title={this.i18n('content.identity.create.title')} />
           <form onSubmit={this.save.bind(this, 'CLOSE')}>
             <Basic.Panel>
-              <Basic.PanelHeader text={this.i18n('content.user.create.header')}/>
+              <Basic.PanelHeader text={this.i18n('content.identity.create.header')}/>
 
               <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
                 <Basic.AbstractForm ref="form" className="form-horizontal">
                   <div className="col-lg-7">
-                    <Basic.TextField ref="username" label={this.i18n('content.user.profile.username')} required validation={Joi.string().min(3).max(30)}/>
-                    <Basic.TextField ref="lastName" label={this.i18n('content.user.profile.lastName')} required/>
-                    <Basic.TextField ref="firstName" label={this.i18n('content.user.profile.firstName')}/>
+                    <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required validation={Joi.string().min(3).max(30)}/>
+                    <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required/>
+                    <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')}/>
                     <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
                     <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')}/>
-                    <Basic.TextField ref="email" label={this.i18n('content.user.profile.email.label')} placeholder={this.i18n('content.user.profile.email.placeholder')} validation={Joi.string().email()}/>
+                    <Basic.TextField ref="email" label={this.i18n('content.identity.profile.email.label')} placeholder={this.i18n('content.identity.profile.email.placeholder')} validation={Joi.string().email()}/>
                     {/* warning organization no longer exists
                     <Basic.SelectBox
                       ref="idmManager"
@@ -226,10 +226,10 @@ class Profile extends Basic.AbstractContent {
                     />
                     */}
                     <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
-                    <Basic.TextArea ref="description" label={this.i18n('content.user.profile.description.label')} placeholder={this.i18n('content.user.profile.description.placeholder')} rows={4} />
+                    <Basic.TextArea ref="description" label={this.i18n('content.identity.profile.description.label')} placeholder={this.i18n('content.identity.profile.description.placeholder')} rows={4} />
                   </div>
                   <div className="col-lg-5">
-                    <Basic.Checkbox ref="generatePassword" label={this.i18n('content.user.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+                    <Basic.Checkbox ref="generatePassword" label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
                     <Basic.TextField
                       type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
                       ref="password"

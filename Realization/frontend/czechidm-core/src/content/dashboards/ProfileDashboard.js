@@ -5,7 +5,7 @@ import * as Advanced from '../../components/advanced';
 export default class ProfileDashboard extends Basic.AbstractContent {
 
   _goToProfil() {
-    this.context.router.push('/user/' + this.props.entityId + '/profile');
+    this.context.router.push('/identity/' + this.props.entityId + '/profile');
   }
 
   getContentKey() {

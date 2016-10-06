@@ -44,7 +44,7 @@ public class IfEnabledEvaluator {
 	 * @throws ModuleDisabledException if any module is disabled
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
-	@Before(value = "target(bean) && (@annotation(auditable) || @within(auditable))", argNames="bean,auditable")
+	@Before(value = "target(bean) && (@annotation(ifEnabled) || @within(ifEnabled))", argNames="bean,ifEnabled")
 	public void checkIsEnabled(JoinPoint jp, Object bean, IfEnabled ifEnabled) {
 		// modules
 		checkEnabledModules(ifEnabled.module());

@@ -13,7 +13,7 @@ import filterHelp from '../../components/advanced/Filter/README_cs.md';
 /**
 * Table of users
 */
-export class UserTable extends Basic.AbstractContent {
+export class IdentityTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -34,7 +34,7 @@ export class UserTable extends Basic.AbstractContent {
     // redirect to profile
     /*
     const username = data[rowIndex]['name'];
-    this.context.router.push('/user/' + username + '/profile');*/
+    this.context.router.push('/identity/' + username + '/profile');*/
   }
 
   /**
@@ -43,9 +43,9 @@ export class UserTable extends Basic.AbstractContent {
   showDetail(entity) {
     if (entity.id === undefined) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/user/new?id=${uuidId}`);
+      this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push('/user/' + entity.id + '/profile');
+      this.context.router.push('/identity/' + entity.id + '/profile');
     }
   }
 
@@ -91,8 +91,8 @@ export class UserTable extends Basic.AbstractContent {
     const { identityManager } = this.props;
     //
     this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`content.users.action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
-      this.i18n(`content.users.action.${bulkActionValue}.header`, { count: usernames.length})
+      this.i18n(`content.identities.action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
+      this.i18n(`content.identities.action.${bulkActionValue}.header`, { count: usernames.length})
     ).then(() => {
       this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
     }, () => {
@@ -104,7 +104,7 @@ export class UserTable extends Basic.AbstractContent {
     // push state to redux
     this.context.store.dispatch(this.dataManager.storeData('selected-usernames', usernames));
     // redirect to reset page
-    this.context.router.push(`/users/password/reset`);
+    this.context.router.push(`/identities/password/reset`);
   }
 
   onRemove(selectedRows) {
@@ -160,7 +160,7 @@ export class UserTable extends Basic.AbstractContent {
                   <div className="col-lg-8">
                     <Advanced.Filter.TextField
                       ref="filterName"
-                      placeholder={this.i18n('content.users.filter.name.placeholder')}
+                      placeholder={this.i18n('content.identities.filter.name.placeholder')}
                       labelSpan=""
                       componentSpan="col-sm-12"
                       help={filterHelp}/>
@@ -176,7 +176,7 @@ export class UserTable extends Basic.AbstractContent {
                       <Basic.Panel className="no-margin">
                         <Advanced.Tree
                           ref="orgTree"
-                          rootNode={{id: 'top', name: 'top', toggled: false, shortName: this.i18n(`content.users.filter.orgStructure`), children: []}}
+                          rootNode={{id: 'top', name: 'top', toggled: false, shortName: this.i18n(`content.identities.filter.orgStructure`), children: []}}
                           propertyId="name"
                           propertyParent="parentId"
                           propertyName="shortName"
@@ -197,10 +197,10 @@ export class UserTable extends Basic.AbstractContent {
           filterOpened={filterOpened}
           actions={
             [
-              { value: 'remove', niceLabel: this.i18n('content.users.action.remove.action'), action: this.onRemove.bind(this), disabled: true },
-              { value: 'activate', niceLabel: this.i18n('content.users.action.activate.action'), action: this.onActivate.bind(this) },
-              { value: 'deactivate', niceLabel: this.i18n('content.users.action.deactivate.action'), action: this.onActivate.bind(this) },
-              { value: 'password-reset', niceLabel: this.i18n('content.users.action.reset.action'), action: this.onReset.bind(this), disabled: true }
+              { value: 'remove', niceLabel: this.i18n('content.identities.action.remove.action'), action: this.onRemove.bind(this), disabled: true },
+              { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) },
+              { value: 'deactivate', niceLabel: this.i18n('content.identities.action.deactivate.action'), action: this.onActivate.bind(this) },
+              { value: 'password-reset', niceLabel: this.i18n('content.identities.action.reset.action'), action: this.onReset.bind(this), disabled: true }
             ]
           }
           buttons={
@@ -213,7 +213,7 @@ export class UserTable extends Basic.AbstractContent {
                 onClick={this.showDetail.bind(this, {})}
                 rendered={SecurityManager.hasAuthority('IDENTITY_WRITE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
-                {this.i18n('content.user.create.button.add')}
+                {this.i18n('content.identity.create.button.add')}
               </Basic.Button>
             ]
           }>
@@ -231,7 +231,7 @@ export class UserTable extends Basic.AbstractContent {
             }
             sort={false}/>
           <Advanced.Column property="_links.self.href" face="text" rendered={false}/>
-          <Advanced.ColumnLink to="user/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
+          <Advanced.ColumnLink to="identity/:username/profile" property="username" width="20%" sort face="text" rendered={_.includes(columns, 'username')}/>
           <Advanced.Column property="lastName" sort face="text" rendered={_.includes(columns, 'lastName')}/>
           <Advanced.Column property="firstName" width="10%" face="text" rendered={_.includes(columns, 'firstName')}/>
           <Advanced.Column property="email" width="15%" face="text" sort rendered={_.includes(columns, 'email')}/>
@@ -246,14 +246,14 @@ export class UserTable extends Basic.AbstractContent {
   }
 }
 
-UserTable.propTypes = {
+IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityManager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool
 };
 
-UserTable.defaultProps = {
+IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
   filterOpened: false
 };
@@ -264,4 +264,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select, null, null, { withRef: true })(UserTable);
+export default connect(select, null, null, { withRef: true })(IdentityTable);

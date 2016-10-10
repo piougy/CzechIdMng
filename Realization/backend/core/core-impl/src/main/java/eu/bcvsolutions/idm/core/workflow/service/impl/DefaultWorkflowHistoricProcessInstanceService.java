@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +18,14 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.bpmn.behavior.ParallelGatewayActivityBehavior;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.image.ProcessDiagramGenerator;
 import org.activiti.image.impl.DefaultProcessDiagramGenerator;
+import org.hibernate.mapping.PrimitiveArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,8 +63,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 	private WorkflowProcessDefinitionService definitionService;
 
 	/**
-	 * Search process history. Process variables will be included only for get specific process history. 
-	 * It means filter.processInstanceId is filled.
+	 * Search process history. Process variables will be included only for get
+	 * specific process history. It means filter.processInstanceId is filled.
+	 * 
 	 * @param filter
 	 * @return
 	 */
@@ -205,7 +209,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			List<String> historicActivityInstanceList, List<String> highLightedFlows) {
 
 		List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery()
-				.processInstanceId(processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
+				.processInstanceId(processInstanceId).orderByHistoricActivityInstanceEndTime().asc().list();
 
 		for (HistoricActivityInstance hai : historicActivityInstances) {
 			historicActivityInstanceList.add(hai.getActivityId());
@@ -229,26 +233,70 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		return historicActivityInstanceList;
 	}
 
+	/**
+	 * Add highlight flows by historic activity list
+	 * 
+	 * @param activityList
+	 * @param historicActivityInstanceList
+	 * @param highLightedFlows
+	 */
 	private void getHighLightedFlows(List<ActivityImpl> activityList, List<String> historicActivityInstanceList,
 			List<String> highLightedFlows) {
-		ActivityImpl prevActivity = null;
-		for (String activityId : historicActivityInstanceList) {
+		Map<Integer, String> usedActivityFlow = new HashMap<Integer, String>();
+		/**
+		 * Iterate all used activity (start to end)
+		 */
+		for (int i = 0; i < historicActivityInstanceList.size(); i++) {
+			String activityId = historicActivityInstanceList.get(i);
 			ActivityImpl currentActivity = null;
 			for (ActivityImpl activity : activityList) {
 				if (activityId.equals(activity.getId())) {
 					currentActivity = activity;
 				}
 			}
-
+			/**
+			 * Get incoming transitions from current activity 
+			 */
 			List<PvmTransition> pvmTransitionList = currentActivity.getIncomingTransitions();
-			for (PvmTransition pvmTransition : pvmTransitionList) {
-				String destinationFlowId = pvmTransition.getSource().getId();
-				if (prevActivity != null && destinationFlowId.equals(prevActivity.getId())) {
-					highLightedFlows.add(pvmTransition.getId());
+			boolean findedFlow = false;
+			// create index previous activity
+			int prevIndex = i - 1;
+			/**
+			 * We will finding flow for highlight. We will start with previous activity. 
+			 * if we find nothing, then we will continuing with previous activity (index = index -1).
+			 */
+			while (!findedFlow) {
+				if (prevIndex < 0) {
+					// We are on begin .. nothing to highlight
+					break;
+				}
+				String tempActivity = historicActivityInstanceList.get(prevIndex);
+				for (PvmTransition pvmTransition : pvmTransitionList) {
+					String destinationFlowId = pvmTransition.getSource().getId();
+					if (tempActivity != null && destinationFlowId.equals(tempActivity)) {
+						highLightedFlows.add(pvmTransition.getId());
+						findedFlow = true;
+						for (ActivityImpl activity : activityList) {
+							if (tempActivity.equals(activity.getId())
+									&& !(activity.getActivityBehavior() instanceof ParallelGatewayActivityBehavior)) {
+								// We use activity in other cycle if is ParallelGate. 
+								// Its means, we don't put parralel gate to usedActivityFlow map.
+								usedActivityFlow.put(prevIndex, tempActivity);
+							}
+						}
+
+					}
+				}
+				if (!findedFlow) {
+					// If we don't find flow for highlight, we have to continue with previous historic activity
+					while (true) {
+						prevIndex = prevIndex - 1;
+						if (!usedActivityFlow.containsKey(prevIndex)) {
+							break;
+						}
+					}
 				}
 			}
-
-			prevActivity = currentActivity;
 		}
 	}
 
@@ -256,7 +304,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		if (instance == null) {
 			return null;
 		}
-		
+
 		String instanceName = instance.getName();
 		// If we don't have process name, then we try variable with key
 		// processInstanceName
@@ -265,11 +313,13 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			instanceName = (String) instance.getProcessVariables()
 					.get(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME);
 		}
-		// If still don't have process name, then we try load variable name from historic variables
+		// If still don't have process name, then we try load variable name from
+		// historic variables
 		if (instanceName == null || instanceName.isEmpty()) {
-			HistoricVariableInstance variableInstance = historyService.createHistoricVariableInstanceQuery().processInstanceId(instance.getId())
+			HistoricVariableInstance variableInstance = historyService.createHistoricVariableInstanceQuery()
+					.processInstanceId(instance.getId())
 					.variableName(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME).singleResult();
-			instanceName = variableInstance != null ? (String)variableInstance.getValue() : null;
+			instanceName = variableInstance != null ? (String) variableInstance.getValue() : null;
 		}
 		if (instanceName == null || instanceName.isEmpty()) {
 			instanceName = definitionService.getById(instance.getProcessDefinitionId()).getName();

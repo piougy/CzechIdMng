@@ -23,49 +23,49 @@ module.exports = {
       access: [ { type: 'PERMIT_ALL' } ]
     },
     {
-      path: 'user/new',
-      component: require('./src/content/user/Create'),
+      path: 'identity/new',
+      component: require('./src/content/identity/Create'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN' ] } ]
     },
     {
-      path: 'user/:entityId/',
-      component: require('./src/content/user/User'),
+      path: 'identity/:entityId/',
+      component: require('./src/content/identity/Identity'),
       childRoutes: [
         {
           path: 'profile',
-          component: require('./src/content/user/Profile')
+          component: require('./src/content/identity/IdentityProfile')
         },
         {
           path: 'password',
-          component: require('./src/content/user/PasswordChange')
+          component: require('./src/content/identity/PasswordChange')
         },
         {
           path: 'roles',
-          component: require('./src/content/user/Roles')
+          component: require('./src/content/identity/IdentityRoles')
         },
         {
           path: 'workingPositions',
-          component: require('./src/content/user/WorkingPositions')
+          component: require('./src/content/identity/WorkingPositions')
         },
         {
           path: 'revision',
-          component: require('./src/content/user/Audit'),
+          component: require('./src/content/identity/Audit'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         }
       ]
     },
     {
-      path: 'user/:entityId/revision/:revID',
-      component: require('./src/content/user/AuditDetail')
+      path: 'identity/:entityId/revision/:revID',
+      component: require('./src/content/identity/AuditDetail')
     },
     {
-      path: 'users',
-      component: require('./src/content/user/Users'),
+      path: 'identities',
+      component: require('./src/content/identity/Identities'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
     },
     {
-      path: 'users/password/reset',
-      component: require('./src/content/user/PasswordReset')
+      path: 'identities/password/reset',
+      component: require('./src/content/identity/PasswordReset')
     },
     {
       path: 'tree',

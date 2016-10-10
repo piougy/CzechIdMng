@@ -24,7 +24,7 @@ class PasswordReset extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.passwordReset';
+    return 'content.identity.passwordReset';
   }
 
   componentDidMount() {

@@ -30,7 +30,7 @@ class WorkingPositions extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.user.workingPositions';
+    return 'content.identity.workingPositions';
   }
 
   componentDidMount() {

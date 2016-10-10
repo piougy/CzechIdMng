@@ -35,8 +35,8 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
     },
     {
-      path: 'user/:entityId/',
-      component: require('czechidm-core/src/content/user/User'),
+      path: 'identity/:entityId/',
+      component: require('czechidm-core/src/content/identity/Identity'),
       childRoutes: [
         {
           path: 'accounts',

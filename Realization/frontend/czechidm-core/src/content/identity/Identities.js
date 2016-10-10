@@ -3,12 +3,12 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
-import UserTable from './UserTable';
+import IdentityTable from './IdentityTable';
 
 /**
- * Users list
+ * List of identities
  */
-class Users extends Basic.AbstractContent {
+class Identities extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -26,14 +26,14 @@ class Users extends Basic.AbstractContent {
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('content.users.title')} />
+        <Helmet title={this.i18n('content.identities.title')} />
 
         <Basic.PageHeader>
-          {this.i18n('content.users.header')}
+          {this.i18n('content.identities.header')}
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <UserTable uiKey="identity_table" identityManager={this.identityManager} filterOpened />
+          <IdentityTable uiKey="identity_table" identityManager={this.identityManager} filterOpened />
         </Basic.Panel>
 
       </div>
@@ -41,9 +41,9 @@ class Users extends Basic.AbstractContent {
   }
 }
 
-Users.propTypes = {
+Identities.propTypes = {
 };
-Users.defaultProps = {
+Identities.defaultProps = {
 };
 
 function select() {
@@ -51,4 +51,4 @@ function select() {
   };
 }
 
-export default connect(select)(Users);
+export default connect(select)(Identities);

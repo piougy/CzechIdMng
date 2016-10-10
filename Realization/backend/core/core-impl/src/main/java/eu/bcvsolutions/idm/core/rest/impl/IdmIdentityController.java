@@ -57,7 +57,7 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
 public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, QuickFilter> {
-
+	
 	@Autowired
 	private IdmIdentityLookup identityLookup;
 
@@ -151,7 +151,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		// TODO: IdmIdentityRoleService
+		// TODO: IdmIdentityRoleService and pagination support?
 		return toResources((Iterable<?>) identity.getRoles(), assembler, IdmIdentityRole.class, null);
 	}
 	

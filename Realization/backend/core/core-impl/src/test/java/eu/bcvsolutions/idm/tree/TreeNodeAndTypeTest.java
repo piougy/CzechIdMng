@@ -55,6 +55,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		assertNotNull(ex);
 		
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE");
 		type.setName("TEST_TYPE");
 		treeTypeRepository.save(type);
 		node.setTreeType(type);
@@ -72,6 +73,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	@Test
 	public void testCreateRootNodeTwice() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE_ROOT");
 		type.setName("TEST_TYPE_ROOT");
 		treeTypeRepository.save(type);
 		
@@ -115,6 +117,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	@Test
 	public void addChildrenToParent() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE");
 		type.setName("TEST_TYPE");
 		treeTypeRepository.save(type);
 		
@@ -170,10 +173,12 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	@Test
 	public void changeType() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE_1");
 		type.setName("TEST_TYPE_1");
 		treeTypeRepository.save(type);
 		
 		IdmTreeType type2 = new IdmTreeType();
+		type2.setCode("TEST_TYPE_2");
 		type2.setName("TEST_TYPE_2");
 		treeTypeRepository.save(type2);
 		

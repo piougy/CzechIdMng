@@ -55,11 +55,11 @@ module.exports = {
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
-            'id': 'profile-working-positions',
+            'id': 'profile-contracts',
             'type': 'TAB',
-            'labelKey': 'entity.IdentityWorkingPosition._type',
+            'labelKey': 'entity.IdentityContract._type',
             'order': 50,
-            'path': '/identity/:entityId/workingPositions',
+            'path': '/identity/:entityId/contracts',
             'icon': 'fa:building',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },

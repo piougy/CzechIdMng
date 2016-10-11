@@ -1,12 +1,12 @@
 
 
 import EntityManager from './EntityManager';
-import { IdentityWorkingPositionService, IdentityService } from '../../services';
+import { IdentityContractService, IdentityService } from '../../services';
 
-const service = new IdentityWorkingPositionService();
+const service = new IdentityContractService();
 const identityService = new IdentityService();
 
-export default class IdentityWorkingPositionManager extends EntityManager {
+export default class IdentityContractManager extends EntityManager {
 
   constructor() {
     super();
@@ -17,18 +17,19 @@ export default class IdentityWorkingPositionManager extends EntityManager {
   }
 
   getEntityType() {
-    return 'IdentityWorkingPosition'; // TODO: constant or enumeration
+    return 'IdentityContract'; // TODO: constant or enumeration
   }
 
   getCollectionType() {
-    return 'workingPositions';
+    return 'identityContracts';
   }
 
-  fetchWorkingPositions(username, uiKey = null, cb = null) {
+  // TODO: use force filters and search instread? Security on identityContracts endpoint?
+  fetchContracts(username, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey);
     return (dispatch) => {
       dispatch(this.requestEntities(null, uiKey));
-      identityService.getWorkingPositions(username)
+      identityService.getContracts(username)
       .then(json => {
         dispatch(this.receiveEntities(null, json, uiKey, cb));
       })

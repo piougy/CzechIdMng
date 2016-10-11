@@ -37,11 +37,11 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityWorkingPositionService;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityLookup;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -67,7 +67,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private IdmIdentityService identityService;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionService idmIdentityWorkingPositionService;
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
@@ -155,13 +155,13 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources((Iterable<?>) identity.getRoles(), assembler, IdmIdentityRole.class, null);
 	}
 	
-	@RequestMapping(value = "/{identityId}/workingPositions", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/identityContracts", method = RequestMethod.GET)
 	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}		
-		return toResources((Iterable<?>) idmIdentityWorkingPositionService.getWorkingPositions(identity), assembler, IdmIdentityWorkingPosition.class, null);
+		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
 	}
 	
 	@SuppressWarnings("unchecked")

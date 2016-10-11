@@ -881,15 +881,15 @@
         "title": "$t(content.identity.accounts.header)",
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
-      "workingPositions": {
+      "identityContracts": {
         "header": "Pracovně právní vztahy",
-        "title": "$t(content.identity.workingPositions.header)",
+        "title": "$t(content.identity.identityContracts.header)",
         "detail": {
-          "invalidWorkingPosition":"Detail neplatného PPV",
-          "validWorkingPosition":"Detail PPV",
+          "invalidContract":"Detail neplatného PPV",
+          "validContract":"Detail PPV",
           "header": "Detail pracovně právního vztahu"
         },
-        "workingPositions": {
+        "identityContracts": {
           "empty": "Nenalezeny žádné pracovně právní vztahy."
         },
         "create": {
@@ -1201,15 +1201,15 @@
       "taskState": "Stav",
       "note": "Poznámka"
     },
-    "IdentityWorkingPosition": {
+    "IdentityContract": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
-      "position": "Název pozice",
+      "workingPosition": "Pracovní pozice",
+      "position": "Pracovní pozice",
       "identity": "Uživatel",
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
-      "manager": "Vedoucí",
-      "treeNode": "Struktura"
+      "guarantee": "Garant"
     },
     "TreeNode": {
       "_type": "Pracovní pozice",
@@ -1363,11 +1363,11 @@
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",
-      "message": "Nelze nastavit delegaci na sebe sama [uživatel: {{0}}]."
+      "message": "Nelze nastavit delegaci na sebe sama [uživatel: {{identity}}]."
     },
     "ENDPOINT_NOT_FOUND": {
       "title": "Služba neexistuje",
-      "message": "Aplikace odkazuje na neexistující cestu [{{0}}]."
+      "message": "Aplikace odkazuje na neexistující cestu [{{path}}]."
     },
     "BAD_REQUEST": {
       "title": "Chybný požadavek"

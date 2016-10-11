@@ -14,7 +14,7 @@ export default class ProfileDashboard extends Basic.AbstractContent {
 
   render() {
     return (
-      <Basic.Panel style={{maxWidth: '500px'}}>
+      <Basic.Panel>
         <Basic.PanelHeader text={this.i18n('header')}/>
         <Basic.PanelBody >
           <Advanced.IdentityInfo username={this.props.entityId}/>

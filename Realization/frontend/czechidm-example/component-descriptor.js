@@ -7,7 +7,7 @@ module.exports = {
     {
       'id': 'exampleDashboard',
       'type': 'dashboard',
-      'span': '8',
+      'span': '4',
       'order': '4',
       'component': require('./src/content/dashboards/ExampleDashboard')
     }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -107,7 +106,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<IdmIdentityWorkingPosition> workingPositions;
+	private List<IdmIdentityContract> contracts;
 
 	public String getUsername() {
 		return username;
@@ -205,15 +204,12 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	public void setRoles(List<IdmIdentityRole> roles) {
 		this.roles = roles;
 	}
-
-	public List<IdmIdentityWorkingPosition> getWorkingPositions() {
-		if (workingPositions == null) {
-			workingPositions = new ArrayList<>();
-		}
-		return workingPositions;
+	
+	public List<IdmIdentityContract> getContracts() {
+		return contracts;
 	}
-
-	public void setWorkingPositions(List<IdmIdentityWorkingPosition> workingPositions) {
-		this.workingPositions = workingPositions;
+	
+	public void setContracts(List<IdmIdentityContract> contracts) {
+		this.contracts = contracts;
 	}
 }

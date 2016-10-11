@@ -47,7 +47,7 @@
 					</archive>
 				</configuration>
 			</plugin>
-					<plugin>
+					<!-- plugin>
 					    <groupId>com.github.eirslett</groupId>
 					    <artifactId>frontend-maven-plugin</artifactId>
 					    <version>1.0</version>
@@ -92,7 +92,7 @@
 							    <goal>npm</goal>
 							</goals>
 							<configuration>
-							    <arguments> install --production</arguments>
+							    <arguments> install</arguments>
 							    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
 							    <installDirectory>target</installDirectory>
 						        </configuration>
@@ -142,7 +142,7 @@
 						</configuration>
 					      </execution>
 					    </executions>
-					</plugin>
+					</plugin -->
 
 		</plugins>
 		<resources>
@@ -213,7 +213,7 @@
 		      </os>
 		    </activation>
 		    <properties>
-			<customFinalName>idm-FUCKTHISNAME</customFinalName>
+			<customFinalName>idm-UNUSEDNAME</customFinalName>
 		      <script.extension>modules-link-or-skip</script.extension>
 		    </properties>
 		  </profile>

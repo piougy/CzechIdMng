@@ -28,11 +28,13 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 	)
 public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType, QuickFilter> {
 	
-	IdmTreeType findOneByName(@Param("name") String name);
+	IdmTreeType findOneByCode(@Param("code") String code);
 	
 	@Override
 	@Query(value = "select e from IdmTreeType e" +
 	        " where" +
-	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
+	        "(?#{[0].text} is null "
+	        + " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        + " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
 	Page<IdmTreeType> find(QuickFilter filter, Pageable pageable);
 }

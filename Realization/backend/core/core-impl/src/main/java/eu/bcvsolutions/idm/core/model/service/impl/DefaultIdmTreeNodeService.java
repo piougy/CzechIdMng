@@ -15,9 +15,9 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 
@@ -28,7 +28,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 
 	@Override
 	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
@@ -37,7 +37,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public void delete(IdmTreeNode entity) {
-		List<IdmIdentityWorkingPosition> listWorkingPosition = this.workingPositionRepository.findAllByTreeNode(entity);
+		List<IdmIdentityContract> listWorkingPosition = this.identityContractRepository.findAllByTreeNode(entity);
 		
 		if (!listWorkingPosition.isEmpty()) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_CANNOT_DELETE,  ImmutableMap.of("node", entity.getName()));

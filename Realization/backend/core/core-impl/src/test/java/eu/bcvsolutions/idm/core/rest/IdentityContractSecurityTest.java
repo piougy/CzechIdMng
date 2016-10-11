@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.workingpositions;
+package eu.bcvsolutions.idm.core.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class WorkingPositionsSecurityTest extends AbstractRestTest {	
+public class IdentityContractSecurityTest extends AbstractRestTest {	
 	
 	@Autowired
 	private SecurityService securityService;
@@ -46,7 +46,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	@Qualifier("objectMapper")
@@ -58,7 +58,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		Exception ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/workingPositions/")).andReturn().getResponse().getStatus();
+			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/")).andReturn().getResponse().getStatus();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -70,7 +70,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/workingPositions/").with(authentication(getAuthentication()))).andReturn();
+			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -102,7 +102,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/workingPositions/")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/identityContracts/")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -118,7 +118,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/workingPositions").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/identityContracts").with(authentication(getAuthentication()))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonContent))
 						.andReturn()
@@ -139,10 +139,10 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		SecurityMockMvcRequestPostProcessors.securityContext(null);
 
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
-		List<IdmIdentityWorkingPosition> pages = workingPositionRepository.findAllByIdentity(user, null);
+		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity(user, null);
 		
 		long positionId = 0;
-		for	(IdmIdentityWorkingPosition position : pages) {
+		for	(IdmIdentityContract position : pages) {
 			positionId = position.getId();
 			break;
 		}
@@ -150,7 +150,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON))
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
 					.getResponse()
 					.getStatus();
@@ -165,7 +165,7 @@ public class WorkingPositionsSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/workingPositions/" + positionId).contentType(MediaType.APPLICATION_JSON)
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
 						.with(authentication(getAuthentication())))
 						.andReturn()
 						.getResponse()

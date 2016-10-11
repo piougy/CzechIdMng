@@ -126,7 +126,7 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
             <Advanced.ColumnLink
               to="/system/:_target/detail"
               target="account._embedded.system.id"
-              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] }}
+              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
               property="account._embedded.system.name"
               header={this.i18n('acc:entity.System.name')} />
             <Advanced.Column property="identityRole._embedded.role.name" header={this.i18n('acc:entity.IdentityAccount.role')} face="text" />

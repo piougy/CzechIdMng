@@ -19,9 +19,9 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -39,7 +39,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 	
 	@Autowired
 	private IdmRoleRepository roleRepository;
@@ -155,11 +155,11 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		List<IdmIdentity> result = new ArrayList<>();
 		
 		IdmIdentity user = this.get(id);
-		List<IdmIdentityWorkingPosition> positions = workingPositionRepository.findAllByIdentity(user, null);
-		
-		for	(IdmIdentityWorkingPosition position : positions) {
-			if(position.getManager() != null) {
-				result.add(position.getManager());
+		List<IdmIdentityContract> positions = identityContractRepository.findAllByIdentity(user, null);
+		// TODO: find from parent working positions
+		for	(IdmIdentityContract position : positions) {
+			if(position.getGuarantee() != null) {
+				result.add(position.getGuarantee());
 			}
 		}
 		

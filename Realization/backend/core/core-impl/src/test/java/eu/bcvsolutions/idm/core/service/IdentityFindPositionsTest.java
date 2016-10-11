@@ -22,10 +22,10 @@ import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 
@@ -50,7 +50,7 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	private IdmIdentityService identityService;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
+	private IdmIdentityContractRepository identityWorkingPositionRepository;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -103,16 +103,14 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		manager2.setUsername("test_find_managers_manager2");
 		manager2 = saveInTransaction(manager2, identityRepository);
 		
-		IdmIdentityWorkingPosition position1 = new IdmIdentityWorkingPosition();
+		IdmIdentityContract position1 = new IdmIdentityContract();
 		position1.setIdentity(user);
-		position1.setPosition("one");
-		position1.setManager(manager1);
+		position1.setGuarantee(manager1);
 		saveInTransaction(position1, identityWorkingPositionRepository);
 		
-		IdmIdentityWorkingPosition position2 = new IdmIdentityWorkingPosition();
+		IdmIdentityContract position2 = new IdmIdentityContract();
 		position2.setIdentity(user);
-		position2.setPosition("one");
-		position2.setManager(manager2);
+		position2.setGuarantee(manager2);
 		saveInTransaction(position2, identityWorkingPositionRepository);
 		
 		List<IdmIdentity> result = identityService.findAllManagersByUserPositions(user.getId());

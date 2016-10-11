@@ -44,8 +44,8 @@ module.exports = {
           component: require('./src/content/identity/IdentityRoles')
         },
         {
-          path: 'workingPositions',
-          component: require('./src/content/identity/WorkingPositions')
+          path: 'contracts',
+          component: require('./src/content/identity/IdentityContracts')
         },
         {
           path: 'revision',

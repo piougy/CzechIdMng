@@ -116,9 +116,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			// create Node type for organization
 			IdmTreeType treeType = null;
-			if (treeTypeRepository.findOneByName("TREE_ORGANIZATIONS") == null) {
+			if (treeTypeRepository.findOneByCode("TREE_ORGANIZATIONS") == null) {
 				treeType = new IdmTreeType();
-				treeType.setName("TREE_ORGANIZATIONS");
+				treeType.setCode("TREE_ORGANIZATIONS");
+				treeType.setName("Organizační struktura");
 				this.treeTypeRepository.save(treeType);
 			}
 			//

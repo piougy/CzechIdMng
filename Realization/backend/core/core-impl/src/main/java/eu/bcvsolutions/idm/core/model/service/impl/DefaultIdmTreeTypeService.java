@@ -11,10 +11,10 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.exception.TreeTypeException;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeTypeService;
@@ -29,7 +29,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	private IdmIdentityContractRepository workingPositionRepository;
 	
 	@Override
 	protected BaseRepository<IdmTreeType, QuickFilter> getRepository() {
@@ -38,7 +38,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public void delete(IdmTreeType entity) {
-		List<IdmIdentityWorkingPosition> listWorkingPositions = workingPositionRepository.findAllByTreeType(entity);
+		List<IdmIdentityContract> listWorkingPositions = workingPositionRepository.findAllByTreeType(entity);
 		List<IdmTreeNode> listNodes = treeNodeRepository.findChildrenByParent(entity.getId());
 		
 		if (!listWorkingPositions.isEmpty() || !listNodes.isEmpty()) {

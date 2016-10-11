@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -62,7 +62,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmTreeTypeRepository treeTypeRepository;
 
 	@Autowired
-	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 
 	@Autowired
 	private SecurityService securityService;
@@ -93,7 +93,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			} else {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setName("Organization ROOT");
-				organizationRoot.setTreeType(treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE));
+				organizationRoot.setTreeType(treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE));
 				this.treeNodeRepository.save(organizationRoot);
 			}
 			//
@@ -158,7 +158,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeRepository.findOneByName(DEFAULT_TREE_TYPE);
+				IdmTreeType treeType = treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE);
 				//
 				IdmTreeNode organization1 = new IdmTreeNode();
 				organization1.setName("Organization One");
@@ -173,12 +173,11 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				organization2.setTreeType(treeType);
 				this.treeNodeRepository.save(organization2);
 				//
-				IdmIdentityWorkingPosition identityWorkingPosition = new IdmIdentityWorkingPosition();
+				IdmIdentityContract identityWorkingPosition = new IdmIdentityContract();
 				identityWorkingPosition.setIdentity(identityAdmin);
-				identityWorkingPosition.setPosition("vedoucí");
-				identityWorkingPosition.setManager(identity2);
-				identityWorkingPosition.setTreeNode(organization2);
-				identityWorkingPositionRepository.save(identityWorkingPosition);
+				identityWorkingPosition.setGuarantee(identity2);
+				identityWorkingPosition.setWorkingPosition(organization2);
+				identityContractRepository.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
 				//				

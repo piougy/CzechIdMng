@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 
 @Entity
-@Table(name = "idm_tree_type", indexes = { @Index(name = "ux_tree_type_name", columnList = "name") })
+@Table(name = "idm_tree_type", indexes = { @Index(name = "ux_tree_type_name", columnList = "name"), @Index(name = "ux_tree_type_code", columnList = "code") })
 public class IdmTreeType extends AbstractEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -27,9 +27,23 @@ public class IdmTreeType extends AbstractEntity {
 	@Audited
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String code;
+	
+	@Audited
+	@NotEmpty
+	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
-
+	
+	public String getCode() {
+		return code;
+	}
+	
+	public void setCode(String code) {
+		this.code = code;
+	}
+	
 	public String getName() {
 		return name;
 	}

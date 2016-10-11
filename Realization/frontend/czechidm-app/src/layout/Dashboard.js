@@ -24,16 +24,38 @@ class Dashboard extends Basic.AbstractContent {
   render() {
     const { userContext } = this.props;
     //
-    let dashboards = [];
-    dashboards = this.componentService.getComponentDefinitions(DASHBOARD_COMPONENT_TYPE).map(component=> {
+    const dashboards = [];
+    let rowDashboards = [];
+    let spanCounter = 0;
+    this.componentService.getComponentDefinitions(DASHBOARD_COMPONENT_TYPE).forEach(component=> {
       const DashboardComponent = component.component;
-
-      return (
-        <div className={'col-lg-' + (component.span ? component.span : DEFAULT_SPAN)}>
+      const _span = component.span ? component.span : DEFAULT_SPAN;
+      const spanDecorator = (
+        <div className={`col-lg-${_span}`}>
           <DashboardComponent key={`${DASHBOARD_COMPONENT_TYPE}-${component.id}`} entityId={userContext.username}/>
         </div>
       );
+
+      rowDashboards.push(spanDecorator);
+      spanCounter = spanCounter + _span;
+      if (spanCounter > 12) {
+        spanCounter = 0;
+        dashboards.push(
+          <Basic.Row>
+            {rowDashboards}
+          </Basic.Row>
+        );
+        rowDashboards = [];
+      }
     });
+    if (rowDashboards.length > 0) {
+      dashboards.push(
+        <Basic.Row>
+          {rowDashboards}
+        </Basic.Row>
+      );
+    }
+    //
     return (
       <Basic.Row>
         {dashboards}

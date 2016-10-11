@@ -290,6 +290,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 	private IdmTreeType constructTestType(String name) {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode(name);
 		type.setName(name);
 		return type;
 	}

@@ -29,11 +29,11 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 
@@ -61,7 +61,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 	private IdmIdentityController identityController;	
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
+	private IdmIdentityContractRepository identityWorkingPositionRepository;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -124,9 +124,8 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 	public void testWorkingPositionChange() {
 		identity = saveInTransaction(identity, identityRepository);
 		
-		IdmIdentityWorkingPosition position = new IdmIdentityWorkingPosition();
+		IdmIdentityContract position = new IdmIdentityContract();
 		position.setIdentity(identity);
-		position.setPosition("one");
 		
 		saveInTransaction(position, identityWorkingPositionRepository);
 		

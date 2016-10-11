@@ -13,13 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -68,7 +68,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmTreeTypeRepository treeTypeRepository;
 
 	@Autowired
-	private IdmIdentityWorkingPositionRepository identityWorkingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 
 	@Autowired
 	private SecurityService securityService;
@@ -134,6 +134,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				this.identityRepository.save(testUser2);
 			
 				IdmTreeType type = new IdmTreeType();
+				type.setCode("ROOT_TYPE");
 				type.setName("ROOT_TYPE");
 				this.treeTypeRepository.save(type);
 				
@@ -145,12 +146,11 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setTreeType(type);
 				this.treeNodeRepository.save(organization);
 				
-				IdmIdentityWorkingPosition identityWorkingPosition2 = new IdmIdentityWorkingPosition();
+				IdmIdentityContract identityWorkingPosition2 = new IdmIdentityContract();
 				identityWorkingPosition2.setIdentity(testUser1);
-				identityWorkingPosition2.setPosition("vedoucí");
-				identityWorkingPosition2.setManager(testUser2);
-				identityWorkingPosition2.setTreeNode(organization);
-				identityWorkingPositionRepository.save(identityWorkingPosition2);
+				identityWorkingPosition2.setGuarantee(testUser2);
+				identityWorkingPosition2.setWorkingPosition(organization);
+				identityContractRepository.save(identityWorkingPosition2);
 				//
 				log.info("Test data was created.");
 				//

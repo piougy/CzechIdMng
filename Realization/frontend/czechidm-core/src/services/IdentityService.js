@@ -190,15 +190,15 @@ class IdentityService extends AbstractService {
   }
 
   /**
-   * Get given identity's working positions
+   * Get given identity's contracts
    *
    * @param username {string}
    * @param token {string}
    * @return {Promise}
    */
-  getWorkingPositions(username) {
+  getContracts(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/workingPositions`)
+    .get(this.getApiPath() + `/${username}/identityContracts`)
     .then(response => {
       return response.json();
     })

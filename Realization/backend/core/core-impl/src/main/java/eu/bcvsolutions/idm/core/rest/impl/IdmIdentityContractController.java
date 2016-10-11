@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityWorkingPositionService;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
 
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workingPositions")
-public class IdmWorkingPositionController extends DefaultReadWriteEntityController<IdmIdentityWorkingPosition, EmptyFilter> {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/identityContracts")
+public class IdmIdentityContractController extends DefaultReadWriteEntityController<IdmIdentityContract, EmptyFilter> {
 	
 	@Autowired
-	public IdmWorkingPositionController(IdmIdentityWorkingPositionService identityWorkingPositionService) {
+	public IdmIdentityContractController(IdmIdentityContractService identityWorkingPositionService) {
 		super(identityWorkingPositionService);
 	}
 	

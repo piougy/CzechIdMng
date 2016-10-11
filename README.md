@@ -1,6 +1,6 @@
 # CzechIdMng
 
-2nd version of [CzechIdM](http://www.czechidm.com/) will be based on technologies:
+Seventh version of [CzechIdM](http://www.czechidm.com/) will be based on technologies:
 * Backend (java):
   * jdbc db (primary PostgreSQL)
   * Hibernate ORM

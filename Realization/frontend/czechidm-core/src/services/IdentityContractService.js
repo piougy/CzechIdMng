@@ -3,7 +3,7 @@ import moment from 'moment';
 import AbstractService from './AbstractService';
 import TreeNodeService from './TreeNodeService';
 
-class IdentityWorkingPositionService extends AbstractService {
+class IdentityContractService extends AbstractService {
 
   constructor() {
     super();
@@ -30,4 +30,4 @@ class IdentityWorkingPositionService extends AbstractService {
   }
 }
 
-export default IdentityWorkingPositionService;
+export default IdentityContractService;

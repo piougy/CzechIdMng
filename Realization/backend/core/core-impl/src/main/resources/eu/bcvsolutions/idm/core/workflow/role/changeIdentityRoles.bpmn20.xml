@@ -312,7 +312,7 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         <omgdc:Bounds height="55.0" width="155.0" x="740.0" y="301.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetaskCreateProcessName" id="BPMNShape_servicetaskCreateProcessName">
-        <omgdc:Bounds height="87.0" width="105.0" x="71.0" y="101.0"></omgdc:Bounds>
+        <omgdc:Bounds height="87.0" width="105.0" x="72.0" y="101.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
         <omgdc:Bounds height="78.0" width="155.0" x="740.0" y="204.0"></omgdc:Bounds>
@@ -376,12 +376,12 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
         <omgdi:waypoint x="972.0" y="329.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
-        <omgdi:waypoint x="176.0" y="144.0"></omgdi:waypoint>
+        <omgdi:waypoint x="177.0" y="144.0"></omgdi:waypoint>
         <omgdi:waypoint x="212.0" y="142.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
         <omgdi:waypoint x="45.0" y="144.0"></omgdi:waypoint>
-        <omgdi:waypoint x="71.0" y="144.0"></omgdi:waypoint>
+        <omgdi:waypoint x="72.0" y="144.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
         <omgdi:waypoint x="665.0" y="310.0"></omgdi:waypoint>

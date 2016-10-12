@@ -198,8 +198,27 @@ class IdentityContracts extends Basic.AbstractContent {
                 }
                 rendered={SecurityManager.isAdmin()}/>
               <Basic.Column
+                property="treeType"
+                header={this.i18n('entity.IdentityContract.treeType')}
+                width="175px"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <span>
+                        {
+                          !data[rowIndex]._embedded
+                          ||
+                          this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
+                        }
+                      </span>
+                    );
+                  }
+                }
+              />
+              <Basic.Column
                 property="workingPosition"
                 header={this.i18n('entity.IdentityContract.workingPosition')}
+                width="175px"
                 cell={
                   ({ rowIndex, data }) => {
                     return (

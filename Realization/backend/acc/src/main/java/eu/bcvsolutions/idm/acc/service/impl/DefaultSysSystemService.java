@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.model.service.impl.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
  * Deafult target system configuration service 

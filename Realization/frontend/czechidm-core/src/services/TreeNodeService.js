@@ -17,7 +17,7 @@ class TreeNodeService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.treeType ? (this.treeTypeService.getNiceLabel(entity.treeType) + ': ') : ''}${entity.name}`;
+    return `${entity.name}`;
   }
 
   /**

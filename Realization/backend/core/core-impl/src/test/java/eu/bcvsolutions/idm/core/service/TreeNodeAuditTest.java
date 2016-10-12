@@ -31,11 +31,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeController;
 
 /**
@@ -60,7 +60,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	private IdmTreeNodeController treeNodeController;
 	
 	@Autowired
-	private IdmAuditService auditService;
+	private AuditService auditService;
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -97,7 +97,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(1, revisions.size());
 					
@@ -134,13 +134,13 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					assertEquals(2, revisions.size());
 					
-					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
+					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends BaseEntity>>() {
 						@Override
-						public int compare(Revision<Integer, ? extends AbstractEntity> o1,
-								Revision<Integer, ? extends AbstractEntity> o2) {
+						public int compare(Revision<Integer, ? extends BaseEntity> o1,
+								Revision<Integer, ? extends BaseEntity> o2) {
 							return o1.compareTo(o2);
 						}
 					});
@@ -183,13 +183,13 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					Long id = node.getId();
 					
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
+					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
 					assertEquals(2, revisions.size());
 					
-					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends AbstractEntity>>() {
+					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends BaseEntity>>() {
 						@Override
-						public int compare(Revision<Integer, ? extends AbstractEntity> o1,
-								Revision<Integer, ? extends AbstractEntity> o2) {
+						public int compare(Revision<Integer, ? extends BaseEntity> o1,
+								Revision<Integer, ? extends BaseEntity> o2) {
 							return o1.compareTo(o2);
 						}
 					});
@@ -223,12 +223,12 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends AbstractEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(10, revisions.size());
 					
-					for (Revision<Integer, ? extends AbstractEntity> rev : revisions) {
-						Revision<Integer, ? extends AbstractEntity> revSecond = auditService.findRevision(IdmTreeNode.class, rev.getRevisionNumber(), node.getId());
+					for (Revision<Integer, ? extends BaseEntity> rev : revisions) {
+						Revision<Integer, ? extends BaseEntity> revSecond = auditService.findRevision(IdmTreeNode.class, rev.getRevisionNumber(), node.getId());
 						assertEquals(rev, revSecond);
 					}
 					

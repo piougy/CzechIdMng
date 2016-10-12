@@ -138,7 +138,7 @@ export class TypeTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.Column property="code" sort/>
+            <Advanced.Column property="code" sort width="150px"/>
             <Advanced.Column property="name" sort/>
           </Advanced.Table>
         </div>

@@ -29,7 +29,7 @@ class HistoricProcessIntances extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
-          {this.i18n('header')}
+          <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
         </Basic.PageHeader>
 
         <Basic.Panel>

@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
 import eu.bcvsolutions.idm.acc.repository.AccRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.model.service.impl.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
  * Role could assign identity accont on target system.

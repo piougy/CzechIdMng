@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.rest;
 
 import static org.springframework.data.rest.webmvc.ControllerUtils.EMPTY_RESOURCE_LIST;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.springframework.hateoas.core.EmbeddedWrappers;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,19 +57,31 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	
 	private ReadEntityService<E, F> entityService;
 	
+	@Autowired
+	private PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
+	
 	public AbstractReadEntityController(ReadEntityService<E, F> entityService) {
 		this.entityService = entityService;
 	}
 	
-	// TODO: Spring plugin
+	/**
+	 * Returns assembler to dto
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("rawtypes")
 	protected ResourceAssemblerSupport<Object, ResourceWrapper> getAssembler() {
 		return null;
 	}
 	
-	// TODO: Spring plugin
+	/**
+	 * Returns entity lookup for controller entity class. 
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	protected EntityLookup<E> getEntityLookup() {
-		return null;
+		return (EntityLookup<E>)entityLookups.getPluginFor(getEntityClass());
 	}
 	
 	protected ReadEntityService<E, F> getEntityService() {
@@ -97,6 +111,19 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			}
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
+	}
+	
+	/**
+	 * Returns entity identifier, if lookup is configured
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public Serializable getEntityIdentifier(E entity) {
+		if (getEntityLookup() == null) {
+			return entity.getId();
+		}
+		return getEntityLookup().getResourceIdentifier(entity);
 	}
 	
 	public Resources<?> find(

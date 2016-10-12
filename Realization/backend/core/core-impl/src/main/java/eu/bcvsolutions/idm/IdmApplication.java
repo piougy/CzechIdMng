@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
-@EnablePluginRegistries(ModuleDescriptor.class)
+@EnablePluginRegistries({ ModuleDescriptor.class })
 public class IdmApplication extends SpringBootServletInitializer {
 	
 	@Override

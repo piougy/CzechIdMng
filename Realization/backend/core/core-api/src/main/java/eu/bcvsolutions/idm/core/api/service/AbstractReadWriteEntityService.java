@@ -1,10 +1,9 @@
-package eu.bcvsolutions.idm.core.model.service.impl;
+package eu.bcvsolutions.idm.core.api.service;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
  * Interface for generic CRUD operations on a repository for a specific type.

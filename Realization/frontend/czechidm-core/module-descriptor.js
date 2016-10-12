@@ -101,7 +101,7 @@ module.exports = {
         'labelKey': 'navigation.menu.identities.label',
         'titleKey': 'navigation.menu.identities.title',
         'icon': 'user',
-        'order': 40,
+        'order': 1010,
         'path': '/identities',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
@@ -110,7 +110,7 @@ module.exports = {
         'labelKey': 'content.tree.header',
         'titleKey': 'content.tree.title',
         'icon': 'tree-deciduous',
-        'order': 50,
+        'order': 1050,
         'iconColor': '#419641',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
         'items': [
@@ -133,13 +133,20 @@ module.exports = {
         ]
       },
       {
+        'id': 'profile-system-separator',
+        'type': 'SEPARATOR',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_WRITE', 'MODULE_READ'] } ],
+        'labelKey': 'navigation.menu.separator.system',
+        'order': 999
+      },
+      {
         'id': 'roles',
         'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
         'iconColor': '#eb9316',
-        'order': 35,
+        'order': 1020,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
@@ -159,7 +166,7 @@ module.exports = {
         'id': 'audit',
         'labelKey': 'content.audit.title',
         'icon': 'stats',
-        'order': 900,
+        'order': 1900,
         'items': [
           {
             'id': 'workflow-historic-processes',
@@ -201,7 +208,7 @@ module.exports = {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
-        'order': 1000,
+        'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', 'MODULE_READ'] } ],

@@ -155,6 +155,9 @@
       },
       "audit": {
         "profile": "Audit uživatele"
+      },
+      "separator": {
+        "system": "Systémové menu"
       }
     }
   },

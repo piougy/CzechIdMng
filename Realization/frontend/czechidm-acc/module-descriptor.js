@@ -13,7 +13,7 @@ module.exports = {
         'id': 'sys-systems',
         'type': 'DYNAMIC',
         'labelKey': 'acc:content.systems.title',
-        'order': 50,
+        'order': 1100,
         'priority': 0,
         'path': '/systems',
         'icon': 'link',

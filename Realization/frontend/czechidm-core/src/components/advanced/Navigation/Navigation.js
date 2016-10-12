@@ -8,6 +8,7 @@ import {ConfigurationManager} from '../../../redux/data';
 import {SecurityManager} from '../../../redux';
 import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
 import NavigationItem from './NavigationItem';
+import NavigationSeparator from './NavigationSeparator';
 
 /**
  * Top navigation
@@ -127,6 +128,9 @@ export class Navigation extends Basic.AbstractContextComponent {
         // tab is not visible in menu
         return null;
       }
+      case 'SEPARATOR': {
+        return <NavigationSeparator text={this._resolveNavigationItemText(item, userContext)} />;
+      }
       default: {
         this.getLogger().warn('[Advanced.Navigation] ' + item.type + ' type not implemeted for item id [' + item.id + ']');
         return null;
@@ -145,7 +149,7 @@ export class Navigation extends Basic.AbstractContextComponent {
 
     const items = [];
     for (const levelItem of levelItems) {
-      if (levelItem.type !== 'DYNAMIC') {
+      if (levelItem.type !== 'DYNAMIC' && levelItem.type !== 'SEPARATOR') {
         continue;
       }
       const children = this.renderSidebarItems(levelItem.id, level);

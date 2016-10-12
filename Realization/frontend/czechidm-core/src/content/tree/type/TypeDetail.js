@@ -77,6 +77,10 @@ export default class TypeDetail extends Basic.AbstractContent {
         <form onSubmit={this.save.bind(this)}>
             <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREETYPE_WRITE')} >
               <Basic.TextField
+                ref="code"
+                label={this.i18n('entity.TreeType.code')}
+                required/>
+              <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.TreeType.name')}
                 required/>

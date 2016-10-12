@@ -6,7 +6,8 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityContractManager, IdentityManager, TreeNodeManager, SecurityManager } from '../../redux';
+import { IdentityContractManager, IdentityManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 
 const uiKey = 'identity-contracts';
 
@@ -16,12 +17,15 @@ class IdentityContracts extends Basic.AbstractContent {
     super(props, context);
     this.identityContractManager = new IdentityContractManager();
     this.identityManager = new IdentityManager();
+    this.treeTypeManager = new TreeTypeManager();
     this.treeNodeManager = new TreeNodeManager();
     this.state = {
       detail: {
         show: false,
         entity: {}
-      }
+      },
+      treeTypeId: null,
+      forceSearchParameters: new SearchParameters().setFilter('treeType', -1)
     };
   }
 
@@ -40,9 +44,11 @@ class IdentityContracts extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
+    const treeTypeId = entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.treeType.id : null;
     const entityFormData = _.merge({}, entity, {
       guarantee: entity._embedded && entity._embedded.guarantee ? entity._embedded.guarantee.id : null,
-      workingPosition: entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.id : null
+      workingPosition: entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.id : null,
+      treeTypeId
     });
 
     this.setState({
@@ -50,10 +56,12 @@ class IdentityContracts extends Basic.AbstractContent {
         show: true,
         showLoading: false,
         entity: entityFormData
-      }
+      },
+      treeTypeId,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
     }, () => {
       this.refs.form.setData(entityFormData);
-      this.refs.workingPosition.focus();
+      this.refs.treeTypeId.focus();
     });
   }
 
@@ -62,7 +70,9 @@ class IdentityContracts extends Basic.AbstractContent {
       detail: {
         ... this.state.detail,
         show: false
-      }
+      },
+      treeTypeId: null,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', -1)
     });
   }
 
@@ -131,9 +141,21 @@ class IdentityContracts extends Basic.AbstractContent {
     });
   }
 
+  onChangeTreeType(treeType) {
+    const treeTypeId = treeType ? treeType.id : null;
+    this.setState({
+      treeTypeId,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+    }, () => {
+      // focus automatically - maybe will be usefull?
+      // this.refs.workingPosition.focus();
+    });
+    this.refs.workingPosition.reload();
+  }
+
   render() {
     const { _entities, _showLoading} = this.props;
-    const { detail } = this.state;
+    const { detail, forceSearchParameters, treeTypeId } = this.state;
 
     return (
       <div>
@@ -202,6 +224,7 @@ class IdentityContracts extends Basic.AbstractContent {
                 header={this.i18n('entity.IdentityContract.validTill')}
                 cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
               <Basic.Column
+                rendered={false}
                 property="guarantee"
                 header={this.i18n('entity.IdentityContract.guarantee')}
                 cell={
@@ -248,29 +271,43 @@ class IdentityContracts extends Basic.AbstractContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { position: this.getManager().getNiceLabel(detail.entity) })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="position"
-                  label={this.i18n('entity.IdentityContract.position')}/>
+                  label={this.i18n('entity.IdentityContract.position')}
+                  rendered={false}/>
+                <Basic.SelectBox
+                  ref="treeTypeId"
+                  manager={this.treeTypeManager}
+                  label={this.i18n('entity.IdentityContract.treeType')}
+                  onChange={this.onChangeTreeType.bind(this)}
+                  required/>
                 <Basic.SelectBox
                   ref="workingPosition"
                   manager={this.treeNodeManager}
-                  label={this.i18n('entity.IdentityContract.workingPosition')}/>
+                  label={this.i18n('entity.IdentityContract.workingPosition')}
+                  required
+                  forceSearchParameters={forceSearchParameters}
+                  hidden={treeTypeId === null}/>
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validFrom"
-                  label={this.i18n('label.validFrom')}/>
+                  label={this.i18n('label.validFrom')}
+                  hidden={treeTypeId === null}/>
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validTill"
-                  label={this.i18n('label.validTill')}/>
+                  label={this.i18n('label.validTill')}
+                  hidden={treeTypeId === null}/>
                 <Basic.SelectBox
                   ref="guarantee"
                   manager={this.identityManager}
-                  label={this.i18n('entity.IdentityContract.guarantee')}/>
+                  label={this.i18n('entity.IdentityContract.guarantee')}
+                  rendered={false}
+                  hidden={treeTypeId === null}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -286,7 +323,8 @@ class IdentityContracts extends Basic.AbstractContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                disabled={treeTypeId === null}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

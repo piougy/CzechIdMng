@@ -126,26 +126,28 @@ export class NodeTable extends Basic.AbstractContent {
     }
 
     this.setState({
-      showLoading: true
+      showLoading: true,
+      root: null
+    }, () => {
+      const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', entity.id);
+      this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootKey, (loadedRoot) => {
+        if (loadedRoot !== null) {
+          this.setState({
+            root: loadedRoot._embedded.treenodes[0],
+            type: entity,
+            showLoading: false
+          });
+        } else {
+          this.setState({
+            type: entity,
+            showLoading: false
+          });
+        }
+        this.refs.parent.reload();
+        this.useFilter();
+      }));
+      this.context.router.push('/tree/nodes/?type=' + entity.id);
     });
-
-    const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', entity.id);
-    this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootKey, (loadedRoot) => {
-      if (loadedRoot !== null) {
-        this.setState({
-          root: loadedRoot._embedded.treenodes[0],
-          type: entity,
-          showLoading: false
-        });
-      } else {
-        this.setState({
-          type: entity,
-          showLoading: false
-        });
-      }
-      this.refs.table.getWrappedInstance().reload();
-    }));
-    this.context.router.push('/tree/nodes/?type=' + entity.id);
   }
 
 /**
@@ -176,7 +178,20 @@ export class NodeTable extends Basic.AbstractContent {
       <Basic.Row>
         <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
           <div className="basic-toolbar">
-            <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
+            <div className="pull-left">
+              <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
+            </div>
+            <div className="pull-right">
+              <Basic.Button
+                level="primary"
+                title="Zrušení filtru a znovunačtení stromu"
+                className="btn-xs"
+                onClick={this._changeTree.bind(this, type)}
+                rendered={false}>
+                <Basic.Icon value="fa:refresh"/>
+              </Basic.Button>
+            </div>
+            <div className="clearfix"></div>
           </div>
           <div style={{ paddingLeft: 15, paddingRight: 15 }}>
             {
@@ -196,7 +211,9 @@ export class NodeTable extends Basic.AbstractContent {
             }
             {
               !showTree
-              ||
+              ?
+              <Basic.Loading isStatic showLoading />
+              :
               <Basic.Panel>
                 <Advanced.Tree
                   ref="organizationTree"
@@ -227,36 +244,32 @@ export class NodeTable extends Basic.AbstractContent {
             showLoading={showLoading}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                {
-                  showLoading
-                  ||
-                  <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                    <Basic.Row>
-                      <div className="col-lg-6">
-                        <Advanced.Filter.TextField
-                          ref="text"
-                          placeholder={this.i18n('entity.TreeNode.name')}
-                          label={this.i18n('entity.TreeNode.name')}/>
-                      </div>
-                      <div className="col-lg-6 text-right">
-                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                      </div>
-                    </Basic.Row>
-                    <Basic.Row className="last">
-                      <div className="col-lg-6">
-                        <Advanced.Filter.SelectBox
-                          ref="parent"
-                          placeholder={this.i18n('entity.TreeNode.parentId')}
-                          label={this.i18n('entity.TreeNode.parent.name')}
-                          forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
-                          manager={treeNodeManager}/>
-                      </div>
-                    </Basic.Row>
-                  </Basic.AbstractForm>
-                }
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="text"
+                        placeholder={this.i18n('entity.TreeNode.name')}
+                        label={this.i18n('entity.TreeNode.name')}/>
+                    </div>
+                    <div className="col-lg-6 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <div className="col-lg-6">
+                      <Advanced.Filter.SelectBox
+                        ref="parent"
+                        placeholder={this.i18n('entity.TreeNode.parentId')}
+                        label={this.i18n('entity.TreeNode.parent.name')}
+                        forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
+                        manager={treeNodeManager}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
               </Advanced.Filter>
             }
-            filterOpened={!filterOpened}
+            filterOpened={filterOpened}
             actions={
               [
                 { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }

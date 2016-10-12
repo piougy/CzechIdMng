@@ -1204,7 +1204,8 @@
     "IdentityContract": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
-      "workingPosition": "Pracovní pozice",
+      "treeType": "Typ struktury",
+      "workingPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
       "validFrom": "Platnost od",
@@ -1214,6 +1215,7 @@
     "TreeNode": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
+      "code": "Kód",
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
@@ -1226,6 +1228,7 @@
       }
     },
     "TreeType": {
+      "code": "Kód",
       "name": "Název"
     },
     "Delegate": {

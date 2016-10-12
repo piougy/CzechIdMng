@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 
 	<name>CzechIdM aggregator</name>
-	<description>This file serves only like the aggregator - it does not contain any source 
-		code, but running Maven goals on this project runs successively Maven goals 
+	<description>This file serves only like the aggregator - it does not contain any source
+		code, but running Maven goals on this project runs successively Maven goals
 		on all of its modules.</description>
 
 
@@ -34,7 +34,7 @@
 
 	<profiles>
 		<profile>
-			<id>test</id>
+			<id>separatedApp</id>
 			<modules>
 				<module>../gui</module>
 			</modules>
@@ -63,7 +63,7 @@
 				    <masterBranchName>master</masterBranchName>
 				    <developBranchName>develop</developBranchName>
 				  </flowInitContext>
-				</configuration> 
+				</configuration>
 			      </plugin>
 			      <plugin>
 				<groupId>org.apache.maven.plugins</groupId>

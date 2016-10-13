@@ -165,6 +165,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 		saveInTransaction(type, treeTypeRepository);
 		
 		node = constructTestNode(null, type);
+		node.setCode(testName + "_2");
 		node.setName(testName + "_2");
 		node = saveInTransaction(node, treeNodeRepository);		
 		
@@ -217,6 +218,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			
 			node = constructTestNode(null, type);
 			for (int index = 0; index < 10; index++) {
+				node.setCode(testName + "_" + index);
 				node.setName(testName + "_" + index);
 				node = saveInTransaction(node, treeNodeRepository);
 			}
@@ -297,6 +299,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 	private IdmTreeNode constructTestNode(IdmTreeNode parent, IdmTreeType type) {
 		IdmTreeNode node = new IdmTreeNode();
+		node.setCode(testName);
 		node.setName(testName);
 		node.setTreeType(type);
 		

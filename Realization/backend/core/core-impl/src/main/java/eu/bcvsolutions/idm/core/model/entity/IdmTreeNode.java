@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 @Entity
-@Table(name = "idm_tree_node", indexes = { @Index(name = "ux_tree_node_code", columnList = "code") })
+@Table(name = "idm_tree_node", indexes = { @Index(name = "ux_tree_node_code", columnList = "tree_type_id,code") })
 public class IdmTreeNode extends AbstractEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;

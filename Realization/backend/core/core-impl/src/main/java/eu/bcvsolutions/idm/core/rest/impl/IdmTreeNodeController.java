@@ -36,7 +36,6 @@ import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 
@@ -49,9 +48,6 @@ import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "/nodes")
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
-	
-	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
 	private IdmTreeNodeService treeNodeService;
@@ -94,7 +90,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Integer revId) {
-		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
@@ -117,7 +113,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("treeNodeId") String treeNodeId) {
-		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}

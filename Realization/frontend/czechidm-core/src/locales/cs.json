@@ -1227,7 +1227,7 @@
           "name": "Nadřazený prvek"
       },
       "treeType": {
-        "name": "Typ"
+        "name": "Typ struktury"
       }
     },
     "TreeType": {

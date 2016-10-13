@@ -15,6 +15,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 @Projection(name = "excerpt", types = IdmTreeNode.class)
 public interface IdmTreeNodeExcerpt extends AbstractDtoProjection {
 	
+	String getCode();
+	
 	String getName();
 	
 	boolean isDisabled();
@@ -22,4 +24,6 @@ public interface IdmTreeNodeExcerpt extends AbstractDtoProjection {
 	IdmTreeNode getParent();
 	
 	IdmTreeType getTreeType();
+	
+	Integer getChildrenCount();
 }

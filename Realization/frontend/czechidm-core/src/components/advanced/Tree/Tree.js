@@ -1,21 +1,25 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Treebeard, decorators } from 'react-treebeard';
+import Immutable from 'immutable';
 //
 import * as Basic from '../../basic';
-import {Treebeard, decorators} from 'react-treebeard';
 import defaultStyle from './styles';
+import DataManager from '../../../redux/data/DataManager';
 
 /**
 * Advanced tree component
 */
-class Tree extends Basic.AbstractContextComponent {
+class AdvancedTree extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      data: props.rootNode
+      data: props.rootNodes,
+      cursors: []
     };
+    this.dataManager = new DataManager();
   }
 
   /**
@@ -26,20 +30,7 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    const {rootNode} = this.props;
-    if (rootNode && rootNode.toggled) {
-      this._onToggle(rootNode, rootNode.toggled);
-    }
-  }
-
-  reload() {
-    const { rendered, uiKey, rootNode, propertyId, propertyParent } = this.props;
-    if (!rendered) {
-      return;
-    }
-    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, rootNode[propertyId]);
-    const nodeKey = uiKey + rootNode[propertyId];
-    this.context.store.dispatch(this.getManager().fetchEntities(filter, nodeKey));
+    this.reload();
   }
 
   _mergeSearchParameters(searchParameters) {
@@ -52,71 +43,129 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {cursor} = nextProps;
-    // cursor is different
-    if (nextProps.cursor && this.props.cursor !== cursor) {
-      const {data} = this.state;
+    const { cursors, propertyId } = nextProps;
+    // cursors is different
+    if (cursors && !_.isEqual(this.props.cursors, cursors)) {
+      const { data } = this.state;
       // We find same node in data and merge new cursor to him
-      const oldCursor = this._findNode(cursor.id, data);
-      _.merge(oldCursor, cursor);
-      this.setState({data});
+      cursors.forEach(cursor => {
+        const oldCursor = this._findNode(cursor[propertyId], { children: data } );
+        _.merge(oldCursor, cursor);
+      });
+      this.setState({
+        data
+      });
     }
   }
 
-  collapse() {
-    const {data} = this.state;
-    if (data) {
-      data.toggled = false;
+  reload() {
+    const { uiKey, rootNodes } = this.props;
+    //
+    this.context.store.dispatch(this.dataManager.receiveData(uiKey, new Immutable.Map({})));
+    if (!rootNodes || rootNodes.length === 0) {
+      return;
     }
-    this.setState({data});
+    rootNodes.forEach(rootNode => {
+      if (!this._isLeaf(rootNode) && rootNode.toggled) {
+        this._onToggle(rootNode, rootNode.toggled);
+      }
+    });
+  }
+
+  /**
+   * Returns tree state - is immutable map - key is node id and value is node's children
+   *
+   * @param  {object} state redux state
+   * @param  {string} uiKey uiKey for whole tree
+   * @return {Immutable.Map}
+   */
+  _getTreeState(state, uiKey) {
+    const treeState = DataManager.getData(state, uiKey);
+    if (treeState == null) {
+      return new Immutable.Map({});
+    }
+    return treeState;
   }
 
   /**
   * Is call after click on any node in tree
+  *
   * @param  {object} node    selected node
   * @param  {boolean} toggled
   */
   _onToggle(node, toggled) {
-    const {propertyParent, propertyId, uiKey} = this.props;
-    const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
-    if (this.state.cursor) {
-      this.state.cursor.active = false;
-    }
-    const loaded = this._loadNode(node, this.context.store.getState());
+    const { propertyParent, propertyId, uiKey } = this.props;
+    const { cursors } = this.state;
+    const state = this.context.store.getState();
+    const treeState = this._getTreeState(state, uiKey);
+    //
+    cursors.forEach(cursor => {
+      cursor.active = false;
+    });
+    const loaded = this._loadNode(node, state);
     if (!loaded) {
       node.loading = true;
     }
     node.active = true;
     node.toggled = toggled;
-    this.setState({ cursor: node }, ()=>{
+
+    // TODO: this is problem - just one node could be active now ...
+    cursors.splice(0, cursors.length);
+    cursors.push(node);
+
+    this.setState({ cursors }, () => {
       if (!loaded) {
-        this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey + node[propertyId]));
+        const filter = this.getManager().getService().getTreeSearchParameters().setFilter(propertyParent, node[propertyId]);
+        this.context.store.dispatch(this.getManager().fetchEntities(filter, uiKey, (json, error) => {
+          if (!error) {
+            const data = json._embedded[this.getManager().getCollectionType()] || [];
+            // ids from childen - whole entity could be found in entities state, we dont want duplicates
+            const newTreeState = treeState.set(node[propertyId], data.map(item => { return item[propertyId]; }));
+            this.context.store.dispatch(this.dataManager.receiveData(uiKey, newTreeState));
+          } else {
+            this.addErrorMessage({
+              level: 'error',
+              key: 'error-tree-load'
+            }, error);
+          }
+        }));
       }
     });
   }
 
   /**
   * Check if is node in Redux state. If is, then set loading attribute to false.
+  *
   * @param  {object} node
-  * @param  {object} state  Redux state
+  * @param  {Immutable.Map} state in redux
   * @return {boolean}  Is node loaded
   */
   _loadNode(node, state) {
-    const {propertyId, uiKey} = this.props;
-    const nodeKey = uiKey + node[propertyId];
-    const containsUiKey = this.getManager().containsUiKey(state, nodeKey);
-    if (containsUiKey && node.loading && !node.loading) {
+    const { uiKey, propertyId, propertyName, propertyChildrenCount } = this.props;
+    const treeState = this._getTreeState(state, uiKey);
+
+    const containsParent = treeState.has(node[propertyId]);
+    if (containsParent && node.loading && !node.loading) {
       return true;
     }
-    if (containsUiKey) {
-      const children = this.getManager().getEntities(state, nodeKey);
-      if (children.length !== 0) {
-        node.children = children;
-        for (const child of children) {
-          child.toggled = false;
-          if (!child.isLeaf) {
-            child.children = [];
+    if (containsParent) {
+      const childrenIds = treeState.get(node[propertyId]);
+      if (childrenIds.length !== 0) {
+        node.children = childrenIds.map(nodeId => {
+          const nodeEntity = this.getManager().getEntity(this.context.store.getState(), nodeId);
+          // nodeEntity could not not be null, just for sure
+          if (!nodeEntity) {
+            return {
+              [propertyId]: -1,
+              [propertyName]: 'NaN',
+              [propertyChildrenCount]: 0
+            };
           }
+          return nodeEntity;
+        });
+        for (const child of node.children) {
+          child.toggled = false;
+          this._isLeaf(child);
         }
       } else {
         node.isLeaf = true;
@@ -130,20 +179,68 @@ class Tree extends Basic.AbstractContextComponent {
   }
 
   /**
+  * Find node with idNode in element (recursively by children)
+  *
+  * @param  {string} idNode
+  * @param  {object} element
+  */
+  _findNode(idNode, element) {
+    const { propertyId } = this.props;
+    //
+    if (element[propertyId] === idNode) {
+      return element;
+    } else if (element.children != null) {
+      let result = null;
+      for (let i = 0; !result && i < element.children.length; i++) {
+        result = this._findNode(idNode, element.children[i]);
+      }
+      return result;
+    }
+    return null;
+  }
+
+  /**
+   * Sets node isLeaf informations and returns true, if node is leaf
+   *
+   * @param  {object} node
+   * @return {Boolean}
+   */
+  _isLeaf(node) {
+    const { propertyChildrenCount } = this.props;
+    if (node[propertyChildrenCount] === undefined || node[propertyChildrenCount] === null || node[propertyChildrenCount] > 0) {
+      node.children = [];
+      return false;
+    }
+    node.isLeaf = true;
+    node.loading = false;
+    node.toggled = true;
+    return true;
+  }
+
+  _getLabel(node) {
+    const { propertyName, propertyChildrenCount } = this.props;
+    if (propertyName) {
+      return node[propertyName];
+    }
+    return this.getManager().getNiceLabel(node);
+  }
+
+  /**
   * Get decorators (default or custom form props)
+  *
   * @return {object} Decorators
   */
   _getDecorators() {
-    const {propertyName, loadingDecorator, toggleDecorator, headerDecorator} = this.props;
+    const { loadingDecorator, toggleDecorator, headerDecorator } = this.props;
     return {
       Loading: (props) => {
         if (loadingDecorator) {
           return loadingDecorator(props);
         }
         return (
-            <div style={props.style}>
-                {this.i18n('component.advanced.Tree.loading')}
-            </div>
+          <div style={props.style}>
+            {this.i18n('component.advanced.Tree.loading')}
+          </div>
         );
       },
       Toggle: (props) => {
@@ -157,14 +254,12 @@ class Tree extends Basic.AbstractContextComponent {
           return headerDecorator(headerProps);
         }
         const style = headerProps.style;
-        const iconType = headerProps.node.isLeaf ? 'file-text' : 'folder';
-        const iconClass = `fa fa-${iconType}`;
-        const iconStyle = { marginRight: '5px' };
+        const icon = headerProps.node.isLeaf ? 'file-text' : 'folder';
         return (
           <div style={style.base}>
             <div style={style.title}>
-              <i className={iconClass} style={iconStyle}/>
-              {headerProps.node[propertyName]}
+              <Basic.Icon type="fa" value={icon} style={{ marginRight: '5px' }}/>
+              {this._getLabel(headerProps.node)}
             </div>
           </div>
         );
@@ -172,66 +267,40 @@ class Tree extends Basic.AbstractContextComponent {
     };
   }
 
-  /**
-  * Find node with idNode in element (recursively by children)
-  * @param  {string} idNode
-  * @param  {object} element
-  */
-  _findNode(idNode, element) {
-    if (element.id === idNode) {
-      return element;
-    } else if (element.children != null) {
-      let result = null;
-      for (let i = 0; !result && i < element.children.length; i++) {
-        result = this._findNode(idNode, element.children[i]);
-      }
-      return result;
-    }
-    return null;
-  }
-
   render() {
     const { data } = this.state;
+
     const { style, showLoading, rendered } = this.props;
     // I have problem with definition Container decorator. I override only Header, Loading and Toggle decorators in default "decorators"
     const customDecorators = this._getDecorators();
     if (!rendered) {
       return null;
     }
-    return (
-      <div>
-          {showLoading ?
-            <Basic.Well showLoading/>
-            :
-            <Treebeard
-              data={data}
-              onToggle={this._onToggle.bind(this)}
-              style={style ? style : defaultStyle}
-              decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}
-              />
-          }
-        </div>
+    if (showLoading) {
+      return (
+        <Basic.Well showLoading/>
       );
+    }
+    return (
+      <Treebeard
+        data={data}
+        onToggle={this._onToggle.bind(this)}
+        style={ style || defaultStyle }
+        decorators={{ ...decorators, Header: customDecorators.Header, Loading: customDecorators.Loading}}/>
+    );
   }
 }
 
-Tree.propTypes = {
-  /**
-   * Rendered component
-   */
-  rendered: PropTypes.bool,
-  /**
-   * Show loading in component
-   */
-  showLoading: PropTypes.bool,
+AdvancedTree.propTypes = {
+  ...Basic.AbstractContextComponent.propTypes,
   /**
   * EntityManager for fetching entities in tree
   */
   manager: PropTypes.object.isRequired,
   /**
-  * Inicial root node of tree
+  * Inicial root nodes of tree
   */
-  rootNode: PropTypes.object.isRequired,
+  rootNodes: PropTypes.arrayOf(PropTypes.object).isRequired,
   /**
   * Key for save data to redux store
   */
@@ -239,15 +308,19 @@ Tree.propTypes = {
   /**
   * Define attribute in entity which will be used for show name of node
   */
-  propertyName: PropTypes.string.isRequired,
+  propertyName: PropTypes.string,
   /**
   * Define attribute in entity which will be used as node id
   */
-  propertyId: PropTypes.string.isRequired,
+  propertyId: PropTypes.string,
+  /**
+  * Define attribute in entity which will be used as children count
+  */
+  propertyChildrenCount: PropTypes.string,
   /**
   * Define attribute in entity which will be used for search children nodes
   */
-  propertyParent: PropTypes.string.isRequired,
+  propertyParent: PropTypes.string,
   /**
   * Define styles in object
   */
@@ -266,23 +339,26 @@ Tree.propTypes = {
   headerDecorator: PropTypes.func
 };
 
-Tree.defaultProps = {
-  rendered: true,
-  showLoading: false
+AdvancedTree.defaultProps = {
+  ...Basic.AbstractContextComponent.defaultProps,
+  propertyId: 'id',
+  propertyChildrenCount: 'childrenCount',
+  propertyParent: 'parent'
 };
 
 function select(state) {
   const wrappedInstance = this ? this.getWrappedInstance() : null;
-  if (wrappedInstance && wrappedInstance.state.cursor) {
-    let cursor = wrappedInstance.state.cursor;
-    wrappedInstance._loadNode(cursor, state);
-    // we need new instance ... we create clone
-    cursor = _.merge({}, cursor);
+  if (wrappedInstance && wrappedInstance.state.cursors) {
+    const cursors = wrappedInstance.state.cursors.map(cursor => {
+      wrappedInstance._loadNode(cursor, state);
+      // we need new instance ... we create clone
+      return _.merge({}, cursor);
+    });
     return {
-      cursor
+      cursors
     };
   }
   return {};
 }
 
-export default connect(select, null, null, { withRef: true})(Tree);
+export default connect(select, null, null, { withRef: true })(AdvancedTree);

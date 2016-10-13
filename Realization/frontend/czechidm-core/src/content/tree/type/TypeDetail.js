@@ -25,7 +25,7 @@ export default class TypeDetail extends Basic.AbstractContent {
 
     if (entity !== undefined) {
       this.refs.form.setData(entity);
-      this.refs.name.focus();
+      this.refs.code.focus();
     }
   }
 

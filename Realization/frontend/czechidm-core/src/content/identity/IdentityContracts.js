@@ -243,7 +243,6 @@ class IdentityContracts extends Basic.AbstractContent {
                 header={this.i18n('entity.IdentityContract.validTill')}
                 cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
               <Basic.Column
-                rendered={false}
                 property="guarantee"
                 header={this.i18n('entity.IdentityContract.guarantee')}
                 cell={
@@ -324,9 +323,7 @@ class IdentityContracts extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="guarantee"
                   manager={this.identityManager}
-                  label={this.i18n('entity.IdentityContract.guarantee')}
-                  rendered={false}
-                  hidden={treeTypeId === null}/>
+                  label={this.i18n('entity.IdentityContract.guarantee')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

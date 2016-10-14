@@ -14,7 +14,7 @@ import CandicateUsersCell from './CandicateUsersCell';
 const workflowHistoricProcessInstanceManager = new WorkflowHistoricProcessInstanceManager();
 const workflowHistoricTaskInstanceManager = new WorkflowHistoricTaskInstanceManager();
 
-const MAX_CANDICATES = 2;
+const MAX_CANDICATES = 3;
 
 class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 

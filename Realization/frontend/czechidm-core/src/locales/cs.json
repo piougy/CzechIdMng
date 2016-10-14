@@ -652,7 +652,7 @@
           "success": "Prvek [{{name}}] byl úspěšně uložen"
         },
         "addType": "Přidat typ",
-        "reloadTree": "Zrušení filtru a znovunačtení stromu"        
+        "reloadTree": "Zrušení filtru a znovunačtení stromu"
       },
       "types": {
         "header": "Typy struktur",
@@ -1271,7 +1271,7 @@
       "priority": "Priorita",
       "createTime": "Datum vytvoření",
       "completeTaskDecision": "Rozhodnutí",
-      "candicateUsers": "Kandidáti"
+      "candicateUsers": "Mohou řešit"
     },
     "Notification": {
       "topic": "Téma",

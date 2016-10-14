@@ -11,7 +11,6 @@ import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
-import org.springframework.data.rest.core.support.EntityLookup;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -29,20 +28,19 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityLookup;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
@@ -57,9 +55,6 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
 public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, QuickFilter> {
-	
-	@Autowired
-	private IdmIdentityLookup identityLookup;
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
@@ -73,17 +68,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
 	
 	@Autowired
-	private IdmAuditService auditService; 
+	private AuditService auditService; 
 	
 	@Autowired
 	public IdmIdentityController(IdmIdentityService identityService) {
 		super(identityService);
 		this.identityService = identityService;
-	}
-
-	@Override
-	protected EntityLookup<IdmIdentity> getEntityLookup() {
-		return identityLookup;
 	}
 	
 	@Override
@@ -133,7 +123,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@RequestMapping(value = "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
-		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
+		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
@@ -147,7 +137,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
 	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
-		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
+		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
@@ -157,7 +147,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	@RequestMapping(value = "/{identityId}/identityContracts", method = RequestMethod.GET)
 	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
-		IdmIdentity identity = (IdmIdentity) identityLookup.lookupEntity(identityId);
+		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}		
@@ -167,12 +157,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
-		IdmIdentity originalEntity = (IdmIdentity)this.identityLookup.lookupEntity(identityId);
+		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		
-		Revision<Integer, ? extends AbstractEntity> revision;
+		Revision<Integer, ? extends BaseEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
@@ -182,7 +172,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		IdmIdentity entity = (IdmIdentity) revision.getEntity();
 		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(this.identityLookup.getResourceIdentifier(entity)), revision, revId);
+				String.valueOf(getEntityIdentifier(entity)), revision, revId);
 
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
@@ -191,13 +181,13 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
-		IdmIdentity originalEntity = (IdmIdentity)this.identityLookup.lookupEntity(identityId);
+		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> revisions;
+		List<Revision<Integer, ? extends BaseEntity>> revisions;
 		try {
 			revisions = this.auditService.findRevisions(IdmIdentity.class, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
@@ -206,11 +196,13 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		
 		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
 		
-		for	(Revision<Integer, ? extends AbstractEntity> revision : revisions) {
-			wrappers.add(assembler.toResource(this.getClass(), 
-					String.valueOf(this.identityLookup.getResourceIdentifier((IdmIdentity)revision.getEntity())),
-					revision, revision.getRevisionNumber()));
-		}
+		revisions.forEach(revision -> {
+			wrappers.add(assembler.toResource(
+					this.getClass(), 
+					String.valueOf(getEntityIdentifier((IdmIdentity)revision.getEntity())),
+					revision, 
+					revision.getRevisionNumber()));
+		});
 		
 		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
 				wrappers);

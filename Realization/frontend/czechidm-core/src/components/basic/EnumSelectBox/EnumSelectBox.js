@@ -12,6 +12,10 @@ class EnumSelectBox extends SelectBox {
     this.useSymbol = true;
   }
 
+  componentDidMount() {
+    // nothing - just override parent behaviour
+  }
+
   getOptions(input, callback) {
     if (this.props.enum) {
       let data = null;

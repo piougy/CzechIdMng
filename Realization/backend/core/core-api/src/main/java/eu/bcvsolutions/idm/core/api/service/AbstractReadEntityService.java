@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.service.impl;
+package eu.bcvsolutions.idm.core.api.service;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.api.service.BaseEntityService;
-import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and

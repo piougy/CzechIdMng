@@ -27,17 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 
 /**
@@ -51,13 +50,10 @@ import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
 	
 	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
-	
-	@Autowired
 	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private IdmAuditService auditService; 
+	private AuditService auditService; 
 	
 	@Autowired
 	public IdmTreeNodeController(IdmTreeNodeService treeNodeService) {
@@ -94,12 +90,12 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Integer revId) {
-		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
-		Revision<Integer, ? extends AbstractEntity> revision;
+		Revision<Integer, ? extends BaseEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmTreeNode.class, revId, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {
@@ -117,13 +113,13 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("treeNodeId") String treeNodeId) {
-		IdmTreeNode treeNode = treeNodeRepository.findOne(Long.parseLong(treeNodeId));
+		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
+		List<Revision<Integer, ? extends BaseEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		try {
 			revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {
@@ -132,11 +128,11 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		
 		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
 		
-		for	(Revision<Integer, ? extends AbstractEntity> revision : revisions) {
+		revisions.forEach(revision -> {
 			wrappers.add(assembler.toResource(this.getClass(), 
 					String.valueOf(revision.getEntity().getId()),
 					revision, revision.getRevisionNumber()));
-		}
+		});
 		
 		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
 				wrappers);

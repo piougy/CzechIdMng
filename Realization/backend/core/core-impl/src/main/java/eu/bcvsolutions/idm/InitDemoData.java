@@ -40,7 +40,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
-	private static final String DEFAULT_TREE_TYPE = "TREE_ORGANIZATIONS";
 	private static final int FIRST_ROOT = 0; 
 	
 	@Autowired
@@ -92,8 +91,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				rootOrganization = rootsList.get(FIRST_ROOT);
 			} else {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
+				organizationRoot.setCode("root");
 				organizationRoot.setName("Organization ROOT");
-				organizationRoot.setTreeType(treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE));
+				organizationRoot.setTreeType(treeTypeRepository.findOneByCode(InitApplicationData.DEFAULT_TREE_TYPE));
 				this.treeNodeRepository.save(organizationRoot);
 			}
 			//
@@ -158,15 +158,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE);
+				IdmTreeType treeType = treeTypeRepository.findOneByCode(InitApplicationData.DEFAULT_TREE_TYPE);
 				//
 				IdmTreeNode organization1 = new IdmTreeNode();
+				organization1.setCode("one");
 				organization1.setName("Organization One");
 				organization1.setParent(rootOrganization);
 				organization1.setTreeType(treeType);
 				this.treeNodeRepository.save(organization1);
 				//
 				IdmTreeNode organization2 = new IdmTreeNode();
+				organization2.setCode("two");
 				organization2.setName("Organization Two");
 				organization2.setCreator("ja");
 				organization2.setParent(rootOrganization);

@@ -143,18 +143,21 @@
         "title": "Seznam uživatelů"
       },
       "messages": "Hlášení",
-      "configuration": "Nastavení",
+      "configuration": "Konfigurace aplikace",
       "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
-      "system": "Systém",
+      "system": "Nastavení",
       "workflow": {
-        "definitions": "Workflow definice",
-        "historicProcess": "Workflow historie",
+        "definitions": "Definice workflow",
+        "historicProcess": "Historie workflow",
         "title": "Workflow"
       },
       "audit": {
         "profile": "Audit uživatele"
+      },
+      "separator": {
+        "system": "Systémové menu"
       }
     }
   },
@@ -426,23 +429,23 @@
       }
     },
     "configuration": {
-      "header": "Nastavení aplikace",
-      "title": "Nastavení",
+      "header": "Konfigurace aplikace",
+      "title": "Konfigurace aplikace",
       "edit": {
-        "header": "{{name}} <small>detail nastavení</small>"
+        "header": "{{name}} <small>detail položky konfigurace</small>"
       },
       "create": {
-        "header": "Nové nastavení"
+        "header": "Nová konfigurační položka"
       },
       "save": {
-        "success": "Nastavení [{{name}}] bylo úspěšně uloženo"
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
       },
-      "fromFile": "Nastavení aplikace z konfiguračních souborů <small>application.properties</small>",
-      "fromEnvironment": "Nastavení prostředí <small>backendového serveru</small>",
+      "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
+      "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
       "secured": {
-        "notAllowed": "Nemáte oprávnění pro editaci systémového nastavení"
+        "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace"
       },
-      "guarded": "Hodnoty nastavení obsahující klíč [{{guarded}}] nejsou zobrazeny."
+      "guarded": "Hodnoty položky konfigurace obsahující klíč [{{guarded}}] nejsou zobrazeny."
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -629,8 +632,8 @@
       }
     },
     "tree": {
-      "header": "Stromy",
-      "title": "Stromy",
+      "header": "Stromové struktury",
+      "title": "Stromové struktury",
       "filter": {
         "parentId": {
           "label": "Nadřazená jedn."
@@ -641,19 +644,21 @@
       "typePick": "Vyberte typ",
       "typePickPlaceHolder": "Vyberte typ",
       "nodes": {
-        "header": "Prvky",
+        "header": "Prvky stromové struktury",
         "title": "Prvky",
         "edit": "detail prvku",
         "create": "Nový prvek",
         "save": {
           "success": "Prvek [{{name}}] byl úspěšně uložen"
-        }
+        },
+        "addType": "Přidat typ",
+        "reloadTree": "Zrušení filtru a znovunačtení stromu"        
       },
       "types": {
-        "header": "Typy",
-        "title": "Typy",
-        "edit": "detail typu",
-        "create": "Nový typ",
+        "header": "Typy struktur",
+        "title": "Typy struktur",
+        "edit": "detail typu struktury",
+        "create": "Nový typ stromové struktury",
         "save": {
           "success": "Typ [{{name}}] byl úspěšně uložen"
         }
@@ -1090,7 +1095,7 @@
       "history":{
         "processes":{
           "title": "Historie workflow procesů",
-          "header": "Historie workflow procesů"
+          "header": "Historie workflow procesů <small>schvalování, úkolů</small>"
         },
         "process":{
           "title": "Historie workflow procesu",
@@ -1204,7 +1209,8 @@
     "IdentityContract": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
-      "workingPosition": "Pracovní pozice",
+      "treeType": "Typ struktury",
+      "workingPosition": "Pozice",
       "position": "Pracovní pozice",
       "identity": "Uživatel",
       "validFrom": "Platnost od",
@@ -1214,6 +1220,7 @@
     "TreeNode": {
       "_type": "Pracovní pozice",
       "id": "Interní id pozice",
+      "code": "Kód",
       "name": "Název",
       "disabled": "Neaktivní",
       "shortName": "Název",
@@ -1222,10 +1229,11 @@
           "name": "Nadřazený prvek"
       },
       "treeType": {
-        "name": "Typ"
+        "name": "Typ struktury"
       }
     },
     "TreeType": {
+      "code": "Kód",
       "name": "Název"
     },
     "Delegate": {

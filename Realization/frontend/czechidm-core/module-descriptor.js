@@ -101,7 +101,7 @@ module.exports = {
         'labelKey': 'navigation.menu.identities.label',
         'titleKey': 'navigation.menu.identities.title',
         'icon': 'user',
-        'order': 40,
+        'order': 1010,
         'path': '/identities',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
@@ -110,27 +110,34 @@ module.exports = {
         'labelKey': 'content.tree.header',
         'titleKey': 'content.tree.title',
         'icon': 'tree-deciduous',
-        'order': 50,
+        'order': 1050,
         'iconColor': '#419641',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
         'items': [
           {
             'id': 'tree-nodes',
-            'labelKey': 'content.tree.nodes.header',
-            'order': 10,
+            'labelKey': 'content.tree.nodes.title',
+            'order': 15,
             'icon': 'apple',
             'path': '/tree/nodes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
           },
           {
             'id': 'tree-types',
-            'labelKey': 'content.tree.types.header',
-            'order': 15,
+            'labelKey': 'content.tree.types.title',
+            'order': 10,
             'icon': 'fa:server',
             'path': '/tree/types',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
           }
         ]
+      },
+      {
+        'id': 'profile-system-separator',
+        'type': 'SEPARATOR',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'IDENTITY_READ', 'NOTIFICATION_READ', 'CONFIGURATION_WRITE', 'MODULE_READ'] } ],
+        'labelKey': 'navigation.menu.separator.system',
+        'order': 999
       },
       {
         'id': 'roles',
@@ -139,7 +146,7 @@ module.exports = {
         'titleKey': 'content.roles.title',
         'icon': 'fa:group',
         'iconColor': '#eb9316',
-        'order': 35,
+        'order': 1020,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
@@ -156,39 +163,19 @@ module.exports = {
         ]
       },
       {
-        'id': 'workflow',
-        'labelKey': 'navigation.menu.workflow.title',
-        'icon': 'fa:sitemap',
-        'order': 40,
-        'iconColor': '#428BCA',
-        'items': [
-          {
-            'id': 'workflow-definitions',
-            'labelKey': 'navigation.menu.workflow.definitions',
-            'order': 40,
-            'path': '/workflow/definitions',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-          },
-          {
-            'id': 'workflow-historic-processes',
-            'labelKey': 'navigation.menu.workflow.historicProcess',
-            'order': 35,
-            'path': '/workflow/history/processes',
-          }
-        ]
-      },
-      {
         'id': 'audit',
         'labelKey': 'content.audit.title',
         'icon': 'stats',
-        'order': 1010,
-        'access': [
-          {
-            'type': 'HAS_ANY_AUTHORITY',
-            'authorities': [ 'NOTIFICATION_READ' ]
-          }
-        ],
+        'order': 1900,
         'items': [
+          {
+            'id': 'workflow-historic-processes',
+            'labelKey': 'navigation.menu.workflow.historicProcess',
+            'order': 10,
+            'icon': 'fa:sitemap',
+            'iconColor': '#428BCA',
+            'path': '/workflow/history/processes',
+          },
           {
             'id': 'notifications',
             'labelKey': 'content.notifications.title',
@@ -205,7 +192,7 @@ module.exports = {
           {
             'id': 'emails',
             'labelKey': 'content.emails.title',
-            'order': 30,
+            'order': 35,
             'path': '/audit/emails',
             'icon': 'fa:envelope-o',
             'access': [
@@ -221,10 +208,10 @@ module.exports = {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
         'icon': 'cog',
-        'order': 1000,
+        'order': 2000,
         'path': '/configurations',
         'iconColor': '#c12e2a',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ],
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ', 'MODULE_READ'] } ],
         'items': [
           {
             'id': 'system-configuration',
@@ -247,6 +234,15 @@ module.exports = {
             'order': 30,
             'path': '/be-modules',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+          },
+          {
+            'id': 'workflow-definitions',
+            'labelKey': 'navigation.menu.workflow.definitions',
+            'icon': 'fa:sitemap',
+            'order': 40,
+            'iconColor': '#428BCA',
+            'path': '/workflow/definitions',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           }
         ]
       },

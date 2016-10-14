@@ -40,6 +40,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	public static final String ADMIN_USERNAME = "admin";
 	public static final String ADMIN_PASSWORD = "admin";
 	public static final String ADMIN_ROLE = "superAdminRole";
+	public static final String DEFAULT_TREE_TYPE = "ORGANIZATIONS";
 
 	@Autowired
 	private IdmIdentityRepository identityRepository;
@@ -115,18 +116,19 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityRoleRepository.save(identityRole);
 			}
 			// create Node type for organization
-			IdmTreeType treeType = null;
-			if (treeTypeRepository.findOneByCode("TREE_ORGANIZATIONS") == null) {
+			IdmTreeType treeType = treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE);
+			if (treeType == null) {
 				treeType = new IdmTreeType();
-				treeType.setCode("TREE_ORGANIZATIONS");
-				treeType.setName("Organizační struktura");
+				treeType.setCode(DEFAULT_TREE_TYPE);
+				treeType.setName("Organization structure");
 				this.treeTypeRepository.save(treeType);
 			}
 			//
 			// create organization root
-			if (treeNodeRepository.findRoots(null).isEmpty()) {
+			if (treeNodeRepository.findRoots(treeType.getId()).isEmpty()) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
-				organizationRoot.setName("Organization ROOT");
+				organizationRoot.setCode("root");
+				organizationRoot.setName("Root organization");
 				organizationRoot.setTreeType(treeType);
 				this.treeNodeRepository.save(organizationRoot);
 			}

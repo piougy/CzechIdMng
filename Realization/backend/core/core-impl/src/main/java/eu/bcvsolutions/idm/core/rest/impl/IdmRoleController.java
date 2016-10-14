@@ -10,7 +10,6 @@ import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
-import org.springframework.data.rest.core.support.EntityLookup;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,19 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
-import eu.bcvsolutions.idm.core.rest.lookup.IdmRoleLookup;
 
 /**
  * IdmRole endpoint
@@ -49,21 +47,13 @@ import eu.bcvsolutions.idm.core.rest.lookup.IdmRoleLookup;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
 public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, RoleFilter> {
-
-	@Autowired
-	private IdmRoleLookup roleLookup;
 	
 	@Autowired
-	private IdmAuditService auditService; 
+	private AuditService auditService; 
 	
 	@Autowired
 	public IdmRoleController(IdmRoleService roleService) {
 		super(roleService);
-	}
-	
-	@Override
-	protected EntityLookup<IdmRole> getEntityLookup() {
-		return roleLookup;
 	}
 	
 	@Override
@@ -96,12 +86,12 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Integer revId) {
-		IdmRole originalEntity = (IdmRole)this.roleLookup.lookupEntity(roleId);
+		IdmRole originalEntity = getEntity(roleId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
-		Revision<Integer, ? extends AbstractEntity> revision;
+		Revision<Integer, ? extends BaseEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
@@ -111,7 +101,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		IdmRole entity = (IdmRole) revision.getEntity();
 		RevisionAssembler<IdmRole> assembler = new RevisionAssembler<IdmRole>();
 		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(this.roleLookup.getResourceIdentifier(entity)), revision, revId);
+				String.valueOf(getEntityIdentifier(entity)), revision, revId);
 
 		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
 	}
@@ -119,13 +109,13 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{roleId}/revisions", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("roleId") String roleId) {
-		IdmRole originalEntity = (IdmRole) this.roleLookup.lookupEntity(roleId);
+		IdmRole originalEntity = getEntity(roleId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends AbstractEntity>> results;
+		List<Revision<Integer, ? extends BaseEntity>> results;
 		try {
 			 results = this.auditService.findRevisions(IdmRole.class, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
@@ -134,11 +124,13 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		
 		RevisionAssembler<IdmRole> assembler = new RevisionAssembler<IdmRole>();
 		
-		for	(Revision<Integer, ? extends AbstractEntity> revision : results) {
-			wrappers.add(assembler.toResource(this.getClass(), 
-					String.valueOf(this.roleLookup.getResourceIdentifier((IdmRole)revision.getEntity())),
-					revision, revision.getRevisionNumber()));
-		}
+		results.forEach(revision -> {
+			wrappers.add(assembler.toResource(
+					this.getClass(), 
+					String.valueOf(getEntityIdentifier((IdmRole)revision.getEntity())),
+					revision, 
+					revision.getRevisionNumber()));
+		});
 		
 		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
 				wrappers);

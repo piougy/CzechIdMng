@@ -21,17 +21,18 @@ import org.springframework.data.history.RevisionMetadata;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 
 /**
  * Implementation of service for auditing
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 @Service
-public class DefaultIdmAuditService implements IdmAuditService {
+public class DefaultAuditService implements AuditService {
 	
 	@PersistenceContext
     private EntityManager entityManager;
@@ -39,36 +40,34 @@ public class DefaultIdmAuditService implements IdmAuditService {
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public Revision<Integer, ? extends AbstractEntity> findRevision(Class<?> classType, Integer idRev, Long identityId) throws RevisionDoesNotExistException  {
-		AuditReader reader = getAuditReader();
+	public List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException {	
+		List<Revision<Integer, ? extends BaseEntity>> result = new ArrayList<>();
+		AuditReader reader = AuditReaderFactory.get(entityManager);
 		
-		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, idRev);
+		// reader.createQuery().forRevisionsOfEntity(c, selectEntitiesOnly, selectDeletedEntities)
+		
+		List<Number> ids = reader.getRevisions(classType, entityId);
+		
+		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<>(ids));
 
-		Object entity = reader.find(classType, identityId, idRev);
-		return new Revision<>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (AbstractEntity) entity);
+		for (Number revisionId : revisionsResult.keySet()) {
+			result.add(this.findRevision(classType, (Integer)revisionId, entityId));
+		}
+		// TODO: refactor to own class / or use query above
+		Collections.sort(result, (Revision<Integer, ? extends BaseEntity> o1, Revision<Integer, ? extends BaseEntity> o2) -> o2.compareTo(o1));		
+		return result;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public List<Revision<Integer, ? extends AbstractEntity>> findRevisions(Class<?> classType, Long identityId) throws RevisionDoesNotExistException {	
-		List<Revision<Integer, ? extends AbstractEntity>> result = new ArrayList<>();
-		AuditReader reader = AuditReaderFactory.get(entityManager);
+	public Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, Long entityId) throws RevisionDoesNotExistException  {
+		AuditReader reader = getAuditReader();
 		
-		// reader.createQuery().forRevisionsOfEntity(c, selectEntitiesOnly, selectDeletedEntities)
-		
-		List<Number> ids = reader.getRevisions(classType, identityId);
-		
-		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<>(ids));
+		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, revisionId);
 
-		
-		for (Number revisionId : revisionsResult.keySet()) {
-			Revision<Integer, ? extends AbstractEntity> revision = this.findRevision(classType, (Integer)revisionId, identityId);
-			result.add(revision);
-		}
-		// TODO: refactor to own class / or use query above
-		Collections.sort(result, (Revision<Integer, ? extends AbstractEntity> o1, Revision<Integer, ? extends AbstractEntity> o2) -> o2.compareTo(o1));		
-		return result;
+		Object entity = reader.find(classType, entityId, revisionId);
+		return new Revision<>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (BaseEntity) entity);
 	}
 	
 	private RevisionMetadata<?> getRevisionMetadata(Object object) {

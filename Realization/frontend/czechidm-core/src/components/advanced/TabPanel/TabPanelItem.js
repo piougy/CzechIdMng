@@ -19,7 +19,7 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
     );
     return (
       <li className={itemClassNames}>
-        <Link to={to} {...others}>
+        <Link to={to}>
           <Basic.Icon value={ icon || 'fa:circle-o' } color={ iconColor }/>
           {this.props.children}
         </Link>

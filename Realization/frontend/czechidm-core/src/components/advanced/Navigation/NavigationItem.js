@@ -53,7 +53,8 @@ NavigationItem.propTypes = {
   to: PropTypes.string,
   title: PropTypes.string,
   icon: PropTypes.string,
-  active: PropTypes.bool
+  active: PropTypes.bool,
+  text: PropTypes.string
 };
 
 NavigationItem.defaultProps = {

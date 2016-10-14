@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.service.AccAccountService;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.model.service.impl.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
  * Accounts on target system

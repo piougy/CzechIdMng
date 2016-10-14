@@ -140,6 +140,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				
 				
 				IdmTreeNode organization = new IdmTreeNode();
+				organization.setCode("test");
 				organization.setName("Organization Test");
 				organization.setCreator("ja");
 				organization.setParent(rootOrganization);

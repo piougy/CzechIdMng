@@ -1,16 +1,17 @@
 # Advanced Tree component
 
-Component for view tree of entities. Using EntityManager. For correct show leafs in tree, you must have attribute "isLeaf (false/true)" in
+Component for view tree of entities. Using EntityManager. For correct show leafs in tree, you must have attribute "propertyChildrenCount" in
 nodes data.
 
 | Parameter | Type | Description | Default  |
 | --- | :--- | :--- | :--- |
 | manager | object.isRequired | EntityManager for fetching entities in tree | |
-| rootNode | object.isRequired | Key for save data to redux store | |
-| uiKey | string.isRequired | Define attribute in entity which will be used for show name of node | |
-| propertyName | string.isRequired | Define attribute in entity which will be used as node id |   |
-| propertyId | string.isRequired | Define attribute in entity which will be used as node id |   |
-| propertyParent | string.isRequired | Define attribute in entity which will be used for search children nodes |   |
+| rootNodes | arrayOf(object).isRequired | root nodes, whitch will be rendered in tree | |
+| uiKey | string | Key for save data to redux store | |
+| propertyName | string | Define attribute in entity which will be used as node label. If not given, then manager.getNiceLabel will be used |  |
+| propertyId | string | Define attribute in entity which will be used as node id | `id`  |
+| propertyParent | string | Define attribute in entity which will be used for search children nodes |  `parent` |
+| propertyChildrenCount | string | Define attribute in entity which will be used children count (leaf functionality) |  `childrenCount` |
 | style  | object   | Define styles in object | default style (/styles.js) |
 | loadingDecorator  | func   |  Can be use for override loading decorator |default decorator |
 | toggleDecorator  | func   |  Can be use for override toggle decorator | default decorator|
@@ -21,7 +22,7 @@ nodes data.
 ```javascript
 
  <Advanced.Tree
-  rootNode={{name: 'top', shortName: 'Organizace', toggled: true}}
+  rootNodes={[{name: 'top', shortName: 'Organizace', toggled: true}]}
   propertyId="name"
   propertyParent="parentId"
   propertyName="shortName"
@@ -34,7 +35,7 @@ Custom decorator in this case provide use custom icons and add custom link butto
 ```javascript
 
 <Advanced.Tree
-  rootNode={{id: 'top', name: 'top', toggled: false, shortName: 'Organizační struktura', children: []}}
+  rootNodes={[{id: 'top', name: 'top', toggled: false, shortName: 'Organizační struktura', children: []}]}
   propertyId="name"
   propertyParent="parentId"
   propertyName="shortName"

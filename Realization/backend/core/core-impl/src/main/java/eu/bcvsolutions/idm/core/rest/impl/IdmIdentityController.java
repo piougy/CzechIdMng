@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -55,7 +56,7 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
-public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, QuickFilter> {
+public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, IdentityFilter> {
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
@@ -213,9 +214,10 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
+	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdentityFilter filter = new IdentityFilter();
+		filter.setText(convertStringParameter(parameters, "text"));
+		filter.setSubordinatesFor(convertEntityParameter(parameters, "subordinatesFor", IdmIdentity.class));
 		return filter;
 	}
 }

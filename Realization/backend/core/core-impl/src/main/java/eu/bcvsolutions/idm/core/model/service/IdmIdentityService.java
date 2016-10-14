@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.activiti.engine.runtime.ProcessInstance;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, QuickFilter>, IdentifiableByNameEntityService<IdmIdentity> {
+public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, IdentityFilter>, IdentifiableByNameEntityService<IdmIdentity> {
 	
 	/**
 	 * Returns identity by given username

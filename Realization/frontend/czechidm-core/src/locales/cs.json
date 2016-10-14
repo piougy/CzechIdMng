@@ -650,7 +650,9 @@
         "create": "Nový prvek",
         "save": {
           "success": "Prvek [{{name}}] byl úspěšně uložen"
-        }
+        },
+        "addType": "Přidat typ",
+        "reloadTree": "Zrušení filtru a znovunačtení stromu"        
       },
       "types": {
         "header": "Typy struktur",

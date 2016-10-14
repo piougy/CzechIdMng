@@ -141,7 +141,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
   * @return {boolean}  Is node loaded
   */
   _loadNode(node, state) {
-    const { uiKey, propertyId, propertyName, propertyChildrenCount } = this.props;
+    const { uiKey, propertyId } = this.props;
     const treeState = this._getTreeState(state, uiKey);
 
     const containsParent = treeState.has(node[propertyId]);
@@ -151,17 +151,15 @@ class AdvancedTree extends Basic.AbstractContextComponent {
     if (containsParent) {
       const childrenIds = treeState.get(node[propertyId]);
       if (childrenIds.length !== 0) {
-        node.children = childrenIds.map(nodeId => {
+        node.children = [];
+        childrenIds.forEach(nodeId => {
           const nodeEntity = this.getManager().getEntity(this.context.store.getState(), nodeId);
           // nodeEntity could not not be null, just for sure
           if (!nodeEntity) {
-            return {
-              [propertyId]: -1,
-              [propertyName]: 'NaN',
-              [propertyChildrenCount]: 0
-            };
+            // nodeEntity could be deleted
+          } else {
+            node.children.push(nodeEntity);
           }
-          return nodeEntity;
         });
         for (const child of node.children) {
           child.toggled = false;

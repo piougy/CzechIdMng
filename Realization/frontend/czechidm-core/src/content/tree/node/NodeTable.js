@@ -6,7 +6,6 @@ import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import { SecurityManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
-import * as Utils from '../../../utils';
 
 // Root nodes  key for tree
 const rootNodesKey = 'tree-node-table-roots';
@@ -175,6 +174,18 @@ export class NodeTable extends Basic.AbstractContent {
     );
   }
 
+  showTypeDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/tree/types/${uuidId}?new=1&b=nodes`);
+    } else {
+      this.context.router.push('/tree/types/' + entity.id);
+    }
+  }
+
   render() {
     const { treeNodeManager, treeTypeManager } = this.props;
     const { filterOpened, rootNodes, showLoading, type } = this.state;
@@ -188,11 +199,21 @@ export class NodeTable extends Basic.AbstractContent {
             </div>
             <div className="pull-right">
               <Basic.Button
-                level="primary"
-                title="Zrušení filtru a znovunačtení stromu"
+                level="success"
+                title={this.i18n('addType')}
+                titlePlacement="bottom"
                 className="btn-xs"
-                onClick={this._changeTree.bind(this, type)}
-                rendered={false}>
+                style={{ marginRight: 3 }}
+                onClick={this.showTypeDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                <Basic.Icon value="fa:plus"/>
+              </Basic.Button>
+              <Basic.Button
+                level="primary"
+                title={this.i18n('reloadTree')}
+                titlePlacement="bottom"
+                className="btn-xs"
+                onClick={this._changeTree.bind(this, type)}>
                 <Basic.Icon value="fa:refresh"/>
               </Basic.Button>
             </div>

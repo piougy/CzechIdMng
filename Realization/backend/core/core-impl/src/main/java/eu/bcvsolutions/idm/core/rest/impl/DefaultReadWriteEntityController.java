@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -27,10 +28,14 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  *
  * @param <E> controlled {@link BaseEntity} type.
  */
-public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F>{
-
-	public DefaultReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
-		super(entityService);
+public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadWriteEntityController<E, F> {
+	
+	public DefaultReadWriteEntityController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
+	}
+	
+	public DefaultReadWriteEntityController(EntityLookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
+		super(entityLookupService, entityService);
 	}
 	
 	@Override

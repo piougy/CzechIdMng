@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
 import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
@@ -39,8 +40,8 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 public class AccRoleSystemController extends DefaultReadWriteEntityController<AccRoleSystem, RoleSystemFilter> {
 	
 	@Autowired
-	public AccRoleSystemController(AccRoleSystemService roleSysteService) {
-		super(roleSysteService);
+	public AccRoleSystemController(EntityLookupService entityLookupService, AccRoleSystemService roleSysteService) {
+		super(entityLookupService, roleSysteService);
 	}
 	
 	@Override

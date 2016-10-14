@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
@@ -52,8 +53,8 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	private AuditService auditService; 
 	
 	@Autowired
-	public IdmRoleController(IdmRoleService roleService) {
-		super(roleService);
+	public IdmRoleController(EntityLookupService entityLookupService, IdmRoleService roleService) {
+		super(entityLookupService, roleService);
 	}
 	
 	@Override

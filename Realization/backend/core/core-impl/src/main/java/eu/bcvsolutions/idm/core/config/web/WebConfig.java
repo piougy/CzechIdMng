@@ -30,6 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
+import eu.bcvsolutions.idm.core.api.service.BaseEntityService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
@@ -128,10 +129,5 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	@Bean
 	public RequestResourceResolver requestResourceResolver() {
 		return new RequestResourceResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
-	}
-	
-	@Bean
-	public PluginRegistry<EntityLookup<?>, Class<?>> entityLookups(List<? extends EntityLookup<?>> plugins) {
-		return OrderAwarePluginRegistry.create(plugins);
 	}
 }

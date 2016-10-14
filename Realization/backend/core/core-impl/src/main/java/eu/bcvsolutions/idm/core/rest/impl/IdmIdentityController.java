@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -58,8 +59,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-
-	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityContractService identityContractService;
@@ -71,9 +70,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private AuditService auditService; 
 	
 	@Autowired
-	public IdmIdentityController(IdmIdentityService identityService) {
-		super(identityService);
-		this.identityService = identityService;
+	public IdmIdentityController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
+	}
+	
+	IdmIdentityService getIdentityService() {
+		return (IdmIdentityService)getEntityService();
 	}
 	
 	@Override
@@ -127,7 +129,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		ProcessInstance processInstance = identityService.changePermissions(identity);
+		ProcessInstance processInstance = getIdentityService().changePermissions(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
 		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController

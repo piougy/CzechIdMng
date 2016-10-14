@@ -23,8 +23,8 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.service.AccAccountService;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
@@ -40,8 +40,8 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 public class AccAccountController extends DefaultReadWriteEntityController<AccAccount, AccountFilter> {
 	
 	@Autowired
-	public AccAccountController(AccAccountService accountService) {
-		super(accountService);
+	public AccAccountController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
 	}
 	
 	@Override

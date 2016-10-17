@@ -60,8 +60,9 @@ class IdentityContracts extends Basic.AbstractContent {
       treeTypeId,
       forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
     }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.treeTypeId.focus();
+      if (this.refs.treeTypeId) {
+        this.refs.treeTypeId.focus();
+      }
     });
   }
 
@@ -156,7 +157,6 @@ class IdentityContracts extends Basic.AbstractContent {
   render() {
     const { _entities, _showLoading} = this.props;
     const { detail, forceSearchParameters, treeTypeId } = this.state;
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -292,7 +292,7 @@ class IdentityContracts extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { position: this.getManager().getNiceLabel(detail.entity) })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.IdentityContract.position')}

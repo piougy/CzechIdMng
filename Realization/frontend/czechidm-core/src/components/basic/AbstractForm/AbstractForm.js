@@ -30,14 +30,18 @@ class AbstractForm extends AbstractContextComponent {
     if (nextProps.showLoading && nextProps.showLoading !== this.props.showLoading) {
       this.setState({showLoading: nextProps.showLoading});
     }
-    if (nextProps.data != null) {
+    if (nextProps.data != null && nextProps.data !== this.props.data) {
       this.setData(nextProps.data);
     }
   }
 
   componentDidMount() {
-    if (this.props.readOnly != null) {
-      this.setReadOnly(this.props.readOnly);
+    const {readOnly, data, rendered} = this.props;
+    if (rendered && readOnly != null) {
+      this.setReadOnly(readOnly);
+    }
+    if (rendered && data != null) {
+      this.setData(data);
     }
   }
 
@@ -74,6 +78,9 @@ class AbstractForm extends AbstractContextComponent {
       this.processEnded(error, operationType);
       return;
     }
+    if (!this.props.rendered) {
+      return;
+    }
     this.setState({allData: merge({}, json)});
     if (json) {
       for (const componentRef in this.state.componentsKeys) {
@@ -98,6 +105,9 @@ class AbstractForm extends AbstractContextComponent {
     for (const componentRef in this.state.componentsKeys) {
       if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
         continue;
+      }
+      if (!this.props.rendered) {
+        return true;
       }
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
       if (!component.isValid()) {
@@ -124,6 +134,9 @@ class AbstractForm extends AbstractContextComponent {
   // method for compile data from all component
   getData() {
     const result = merge({}, this.state.allData);
+    if (!this.props.rendered) {
+      return result;
+    }
     for (const componentRef in this.state.componentsKeys) {
       if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
         continue;
@@ -190,6 +203,9 @@ class AbstractForm extends AbstractContextComponent {
       if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
         continue;
       }
+      if (!this.props.rendered) {
+        return;
+      }
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
       if (component.props.disabled == null || component.props.disabled === false) {
         component.setState({disabled, formDisabled: disabled});
@@ -213,6 +229,9 @@ class AbstractForm extends AbstractContextComponent {
         continue;
       }
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
+      if (!this.props.rendered) {
+        return;
+      }
       if (component.props.readOnly == null || component.props.readOnly === false) {
         component.setState({readOnly, formReadOnly: readOnly});
       } else {
@@ -222,11 +241,15 @@ class AbstractForm extends AbstractContextComponent {
   }
 
   render() {
+    const {rendered, className, showLoading, children, style} = this.props;
+    if (!rendered) {
+      return null;
+    }
     return (
-      <Loading showLoading={this.props.showLoading || this.state.showLoading}>{/* props.showLoading has higher priority */}
+      <Loading showLoading={showLoading || this.state.showLoading}>{/* props.showLoading has higher priority */}
         {/* TODO: remove className defs? Somethimes different className e.g. form-inline is needed */}
-        <div className={'abstract-form clearfix ' + this.props.className} style={this.props.style}>
-          {this.props.children}
+        <div className={'abstract-form clearfix ' + className} style={style}>
+          {children}
         </div>
         {this.getFooter()}
       </Loading>
@@ -242,7 +265,16 @@ AbstractForm.contextTypes = {
 AbstractForm.propTypes = {
   showLoading: React.PropTypes.bool,
   readOnly: React.PropTypes.bool,
+  disabled: React.PropTypes.bool,
   data: React.PropTypes.object
+};
+
+AbstractForm.defaultProps = {
+  showLoading: true,
+  readOnly: false,
+  disabled: false,
+  rendered: true,
+  data: null
 };
 
 export default AbstractForm;

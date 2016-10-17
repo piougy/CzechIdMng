@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -56,8 +57,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	private AuditService auditService; 
 	
 	@Autowired
-	public IdmTreeNodeController(IdmTreeNodeService treeNodeService) {
-		super(treeNodeService);
+	public IdmTreeNodeController(EntityLookupService entityLookupService, IdmTreeNodeService treeNodeService) {
+		super(entityLookupService, treeNodeService);
 	}
 	
 	@Override

@@ -15,23 +15,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeTypeService;
 
 /**
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "/types")
 public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmTreeType, QuickFilter> {
 	
 	@Autowired
-	public IdmTreeTypeController(IdmTreeTypeService treeTypeService) {
-		super(treeTypeService);
+	public IdmTreeTypeController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
 	}
 	
 	@Override

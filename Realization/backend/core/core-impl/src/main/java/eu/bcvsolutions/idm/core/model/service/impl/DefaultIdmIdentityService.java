@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,19 +15,19 @@ import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 @Service
-public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity, QuickFilter> implements IdmIdentityService {
+public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
@@ -49,7 +47,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	private SecurityService securityService;
 	
 	@Override
-	protected BaseRepository<IdmIdentity, QuickFilter> getRepository() {
+	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
 		return identityRepository;
 	}
 

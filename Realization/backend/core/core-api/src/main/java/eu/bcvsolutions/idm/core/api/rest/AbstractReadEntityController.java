@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
-import static org.springframework.data.rest.webmvc.ControllerUtils.EMPTY_RESOURCE_LIST;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +9,11 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.core.support.EntityLookup;
+import org.springframework.data.rest.webmvc.ControllerUtils;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -25,7 +25,6 @@ import org.springframework.hateoas.core.EmbeddedWrappers;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +38,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
@@ -53,14 +53,22 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);
 	
 	@Autowired
-	private PagedResourcesAssembler<Object> pagedResourcesAssembler;
+	private PagedResourcesAssembler<Object> pagedResourcesAssembler; // TODO: autowired in api package - move higher
 	
-	private ReadEntityService<E, F> entityService;
+	protected final EntityLookupService entityLookupService;
 	
-	@Autowired
-	private PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
+	private final ReadEntityService<E, F> entityService;
 	
-	public AbstractReadEntityController(ReadEntityService<E, F> entityService) {
+	@SuppressWarnings("unchecked")
+	public AbstractReadEntityController(EntityLookupService entityLookupService) {
+		this.entityLookupService = entityLookupService;
+		//
+		Class<E> entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityController.class);
+		this.entityService = (ReadEntityService<E, F>)entityLookupService.getEntityService(entityClass);
+	}
+	
+	public AbstractReadEntityController(EntityLookupService entityLookupService, ReadEntityService<E, F> entityService) {
+		this.entityLookupService = entityLookupService;
 		this.entityService = entityService;
 	}
 	
@@ -79,13 +87,12 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	protected EntityLookup<E> getEntityLookup() {
-		return (EntityLookup<E>)entityLookups.getPluginFor(getEntityClass());
+		return entityLookupService.getEntityLookup(getEntityClass());
 	}
-	
+
 	protected ReadEntityService<E, F> getEntityService() {
-		return (ReadEntityService<E, F>)entityService;
+		return entityService;
 	}
 	
 	protected Class<E> getEntityClass() {
@@ -155,7 +162,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		} else if (source instanceof Iterable) {
 			return entitiesToResources((Iterable<Object>) source, assembler, domainType);
 		} else {
-			return new Resources(EMPTY_RESOURCE_LIST);
+			return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
 		}
 	}
 	
@@ -239,5 +246,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
         } catch(IllegalArgumentException ex) {
         	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
         }
+	}
+	
+	protected <T extends BaseEntity> T convertEntityParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
+		 String valueAsString = convertStringParameter(parameters, parameterName);
+	    if(StringUtils.isEmpty(valueAsString)) {
+	    	return null;
+	    }
+		return entityLookupService.lookup(entityClass, valueAsString);
 	}
 }

@@ -65,5 +65,14 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	public Page<E> find(Pageable pageable) {
 		return getRepository().findAll(pageable);
 	}
+	
+	/* 
+	 * (non-Javadoc)
+	 * @see org.springframework.plugin.core.Plugin#supports(java.lang.Object)
+	 */
+	@Override
+	public boolean supports(Class<?> delimiter) {
+		return entityClass.isAssignableFrom(delimiter);
+	}
 
 }

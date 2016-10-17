@@ -34,7 +34,9 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -54,12 +56,10 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  */
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
-public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, QuickFilter> {
+public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, IdentityFilter> {
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-
-	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityContractService identityContractService;
@@ -71,9 +71,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private AuditService auditService; 
 	
 	@Autowired
-	public IdmIdentityController(IdmIdentityService identityService) {
-		super(identityService);
-		this.identityService = identityService;
+	public IdmIdentityController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
+	}
+	
+	IdmIdentityService getIdentityService() {
+		return (IdmIdentityService)getEntityService();
 	}
 	
 	@Override
@@ -127,7 +130,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
-		ProcessInstance processInstance = identityService.changePermissions(identity);
+		ProcessInstance processInstance = getIdentityService().changePermissions(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
 		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController
@@ -211,9 +214,10 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
+	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdentityFilter filter = new IdentityFilter();
+		filter.setText(convertStringParameter(parameters, "text"));
+		filter.setSubordinatesFor(convertEntityParameter(parameters, "subordinatesFor", IdmIdentity.class));
 		return filter;
 	}
 }

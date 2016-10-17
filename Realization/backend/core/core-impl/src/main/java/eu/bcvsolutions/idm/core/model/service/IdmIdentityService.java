@@ -9,6 +9,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * Operations with IdmIdentity
@@ -59,24 +61,27 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	/**
 	 * Find all identities by assigned role
 	 * 
-	 * @param roleId
+	 * @param role
 	 * @return List of IdmIdentity with assigned role
 	 */
-	List<IdmIdentity> findAllByRole(Long roleId);
+	List<IdmIdentity> findAllByRole(IdmRole role);
 
 	/**
-	 * Method find all managers by user positions and return managers username,
-	 * separate by commas
+	 * Method finds all identity's managers by identity contract and return manager's usernames,
+	 * 
+	 * separated by commas
 	 * 
 	 * @param id
 	 * @return String - usernames separate by commas
 	 */
-	String findAllManagersByUserPositionsString(Long id);
+	String findAllManagersAsString(Long identityId);
 
 	/**
-	 * Method find all managers by user positions and return managers identity
-	 * @param id
-	 * @return List of IdmIdentities 
+	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).
+	 * 
+	 * @param forIdentity
+	 * @param byTreeType If optional tree type is given, then only managers defined with this type is returned
+	 * @return
 	 */
-	List<IdmIdentity> findAllManagersByUserPositions(Long id);
+	List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType);
 }

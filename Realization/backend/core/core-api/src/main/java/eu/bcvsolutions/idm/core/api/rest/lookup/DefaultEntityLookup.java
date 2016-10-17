@@ -34,7 +34,7 @@ public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSuppo
 		try {
 			return service.get(Long.valueOf(id.toString()));
 		} catch (NumberFormatException ex) {
-			log.warn("Wrong entity id [{}], expecting Long", id);
+			log.warn("Wrong entity id [{}], expecting Long, returning null", id);
 			return null;
 		}
 	}

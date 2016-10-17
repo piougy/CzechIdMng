@@ -253,6 +253,10 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	    if(StringUtils.isEmpty(valueAsString)) {
 	    	return null;
 	    }
-		return entityLookupService.lookup(entityClass, valueAsString);
+		T entity = entityLookupService.lookup(entityClass, valueAsString);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Wrong entity type [%s] identifier [%s]", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
+		}
+		return entity;
 	}
 }

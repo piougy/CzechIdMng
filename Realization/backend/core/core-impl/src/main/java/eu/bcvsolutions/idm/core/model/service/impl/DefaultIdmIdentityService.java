@@ -162,7 +162,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		//		
 		IdentityFilter filter = new IdentityFilter();
 		filter.setManagersFor(forIdentity);
-		filter.setSubordinatesByTreeType(byTreeType);
+		filter.setManagersByTreeType(byTreeType);
 		//
 		List<IdmIdentity> results = new ArrayList<IdmIdentity>();		
 		Page<IdmIdentity> managers = identityRepository.find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));

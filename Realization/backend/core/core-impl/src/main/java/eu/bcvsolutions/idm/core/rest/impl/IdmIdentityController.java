@@ -221,6 +221,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		filter.setSubordinatesFor(convertEntityParameter(parameters, "subordinatesFor", IdmIdentity.class));
 		filter.setSubordinatesByTreeType(convertEntityParameter(parameters, "subordinatesByTreeType", IdmTreeType.class));
 		filter.setManagersFor(convertEntityParameter(parameters, "managersFor", IdmIdentity.class));
+		filter.setManagersByTreeType(convertEntityParameter(parameters, "managersByTreeType", IdmTreeType.class));
 		return filter;
 	}
 }

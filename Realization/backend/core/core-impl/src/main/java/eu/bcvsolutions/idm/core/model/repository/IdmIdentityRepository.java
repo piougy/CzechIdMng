@@ -52,11 +52,11 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, Ident
 	        + " )"
 	        + " and"
 	        + "	("
-		        + " (?#{[0].managersFor} is null and ?#{[0].subordinatesByTreeType} is null)"
+		        + " (?#{[0].managersFor} is null and ?#{[0].managersByTreeType} is null)"
 		        // manager as guarantee
-	        	+ " or ((?#{[0].subordinatesByTreeType} is null) and exists(from IdmIdentityContract ic where ic.identity = ?#{[0].managersFor} and e = ic.guarantee))"
+	        	+ " or ((?#{[0].managersByTreeType} is null) and exists(from IdmIdentityContract ic where ic.identity = ?#{[0].managersFor} and e = ic.guarantee))"
 	        	// manager from tree structure - only direct managers are supported now
-	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition IN (select vic.workingPosition.parent from IdmIdentityContract vic where vic.identity = ?#{[0].managersFor} and (?#{[0].subordinatesByTreeType} is null or vic.workingPosition.treeType = ?#{[0].subordinatesByTreeType}) ))"
+	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition IN (select vic.workingPosition.parent from IdmIdentityContract vic where vic.identity = ?#{[0].managersFor} and (?#{[0].managersByTreeType} is null or vic.workingPosition.treeType = ?#{[0].managersByTreeType}) ))"
 	        + " )")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	

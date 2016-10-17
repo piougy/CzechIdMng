@@ -20,9 +20,13 @@ public class IdentityFilter extends QuickFilter {
 	 */
 	private IdmTreeType subordinatesByTreeType;
 	/**
-	 * Subordinates for given identity
+	 * Managers for given identity
 	 */
 	private IdmIdentity managersFor;
+	/**
+	 * Managers by given tree structure
+	 */
+	private IdmTreeType managersByTreeType;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -46,5 +50,13 @@ public class IdentityFilter extends QuickFilter {
 	
 	public IdmIdentity getManagersFor() {
 		return managersFor;
+	}
+	
+	public void setManagersByTreeType(IdmTreeType managersByTreeType) {
+		this.managersByTreeType = managersByTreeType;
+	}
+	
+	public IdmTreeType getManagersByTreeType() {
+		return managersByTreeType;
 	}
 }

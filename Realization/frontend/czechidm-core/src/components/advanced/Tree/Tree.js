@@ -216,7 +216,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
   }
 
   _getLabel(node) {
-    const { propertyName, propertyChildrenCount } = this.props;
+    const { propertyName } = this.props;
     if (propertyName) {
       return node[propertyName];
     }

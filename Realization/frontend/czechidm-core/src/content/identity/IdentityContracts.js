@@ -323,8 +323,7 @@ class IdentityContracts extends Basic.AbstractContent {
                 <Basic.SelectBox
                   ref="guarantee"
                   manager={this.identityManager}
-                  label={this.i18n('entity.IdentityContract.guarantee')}
-                  hidden={treeTypeId === null}/>
+                  label={this.i18n('entity.IdentityContract.guarantee')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

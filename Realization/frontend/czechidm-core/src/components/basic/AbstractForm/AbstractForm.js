@@ -270,7 +270,7 @@ AbstractForm.propTypes = {
 };
 
 AbstractForm.defaultProps = {
-  showLoading: true,
+  showLoading: false,
   readOnly: false,
   disabled: false,
   rendered: true,

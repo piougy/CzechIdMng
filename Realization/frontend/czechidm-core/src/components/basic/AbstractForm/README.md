@@ -4,7 +4,7 @@ Basic component for every form components. Contains basic methods for cloning ch
 | Parameter    | Type    | Description                                               | Default     |
 | ---          | :---    | :---                                                      | :---        |
 | data         | object  | Data (js object) for whole form                           | null        |
-| showLoading  | bool    | When showLoading is true, then only loading image is show | true        |
+| showLoading  | bool    | When showLoading is true, then only loading image is show | false        |
 | readOnly     | bool    | When readOnly is true, then are all components read only  | false       |
 | disabled     | bool    | When disabled is true, then are all components disabled   | false       |
 | rendered     | bool    | When rendered is false, then form will be not rendered    | true        |

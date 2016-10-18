@@ -29,6 +29,8 @@ class Identities extends Basic.AbstractContent {
         <Helmet title={this.i18n('content.identities.title')} />
 
         <Basic.PageHeader>
+          <Basic.Icon value="fa:group"/>
+          {' '}
           {this.i18n('content.identities.header')}
         </Basic.PageHeader>
 

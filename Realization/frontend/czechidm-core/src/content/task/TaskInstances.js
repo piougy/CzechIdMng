@@ -29,6 +29,8 @@ class TaskInstances extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
+          <Basic.Icon value="tasks"/>
+          {' '}
           {this.i18n('header')}
         </Basic.PageHeader>
 

@@ -51,7 +51,7 @@ module.exports = {
             'labelKey': 'content.identity.sidebar.roles',
             'order': 30,
             'path': '/identity/:entityId/roles',
-            'icon': 'fa:group',
+            'icon': 'fa:universal-access',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           },
           {
@@ -67,7 +67,7 @@ module.exports = {
             'id': 'profile-audit',
             'type': 'TAB',
             'labelKey': 'entity.Audit.label',
-            'order': 110,
+            'order': 500,
             'path': '/identity/:entityId/revision',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ],
             'icon': 'fa:history',
@@ -82,6 +82,15 @@ module.exports = {
                 'icon': 'user'
               }
             ]
+          },
+          {
+            'id': 'profile-subordinates',
+            'type': 'TAB',
+            'labelKey': 'content.identity.subordinates.title',
+            'order': 60,
+            'path': '/identity/:entityId/subordinates',
+            'icon': 'fa:group',
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           }
         ]
       },
@@ -100,7 +109,7 @@ module.exports = {
         'id': 'identities',
         'labelKey': 'navigation.menu.identities.label',
         'titleKey': 'navigation.menu.identities.title',
-        'icon': 'user',
+        'icon': 'fa:group',
         'order': 1010,
         'path': '/identities',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
@@ -144,7 +153,7 @@ module.exports = {
         'type': 'DYNAMIC',
         'labelKey': 'content.roles.header',
         'titleKey': 'content.roles.title',
-        'icon': 'fa:group',
+        'icon': 'fa:universal-access',
         'iconColor': '#eb9316',
         'order': 1020,
         'path': '/roles',

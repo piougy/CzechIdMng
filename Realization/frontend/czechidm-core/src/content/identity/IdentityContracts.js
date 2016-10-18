@@ -8,6 +8,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityContractManager, IdentityManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
+import ManagersInfo from './ManagersInfo';
 
 const uiKey = 'identity-contracts';
 
@@ -198,24 +199,6 @@ class IdentityContracts extends Basic.AbstractContent {
                 }
                 rendered={SecurityManager.isAdmin()}/>
               <Basic.Column
-                property="treeType"
-                header={this.i18n('entity.IdentityContract.treeType')}
-                width="175px"
-                cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <span>
-                        {
-                          !data[rowIndex]._embedded
-                          ||
-                          this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
-                        }
-                      </span>
-                    );
-                  }
-                }
-              />
-              <Basic.Column
                 property="workingPosition"
                 header={this.i18n('entity.IdentityContract.workingPosition')}
                 width="175px"
@@ -224,9 +207,29 @@ class IdentityContracts extends Basic.AbstractContent {
                     return (
                       <span>
                         {
-                          !data[rowIndex]._embedded
-                          ||
+                          data[rowIndex]._embedded && data[rowIndex]._embedded.workingPosition
+                          ?
                           this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition)
+                          :
+                          data[rowIndex].position
+                        }
+                      </span>
+                    );
+                  }
+                }
+              />
+              <Basic.Column
+                property="treeType"
+                header={this.i18n('entity.IdentityContract.treeType')}
+                width="175px"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <span>
+                        {
+                          !data[rowIndex]._embedded || !data[rowIndex]._embedded.workingPosition
+                          ||
+                          this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
                         }
                       </span>
                     );
@@ -244,17 +247,11 @@ class IdentityContracts extends Basic.AbstractContent {
                 cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
               <Basic.Column
                 property="guarantee"
-                header={this.i18n('entity.IdentityContract.guarantee')}
+                header={<span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span>}
                 cell={
                   ({ rowIndex, data }) => {
                     return (
-                      <span>
-                        {
-                          !data[rowIndex]._embedded
-                          ||
-                          this.identityManager.getNiceLabel(data[rowIndex]._embedded.guarantee)
-                        }
-                      </span>
+                      <ManagersInfo identityContract={data[rowIndex]}/>
                     );
                   }
                 }
@@ -295,35 +292,30 @@ class IdentityContracts extends Basic.AbstractContent {
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="position"
-                  label={this.i18n('entity.IdentityContract.position')}
-                  rendered={false}/>
+                  label={this.i18n('entity.IdentityContract.position')}/>
                 <Basic.SelectBox
                   ref="treeTypeId"
                   manager={this.treeTypeManager}
                   label={this.i18n('entity.IdentityContract.treeType')}
-                  onChange={this.onChangeTreeType.bind(this)}
-                  required/>
+                  onChange={this.onChangeTreeType.bind(this)}/>
                 <Basic.SelectBox
                   ref="workingPosition"
                   manager={this.treeNodeManager}
                   label={this.i18n('entity.IdentityContract.workingPosition')}
-                  required
                   forceSearchParameters={forceSearchParameters}
-                  hidden={treeTypeId === null}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validFrom"
-                  label={this.i18n('label.validFrom')}
-                  hidden={treeTypeId === null}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validTill"
-                  label={this.i18n('label.validTill')}
                   hidden={treeTypeId === null}/>
                 <Basic.SelectBox
                   ref="guarantee"
                   manager={this.identityManager}
                   label={this.i18n('entity.IdentityContract.guarantee')}/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  ref="validFrom"
+                  label={this.i18n('label.validFrom')}/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  ref="validTill"
+                  label={this.i18n('label.validTill')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -339,8 +331,7 @@ class IdentityContracts extends Basic.AbstractContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                disabled={treeTypeId === null}>
+                showLoadingText={this.i18n('button.saving')}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

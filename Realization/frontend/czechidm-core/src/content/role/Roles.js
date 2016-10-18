@@ -29,7 +29,7 @@ export default class Roles extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.PageHeader>
-          <Basic.Icon value="fa:group"/>
+          <Basic.Icon value="fa:universal-access"/>
           {' '}
           {this.i18n('header')}
         </Basic.PageHeader>

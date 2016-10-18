@@ -138,7 +138,7 @@ export class IdentityTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, identityManager, columns } = this.props;
+    const { uiKey, identityManager, columns, forceSearchParameters } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -195,6 +195,7 @@ export class IdentityTable extends Basic.AbstractContent {
             </Advanced.Filter>
           }
           filterOpened={filterOpened}
+          forceSearchParameters={forceSearchParameters}
           actions={
             [
               { value: 'remove', niceLabel: this.i18n('content.identities.action.remove.action'), action: this.onRemove.bind(this), disabled: true },
@@ -250,7 +251,11 @@ IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityManager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  /**
+   * "Hard filters"
+   */
+  forceSearchParameters: PropTypes.object
 };
 
 IdentityTable.defaultProps = {

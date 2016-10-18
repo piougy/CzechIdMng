@@ -955,6 +955,10 @@
         "delete": {
           "header": "Probíhá odebírání delegace"
         }
+      },
+      "subordinates": {
+        "header": "Podřízení",
+        "title": "$t(content.identity.subordinates.header)"
       }
     },
     "audit": {
@@ -1215,7 +1219,11 @@
       "identity": "Uživatel",
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
-      "guarantee": "Garant"
+      "guarantee": "Garant",
+      "managers": {
+        "label": "Garant / Vedoucí",
+        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+      }
     },
     "TreeNode": {
       "_type": "Pracovní pozice",

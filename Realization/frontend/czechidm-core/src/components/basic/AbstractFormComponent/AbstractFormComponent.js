@@ -64,7 +64,6 @@ class AbstractFormComponent extends AbstractContextComponent {
     super.setState(json, cb);
   }
 
-
   normalizeValue(value) {
     return value;
   }

@@ -26,8 +26,8 @@ import eu.bcvsolutions.idm.notification.service.EmailService;
 
 /**
  * Workflow configuration for: - custom behavior (sending email through
- * {@link EmailService}) - support for custom form types (decisions etc.)
- * - support for custom activiti event listeners
+ * {@link EmailService}) - support for custom form types (decisions etc.) -
+ * support for custom activiti event listeners
  * 
  * @author svanda, tomiska
  *
@@ -37,7 +37,7 @@ public class WorkflowConfig {
 
 	@Autowired
 	private StartSubprocessEventListener startSubprocesEventListener;
-	//Only local variable (no autowired bean) 
+	// Only local variable (no autowired bean)
 	private ProcessEngineConfigurationImpl processEngineConfiguration;
 
 	/**
@@ -56,7 +56,6 @@ public class WorkflowConfig {
 				.setActivityBehaviorFactory(customActivityBehaviorFactory);
 		return customActivityBehaviorFactory;
 	}
-	
 
 	/**
 	 * * Adds support for custom form types * configure single resource
@@ -75,6 +74,7 @@ public class WorkflowConfig {
 							.getProcessEngineConfiguration());
 					((SpringProcessEngineConfiguration) processEngineConfiguration)
 							.setDeploymentMode(SingleResourceAutoDeploymentStrategy.DEPLOYMENT_MODE);
+									
 					((ProcessEngineConfigurationImpl)processEngineConfiguration).setFormTypes(new CustomFormTypes());
 					
 					//Add ours Activiti event listeners to engine configuration
@@ -93,13 +93,14 @@ public class WorkflowConfig {
 
 	/**
 	 * Add ours custom Activiti event listeners to engine configuration
+	 * 
 	 * @param processEngineConfiguration
 	 */
 	private void addActivitiEventListeners(ProcessEngineConfigurationImpl processEngineConfiguration) {
 		Map<String, List<ActivitiEventListener>> typedListeners = new HashMap<>();
-		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(), Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
+		typedListeners.put(ActivitiEventType.PROCESS_STARTED.name(),
+				Stream.of(startSubprocesEventListener).collect(Collectors.toList()));
 		processEngineConfiguration.setTypedEventListeners(typedListeners);
 	}
-
 
 }

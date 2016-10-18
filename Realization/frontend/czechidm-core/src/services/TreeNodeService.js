@@ -1,11 +1,14 @@
-
-
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import TreeTypeService from './TreeTypeService';
 
 class TreeNodeService extends AbstractService {
 
-  const
+  constructor() {
+    super();
+    this.treeTypeService = new TreeTypeService();
+  }
+
   getApiPath() {
     return '/tree/nodes';
   }
@@ -14,7 +17,7 @@ class TreeNodeService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.name;
+    return `${entity.name}`;
   }
 
   /**

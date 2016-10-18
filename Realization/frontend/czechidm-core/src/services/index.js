@@ -9,7 +9,7 @@ import LocalizationService from './LocalizationService';
 import RoleService from './RoleService';
 import WorkflowTaskInstanceService from './WorkflowTaskInstanceService';
 import IdentityRoleService from './IdentityRoleService';
-import IdentityWorkingPositionService from './IdentityWorkingPositionService';
+import IdentityContractService from './IdentityContractService';
 import WorkflowProcessInstanceService from './WorkflowProcessInstanceService';
 import WorkflowHistoricProcessInstanceService from './WorkflowHistoricProcessInstanceService';
 import WorkflowHistoricTaskInstanceService from './WorkflowHistoricTaskInstanceService';
@@ -31,7 +31,7 @@ const ServiceRoot = {
   RoleService,
   WorkflowTaskInstanceService,
   IdentityRoleService,
-  IdentityWorkingPositionService,
+  IdentityContractService,
   WorkflowProcessInstanceService,
   WorkflowHistoricProcessInstanceService,
   WorkflowHistoricTaskInstanceService,

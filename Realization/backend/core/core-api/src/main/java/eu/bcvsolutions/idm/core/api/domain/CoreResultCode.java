@@ -44,7 +44,7 @@ public enum CoreResultCode implements ResultCode {
 	PASSWORD_CANNOT_CHANGE(HttpStatus.BAD_REQUEST, "You cannot change your password yet. Please try it again after %s"),
 	TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY(HttpStatus.BAD_REQUEST, "You cannot create self delegation (%s)"),	
 	// tree
-	TREE_NODE_BAD_PARRENT(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad parent."),
+	TREE_NODE_BAD_PARENT(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad parent."),
 	TREE_NODE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree node: %s, cannot be deleted."),
 	TREE_TYPE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree type: %s, cannot be deleted."),
 	//

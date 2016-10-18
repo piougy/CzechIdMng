@@ -1,16 +1,17 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
+//
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import uuid from 'uuid';
 import { SecurityManager } from '../../../redux';
+import SearchParameters from '../../../domain/SearchParameters';
 
-// Root key for tree
-const rootKey = 'tree_root';
+// Root nodes  key for tree
+const rootNodesKey = 'tree-node-table-roots';
 
 // Table uiKey
-const tableUiKey = 'node_table';
-
+const tableUiKey = 'tree-node-table';
 
 /**
 * Table of nodes
@@ -22,7 +23,8 @@ export class NodeTable extends Basic.AbstractContent {
     this.state = {
       filterOpened: true,
       showLoading: true,
-      type: props.type
+      type: props.type,
+      rootNodes: null
     };
   }
 
@@ -34,11 +36,11 @@ export class NodeTable extends Basic.AbstractContent {
     const { treeNodeManager } = this.props;
     const { type } = this.state;
 
-    const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', type.id);
-    this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootKey, (loadedRoot) => {
-      const root = loadedRoot._embedded.treenodes[0];
+    const searchParametersRoots = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', type.id);
+    this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoots, rootNodesKey, (loadedRoots) => {
+      const rootNodes = loadedRoots._embedded[treeNodeManager.getCollectionType()];
       this.setState({
-        root,
+        rootNodes,
         showLoading: false
       });
     }));
@@ -127,25 +129,26 @@ export class NodeTable extends Basic.AbstractContent {
 
     this.setState({
       showLoading: true
+    }, () => {
+      const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', entity.id);
+      this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootNodesKey, (loadedRoot) => {
+        if (loadedRoot !== null) {
+          this.setState({
+            rootNodes: loadedRoot._embedded[treeNodeManager.getCollectionType()],
+            type: entity,
+            showLoading: false
+          });
+        } else {
+          this.setState({
+            type: entity,
+            showLoading: false
+          });
+        }
+        this.refs.parent.reload();
+        this.useFilter();
+      }));
+      this.context.router.push('/tree/nodes/?type=' + entity.id);
     });
-
-    const searchParametersRoot = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', entity.id);
-    this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoot, rootKey, (loadedRoot) => {
-      if (loadedRoot !== null) {
-        this.setState({
-          root: loadedRoot._embedded.treenodes[0],
-          type: entity,
-          showLoading: false
-        });
-      } else {
-        this.setState({
-          type: entity,
-          showLoading: false
-        });
-      }
-      this.refs.table.getWrappedInstance().reload();
-    }));
-    this.context.router.push('/tree/nodes/?type=' + entity.id);
   }
 
 /**
@@ -153,30 +156,68 @@ export class NodeTable extends Basic.AbstractContent {
  */
   _orgTreeHeaderDecorator(props) {
     const style = props.style;
-    const iconType = props.node.isLeaf ? 'group' : 'building';
-    const iconClass = `fa fa-${iconType}`;
-    const iconStyle = { marginRight: '5px' };
+    const icon = props.node.isLeaf ? 'group' : 'building';
     return (
       <div style={style.base}>
         <div style={style.title}>
-          <i className={iconClass} style={iconStyle}/>
+          <Basic.Icon type="fa" icon={icon} style={{ marginRight: '5px' }}/>
           <Basic.Button level="link" onClick={this._useFilterByTree.bind(this, props.node.id)} style={{padding: '0px 0px 0px 0px'}}>
-            {props.node.name}
+            { props.node.name }
+            {
+              !props.node.childrenCount
+              ||
+              <small style={{ color: '#aaa' }}>{' '}({props.node.childrenCount})</small>
+            }
           </Basic.Button>
         </div>
       </div>
     );
   }
 
+  showTypeDetail(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (entity.id === undefined) {
+      const uuidId = uuid.v1();
+      this.context.router.push(`/tree/types/${uuidId}?new=1&b=nodes`);
+    } else {
+      this.context.router.push('/tree/types/' + entity.id);
+    }
+  }
+
   render() {
     const { treeNodeManager, treeTypeManager } = this.props;
-    const { filterOpened, root, showLoading, type } = this.state;
-    const showTree = !showLoading && root !== undefined;
+    const { filterOpened, rootNodes, showLoading, type } = this.state;
+    const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
     return (
       <Basic.Row>
         <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
           <div className="basic-toolbar">
-            <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
+            <div className="pull-left">
+              <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
+            </div>
+            <div className="pull-right">
+              <Basic.Button
+                level="success"
+                title={this.i18n('addType')}
+                titlePlacement="bottom"
+                className="btn-xs"
+                style={{ marginRight: 3 }}
+                onClick={this.showTypeDetail.bind(this, {})}
+                rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                <Basic.Icon value="fa:plus"/>
+              </Basic.Button>
+              <Basic.Button
+                level="primary"
+                title={this.i18n('reloadTree')}
+                titlePlacement="bottom"
+                className="btn-xs"
+                onClick={this._changeTree.bind(this, type)}>
+                <Basic.Icon value="fa:refresh"/>
+              </Basic.Button>
+            </div>
+            <div className="clearfix"></div>
           </div>
           <div style={{ paddingLeft: 15, paddingRight: 15 }}>
             {
@@ -200,11 +241,7 @@ export class NodeTable extends Basic.AbstractContent {
               <Basic.Panel>
                 <Advanced.Tree
                   ref="organizationTree"
-                  rootNode={{name: root.name, toggled: true, id: root.id}}
-                  propertyId="id"
-                  propertyParent="parent"
-                  showLoading={showLoading}
-                  propertyName="name"
+                  rootNodes={ rootNodes }
                   headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
                   uiKey="orgTree"
                   manager={treeNodeManager}
@@ -219,7 +256,7 @@ export class NodeTable extends Basic.AbstractContent {
           <Advanced.Table
             ref="table"
             uiKey={tableUiKey}
-            forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
+            forceSearchParameters={new SearchParameters().setFilter('treeType', type.id)}
             manager={treeNodeManager}
             showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
@@ -227,36 +264,32 @@ export class NodeTable extends Basic.AbstractContent {
             showLoading={showLoading}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                {
-                  showLoading
-                  ||
-                  <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                    <Basic.Row>
-                      <div className="col-lg-6">
-                        <Advanced.Filter.TextField
-                          ref="text"
-                          placeholder={this.i18n('entity.TreeNode.name')}
-                          label={this.i18n('entity.TreeNode.name')}/>
-                      </div>
-                      <div className="col-lg-6 text-right">
-                        <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                      </div>
-                    </Basic.Row>
-                    <Basic.Row className="last">
-                      <div className="col-lg-6">
-                        <Advanced.Filter.SelectBox
-                          ref="parent"
-                          placeholder={this.i18n('entity.TreeNode.parentId')}
-                          label={this.i18n('entity.TreeNode.parent.name')}
-                          forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
-                          manager={treeNodeManager}/>
-                      </div>
-                    </Basic.Row>
-                  </Basic.AbstractForm>
-                }
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="text"
+                        placeholder={this.i18n('entity.TreeNode.name')}
+                        label={this.i18n('entity.TreeNode.name')}/>
+                    </div>
+                    <div className="col-lg-6 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row className="last">
+                    <div className="col-lg-6">
+                      <Advanced.Filter.SelectBox
+                        ref="parent"
+                        placeholder={this.i18n('entity.TreeNode.parentId')}
+                        label={this.i18n('entity.TreeNode.parent.name')}
+                        forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type.id)}
+                        manager={treeNodeManager}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
               </Advanced.Filter>
             }
-            filterOpened={!filterOpened}
+            filterOpened={filterOpened}
             actions={
               [
                 { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
@@ -284,6 +317,7 @@ export class NodeTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
+            <Advanced.Column property="code" width="125px" sort face="text"/>
             <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
             <Advanced.Column property="parent.name" sort/>
             <Advanced.Column property="treeType.name" sort/>
@@ -306,4 +340,9 @@ NodeTable.propTypes = {
 NodeTable.defaultProps = {
 };
 
-export default connect()(NodeTable);
+function select() {
+  return {
+  };
+}
+
+export default connect(select)(NodeTable);

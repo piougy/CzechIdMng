@@ -1,3 +1,5 @@
+import _ from 'lodash';
+//
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
 import * as Utils from '../utils';
@@ -159,7 +161,7 @@ export default class AbstractService {
    * @return {object} searchParameters
    */
   getDefaultSearchParameters() {
-    return new SearchParameters().setSort('id');
+    return _.clone(new SearchParameters().setSort('id'));
   }
 
   /**
@@ -177,7 +179,7 @@ export default class AbstractService {
       return newSearchParameters;
     }
     // merge filters
-    let _searchParameters = previousSearchParameters;
+    let _searchParameters = _.clone(previousSearchParameters);
     newSearchParameters.getFilters().forEach((filter, property) => {
       _searchParameters = _searchParameters.setFilter(property, filter);
     });

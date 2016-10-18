@@ -20,7 +20,7 @@ const workflowProcessInstanceManager = new WorkflowProcessInstanceManager();
 
 const TEST_ADD_ROLE_DIRECTLY = false;
 
-const MAX_CANDICATES = 2;
+const MAX_CANDICATES = 3;
 
 class Roles extends Basic.AbstractContent {
 

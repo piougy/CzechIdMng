@@ -6,7 +6,7 @@ import TreeTypeManager from './TreeTypeManager';
 import RoleManager from './RoleManager';
 import WorkflowTaskInstanceManager from './WorkflowTaskInstanceManager';
 import IdentityRoleManager from './IdentityRoleManager';
-import IdentityWorkingPositionManager from './IdentityWorkingPositionManager';
+import IdentityContractManager from './IdentityContractManager';
 import WorkflowProcessInstanceManager from './WorkflowProcessInstanceManager';
 import WorkflowHistoricProcessInstanceManager from './WorkflowHistoricProcessInstanceManager';
 import WorkflowHistoricTaskInstanceManager from './WorkflowHistoricTaskInstanceManager';
@@ -25,7 +25,7 @@ const ManagerRoot = {
   RoleManager,
   WorkflowTaskInstanceManager,
   IdentityRoleManager,
-  IdentityWorkingPositionManager,
+  IdentityContractManager,
   WorkflowProcessInstanceManager,
   WorkflowHistoricProcessInstanceManager,
   WorkflowHistoricTaskInstanceManager,

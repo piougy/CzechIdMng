@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.rest.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -12,7 +11,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,19 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.service.AccIdentityAccountService;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.core.rest.lookup.IdmIdentityLookup;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
@@ -46,15 +39,9 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identityAccounts")
 public class AccIdentityAccountController extends DefaultReadWriteEntityController<AccIdentityAccount, IdentityAccountFilter> {
 	
-	// TODO: lookups overs spring plugin
-	private final IdmIdentityLookup identityLookup;
-	
 	@Autowired
-	public AccIdentityAccountController(AccIdentityAccountService identityAccountService, IdmIdentityLookup identityLookup) {
-		super(identityAccountService);
-		//
-		Assert.notNull(identityLookup);
-		this.identityLookup = identityLookup;
+	public AccIdentityAccountController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
 	}
 	
 	@Override
@@ -115,15 +102,7 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 	protected IdentityAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(convertLongParameter(parameters, "accountId"));
-		// TODO: Spring plugin and identity lookup
-		String identityIdentifier = convertStringParameter(parameters, "identity");
-		if (StringUtils.isNotEmpty(identityIdentifier)) {
-			IdmIdentity identity = (IdmIdentity)identityLookup.lookupEntity(identityIdentifier);
-			if (identity == null) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityIdentifier));
-			}
-			filter.setIdentity(identity);
-		}
+		filter.setIdentity(convertEntityParameter(parameters, "identity", IdmIdentity.class));
 		filter.setRoleId(convertLongParameter(parameters, "roleId"));
 		filter.setSystemId(convertLongParameter(parameters, "systemId"));
 		return filter;

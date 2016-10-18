@@ -37,7 +37,7 @@ export default class NodeDetail extends Basic.AbstractContent {
         loadedNode.treeType = type;
       }
       this.refs.form.setData(loadedNode);
-      this.refs.name.focus();
+      this.refs.parent.focus();
     }
   }
 
@@ -101,22 +101,26 @@ export default class NodeDetail extends Basic.AbstractContent {
       <div>
         <form onSubmit={this.save.bind(this)}>
           <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')} >
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.TreeNode.name')}
-              required/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.TreeNode.parent.name')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
-              manager={this.treeNodeManager}
-              required={parentRequired}/>
             <Basic.SelectBox
               ref="treeType"
               label={this.i18n('entity.TreeNode.treeType.name')}
               manager={this.treeTypeManager}
               required
               readOnly/>
+            <Basic.SelectBox
+              ref="parent"
+              label={this.i18n('entity.TreeNode.parent.name')}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              manager={this.treeNodeManager}
+              required={parentRequired}/>
+            <Basic.TextField
+              ref="code"
+              label={this.i18n('entity.TreeType.code')}
+              required/>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.TreeNode.name')}
+              required/>
             <Basic.Checkbox
               ref="disabled"
               label={this.i18n('entity.TreeNode.disabled')}/>

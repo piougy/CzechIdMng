@@ -11,6 +11,12 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
+/**
+ * Core module descriptor - required module
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 
@@ -19,11 +25,6 @@ public class CoreModuleDescriptor extends AbstractModuleDescriptor {
 	@Override
 	public String getId() {
 		return MODULE_ID;
-	}
-	
-	@Override
-	public String getDescription() {
-		return "Core services, entities, domain objects. Required module.";
 	}
 	
 	/**

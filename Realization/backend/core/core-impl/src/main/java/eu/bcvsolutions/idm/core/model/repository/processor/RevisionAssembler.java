@@ -1,14 +1,15 @@
 package eu.bcvsolutions.idm.core.model.repository.processor;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import org.springframework.data.history.Revision;
 import org.springframework.hateoas.Link;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
-
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
+
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.rest.IdmRevisionController;
 
 /**
  * Assembler for back links (HATEOAS) to revisions. 
@@ -16,14 +17,14 @@ import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
  *
  */
 @SuppressWarnings("rawtypes")
-public class RevisionAssembler<T extends AbstractEntity> extends ResourceAssemblerSupport<T, ResourceWrapper> {
+public class RevisionAssembler<T extends BaseEntity> extends ResourceAssemblerSupport<T, ResourceWrapper> {
 	
 	public RevisionAssembler(Class<?> controllerClass, Class<ResourceWrapper> resourceType) {
 		super(controllerClass, resourceType);
 	}
 	
 	public RevisionAssembler() {
-		super(AbstractEntity.class, ResourceWrapper.class);
+		super(BaseEntity.class, ResourceWrapper.class);
 	}
 
 	/**
@@ -47,8 +48,8 @@ public class RevisionAssembler<T extends AbstractEntity> extends ResourceAssembl
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Integer, ? extends AbstractEntity> entity, Integer revId) {
-		ResourceWrapper<Revision<Integer, ? extends AbstractEntity>> wrapper = new ResourceWrapper<Revision<Integer, ? extends AbstractEntity>>(entity);
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Integer, ? extends BaseEntity> entity, Integer revId) {
+		ResourceWrapper<Revision<Integer, ? extends BaseEntity>> wrapper = new ResourceWrapper<Revision<Integer, ? extends BaseEntity>>(entity);
 //		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
 //		wrapper.add(selfLink);
 		return wrapper;

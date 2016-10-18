@@ -18,6 +18,12 @@ class SelectBox extends AbstractFormComponent {
     super(props);
     this.getOptions = this.getOptions.bind(this);
     this.itemRenderer = this.itemRenderer.bind(this);
+    this.state.options = [];
+  }
+
+  componentDidMount() {
+    // initialize values
+    this.getOptions('');
   }
 
   getRequiredValidationSchema() {
@@ -43,32 +49,41 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input, callback) {
+  getOptions(input) {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input);
-    //
-    this.context.store.dispatch(manager.fetchEntities(searchParameters, null, (json, error) => {
-      if (!error) {
-        const result = json;
-        let data = null;
-        const results = result._embedded[manager.getCollectionType()];
-        if (results) {
-          for (const item in results) {
-            if (!results.hasOwnProperty(item)) {
-              continue;
+    this.setState({
+      isLoading: true
+    }, () => {
+      this.context.store.dispatch(manager.fetchEntities(searchParameters, null, (json, error) => {
+        if (!error) {
+          const result = json;
+          let data = null;
+          const results = result._embedded[manager.getCollectionType()];
+          if (results) {
+            for (const item in results) {
+              if (!results.hasOwnProperty(item)) {
+                continue;
+              }
+              this.itemRenderer(results[item], input);
             }
-            this.itemRenderer(results[item], input);
+            data = {
+              options: result._embedded[manager.getCollectionType()],
+              complete: results.length >= result.page.totalElements,
+            };
           }
-          data = {
-            options: result._embedded[manager.getCollectionType()],
-            complete: results.length >= result.page.totalElements,
-          };
+          this.setState({
+            options: data.options,
+            isLoading: false
+          });
+        } else {
+          this.addError(error);
+          this.setState({
+            isLoading: false
+          });
         }
-        callback(null, data);
-      } else {
-        this.addError(error);
-      }
-    }));
+      }));
+    });
   }
 
   getValue() {
@@ -198,11 +213,10 @@ class SelectBox extends AbstractFormComponent {
       value
     }, () => {
       this.validate();
+      if (this.props.onChange) {
+        this.props.onChange(value);
+      }
     });
-
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    }
   }
 
   focus() {
@@ -224,6 +238,28 @@ class SelectBox extends AbstractFormComponent {
       }
     }
     _.merge(item, {[NICE_LABEL]: niceLabel, [ITEM_FULL_KEY]: itemFullKey});
+  }
+
+  onInputChange(value) {
+    this.getOptions(value);
+  }
+
+  reload(cb) {
+    const value = null;
+    this.setState({
+      value
+    }, () => {
+      this.validate();
+      this.getOptions('');
+
+      if (this.props.onChange) {
+        this.props.onChange(value);
+      }
+
+      if (cb) {
+        cb(value);
+      }
+    });
   }
 
   getBody(feedback) {
@@ -290,13 +326,15 @@ class SelectBox extends AbstractFormComponent {
 
   getSelectComponent() {
     const { placeholder, fieldLabel, multiSelect, clearable } = this.props;
+    const { isLoading, options, readOnly, disabled, value } = this.state;
+    //
     return (
-      <Select.Async
+      <Select
         ref="selectComponent"
-        isLoading={this.state.isLoading}
-        value={this.state.value}
+        isLoading={isLoading}
+        value={value}
         onChange={this.onChange}
-        disabled={this.state.readOnly || this.state.disabled}
+        disabled={readOnly || disabled}
         ignoreCase
         ignoreAccents={false}
         multi={multiSelect}
@@ -307,8 +345,9 @@ class SelectBox extends AbstractFormComponent {
         placeholder={this.getPlaceholder(placeholder)}
         searchingText={this.i18n('component.basic.SelectBox.searchingText')}
         searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        loadOptions={this.getOptions}
-        clearable={clearable} />
+        clearable={clearable}
+        onInputChange={this.onInputChange.bind(this)}
+        options={options}/>
     );
   }
 }

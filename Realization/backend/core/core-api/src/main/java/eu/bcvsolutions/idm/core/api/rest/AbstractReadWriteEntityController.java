@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -38,8 +39,12 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	@Autowired
 	private RequestResourceResolver requestResourceResolver;
 	
-	public AbstractReadWriteEntityController(ReadWriteEntityService<E, F> entityService) {
-		super(entityService);
+	public AbstractReadWriteEntityController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
+	}
+	
+	public AbstractReadWriteEntityController(EntityLookupService entityLookupService, ReadWriteEntityService<E, F> entityService) {
+		super(entityLookupService, entityService);
 	}
 	
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		

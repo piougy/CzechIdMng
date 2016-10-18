@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +11,12 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityWorkingPosition;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityWorkingPositionRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
 
@@ -28,7 +27,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
-	private IdmIdentityWorkingPositionRepository workingPositionRepository;
+	private IdmIdentityContractRepository identityContractRepository;
 
 	@Override
 	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
@@ -37,7 +36,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public void delete(IdmTreeNode entity) {
-		List<IdmIdentityWorkingPosition> listWorkingPosition = this.workingPositionRepository.findAllByTreeNode(entity);
+		List<IdmIdentityContract> listWorkingPosition = this.identityContractRepository.findAllByTreeNode(entity);
 		
 		if (!listWorkingPosition.isEmpty()) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_CANNOT_DELETE,  ImmutableMap.of("node", entity.getName()));
@@ -66,39 +65,22 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	private void testNode(IdmTreeNode node) {
 		if (checkParents(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARRENT,  "TreeNode ["+node.getName() +"] have bad parent.");
-		}
-
-		if (checkEmptyParent(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARRENT,  "TreeNode ["+node.getName() +"] have bad parent.");
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		
 		if (checkChildren(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARRENT,  "TreeNode ["+node.getName() +"] have bad parent.");
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		
 		if (checkCorrectType(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARRENT,  "TreeNode ["+node.getName() +"] have bad type.");
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad type.");
 		}
-	}
-	
-	private boolean checkEmptyParent(IdmTreeNode treeNode) {
-		boolean isNewRoot =  this.treeNodeRepository.findRoots(treeNode.getTreeType().getId()).isEmpty();
-		
-		if (isNewRoot) {
-			return false;
-		}
-		
-		List<?> root = this.treeNodeRepository.findChildrenByParent(null);
-		
-		if (treeNode.getParent() == null && root.isEmpty() || treeNode.getParent() != null) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
 	 * Method check type of current node and saved node.
+	 * TODO: bug - this will work only in update. If node is created, then parent from diferent type could be given
+	 * 
 	 * @param treeNode
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
 	 */

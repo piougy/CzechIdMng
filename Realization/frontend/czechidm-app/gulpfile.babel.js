@@ -5,8 +5,7 @@ import browserify from 'browserify';
 import watchify from 'watchify';
 import source from 'vinyl-source-stream';
 import buffer from 'vinyl-buffer';
-import eslint from 'gulp-eslint';
-import bootlint from 'gulp-bootlint';
+import shell from 'gulp-shell';
 import babelify from 'babelify';
 import uglify from 'gulp-uglify';
 import rimraf from 'rimraf';
@@ -378,12 +377,9 @@ gulp.task('loadModuleLocales', () => {
   })).pipe(reload({stream: true}));
 });
 
-gulp.task('lint', () => {
-  return gulp.src(paths.srcJsx)
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(bootlint());
-});
+gulp.task('lint', shell.task([
+  'npm run lint'
+]));
 
 gulp.task('config', (cb) => {
   return fs.writeFile(path.join(__dirname, paths.dist, '/config.json'), JSON.stringify(getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE)), cb);

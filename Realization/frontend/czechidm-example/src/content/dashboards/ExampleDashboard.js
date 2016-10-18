@@ -13,7 +13,7 @@ export default class ExampleDashboard extends Basic.AbstractContent {
 
   render() {
     return (
-      <Basic.Panel style={{maxWidth: '500px'}}>
+      <Basic.Panel>
         <Basic.PanelHeader text={this.i18n('header')}/>
         <Basic.PanelBody >
           <Basic.Panel className="panel-warning">

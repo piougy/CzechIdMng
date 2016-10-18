@@ -10,20 +10,29 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 @Entity
-@Table(name = "idm_tree_node", indexes = { @Index(name = "ux_tree_node_name", columnList = "name") })
+@Table(name = "idm_tree_node", indexes = { @Index(name = "ux_tree_node_code", columnList = "tree_type_id,code") })
 public class IdmTreeNode extends AbstractEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
+	@Audited
+	@NotEmpty
+	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
+	private String code;
+	
 	@Audited
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
@@ -49,6 +58,11 @@ public class IdmTreeNode extends AbstractEntity {
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id")
 	private IdmTreeType treeType;
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@Column(insertable = false, updatable = false)
+	@Formula("(select coalesce(count(1),0) from idm_tree_node e where e.parent_id = id)")
+	private Integer childrenCount;
 
 	public String getName() {
 		return name;
@@ -82,4 +96,19 @@ public class IdmTreeNode extends AbstractEntity {
 		this.treeType = treeType;
 	}
 	
+	public void setCode(String code) {
+		this.code = code;
+	}
+	
+	public String getCode() {
+		return code;
+	}
+	
+	public void setChildrenCount(Integer childrenCount) {
+		this.childrenCount = childrenCount;
+	}
+	
+	public Integer getChildrenCount() {
+		return childrenCount;
+	}
 }

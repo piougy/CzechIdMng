@@ -9,23 +9,23 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 /**
- * 
+ * Identity contract - working position
  * 
  * @author Radek Tomiška
- * @deprecated Will be renamed to IdentityContract
  */
-@Deprecated
 @Entity
-@Table(name = "idm_identity_working_position")
-public class IdmIdentityWorkingPosition extends AbstractEntity implements ValidableEntity {
+@Table(name = "idm_identity_contract")
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
@@ -44,24 +44,25 @@ public class IdmIdentityWorkingPosition extends AbstractEntity implements Valida
 	@Temporal(TemporalType.DATE)
 	private Date validTill;
 	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
+	private IdmIdentity guarantee;
+	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "working_position_id", referencedColumnName = "id")
+	private IdmTreeNode workingPosition;
+	
 	@Audited
-	@Column(name = "position")
-	private String position; // TODO: will be codelist
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "position", length = DefaultFieldLengths.NAME)
+	private String position; // string position - if working position tree is not configured, then this string could be used
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "manager_id", referencedColumnName = "id")
-	private IdmIdentity manager;
-	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "tree_node_id", referencedColumnName = "id")
-	private IdmTreeNode treeNode;
-	
-	public IdmIdentityWorkingPosition() {
+	public IdmIdentityContract() {
 	}
 	
-	public IdmIdentityWorkingPosition(Long id) {
+	public IdmIdentityContract(Long id) {
 		super(id);
 	}
 
@@ -89,27 +90,27 @@ public class IdmIdentityWorkingPosition extends AbstractEntity implements Valida
 		this.identity = identity;
 	}
 
-	public String getPosition() {
-		return position;
+	public IdmTreeNode getWorkingPosition() {
+		return workingPosition;
 	}
 
+	public void setWorkingPosition(IdmTreeNode workingPosition) {
+		this.workingPosition = workingPosition;
+	}
+
+	public IdmIdentity getGuarantee() {
+		return guarantee;
+	}
+
+	public void setGuarantee(IdmIdentity guarantee) {
+		this.guarantee = guarantee;
+	}
+	
 	public void setPosition(String position) {
 		this.position = position;
 	}
-
-	public IdmIdentity getManager() {
-		return manager;
-	}
-
-	public void setManager(IdmIdentity manager) {
-		this.manager = manager;
-	}
-
-	public IdmTreeNode getTreeNode() {
-		return treeNode;
-	}
-
-	public void setTreeNode(IdmTreeNode treeNode) {
-		this.treeNode = treeNode;
+	
+	public String getPosition() {
+		return position;
 	}
 }

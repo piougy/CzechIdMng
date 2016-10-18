@@ -43,6 +43,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	public void testCreateNode() {
 		IdmTreeNode node = new IdmTreeNode();
 		
+		node.setCode("TEST_NODE");
 		node.setName("TEST_NODE");
 		
 		Exception ex = null;
@@ -55,6 +56,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		assertNotNull(ex);
 		
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE");
 		type.setName("TEST_TYPE");
 		treeTypeRepository.save(type);
 		node.setTreeType(type);
@@ -72,10 +74,12 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	@Test
 	public void testCreateRootNodeTwice() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE_ROOT");
 		type.setName("TEST_TYPE_ROOT");
 		treeTypeRepository.save(type);
 		
 		IdmTreeNode root = new IdmTreeNode();
+		root.setCode("TEST_ROOT");
 		root.setName("TEST_ROOT");
 		root.setTreeType(type);
 		
@@ -91,6 +95,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		
 		// save second root, same type
 		Map<String, String> body = new HashMap<>();
+		body.put("code", "TEST_ROOT_second");
 		body.put("name", "TEST_ROOT_second");
 		body.put("treeType", "treetypes/" + type.getId().toString());
 		
@@ -109,30 +114,35 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 			ex = e;
 		}
 		assertNull(ex);
-		assertEquals(400, status);
+		assertEquals(201, status);
 	}
 	
 	@Test
 	public void addChildrenToParent() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE");
 		type.setName("TEST_TYPE");
 		treeTypeRepository.save(type);
 		
 		IdmTreeNode node1 = new IdmTreeNode();
+		node1.setCode("TEST_ROOT");
 		node1.setName("TEST_ROOT");
 		node1.setTreeType(type);
 		
 		IdmTreeNode node2 = new IdmTreeNode();
+		node2.setCode("TEST_NODE_2");
 		node2.setName("TEST_NODE_2");
 		node2.setTreeType(type);
 		node2.setParent(node1);
 		
 		IdmTreeNode node3 = new IdmTreeNode();
+		node3.setCode("TEST_NODE_3");
 		node3.setName("TEST_NODE_3");
 		node3.setTreeType(type);
 		node3.setParent(node2);
 		
 		IdmTreeNode node4 = new IdmTreeNode();
+		node4.setCode("TEST_NODE_4");
 		node4.setName("TEST_NODE_4");
 		node4.setTreeType(type);
 		node4.setParent(node3);
@@ -145,6 +155,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		// set parent of node4 to his children
 		Map<String, String> body = new HashMap<>();
 		body.put("id", node2.getId().toString());
+		body.put("code", "TEST_NODE_2_update");
 		body.put("name", "TEST_NODE_2_update");
 		body.put("treeType", "tree/types/" + node4.getTreeType().getId().toString());
 		body.put("parent", "tree/nodes/" + node4.getId().toString());
@@ -170,15 +181,18 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	@Test
 	public void changeType() {
 		IdmTreeType type = new IdmTreeType();
+		type.setCode("TEST_TYPE_1");
 		type.setName("TEST_TYPE_1");
 		treeTypeRepository.save(type);
 		
 		IdmTreeType type2 = new IdmTreeType();
+		type2.setCode("TEST_TYPE_2");
 		type2.setName("TEST_TYPE_2");
 		treeTypeRepository.save(type2);
 		
 		// save node trought rest
 		Map<String, String> body = new HashMap<>();
+		body.put("code", "TEST_NODE");
 		body.put("name", "TEST_NODE");
 		body.put("treeType", "treetypes/" + type.getId().toString());
 		

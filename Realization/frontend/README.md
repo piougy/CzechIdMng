@@ -134,3 +134,13 @@ When we want unmount some optional module, we have to delete it (or his symlink)
 `npm prune`
 
 `gulp makeModules`
+
+## Check syntax by Eslint
+**IMPORTANT!** Syntax verify is executed during each startup and build application via gulp.
+
+If you want to verify that code syntax is written correctly, you can use commands below.  
+Go to app module and then run:
+
+`npm run lint`   Check syntax in app module and in all czechidm linked modules (in directory czechidm-modules).
+
+`gulp lint`  Do same check as previous command, but run as gulp task.

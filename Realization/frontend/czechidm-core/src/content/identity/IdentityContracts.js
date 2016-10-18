@@ -6,44 +6,49 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { IdentityWorkingPositionManager, IdentityManager, TreeNodeManager, SecurityManager } from '../../redux';
+import { IdentityContractManager, IdentityManager, TreeTypeManager, TreeNodeManager, SecurityManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 
-const uiKey = 'identity-working-positions';
+const uiKey = 'identity-contracts';
 
-class WorkingPositions extends Basic.AbstractContent {
+class IdentityContracts extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.identityWorkingPositionManager = new IdentityWorkingPositionManager();
+    this.identityContractManager = new IdentityContractManager();
     this.identityManager = new IdentityManager();
+    this.treeTypeManager = new TreeTypeManager();
     this.treeNodeManager = new TreeNodeManager();
     this.state = {
       detail: {
         show: false,
         entity: {}
-      }
+      },
+      treeTypeId: null,
+      forceSearchParameters: new SearchParameters().setFilter('treeType', -1)
     };
   }
 
   getManager() {
-    return this.identityWorkingPositionManager;
+    return this.identityContractManager;
   }
 
   getContentKey() {
-    return 'content.identity.workingPositions';
+    return 'content.identity.identityContracts';
   }
 
   componentDidMount() {
-    this.selectSidebarItem('profile-working-positions');
+    this.selectSidebarItem('profile-contracts');
     const { entityId } = this.props.params;
-    this.context.store.dispatch(this.getManager().fetchWorkingPositions(entityId, `${uiKey}-${entityId}`));
+    this.context.store.dispatch(this.getManager().fetchContracts(entityId, `${uiKey}-${entityId}`));
   }
 
   showDetail(entity) {
-    /* eslint no-undef: 1 */
+    const treeTypeId = entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.treeType.id : null;
     const entityFormData = _.merge({}, entity, {
-      manager: entity.id && entity._embedded.manager ? entity._embedded.manager.username : null,
-      treeNode: entity.id && entity._embedded.treeNode ? entity._embedded.treeNode.id : null
+      guarantee: entity._embedded && entity._embedded.guarantee ? entity._embedded.guarantee.id : null,
+      workingPosition: entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.id : null,
+      treeTypeId
     });
 
     this.setState({
@@ -51,10 +56,13 @@ class WorkingPositions extends Basic.AbstractContent {
         show: true,
         showLoading: false,
         entity: entityFormData
-      }
+      },
+      treeTypeId,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
     }, () => {
-      this.refs.form.setData(entityFormData);
-      this.refs.position.focus();
+      if (this.refs.treeTypeId) {
+        this.refs.treeTypeId.focus();
+      }
     });
   }
 
@@ -63,7 +71,9 @@ class WorkingPositions extends Basic.AbstractContent {
       detail: {
         ... this.state.detail,
         show: false
-      }
+      },
+      treeTypeId: null,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', -1)
     });
   }
 
@@ -77,26 +87,26 @@ class WorkingPositions extends Basic.AbstractContent {
     const entity = this.refs.form.getData();
     const { entityId } = this.props.params;
     entity.identity = this.identityManager.getSelfLink(entityId);
-    entity.manager = this.identityManager.getSelfLink(entity.manager);
-    entity.treeNode = this.treeNodeManager.getSelfLink(entity.treeNode);
+    entity.guarantee = this.identityManager.getSelfLink(entity.guarantee);
+    entity.workingPosition = this.treeNodeManager.getSelfLink(entity.workingPosition);
     //
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.identityWorkingPositionManager.createEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
+      this.context.store.dispatch(this.getManager().createEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('create.success', { position: entity.position, username: entityId }) });
+          this.addMessage({ message: this.i18n('create.success', { position: this.getManager().getNiceLabel(savedEntity), username: entityId }) });
           this._afterSave(error);
         } else if (error.statusCode === 202) {
-          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { position: entity.position, username: entityId }) });
+          this.addMessage({ level: 'info', message: this.i18n('create.accepted', { position: this.getManager().getNiceLabel(savedEntity), username: entityId }) });
           this.closeDetail();
         } else {
           this._afterSave(error);
         }
       }));
     } else {
-      this.context.store.dispatch(this.identityWorkingPositionManager.patchEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
+      this.context.store.dispatch(this.getManager().patchEntity(entity, `${uiKey}-${entityId}`, (savedEntity, error) => {
         this._afterSave(error);
         if (!error) {
-          this.addMessage({ message: this.i18n('edit.success', { position: entity.position, username: entityId }) });
+          this.addMessage({ message: this.i18n('edit.success', { position: this.getManager().getNiceLabel(savedEntity), username: entityId }) });
         }
       }));
     }
@@ -120,9 +130,9 @@ class WorkingPositions extends Basic.AbstractContent {
       this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
-      this.context.store.dispatch(this.identityWorkingPositionManager.deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
+      this.context.store.dispatch(this.getManager().deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n('delete.success', { position: entity.position, username: entityId }) });
+          this.addMessage({ message: this.i18n('delete.success', { position: this.getManager().getNiceLabel(entity), username: entityId }) });
         } else {
           this.addError(error);
         }
@@ -132,10 +142,21 @@ class WorkingPositions extends Basic.AbstractContent {
     });
   }
 
+  onChangeTreeType(treeType) {
+    const treeTypeId = treeType ? treeType.id : null;
+    this.setState({
+      treeTypeId,
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+    }, () => {
+      // focus automatically - maybe will be usefull?
+      // this.refs.workingPosition.focus();
+    });
+    this.refs.workingPosition.reload();
+  }
+
   render() {
     const { _entities, _showLoading} = this.props;
-    const { detail } = this.state;
-
+    const { detail, forceSearchParameters, treeTypeId } = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -164,7 +185,7 @@ class WorkingPositions extends Basic.AbstractContent {
 
             <Basic.Table
               data={_entities}
-              noData={this.i18n('workingPositions.empty')}
+              noData={this.i18n('identityContracts.empty')}
               rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
               <Basic.Column
                 className="detail-button"
@@ -177,21 +198,9 @@ class WorkingPositions extends Basic.AbstractContent {
                 }
                 rendered={SecurityManager.isAdmin()}/>
               <Basic.Column
-                header={this.i18n('entity.IdentityWorkingPosition.position')}
-                property="position"
-              />
-              <Basic.Column
-                property="validFrom"
-                header={this.i18n('entity.IdentityWorkingPosition.validFrom')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-              />
-              <Basic.Column
-                property="validTill"
-                header={this.i18n('entity.IdentityWorkingPosition.validTill')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-              <Basic.Column
-                property="manager"
-                header={this.i18n('entity.IdentityWorkingPosition.manager')}
+                property="treeType"
+                header={this.i18n('entity.IdentityContract.treeType')}
+                width="175px"
                 cell={
                   ({ rowIndex, data }) => {
                     return (
@@ -199,7 +208,7 @@ class WorkingPositions extends Basic.AbstractContent {
                         {
                           !data[rowIndex]._embedded
                           ||
-                          this.identityManager.getNiceLabel(data[rowIndex]._embedded.manager)
+                          this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
                         }
                       </span>
                     );
@@ -207,8 +216,9 @@ class WorkingPositions extends Basic.AbstractContent {
                 }
               />
               <Basic.Column
-                property="treeNode"
-                header={this.i18n('entity.IdentityWorkingPosition.treeNode')}
+                property="workingPosition"
+                header={this.i18n('entity.IdentityContract.workingPosition')}
+                width="175px"
                 cell={
                   ({ rowIndex, data }) => {
                     return (
@@ -216,7 +226,33 @@ class WorkingPositions extends Basic.AbstractContent {
                         {
                           !data[rowIndex]._embedded
                           ||
-                          this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.treeNode)
+                          this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition)
+                        }
+                      </span>
+                    );
+                  }
+                }
+              />
+              <Basic.Column
+                property="validFrom"
+                header={this.i18n('entity.IdentityContract.validFrom')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
+              />
+              <Basic.Column
+                property="validTill"
+                header={this.i18n('entity.IdentityContract.validTill')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+              <Basic.Column
+                property="guarantee"
+                header={this.i18n('entity.IdentityContract.guarantee')}
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <span>
+                        {
+                          !data[rowIndex]._embedded
+                          ||
+                          this.identityManager.getNiceLabel(data[rowIndex]._embedded.guarantee)
                         }
                       </span>
                     );
@@ -253,30 +289,41 @@ class WorkingPositions extends Basic.AbstractContent {
           keyboard={!_showLoading}>
 
           <form onSubmit={this.save.bind(this)}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { position: this.getManager().getNiceLabel(detail.entity) })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="position"
-                  label={this.i18n('entity.IdentityWorkingPosition.position')}
+                  label={this.i18n('entity.IdentityContract.position')}
+                  rendered={false}/>
+                <Basic.SelectBox
+                  ref="treeTypeId"
+                  manager={this.treeTypeManager}
+                  label={this.i18n('entity.IdentityContract.treeType')}
+                  onChange={this.onChangeTreeType.bind(this)}
                   required/>
+                <Basic.SelectBox
+                  ref="workingPosition"
+                  manager={this.treeNodeManager}
+                  label={this.i18n('entity.IdentityContract.workingPosition')}
+                  required
+                  forceSearchParameters={forceSearchParameters}
+                  hidden={treeTypeId === null}/>
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validFrom"
-                  label={this.i18n('label.validFrom')}/>
+                  label={this.i18n('label.validFrom')}
+                  hidden={treeTypeId === null}/>
                 <Basic.DateTimePicker
                   mode="date"
                   ref="validTill"
-                  label={this.i18n('label.validTill')}/>
+                  label={this.i18n('label.validTill')}
+                  hidden={treeTypeId === null}/>
                 <Basic.SelectBox
-                  ref="manager"
+                  ref="guarantee"
                   manager={this.identityManager}
-                  label={this.i18n('entity.IdentityWorkingPosition.manager')}/>
-                <Basic.SelectBox
-                  ref="treeNode"
-                  manager={this.treeNodeManager}
-                  label={this.i18n('entity.IdentityWorkingPosition.treeNode')}/>
+                  label={this.i18n('entity.IdentityContract.guarantee')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 
@@ -292,7 +339,8 @@ class WorkingPositions extends Basic.AbstractContent {
                 level="success"
                 showLoading={_showLoading}
                 showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
+                showLoadingText={this.i18n('button.saving')}
+                disabled={treeTypeId === null}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>
@@ -304,11 +352,11 @@ class WorkingPositions extends Basic.AbstractContent {
   }
 }
 
-WorkingPositions.propTypes = {
+IdentityContracts.propTypes = {
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object)
 };
-WorkingPositions.defaultProps = {
+IdentityContracts.defaultProps = {
   _showLoading: true,
   _entities: []
 };
@@ -320,4 +368,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(WorkingPositions);
+export default connect(select)(IdentityContracts);

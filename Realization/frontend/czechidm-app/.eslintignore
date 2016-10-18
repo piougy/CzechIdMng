@@ -2,5 +2,5 @@ amd/**
 dist/**
 docs-built/**
 lib/**
-node_modules/**
+**/node_modules/**
 **/*.md

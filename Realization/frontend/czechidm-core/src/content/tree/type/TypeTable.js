@@ -96,7 +96,7 @@ export class TypeTable extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                  <Basic.Row>
+                  <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
@@ -138,6 +138,7 @@ export class TypeTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
+            <Advanced.Column property="code" sort width="125px"/>
             <Advanced.Column property="name" sort/>
           </Advanced.Table>
         </div>

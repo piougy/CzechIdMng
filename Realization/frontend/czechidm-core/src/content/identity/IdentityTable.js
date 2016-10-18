@@ -176,7 +176,7 @@ export class IdentityTable extends Basic.AbstractContent {
                       <Basic.Panel className="no-margin">
                         <Advanced.Tree
                           ref="orgTree"
-                          rootNode={{id: 'top', name: 'top', toggled: false, shortName: this.i18n(`content.identities.filter.orgStructure`), children: []}}
+                          rootNode={[{id: 'top', name: 'top', toggled: false, shortName: this.i18n(`content.identities.filter.orgStructure`), children: []}]}
                           propertyId="name"
                           propertyParent="parentId"
                           propertyName="shortName"

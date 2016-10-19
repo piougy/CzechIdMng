@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
-import { IdentityManager } from '../../redux';
+import { IdentityManager, SecurityManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 
 const uiKey = 'managers-info';
@@ -24,9 +24,9 @@ class ManagersInfo extends Basic.AbstractContextComponent {
     const { identityContract } = this.props;
     if (identityContract._embedded && identityContract._embedded.workingPosition) {
       // load managers by Tree
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), `${uiKey}-${identityContract._embedded.workingPosition.treeType.id}`)) {
-        const searchParameters = new SearchParameters().setFilter('managersByTreeType', identityContract._embedded.workingPosition.treeType.id);
-        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, `${uiKey}-${identityContract._embedded.workingPosition.treeType.id}`));
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), `${uiKey}-${identityContract._embedded.workingPosition.id}`)) {
+        const searchParameters = new SearchParameters().setFilter('managersByTreeNode', identityContract._embedded.workingPosition.id);
+        this.context.store.dispatch(this.identityManager.fetchEntities(searchParameters, `${uiKey}-${identityContract._embedded.workingPosition.id}`));
       }
     }
   }
@@ -54,10 +54,17 @@ class ManagersInfo extends Basic.AbstractContextComponent {
       <span>
         {
           this.getAllManagers().map(identity => {
+            if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
+              return this.identityManager.getNiceLabel(identity);
+            }
             return (
-              <Link to={`/identity/${identity.username}/profile`} style={{ marginRight: 10 }}>
-                {this.identityManager.getNiceLabel(identity)}
-              </Link>
+              <span>
+                <Link to={`/identity/${identity.username}/profile`} style={{ marginRight: 7 }}>
+                  {this.identityManager.getFullName(identity)}
+                  {' '}
+                  <small>({identity.username})</small>
+                </Link>
+              </span>
             );
           })
         }
@@ -85,7 +92,7 @@ function select(state, component) {
   if (!component.identityContract || !component.identityContract._embedded || !component.identityContract._embedded.workingPosition) {
     return {};
   }
-  const uiKeyId = `${uiKey}-${component.identityContract._embedded.workingPosition.treeType.id}`;
+  const uiKeyId = `${uiKey}-${component.identityContract._embedded.workingPosition.id}`;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, uiKeyId),
     _managers: Utils.Ui.getEntities(state, uiKeyId)

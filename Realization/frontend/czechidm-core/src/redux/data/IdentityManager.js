@@ -34,6 +34,10 @@ export default class IdentityManager extends EntityManager {
     return this.getService().isExterne(identity);
   }
 
+  getFullName(identity) {
+    return this.getService().getFullName(identity);
+  }
+
   /**
    * Who can edit identity - just for ui, rest is secured as well
    *

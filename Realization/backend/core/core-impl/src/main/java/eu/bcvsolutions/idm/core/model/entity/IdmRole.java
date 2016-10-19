@@ -84,7 +84,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
-
+	
+	@Audited
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private List<IdmRoleGuarantee> guarantees;
+	
 	@Override
 	public String getName() {
 		return name;
@@ -144,6 +150,23 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	    }
 	}
 	
+	public List<IdmRoleGuarantee> getGuarantees() {
+		if (guarantees == null) {
+			guarantees = new ArrayList<>();
+		}
+		return guarantees;
+	}
+
+	public void setGuarantees(List<IdmRoleGuarantee> guarantees) {
+		// workaround - orphan removal needs to preserve original list reference
+		if (this.guarantees == null) {
+	        this.guarantees = guarantees;
+	    } else {
+	        this.guarantees.clear();
+	        this.guarantees.addAll(guarantees);
+	    }
+	}
+
 	public List<IdmRoleComposition> getSuperiorRoles() {
 		if (superiorRoles == null) {
 			superiorRoles = new ArrayList<>();

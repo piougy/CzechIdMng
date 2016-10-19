@@ -38,7 +38,7 @@ class Profile extends Basic.AbstractContent {
  }
 
   componentDidMount() {
-    this.selectNavigationItem('users');
+    this.selectNavigationItem('identities');
     // TODO: load data from redux store
     this.initData();
   }

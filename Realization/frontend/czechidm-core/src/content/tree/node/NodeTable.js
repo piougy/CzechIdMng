@@ -98,7 +98,7 @@ export class NodeTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
       this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, tableUiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
+        this._changeTree(this.state.type);
       }));
     }, () => {
       // nothing

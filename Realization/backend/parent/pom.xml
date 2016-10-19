@@ -52,6 +52,14 @@
 				<role>Waterboy :)</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>MK</id>
+			<name>Martin Karcol</name>
+			<roles>
+				<role>Developer</role>
+				<role>CI man</role>
+			</roles>
+		</developer>
 	</developers>
 
 	<properties>
@@ -356,7 +364,7 @@
 		     </plugin>
 		</plugins>
 	</build>
-
+  <!-- All profiles  -->
 	<profiles>
 		<profile>
 			<id>default</id>
@@ -402,6 +410,7 @@
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>
 			</properties>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy'  -->
 			<distributionManagement>
 				<snapshotRepository>
 					<id>nexus</id>
@@ -421,6 +430,7 @@
 			<properties>
 				<spring.profiles.active>release</spring.profiles.active>
 			</properties>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy'  -->
 			<distributionManagement>
 				<repository>
 					<id>nexus</id>
@@ -430,6 +440,7 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
+	<!-- used for reporting pmd results in jenkins -->
 	<reporting>
 	    <plugins>
 		<plugin>

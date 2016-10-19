@@ -25,7 +25,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;

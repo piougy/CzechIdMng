@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager } from '../../../redux';
@@ -18,6 +17,10 @@ class Nodes extends Basic.AbstractContent {
     return 'content.tree.nodes';
   }
 
+  getNavigationKey() {
+    return 'tree-nodes';
+  }
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -29,8 +32,8 @@ class Nodes extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('tree-nodes');
-
+    super.componentDidMount();
+    //
     if (this._getTypeIdFromParam()) {
       this.context.store.dispatch(this.getTypeManager().fetchEntity(this._getTypeIdFromParam(), uiKey, (type) => {
         // TODO 404
@@ -82,14 +85,9 @@ class Nodes extends Basic.AbstractContent {
     const { showLoading, type, isNoType } = this.state;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.PageHeader>
-          <Basic.Icon value="apple"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        {this.renderPageHeader()}
 
         <Basic.Panel>
           {

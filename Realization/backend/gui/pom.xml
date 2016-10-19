@@ -11,78 +11,82 @@
    <build>
 		  <finalName>idm-frontend</finalName>
       <plugins>
-         <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.0</version>
-            <configuration>
-               <workingDirectory>../../frontend/czechidm-app</workingDirectory>
-               <installDirectory>target</installDirectory>
-            </configuration>
-            <executions>
-               <execution>
-                  <id>install node and npm</id>
-                  <goals>
-                     <goal>install-node-and-npm</goal>
-                  </goals>
-                  <configuration>
-                     <nodeVersion>v6.4.0</nodeVersion>
-                     <npmVersion>3.10.7</npmVersion>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>link node-modules or skip if exists</id>
-                  <goals>
-                     <goal>npm</goal>
-                  </goals>
-                  <configuration>
-                     <arguments>run modules-link-or-skip</arguments>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>npm install modules</id>
-                  <goals>
-                     <goal>npm</goal>
-                  </goals>
-                  <configuration>
-                     <arguments>install .</arguments>
-                  </configuration>
-                  <phase>generate-resources</phase>
-               </execution>
-               <execution>
-                  <id>install dependencies</id>
-                  <goals>
-                     <goal>npm</goal>
-                  </goals>
-                  <configuration>
-                     <arguments>install --production</arguments>
-                     <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
-                     <installDirectory>target</installDirectory>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>make all modules together</id>
-                  <goals>
-                     <goal>gulp</goal>
-                  </goals>
-                  <phase>generate-resources</phase>
-                  <configuration>
-                     <arguments>makeModules</arguments>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>gulp build</id>
-                  <goals>
-                     <goal>gulp</goal>
-                  </goals>
-                  <phase>generate-resources</phase>
-                  <configuration>
-                     <arguments>build -p default</arguments>
-                     <installDirectory>target</installDirectory>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
+        <!-- plugin sequentionaly runs commands which are needed for build of frontend -->
+        <plugin>
+           <groupId>com.github.eirslett</groupId>
+           <artifactId>frontend-maven-plugin</artifactId>
+           <version>1.0</version>
+           <configuration>
+              <workingDirectory>../../frontend/czechidm-app</workingDirectory>
+              <installDirectory>target</installDirectory>
+           </configuration>
+           <executions>
+              <execution>
+                 <id>install node and npm</id>
+                 <goals>
+                    <goal>install-node-and-npm</goal>
+                 </goals>
+                 <configuration>
+                    <nodeVersion>v6.4.0</nodeVersion>
+                    <npmVersion>3.6.0</npmVersion>
+                 </configuration>
+              </execution>
+              <!-- script within package.json checks whether node_modules directory and its symlink exist and creates them if they do not exist -->
+              <execution>
+                 <id>link node-modules or skip if exists</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <!-- used command depends on OS environment -->
+                    <arguments>run ${script.environment}</arguments>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>npm install modules</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>install .</arguments>
+                 </configuration>
+                 <phase>generate-resources</phase>
+              </execution>
+              <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
+              <execution>
+                 <id>install dependencies</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>install</arguments>
+                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+                    <installDirectory>target</installDirectory>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>make all modules together</id>
+                 <goals>
+                    <goal>gulp</goal>
+                 </goals>
+                 <phase>generate-resources</phase>
+                 <configuration>
+                    <arguments>makeModules</arguments>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>gulp build</id>
+                 <goals>
+                    <goal>gulp</goal>
+                 </goals>
+                 <phase>generate-resources</phase>
+                 <configuration>
+                    <arguments>build -p default</arguments>
+                    <installDirectory>target</installDirectory>
+                 </configuration>
+              </execution>
+           </executions>
+        </plugin>
 				 <plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<version>3.0.1</version>
@@ -94,7 +98,7 @@
 										 <goal>copy-resources</goal>
 									</goals>
 									<configuration>
-										 <outputDirectory>target/idm-gui</outputDirectory>
+										 <outputDirectory>target/idm-frontend</outputDirectory>
 										 <resources>
 												<resource>
 													 <directory>../../frontend/czechidm-app/dist</directory>
@@ -173,7 +177,7 @@
             </os>
          </activation>
          <properties>
-            <script.extension />
+            <script.environment />
          </properties>
       </profile>
       <profile>
@@ -184,7 +188,7 @@
             </os>
          </activation>
          <properties>
-            <script.extension>modules-link-or-skip</script.extension>
+            <script.environment>modules-link-or-skip</script.environment>
          </properties>
       </profile>
    </profiles>

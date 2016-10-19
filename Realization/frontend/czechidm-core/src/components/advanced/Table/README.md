@@ -98,7 +98,7 @@ class Team extends Basic.AbstractContent {
           <Basic.PanelHeader text={this.i18n('navigation.menu.subordinates.label')} help="#kotva"/>
           <Advanced.Table
             ref="table"
-            uiKey="identity_table"
+            uiKey="identity-table"
             manager={identityManager}
             onRowClick={this.onRowClick.bind(this)}
             onRowDoubleClick={this.onRowDoubleClick.bind(this)}

@@ -109,6 +109,7 @@
             </dependency>
          </dependencies>
       </profile>
+      <!-- Result of build with this profile is single war file containing backend and frontend -->
 			<profile>
          <id>fullApp</id>
          <properties>
@@ -117,6 +118,7 @@
          <build>
             <finalName>idm</finalName>
 						<plugins>
+            <!-- plugin sequentionaly runs commands which are needed for build of frontend -->
 						<plugin>
 							 <groupId>com.github.eirslett</groupId>
 							 <artifactId>frontend-maven-plugin</artifactId>
@@ -133,16 +135,18 @@
 										 </goals>
 										 <configuration>
 												<nodeVersion>v6.4.0</nodeVersion>
-												<npmVersion>3.10.7</npmVersion>
+												<npmVersion>3.6.0</npmVersion>
 										 </configuration>
 									</execution>
+                  <!-- script within package.json checks whether node_modules directory and its symlink exist and creates them if they do not exist -->
 									<execution>
 										 <id>link node-modules or skip if exists</id>
 										 <goals>
 												<goal>npm</goal>
 										 </goals>
 										 <configuration>
-												<arguments>run modules-link-or-skip</arguments>
+                        <!-- used command depends on OS environment -->
+												<arguments>run ${script.environment}</arguments>
 										 </configuration>
 									</execution>
 									<execution>
@@ -155,6 +159,7 @@
 										 </configuration>
 										 <phase>generate-resources</phase>
 									</execution>
+                  <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
 									<execution>
 										 <id>install dependencies</id>
 										 <goals>
@@ -189,6 +194,7 @@
 									</execution>
 							 </executions>
 						</plugin>
+            <!-- After build of frontend is result - content of dist folder, copied into idm directory, where is already backed built -->
 						<plugin>
 							 <artifactId>maven-resources-plugin</artifactId>
 							 <version>3.0.1</version>
@@ -214,6 +220,8 @@
 					</plugins>
          </build>
       </profile>
+      <!-- Due portability of maven build among different OSs we need to distinguish scripts for windows/unix.
+           Profiles are activated automaticaly based on OS -->
 			<profile>
 				 <id>Windows</id>
 				 <activation>
@@ -222,7 +230,8 @@
 						</os>
 				 </activation>
 				 <properties>
-						<script.extension />
+					  <!--TODO make windows script of linux  modules-link-or-skip -->
+						<script.environment />
 				 </properties>
 			</profile>
 			<profile>
@@ -233,7 +242,7 @@
 						</os>
 				 </activation>
 				 <properties>
-						<script.extension>modules-link-or-skip</script.extension>
+						<script.environment>modules-link-or-skip</script.environment>
 				 </properties>
 			</profile>
    </profiles>

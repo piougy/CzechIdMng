@@ -51,6 +51,10 @@ module.exports = {
           path: 'revision',
           component: require('./src/content/identity/Audit'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
+        {
+          path: 'subordinates',
+          component: require('./src/content/identity/IdentitySubordinates')
         }
       ]
     },

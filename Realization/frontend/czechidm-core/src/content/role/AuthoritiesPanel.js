@@ -164,7 +164,8 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                         onClick={this.onAuthorityGroupToogle.bind(this, authorityGroupName)}
                         style={{ display: 'inline-block', marginTop: 6 }}
                         title={openedAuthorities.has(authorityGroupName) ? this.i18n('content.roles.setting.authority.group.hide') : this.i18n('content.roles.setting.authority.group.show') }
-                        titleDelayShow={ 500 }>
+                        titleDelayShow={ 500 }
+                        titlePlacement="bottom">
                         <Basic.Icon value={openedAuthorities.has(authorityGroupName) ? 'fa:angle-double-up' : 'fa:angle-double-down'}/>
                       </Basic.Button>
                     </div>

@@ -218,14 +218,19 @@ export function getNavigationItems(navigation, parentId = null, section = null, 
 }
 
 /**
- * Returns navigation itm by given id
+ * Returns navigation item by given id from given layoutState immutable map
  *
- * @param  {immutable.map} navigation
+ * @param  {object} layoutState
  * @param  {string} id
  * @return {navigationItem}
  */
-export function getNavigationItem(navigation, id) {
-  if (!navigation || !id) {
+export function getNavigationItem(layoutState, id) {
+  if (!layoutState || !id) {
+    return null;
+  }
+  const navigation = layoutState.get('navigation');
+  //
+  if (!navigation) {
     return null;
   }
   if (!navigation.get(ConfigLoader.NAVIGATION_BY_ID).has(id)) {

@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../../components/basic';
 import { TreeTypeManager } from '../../../redux';
@@ -23,20 +22,14 @@ class Types extends Basic.AbstractContent {
     return 'content.tree.types';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('tree-types');
+  getNavigationKey() {
+    return 'tree-types';
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:server"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        {this.renderPageHeader()}
 
         <Basic.Panel>
           <TypeTable treeTypeManager={this.getManager()} />

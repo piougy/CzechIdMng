@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
@@ -16,26 +15,20 @@ class Identities extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.users';
+    return 'content.identities';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('users');
+  getNavigationKey() {
+    return 'identities';
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('content.identities.title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:group"/>
-          {' '}
-          {this.i18n('content.identities.header')}
-        </Basic.PageHeader>
+        {this.renderPageHeader()}
 
         <Basic.Panel>
-          <IdentityTable uiKey="identity_table" identityManager={this.identityManager} filterOpened />
+          <IdentityTable uiKey="identity-table" identityManager={this.identityManager} filterOpened />
         </Basic.Panel>
 
       </div>

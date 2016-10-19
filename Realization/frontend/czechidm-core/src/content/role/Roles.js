@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 //
 import * as Basic from '../../components/basic';
 import { RoleManager } from '../../redux';
@@ -19,20 +18,14 @@ export default class Roles extends Basic.AbstractContent {
     return 'content.roles';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('roles');
+  getNavigationKey() {
+    return 'roles';
   }
 
   render() {
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.PageHeader>
-          <Basic.Icon value="fa:universal-access"/>
-          {' '}
-          {this.i18n('header')}
-        </Basic.PageHeader>
+        {this.renderPageHeader()}
 
         <Basic.Panel>
           <RoleTable uiKey="role_table" roleManager={this.roleManager} filterOpened={false}/>

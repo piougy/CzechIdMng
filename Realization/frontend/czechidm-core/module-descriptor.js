@@ -135,7 +135,7 @@ module.exports = {
             'id': 'tree-types',
             'labelKey': 'content.tree.types.title',
             'order': 10,
-            'icon': 'fa:server',
+            'icon': 'tree-deciduous',
             'path': '/tree/types',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
           }
@@ -248,7 +248,7 @@ module.exports = {
             'id': 'workflow-definitions',
             'labelKey': 'navigation.menu.workflow.definitions',
             'icon': 'fa:sitemap',
-            'order': 40,
+            'order': 25,
             'iconColor': '#428BCA',
             'path': '/workflow/definitions',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]

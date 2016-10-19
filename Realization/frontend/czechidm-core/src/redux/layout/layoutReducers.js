@@ -43,7 +43,7 @@ export function layout(state = INITIAL_STATE, action) {
       // traverse to item parent
       let itemId = action.selectedNavigationItemId;
       while (itemId !== null) {
-        const item = getNavigationItem(state.get('navigation'), itemId);
+        const item = getNavigationItem(state, itemId);
         if (!item) {
           break;
         }

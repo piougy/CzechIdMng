@@ -41,7 +41,6 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/" +IcfModuleDescriptor.MODULE_ID + "/configurations")
 public class IcfConfigurationController /*extends AbstractReadWriteEntityController<SysSystem, QuickFilter>*/ {
 
-	
 	@RequestMapping(method = RequestMethod.GET)
 	public Resources<?>  test(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler)

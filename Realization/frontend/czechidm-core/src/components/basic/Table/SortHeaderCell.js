@@ -42,7 +42,7 @@ class SortHeaderCell extends AbstractComponent {
   }
 
   render() {
-    const { header, property, sortHandler, showLoading, className } = this.props;
+    const { header, headerTitle, property, sortHandler, showLoading, className } = this.props;
     const active = this._activeSort();
     const title = header || property;
     const classNames = classnames(
@@ -54,7 +54,7 @@ class SortHeaderCell extends AbstractComponent {
         {
           sortHandler
           ?
-          <a href="#" onClick={this._handleSort.bind(this, active === 'ASC' ? 'DESC' : 'ASC')}>
+          <a href="#" onClick={this._handleSort.bind(this, active === 'ASC' ? 'DESC' : 'ASC')} title={headerTitle}>
             {title}
             <SortIcon active={active} showLoading={showLoading}/>
           </a>

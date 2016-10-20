@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
@@ -27,6 +28,10 @@ public class IdentityFilter extends QuickFilter {
 	 * Managers by given tree structure
 	 */
 	private IdmTreeType managersByTreeType;
+	/**
+	 * Managers by given tree node
+	 */
+	private IdmTreeNode managersByTreeNode;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -58,5 +63,13 @@ public class IdentityFilter extends QuickFilter {
 	
 	public IdmTreeType getManagersByTreeType() {
 		return managersByTreeType;
+	}
+	
+	public void setManagersByTreeNode(IdmTreeNode managersByTreeNode) {
+		this.managersByTreeNode = managersByTreeNode;
+	}
+	
+	public IdmTreeNode getManagersByTreeNode() {
+		return managersByTreeNode;
 	}
 }

@@ -52,7 +52,7 @@ module.exports = {
         'parentId': 'identity-profile',
         'type': 'TAB',
         'labelKey': 'acc:content.identity.accounts.title',
-        'order': 45,
+        'order': 100,
         'priority': 0,
         'path': '/identity/:entityId/accounts',
         'icon': 'fa:external-link'

@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**

@@ -12,11 +12,19 @@ class IdentityService extends AbstractService {
   getNiceLabel(entity) {
     let toString = '';
     if (entity) {
+      toString += this.getFullName(entity);
+      toString += (entity.username ? ` (${entity.username})` : '');
+    }
+    return toString;
+  }
+
+  getFullName(entity) {
+    let toString = '';
+    if (entity) {
       toString += (entity.titleBefore ? (entity.titleBefore + ' ') : '');
       toString += (entity.firstName ? (entity.firstName + ' ') : '');
       toString += (entity.lastName ? entity.lastName : '');
       toString += (entity.titleAfter ? `, ${entity.titleAfter}` : '');
-      toString += (entity.username ? ` (${entity.username})` : '');
     }
     return toString;
   }

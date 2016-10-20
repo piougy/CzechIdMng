@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultEntityLookup;
-import eu.bcvsolutions.idm.core.api.service.BaseEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 

@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -40,6 +39,7 @@ import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
@@ -222,6 +222,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		filter.setSubordinatesByTreeType(convertEntityParameter(parameters, "subordinatesByTreeType", IdmTreeType.class));
 		filter.setManagersFor(convertEntityParameter(parameters, "managersFor", IdmIdentity.class));
 		filter.setManagersByTreeType(convertEntityParameter(parameters, "managersByTreeType", IdmTreeType.class));
+		filter.setManagersByTreeNode(convertEntityParameter(parameters, "managersByTreeNode", IdmTreeNode.class));
 		return filter;
 	}
 }

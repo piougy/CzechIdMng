@@ -112,7 +112,13 @@ class RoleSystems extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.Column property="_embedded.system.name" header={this.i18n('acc:entity.RoleSystem.system')} sort face="text" />
+            <Advanced.ColumnLink
+              to="/system/:_target/detail"
+              target="_embedded.system.id"
+              access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
+              property="_embedded.system.name"
+              header={this.i18n('acc:entity.RoleSystem.system')}
+              sort/>
             <Advanced.Column property="type" header={this.i18n('acc:entity.RoleSystem.type')} sort face="text" />
           </Advanced.Table>
         </Basic.Panel>

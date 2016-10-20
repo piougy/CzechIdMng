@@ -955,6 +955,10 @@
         "delete": {
           "header": "Probíhá odebírání delegace"
         }
+      },
+      "subordinates": {
+        "header": "Podřízení",
+        "title": "$t(content.identity.subordinates.header)"
       }
     },
     "audit": {
@@ -1177,7 +1181,8 @@
       "authorities": "Oprávnění",
       "approveAddWorkflow": "Schválení přiřazení (WF)",
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
-      "description": "Popis"
+      "description": "Popis",
+      "guarantees": "Garanti role"
     },
     "IdentityRole": {
       "role" : "Role"
@@ -1215,7 +1220,11 @@
       "identity": "Uživatel",
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
-      "guarantee": "Garant"
+      "guarantee": "Garant",
+      "managers": {
+        "label": "Garant / Vedoucí",
+        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+      }
     },
     "TreeNode": {
       "_type": "Pracovní pozice",

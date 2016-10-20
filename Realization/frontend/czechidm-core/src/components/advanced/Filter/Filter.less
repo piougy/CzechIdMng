@@ -5,7 +5,7 @@
   border-bottom: @idm-border-color 1px solid;
 
   .abstract-form {
-    padding: 10px 15px !important;
+    padding: 10px 15px;
   }
 
   .form-horizontal {
@@ -42,15 +42,15 @@
 
 .panel {
   &.no-border {
-    > .loader-container > .advanced-table > .basic-toolbar {
+
+    .basic-toolbar {
+      padding-bottom: 0;
 
       .advanced-filter {
-        margin-left: 0px;
-        margin-right: 0px;
+        margin: 10px 0 0 0;
 
         .abstract-form {
-          padding-left: 0 !important;
-          padding-right: 0 !important;
+          padding: 10px 0px;
         }
       }
     }

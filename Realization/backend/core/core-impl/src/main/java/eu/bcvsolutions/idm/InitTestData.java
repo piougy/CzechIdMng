@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -50,7 +51,6 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String TEST_ADMIN_ROLE = InitApplicationData.ADMIN_ROLE;
 	public static final String TEST_USER_ROLE = "testUserRole";
 	public static final String TEST_CUSTOM_ROLE = "testCustomRole";
-	private static final int FIRST_ROOT = 0; 
 
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -90,8 +90,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
-			// IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
-			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null).get(FIRST_ROOT);
+			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		

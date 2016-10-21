@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -36,7 +34,7 @@ public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode, TreeN
 	@Query(value = "select e from IdmTreeNode e" +
 			" where" +
 			" (:parent is null and e.parent.id IS NULL) or (e.parent.id = :parent)")
-	List<IdmTreeNode> findChildrenByParent(@Param(value = "parent") Long parent);
+	Page<IdmTreeNode> findChildrenByParent(@Param(value = "parent") Long parent, Pageable pageable);
 	
 	/**
 	 * Query return all roots (find by parent = null)
@@ -48,5 +46,5 @@ public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode, TreeN
 			" where" +
 			" (e.parent.id IS NULL)" +
 			" and (:treeType is null or e.treeType.id = :treeType)")
-	List<IdmTreeNode> findRoots(@Param(value = "treeType") Long treeType);
+	Page<IdmTreeNode> findRoots(@Param(value = "treeType") Long treeType, Pageable pageable);
 }

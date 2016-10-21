@@ -51,7 +51,8 @@ export default class RestApiService {
   }
 
   static getUrl(path) {
-    if (path.lastIndexOf('http', 0) === 0) {
+    // we have whole path already
+    if (path.lastIndexOf('http', 0) === 0 || path.lastIndexOf(ConfigLoader.getServerUrl(), 0) === 0) {
       return path;
     }
     return `${ConfigLoader.getServerUrl()}${path}`;

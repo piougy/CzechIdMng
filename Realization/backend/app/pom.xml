@@ -200,7 +200,7 @@
 								</goals>
 								<phase>generate-resources</phase>
 								<configuration>
-									<arguments>build -p test</arguments>
+									<arguments>build -p default -s test</arguments>
 									<installDirectory>target</installDirectory>
 								</configuration>
 							</execution>

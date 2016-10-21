@@ -664,9 +664,31 @@
         }
       }
     },
-    "roles": {
+    "rolesMenu": {
       "header": "Role",
-      "title": "Role",
+      "title": "Role"
+    },
+    "roleCatalogues": {
+      "header": "Seznam katalogů",
+      "title": "Seznam katalogů",
+      "edit": {
+        "title": "Detail katalogu",
+        "header": "{{name}} detail katalogu"
+      },
+      "create": {
+        "header": "Nový katalog",
+        "title": "Nový katalog"
+      },
+      "save": {
+        "success": "Katalog [{{name}}] byl úspěšně uložen"
+      },
+      "parentPick": "Vyberte katalog",
+      "reloadTree": "Obnov strom katalogů",
+      "addRoleCatalogue": "Přidat nový katalogu"
+    },
+    "roles": {
+      "header": "Seznam rolí",
+      "title": "Seznam rolí",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -1170,6 +1192,21 @@
       "titleBefore": "Titul před",
       "titleAfter": "Titul za"
     },
+    "RoleCatalogue": {
+      "_type": "Katalog role",
+      "name": "Název katalogu",
+      "description": "Popis",
+      "parent": {
+        "name": "Nadřazený katalog"
+      },
+      "filter": {
+        "name": "Jméno",
+        "namePlaceHolder": "Jméno katalogu",
+        "parent": "Nadřazený kat.",
+        "parentPlaceHolder": "Nadřezený katalog"
+      }
+
+    },
     "Role": {
       "_type": "Role",
       "name": "Název role",
@@ -1182,7 +1219,8 @@
       "approveAddWorkflow": "Schválení přiřazení (WF)",
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
       "description": "Popis",
-      "guarantees": "Garanti role"
+      "guarantees": "Garanti role",
+      "roleCatalogue": "Katalog"
     },
     "IdentityRole": {
       "role" : "Role"

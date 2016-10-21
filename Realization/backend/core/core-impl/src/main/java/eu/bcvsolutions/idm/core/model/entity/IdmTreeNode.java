@@ -20,10 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 
 @Entity
 @Table(name = "idm_tree_node", indexes = { @Index(name = "ux_tree_node_code", columnList = "tree_type_id,code") })
-public class IdmTreeNode extends AbstractEntity {
+public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTreeNode> {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -80,10 +81,12 @@ public class IdmTreeNode extends AbstractEntity {
 		this.disabled = disabled;
 	}
 	
+	@Override
 	public void setParent(IdmTreeNode parent) {
 		this.parent = parent;
 	}
 	
+	@Override
 	public IdmTreeNode getParent() {
 		return this.parent;
 	}

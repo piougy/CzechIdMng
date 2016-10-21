@@ -15,6 +15,7 @@ import NotificationManager from './NotificationManager';
 import ConfigurationManager from './ConfigurationManager';
 import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
+import RoleCatalogueManager from './RoleCatalogueManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -33,7 +34,8 @@ const ManagerRoot = {
   NotificationManager,
   ConfigurationManager,
   EmailManager,
-  BackendModuleManager
+  BackendModuleManager,
+  RoleCatalogueManager
 };
 
 ManagerRoot.version = '0.0.1';

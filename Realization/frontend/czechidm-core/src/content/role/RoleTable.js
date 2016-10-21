@@ -139,6 +139,7 @@ export class RoleTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
+          <Advanced.Column property="roleCatalogue" width="75px" sort face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column
             header={this.i18n('entity.Role.approvable')}
@@ -167,7 +168,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
+  columns: ['name', 'roleType', 'disabled', 'approvable', 'description', 'roleCatalogue'],
   filterOpened: false,
   _showLoading: false
 };

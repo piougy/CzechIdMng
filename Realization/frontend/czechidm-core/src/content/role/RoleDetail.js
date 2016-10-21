@@ -7,11 +7,12 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager } from '../../redux';
+import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
+const roleCatalogueManager = new RoleCatalogueManager();
 
 class RoleDetail extends Basic.AbstractContent {
 
@@ -47,9 +48,24 @@ class RoleDetail extends Basic.AbstractContent {
     entity = this._transformFromEmbedded(entity, 'subRoles', 'sub');
     entity = this._transformFromEmbedded(entity, 'superiorRoles', 'superior');
     entity = this._transformFromEmbedded(entity, 'guarantees', 'guarantee');
+    entity = this._transformFromEmbeddedSimple(entity, 'roleCatalogue ');
     return entity;
   }
 
+  /**
+   * Method transform object attribute into attribute with id.
+   */
+  _transformFromEmbeddedSimple(entity, propertyName) {
+    if (entity._embedded !== undefined && entity._embedded[propertyName] !== undefined) {
+      entity[propertyName] = entity._embedded[propertyName].id;
+    }
+    return entity;
+  }
+
+  /**
+   * Method transform list of entity to property.
+   * When you need transform simple attribute into propery use @_transformFromEmbeddedSimple
+   */
   _transformFromEmbedded(entity, propertyName, variableName) {
     const copyOfEntity = _.merge({}, entity);
     delete copyOfEntity[propertyName];
@@ -100,6 +116,10 @@ class RoleDetail extends Basic.AbstractContent {
           guarantee: identityManger.getSelfLink(guaranteeId)
         };
       });
+    }
+    // transform object roleCatalogue to self link
+    if (entity.roleCatalogue) {
+      entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
     }
     // delete superior roles - we dont want to save them (they are ignored on BE anyway)
     delete entity.superiorRoles;
@@ -154,6 +174,10 @@ class RoleDetail extends Basic.AbstractContent {
                         enum={RoleTypeEnum}
                         required
                         readOnly={!Utils.Entity.isNew(entity)}/>
+                      <Basic.SelectBox
+                          ref="roleCatalogue"
+                          label={this.i18n('entity.Role.roleCatalogue')}
+                          manager={roleCatalogueManager}/>
                       <Basic.SelectBox
                         ref="superiorRoles"
                         label={this.i18n('entity.Role.superiorRoles')}

@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,9 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
+	
+	@Autowired
+	private DefaultBaseTreeService<IdmTreeNode> baseTreeSevice;
 
 	@Override
 	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
@@ -63,12 +65,8 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		return this.treeNodeRepository.findChildrenByParent(parent);
 	}
 	
-	private void testNode(IdmTreeNode node) {
-		if (checkParents(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
-		}
-		
-		if (checkChildren(node)) {
+	private void testNode(IdmTreeNode node) {		
+		if (this.baseTreeSevice.validateTreeNodeParents(node)){
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		
@@ -96,32 +94,5 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		} else {
 			return false;
 		}
-	}
-	
-	/**
-	 * Method check if parent of node isnt her children.
-	 * @param treeNode
-	 * @return 
-	 */
-	private boolean checkChildren(IdmTreeNode treeNode) {
-		IdmTreeNode tmp = treeNode;
-		List<Long> listIds = new ArrayList<Long>(); 
-		while (tmp.getParent() != null) {
-			if	(listIds.contains(tmp.getId())) {
-				return true;
-			}
-			listIds.add(tmp.getId());
-			tmp = tmp.getParent();
-		}
-		return false;
-	}
-	
-	/**
-	 * Method check if tree node have same id as parent.id
-	 * @param treeNode
-	 * @return true if parent.id and id is same
-	 */
-	private boolean checkParents(IdmTreeNode treeNode) {
-		return treeNode.getParent() != null && (treeNode.getId() == treeNode.getParent().getId());
 	}
 }

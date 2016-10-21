@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -91,6 +93,19 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleGuarantee> guarantees;
 	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id")
+	private IdmRoleCatalogue roleCatalogue;
+	
+	public IdmRoleCatalogue getRoleCatalogue() {
+		return roleCatalogue;
+	}
+
+	public void setRoleCatalogue(IdmRoleCatalogue roleCatalogue) {
+		this.roleCatalogue = roleCatalogue;
+	}
+
 	@Override
 	public String getName() {
 		return name;

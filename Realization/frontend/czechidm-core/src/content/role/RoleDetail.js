@@ -7,10 +7,11 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager } from '../../redux';
+import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager } from '../../redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 const roleManager = new RoleManager();
+const identityManger = new IdentityManager();
 
 class RoleDetail extends Basic.AbstractContent {
 
@@ -31,35 +32,34 @@ class RoleDetail extends Basic.AbstractContent {
     if (Utils.Entity.isNew(entity)) {
       this._setSelectedEntity(entity);
     } else {
-      this._setSelectedEntity(this._transformSubroles(entity));
+      this._setSelectedEntity(this._prepareEntity(entity));
     }
   }
 
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
     if (nextProps.entity && nextProps.entity !== entity) {
-      this._setSelectedEntity(this._transformSubroles(nextProps.entity));
+      this._setSelectedEntity(this._prepareEntity(nextProps.entity));
     }
   }
 
-  _transformSubroles(entity) {
-    const copyOfEntity = _.merge({}, entity);
-    // transform subroles to array of identifiers
-    delete copyOfEntity.subRoles;
-    delete copyOfEntity.superiorRoles;
+  _prepareEntity(entity) {
+    entity = this._transformFromEmbedded(entity, 'subRoles', 'sub');
+    entity = this._transformFromEmbedded(entity, 'superiorRoles', 'superior');
+    entity = this._transformFromEmbedded(entity, 'guarantees', 'guarantee');
+    return entity;
+  }
 
-    copyOfEntity.subRoles = entity.subRoles.map(subRole => {
-      if (subRole._embedded === undefined) {
-        return subRole;
+  _transformFromEmbedded(entity, propertyName, variableName) {
+    const copyOfEntity = _.merge({}, entity);
+    delete copyOfEntity[propertyName];
+    copyOfEntity[propertyName] = entity[propertyName].map(function transform(obj) {
+      if (obj._embedded !== undefined) {
+        if (obj._embedded[variableName] === undefined) {
+          return obj[variableName];
+        }
+        return obj._embedded[variableName].id;
       }
-      return subRole._embedded.sub.id;
-    });
-    // transform superiorRoles
-    copyOfEntity.superiorRoles = entity.superiorRoles.map(superiorRole => {
-      if (superiorRole._embedded === undefined) {
-        return superiorRole;
-      }
-      return superiorRole._embedded.superior.id;
     });
     return copyOfEntity;
   }
@@ -94,6 +94,13 @@ class RoleDetail extends Basic.AbstractContent {
         };
       });
     }
+    if (entity.guarantees) {
+      entity.guarantees = entity.guarantees.map(guaranteeId => {
+        return {
+          guarantee: identityManger.getSelfLink(guaranteeId)
+        };
+      });
+    }
     // delete superior roles - we dont want to save them (they are ignored on BE anyway)
     delete entity.superiorRoles;
     //
@@ -117,7 +124,7 @@ class RoleDetail extends Basic.AbstractContent {
     if (isNew) {
       this.context.router.push('/roles');
     }
-    this._setSelectedEntity(this._transformSubroles(entity));
+    this._setSelectedEntity(this._prepareEntity(entity));
   }
 
   render() {
@@ -159,6 +166,11 @@ class RoleDetail extends Basic.AbstractContent {
                         label={this.i18n('entity.Role.subRoles')}
                         manager={roleManager}
                         multiSelect/>
+                      <Basic.SelectBox
+                          ref="guarantees"
+                          label={this.i18n('entity.Role.guarantees')}
+                          multiSelect
+                          manager={identityManger}/>
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}/>

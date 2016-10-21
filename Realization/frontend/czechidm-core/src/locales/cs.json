@@ -1181,7 +1181,8 @@
       "authorities": "Oprávnění",
       "approveAddWorkflow": "Schválení přiřazení (WF)",
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
-      "description": "Popis"
+      "description": "Popis",
+      "guarantees": "Garanti role"
     },
     "IdentityRole": {
       "role" : "Role"

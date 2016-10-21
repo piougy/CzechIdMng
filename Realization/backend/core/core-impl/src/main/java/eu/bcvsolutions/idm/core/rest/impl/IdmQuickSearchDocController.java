@@ -12,7 +12,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.codehaus.groovy.transform.ConditionalInterruptibleASTTransformation;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -64,11 +63,6 @@ public class IdmQuickSearchDocController implements BaseController {
 	 * 
 	 * @param request
 	 * @return
-	 * @throws NoSuchMethodException
-	 * @throws SecurityException
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
 	 */
 	@RequestMapping(value = "/{" + RESOURCE_NAME + "}/search", method = RequestMethod.GET)
 	public ResponseEntity<?> quickSeachDocumentation(HttpServletRequest request) {

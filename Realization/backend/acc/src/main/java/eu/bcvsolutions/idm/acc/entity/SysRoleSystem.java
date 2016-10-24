@@ -23,9 +23,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  *
  */
 @Entity
-@Table(name = "acc_role_system", indexes = {
+@Table(name = "sys_role_system", indexes = {
 		@Index(name = "ux_role_system_type", columnList = "type,role_id,system_id", unique = true) })
-public class AccRoleSystem extends AbstractEntity {
+public class SysRoleSystem extends AbstractEntity {
 
 	private static final long serialVersionUID = -7589083183676265957L;
 

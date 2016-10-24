@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
-import eu.bcvsolutions.idm.acc.repository.AccRoleSystemRepository;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -17,13 +17,13 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  *
  */
 @Service
-public class DefaultAccRoleSystemService extends AbstractReadWriteEntityService<AccRoleSystem, RoleSystemFilter> implements AccRoleSystemService {
+public class DefaultAccRoleSystemService extends AbstractReadWriteEntityService<SysRoleSystem, RoleSystemFilter> implements AccRoleSystemService {
 
 	@Autowired
-	private AccRoleSystemRepository roleSystemRepository;
+	private SysRoleSystemRepository roleSystemRepository;
 	
 	@Override
-	protected BaseRepository<AccRoleSystem, RoleSystemFilter> getRepository() {
+	protected BaseRepository<SysRoleSystem, RoleSystemFilter> getRepository() {
 		return roleSystemRepository;
 	}
 }

@@ -56,12 +56,18 @@ public class AccAccount extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private SysSystem system;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "system_entity_id", referencedColumnName = "id")
 	private SysSystemEntity systemEntity;
+	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "role_system_id", referencedColumnName = "id")
+	private SysRoleSystem roleSystem;
 	
 	@Audited
 	@JsonIgnore
@@ -107,5 +113,13 @@ public class AccAccount extends AbstractEntity {
 	
 	public String getUid() {
 		return uid;
+	}
+	
+	public void setRoleSystem(SysRoleSystem roleSystem) {
+		this.roleSystem = roleSystem;
+	}
+	
+	public SysRoleSystem getRoleSystem() {
+		return roleSystem;
 	}
 }

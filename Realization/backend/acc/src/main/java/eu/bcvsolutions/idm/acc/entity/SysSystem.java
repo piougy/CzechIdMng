@@ -62,7 +62,7 @@ public class SysSystem extends AbstractEntity {
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<AccRoleSystem> roleSystems; // only for auditing
+	private List<SysRoleSystem> roleSystems; // only for auditing
 
 	public String getName() {
 		return name;

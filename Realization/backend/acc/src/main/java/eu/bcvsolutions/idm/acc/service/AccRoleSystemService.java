@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.service;
 
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.entity.AccRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
@@ -10,6 +10,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-public interface AccRoleSystemService extends ReadWriteEntityService<AccRoleSystem, RoleSystemFilter> {
+public interface AccRoleSystemService extends ReadWriteEntityService<SysRoleSystem, RoleSystemFilter> {
 
 }

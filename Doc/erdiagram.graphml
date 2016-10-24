@@ -595,11 +595,7 @@ RoleType</y:NodeLabel>
           <y:Geometry height="127.02365591397847" width="256.14703595670494" x="-448.1819119089623" y="-695.7901773069514"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-<<<<<<< HEAD
-          <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="105.859375" x="75.14383047835247" y="4.0">AccountAttribute</y:NodeLabel>
-=======
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FF0000" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="105.859375" x="75.14383047835247" y="4.0">AccountAttribute</y:NodeLabel>
->>>>>>> master
           <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" modelName="custom" textColor="#000000" visible="true" width="238.87890625" x="2.0" y="29.96875">- name
 - data_type (string, number, password)<y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
@@ -620,11 +616,7 @@ RoleType</y:NodeLabel>
           <y:Geometry height="127.02365591397847" width="159.78478219326405" x="-785.4507744802864" y="-695.7901773069514"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-<<<<<<< HEAD
-          <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="139.744140625" x="10.020320784131968" y="4.0">AccountAttributeValue</y:NodeLabel>
-=======
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FF0000" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="139.744140625" x="10.020320784131968" y="4.0">AccountAttributeValue</y:NodeLabel>
->>>>>>> master
           <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="59.875" modelName="custom" textColor="#000000" visible="true" width="97.755859375" x="2.0" y="29.96875">- string_value
 - number_value
 - date_value
@@ -685,23 +677,6 @@ RoleType</y:NodeLabel>
     </node>
     <node id="n30">
       <data key="d6">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="30.0" x="553.3270399999997" y="660.14144"/>
-          <y:Fill color="#FFCC00" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="19.26953125" x="5.365234375" y="6.015625">32<y:LabelModel>
-              <y:SmartNodeLabelModel distance="4.0"/>
-            </y:LabelModel>
-            <y:ModelParameter>
-              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
-            </y:ModelParameter>
-          </y:NodeLabel>
-          <y:Shape type="rectangle"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n31">
-      <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="137.51580215053764" width="204.41136283842548" x="774.8182288167104" y="-1084.2930189588403"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
@@ -721,16 +696,6 @@ RoleType</y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
-<<<<<<< HEAD
-    <node id="n32">
-      <data key="d6">
-        <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="171.12006881720424" width="219.58748326853288" x="1043.7595253266609" y="-972.9493583477881"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="148.908203125" x="35.339640071766325" y="4.0">SystemAccountMapping</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="129.71875" modelName="custom" textColor="#000000" visible="true" width="183.291015625" x="2.0" y="29.96875">- idmProperty
-=======
     <node id="n31">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
@@ -739,17 +704,10 @@ RoleType</y:NodeLabel>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="96.994140625" x="61.29667132176655" y="4.0">SystemSchema</y:NodeLabel>
           <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="87.8125" modelName="custom" textColor="#000000" visible="true" width="162.619140625" x="2.0" y="29.96875">- name
->>>>>>> master
 - systemProperty
 - required
 - readOnly
 - multiValued
-<<<<<<< HEAD
-- transformFromSystem
-- transformToSystem
-- type
-- extendedAttribute (boolean)<y:LabelModel>
-=======
 - type (String, boolean, ...)
 <y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
@@ -775,7 +733,6 @@ RoleType</y:NodeLabel>
 - extendedAttribute (boolean)
 - transformFromSystem
 - transformToSystem<y:LabelModel>
->>>>>>> master
               <y:ErdAttributesNodeLabelModel/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -786,8 +743,6 @@ RoleType</y:NodeLabel>
             <y:Property class="java.lang.Boolean" name="y.view.ShadowNodePainter.SHADOW_PAINTING" value="true"/>
           </y:StyleProperties>
         </y:GenericNode>
-<<<<<<< HEAD
-=======
       </data>
     </node>
     <node id="n33">
@@ -811,7 +766,6 @@ RoleType</y:NodeLabel>
             <y:Property class="java.lang.Boolean" name="y.view.ShadowNodePainter.SHADOW_PAINTING" value="true"/>
           </y:StyleProperties>
         </y:GenericNode>
->>>>>>> master
       </data>
     </node>
     <edge id="e0" source="n1" target="n5">
@@ -1473,12 +1427,7 @@ právě jednou (pracovní pozice)
         </y:PolyLineEdge>
       </data>
     </edge>
-<<<<<<< HEAD
-    <edge id="e41" source="n13" target="n31">
-      <data key="d9"/>
-=======
     <edge id="e41" source="n13" target="n30">
->>>>>>> master
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="4.40359894504248" sy="-35.81511770345298" tx="0.0" ty="0.0"/>
@@ -1487,27 +1436,17 @@ právě jednou (pracovní pozice)
         </y:BezierEdge>
       </data>
     </edge>
-<<<<<<< HEAD
-    <edge id="e42" source="n32" target="n13">
-      <data key="d9"/>
-      <data key="d10">
-        <y:BezierEdge>
-          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-=======
     <edge id="e42" source="n31" target="n13">
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="1061.6109591115596" y="-844.386774922312"/>
           </y:Path>
->>>>>>> master
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="crows_foot_many_optional" target="crows_foot_one"/>
         </y:BezierEdge>
       </data>
     </edge>
-<<<<<<< HEAD
-=======
     <edge id="e43" source="n13" target="n33">
       <data key="d10">
         <y:BezierEdge>
@@ -1535,7 +1474,6 @@ právě jednou (pracovní pozice)
         </y:BezierEdge>
       </data>
     </edge>
->>>>>>> master
   </graph>
   <data key="d7">
     <y:Resources/>

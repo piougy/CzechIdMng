@@ -8,7 +8,6 @@ import Immutable from 'immutable';
 import * as Basic from '../../components/basic';
 import { AuthenticateService } from '../../services';
 import { IdentityManager } from '../../redux';
-import ApiOperationTypeEnum from '../../enums/ApiOperationTypeEnum';
 
 const identityManager = new IdentityManager();
 
@@ -17,8 +16,11 @@ class Profile extends Basic.AbstractContent {
   constructor(props) {
     super(props);
     this.state = {
+      detail: {
+        entity: null
+      },
       showLoading: false,
-      generatePassword: false,
+      generatePassword: true,
       generatePasswordShowLoading: false
     };
   }
@@ -30,7 +32,7 @@ class Profile extends Basic.AbstractContent {
      generatePassword,
      password: '',
      passwordAgain: ''
-   }, null, ApiOperationTypeEnum.GET);
+   });
    this.refs.username.focus();
    if (generatePassword) {
      this.generatePassword();
@@ -103,26 +105,36 @@ class Profile extends Basic.AbstractContent {
         showLoading: false
       }, () => {
         this.refs.form.processEnded();
-        this.transformData(null, error, ApiOperationTypeEnum.UPDATE);
+        this.transformData(null);
+        this.addError(error);
       });
     });
   }
 
-  transformData(json, error, operationType) {
+  transformData(json) {
     let result;
     if (json) {
       result = _.merge({}, json, { email: '' });
     }
-    this.refs.form.setData(result, error, operationType);
+    this.setState({
+      detail: {
+        entity: result
+      }
+    });
   }
 
   setNewPassword(password) {
     const formData = this.refs.form.getData();
     _.merge(formData, {
       password,
-      passwordAgain: password
+      passwordAgain: password,
+      generatePassword: true
     });
-    this.refs.form.setData(formData);
+    this.setState({
+      detail: {
+        entity: formData
+      }
+    });
   }
 
   generatePassword(event = null) {
@@ -190,7 +202,7 @@ class Profile extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading, generatePassword, generatePasswordShowLoading } = this.state;
+    const { detail, showLoading, generatePassword, generatePasswordShowLoading } = this.state;
 
     return (
       <Basic.Row>
@@ -201,7 +213,7 @@ class Profile extends Basic.AbstractContent {
               <Basic.PanelHeader text={this.i18n('content.identity.create.header')}/>
 
               <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
-                <Basic.AbstractForm ref="form" className="form-horizontal">
+                <Basic.AbstractForm ref="form" data={detail.entity} className="form-horizontal">
                   <div className="col-lg-7">
                     <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required validation={Joi.string().min(3).max(30)}/>
                     <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required/>
@@ -209,22 +221,6 @@ class Profile extends Basic.AbstractContent {
                     <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')}/>
                     <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')}/>
                     <Basic.TextField ref="email" label={this.i18n('content.identity.profile.email.label')} placeholder={this.i18n('content.identity.profile.email.placeholder')} validation={Joi.string().email()}/>
-                    {/* warning organization no longer exists
-                    <Basic.SelectBox
-                      ref="idmManager"
-                      service={identityManager.getService()}
-                      searchInFields={['lastName', 'name','email']}
-                      label={this.i18n('entity.Identity.idmManager')}
-                      readOnly={!canEditMap.get('idmManager')}
-                    />
-                    <Basic.SelectBox
-                      ref="homeOrganisation"
-                      service={organizationManager.getService()}
-                      searchInFields={['name']}
-                      label={this.i18n('entity.Identity.homeOrganisation')}
-                      required
-                    />
-                    */}
                     <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
                     <Basic.TextArea ref="description" label={this.i18n('content.identity.profile.description.label')} placeholder={this.i18n('content.identity.profile.description.placeholder')} rows={4} />
                   </div>
@@ -258,7 +254,7 @@ class Profile extends Basic.AbstractContent {
 
               </Basic.PanelFooter>
             </Basic.Panel>
-            {/* onEnter action */}
+            {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
             <input type="submit" className="hidden"/>
           </form>
         </div>

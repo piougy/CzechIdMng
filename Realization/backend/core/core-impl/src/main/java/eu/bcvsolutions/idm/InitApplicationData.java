@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -125,7 +126,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create organization root
-			if (treeNodeRepository.findRoots(treeType.getId()).isEmpty()) {
+			if (treeNodeRepository.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Root organization");

@@ -27,8 +27,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * Main idm class - identity. Identity and their roles - whole application runs
- * around it :)
+ * Identity
  * 
  * @author Radek Tomiška 
  *

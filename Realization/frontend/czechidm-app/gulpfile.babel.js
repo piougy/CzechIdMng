@@ -318,7 +318,7 @@ gulp.task('htmlReplace', () => {
         tpl: '<link rel="icon" href="%s" type="image/gif" />'
       },
       css: ['css/main.css', 'css/google.fonts.css'],
-      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'configUrl.js', 'js/app.js']
+      js: ['js/jquery.min.js', 'js/bootstrap.min.js', 'js/metisMenu.min.js', 'config.js', 'js/app.js']
     })
   )
   .pipe(gulp.dest(paths.dist));
@@ -387,7 +387,7 @@ gulp.task('config', (cb) => {
 
 gulp.task('urlConfig', (cb) => {
   const configuration = getConfigByEnvironment(process.env.NODE_ENV, process.env.NODE_PROFILE);
-  return fs.writeFile(path.join(__dirname, paths.dist, '/configUrl.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
+  return fs.writeFile(path.join(__dirname, paths.dist, '/config.js'), 'serverUrl = \'' + configuration.serverUrl + '\';\n', cb);
 });
 
 gulp.task('test', () => {

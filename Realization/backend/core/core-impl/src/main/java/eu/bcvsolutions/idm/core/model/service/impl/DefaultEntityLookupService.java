@@ -39,7 +39,7 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		//
 		this.entityServices = OrderAwarePluginRegistry.create(entityServices);
 		//
-		List<EntityLookup> entityLookupsWithDefault = new ArrayList<>(entityLookups);
+		List entityLookupsWithDefault = new ArrayList<>(entityLookups);
 		this.entityServices.getPlugins().forEach(entityService -> {
 			if(entityService instanceof ReadEntityService) {
 				// register default lookup for given entity class to prevent

@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import { Link } from 'react-router';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -45,7 +46,7 @@ export class RoleTable extends Basic.AbstractContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/role/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push('/role/' + entity.id + '/detail');
+      this.context.router.push(`/role/${entity.id}/detail`);
     }
   }
 
@@ -151,7 +152,8 @@ export class RoleTable extends Basic.AbstractContent {
                 );
               }
             }
-            sort={false}/>
+            sort={false}
+            rendered={_.includes(columns, 'approvable')}/>
           <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>

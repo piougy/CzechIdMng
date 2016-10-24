@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Read raw http request and makes json - entity transformation.
  * 
- * Idea - spring data rest
+ * Idea by spring data rest
  */
 public class RequestResourceResolver {
 

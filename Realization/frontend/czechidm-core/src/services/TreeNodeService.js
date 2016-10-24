@@ -33,14 +33,14 @@ class TreeNodeService extends AbstractService {
    * Returns search parameters by parent ID, used in tree
    */
   getTreeSearchParameters() {
-    return super.getDefaultSearchParameters().setName(TreeNodeService.TREE_SEARCH).clearSort().setSort('name');
+    return this.getDefaultSearchParameters().setName(TreeNodeService.TREE_SEARCH).setSize(20);
   }
 
   /**
    * Returns search parameters for search roots
    */
   getRootSearchParameters() {
-    return super.getDefaultSearchParameters().setName(TreeNodeService.ROOT_SEARCH).clearSort().setSort('name');
+    return this.getDefaultSearchParameters().setName(TreeNodeService.ROOT_SEARCH).setSize(20);
   }
 }
 

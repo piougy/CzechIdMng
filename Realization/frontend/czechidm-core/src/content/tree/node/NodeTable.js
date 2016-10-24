@@ -1,10 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuid';
+import faker from 'faker';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import { SecurityManager } from '../../../redux';
+import * as Utils from '../../../utils';
+import { SecurityManager, TreeTypeManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 
 // Root nodes  key for tree
@@ -12,6 +14,7 @@ const rootNodesKey = 'tree-node-table-roots';
 
 // Table uiKey
 const tableUiKey = 'tree-node-table';
+const treeTypeManager = new TreeTypeManager();
 
 /**
 * Table of nodes
@@ -24,7 +27,8 @@ export class NodeTable extends Basic.AbstractContent {
       filterOpened: true,
       showLoading: true,
       type: props.type,
-      rootNodes: null
+      rootNodes: null,
+      rootNodesCount: null
     };
   }
 
@@ -38,9 +42,12 @@ export class NodeTable extends Basic.AbstractContent {
 
     const searchParametersRoots = treeNodeManager.getService().getRootSearchParameters().setFilter('treeType', type.id);
     this.context.store.dispatch(treeNodeManager.fetchEntities(searchParametersRoots, rootNodesKey, (loadedRoots) => {
+      // get redux state for get total roots count
+      const uiState = Utils.Ui.getUiState(this.context.store.getState(), rootNodesKey);
       const rootNodes = loadedRoots._embedded[treeNodeManager.getCollectionType()];
       this.setState({
         rootNodes,
+        rootNodesCount: uiState.total,
         showLoading: false
       });
     }));
@@ -186,9 +193,35 @@ export class NodeTable extends Basic.AbstractContent {
     }
   }
 
+  test() {
+    for (let i = 1; i <= 7896; i++) {
+      this._create(i, 1566);
+    }
+  }
+
+  _create(id, parent, cb) {
+    const { treeNodeManager } = this.props;
+    this.context.store.dispatch(treeNodeManager.createEntity({
+      code: `f-${id}`,
+      name: faker.company.companyName(),
+      treeType: treeTypeManager.getSelfLink(this.state.type.id),
+      parent: !parent ? null : treeNodeManager.getSelfLink(parent)
+    },
+    `bulk-create`,
+    (createdEntity, error) => {
+      if (!error) {
+        if (cb) {
+          cb(createdEntity);
+        }
+      } else {
+        this.addError(error);
+      }
+    }));
+  }
+
   render() {
-    const { treeNodeManager, treeTypeManager } = this.props;
-    const { filterOpened, rootNodes, showLoading, type } = this.state;
+    const { treeNodeManager } = this.props;
+    const { filterOpened, rootNodes, showLoading, type, rootNodesCount } = this.state;
     const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
     return (
       <Basic.Row>
@@ -198,6 +231,14 @@ export class NodeTable extends Basic.AbstractContent {
               <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
             </div>
             <div className="pull-right">
+              <Basic.Button
+                level="success"
+                className="btn-xs"
+                style={{ marginRight: 3 }}
+                onClick={this.test.bind(this)}
+                rendered={false}>
+                T
+              </Basic.Button>
               <Basic.Button
                 level="success"
                 title={this.i18n('addType')}
@@ -242,6 +283,7 @@ export class NodeTable extends Basic.AbstractContent {
                 <Advanced.Tree
                   ref="organizationTree"
                   rootNodes={ rootNodes }
+                  rootNodesCount={ rootNodesCount }
                   headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
                   uiKey="orgTree"
                   manager={treeNodeManager}

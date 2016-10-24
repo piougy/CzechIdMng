@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 
 @Entity
-@Table(name = "idm_role_guarantee", indexes = { 
-				@Index(name = "ux_role_guarantee_identity_role", columnList = "guarantee_id", unique = true), 
-				@Index(name = "ux_role_guarantee_identity_role", columnList = "role_id", unique = true) } )
+@Table(name = "idm_role_guarantee", indexes = {
+				@Index(name = "idx_role_guarantee_guarantee", columnList = "guarantee_id"), 
+				@Index(name = "idx_role_guarantee_role", columnList = "role_id") } )
 public class IdmRoleGuarantee extends AbstractEntity {
 
 	private static final long serialVersionUID = 6106304497345109366L;

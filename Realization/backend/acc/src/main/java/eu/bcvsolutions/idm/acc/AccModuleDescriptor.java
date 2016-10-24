@@ -9,6 +9,14 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
+/**
+ * Account management module descriptor
+ * 
+ * TODO: module dependencies
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component
 public class AccModuleDescriptor extends AbstractModuleDescriptor {
 

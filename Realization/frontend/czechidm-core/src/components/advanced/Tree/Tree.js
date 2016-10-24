@@ -15,11 +15,29 @@ class AdvancedTree extends Basic.AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
+    const { rootNodes, rootNodesCount } = props;
+    const data = rootNodes;
+    if (rootNodesCount) {
+      data.push(this._createMoreLink(props, rootNodesCount - rootNodes.length));
+    }
     this.state = {
-      data: props.rootNodes,
+      data,
       cursors: []
     };
     this.dataManager = new DataManager();
+  }
+
+  _createMoreLink(props, count) {
+    const { propertyId, propertyChildrenCount } = props;
+    return {
+      [propertyId]: null,
+      name: '...',
+      [propertyChildrenCount]: count,
+      isMoreLink: true,
+      isLeaf: true,
+      toggled: true,
+      loading: false
+    };
   }
 
   /**
@@ -30,7 +48,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
   }
 
   componentDidMount() {
-    this.reload();
+    this._reload();
   }
 
   _mergeSearchParameters(searchParameters) {
@@ -58,7 +76,8 @@ class AdvancedTree extends Basic.AbstractContextComponent {
     }
   }
 
-  reload() {
+  // TODO: this method is not tested .. just snippet
+  _reload() {
     const { uiKey, rootNodes } = this.props;
     //
     this.context.store.dispatch(this.dataManager.receiveData(uiKey, new Immutable.Map({})));
@@ -66,7 +85,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
       return;
     }
     rootNodes.forEach(rootNode => {
-      if (!this._isLeaf(rootNode) && rootNode.toggled) {
+      if (!rootNode.isMoreLink && !this._isLeaf(rootNode) && rootNode.toggled) {
         this._onToggle(rootNode, rootNode.toggled);
       }
     });
@@ -94,6 +113,9 @@ class AdvancedTree extends Basic.AbstractContextComponent {
   * @param  {boolean} toggled
   */
   _onToggle(node, toggled) {
+    if (!node || node.isMoreLink) {
+      return;
+    }
     const { propertyParent, propertyId, uiKey } = this.props;
     const { cursors } = this.state;
     const state = this.context.store.getState();
@@ -216,11 +238,26 @@ class AdvancedTree extends Basic.AbstractContextComponent {
   }
 
   _getLabel(node) {
-    const { propertyName } = this.props;
-    if (propertyName) {
+    const { propertyName, propertyChildrenCount } = this.props;
+    if (propertyName && !node.isMoreLink) {
       return node[propertyName];
     }
-    return this.getManager().getNiceLabel(node);
+    return (
+      <span>
+        {
+          node.isMoreLink
+          ?
+          node.name
+          :
+          this.getManager().getNiceLabel(node)
+        }
+        {
+          !node[propertyChildrenCount]
+          ||
+          <small style={{ color: '#aaa' }}>{' '}({node[propertyChildrenCount]})</small>
+        }
+      </span>
+    );
   }
 
   /**
@@ -300,6 +337,10 @@ AdvancedTree.propTypes = {
   */
   rootNodes: PropTypes.arrayOf(PropTypes.object).isRequired,
   /**
+  * Total root count
+  */
+  rootNodesCount: PropTypes.number,
+  /**
   * Key for save data to redux store
   */
   uiKey: PropTypes.string.isRequired,
@@ -341,7 +382,8 @@ AdvancedTree.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   propertyId: 'id',
   propertyChildrenCount: 'childrenCount',
-  propertyParent: 'parent'
+  propertyParent: 'parent',
+  rootNodesCount: null
 };
 
 function select(state) {

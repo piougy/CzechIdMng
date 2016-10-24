@@ -7,7 +7,8 @@
 	 <artifactId>idm-gui</artifactId>
    <packaging>war</packaging>
    <name>CzechIdM GUI</name>
-   <description>CzechIdM GUI</description>
+   <description>CzechIdM GUI - builds frontend as deployable .war application</description>
+
    <build>
 		  <finalName>idm-frontend</finalName>
       <plugins>

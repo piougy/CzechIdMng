@@ -193,18 +193,20 @@ export default class EntityManager {
   * Receive data
   */
   receiveEntities(searchParameters, json, uiKey = null, cb = null) {
-    if (cb) {
-      cb(json, null);
-    }
     uiKey = this.resolveUiKey(uiKey);
     const data = json._embedded[this.getCollectionType()] || [];
-    return {
-      type: RECEIVE_ENTITIES,
-      entityType: this.getEntityType(),
-      entities: data,
-      total: json.page ? json.page.totalElements : data.length,
-      searchParameters,
-      uiKey
+    return (dispatch) => {
+      dispatch({
+        type: RECEIVE_ENTITIES,
+        entityType: this.getEntityType(),
+        entities: data,
+        total: json.page ? json.page.totalElements : data.length,
+        searchParameters,
+        uiKey
+      });
+      if (cb) {
+        cb(json, null);
+      }
     };
   }
 

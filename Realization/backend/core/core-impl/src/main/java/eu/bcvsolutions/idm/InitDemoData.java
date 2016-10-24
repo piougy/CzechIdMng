@@ -8,22 +8,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -40,7 +42,6 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
-	private static final int FIRST_ROOT = 0; 
 	
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -85,10 +86,10 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			List<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null);
+			Page<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
-			if (!rootsList.isEmpty()) {
-				rootOrganization = rootsList.get(FIRST_ROOT);
+			if (!rootsList.getContent().isEmpty()) {
+				rootOrganization = rootsList.getContent().get(0);
 			} else {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");

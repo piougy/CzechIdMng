@@ -2,6 +2,15 @@
 
 Java application deployable to Tomcat 8 application server.
 
+## Requirements
+
+* Install `JDK 8`
+* Install `maven` - at least version `3.1` is required
+* Install `Tomcat 8.0.*`, tested versions:
+  * 8.0.24
+  * 8.0.35
+  * 8.0.36
+
 ## Project modules [mandatory]
 * `parent` - maven parent of all following submodules with common dependencies.
 * `core` - contains base idm functionality (entities, repositories, services etc.).
@@ -17,18 +26,30 @@ Java application deployable to Tomcat 8 application server.
 * `gui` - frontend as .war package
 * `module-aggregator` - complex builder of all modules
 
-## Installation
+## Build and deploy
 
-* Install `Tomcat 8.0.*`, `JDK 8` and `maven` (at least 3.1 is required)
-* build all mandatory project modules in order above (`mvn clean install`) + deploy `idm.war` file located in `app` module target folder to Tomcat.
+Build all mandatory project modules in order above (`mvn clean install`) + deploy `idm-backend.war` file located in module `app` target folder to Tomcat.
 
-## Configuration
+The quickest way, how to build whole backend application, is to use `module-aggreagator`. In module-aggreagator folder, where pom.xml is located run command:
 
-Default profile is using h2 database. It is not nessesary a configuration for first start.
+```
+mvn clean install
+```
+or
 
-* TODO: profiles, db and other props
+```
+mvn clean install -PfullApp
+```
+which build whole application - backend and frontend in one `idm.war` file (require gulp installation - see [frontend installation guide](../frontend/README.txt)).
+Deploy `idm.war` package is the same as above.
 
 ## Demo user credentials
 
 * username: `admin`
 * password: `admin`
+
+## Configuration
+
+Default profile is using h2 database. It is not nessesary a configuration for first start.
+
+* TODO: other jdbc bc, profiles, db and other props

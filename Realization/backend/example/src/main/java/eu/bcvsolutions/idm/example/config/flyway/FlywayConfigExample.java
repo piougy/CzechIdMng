@@ -16,8 +16,13 @@ import org.springframework.context.annotation.PropertySource;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.AbstractFlywayConfiguration;
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayAutoConfiguration;
-import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayPostProcessor;
 
+/**
+ * DB migration for example module
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Configuration
 @ConditionalOnClass(Flyway.class)
 @ConditionalOnProperty(prefix = "flyway", name = "enabled", matchIfMissing = false)

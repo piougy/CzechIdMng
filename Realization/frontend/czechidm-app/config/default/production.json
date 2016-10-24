@@ -1,6 +1,6 @@
 {
   "env": "production",
-  "serverUrl": "http://localhost:8080/idm/apiv1",
+  "serverUrl": "http://localhost:8080/idm/api/v1",
   "theme": "czechidm-core/themes/default",
   "logger": {
     "level": "WARN"

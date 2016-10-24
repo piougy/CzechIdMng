@@ -15,7 +15,7 @@
 	<name>CzechIdM Core Impl</name>
 	<description>Core services implementations, entities, rest endpoint implementations</description>
 
-	<build>	
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -25,15 +25,15 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
-	            <manifestEntries>
-	              <Specification-Title>${project.description}</Specification-Title>
-	            </manifestEntries>
+						<manifestEntries>
+							<Specification-Title>${project.description}</Specification-Title>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

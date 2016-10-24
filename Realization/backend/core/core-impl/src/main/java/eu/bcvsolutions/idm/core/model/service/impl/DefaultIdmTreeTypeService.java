@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableMap;
@@ -40,9 +42,9 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	@Override
 	public void delete(IdmTreeType entity) {
 		List<IdmIdentityContract> listWorkingPositions = workingPositionRepository.findAllByTreeType(entity);
-		List<IdmTreeNode> listNodes = treeNodeRepository.findChildrenByParent(entity.getId());
+		Page<IdmTreeNode> nodes = treeNodeRepository.findRoots(entity.getId(), new PageRequest(0, 2));
 		
-		if (!listWorkingPositions.isEmpty() || !listNodes.isEmpty()) {
+		if (!listWorkingPositions.isEmpty() || nodes.getTotalElements() != 0) {
 			throw new TreeTypeException(CoreResultCode.TREE_TYPE_CANNOT_DELETE,  ImmutableMap.of("node", entity.getName()));
 		}
 		

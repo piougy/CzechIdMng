@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,14 +55,14 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmTreeNode> findRoots(Long treeType) {
-		return this.treeNodeRepository.findRoots(treeType);
+	public Page<IdmTreeNode> findRoots(Long treeType, Pageable pageable) {
+		return this.treeNodeRepository.findRoots(treeType, pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmTreeNode> findChildrenByParent(Long parent) {
-		return this.treeNodeRepository.findChildrenByParent(parent);
+	public Page<IdmTreeNode> findChildrenByParent(Long parent, Pageable pageable) {
+		return this.treeNodeRepository.findChildrenByParent(parent, pageable);
 	}
 	
 	private void testNode(IdmTreeNode node) {

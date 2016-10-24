@@ -8,11 +8,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 
@@ -228,9 +229,9 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		assertNull(ex);
 		assertEquals(201, status);
 		
-		List<IdmTreeNode> nodes = this.treeNodeRepository.findRoots(type.getId());
-		assertFalse(nodes.isEmpty());
-		IdmTreeNode node = nodes.get(0);
+		Page<IdmTreeNode> nodes = this.treeNodeRepository.findRoots(type.getId(), new PageRequest(0, 1));
+		assertFalse(nodes.getContent().isEmpty());
+		IdmTreeNode node = nodes.getContent().get(0);
 		
 		// change treeType
 		body.put("id", node.getId().toString());

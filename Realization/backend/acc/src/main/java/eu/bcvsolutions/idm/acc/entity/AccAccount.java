@@ -35,7 +35,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "acc_account", indexes = { 
 		@Index(name = "ux_account_system_entity", columnList = "system_entity_id", unique = true),
-		@Index(name = "ux_account_uid", columnList = "uid,system_id", unique = true) 
+		@Index(name = "ux_account_uid", columnList = "uid,system_id", unique = true),
+		@Index(name = "idx_acc_account_system_id", columnList = "system_id"),
+		@Index(name = "idx_acc_account_system_entity_id", columnList = "system_entity_id"),
+		@Index(name = "idx_acc_account_role_system_id", columnList = "role_system_id")
 		})
 public class AccAccount extends AbstractEntity {
 	

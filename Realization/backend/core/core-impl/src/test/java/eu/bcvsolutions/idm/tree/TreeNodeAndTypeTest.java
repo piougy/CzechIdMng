@@ -57,8 +57,8 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		assertNotNull(ex);
 		
 		IdmTreeType type = new IdmTreeType();
-		type.setCode("TEST_TYPE");
-		type.setName("TEST_TYPE");
+		type.setCode("TEST_TYPE_A");
+		type.setName("TEST_TYPE_A");
 		treeTypeRepository.save(type);
 		node.setTreeType(type);
 		

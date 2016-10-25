@@ -28,7 +28,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "sys_system_entity", indexes = {
-		@Index(name = "ux_system_entity_type_uid", columnList = "entity_type,uid", unique = true) })
+		@Index(name = "ux_system_entity_type_uid", columnList = "entity_type,uid", unique = true),
+		@Index(name = "idx_sys_system_entity_system_id", columnList = "system_id")
+		})
 public class SysSystemEntity extends AbstractEntity {
 	
 	private static final long serialVersionUID = -8243399066902498023L;

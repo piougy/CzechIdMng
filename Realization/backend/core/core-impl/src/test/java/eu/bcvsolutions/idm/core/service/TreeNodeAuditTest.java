@@ -82,6 +82,9 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	public void deleteNode() {
 		// we need to ensure "rollback" manually the same as we are starting transaction manually		
 		treeNodeRepository.delete(node);
+		if(type != null) {
+			treeTypeRepository.delete(type);
+		}
 	}
 	
 	@Test

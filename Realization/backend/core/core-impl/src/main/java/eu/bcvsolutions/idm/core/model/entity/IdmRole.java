@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
  *
  */
 @Entity
-@Table(name = "idm_role", indexes = { @Index(name = "ux_role_name", columnList = "name", unique = true) })
+@Table(name = "idm_role", indexes = { @Index(name = "ux_idm_role_name", columnList = "name", unique = true) })
 public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -45,7 +45,7 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
 	@Audited

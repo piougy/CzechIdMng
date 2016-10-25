@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -11,6 +12,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -18,7 +21,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 
 @Entity
-@Table(name = "idm_identity_role")
+@Table(name = "idm_identity_role", indexes = {
+		@Index(name = "idx_idm_identity_role_identity", columnList = "identity_id"),
+		@Index(name = "idx_idm_identity_role_role", columnList = "role_id")
+})
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 9208706652291035265L;
@@ -27,6 +33,7 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@NotNull

@@ -7,6 +7,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -32,6 +34,7 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity guarantee;
 
 	@NotNull
@@ -39,6 +42,7 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRole role;
 
 	public IdmIdentity getGuarantee() {

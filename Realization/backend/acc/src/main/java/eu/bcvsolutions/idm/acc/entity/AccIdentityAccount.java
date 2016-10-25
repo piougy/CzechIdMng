@@ -24,7 +24,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  */
 @Entity
 @Table(name = "acc_identity_account", indexes = {
-		@Index(name = "ux_identity_account", columnList = "identity_id,account_id", unique = true) })
+		@Index(name = "ux_identity_account", columnList = "identity_id,account_id", unique = true),
+		@Index(name = "idx_acc_identity_account_account_id", columnList = "account_id"),
+		@Index(name = "idx_acc_identity_account_identity_id", columnList = "identity_id"),
+		@Index(name = "idx_acc_identity_identity_role_id", columnList = "identity_role_id")
+		})
 public class AccIdentityAccount extends AbstractEntity {
 
 	private static final long serialVersionUID = 1356548381619742855L;

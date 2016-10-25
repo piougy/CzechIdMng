@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -11,6 +12,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -24,7 +27,10 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  * @author Radek Tomiška
  */
 @Entity
-@Table(name = "idm_identity_contract")
+@Table(name = "idm_identity_contract", indexes = {
+		@Index(name = "idx_idm_identity_contract_guarantee", columnList = "guarantee_id"),
+		@Index(name = "idx_idm_identity_contract_identity", columnList = "identity_id"),
+		@Index(name = "idx_idm_identity_contract_working_position", columnList = "working_position_id")})
 public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
@@ -32,6 +38,7 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@Audited

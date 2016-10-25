@@ -9,6 +9,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
@@ -18,6 +19,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -30,7 +34,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.notification.domain.BaseNotification;
 
 @Entity
-@Table(name = "idm_notification")
+@Table(name = "idm_notification", indexes = {
+		@Index(name = "idx_idm_notification_sender", columnList = "sender_id"),
+		@Index(name = "idx_idm_notification_parent", columnList = "parent_notification_id")
+		})
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class IdmNotification extends AbstractEntity implements BaseNotification {
 
@@ -60,6 +67,7 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	@JsonIgnore
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmNotification parent;
 	
 	public void setSender(IdmIdentity sender) {

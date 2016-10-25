@@ -12,7 +12,7 @@ public enum CoreResultCode implements ResultCode {
 	OK(HttpStatus.OK, "ok"),
 	ACCEPTED(HttpStatus.ACCEPTED, "Request is accepted and will be processed asynchronously"),
 	//
-	// 4xx - zatim jsem zakomentoval nepouzite, abychom to potom dohledali a odstranili
+	// 4xx
 	// commons
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "The value is wrong!"),
 	BAD_VALUE(HttpStatus.BAD_REQUEST, "The value %s is wrong!"),
@@ -48,9 +48,12 @@ public enum CoreResultCode implements ResultCode {
 	TREE_NODE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree node: %s, cannot be deleted."),
 	TREE_TYPE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree type: %s, cannot be deleted."),
 	//
-	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable"),
-	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled"),
-	CONFIGURATION_DISABLED(HttpStatus.BAD_REQUEST, "Configuration [%s] is disabled"),
+	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable."),
+	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled."),
+	CONFIGURATION_DISABLED(HttpStatus.BAD_REQUEST, "Configuration [%s] is disabled."),
+	// role
+	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role (%s) cannot be deleted - some identites have role assigned."),
+	//
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
 	NOT_IMPLEMENTED(HttpStatus.INTERNAL_SERVER_ERROR, "Not implemented: %s"),

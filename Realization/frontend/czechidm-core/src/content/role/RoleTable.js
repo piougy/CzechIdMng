@@ -57,8 +57,24 @@ export class RoleTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: roleManager.getNiceLabel(selectedEntities[0]), records: roleManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: roleManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
+      this.context.store.dispatch(roleManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
+        if (entity && error) {
+          // redirect to role detail with identities table
+          if (error.statusEnum === 'ROLE_DELETE_FAILED_IDENTITY_ASSIGNED') {
+            this.context.router.push(`/role/${entity.id}/identities`);
+            this.addMessage({
+              position: 'tc',
+              level: 'info',
+              title: this.i18n('delete.identityAssigned.title'),
+              message: this.i18n('delete.identityAssigned.message', { role: roleManager.getNiceLabel(entity) })
+            });
+          } else {
+            this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: roleManager.getNiceLabel(entity) }) }, error);
+          }
+        }
+        if (!error && successEntities) {
+          this.refs.table.getWrappedInstance().reload();
+        }
       }));
     }, () => {
       // nothing

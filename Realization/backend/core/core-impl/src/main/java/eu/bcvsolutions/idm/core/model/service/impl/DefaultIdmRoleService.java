@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
@@ -43,5 +48,18 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 			idmRoles.add(get(Long.parseLong(id)));
 		}
 		return idmRoles;
+	}
+	
+	@Override
+	public void delete(IdmRole entity) {
+		try {
+			super.delete(entity);
+		} catch(DataIntegrityViolationException ex) {
+			// TODO: constraint name - result code mapping and move lower to AbstractReadWriteEntityService
+			if (ex.getMessage().contains("fk_idm_identity_role_role")) {
+				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", entity.getName()));
+			}
+			throw ex;
+		}
 	}
 }

@@ -104,8 +104,12 @@ export class NodeTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: treeNodeManager.getNiceLabel(selectedEntities[0]), records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, tableUiKey, () => {
-        this._changeTree(this.state.type);
+      this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, tableUiKey, (entity, error) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
+        } else {
+          this._changeTree(this.state.type);
+        }
       }));
     }, () => {
       // nothing

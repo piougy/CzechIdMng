@@ -138,7 +138,7 @@ export class IdentityTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, identityManager, columns, forceSearchParameters } = this.props;
+    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -212,7 +212,7 @@ export class IdentityTable extends Basic.AbstractContent {
                 type="submit"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, {})}
-                rendered={SecurityManager.hasAuthority('IDENTITY_WRITE')}>
+                rendered={showAddButton && SecurityManager.hasAuthority('IDENTITY_WRITE')}>
                 <Basic.Icon type="fa" icon="user-plus"/>
                 {this.i18n('content.identity.create.button.add')}
               </Basic.Button>
@@ -255,12 +255,17 @@ IdentityTable.propTypes = {
   /**
    * "Hard filters"
    */
-  forceSearchParameters: PropTypes.object
+  forceSearchParameters: PropTypes.object,
+  /**
+   * Button for create user is rendered
+   */
+  showAddButton: PropTypes.bool
 };
 
 IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
-  filterOpened: false
+  filterOpened: false,
+  showAddButton: true
 };
 
 function select(state, component) {

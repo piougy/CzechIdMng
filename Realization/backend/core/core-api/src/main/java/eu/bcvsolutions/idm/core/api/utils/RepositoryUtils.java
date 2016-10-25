@@ -3,6 +3,9 @@ package eu.bcvsolutions.idm.core.api.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
+import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 public final class RepositoryUtils {
@@ -27,5 +30,14 @@ public final class RepositoryUtils {
 		return entityIds;
 	}
 	
+	/**
+	 * TODO: constraint name - result code mapping
+	 * 
+	 * @param ex
+	 * @return
+	 */
+	public static ResultCode resolveResultCode(DataIntegrityViolationException  ex) {
+		throw new UnsupportedOperationException("not implemented");
+	}
 	
 }

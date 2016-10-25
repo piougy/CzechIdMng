@@ -1,4 +1,5 @@
 import routeActions from 'react-router-redux';
+import Immutable from 'immutable';
 //
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
@@ -361,8 +362,11 @@ export default class EntityManager {
         )
       );
       const successEntities = [];
+      let currentEntity = null; // currentEntity in loop
       entities.reduce((sequence, entity) => {
         return sequence.then(() => {
+          // stops when first error occurs
+          currentEntity = entity;
           return this.getService().deleteById(entity.id);
         }).then(() => {
           dispatch(this.updateBulkAction());
@@ -370,13 +374,19 @@ export default class EntityManager {
           // new entity to redux store
           dispatch(this.deletedEntity(entity.id, entity, uiKey));
         }).catch(error => {
-          dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+          if (currentEntity.id === entity.id) { // we want show message for entity, when loop stops
+            if (!cb) { // if no callback given, we need show error
+              dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getNiceLabel(entity) }) }, error));
+            } else { // otherwise caller has to show eror etc. himself
+              cb(entity, error, null);
+            }
+          }
           throw error;
         });
       }, Promise.resolve())
       .catch((error) => {
         // nothing - message is propagated before
-        // catch is before then - we want execute nex then clausule
+        // catch is before then - we want execute next then clausule
         return error;
       })
       .then((error) => {
@@ -388,7 +398,7 @@ export default class EntityManager {
         }
         dispatch(this.stopBulkAction());
         if (cb) {
-          cb(null, error);
+          cb(null, error, successEntities);
         }
       });
     };

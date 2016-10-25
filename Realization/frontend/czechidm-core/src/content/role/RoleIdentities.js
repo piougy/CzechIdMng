@@ -41,7 +41,8 @@ class RoleIdentities extends Basic.AbstractContent {
             uiKey="role-identities-table"
             identityManager={this.getManager()}
             filterOpened={false}
-            forceSearchParameters={forceSearchParameters} />
+            forceSearchParameters={forceSearchParameters}
+            showAddButton={false}/>
         </Basic.Panel>
       </div>
     );

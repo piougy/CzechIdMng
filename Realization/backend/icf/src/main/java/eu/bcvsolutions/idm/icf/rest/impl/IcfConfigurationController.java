@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.icf.rest.impl;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -13,22 +16,39 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.identityconnectors.framework.api.operations.APIOperation;
+import org.identityconnectors.framework.api.operations.CreateApiOp;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
+import org.identityconnectors.framework.common.objects.Schema;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ControllerUtils;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.icf.IcfModuleDescriptor;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
+import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
@@ -38,13 +58,19 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  */
 @RestController
 @IfEnabled(IcfModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/" +IcfModuleDescriptor.MODULE_ID + "/configurations")
-public class IcfConfigurationController /*extends AbstractReadWriteEntityController<SysSystem, QuickFilter>*/ {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/" + IcfModuleDescriptor.MODULE_ID + "/configurations")
+public class IcfConfigurationController implements BaseController {
 
-	@RequestMapping(method = RequestMethod.GET)
-	public Resources<?>  test(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
-			PersistentEntityResourceAssembler assembler)
-			throws HttpMessageNotReadableException {
+	private IcfConfigurationAggregatorService icfConfigurationAggregatorService;
+
+	@Autowired
+	public IcfConfigurationController(IcfConfigurationAggregatorService icfConfigurationAggregatorService) {
+		super();
+		this.icfConfigurationAggregatorService = icfConfigurationAggregatorService;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/test")
+	public Resources<?> test() {
 		Reflections reflections = new Reflections();
 		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(ConnectorClass.class);
 		URL url = null;
@@ -72,10 +98,18 @@ public class IcfConfigurationController /*extends AbstractReadWriteEntityControl
 		}
 
 		// Set all of the ConfigurationProperties needed by the connector.
-		// properties.setPropertyValue("host", FOOBAR_HOST);
-		// properties.setPropertyValue("adminName", FOOBAR_ADMIN);
-		// properties.setPropertyValue("adminPassword", FOOBAR_PASSWORD);
-		// properties.setPropertyValue("useSSL", false);
+		properties.setPropertyValue("host", "localhost");
+		properties.setPropertyValue("port", "5432");
+		properties.setPropertyValue("user", "idmadmin");
+		properties.setPropertyValue("password",
+				new org.identityconnectors.common.security.GuardedString("idmadmin".toCharArray()));
+		properties.setPropertyValue("database", "bcv_idm_storage");
+		properties.setPropertyValue("table", "system_users");
+		properties.setPropertyValue("keyColumn", "name");
+		properties.setPropertyValue("passwordColumn", "password");
+		properties.setPropertyValue("jdbcDriver", "org.postgresql.Driver");
+		properties.setPropertyValue("jdbcUrlTemplate", "jdbc:postgresql://%h:%p/%d");
+		properties.setPropertyValue("rethrowAllSQLExceptions", true);
 
 		// Use the ConnectorFacadeFactory's newInstance() method to get a new
 		// connector.
@@ -83,11 +117,66 @@ public class IcfConfigurationController /*extends AbstractReadWriteEntityControl
 
 		// Make sure we have set up the Configuration properly
 		conn.validate();
+
+		Set<Class<? extends APIOperation>> ops = conn.getSupportedOperations();
+
+		Schema schema = conn.schema();
+		Set<ObjectClassInfo> objectClasses = schema.getObjectClassInfo();
+		Set<ObjectClassInfo> ocinfos = schema.getSupportedObjectClassesByOperation(CreateApiOp.class);
+		    for(ObjectClassInfo oci : objectClasses) {
+		        Set<AttributeInfo> attributeInfos = oci.getAttributeInfo(); 
+		        String type = oci.getType();
+		        if(ObjectClass.ACCOUNT_NAME.equals(type)) {
+		            for(AttributeInfo i : attributeInfos) {
+		                System.out.println(i.toString());
+		            }
+		        }
+		 }
+		    //create an account
+		    Set<Attribute> attrs = new HashSet();
+		    attrs.add(new Name("TESTUSER"));
+		    attrs.add(AttributeBuilder.buildPassword("TESTPASSWORD".toCharArray()));
+		    attrs.add(AttributeBuilder.build("firstName", "Tirasa"));
+		    attrs.add(AttributeBuilder.build("lastName", "Larsa"));
+		    Uid userUid = conn.create(ObjectClass.ACCOUNT, attrs, null);   
+		    
 		return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
 
 		// Start using the Connector
 		// conn.[authenticate|create|update|delete|search|...];
 
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/available-local-connectors")
+	public ResponseEntity<Map<String, List<IcfConnectorInfo>>> getAvailableLocalConnectors(
+			@RequestParam(required = false) String implementation) {
+		Map<String, List<IcfConnectorInfo>> infos = new HashMap<>();
+		if (implementation != null) {
+			if (!icfConfigurationAggregatorService.getIcfs().containsKey(implementation)) {
+				throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+						"ICF implementation with key " + implementation + " is not found!");
+			}
+			infos.put(implementation,
+					icfConfigurationAggregatorService.getIcfs().get(implementation).getAvailableLocalConnectors());
+
+		} else {
+			infos = icfConfigurationAggregatorService.getAvailableLocalConnectors();
+		}
+		return new ResponseEntity<Map<String, List<IcfConnectorInfo>>>(infos, HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/connector-configuration")
+	public ResponseEntity<IcfConnectorConfiguration> getConnectorConfigurations(
+			@RequestBody(required = true) IcfConnectorInfoDto info) {
+		Assert.notNull(info);
+		Assert.notNull(info.getConnectorKey());
+		if (!icfConfigurationAggregatorService.getIcfs().containsKey(info.getConnectorKey().getIcfType())) {
+			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+					"ICF implementation with key " + info.getConnectorKey().getIcfType() + " is not found!");
+		}
+		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfs()
+				.get(info.getConnectorKey().getIcfType()).getConnectorConfiguration(info);
+		return new ResponseEntity<IcfConnectorConfiguration>(conf, HttpStatus.OK);
 	}
 
 }

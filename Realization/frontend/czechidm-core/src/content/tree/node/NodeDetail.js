@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import Joi from 'joi';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import _ from 'lodash';
@@ -116,11 +117,13 @@ export default class NodeDetail extends Basic.AbstractContent {
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.TreeType.code')}
-              required/>
+              required
+              validation={Joi.string().max(255)}/>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.TreeNode.name')}
-              required/>
+              required
+              validation={Joi.string().min(0).max(255)}/>
             <Basic.Checkbox
               ref="disabled"
               label={this.i18n('entity.TreeNode.disabled')}/>

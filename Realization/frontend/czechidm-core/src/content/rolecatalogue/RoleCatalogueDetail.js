@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import Joi from 'joi';
 import * as Basic from '../../components/basic';
 import { RoleCatalogueManager, SecurityManager } from '../../redux';
 import _ from 'lodash';
@@ -94,14 +95,16 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.RoleCatalogue.name')}
-              required/>
+              required
+              validation={Joi.string().min(0).max(255)}/>
               <Basic.SelectBox
                 ref="parent"
                 label={this.i18n('entity.RoleCatalogue.parent.name')}
                 manager={this.roleCatalogueManager}/>
               <Basic.TextArea
                   ref="description"
-                  label={this.i18n('entity.RoleCatalogue.description')}/>
+                  label={this.i18n('entity.RoleCatalogue.description')}
+                  validation={Joi.string().max(255)}/>
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading}>

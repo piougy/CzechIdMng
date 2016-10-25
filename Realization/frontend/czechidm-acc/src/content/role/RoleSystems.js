@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Joi from 'joi';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { RoleSystemManager, SystemManager } from '../../redux';
@@ -149,7 +150,8 @@ class RoleSystems extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="type"
                   label={this.i18n('acc:entity.RoleSystem.type')}
-                  required/>
+                  required
+                  validation={Joi.string().max(255)}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

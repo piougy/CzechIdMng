@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import Joi from 'joi';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { AccountManager, SystemEntityManager, SystemManager } from '../../redux';
@@ -175,7 +176,8 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="uid"
                   label={this.i18n('acc:entity.Account.uid')}
-                  required/>
+                  required
+                  validation={Joi.string().max(1000)}/>
                 <Basic.SelectBox
                   ref="systemEntity"
                   manager={systemEntityManager}

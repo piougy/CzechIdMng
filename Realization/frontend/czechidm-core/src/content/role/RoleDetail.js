@@ -45,28 +45,22 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _prepareEntity(entity) {
-    entity = this._transformFromEmbedded(entity, 'subRoles', 'sub');
-    entity = this._transformFromEmbedded(entity, 'superiorRoles', 'superior');
-    entity = this._transformFromEmbedded(entity, 'guarantees', 'guarantee');
-    entity = this._transformFromEmbeddedSimple(entity, 'roleCatalogue ');
-    return entity;
-  }
+    entity = this._transformProperyFromEmbedded(entity, 'subRoles', 'sub');
+    entity = this._transformProperyFromEmbedded(entity, 'superiorRoles', 'superior');
+    entity = this._transformProperyFromEmbedded(entity, 'guarantees', 'guarantee');
 
-  /**
-   * Method transform object attribute into attribute with id.
-   */
-  _transformFromEmbeddedSimple(entity, propertyName) {
-    if (entity._embedded !== undefined && entity._embedded[propertyName] !== undefined) {
-      entity[propertyName] = entity._embedded[propertyName].id;
+    if (entity._embedded !== undefined && entity._embedded.roleCatalogue !== undefined) {
+      entity.roleCatalogue = entity._embedded.roleCatalogue.id;
     }
+
     return entity;
   }
 
   /**
-   * Method transform list of entity to property.
-   * When you need transform simple attribute into propery use @_transformFromEmbeddedSimple
+   * Method transform list of entity embedded property to simple property.
+   * Object => id
    */
-  _transformFromEmbedded(entity, propertyName, variableName) {
+  _transformProperyFromEmbedded(entity, propertyName, variableName) {
     const copyOfEntity = _.merge({}, entity);
     delete copyOfEntity[propertyName];
     copyOfEntity[propertyName] = entity[propertyName].map(function transform(obj) {
@@ -176,7 +170,7 @@ class RoleDetail extends Basic.AbstractContent {
                         readOnly={!Utils.Entity.isNew(entity)}/>
                       <Basic.SelectBox
                           ref="roleCatalogue"
-                          label={this.i18n('entity.Role.roleCatalogue')}
+                          label={this.i18n('entity.Role.roleCatalogue.name')}
                           manager={roleCatalogueManager}/>
                       <Basic.SelectBox
                         ref="superiorRoles"

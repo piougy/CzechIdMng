@@ -47,8 +47,6 @@ class RoleCatalogueContent extends Basic.AbstractContent {
 
   render() {
     const { entity, showLoading } = this.props;
-    // const { _showLoading } = this.state;
-    // console.log(entity, showLoading, _showLoading);
     return (
       <div>
         <Helmet title={this.i18n('title')} rendered={!this._getIsNew()} />

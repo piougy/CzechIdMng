@@ -1220,7 +1220,9 @@
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
       "description": "Popis",
       "guarantees": "Garanti role",
-      "roleCatalogue": "Katalog"
+      "roleCatalogue": {
+        "name": "Katalog"
+      }
     },
     "IdentityRole": {
       "role" : "Role"
@@ -1428,7 +1430,11 @@
       "title": "Chybný požadavek"
     },
     "BAD_VALUE": {
-      "title": "Špatná volba"
+      "title": "Špatná hodnota"
+    },
+    "ROLE_CATALOG_BAD_PARENT": {
+      "title": "Nadřazený katalog nelze přiřadit.",
+      "message": "Neplatný nadřazený katalog. Vyberte prosím jiný."
     },
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",

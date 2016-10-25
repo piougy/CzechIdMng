@@ -33,7 +33,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
 @Entity
-@Table(name = "idm_role", indexes = { @Index(name = "ux_role_name", columnList = "name") })
+@Table(name = "idm_role", indexes = { 
+		@Index(name = "ux_role_name", columnList = "name"),
+		@Index(name = "idx_idm_role_catalogue", columnList = "role_catalogue_id")})
 public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -96,6 +98,7 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRoleCatalogue roleCatalogue;
 	
 	public IdmRoleCatalogue getRoleCatalogue() {

@@ -1,7 +1,11 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
@@ -32,6 +36,10 @@ public class IdentityFilter extends QuickFilter {
 	 * Managers by given tree node
 	 */
 	private IdmTreeNode managersByTreeNode;
+	/**
+	 * roles - OR
+	 */
+	private List<IdmRole> roles;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -71,5 +79,16 @@ public class IdentityFilter extends QuickFilter {
 	
 	public IdmTreeNode getManagersByTreeNode() {
 		return managersByTreeNode;
+	}
+	
+	public void setRoles(List<IdmRole> roles) {
+		this.roles = roles;
+	}
+	
+	public List<IdmRole> getRoles() {
+		if (roles == null) {
+			roles = new ArrayList<>();
+		}
+		return roles;
 	}
 }

@@ -234,6 +234,14 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return null;
 	}
 	
+	/**
+	 * Converts parameter to given {@code enumClass} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param enumClass
+	 * @return
+	 */
 	protected <T extends Enum<T>> T convertEnumParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
 		Assert.notNull(enumClass);
 	    //
@@ -248,6 +256,14 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
         }
 	}
 	
+	/**
+	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param entityClass
+	 * @return
+	 */
 	protected <T extends BaseEntity> T convertEntityParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
 		 String valueAsString = convertStringParameter(parameters, parameterName);
 	    if(StringUtils.isEmpty(valueAsString)) {
@@ -255,7 +271,26 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	    }
 		T entity = entityLookupService.lookup(entityClass, valueAsString);
 		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Wrong entity type [%s] identifier [%s]", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
+		}
+		return entity;
+	}
+	
+	/**
+	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * 
+	 * @param parameterValue
+	 * @param parameterName
+	 * @param entityClass
+	 * @return
+	 */
+	protected <T extends BaseEntity> T convertEntityParameter(String parameterValue, Class<T> entityClass) {
+	    if(StringUtils.isEmpty(parameterValue)) {
+	    	return null;
+	    }
+		T entity = entityLookupService.lookup(entityClass, parameterValue);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
 		}
 		return entity;
 	}

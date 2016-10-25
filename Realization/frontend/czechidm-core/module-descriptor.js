@@ -162,12 +162,18 @@ module.exports = {
           {
             'id': 'role-detail',
             'type': 'TAB',
-            'label': 'content.roles.tabs.basic',
             'labelKey': 'content.roles.tabs.basic',
-            'titleKey': 'content.roles.tabs.basic',
-            'order': 1,
+            'order': 10,
             'path': '/role/:entityId/detail',
             'icon': 'fa:newspaper-o'
+          },
+          {
+            'id': 'role-identities',
+            'type': 'TAB',
+            'labelKey': 'content.role.identities.title',
+            'order': 20,
+            'path': '/role/:entityId/identities',
+            'icon': 'fa:group'
           }
         ]
       },

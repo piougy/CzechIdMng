@@ -97,6 +97,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleGuarantee> guarantees;
 	
+	public IdmRole() {
+	}
+	
+	public IdmRole(Long id) {
+		super(id);
+	}
+	
 	@Override
 	public String getName() {
 		return name;

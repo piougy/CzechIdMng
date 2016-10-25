@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
@@ -223,6 +225,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		filter.setManagersFor(convertEntityParameter(parameters, "managersFor", IdmIdentity.class));
 		filter.setManagersByTreeType(convertEntityParameter(parameters, "managersByTreeType", IdmTreeType.class));
 		filter.setManagersByTreeNode(convertEntityParameter(parameters, "managersByTreeNode", IdmTreeNode.class));
+		// TODO: or / and in multivalues? OR is supported now
+		if (parameters.containsKey("role")) {
+			for(Object role : parameters.get("role")) {
+				filter.getRoles().add(convertEntityParameter((String)role, IdmRole.class));
+			}
+		}
 		return filter;
 	}
 }

@@ -120,6 +120,10 @@ module.exports = {
           path: 'detail',
           component: require('./src/content/role/RoleContent')
         },
+        {
+          path: 'identities',
+          component: require('./src/content/role/RoleIdentities')
+        }
       ]
     },
     {

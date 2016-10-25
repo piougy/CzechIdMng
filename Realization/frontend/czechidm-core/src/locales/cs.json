@@ -532,7 +532,7 @@
           "description": "Název úkolu",
           "createdDate": "Úkol vytvořen",
           "applicantFullName": "Jméno žadatele",
-          "applicant": "Žadatele",
+          "applicant": "Žadatel",
           "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
           "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
@@ -711,6 +711,12 @@
       },
       "tabs": {
         "basic": "Základní informace"
+      }
+    },
+    "role": {
+      "identities": {
+        "header": "Uživatelé s přiřazenou rolí",
+        "title": "Uživatelé"
       }
     },
     "identity": {

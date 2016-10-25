@@ -63,6 +63,11 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, Ident
 	        	+ " ?#{[0].managersByTreeNode} is null"
 	        	// managers by tree node (working position)
 	        	+ " or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition IN (select vic.workingPosition.parent from IdmIdentityContract vic where vic.workingPosition = ?#{[0].managersByTreeNode} ))"
+	        + " )"
+	        + " and "
+	        + " ("
+	        	+ " ?#{[0].roles == null ? 0 : [0].roles.size()} = 0"
+	        	+ " or exists (from IdmIdentityRole ir where ir.identity = e and ir.role.id IN (?#{T(eu.bcvsolutions.idm.core.api.utils.RepositoryUtils).queryEntityIds([0].roles)}))"
 	        + " )")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	

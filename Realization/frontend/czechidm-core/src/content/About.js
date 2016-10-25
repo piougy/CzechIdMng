@@ -19,9 +19,10 @@ export default class About extends Basic.AbstractContent {
                 <div className="about-logo">
                 </div>
                 <div className="about-text">
-                  <big>{this.i18n('app.version.frontend')}: Ametyst</big>
+                  {/* TODO: load properties from public configuration */}
+                  <big>{this.i18n('app.version.frontend')}: Beryl-snapshot</big>
                   <br />
-                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2016-09-01"/></big>
+                  <big>{this.i18n('app.version.releaseDate')}: <Advanced.DateValue value="2016-12-12"/></big>
                   <br />
                   <a href={this.i18n('app.author.homePage')} target="_blank">{this.i18n('app.author.name')}</a>
                   <br />

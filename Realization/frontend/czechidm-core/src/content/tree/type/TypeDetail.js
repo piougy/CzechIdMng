@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Joi from 'joi';
 import * as Basic from '../../../components/basic';
 import { TreeTypeManager, SecurityManager } from '../../../redux';
 
@@ -81,12 +80,13 @@ export default class TypeDetail extends Basic.AbstractContent {
                 ref="code"
                 label={this.i18n('entity.TreeType.code')}
                 required
-                validation={Joi.string().max(255)}/>
+                max={255}/>
               <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.TreeType.name')}
                 required
-                validation={Joi.string().min(0).max(255)}/>
+                min={0}
+                max={255}/>
             </Basic.AbstractForm>
 
             <Basic.PanelFooter showLoading={showLoading} >

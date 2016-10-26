@@ -9,6 +9,8 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | --- | :--- | :--- | :--- |
 | placeholder  | string   | Short description for input.|  |
 | rows  | number   | Number of rows in text area  | 3 |
+| min  | number   | Minimal number string characters for intput |  |
+| max  | number   | Maximal number string characters for input  |  |
 
 ## Usage
 
@@ -18,6 +20,8 @@ All parameters from AbstractFormComponent are supported. Added parameters:
    label="Popis"
    placeholder="Poznámka k uživateli"
    rows={4}
-   validation={Joi.string().max(100)}
+   validation={Joi.string().length()}
+   min={2}
+   max={100}
  />
 ```

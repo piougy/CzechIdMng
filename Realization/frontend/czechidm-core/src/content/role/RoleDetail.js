@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import _ from 'lodash';
-import Joi from 'joi';
 import { connect } from 'react-redux';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
@@ -163,7 +162,8 @@ class RoleDetail extends Basic.AbstractContent {
                         ref="name"
                         label={this.i18n('entity.Role.name')}
                         required
-                        validation={Joi.string().min(0).max(255)}/>
+                        min={0}
+                        max={255}/>
                       <Basic.EnumSelectBox
                         ref="roleType"
                         label={this.i18n('entity.Role.roleType')}
@@ -194,7 +194,7 @@ class RoleDetail extends Basic.AbstractContent {
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}
-                        validation={Joi.string().max(255)}/>
+                        max={255}/>
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>

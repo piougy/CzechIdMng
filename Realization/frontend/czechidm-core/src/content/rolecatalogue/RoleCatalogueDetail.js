@@ -1,13 +1,12 @@
 import React, { PropTypes } from 'react';
-import Joi from 'joi';
 import * as Basic from '../../components/basic';
 import { RoleCatalogueManager, SecurityManager } from '../../redux';
 import _ from 'lodash';
 
 /**
- * Role catalogue detail.
- * Combined node detail and role detail.
- */
+* Role catalogue detail.
+* Combined node detail and role detail.
+*/
 export default class RoleCatalogueDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
@@ -66,9 +65,9 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
   }
 
   /**
-   * Just set showloading to false and set processEnded to form.
-   * Call after save/create
-   */
+  * Just set showloading to false and set processEnded to form.
+  * Call after save/create
+  */
   _afterSave(entity, error) {
     if (error) {
       this.setState({
@@ -96,15 +95,16 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
               ref="name"
               label={this.i18n('entity.RoleCatalogue.name')}
               required
-              validation={Joi.string().min(0).max(255)}/>
-              <Basic.SelectBox
-                ref="parent"
-                label={this.i18n('entity.RoleCatalogue.parent.name')}
-                manager={this.roleCatalogueManager}/>
-              <Basic.TextArea
-                  ref="description"
-                  label={this.i18n('entity.RoleCatalogue.description')}
-                  validation={Joi.string().max(255)}/>
+              min={0}
+              max={255}/>
+            <Basic.SelectBox
+              ref="parent"
+              label={this.i18n('entity.RoleCatalogue.parent.name')}
+              manager={this.roleCatalogueManager}/>
+            <Basic.TextArea
+              ref="description"
+              label={this.i18n('entity.RoleCatalogue.description')}
+              max={255}/>
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading}>

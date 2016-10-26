@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Joi from 'joi';
 //
 import { IdentityManager, NotificationManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
@@ -143,15 +142,15 @@ class NotificationDetail extends Basic.AbstractContent {
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} validation={Joi.string().min(0).max(255)} />
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} validation={Joi.string().min(0).max(255)} />
+          <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} max={255} />
+          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} max={255} />
 
           <Basic.LabelWrapper hidden={isNew}
             label={this.i18n('entity.Notification.sent')}>
             <NotificationSentState notification={notification}/>
           </Basic.LabelWrapper>
 
-          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew} validation={Joi.string().min(0).max(2000)} />
+          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew} max={2000} />
         </Basic.AbstractForm>
         {
           notification.relatedNotifications

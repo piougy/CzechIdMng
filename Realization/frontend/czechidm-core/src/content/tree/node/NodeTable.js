@@ -137,6 +137,9 @@ export class NodeTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
+    if (!entity.id) {
+      return;
+    }
 
     this.setState({
       showLoading: true

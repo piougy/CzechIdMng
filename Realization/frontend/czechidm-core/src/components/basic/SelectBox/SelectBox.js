@@ -222,13 +222,18 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onChange(value) {
+    let result = true;
+    if (this.props.onChange) {
+      result = this.props.onChange(value);
+    }
+    // if onChange listener returns false, then we can end
+    if (result === false) {
+      return;
+    }
     this.setState({
       value
     }, () => {
       this.validate();
-      if (this.props.onChange) {
-        this.props.onChange(value);
-      }
     });
   }
 

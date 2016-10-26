@@ -201,7 +201,7 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
@@ -221,7 +221,8 @@ class EnumSelectBox extends SelectBox {
         placeholder={this.getPlaceholder(placeholder)}
         searchingText={this.i18n('component.basic.SelectBox.searchingText')}
         searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        loadOptions={this.getOptions}/>
+        loadOptions={this.getOptions}
+        searchable={searchable}/>
     );
   }
 }
@@ -236,11 +237,13 @@ EnumSelectBox.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.symbol),
     PropTypes.symbol
-  ])
+  ]),
+  searchable: PropTypes.bool
 };
 
 EnumSelectBox.defaultProps = {
-  ...SelectBox.defaultProps
+  ...SelectBox.defaultProps,
+  searchable: false
 };
 
 export default EnumSelectBox;

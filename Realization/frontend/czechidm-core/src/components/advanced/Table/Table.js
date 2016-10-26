@@ -185,6 +185,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     } else {
       this.addMessage({ level: 'info', message: 'Omlouváme se, tato operace nebyla prozatím naimplementována.' });
     }
+    return false;
   }
 
   getNoData(noData) {
@@ -324,24 +325,27 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
-            <div className="pull-left">
-              <Basic.EnumSelectBox
-                onChange={this.onBulkAction.bind(this)}
-                ref="anySelectBoxMulti"
-                componentSpan=""
-                className={selectedRows <= 0 ? 'hidden' : 'bulk-action'}
-                multiSelect={false}
-                options={actions}
-                placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
-                readOnly={selectedRows <= 0}
-                rendered={actions !== null && actions.length > 0 && showRowSelection}/>
+            <div className="advanced-table-heading">
+              <div className="pull-left">
+                <Basic.EnumSelectBox
+                  onChange={this.onBulkAction.bind(this)}
+                  ref="bulkActionSelect"
+                  componentSpan=""
+                  className={selectedRows <= 0 ? 'hidden' : 'bulk-action'}
+                  multiSelect={false}
+                  options={actions}
+                  placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
+                  readOnly={selectedRows <= 0}
+                  rendered={actions !== null && actions.length > 0 && showRowSelection}
+                  searchable={false}/>
+              </div>
+              <div className="pull-right">
+                { buttons }
+                {' '}
+                <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
+              </div>
+              <div className="clearfix"></div>
             </div>
-            <div className="pull-right">
-              { buttons }
-              {' '}
-              <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
-            </div>
-            <div className="clearfix"></div>
             <Basic.Collapse in={filterOpened}>
               <div>
                 { filter }

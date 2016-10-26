@@ -715,7 +715,7 @@
       "delete": {
         "identityAssigned": {
           "title": "Odebíraná role je přiřazena uživatelům",
-          "message": "Role [{{role}}] je přiřazena užitvatelům. Před odebráním role je nutné uživatelům roli odebrat."
+          "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
         }
       }
     },

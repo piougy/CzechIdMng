@@ -47,8 +47,8 @@ class IdentityContracts extends Basic.AbstractContent {
   showDetail(entity) {
     const treeTypeId = entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.treeType.id : null;
     const entityFormData = _.merge({}, entity, {
-      guarantee: entity._embedded && entity._embedded.guarantee ? entity._embedded.guarantee.id : null,
-      workingPosition: entity._embedded && entity._embedded.workingPosition ? entity._embedded.workingPosition.id : null,
+      guarantee: entity._embedded ? entity._embedded.guarantee : null,
+      workingPosition: entity._embedded ? entity._embedded.workingPosition : null,
       treeTypeId
     });
 

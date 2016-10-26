@@ -10,16 +10,29 @@ class TextField extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
+    this._setMinAndMaxValidation();
+  }
+
+  _setMinAndMaxValidation() {
     const { min, max } = this.props;
-    let validation = Joi.string();
-    if (min && max) {
-      validation = validation.concat(Joi.string().min(min).max(max));
-    } else if (min) {
-      validation = validation.concat(Joi.string().min(min));
-    } else if (max) {
-      validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
+    // minimal one must be set or nothing..
+    if (min || max) {
+      let validation = Joi.string();
+      if (min && max) {
+        validation = validation.concat(Joi.string().min(min).max(max));
+      } else if (min) {
+        validation = validation.concat(Joi.string().min(min));
+      } else if (max) {
+        if (!this.props.required) {
+          // if set only max is necessary to set allow null and empty string
+          validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
+        } else {
+          // if set prop required it must not be set allow null or empty string
+          validation = validation.concat(Joi.string().max(max));
+        }
+      }
+      this.state = { validation };
     }
-    this.state = { validation };
   }
 
   getRequiredValidationSchema() {

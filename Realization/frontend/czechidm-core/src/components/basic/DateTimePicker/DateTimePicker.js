@@ -59,7 +59,7 @@ class DateTimePicker extends AbstractFormComponent {
   setValue(value) {
     const dateTime = this._format(value);
     if (this.refs.input) {
-      this.refs.input.setState({ inputValue: dateTime });
+      this.refs.input.setState({ inputValue: dateTime || '' }); // we need to set empty string, null does not work
     }
     this.setState({value: dateTime}, () => { this.validate(false); });
   }
@@ -152,7 +152,7 @@ class DateTimePicker extends AbstractFormComponent {
   }
 
   _clear() {
-    this.refs.input.setState({inputValue: null});
+    this.refs.input.setState({ inputValue: '' }); // we need to set empty string, null does not work
     this.setState({ value: null }, () => { this.validate(); });
   }
   _openDialog() {
@@ -201,7 +201,7 @@ class DateTimePicker extends AbstractFormComponent {
             </div>
             :
             (
-              <div className="btn-group input-group" style={{whiteSpace: 'nowrap', display: 'inline-flex'}}>
+              <div className="btn-group input-group basic-date-time-picker">
                 <Datetime
                   ref="input"
                   onChange={this.onChange}

@@ -10,13 +10,13 @@ class TextArea extends AbstractFormComponent {
   constructor(props) {
     super(props);
     const { min, max } = this.props;
-    let validation = Joi.string();
+    let validation = Joi;
     if (min && max) {
       validation = validation.concat(Joi.string().min(min).max(max));
     } else if (min) {
       validation = validation.concat(Joi.string().min(min));
     } else if (max) {
-      validation = validation.concat(Joi.string().max(max).allow(null));
+      validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
     }
     this.state = { validation };
   }

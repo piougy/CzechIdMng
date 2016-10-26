@@ -17,7 +17,7 @@ class TextField extends AbstractFormComponent {
     } else if (min) {
       validation = validation.concat(Joi.string().min(min));
     } else if (max) {
-      validation = validation.concat(Joi.string().max(max).allow(null));
+      validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
     }
     this.state = { validation };
   }

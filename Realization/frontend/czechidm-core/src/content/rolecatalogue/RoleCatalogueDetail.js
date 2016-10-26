@@ -90,7 +90,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ROLECATALOGUE_WRITE')} >
+          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} >
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.RoleCatalogue.name')}
@@ -114,7 +114,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
               level="success"
               showLoadingIcon
               showLoadingText={this.i18n('button.saving')}
-              rendered={SecurityManager.hasAuthority('ROLECATALOGUE_WRITE')}>
+              rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
               {this.i18n('button.save')}
             </Basic.Button>
           </Basic.PanelFooter>

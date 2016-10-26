@@ -45,27 +45,27 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);

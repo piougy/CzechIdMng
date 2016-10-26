@@ -109,12 +109,12 @@ module.exports = {
     {
       path: 'role-catalogues',
       component: require('./src/content/rolecatalogue/RoleCatalogues'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ]
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ]
     },
     {
       path: 'rolecatalogue/:entityId',
       component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
     },
     {
       path: 'roles',

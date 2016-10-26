@@ -49,7 +49,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public IdmTreeNode save(IdmTreeNode entity) {
-		this.testNode(entity);
+		this.validate(entity);
 		return super.save(entity);
 	}
 	
@@ -65,7 +65,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		return this.treeNodeRepository.findChildrenByParent(parent);
 	}
 	
-	private void testNode(IdmTreeNode node) {		
+	private void validate(IdmTreeNode node) {		
 		if (this.baseTreeSevice.validateTreeNodeParents(node)){
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}

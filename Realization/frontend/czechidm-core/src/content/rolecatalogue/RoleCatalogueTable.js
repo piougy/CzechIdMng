@@ -156,7 +156,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
       manager={roleCatalogueManager}
       rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
       filterOpened={filterOpened}
-      showRowSelection={SecurityManager.hasAuthority('ROLECATALOGUE_DELETE')}
+      showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
       style={{ borderLeft: '1px solid #ddd' }}
       filter={
         <Advanced.Filter onSubmit={this.useFilter.bind(this)}>

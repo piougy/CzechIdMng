@@ -149,47 +149,26 @@ module.exports = {
         'order': 999
       },
       {
-        'id': 'role-menu',
-        'labelKey': 'content.rolesMenu.header',
-        'titleKey': 'content.rolesMenu.title',
-        'icon': 'fa:wpforms',
-        'order': 1010,
-        'iconColor': '#8a6d3b',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_WRITE'] } ],
+        'id': 'roles',
+        'type': 'DYNAMIC',
+        'labelKey': 'content.roles.header',
+        'titleKey': 'content.roles.title',
+        'icon': 'fa:universal-access',
+        'iconColor': '#eb9316',
+        'order': 1020,
+        'path': '/roles',
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-catalogues',
-            'labelKey': 'content.roleCatalogues.header',
-            'titleKey': 'content.roleCatalogues.title',
-            'icon': 'fa:list-alt',
-            'iconColor': '#dad727',
-            'order': 1020,
-            'path': '/role-catalogues',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLECATALOGUE_READ'] } ],
-          },
-          {
-            'id': 'roles',
-            'type': 'DYNAMIC',
-            'labelKey': 'content.roles.header',
-            'titleKey': 'content.roles.title',
-            'icon': 'fa:universal-access',
-            'iconColor': '#eb9316',
-            'order': 1020,
-            'path': '/roles',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
-            'items': [
-              {
-                'id': 'role-detail',
-                'type': 'TAB',
-                'label': 'content.roles.tabs.basic',
-                'labelKey': 'content.roles.tabs.basic',
-                'titleKey': 'content.roles.tabs.basic',
-                'order': 1,
-                'path': '/role/:entityId/detail',
-                'icon': 'fa:newspaper-o'
-              }
-            ]
-          },
+            'id': 'role-detail',
+            'type': 'TAB',
+            'label': 'content.roles.tabs.basic',
+            'labelKey': 'content.roles.tabs.basic',
+            'titleKey': 'content.roles.tabs.basic',
+            'order': 1,
+            'path': '/role/:entityId/detail',
+            'icon': 'fa:newspaper-o'
+          }
         ]
       },
       {
@@ -273,6 +252,16 @@ module.exports = {
             'iconColor': '#428BCA',
             'path': '/workflow/definitions',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          },
+          {
+            'id': 'role-catalogues',
+            'labelKey': 'content.roleCatalogues.header',
+            'titleKey': 'content.roleCatalogues.title',
+            'icon': 'fa:list-alt',
+            'iconColor': '#dad727',
+            'order': 40,
+            'path': '/role-catalogues',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           }
         ]
       },

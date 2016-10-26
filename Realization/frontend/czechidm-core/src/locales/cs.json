@@ -669,26 +669,26 @@
       "title": "Role"
     },
     "roleCatalogues": {
-      "header": "Seznam katalogů",
-      "title": "Seznam katalogů",
+      "header": "Katalog rolí",
+      "title": "Katalog rolí",
       "edit": {
-        "title": "Detail katalogu",
-        "header": "{{name}} detail katalogu"
+        "title": "Detail složky",
+        "header": "{{name}} detail složky"
       },
       "create": {
-        "header": "Nový katalog",
-        "title": "Nový katalog"
+        "header": "Nová složka",
+        "title": "Nový složka"
       },
       "save": {
-        "success": "Katalog [{{name}}] byl úspěšně uložen"
+        "success": "Složka [{{name}}] byla úspěšně uložena do katalogu rolí."
       },
-      "parentPick": "Vyberte katalog",
-      "reloadTree": "Obnov strom katalogů",
-      "addRoleCatalogue": "Přidat nový katalogu"
+      "parentPick": "Vyberte složku",
+      "reloadTree": "Obnov strom katalogu rolí",
+      "addRoleCatalogue": "Přidat novou složku"
     },
     "roles": {
-      "header": "Seznam rolí",
-      "title": "Seznam rolí",
+      "header": "Role",
+      "title": "Role",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -1193,17 +1193,17 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Katalog role",
-      "name": "Název katalogu",
+      "_type": "Jmé role",
+      "name": "Název složky",
       "description": "Popis",
       "parent": {
-        "name": "Nadřazený katalog"
+        "name": "Nadřazená složka v katalogu"
       },
       "filter": {
         "name": "Jméno",
-        "namePlaceHolder": "Jméno katalogu",
-        "parent": "Nadřazený kat.",
-        "parentPlaceHolder": "Nadřezený katalog"
+        "namePlaceHolder": "Jméno složky",
+        "parent": "Nadřazená složka",
+        "parentPlaceHolder": "Nadřezená složka"
       }
 
     },
@@ -1433,8 +1433,8 @@
       "title": "Špatná hodnota"
     },
     "ROLE_CATALOG_BAD_PARENT": {
-      "title": "Nadřazený katalog nelze přiřadit.",
-      "message": "Neplatný nadřazený katalog. Vyberte prosím jiný."
+      "title": "Nadřazená složka nelze přiřadit.",
+      "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",
@@ -1465,6 +1465,14 @@
     "TREE_NODE_CANNOT_DELETE": {
       "title": "Existuje závislost",
       "message": "Na prvku existuje závislost, nemůže být smazán."
+    },
+    "TREE_NODE_BAD_TYPE": {
+      "title": "Špatný typ prvku",
+      "message": "Zvolte prosím jiný typ prvku."
+    },
+    "TREE_NODE_BAD_PARENT": {
+      "title": "Nadřazený prvek nelze přiřadit",
+      "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     }
 
   },

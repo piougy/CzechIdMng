@@ -99,7 +99,7 @@ class IdentityDetail extends Basic.AbstractContent {
               <Basic.PanelHeader text={this.i18n('header')}/>
               <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled') || readOnly}>
                 <Basic.TextField ref="username" readOnly label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
-                <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required min={5} max={255} />
+                <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
                 <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
                 <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
                 <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
@@ -118,7 +118,8 @@ class IdentityDetail extends Basic.AbstractContent {
                   ref="description"
                   label={this.i18n('content.identity.profile.description.label')}
                   placeholder={this.i18n('description.placeholder')}
-                  rows={4}/>
+                  rows={4}
+                  min={2}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('entity.Identity.disabled')}

@@ -8,7 +8,16 @@ import org.springframework.dao.DataIntegrityViolationException;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
+/**
+ * Utils for Spring Data repositories
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public final class RepositoryUtils {
+	
+	private RepositoryUtils() {
+	}
 
 	/**
 	 * Return collection of entity ids usable in repository query. 

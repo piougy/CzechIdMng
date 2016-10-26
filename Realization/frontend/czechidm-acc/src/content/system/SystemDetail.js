@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import Joi from 'joi';
 //
 import { Basic, Managers, Utils } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -84,7 +83,7 @@ export default class SystemDetail extends Basic.AbstractContent {
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
                   required
-                  validation={Joi.string().max(255)}/>
+                  max={255}/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}/>

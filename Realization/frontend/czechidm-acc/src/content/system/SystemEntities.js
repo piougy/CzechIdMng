@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import Joi from 'joi';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { SystemEntityManager, SystemManager } from '../../redux';
@@ -173,7 +172,7 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
                   ref="uid"
                   label={this.i18n('acc:entity.SystemEntity.uid')}
                   required
-                  validation={Joi.string().max(1000)}/>
+                  max={1000}/>
                 <Basic.EnumSelectBox
                   ref="entityType"
                   enum={SystemEntityTypeEnum}

@@ -71,13 +71,13 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		}
 		
 		if (checkCorrectType(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad type.");
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
 		}
 	}
 
 	/**
 	 * Method check type of current node and saved node.
-	 * TODO: bug - this will work only in update. If node is created, then parent from diferent type could be given
+	 * TODO: bug - this will work only in update. If node is created, then parent from dif	erent type could be given
 	 * 
 	 * @param treeNode
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;

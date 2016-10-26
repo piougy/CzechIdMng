@@ -50,7 +50,6 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		return super.save(entity);
 	}
 	
-	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findRoots() {

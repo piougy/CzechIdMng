@@ -130,6 +130,9 @@ export class RoleTable extends Basic.AbstractContent {
       <Basic.Row>
         <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
           <div className="basic-toolbar">
+            <div className="pull-left">
+              <h3 style={{ margin: 0 }}>{this.i18n('content.roles.roleCataloguePick')}</h3>
+            </div>
             <div className="clearfix"></div>
           </div>
           <div style={{ paddingLeft: 15, paddingRight: 15 }}>

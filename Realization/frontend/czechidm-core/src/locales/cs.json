@@ -693,6 +693,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
+      "roleCataloguePick": "Vyberte katalog",
       "create": {
         "header": "Nová role"
       },

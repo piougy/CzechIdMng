@@ -71,7 +71,6 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_READ + "')")
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(PersistentEntityResourceAssembler assembler) {	
 		List<IdmRoleCatalogue> listOfRoots = this.roleCatalogueService.findRoots();
@@ -79,7 +78,6 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 		return toResources((Iterable<?>) listOfRoots, assembler, IdmRoleCatalogue.class, null);
 	}
 	
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_CATALOGUE_READ + "')")
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
 	public Resources<?> findChildren(@Param(value = "parent") @NotNull Long parent, PersistentEntityResourceAssembler assembler) {	
 		List<IdmRoleCatalogue> listOfChildren = this.roleCatalogueService.findChildrenByParent(parent);

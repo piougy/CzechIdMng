@@ -15,9 +15,7 @@ CREATE TABLE idm_role_catalogue
   description character varying(255),
   parent_id bigint,
   CONSTRAINT idm_role_catalogue_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_idm_role_catalogue_id FOREIGN KEY (parent_id)
-      REFERENCES public.idm_role_catalogue (id)
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_idm_role_catalogue_parent FOREIGN KEY (parent_id) REFERENCES idm_role_catalogue (id) ON DELETE CASCADE,
   CONSTRAINT ux_role_catalogue_name UNIQUE (name)
 );
 
@@ -37,16 +35,14 @@ CREATE TABLE idm_role_catalogue_aud
   description character varying(255),
   parent_id bigint,
   CONSTRAINT idm_role_catalogue_aud_pkey PRIMARY KEY (id, rev),
-  CONSTRAINT fk_revinfo_rev FOREIGN KEY (rev)
-      REFERENCES revinfo (rev)
-      ON UPDATE NO ACTION ON DELETE NO ACTION	
+  CONSTRAINT fk_role_catalogue_revinfo_rev FOREIGN KEY (rev) REFERENCES revinfo (rev)	
 );
 
 -- add new column role_catalogue_id into table idm_role
 ALTER TABLE idm_role ADD COLUMN role_catalogue_id bigint;
 
 -- add constraint to column role_catalogue_id
-ALTER TABLE idm_role ADD CONSTRAINT fk_idm_role_catalogue_id FOREIGN KEY (role_catalogue_id) REFERENCES idm_role_catalogue (id) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE CASCADE;
+ALTER TABLE idm_role ADD CONSTRAINT fk_idm_role_catalogue FOREIGN KEY (role_catalogue_id) REFERENCES idm_role_catalogue (id) ON DELETE SET NULL;
 
 -- add index to table idm_role
 CREATE INDEX idx_idm_role_catalogue ON idm_role USING btree (role_catalogue_id);

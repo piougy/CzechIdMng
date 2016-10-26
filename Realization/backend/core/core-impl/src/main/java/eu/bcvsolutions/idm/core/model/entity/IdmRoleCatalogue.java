@@ -8,6 +8,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -40,6 +42,7 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRoleCatalogue parent;
 	
 	@Audited

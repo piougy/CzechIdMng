@@ -47,7 +47,7 @@ class SystemContent extends Basic.AbstractContent {
             ?
             <Basic.Loading isStatic showLoading />
             :
-            <SystemDetail entity={entity} />
+            <SystemDetail uiKey="system-detail" entity={entity} />
           }
         </div>
       </Basic.Row>

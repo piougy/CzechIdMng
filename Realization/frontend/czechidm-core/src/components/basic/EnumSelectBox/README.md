@@ -15,7 +15,8 @@ All parameters form parent component (AbstractFormComponent).
 | fieldLabel  | string   | Field use for show string representation of item in select box| 'niceLabel' this is automatic added field from service for item |
 | multiSelect | bool   | If is true then component is in multi select mode| false |
 | value | symbol or Array of symbols | Value can contains symbol (have to part of enum). In multi select mod can be in value array symbols | |
-| placeholder  | string   | Short description for input  |  | |
+| placeholder  | string   | Short description for input  |  |
+| searchable  | bool   | whether to enable searching feature or not | false | 
 
 
 ## Usage

@@ -203,11 +203,11 @@ class AbstractForm extends AbstractContextComponent {
       if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
         continue;
       }
-      if (!this.props.rendered) {
+      const component = this.getComponent(this.state.componentsKeys[componentRef]);
+      if (!component || !this.props.rendered) {
         return;
       }
-      const component = this.getComponent(this.state.componentsKeys[componentRef]);
-      if (component.props.disabled == null || component.props.disabled === false) {
+      if (component.props.disabled === null || component.props.disabled === false) {
         component.setState({disabled, formDisabled: disabled});
       } else {
         component.setState({formDisabled: disabled});
@@ -229,10 +229,10 @@ class AbstractForm extends AbstractContextComponent {
         continue;
       }
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
-      if (!this.props.rendered) {
+      if (!component || !this.props.rendered) {
         return;
       }
-      if (component.props.readOnly == null || component.props.readOnly === false) {
+      if (component.props.readOnly === null || component.props.readOnly === false) {
         component.setState({readOnly, formReadOnly: readOnly});
       } else {
         component.setState({formReadOnly: readOnly});

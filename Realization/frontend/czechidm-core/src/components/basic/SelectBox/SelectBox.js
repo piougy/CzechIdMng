@@ -17,8 +17,10 @@ class SelectBox extends AbstractFormComponent {
   constructor(props) {
     super(props);
     this.getOptions = this.getOptions.bind(this);
-    this.itemRenderer = this.itemRenderer.bind(this);
-    this.state.options = [];
+    this.state = {
+      ...this.state,
+      options: []
+    };
   }
 
   componentDidMount() {
@@ -97,7 +99,6 @@ class SelectBox extends AbstractFormComponent {
     if (this.state.value instanceof Array && this.props.multiSelect === true) {
       const copyValues = [];
       for (const item of this.state.value) {
-        // TODO: original ids could be in array - we dont want him - repair _searchAndSetById - setState async
         const entityId = (this._deletePrivateField(_.merge({}, item))).id;
         if (entityId) {
           copyValues.push(entityId);
@@ -131,6 +132,8 @@ class SelectBox extends AbstractFormComponent {
   }
 
   normalizeValue(value) {
+    const { manager } = this.props;
+    //
     if (value) {
       // start loading
       this.setState({
@@ -143,13 +146,42 @@ class SelectBox extends AbstractFormComponent {
               isLoading: false
             });
           } else {
+            let isError = false;
+            const renderedValues = [];
+            //
             for (const item of _.clone(value)) {
               if (item instanceof Object && !item.itemFullKey) {
                 // value is object but doesn't have itemFullKey attribute
                 this.itemRenderer(item, '');
-              } else if ((typeof item === 'string') || (typeof item === 'number')) {
+              } else if (manager && ((typeof item === 'string') || (typeof item === 'number'))) {
                 // value is string, we try load entity by id
-                this._searchAndSetById(item, true);
+                if (!manager.isShowLoading(this.context.store.getState(), null, item)) {
+                  /* eslint-disable no-loop-func */
+                  this.context.store.dispatch(manager.fetchEntityIfNeeded(item, null, (json, error) => {
+                    if (!error) {
+                      this.itemRenderer(json, '');
+                      // add item to array
+                      renderedValues.push(json);
+                      if (renderedValues.length === value.length) { // posledni callback
+                        if (!isError) {
+                          this.setState({
+                            value: renderedValues,
+                            isLoading: false
+                          }, this.validate);
+                        } else {
+                          this.setState({
+                            value: null,
+                            isLoading: false
+                          });
+                        }
+                      }
+                    } else {
+                      this.addError(error);
+                      isError = true;
+                      renderedValues.push(item);
+                    }
+                  }));
+                }
               }
             }
             this.setState({
@@ -162,42 +194,23 @@ class SelectBox extends AbstractFormComponent {
           this.setState({isLoading: false});
         } else if (typeof value === 'string' || typeof value === 'number') {
           // value is string, we try load entity by id
-          this._searchAndSetById(value);
+          if (!manager.isShowLoading(this.context.store.getState(), null, value)) {
+            this.context.store.dispatch(manager.fetchEntityIfNeeded(value, null, (json, error) => {
+              if (!error) {
+                this.itemRenderer(json, '');
+                this.setState({ value: json, isLoading: false }, this.validate);
+              } else {
+                this.addError(error);
+                this.setState({value: null, isLoading: false});
+              }
+            }));
+          }
         } else {
           this.setState({isLoading: false});
         }
       });
     }
     return value;
-  }
-
-  _searchAndSetById(value, isArray) {
-    const { manager } = this.props;
-    if (!manager) {
-      return null;
-    }
-    this.context.store.dispatch(manager.fetchEntityIfNeeded(value, null, (json, error) => {
-      if (!error) {
-        this.itemRenderer(json, '');
-        let result = json;
-        if (isArray === true) {
-          // TODO: tohle funguje jen dilem nahody - valueArray naprimo modifikuje stav pres referenci ... pres setState by se to cyklilo z duvodu async - volani dispatch v cyklu vne tyhle metody
-          let valueArray = this.state.value;
-          // if is value null or if contains string (not Object) we create new array
-          if (!valueArray) {
-            valueArray = [];
-          }
-          // add item to array
-          valueArray.push(json);
-          result = valueArray;
-        } else {
-          this.setState({value: result, isLoading: false}, this.validate);
-        }
-      } else {
-        this.addError(error);
-        this.setState({value: null, isLoading: false});
-      }
-    }));
   }
 
   getFiltersDefiniton(input) {
@@ -209,13 +222,18 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onChange(value) {
+    let result = true;
+    if (this.props.onChange) {
+      result = this.props.onChange(value);
+    }
+    // if onChange listener returns false, then we can end
+    if (result === false) {
+      return;
+    }
     this.setState({
       value
     }, () => {
       this.validate();
-      if (this.props.onChange) {
-        this.props.onChange(value);
-      }
     });
   }
 

@@ -1,5 +1,4 @@
 import routeActions from 'react-router-redux';
-import Immutable from 'immutable';
 //
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';

@@ -44,23 +44,11 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _prepareEntity(entity) {
-    entity = this._transformFromEmbedded(entity, 'subRoles', 'sub');
-    entity = this._transformFromEmbedded(entity, 'superiorRoles', 'superior');
-    entity = this._transformFromEmbedded(entity, 'guarantees', 'guarantee');
-    return entity;
-  }
-
-  _transformFromEmbedded(entity, propertyName, variableName) {
-    const copyOfEntity = _.merge({}, entity);
-    delete copyOfEntity[propertyName];
-    copyOfEntity[propertyName] = entity[propertyName].map(function transform(obj) {
-      if (obj._embedded !== undefined) {
-        if (obj._embedded[variableName] === undefined) {
-          return obj[variableName];
-        }
-        return obj._embedded[variableName].id;
-      }
-    });
+    const copyOfEntity = _.merge({}, entity); // we can not modify given entity
+    // we dont need to load entities again - we have them in embedded objects
+    copyOfEntity.subRoles = entity.subRoles.map(subRole => { return subRole._embedded.sub; });
+    copyOfEntity.superiorRoles = entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
+    copyOfEntity.guarantees = entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
     return copyOfEntity;
   }
 

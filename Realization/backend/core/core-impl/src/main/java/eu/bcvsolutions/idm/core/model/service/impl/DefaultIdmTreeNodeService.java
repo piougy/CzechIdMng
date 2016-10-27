@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,9 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
+	
+	@Autowired
+	private DefaultBaseTreeService<IdmTreeNode> baseTreeSevice;
 
 	@Override
 	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
@@ -49,7 +51,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public IdmTreeNode save(IdmTreeNode entity) {
-		this.testNode(entity);
+		this.validate(entity);
 		return super.save(entity);
 	}
 	
@@ -65,23 +67,19 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		return this.treeNodeRepository.findChildrenByParent(parent, pageable);
 	}
 	
-	private void testNode(IdmTreeNode node) {
-		if (checkParents(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
-		}
-		
-		if (checkChildren(node)) {
+	private void validate(IdmTreeNode node) {		
+		if (this.baseTreeSevice.validateTreeNodeParents(node)){
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		
 		if (checkCorrectType(node)) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad type.");
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_TYPE,  "TreeNode ["+node.getName() +"] have bad type.");
 		}
 	}
 
 	/**
 	 * Method check type of current node and saved node.
-	 * TODO: bug - this will work only in update. If node is created, then parent from diferent type could be given
+	 * TODO: bug - this will work only in update. If node is created, then parent from dif	erent type could be given
 	 * 
 	 * @param treeNode
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
@@ -98,32 +96,5 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		} else {
 			return false;
 		}
-	}
-	
-	/**
-	 * Method check if parent of node isnt her children.
-	 * @param treeNode
-	 * @return 
-	 */
-	private boolean checkChildren(IdmTreeNode treeNode) {
-		IdmTreeNode tmp = treeNode;
-		List<Long> listIds = new ArrayList<Long>(); 
-		while (tmp.getParent() != null) {
-			if	(listIds.contains(tmp.getId())) {
-				return true;
-			}
-			listIds.add(tmp.getId());
-			tmp = tmp.getParent();
-		}
-		return false;
-	}
-	
-	/**
-	 * Method check if tree node have same id as parent.id
-	 * @param treeNode
-	 * @return true if parent.id and id is same
-	 */
-	private boolean checkParents(IdmTreeNode treeNode) {
-		return treeNode.getParent() != null && (treeNode.getId() == treeNode.getParent().getId());
 	}
 }

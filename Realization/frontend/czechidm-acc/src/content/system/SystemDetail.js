@@ -82,7 +82,8 @@ export default class SystemDetail extends Basic.AbstractContent {
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
-                  required/>
+                  required
+                  max={255}/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}/>

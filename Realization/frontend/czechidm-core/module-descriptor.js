@@ -258,6 +258,16 @@ module.exports = {
             'iconColor': '#428BCA',
             'path': '/workflow/definitions',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          },
+          {
+            'id': 'role-catalogues',
+            'labelKey': 'content.roleCatalogues.header',
+            'titleKey': 'content.roleCatalogues.title',
+            'icon': 'fa:list-alt',
+            'iconColor': '#dad727',
+            'order': 40,
+            'path': '/role-catalogues',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           }
         ]
       },

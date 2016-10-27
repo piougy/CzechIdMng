@@ -664,6 +664,28 @@
         }
       }
     },
+    "rolesMenu": {
+      "header": "Role",
+      "title": "Role"
+    },
+    "roleCatalogues": {
+      "header": "Katalog rolí",
+      "title": "Katalog rolí",
+      "edit": {
+        "title": "Detail složky",
+        "header": "{{name}} detail složky"
+      },
+      "create": {
+        "header": "Nová složka",
+        "title": "Nový složka"
+      },
+      "save": {
+        "success": "Složka [{{name}}] byla úspěšně uložena do katalogu rolí."
+      },
+      "parentPick": "Vyberte složku",
+      "reloadTree": "Obnov strom katalogu rolí",
+      "addRoleCatalogue": "Přidat novou složku"
+    },
     "roles": {
       "header": "Role",
       "title": "Role",
@@ -671,6 +693,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
+      "roleCataloguePick": "Vyberte katalog",
       "create": {
         "header": "Nová role"
       },
@@ -1182,6 +1205,21 @@
       "titleBefore": "Titul před",
       "titleAfter": "Titul za"
     },
+    "RoleCatalogue": {
+      "_type": "Jmé role",
+      "name": "Název složky",
+      "description": "Popis",
+      "parent": {
+        "name": "Nadřazená složka v katalogu"
+      },
+      "filter": {
+        "name": "Jméno",
+        "namePlaceHolder": "Jméno složky",
+        "parent": "Nadřazená složka",
+        "parentPlaceHolder": "Nadřezená složka"
+      }
+
+    },
     "Role": {
       "_type": "Role",
       "name": "Název role",
@@ -1194,7 +1232,10 @@
       "approveAddWorkflow": "Schválení přiřazení (WF)",
       "approveRemoveWorkflow": "Schválení odebrání (WF)",
       "description": "Popis",
-      "guarantees": "Garanti role"
+      "guarantees": "Garanti role",
+      "roleCatalogue": {
+        "name": "Katalog"
+      }
     },
     "IdentityRole": {
       "role" : "Role"
@@ -1402,7 +1443,11 @@
       "title": "Chybný požadavek"
     },
     "BAD_VALUE": {
-      "title": "Špatná volba"
+      "title": "Špatná hodnota"
+    },
+    "ROLE_CATALOG_BAD_PARENT": {
+      "title": "Nadřazená složka nelze přiřadit.",
+      "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },
     "IDMROLE_NAME_DUPLICATE": {
       "title": "Role již existuje",
@@ -1433,6 +1478,14 @@
     "TREE_NODE_CANNOT_DELETE": {
       "title": "Existuje závislost",
       "message": "Na prvku existuje závislost, nemůže být smazán."
+    },
+    "TREE_NODE_BAD_TYPE": {
+      "title": "Špatný typ prvku",
+      "message": "Zvolte prosím jiný typ prvku."
+    },
+    "TREE_NODE_BAD_PARENT": {
+      "title": "Nadřazený prvek nelze přiřadit",
+      "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     }
 
   },

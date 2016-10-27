@@ -116,11 +116,14 @@ export default class NodeDetail extends Basic.AbstractContent {
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.TreeType.code')}
-              required/>
+              required
+              max={255}/>
             <Basic.TextField
               ref="name"
               label={this.i18n('entity.TreeNode.name')}
-              required/>
+              required
+              min={0}
+              max={255}/>
             <Basic.Checkbox
               ref="disabled"
               label={this.i18n('entity.TreeNode.disabled')}/>

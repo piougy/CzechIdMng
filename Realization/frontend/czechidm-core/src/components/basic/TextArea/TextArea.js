@@ -9,6 +9,29 @@ class TextArea extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
+    this._setMinAndMaxValidation();
+  }
+
+  _setMinAndMaxValidation() {
+    const { min, max } = this.props;
+    // minimal one must be set or nothing..
+    if (min || max) {
+      let validation = Joi.string();
+      if (min && max) {
+        validation = validation.concat(Joi.string().min(min).max(max));
+      } else if (min) {
+        validation = validation.concat(Joi.string().min(min));
+      } else if (max) {
+        if (!this.props.required) {
+          // if set only max is necessary to set allow null and empty string
+          validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
+        } else {
+          // if set prop required it must not be set allow null or empty string
+          validation = validation.concat(Joi.string().max(max));
+        }
+      }
+      this.state = { validation };
+    }
   }
 
   getRequiredValidationSchema() {
@@ -76,7 +99,9 @@ class TextArea extends AbstractFormComponent {
 TextArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
-  rows: PropTypes.number
+  rows: PropTypes.number,
+  min: PropTypes.number,
+  max: PropTypes.number
 };
 
 TextArea.defaultProps = {

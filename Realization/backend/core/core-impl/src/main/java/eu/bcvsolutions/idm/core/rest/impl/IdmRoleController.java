@@ -35,6 +35,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 
@@ -144,6 +145,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		RoleFilter filter = new RoleFilter();
 		filter.setText(this.convertStringParameter(parameters, "text"));
 		filter.setRoleType(this.convertEnumParameter(parameters, "roleType", IdmRoleType.class));
+		filter.setRoleCatalogue(this.convertEntityParameter(parameters, "roleCatalogue", IdmRoleCatalogue.class));
 		return filter;
 	}
 }

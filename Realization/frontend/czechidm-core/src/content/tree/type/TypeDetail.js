@@ -79,11 +79,14 @@ export default class TypeDetail extends Basic.AbstractContent {
               <Basic.TextField
                 ref="code"
                 label={this.i18n('entity.TreeType.code')}
-                required/>
+                required
+                max={255}/>
               <Basic.TextField
                 ref="name"
                 label={this.i18n('entity.TreeType.name')}
-                required/>
+                required
+                min={0}
+                max={255}/>
             </Basic.AbstractForm>
 
             <Basic.PanelFooter showLoading={showLoading} >

@@ -175,7 +175,8 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="uid"
                   label={this.i18n('acc:entity.Account.uid')}
-                  required/>
+                  required
+                  max={1000}/>
                 <Basic.SelectBox
                   ref="systemEntity"
                   manager={systemEntityManager}

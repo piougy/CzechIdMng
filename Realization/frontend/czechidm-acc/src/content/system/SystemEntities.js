@@ -171,7 +171,8 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="uid"
                   label={this.i18n('acc:entity.SystemEntity.uid')}
-                  required/>
+                  required
+                  max={1000}/>
                 <Basic.EnumSelectBox
                   ref="entityType"
                   enum={SystemEntityTypeEnum}

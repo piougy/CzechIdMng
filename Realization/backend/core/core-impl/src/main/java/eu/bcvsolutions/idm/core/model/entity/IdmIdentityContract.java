@@ -38,7 +38,6 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@Audited

@@ -48,7 +48,6 @@ public class SysSystemEntity extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private SysSystem system;
 
 	public void setUid(String uid) {

@@ -34,7 +34,6 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity guarantee;
 
 	@NotNull
@@ -42,7 +41,6 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRole role;
 
 	public IdmIdentity getGuarantee() {

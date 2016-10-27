@@ -70,6 +70,10 @@
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
+      },
+      "connector": {
+        "header": "Nastavení konektoru",
+        "title": "Konektor"
       }
     },
     "role": {

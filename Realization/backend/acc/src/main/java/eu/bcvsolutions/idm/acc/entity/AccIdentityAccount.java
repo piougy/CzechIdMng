@@ -37,14 +37,12 @@ public class AccIdentityAccount extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "account_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private AccAccount account;
 	
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

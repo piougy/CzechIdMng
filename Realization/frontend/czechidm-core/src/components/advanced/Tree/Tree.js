@@ -17,7 +17,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
     super(props, context);
     const { rootNodes, rootNodesCount } = props;
     const data = rootNodes;
-    if (rootNodesCount) {
+    if (rootNodesCount && rootNodes.length < rootNodesCount) {
       data.push(this._createMoreLink(props, rootNodesCount - rootNodes.length));
     }
     this.state = {

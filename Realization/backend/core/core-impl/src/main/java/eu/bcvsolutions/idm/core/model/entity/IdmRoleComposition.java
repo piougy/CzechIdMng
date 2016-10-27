@@ -36,14 +36,12 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	@JsonBackReference
 	@JoinColumn(name = "superior_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRole superior;
 	
 	@Audited
 	@NotNull
 	@JoinColumn(name = "sub_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRole sub;
 
 	public IdmRoleComposition() {

@@ -33,7 +33,6 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@NotNull

@@ -25,7 +25,7 @@ public class IdmConfiguration extends AbstractEntity implements IdentifiableByNa
 	private static final long serialVersionUID = -8377477231407116537L;
 
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String name;
 	

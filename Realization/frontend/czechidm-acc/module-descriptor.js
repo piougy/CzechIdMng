@@ -29,6 +29,14 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-connector',
+            'type': 'TAB',
+            'labelKey': 'acc:content.system.connector.title',
+            'order': 2,
+            'path': '/system/:entityId/connector',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-accounts',
             'type': 'TAB',
             'labelKey': 'acc:content.system.accounts.title',

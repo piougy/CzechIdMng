@@ -59,7 +59,6 @@ public class AccAccount extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private SysSystem system;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

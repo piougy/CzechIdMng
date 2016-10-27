@@ -3,6 +3,22 @@ package eu.bcvsolutions.idm.icf.dto;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 
 public class IcfConfigurationPropertyDto implements IcfConfigurationProperty {
+
+	
+	
+	public IcfConfigurationPropertyDto() {
+		super();
+	}
+
+	public IcfConfigurationPropertyDto(String name, Object value) {
+		super();
+		this.name = name;
+		this.value = value;
+		if(value != null){
+			this.type = value.getClass().getName();
+		}
+	}
+
 	/**
      * The unique name of the configuration property.
      */

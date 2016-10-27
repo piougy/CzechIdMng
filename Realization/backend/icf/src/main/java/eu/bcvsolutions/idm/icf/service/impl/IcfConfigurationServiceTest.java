@@ -22,13 +22,13 @@ public class IcfConfigurationServiceTest implements IcfConfigurationService {
 
 	@Autowired
 	public IcfConfigurationServiceTest(IcfConfigurationAggregatorService icfConfigurationAggregator) {
-		if (icfConfigurationAggregator.getIcfs() == null) {
+		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
-		if (icfConfigurationAggregator.getIcfs().containsKey(this.getIcfType())) {
+		if (icfConfigurationAggregator.getIcfConfigs().containsKey(this.getIcfType())) {
 			throw new IcfException("ICF implementation duplicity for key: " + this.getIcfType());
 		}
-		icfConfigurationAggregator.getIcfs().put(this.getIcfType(), this);
+		icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
 	}
 
 	/**

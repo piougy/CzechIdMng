@@ -104,8 +104,8 @@ export class TypeTable extends Basic.AbstractContent {
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.TreeType.name')}
-                        label={this.i18n('entity.TreeType.name')}/>
+                        placeholder={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}
+                        label={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

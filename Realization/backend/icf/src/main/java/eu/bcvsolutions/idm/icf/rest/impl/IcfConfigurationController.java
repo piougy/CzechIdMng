@@ -60,9 +60,10 @@ import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
+import eu.bcvsolutions.idm.icf.dto.IcfLoginAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfPasswordAttributeDto;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorAggregatorService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationFacadeDefault;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorFacadeDefault;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
 import eu.bcvsolutions.idm.security.domain.GuardedString;;
 
@@ -77,12 +78,12 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/" + IcfModuleDescriptor.MODULE_ID + "/configurations")
 public class IcfConfigurationController implements BaseController {
 
-	private IcfConfigurationAggregatorService icfConfigurationAggregatorService;
+	private IcfConfigurationFacadeDefault icfConfigurationAggregatorService;
 	@Autowired
-	private IcfConnectorAggregatorService icfConnectorAggregatorService;
+	private IcfConnectorFacadeDefault icfConnectorAggregatorService;
 
 	@Autowired
-	public IcfConfigurationController(IcfConfigurationAggregatorService icfConfigurationAggregatorService) {
+	public IcfConfigurationController(IcfConfigurationFacadeDefault icfConfigurationAggregatorService) {
 		super();
 		this.icfConfigurationAggregatorService = icfConfigurationAggregatorService;
 	}
@@ -111,7 +112,7 @@ public class IcfConfigurationController implements BaseController {
 		properties.getProperties().add(new IcfConfigurationPropertyDto("rethrowAllSQLExceptions", true));
 		List<IcfAttribute> attributes = new ArrayList<>();
 
-		attributes.add(new IcfAttributeDto("svandav"));
+		attributes.add(new IcfLoginAttributeDto("svandav"));
 		attributes.add(new IcfAttributeDto("firstName", "Vít"));
 		attributes.add(new IcfAttributeDto("lastName", "Švanda"));
 		attributes.add(new IcfPasswordAttributeDto(new GuardedString("heslo")));
@@ -134,6 +135,7 @@ public class IcfConfigurationController implements BaseController {
 		IcfUidAttribute uidUpdated = icfConnectorAggregatorService.updateObject(info.getConnectorKey(), icfConf, null,
 				uid, attributesReplace);
 		IcfConnectorObject object = icfConnectorAggregatorService.readObject(info.getConnectorKey(), icfConf, null, uid);
+		uidUpdated = icfConnectorAggregatorService.authenticateObject(info.getConnectorKey(), icfConf, null, "svandav", new GuardedString("heslo22d"));
 		icfConnectorAggregatorService.deleteObject(info.getConnectorKey(), icfConf, null, uid);
 
 		return new Resource(object);

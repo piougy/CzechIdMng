@@ -6,16 +6,22 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 
+/**
+ * Facade for get available connectors configuration
+ * @author svandav
+ *
+ */
 @Service
-public class IcfConfigurationAggregatorService {
+public class IcfConfigurationFacadeDefault implements IcfConfigurationFacade {
 
 	private Map<String, IcfConfigurationService> icfConfigs = new HashMap<>();
-	private Map<String, IcfConnectorService> icfConnectors = new HashMap<>();
 	// Connector infos are cached
 	private Map<String, List<IcfConnectorInfo>> icfLocalConnectorInfos;
 
@@ -24,13 +30,6 @@ public class IcfConfigurationAggregatorService {
 	 */
 	public Map<String, IcfConfigurationService> getIcfConfigs() {
 		return icfConfigs;
-	}
-
-	/**
-	 * @return Connector services for all ICFs
-	 */
-	public Map<String, IcfConnectorService> getIcfConnectors() {
-		return icfConnectors;
 	}
 
 	/**
@@ -46,4 +45,5 @@ public class IcfConfigurationAggregatorService {
 		}
 		return icfLocalConnectorInfos;
 	}
+
 }

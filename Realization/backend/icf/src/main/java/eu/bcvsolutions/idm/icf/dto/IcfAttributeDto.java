@@ -3,23 +3,23 @@ package eu.bcvsolutions.idm.icf.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 
 public class IcfAttributeDto implements IcfAttribute {
 	protected String name;
 	protected List<Object> values;
-	protected boolean login = false;
 	protected boolean multiValue = false;
 
 	public IcfAttributeDto() {
 		super();
 	}
 	
-	public IcfAttributeDto(String name, List<Object> values, boolean login, boolean multiValue) {
+	public IcfAttributeDto(String name, List<Object> values, boolean multiValue) {
 		super();
 		this.name = name;
 		this.values = values;
-		this.login = login;
 		this.multiValue = multiValue;
 	}
 
@@ -40,15 +40,6 @@ public class IcfAttributeDto implements IcfAttribute {
 		this.multiValue = false;
 	}
 	
-	public IcfAttributeDto(String login) {
-		super();
-		this.values = new ArrayList<>();
-		if (login != null) {
-			this.values.add(login);
-		}
-		this.login = true;
-		this.multiValue = false;
-	}
 
 	/**
 	 * Property name
@@ -68,6 +59,7 @@ public class IcfAttributeDto implements IcfAttribute {
 	 * 
 	 * @return
 	 */
+	@JsonIgnore
 	public Object getValue() {
 		if (this.multiValue || (this.values != null && this.values.size() > 1)) {
 			throw new IllegalArgumentException("Must be a single value.");
@@ -91,22 +83,6 @@ public class IcfAttributeDto implements IcfAttribute {
 
 	public void setValues(List<Object> values) {
 		this.values = values;
-	}
-
-	/**
-	 * If is true, then have to this attribute unique for objectClass. Is
-	 * <i>user-friendly identifier</i> of an object on a target resource. For
-	 * instance, the name of an <code>Account</code> will most often be its
-	 * loginName.
-	 * 
-	 * @return
-	 */
-	public boolean isLogin() {
-		return login;
-	}
-
-	public void setLogin(boolean login) {
-		this.login = login;
 	}
 
 	public boolean isMultiValue() {

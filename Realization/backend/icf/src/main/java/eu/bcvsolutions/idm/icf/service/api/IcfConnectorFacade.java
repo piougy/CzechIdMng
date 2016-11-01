@@ -11,14 +11,7 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
-public interface IcfConnectorService {
-
-	/**
-	 * Return key defined ICF implementation
-	 * 
-	 * @return
-	 */
-	String getIcfType();
+public interface IcfConnectorFacade {
 
 	/**
 	 * Create new object in resource

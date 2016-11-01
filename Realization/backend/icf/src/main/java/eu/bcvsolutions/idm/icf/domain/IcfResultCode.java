@@ -10,7 +10,9 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
  */
 public enum IcfResultCode implements ResultCode {
 	//ICF
-	ICF_IMPLEMENTATTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "ICF implementation %s not found!");
+	ICF_IMPLEMENTATTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "ICF implementation %s not found!"),
+	// auth errors
+	AUTH_FAILED(HttpStatus.UNAUTHORIZED, "Authentication failed - bad credentials.");
 
 	private final HttpStatus status;
 	private final String message;

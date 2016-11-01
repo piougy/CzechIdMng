@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationFacadeDefault;
 
 @Service
 public class IcfConfigurationServiceConnId implements IcfConfigurationService {
@@ -51,7 +51,7 @@ public class IcfConfigurationServiceConnId implements IcfConfigurationService {
 	private List<ConnectorInfoManager> managers;
 
 	@Autowired
-	public IcfConfigurationServiceConnId(IcfConfigurationAggregatorService icfConfigurationAggregator) {
+	public IcfConfigurationServiceConnId(IcfConfigurationFacadeDefault icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}

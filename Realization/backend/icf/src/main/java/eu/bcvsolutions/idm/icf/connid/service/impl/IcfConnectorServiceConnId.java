@@ -4,18 +4,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
+import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -23,9 +31,11 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.connid.domain.IcfConvertUtilConnId;
+import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorAggregatorService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorFacadeDefault;
+import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 @Service
 public class IcfConnectorServiceConnId implements IcfConnectorService {
@@ -35,7 +45,7 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 	private IcfConfigurationServiceConnId configurationServiceConnId;
 
 	@Autowired
-	public IcfConnectorServiceConnId(IcfConnectorAggregatorService icfConnectorAggregator,
+	public IcfConnectorServiceConnId(IcfConnectorFacadeDefault icfConnectorAggregator,
 			IcfConfigurationServiceConnId configurationServiceConnId) {
 		if (icfConnectorAggregator.getIcfConnectors() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
@@ -77,6 +87,7 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		return IcfConvertUtilConnId.convertConnIdUid(uid);
 	}
 
+	@Override
 	public IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
 		Assert.notNull(key);
@@ -105,6 +116,7 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		return IcfConvertUtilConnId.convertConnIdUid(updatedUid);
 	}
 
+	@Override
 	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
@@ -123,6 +135,7 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		log.debug("Deleted object - ConnId (" + key.toString() + ") Uid= " + uid);
 	}
 
+	@Override
 	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
@@ -140,6 +153,38 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		ConnectorObject connObject = conn.getObject(objectClassConnId, IcfConvertUtilConnId.convertIcfUid(uid), null);
 		log.debug("Readed object - ConnId (" + connObject + ") Uid= " + uid);
 		return IcfConvertUtilConnId.convertConnIdConnectorObject(connObject);
+	}
+
+	@Override
+	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+			IcfObjectClass objectClass, String username, GuardedString password) {
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		Assert.notNull(username);
+		log.debug("Authenticate object - ConnId (username= " + username + " " + key.toString() + ")");
+
+		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+
+		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		if (objectClassConnId == null) {
+			objectClassConnId = ObjectClass.ACCOUNT;
+		}
+		try {
+			IcfUidAttribute uid = IcfConvertUtilConnId.convertConnIdUid(conn.authenticate(objectClassConnId, username,
+					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()), null));
+			log.debug("Authenticated object - ConnId (" + uid + ") Uid= " + uid);
+			return uid;
+		} catch (InvalidCredentialException ex) {
+			throw new ResultCodeException(IcfResultCode.AUTH_FAILED, ex);
+		}
+
+	}
+	
+	public void synchronization(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+			IcfObjectClass objectClass) {
+		
+		throw new NotImplementedException();
+
 	}
 
 	private ConnectorFacade getConnectorFacade(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {

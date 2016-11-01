@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationFacadeDefault;
 
 /**
  * Connector framework for virtual account implementation
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
 public class IcfConfigurationServiceVirtual implements IcfConfigurationService {
 
 	@Autowired
-	public IcfConfigurationServiceVirtual(IcfConfigurationAggregatorService icfConfigurationAggregator) {
+	public IcfConfigurationServiceVirtual(IcfConfigurationFacadeDefault icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}

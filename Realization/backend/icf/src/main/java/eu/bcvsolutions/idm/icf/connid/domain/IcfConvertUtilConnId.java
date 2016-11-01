@@ -28,6 +28,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
+import eu.bcvsolutions.idm.icf.api.IcfLoginAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
@@ -37,13 +38,14 @@ import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorObjectDto;
+import eu.bcvsolutions.idm.icf.dto.IcfLoginAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectClassDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfPasswordAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfUidAttributeDto;
 
 /**
- * Convert util for ConnId implementation
+ * Convert utility for ConnId implementation
  * 
  * @author svandav
  *
@@ -187,7 +189,7 @@ public class IcfConvertUtilConnId {
 			return AttributeBuilder.buildPassword(((IcfPasswordAttribute) icfAttribute).getPasswordValue() != null
 					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : null);
 		}
-		if (!icfAttribute.isMultiValue() && icfAttribute.isLogin()) {
+		if (icfAttribute instanceof IcfLoginAttribute) {
 			return new Name((String) icfAttribute.getValue());
 		}
 		if (!icfAttribute.isMultiValue() && icfAttribute.getValue() == null) {
@@ -207,8 +209,12 @@ public class IcfConvertUtilConnId {
 		if (attribute == null) {
 			return null;
 		}
-		if (attribute instanceof Name) {
-			return new IcfAttributeDto(((Name) attribute).getNameValue());
+		if (attribute.is(Name.NAME)) {
+			if (attribute.getValue() == null || attribute.getValue().size() != 1
+					|| !(attribute.getValue().get(0) instanceof String)) {
+				throw new IllegalArgumentException("Login attribute must be fill and a single String value.");
+			}
+			return new IcfLoginAttributeDto(Name.NAME, (String) attribute.getValue().get(0));
 		}
 		if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
 			eu.bcvsolutions.idm.security.domain.GuardedString password = null;

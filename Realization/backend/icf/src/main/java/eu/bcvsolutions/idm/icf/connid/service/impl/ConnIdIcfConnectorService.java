@@ -30,23 +30,23 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
-import eu.bcvsolutions.idm.icf.connid.domain.IcfConvertUtilConnId;
+import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorFacadeDefault;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConnectorFacade;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 @Service
-public class IcfConnectorServiceConnId implements IcfConnectorService {
+public class ConnIdIcfConnectorService implements IcfConnectorService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IcfConnectorServiceConnId.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcfConnectorService.class);
 
-	private IcfConfigurationServiceConnId configurationServiceConnId;
+	private ConnIdIcfConfigurationService configurationServiceConnId;
 
 	@Autowired
-	public IcfConnectorServiceConnId(IcfConnectorFacadeDefault icfConnectorAggregator,
-			IcfConfigurationServiceConnId configurationServiceConnId) {
+	public ConnIdIcfConnectorService(DefaultIcfConnectorFacade icfConnectorAggregator,
+			ConnIdIcfConfigurationService configurationServiceConnId) {
 		if (icfConnectorAggregator.getIcfConnectors() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
@@ -74,17 +74,17 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		Set<Attribute> connIdAttributes = new HashSet<>();
 		if (attributes != null) {
 			for (IcfAttribute icfAttribute : attributes) {
-				connIdAttributes.add(IcfConvertUtilConnId.convertIcfAttribute(icfAttribute));
+				connIdAttributes.add(ConnIdIcfConvertUtil.convertIcfAttribute(icfAttribute));
 			}
 		}
-		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
 		Uid uid = conn.create(objectClassConnId, connIdAttributes, null);
 		log.debug("Created object - ConnId (" + key.toString() + " " + attributes.toString() + ") Uid= " + uid);
-		return IcfConvertUtilConnId.convertConnIdUid(uid);
+		return ConnIdIcfConvertUtil.convertConnIdUid(uid);
 	}
 
 	@Override
@@ -101,19 +101,19 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		Set<Attribute> connIdAttributes = new HashSet<>();
 		if (replaceAttributes != null) {
 			for (IcfAttribute icfAttribute : replaceAttributes) {
-				connIdAttributes.add(IcfConvertUtilConnId.convertIcfAttribute(icfAttribute));
+				connIdAttributes.add(ConnIdIcfConvertUtil.convertIcfAttribute(icfAttribute));
 			}
 		}
-		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		Uid updatedUid = conn.update(objectClassConnId, IcfConvertUtilConnId.convertIcfUid(uid), connIdAttributes,
+		Uid updatedUid = conn.update(objectClassConnId, ConnIdIcfConvertUtil.convertIcfUid(uid), connIdAttributes,
 				null);
 		log.debug("Updated object - ConnId (" + key.toString() + " " + replaceAttributes.toString() + ") Uid= "
 				+ updatedUid);
-		return IcfConvertUtilConnId.convertConnIdUid(updatedUid);
+		return ConnIdIcfConvertUtil.convertConnIdUid(updatedUid);
 	}
 
 	@Override
@@ -126,12 +126,12 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 
-		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		conn.delete(objectClassConnId, IcfConvertUtilConnId.convertIcfUid(uid), null);
+		conn.delete(objectClassConnId, ConnIdIcfConvertUtil.convertIcfUid(uid), null);
 		log.debug("Deleted object - ConnId (" + key.toString() + ") Uid= " + uid);
 	}
 
@@ -145,14 +145,14 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 
-		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 
-		ConnectorObject connObject = conn.getObject(objectClassConnId, IcfConvertUtilConnId.convertIcfUid(uid), null);
+		ConnectorObject connObject = conn.getObject(objectClassConnId, ConnIdIcfConvertUtil.convertIcfUid(uid), null);
 		log.debug("Readed object - ConnId (" + connObject + ") Uid= " + uid);
-		return IcfConvertUtilConnId.convertConnIdConnectorObject(connObject);
+		return ConnIdIcfConvertUtil.convertConnIdConnectorObject(connObject);
 	}
 
 	@Override
@@ -165,12 +165,12 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 
-		ObjectClass objectClassConnId = IcfConvertUtilConnId.convertIcfObjectClass(objectClass);
+		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
 			objectClassConnId = ObjectClass.ACCOUNT;
 		}
 		try {
-			IcfUidAttribute uid = IcfConvertUtilConnId.convertConnIdUid(conn.authenticate(objectClassConnId, username,
+			IcfUidAttribute uid = ConnIdIcfConvertUtil.convertConnIdUid(conn.authenticate(objectClassConnId, username,
 					new org.identityconnectors.common.security.GuardedString(password.asString().toCharArray()), null));
 			log.debug("Authenticated object - ConnId (" + uid + ") Uid= " + uid);
 			return uid;
@@ -194,7 +194,7 @@ public class IcfConnectorServiceConnId implements IcfConnectorService {
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");
 		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
 		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");
-		config = IcfConvertUtilConnId.convertIcfConnectorConfiguration(connectorConfiguration, config);
+		config = ConnIdIcfConvertUtil.convertIcfConnectorConfiguration(connectorConfiguration, config);
 		// Use the ConnectorFacadeFactory's newInstance() method to get a new
 		// connector.
 		ConnectorFacade conn = ConnectorFacadeFactory.getManagedInstance().newInstance(config);

@@ -17,6 +17,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
+import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
@@ -27,7 +28,7 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;
  * @author svandav
  *
  */
-public class IcfConnectorFacadeDefault {
+public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 
 	private Map<String, IcfConnectorService> icfConnectors = new HashMap<>();
 

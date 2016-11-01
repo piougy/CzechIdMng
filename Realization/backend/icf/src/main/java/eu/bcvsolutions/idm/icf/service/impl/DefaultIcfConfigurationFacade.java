@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
  *
  */
 @Service
-public class IcfConfigurationFacadeDefault implements IcfConfigurationFacade {
+public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
 
 	private Map<String, IcfConfigurationService> icfConfigs = new HashMap<>();
 	// Connector infos are cached

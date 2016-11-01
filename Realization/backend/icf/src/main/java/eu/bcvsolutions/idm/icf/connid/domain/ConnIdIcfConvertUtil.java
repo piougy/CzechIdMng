@@ -50,7 +50,7 @@ import eu.bcvsolutions.idm.icf.dto.IcfUidAttributeDto;
  * @author svandav
  *
  */
-public class IcfConvertUtilConnId {
+public class ConnIdIcfConvertUtil {
 
 	public static ConnectorKey convertConnectorKeyFromDto(IcfConnectorKey dto, String icfImplementationType) {
 		Assert.notNull(dto);
@@ -277,12 +277,12 @@ public class IcfConvertUtilConnId {
 		if (connObject == null) {
 			return null;
 		}
-		IcfObjectClass icfClass = IcfConvertUtilConnId.convertConnIdObjectClass(connObject.getObjectClass());
+		IcfObjectClass icfClass = ConnIdIcfConvertUtil.convertConnIdObjectClass(connObject.getObjectClass());
 		Set<Attribute> attributes = connObject.getAttributes();
 		List<IcfAttribute> icfAttributes = new ArrayList<>();
 		if (attributes != null) {
 			for (Attribute a : attributes) {
-				icfAttributes.add(IcfConvertUtilConnId.convertConnIdAttribute(a));
+				icfAttributes.add(ConnIdIcfConvertUtil.convertConnIdAttribute(a));
 			}
 		}
 		IcfConnectorObject icfObject = new IcfConnectorObjectDto(icfClass, icfAttributes);

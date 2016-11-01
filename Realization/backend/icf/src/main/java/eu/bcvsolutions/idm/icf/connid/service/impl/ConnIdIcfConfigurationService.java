@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
-import eu.bcvsolutions.idm.icf.connid.domain.IcfConvertUtilConnId;
+import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
@@ -42,16 +42,16 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationFacadeDefault;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 @Service
-public class IcfConfigurationServiceConnId implements IcfConfigurationService {
+public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 
 	// Cached local connid managers
 	private List<ConnectorInfoManager> managers;
 
 	@Autowired
-	public IcfConfigurationServiceConnId(IcfConfigurationFacadeDefault icfConfigurationAggregator) {
+	public ConnIdIcfConfigurationService(DefaultIcfConfigurationFacade icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
@@ -114,7 +114,7 @@ public class IcfConfigurationServiceConnId implements IcfConfigurationService {
 		ConnectorInfo i = getConnIdConnectorInfo(info.getConnectorKey());
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
-			IcfConnectorConfiguration configDto = IcfConvertUtilConnId.convertConnIdConnectorConfiguration(apiConf);
+			IcfConnectorConfiguration configDto = ConnIdIcfConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 			return configDto;
 		}
 		return null;
@@ -125,7 +125,7 @@ public class IcfConfigurationServiceConnId implements IcfConfigurationService {
 
 		for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
 			ConnectorInfo i = manager
-					.findConnectorInfo(IcfConvertUtilConnId.convertConnectorKeyFromDto(key, this.getIcfType()));
+					.findConnectorInfo(ConnIdIcfConvertUtil.convertConnectorKeyFromDto(key, this.getIcfType()));
 			if (i != null) {
 				return i;
 			}

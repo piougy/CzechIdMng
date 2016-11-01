@@ -62,8 +62,8 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
 import eu.bcvsolutions.idm.icf.dto.IcfLoginAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfPasswordAttributeDto;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationFacadeDefault;
-import eu.bcvsolutions.idm.icf.service.impl.IcfConnectorFacadeDefault;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConnectorFacade;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
 import eu.bcvsolutions.idm.security.domain.GuardedString;;
 
@@ -78,12 +78,12 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/" + IcfModuleDescriptor.MODULE_ID + "/configurations")
 public class IcfConfigurationController implements BaseController {
 
-	private IcfConfigurationFacadeDefault icfConfigurationAggregatorService;
+	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
 	@Autowired
-	private IcfConnectorFacadeDefault icfConnectorAggregatorService;
+	private DefaultIcfConnectorFacade icfConnectorAggregatorService;
 
 	@Autowired
-	public IcfConfigurationController(IcfConfigurationFacadeDefault icfConfigurationAggregatorService) {
+	public IcfConfigurationController(DefaultIcfConfigurationFacade icfConfigurationAggregatorService) {
 		super();
 		this.icfConfigurationAggregatorService = icfConfigurationAggregatorService;
 	}

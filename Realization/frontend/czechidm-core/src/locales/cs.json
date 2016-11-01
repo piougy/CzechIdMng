@@ -328,6 +328,26 @@
         "note": "Zkuste to prosím později."
       }
     },
+    "permission": {
+      "base" : {
+        "ADMIN": "správa",
+        "READ": "čtení",
+        "WRITE": "zápis",
+        "DELETE": "mazání"
+      },
+      "group": {
+        "APP": "Správa aplikace",
+        "AUDIT": "Audit",
+        "CONFIGURATION": "Konfigurace aplikace",
+        "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
+        "IDENTITY": "Uživatelé",
+        "MODULE": "Moduly",
+        "NOTIFICATION": "Notifikace",
+        "ROLE": "Role",
+        "TREENODE": "Prvky struktur",
+        "TREETYPE": "Typy struktur"
+      }
+    },
     "about": {
       "header": "O aplikaci",
       "title": "$t(content.about.header)",

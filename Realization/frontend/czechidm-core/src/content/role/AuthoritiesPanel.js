@@ -155,7 +155,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                         <Basic.Icon value="fa:minus-square-o" rendered={ this.isSomeAuthorityGroupSelected(authorityGroupName) && !this.isAllAuthorityGroupSelected(authorityGroupName) }/>
                         <Basic.Icon value="fa:square-o" rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
                         {' '}
-                        { authorityGroupName }
+                        { this.i18n('content.permission.group.' + authorityGroupName)}
                       </Basic.Button>
                     </div>
                     <div className="pull-right">
@@ -184,7 +184,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                                   style={{ marginBottom: 0 }}
                                   checked={selected}
                                   disabled={disabled}/>
-                                  {permission}
+                                { this.i18n('content.permission.base.' + permission)}
                               </label>
                             </div>
                           );

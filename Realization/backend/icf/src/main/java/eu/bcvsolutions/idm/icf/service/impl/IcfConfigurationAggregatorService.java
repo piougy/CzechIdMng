@@ -13,9 +13,11 @@ import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 
 @Service
 public class IcfConfigurationAggregatorService {
-	
+
 	private Map<String, IcfConfigurationService> icfConfigs = new HashMap<>();
 	private Map<String, IcfConnectorService> icfConnectors = new HashMap<>();
+	// Connector infos are cached
+	private Map<String, List<IcfConnectorInfo>> icfLocalConnectorInfos;
 
 	/**
 	 * @return Configuration services for all ICFs
@@ -23,23 +25,25 @@ public class IcfConfigurationAggregatorService {
 	public Map<String, IcfConfigurationService> getIcfConfigs() {
 		return icfConfigs;
 	}
-	
+
 	/**
 	 * @return Connector services for all ICFs
 	 */
 	public Map<String, IcfConnectorService> getIcfConnectors() {
 		return icfConnectors;
 	}
-	
+
 	/**
 	 * Return available local connectors for all ICF implementations
 	 *
 	 */
 	public Map<String, List<IcfConnectorInfo>> getAvailableLocalConnectors() {
-		Map<String, List<IcfConnectorInfo>> allInfos = new HashMap<>();
-		for(IcfConfigurationService config : icfConfigs.values()){
-			allInfos.put(config.getIcfType(), config.getAvailableLocalConnectors());
+		if (icfLocalConnectorInfos == null) {
+			icfLocalConnectorInfos = new HashMap<>();
+			for (IcfConfigurationService config : icfConfigs.values()) {
+				icfLocalConnectorInfos.put(config.getIcfType(), config.getAvailableLocalConnectors());
+			}
 		}
-		return allInfos;
+		return icfLocalConnectorInfos;
 	}
 }

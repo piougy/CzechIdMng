@@ -52,6 +52,16 @@
 			<version>2.2.4</version>
 		</dependency>
 		<dependency>
+		  	<groupId>net.tirasa.connid.bundles</groupId>
+		  	<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
+		  	<version>1.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>net.tirasa.connid.bundles</groupId>
+		  	<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
+		  	<version>0.8.5</version>
+		</dependency>
+		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>

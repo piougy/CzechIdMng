@@ -31,6 +31,7 @@ import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ControllerUtils;
+import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,7 @@ import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.dto.IcfAttributeDto;
@@ -65,6 +67,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
 import eu.bcvsolutions.idm.security.domain.GuardedString;;
 
 /**
+ * Rest endpoint provides available connectors and their configuration
  * 
  * @author svandav
  *
@@ -85,7 +88,7 @@ public class IcfConfigurationController implements BaseController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/test")
-	public Resources<?> test() {
+	public Resource<?> test() {
 
 		List<IcfConnectorInfo> infos = icfConfigurationAggregatorService.getAvailableLocalConnectors().get("connId");
 
@@ -113,9 +116,27 @@ public class IcfConfigurationController implements BaseController {
 		attributes.add(new IcfAttributeDto("lastName", "Švanda"));
 		attributes.add(new IcfPasswordAttributeDto(new GuardedString("heslo")));
 
-		IcfUidAttribute uid = icfConnectorAggregatorService.createObject(infos.get(0).getConnectorKey(), icfConf,
+		IcfConnectorInfo info = null;
+		for (IcfConnectorInfo i : infos) {
+			if (i.getConnectorKey().getConnectorName()
+					.equals("net.tirasa.connid.bundles.db.table.DatabaseTableConnector")) {
+				info = i;
+			}
+		}
+
+		IcfUidAttribute uid = icfConnectorAggregatorService.createObject(info.getConnectorKey(), icfConf, null,
 				attributes);
-		return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
+		List<IcfAttribute> attributesReplace = new ArrayList<>();
+
+		attributesReplace.add(new IcfAttributeDto("firstName", "Vít22"));
+		attributesReplace.add(new IcfPasswordAttributeDto(new GuardedString("heslo22")));
+
+		IcfUidAttribute uidUpdated = icfConnectorAggregatorService.updateObject(info.getConnectorKey(), icfConf, null,
+				uid, attributesReplace);
+		IcfConnectorObject object = icfConnectorAggregatorService.readObject(info.getConnectorKey(), icfConf, null, uid);
+		icfConnectorAggregatorService.deleteObject(info.getConnectorKey(), icfConf, null, uid);
+
+		return new Resource(object);
 
 		// Reflections reflections = new Reflections();
 		// Set<Class<?>> annotated =

@@ -54,4 +54,10 @@ public class IcfConnectorInfoDto implements IcfConnectorInfo {
 		this.connectorKey = connectorKey;
 	}
 
+	@Override
+	public String toString() {
+		return "IcfConnectorInfoDto [connectorDisplayName=" + connectorDisplayName + ", connectorCategory="
+				+ connectorCategory + ", connectorKey=" + connectorKey + "]";
+	}
+
 }

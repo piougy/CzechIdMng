@@ -13,30 +13,73 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
+import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 
 @Service
+/**
+ * Service for do active operations on all ICF implementations
+ * 
+ * @author svandav
+ *
+ */
 public class IcfConnectorAggregatorService {
-	
+
 	private Map<String, IcfConnectorService> icfConnectors = new HashMap<>();
-	
+
 	/**
 	 * @return Connector services for all ICFs
 	 */
 	public Map<String, IcfConnectorService> getIcfConnectors() {
 		return icfConnectors;
 	}
-	
+
 	public IcfUidAttribute createObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			List<IcfAttribute> attributes) {
+			IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		Assert.notNull(key);
-		if(!icfConnectors.containsKey(key.getIcfType())){
-			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,  ImmutableMap.of("icf", key.getIcfType()));
+		if (!icfConnectors.containsKey(key.getIcfType())) {
+			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+					ImmutableMap.of("icf", key.getIcfType()));
 		}
-		return icfConnectors.get(key.getIcfType()).createObject(key, connectorConfiguration, attributes);
-		
+		return icfConnectors.get(key.getIcfType()).createObject(key, connectorConfiguration, objectClass, attributes);
+
 	}
-	
+
+	public IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
+		Assert.notNull(key);
+		if (!icfConnectors.containsKey(key.getIcfType())) {
+			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+					ImmutableMap.of("icf", key.getIcfType()));
+		}
+		return icfConnectors.get(key.getIcfType()).updateObject(key, connectorConfiguration, objectClass, uid,
+				replaceAttributes);
+
+	}
+
+	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+			IcfObjectClass objectClass, IcfUidAttribute uid) {
+		Assert.notNull(key);
+		if (!icfConnectors.containsKey(key.getIcfType())) {
+			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+					ImmutableMap.of("icf", key.getIcfType()));
+		}
+		icfConnectors.get(key.getIcfType()).deleteObject(key, connectorConfiguration, objectClass, uid);
+
+	}
+
+	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+			IcfObjectClass objectClass, IcfUidAttribute uid) {
+		Assert.notNull(key);
+		if (!icfConnectors.containsKey(key.getIcfType())) {
+			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
+					ImmutableMap.of("icf", key.getIcfType()));
+		}
+		return icfConnectors.get(key.getIcfType()).readObject(key, connectorConfiguration, objectClass, uid);
+
+	}
+
 }

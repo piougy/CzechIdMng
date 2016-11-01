@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.service.impl;
+package eu.bcvsolutions.idm.icf.virtual.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +16,18 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
 
+/**
+ * Connector framework for virtual account implementation
+ * @author svandav
+ *
+ */
 @Service
-public class IcfConfigurationServiceTest implements IcfConfigurationService {
+public class IcfConfigurationServiceVirtual implements IcfConfigurationService {
 
 	@Autowired
-	public IcfConfigurationServiceTest(IcfConfigurationAggregatorService icfConfigurationAggregator) {
+	public IcfConfigurationServiceVirtual(IcfConfigurationAggregatorService icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
@@ -38,7 +44,7 @@ public class IcfConfigurationServiceTest implements IcfConfigurationService {
 	 */
 	@Override
 	public String getIcfType() {
-		return "test";
+		return "virtual";
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.service.impl;
+package eu.bcvsolutions.idm.icf.connid.service.impl;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
+import eu.bcvsolutions.idm.icf.connid.domain.IcfConvertUtilConnId;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
@@ -41,9 +42,13 @@ import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
+import eu.bcvsolutions.idm.icf.service.impl.IcfConfigurationAggregatorService;
 
 @Service
 public class IcfConfigurationServiceConnId implements IcfConfigurationService {
+
+	// Cached local connid managers
+	private List<ConnectorInfoManager> managers;
 
 	@Autowired
 	public IcfConfigurationServiceConnId(IcfConfigurationAggregatorService icfConfigurationAggregator) {
@@ -119,7 +124,8 @@ public class IcfConfigurationServiceConnId implements IcfConfigurationService {
 		Assert.notNull(key);
 
 		for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
-			ConnectorInfo i = manager.findConnectorInfo(IcfConvertUtilConnId.convertConnectorKeyFromDto(key, this.getIcfType()));
+			ConnectorInfo i = manager
+					.findConnectorInfo(IcfConvertUtilConnId.convertConnectorKeyFromDto(key, this.getIcfType()));
 			if (i != null) {
 				return i;
 			}
@@ -128,19 +134,19 @@ public class IcfConfigurationServiceConnId implements IcfConfigurationService {
 	}
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
-		Reflections reflections = new Reflections();
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(ConnectorClass.class);
+		if (managers == null) {
+			managers = new ArrayList<>();
+			Reflections reflections = new Reflections();
+			Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(ConnectorClass.class);
 
-		List<ConnectorInfoManager> managers = new ArrayList<>();
-		for (Class<?> clazz : annotated) {
-			URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
-			ConnectorInfoManagerFactory fact = ConnectorInfoManagerFactory.getInstance();
-			ConnectorInfoManager manager = fact.getLocalManager(url);
-			managers.add(manager);
+			for (Class<?> clazz : annotated) {
+				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
+				ConnectorInfoManagerFactory fact = ConnectorInfoManagerFactory.getInstance();
+				ConnectorInfoManager manager = fact.getLocalManager(url);
+				managers.add(manager);
+			}
 		}
 		return managers;
 	}
-
-
 
 }

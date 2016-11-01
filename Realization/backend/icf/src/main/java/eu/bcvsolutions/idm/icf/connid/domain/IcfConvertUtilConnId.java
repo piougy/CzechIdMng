@@ -1,15 +1,21 @@
-package eu.bcvsolutions.idm.icf.service.impl;
+package eu.bcvsolutions.idm.icf.connid.domain;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.identityconnectors.common.pooling.ObjectPoolConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.impl.api.APIConfigurationImpl;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
@@ -20,16 +26,28 @@ import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
+import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
+import eu.bcvsolutions.idm.icf.dto.IcfAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
+import eu.bcvsolutions.idm.icf.dto.IcfConnectorObjectDto;
+import eu.bcvsolutions.idm.icf.dto.IcfObjectClassDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
+import eu.bcvsolutions.idm.icf.dto.IcfPasswordAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfUidAttributeDto;
 
+/**
+ * Convert util for ConnId implementation
+ * 
+ * @author svandav
+ *
+ */
 public class IcfConvertUtilConnId {
 
 	public static ConnectorKey convertConnectorKeyFromDto(IcfConnectorKey dto, String icfImplementationType) {
@@ -185,11 +203,83 @@ public class IcfConvertUtilConnId {
 		return null;
 	}
 
+	public static IcfAttribute convertConnIdAttribute(Attribute attribute) {
+		if (attribute == null) {
+			return null;
+		}
+		if (attribute instanceof Name) {
+			return new IcfAttributeDto(((Name) attribute).getNameValue());
+		}
+		if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
+			eu.bcvsolutions.idm.security.domain.GuardedString password = null;
+			if (attribute.getValue() != null && attribute.getValue().size() == 1
+					&& attribute.getValue().get(0) instanceof GuardedString) {
+				password = new eu.bcvsolutions.idm.security.domain.GuardedString(
+						((GuardedString) attribute.getValue().get(0)).toString());
+			}
+			return new IcfPasswordAttributeDto(password);
+		}
+		if (attribute.getValue() == null || attribute.getValue().isEmpty()) {
+			return new IcfAttributeDto(attribute.getName(), null);
+		}
+		if (attribute.getValue().size() == 1) {
+			return new IcfAttributeDto(attribute.getName(), attribute.getValue().get(0));
+		} else {
+			return new IcfAttributeDto(attribute.getName(), attribute.getValue());
+		}
+	}
+
 	public static IcfUidAttribute convertConnIdUid(Uid uid) {
-		if(uid == null){
+		if (uid == null) {
 			return null;
 		}
 		IcfUidAttributeDto icfUid = new IcfUidAttributeDto(uid.getName(), uid.getUidValue(), uid.getRevision());
 		return icfUid;
+	}
+
+	public static ObjectClass convertIcfObjectClass(IcfObjectClass objectClass) {
+		if (objectClass == null) {
+			return null;
+		}
+		ObjectClass objectClassConnId = new ObjectClass(objectClass.getType());
+		return objectClassConnId;
+	}
+
+	public static IcfObjectClass convertConnIdObjectClass(ObjectClass objectClass) {
+		if (objectClass == null) {
+			return null;
+		}
+		IcfObjectClassDto objectClassDto = new IcfObjectClassDto(objectClass.getObjectClassValue());
+		objectClassDto.setDisplayName(objectClass.getDisplayNameKey());
+		return objectClassDto;
+	}
+
+	public static Uid convertIcfUid(IcfUidAttribute uid) {
+		if (uid == null) {
+			return null;
+		}
+		Uid connidUid = null;
+		if (uid.getRevision() != null) {
+			connidUid = new Uid(uid.getUidValue(), uid.getRevision());
+		} else {
+			connidUid = new Uid(uid.getUidValue());
+		}
+		return connidUid;
+	}
+
+	public static IcfConnectorObject convertConnIdConnectorObject(ConnectorObject connObject) {
+		if (connObject == null) {
+			return null;
+		}
+		IcfObjectClass icfClass = IcfConvertUtilConnId.convertConnIdObjectClass(connObject.getObjectClass());
+		Set<Attribute> attributes = connObject.getAttributes();
+		List<IcfAttribute> icfAttributes = new ArrayList<>();
+		if (attributes != null) {
+			for (Attribute a : attributes) {
+				icfAttributes.add(IcfConvertUtilConnId.convertConnIdAttribute(a));
+			}
+		}
+		IcfConnectorObject icfObject = new IcfConnectorObjectDto(icfClass, icfAttributes);
+		return icfObject;
 	}
 }

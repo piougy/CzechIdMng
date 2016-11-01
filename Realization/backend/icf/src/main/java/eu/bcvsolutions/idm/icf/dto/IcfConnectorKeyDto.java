@@ -103,7 +103,12 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 			return false;
 		return true;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "IcfConnectorKeyDto [icfType=" + icfType + ", bundleName=" + bundleName + ", bundleVersion="
+				+ bundleVersion + ", connectorName=" + connectorName + "]";
+	}
+
 
 }

@@ -117,4 +117,9 @@ public class IcfAttributeDto implements IcfAttribute {
 		this.multiValue = multiValue;
 	}
 
+	@Override
+	public String toString() {
+		return "IcfAttributeDto [name=" + name + ", values=" + values + "]";
+	}
+
 }

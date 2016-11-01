@@ -413,7 +413,7 @@
 				<snapshotRepository>
 					<id>nexus</id>
 					<name>Nexus Staging repo</name>
-					<url>http://localhost:8082/repository/maven-snapshots/</url>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
 				</snapshotRepository>
 			</distributionManagement>
 			<dependencies>
@@ -434,7 +434,7 @@
 				<repository>
 					<id>nexus</id>
 					<name>Nexus Staging repo</name>
-					<url>http://localhost:8082/repository/maven-releases/</url>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 				</repository>
 			</distributionManagement>
 		</profile>

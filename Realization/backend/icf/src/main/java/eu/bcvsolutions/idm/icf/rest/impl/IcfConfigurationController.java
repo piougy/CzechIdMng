@@ -135,7 +135,7 @@ public class IcfConfigurationController implements BaseController {
 		IcfUidAttribute uidUpdated = icfConnectorAggregatorService.updateObject(info.getConnectorKey(), icfConf, null,
 				uid, attributesReplace);
 		IcfConnectorObject object = icfConnectorAggregatorService.readObject(info.getConnectorKey(), icfConf, null, uid);
-		uidUpdated = icfConnectorAggregatorService.authenticateObject(info.getConnectorKey(), icfConf, null, "svandav", new GuardedString("heslo22d"));
+		uidUpdated = icfConnectorAggregatorService.authenticateObject(info.getConnectorKey(), icfConf, null, "svandav", new GuardedString("heslo22"));
 		icfConnectorAggregatorService.deleteObject(info.getConnectorKey(), icfConf, null, uid);
 
 		return new Resource(object);

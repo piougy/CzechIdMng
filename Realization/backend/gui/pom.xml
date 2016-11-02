@@ -105,6 +105,7 @@
                  <phase>generate-resources</phase>
                  <configuration>
                     <arguments>build -p default</arguments>
+                    <workingDirectory>../../frontend/czechidm-app</workingDirectory>
                     <installDirectory>target</installDirectory>
                  </configuration>
               </execution>

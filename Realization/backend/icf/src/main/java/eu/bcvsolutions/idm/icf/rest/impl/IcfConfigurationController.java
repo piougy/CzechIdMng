@@ -53,6 +53,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
+import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.dto.IcfAttributeDto;
@@ -106,6 +107,7 @@ public class IcfConfigurationController implements BaseController {
 		properties.getProperties().add(new IcfConfigurationPropertyDto("table", "system_users"));
 		properties.getProperties().add(new IcfConfigurationPropertyDto("keyColumn", "name"));
 		properties.getProperties().add(new IcfConfigurationPropertyDto("passwordColumn", "password"));
+		properties.getProperties().add(new IcfConfigurationPropertyDto("allNative", true));
 		properties.getProperties().add(new IcfConfigurationPropertyDto("jdbcDriver", "org.postgresql.Driver"));
 		properties.getProperties()
 				.add(new IcfConfigurationPropertyDto("jdbcUrlTemplate", "jdbc:postgresql://%h:%p/%d"));
@@ -137,8 +139,10 @@ public class IcfConfigurationController implements BaseController {
 		IcfConnectorObject object = icfConnectorAggregatorService.readObject(info.getConnectorKey(), icfConf, null, uid);
 		uidUpdated = icfConnectorAggregatorService.authenticateObject(info.getConnectorKey(), icfConf, null, "svandav", new GuardedString("heslo22"));
 		icfConnectorAggregatorService.deleteObject(info.getConnectorKey(), icfConf, null, uid);
+		
+		IcfSchema icfSchema = icfConfigurationAggregatorService.getSchema(info.getConnectorKey(), icfConf);
 
-		return new Resource(object);
+		return new Resource(icfSchema);
 
 		// Reflections reflections = new Reflections();
 		// Set<Class<?>> annotated =

@@ -9,6 +9,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
@@ -83,6 +85,11 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 		dto.setConfigurationProperties(propertiesDto);
 		return dto;
 
+	}
+
+	@Override
+	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+		return null;
 	}
 
 }

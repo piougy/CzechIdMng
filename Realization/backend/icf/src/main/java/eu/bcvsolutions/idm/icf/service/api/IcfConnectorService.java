@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
+import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
@@ -50,7 +51,7 @@ public interface IcfConnectorService {
 	 * @param objectClass - Type or category of connector object
 	 * @param uid - Identification of object in resource
 	 */
-	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid);
 	
 	/**
@@ -61,7 +62,7 @@ public interface IcfConnectorService {
 	 * @param uid - Identification of object in resource
 	 * @return
 	 */
-	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid);
 	
 	/**
@@ -73,7 +74,8 @@ public interface IcfConnectorService {
 	 * @param password
 	 * @return
 	 */
-	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, String username, GuardedString password);
+
 
 }

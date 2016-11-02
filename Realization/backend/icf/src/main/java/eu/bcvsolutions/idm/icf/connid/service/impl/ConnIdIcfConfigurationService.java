@@ -9,12 +9,15 @@ import org.identityconnectors.common.pooling.ObjectPoolConfiguration;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
+import org.identityconnectors.framework.api.ConnectorFacade;
+import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.impl.api.APIConfigurationImpl;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.identityconnectors.framework.spi.ConnectorClass;
@@ -33,6 +36,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
+import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
@@ -46,6 +50,8 @@ import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 @Service
 public class ConnIdIcfConfigurationService implements IcfConfigurationService {
+
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcfConfigurationService.class);
 
 	// Cached local connid managers
 	private List<ConnectorInfoManager> managers;
@@ -78,6 +84,7 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	 */
 	@Override
 	public List<IcfConnectorInfo> getAvailableLocalConnectors() {
+		log.info("Get Available local connectors - ConnId");
 		List<IcfConnectorInfo> localConnectorInfos = new ArrayList<>();
 		List<ConnectorInfoManager> managers = findAllLocalConnectorManagers();
 
@@ -133,6 +140,17 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		return null;
 	}
 
+	@Override
+	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		log.info("Get Schema - ConnId (" + key.toString() + ")");
+		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		Schema schema = conn.schema();
+		IcfSchema icfSchema = ConnIdIcfConvertUtil.convertConnIdSchema(schema);
+		return icfSchema;
+	}
+
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
 		if (managers == null) {
 			managers = new ArrayList<>();
@@ -147,6 +165,23 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 			}
 		}
 		return managers;
+	}
+
+	private ConnectorFacade getConnectorFacade(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		ConnectorInfo connIdInfo = this.getConnIdConnectorInfo(key);
+		Assert.notNull(connIdInfo, "ConnId connector info not found!");
+		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
+		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");
+		config = ConnIdIcfConvertUtil.convertIcfConnectorConfiguration(connectorConfiguration, config);
+		// Use the ConnectorFacadeFactory's newInstance() method to get a new
+		// connector.
+		ConnectorFacade conn = ConnectorFacadeFactory.getManagedInstance().newInstance(config);
+
+		// Make sure we have set up the Configuration properly
+		conn.validate();
+		return conn;
 	}
 
 }

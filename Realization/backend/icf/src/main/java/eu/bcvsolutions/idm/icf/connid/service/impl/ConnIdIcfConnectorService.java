@@ -11,8 +11,11 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
+import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -29,6 +32,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
+import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
@@ -179,10 +183,10 @@ public class ConnIdIcfConnectorService implements IcfConnectorService {
 		}
 
 	}
-	
+
 	public void synchronization(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass) {
-		
+
 		throw new NotImplementedException();
 
 	}

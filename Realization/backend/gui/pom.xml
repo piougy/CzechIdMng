@@ -53,6 +53,17 @@
                  </configuration>
                  <phase>generate-resources</phase>
               </execution>
+              <execution>
+                 <id>npm run-script czechidm-modules-link</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>run-script czechidm-modules-link</arguments>
+                    <workingDirectory>../../frontend/czechidm-app/</workingDirectory>
+                 </configuration>
+                 <phase>generate-resources</phase>
+              </execution>
               <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
               <execution>
                  <id>install dependencies</id>
@@ -61,7 +72,18 @@
                  </goals>
                  <configuration>
                     <arguments>install</arguments>
-                    <workingDirectory>../../frontend/czechidm-core</workingDirectory>
+                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+                    <installDirectory>target</installDirectory>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>install dependencies</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>install</arguments>
+                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
                     <installDirectory>target</installDirectory>
                  </configuration>
               </execution>

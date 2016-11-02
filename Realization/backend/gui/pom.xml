@@ -66,7 +66,7 @@
               </execution>
               <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
               <execution>
-                 <id>install dependencies</id>
+                 <id>install czechidm-core dependencies</id>
                  <goals>
                     <goal>npm</goal>
                  </goals>
@@ -77,7 +77,7 @@
                  </configuration>
               </execution>
               <execution>
-                 <id>install dependencies</id>
+                 <id>install czechidm-acc dependencies</id>
                  <goals>
                     <goal>npm</goal>
                  </goals>

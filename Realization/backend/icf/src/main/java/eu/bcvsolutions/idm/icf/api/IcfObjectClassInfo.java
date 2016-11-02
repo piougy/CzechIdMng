@@ -15,8 +15,16 @@ public interface IcfObjectClassInfo {
 
 	List<IcfAttributeInfo> getAttributeInfos();
 
+	/**
+	 * True if this can contain other object classes.
+	 */
 	boolean isContainer();
 
+	/**
+	 * Returns flag indicating whether this is a definition of auxiliary object
+	 * class. Auxiliary object classes define additional characteristics of the
+	 * object.
+	 */
 	boolean isAuxiliary();
 
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,8 +13,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -68,7 +67,7 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	public IdmIdentityContract() {
 	}
 	
-	public IdmIdentityContract(Long id) {
+	public IdmIdentityContract(UUID id) {
 		super(id);
 	}
 

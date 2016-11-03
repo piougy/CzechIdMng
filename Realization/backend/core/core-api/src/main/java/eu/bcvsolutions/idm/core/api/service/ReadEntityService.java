@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,7 +26,7 @@ public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> e
 	 * @param id
 	 * @return
 	 */
-	E get(Long id);
+	E get(UUID id);
 	
 	/**
 	 * Returns page of entities

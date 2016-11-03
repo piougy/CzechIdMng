@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 	private IdmIdentityRepository identityRepository;
 
 	@Override
-	public IdmIdentityRole get(Long id) {
+	public IdmIdentityRole get(UUID id) {
 		IdmIdentityRole entity = identityRoleRepository.findOne(id);
 		return entity;
 	}
@@ -39,13 +40,13 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 		}
 		List<IdmIdentityRole> idmRoles = new ArrayList<>();
 		for (String id : ids) {
-			idmRoles.add(get(Long.parseLong(id)));
+			idmRoles.add(get(UUID.fromString(id)));
 		}
 		return idmRoles;
 	}
 	
 	@Override
-	public IdmIdentityRole updateByDto(Long id, IdmIdentityRoleDto dto){
+	public IdmIdentityRole updateByDto(UUID id, IdmIdentityRoleDto dto){
 		Assert.notNull(id);
 		Assert.notNull(dto);
 		
@@ -62,7 +63,7 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 	}
 	
 	@Override
-	public void delete(Long id){
+	public void delete(UUID id){
 		Assert.notNull(id);
 		identityRoleRepository.delete(id);
 	}

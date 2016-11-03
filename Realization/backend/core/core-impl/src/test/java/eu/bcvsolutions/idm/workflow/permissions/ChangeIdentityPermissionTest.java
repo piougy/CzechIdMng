@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -312,7 +313,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void removeApprovableSuperAdminRole() {
 	
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, true);
-		List<Long> roles = new ArrayList<>();
+		List<UUID> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		IdmIdentityRole superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		// Add permission ID to remove list
@@ -364,7 +365,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void removeNotApprovableUserRole() {
 	
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, true);
-		List<Long> roles = new ArrayList<>();
+		List<UUID> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		IdmIdentityRole userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		// Add permission ID to remove list
@@ -447,7 +448,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		return role;
 	}
 	
-	private Map<String, Object> createChangePermission(Long identityRoleId, Date validFrom, Date validTill) {
+	private Map<String, Object> createChangePermission(UUID identityRoleId, Date validFrom, Date validTill) {
 		Map<String, Object> role = new HashMap<>();
 		
 		role.put("validTill", validTill == null ? "" : sdf.format(validTill));

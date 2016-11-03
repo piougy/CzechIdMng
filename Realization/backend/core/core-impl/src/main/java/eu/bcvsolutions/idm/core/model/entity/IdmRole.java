@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -101,7 +102,7 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	public IdmRole() {
 	}
 	
-	public IdmRole(Long id) {
+	public IdmRole(UUID id) {
 		super(id);
 	}
 	

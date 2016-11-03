@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.history.Revision;
@@ -25,7 +26,7 @@ public interface AuditService {
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException;
+	List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, UUID entityId) throws RevisionDoesNotExistException;
 	
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
@@ -36,5 +37,5 @@ public interface AuditService {
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, Long entityId) throws RevisionDoesNotExistException;
+	Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, UUID entityId) throws RevisionDoesNotExistException;
 }

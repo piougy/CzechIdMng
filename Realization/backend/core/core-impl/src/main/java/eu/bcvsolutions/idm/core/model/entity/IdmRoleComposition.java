@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -7,8 +9,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -47,7 +47,7 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	public IdmRoleComposition() {
 	}
 
-	public IdmRoleComposition(Long id) {
+	public IdmRoleComposition(UUID id) {
 		super(id);
 	}
 	

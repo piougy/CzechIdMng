@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -112,8 +113,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		// TODO: read events
 		if(getEntityLookup() == null) {
 			try {
-				return getEntityService().get(Long.valueOf(backendId));
-			} catch (NumberFormatException ex) {
+				return getEntityService().get(UUID.fromString(backendId));
+			} catch (IllegalArgumentException ex) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 			}
 		}		

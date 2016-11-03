@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,14 +56,14 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findRoots(Long treeType, Pageable pageable) {
-		return this.treeNodeRepository.findRoots(treeType, pageable);
+	public Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable) {
+		return this.treeNodeRepository.findRoots(treeTypeId, pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findChildrenByParent(Long parent, Pageable pageable) {
-		return this.treeNodeRepository.findChildrenByParent(parent, pageable);
+	public Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable) {
+		return this.treeNodeRepository.findChildrenByParent(parentId, pageable);
 	}
 	
 	private void testNode(IdmTreeNode node) {
@@ -107,7 +108,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	 */
 	private boolean checkChildren(IdmTreeNode treeNode) {
 		IdmTreeNode tmp = treeNode;
-		List<Long> listIds = new ArrayList<Long>(); 
+		List<UUID> listIds = new ArrayList<UUID>(); 
 		while (tmp.getParent() != null) {
 			if	(listIds.contains(tmp.getId())) {
 				return true;

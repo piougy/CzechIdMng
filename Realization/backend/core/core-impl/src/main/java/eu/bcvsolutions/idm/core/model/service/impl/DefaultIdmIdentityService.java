@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
@@ -57,7 +58,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	@Override
 	public ProcessInstance changePermissions(IdmIdentity identity) {
 		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW,
-				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), null);
+				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId().toString(), null);
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllByRoleAsString(Long roleId) {
+	public String findAllByRoleAsString(UUID roleId) {
 		IdmRole role = roleRepository.findOne(roleId);
 		Assert.notNull(role, "Role is required. Role by id [" + roleId + "] not foud.");
 		
@@ -137,7 +138,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllManagersAsString(Long identityId) {
+	public String findAllManagersAsString(UUID identityId) {
 		IdmIdentity identity = this.get(identityId);
 		Assert.notNull(identity, "Identity is required. Identity by id [" + identityId + "] not found.");
 		

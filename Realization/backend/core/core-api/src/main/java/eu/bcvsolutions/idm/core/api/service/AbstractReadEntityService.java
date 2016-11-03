@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.UUID;
+
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +49,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 
 	@Override
 	@Transactional(readOnly = true)
-	public E get(Long id) {
+	public E get(UUID id) {
 		return getRepository().findOne(id);
 	}
 

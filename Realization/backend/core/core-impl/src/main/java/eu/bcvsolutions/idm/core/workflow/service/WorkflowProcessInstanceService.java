@@ -33,7 +33,7 @@ public interface WorkflowProcessInstanceService {
 	 * @param variables
 	 * @return
 	 */
-	ProcessInstance startProcess(String definitionKey, String objectType, String applicant, Long objectIdentifier,
+	ProcessInstance startProcess(String definitionKey, String objectType, String applicant, String objectIdentifier,
 			Map<String, Object> variables);
 
 	/**

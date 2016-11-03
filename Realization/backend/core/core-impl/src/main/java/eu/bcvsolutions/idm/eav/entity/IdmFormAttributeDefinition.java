@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.eav.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -79,7 +81,7 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	public IdmFormAttributeDefinition() {
 	}
 
-	public IdmFormAttributeDefinition(Long id) {
+	public IdmFormAttributeDefinition(UUID id) {
 		super(id);
 	}
 

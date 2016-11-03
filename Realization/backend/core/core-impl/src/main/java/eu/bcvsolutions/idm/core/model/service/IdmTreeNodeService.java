@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @param pageable
 	 * @return Page of roots
 	 */
-	Page<IdmTreeNode> findRoots(Long treeType, Pageable pageable);
+	Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable);
 	
 	/**
 	 * Method return children by parent id
@@ -32,5 +34,5 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @param parent
 	 * @return Page of children
 	 */
-	Page<IdmTreeNode> findChildrenByParent(Long parent, Pageable pageable);
+	Page<IdmTreeNode> findChildrenByParent(UUID parentId	, Pageable pageable);
 }

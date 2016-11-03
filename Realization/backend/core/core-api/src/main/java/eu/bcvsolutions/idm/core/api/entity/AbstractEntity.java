@@ -1,16 +1,17 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -32,14 +33,16 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  */
 @MappedSuperclass
 @EntityListeners({AuditingEntityListener.class})
-public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Identifiable<Long> {
+public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Identifiable<UUID> {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
-	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	// @GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@Column(name = "id")
+	private UUID id;
 
 	@Audited
 	@CreatedDate
@@ -84,17 +87,17 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	public AbstractEntity() {
 	}
 
-	public AbstractEntity(Long id) {
+	public AbstractEntity(UUID id) {
 		this.id = id;
 	}
 
 	@Override
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

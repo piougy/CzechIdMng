@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
@@ -143,10 +144,10 @@ public class DefaultEmailer implements Emailer {
 	 */
 	private static class EmailCallback extends SynchronizationAdapter {
 		
-		private final Long emailLogId;
+		private final UUID emailLogId;
 		private final EmailService emailService;
 		
-		public EmailCallback(Long emailLogId, EmailService emailService) {
+		public EmailCallback(UUID emailLogId, EmailService emailService) {
 			this.emailLogId = emailLogId;
 			this.emailService = emailService;
 		}

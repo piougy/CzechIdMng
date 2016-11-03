@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -184,7 +185,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					Long id = node.getId();
+					UUID id = node.getId();
 					
 					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
 					assertEquals(2, revisions.size());

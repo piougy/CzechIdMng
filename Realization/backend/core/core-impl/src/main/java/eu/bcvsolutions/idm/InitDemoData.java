@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
  * @author Radek Tomiška 
  *
  */
-@Component
+// @Component
 @DependsOn("initApplicationData")
 public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 

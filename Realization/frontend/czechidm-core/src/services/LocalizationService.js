@@ -3,10 +3,7 @@ import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
 
-const i18nextInstance = i18next
-  .use(XHR)
-  .use(Cache)
-  .use(LanguageDetector);
+let i18nextInstance = null;
 
 /**
 * Provides localization context
@@ -19,10 +16,31 @@ export default class LocalizationService {
   */
   static init(configLoader, cb) {
     // init localization
-    i18nextInstance
+    i18nextInstance = i18next
+      .use(XHR)
+      .use(Cache)
+      .use(LanguageDetector)
       .init({
-        lng: 'cs',
+        whitelist: ['cs', 'en'],
+        nonExplicitWhitelist: true,
+        lowerCaseLng: true,
         fallbackLng: 'cs',
+
+        detection: {
+          // order and from where user language should be detected
+          order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+          //
+          // keys or params to lookup language from
+          lookupQuerystring: 'lng',
+          lookupCookie: 'i18next',
+          lookupLocalStorage: 'i18nextLng',
+          //
+          // cache user language on
+          caches: ['localStorage', 'cookie'],
+          //
+          // optional htmlTag with lang attribute, the default is:
+          htmlTag: document.documentElement
+        },
 
         // have a common namespace used around the full app
         ns: this._getModuleIdsWithLocales(configLoader),
@@ -45,6 +63,7 @@ export default class LocalizationService {
           // allow cross domain requests
           crossDomain: false
         },
+
         cache: {
           // turn on or off
           enabled: false,
@@ -76,13 +95,14 @@ export default class LocalizationService {
    * Returns localized message
    * - for supported options see http://i18next.com/pages/doc_features.html
    *
-   * TODO: why static ?!
-   *
    * @param  {string} key     localization key
    * @param  {object} options parameters
    * @return {string}         localized message
    */
   static i18n(key, options) {
+    if (!i18nextInstance) {
+      return undefined;
+    }
     return i18nextInstance.t(key, options);
   }
 
@@ -92,6 +112,9 @@ export default class LocalizationService {
    * @return {string} locale
    */
   static getCurrentLanguage() {
+    if (!i18nextInstance) {
+      return undefined;
+    }
     return i18nextInstance.language;
   }
 }

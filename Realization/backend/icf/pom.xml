@@ -13,7 +13,7 @@
 	<artifactId>idm-icf</artifactId>
 	<packaging>jar</packaging>
 
-	<name>CzechIdM Module Example</name>
+	<name>CzechIdM ICF</name>
 	<description>CzechIdM Module ICF - Identity Connector Framework. Ensure load, configration, call all available connectors. Supproted more ICF (first is ConnectId).</description>
 
 	<build>

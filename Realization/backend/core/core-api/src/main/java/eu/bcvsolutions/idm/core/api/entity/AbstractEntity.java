@@ -18,7 +18,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -33,12 +32,11 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  */
 @MappedSuperclass
 @EntityListeners({AuditingEntityListener.class})
-public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Identifiable<UUID> {
+public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
-	// @GeneratedValue(strategy = GenerationType.AUTO)
 	@GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
 	@Column(name = "id")

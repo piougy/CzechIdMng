@@ -11,8 +11,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -61,7 +59,6 @@ public class SysSystem extends AbstractEntity {
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<SysRoleSystem> roleSystems; // only for auditing
 
 	public String getName() {

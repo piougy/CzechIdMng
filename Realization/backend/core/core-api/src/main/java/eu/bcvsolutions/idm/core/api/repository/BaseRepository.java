@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> extends PagingAndSortingRepository<E, UUID> {
 
 	@Override
-	@Transactional(timeout = 10)
+	@Transactional(timeout = 10, readOnly = true)
 	Iterable<E> findAll();
 
 	Page<E> find(F filter, Pageable pageable);

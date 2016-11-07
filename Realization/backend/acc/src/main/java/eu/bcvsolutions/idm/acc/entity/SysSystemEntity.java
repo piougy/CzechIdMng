@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.acc.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_system_entity", indexes = {
 		@Index(name = "ux_system_entity_type_uid", columnList = "entity_type,uid", unique = true),
-		@Index(name = "idx_sys_system_entity_system_id", columnList = "system_id")
+		@Index(name = "idx_sys_system_entity_system", columnList = "system_id")
 		})
 public class SysSystemEntity extends AbstractEntity {
 	
@@ -45,7 +47,9 @@ public class SysSystemEntity extends AbstractEntity {
 	
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 
 	public void setUid(String uid) {

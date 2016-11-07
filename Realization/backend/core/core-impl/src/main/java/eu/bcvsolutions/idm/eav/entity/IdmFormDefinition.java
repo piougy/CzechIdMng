@@ -18,9 +18,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -48,7 +45,6 @@ public class IdmFormDefinition extends AbstractEntity {
 	
 	@OrderBy("seq")
 	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmFormAttributeDefinition> formAttributes;
 	//
 	// attribute definitions cache

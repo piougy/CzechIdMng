@@ -14,6 +14,12 @@ import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
 
+/**
+ * Tree strusture nodes
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @RepositoryRestResource(
 	collectionResourceRel = "treenodes",
 	path = "tree/nodes",
@@ -29,24 +35,22 @@ public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode, TreeN
 	@Query(value = "select e from IdmTreeNode e" +
 	        " where" +
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" + 
-	        "and (?#{[0].treeType} is null or e.treeType.id = ?#{[0].treeType})" +
-	        " and (?#{[0].treeNode} is null or e.parent.id = ?#{[0].treeNode})")
+	        "and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})" +
+	        " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})")
 	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
 
-	@Query(value = "select e from IdmTreeNode e" +
-			" where" +
-			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")
-	Page<IdmTreeNode> findChildrenByParent(@Param(value = "parent") UUID parentId, Pageable pageable);
-	
 	/**
-	 * Query return all roots (find by parent = null)
-	 * or find one root by treeType
-	 * @param treeType
-	 * @return List of roots
+	 * If parent is not given, then roots of given tree type is returned
+	 * 
+	 * @param treeTypeId
+	 * @param parentId
+	 * @param pageable
+	 * @return
 	 */
-	@Query(value = "select e from IdmTreeNode e" +
-			" where" +
-			" (e.parent.id IS NULL)" +
-			" and (:treeTypeId is null or e.treeType.id = :treeTypeId)")
-	Page<IdmTreeNode> findRoots(@Param(value = "treeTypeId") UUID treeTypeId, Pageable pageable);
+	@Query(value = "select e from #{#entityName} e" +
+			" where"
+			+ " ((:parentId is null and e.parent.id is null) or (e.parent.id = :parentId))"
+			+ " and"
+			+ " (:treeTypeId is null or e.treeType.id = :treeTypeId)")
+	Page<IdmTreeNode> findChildren(@Param(value = "treeTypeId") UUID treeTypeId, @Param(value = "parentId") UUID parentId, Pageable pageable);
 }

@@ -90,7 +90,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		try {
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
-			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
+			IdmTreeNode rootOrganization = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		

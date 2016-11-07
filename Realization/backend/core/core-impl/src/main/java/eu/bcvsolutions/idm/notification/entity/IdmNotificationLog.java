@@ -10,9 +10,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -31,7 +28,6 @@ public class IdmNotificationLog extends IdmNotification {
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "parent")
-	@OnDelete(action = OnDeleteAction.CASCADE) // TODO: set null will be better
 	private List<IdmNotification> relatedNotifications;
 	
 	@Override

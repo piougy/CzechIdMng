@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,16 +29,18 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  */
 @Entity
 @Table(name = "idm_identity_contract", indexes = {
-		@Index(name = "idx_idm_identity_contract_guarantee", columnList = "guarantee_id"),
-		@Index(name = "idx_idm_identity_contract_identity", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_contract_working_position", columnList = "working_position_id")})
+		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
+		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
+		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
 public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
 	@Audited
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id")
+	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
 	@Audited
@@ -51,12 +55,16 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
+	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity guarantee;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "working_position_id", referencedColumnName = "id")
+	@JoinColumn(name = "working_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode workingPosition;
 	
 	@Audited

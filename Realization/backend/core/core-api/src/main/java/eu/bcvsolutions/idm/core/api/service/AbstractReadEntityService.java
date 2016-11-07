@@ -52,6 +52,17 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	public E get(UUID id) {
 		return getRepository().findOne(id);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public E get(String id) {
+		try {
+			return get(UUID.fromString(id));
+		} catch(IllegalArgumentException ex) {
+			// simply not found
+			return null;
+		}
+	}
 
 	@Override
 	@Transactional(readOnly = true)

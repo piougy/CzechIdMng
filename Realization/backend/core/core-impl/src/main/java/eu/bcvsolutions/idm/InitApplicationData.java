@@ -126,7 +126,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create organization root
-			if (treeNodeRepository.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (treeNodeRepository.findChildren(treeType.getId(), null, new PageRequest(0, 1)).getTotalElements() == 0) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Root organization");

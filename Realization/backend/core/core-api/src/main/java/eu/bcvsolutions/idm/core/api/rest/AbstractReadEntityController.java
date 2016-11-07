@@ -236,6 +236,25 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	}
 	
 	/**
+	 * Converts parameter to {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected UUID convertUuidParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if(StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return UUID.fromString(valueAsString);
+			} catch (IllegalArgumentException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+			}		
+		}
+		return null;
+	}
+	
+	/**
 	 * Converts parameter to given {@code enumClass} from given parameters.
 	 * 
 	 * @param parameters

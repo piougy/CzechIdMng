@@ -27,14 +27,15 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 
 /**
@@ -47,12 +48,12 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private PlatformTransactionManager platformTransactionManager;
-
-	@Autowired
-	private IdmIdentityRepository identityRepository;
 	
 	@Autowired
-	private IdmRoleRepository roleRepository;
+	private IdmIdentityService identityService;
+	
+	@Autowired
+	private IdmRoleService roleService;
 	
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -81,9 +82,9 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 	@Transactional
 	public void deleteIdentity() {
 		// we need to ensure "rollback" manually the same as we are starting transaction manually		
-		identityRepository.delete(identity);
+		identityService.delete(identity);
 		if (role != null) {
-			roleRepository.delete(role);
+			roleService.delete(role);
 			role = null;
 		}
 		logout();
@@ -91,7 +92,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testCreateIdentity() {
-		identity = saveInTransaction(identity, identityRepository);
+		identity = saveInTransaction(identity, identityService);
 
 		assertNotNull(identity.getId());
 
@@ -106,9 +107,9 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testUpdateIdentity() {
-		identity = saveInTransaction(identity, identityRepository);
+		identity = saveInTransaction(identity, identityService);
 		identity.setFirstName("One"); 
-		identity = saveInTransaction(identity, identityRepository);
+		identity = saveInTransaction(identity, identityService);
 		
 		template.execute(new TransactionCallbackWithoutResult() {
 			@Override
@@ -122,7 +123,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testWorkingPositionChange() {
-		identity = saveInTransaction(identity, identityRepository);
+		identity = saveInTransaction(identity, identityService);
 		
 		IdmIdentityContract position = new IdmIdentityContract();
 		position.setIdentity(identity);
@@ -141,12 +142,12 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 
 	@Test
 	public void testAssignedRoleChanges() {
-		identity = saveInTransaction(identity, identityRepository);
+		identity = saveInTransaction(identity, identityService);
 		
 		role = new IdmRole();
 		role.setName("audit_role");
 		
-		role = saveInTransaction(role, roleRepository);
+		role = saveInTransaction(role, roleService);
 		
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		identityRole.setIdentity(identity);
@@ -170,7 +171,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 				identity = constructTestIdentity();
-				identity = saveInTransaction(identity, identityRepository);
+				identity = saveInTransaction(identity, identityService);
 				
 				String nonExistIdentityId = "NON_EXIST_IDENTITY_ID";
 				
@@ -216,6 +217,14 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 		return template.execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return repository.save(object);
+			}
+		});
+	}
+	
+	private <T extends BaseEntity> T saveInTransaction(final T object, final ReadWriteEntityService<T, ?> service) {
+		return template.execute(new TransactionCallback<T>() {
+			public T doInTransaction(TransactionStatus transactionStatus) {
+				return service.save(object);
 			}
 		});
 	}

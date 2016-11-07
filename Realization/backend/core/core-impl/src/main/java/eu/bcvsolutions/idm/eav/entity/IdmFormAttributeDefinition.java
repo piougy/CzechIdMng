@@ -4,9 +4,11 @@ import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,7 +28,8 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
 
 @Entity
 @Table(name = "idm_form_attribute_definition", indexes = {
-		@Index(name = "ux_idm_form_attribute_definition_name", columnList = "definition_id, name", unique = true) })
+		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
+		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdmFormAttributeDefinition extends AbstractEntity {
@@ -39,8 +42,10 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String name;
 	
-	@JoinColumn(name = "definition_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
+	@JoinColumn(name = "definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmFormDefinition formDefinition;
 	
 	@NotEmpty

@@ -21,6 +21,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 /**
  * Application configuration
  * 
+ * TODO: move security to rest endpoint
+ * 
  * @author Radek Tomiška 
  *
  */

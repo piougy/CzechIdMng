@@ -57,13 +57,13 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable) {
-		return this.treeNodeRepository.findRoots(treeTypeId, pageable);
+		return this.treeNodeRepository.findChildren(treeTypeId, null, pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable) {
-		return this.treeNodeRepository.findChildrenByParent(parentId, pageable);
+		return this.treeNodeRepository.findChildren(null, parentId, pageable);
 	}
 	
 	private void testNode(IdmTreeNode node) {

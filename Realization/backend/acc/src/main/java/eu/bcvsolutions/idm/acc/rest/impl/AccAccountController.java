@@ -103,9 +103,9 @@ public class AccAccountController extends DefaultReadWriteEntityController<AccAc
 	@Override
 	protected AccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AccountFilter filter = new AccountFilter();
-		filter.setSystemId(convertLongParameter(parameters, "systemId"));
-		filter.setSystemEntityId(convertLongParameter(parameters, "systemEntityId"));
-		filter.setIdentityId(convertLongParameter(parameters, "identityId"));
+		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
+		filter.setSystemEntityId(convertUuidParameter(parameters, "systemEntityId"));
+		filter.setIdentityId(convertUuidParameter(parameters, "identityId"));
 		filter.setUid(convertStringParameter(parameters, "uid"));
 		filter.setAccountType(convertEnumParameter(parameters, "accountType", AccountType.class));
 		return filter;

@@ -21,12 +21,20 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> extends BaseEntityService<E> {
 
 	/**
-	 * Returns entity by given id. Returns null, if entity is not exists
+	 * Returns entity by given id. Returns null, if entity is not exists.
 	 * 
 	 * @param id
 	 * @return
 	 */
 	E get(UUID id);
+	
+	/**
+	 * Returns entity by given id (uuid as string). Returns null, if entity is not exists.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	E get(String id);
 	
 	/**
 	 * Returns page of entities

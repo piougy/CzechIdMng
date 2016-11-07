@@ -33,7 +33,13 @@ public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSuppo
 	@Override
 	public Object lookupEntity(Serializable id) {
 		try {
-			return service.get(UUID.fromString(id.toString()));
+			UUID uuid = null;
+			if (id instanceof UUID) {
+				uuid = (UUID) id;
+			} else {
+				uuid = UUID.fromString(id.toString());
+			}
+			return service.get(uuid);
 		} catch (IllegalArgumentException ex) {
 			log.warn("Wrong entity id [{}], expecting Long, returning null", id);
 			return null;

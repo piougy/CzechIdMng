@@ -17,7 +17,7 @@ public class IdmIdentityRoleDto extends AbstractDto {
 	public IdmIdentityRoleDto() {
 	}
 
-	public IdmIdentityRoleDto(Long id) {
+	public IdmIdentityRoleDto(UUID id) {
 		super(id);
 	}
 

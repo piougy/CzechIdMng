@@ -2,7 +2,9 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.UUID;
 
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.entity.EntityComposition;
 @Entity
 @Table(name = "idm_role_composition", indexes = {
 		@Index(name = "idx_idm_role_composition_sub", columnList = "sub_id"),
-		@Index(name = "idx_idm_role_composition_superior", columnList = "superior_id")
+		@Index(name = "idx_idm_role_composition_super", columnList = "superior_id")
 })
 public class IdmRoleComposition extends AbstractEntity implements EntityComposition<IdmRole> {
 
@@ -34,14 +36,18 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	@Audited
 	@NotNull
 	@JsonBackReference
-	@JoinColumn(name = "superior_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
+	@JoinColumn(name = "superior_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRole superior;
 	
 	@Audited
 	@NotNull
-	@JoinColumn(name = "sub_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)
+	@JoinColumn(name = "sub_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRole sub;
 
 	public IdmRoleComposition() {

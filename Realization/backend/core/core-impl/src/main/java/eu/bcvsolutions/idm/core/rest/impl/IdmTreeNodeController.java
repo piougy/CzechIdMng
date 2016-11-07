@@ -168,8 +168,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	protected TreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		TreeNodeFilter filter = new TreeNodeFilter();
 		filter.setText((String)parameters.toSingleValueMap().get("text"));
-		filter.setTreeNode(convertLongParameter(parameters, "parent"));
-		filter.setTreeType(convertLongParameter(parameters, "treeType"));
+		filter.setTreeNodeId(convertUuidParameter(parameters, "parent"));
+		filter.setTreeTypeId(convertUuidParameter(parameters, "treeType"));
 		return filter;
 	}
 }

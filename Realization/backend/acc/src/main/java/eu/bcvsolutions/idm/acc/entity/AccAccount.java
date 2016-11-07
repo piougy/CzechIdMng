@@ -3,9 +3,11 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,8 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -34,11 +34,11 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "acc_account", indexes = { 
-		@Index(name = "ux_account_system_entity", columnList = "system_entity_id", unique = true),
+		@Index(name = "ux_acc_account_sys_entity", columnList = "system_entity_id", unique = true),
 		@Index(name = "ux_account_uid", columnList = "uid,system_id", unique = true),
-		@Index(name = "idx_acc_account_system_id", columnList = "system_id"),
-		@Index(name = "idx_acc_account_system_entity_id", columnList = "system_entity_id"),
-		@Index(name = "idx_acc_account_role_system_id", columnList = "role_system_id")
+		@Index(name = "idx_acc_account_sys_id", columnList = "system_id"),
+		@Index(name = "idx_acc_account_sys_entity", columnList = "system_entity_id"),
+		@Index(name = "idx_acc_account_role_sys_id", columnList = "role_system_id")
 		})
 public class AccAccount extends AbstractEntity {
 	
@@ -58,23 +58,28 @@ public class AccAccount extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "system_entity_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystemEntity systemEntity;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_system_id", referencedColumnName = "id")
+	@JoinColumn(name = "role_system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysRoleSystem roleSystem;
 	
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<AccIdentityAccount> identityAccounts;
 
 	public void setAccountType(AccountType accountType) {

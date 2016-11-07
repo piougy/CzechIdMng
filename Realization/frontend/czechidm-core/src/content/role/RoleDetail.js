@@ -38,7 +38,7 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (nextProps.entity && nextProps.entity !== entity) {
+    if (nextProps.entity && nextProps.entity !== entity && nextProps.entity.subRoles) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));
     }
   }
@@ -46,9 +46,9 @@ class RoleDetail extends Basic.AbstractContent {
   _prepareEntity(entity) {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity
     // we dont need to load entities again - we have them in embedded objects
-    copyOfEntity.subRoles = entity.subRoles.map(subRole => { return subRole._embedded.sub; });
-    copyOfEntity.superiorRoles = entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
-    copyOfEntity.guarantees = entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
+    copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
+    copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
+    copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
     return copyOfEntity;
   }
 

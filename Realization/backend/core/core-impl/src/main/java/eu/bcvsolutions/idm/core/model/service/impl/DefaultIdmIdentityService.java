@@ -24,7 +24,9 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -46,6 +48,12 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private IdmIdentityRoleRepository identityRoleRepository;
+	
+	@Autowired
+	private IdmIdentityContractRepository identityContractRepository;
 	
 	@Override
 	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
@@ -206,5 +214,16 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	private IdmRole getAdminRole() {
 		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmIdentity identity) {
+		// clear referenced roles
+		identityRoleRepository.deleteByIdentity(identity);
+		// contracts
+		identityContractRepository.deleteByIdentity(identity);
+		//
+		super.delete(identity);
 	}
 }

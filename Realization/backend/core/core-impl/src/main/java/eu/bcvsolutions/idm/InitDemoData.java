@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
  * @author Radek Tomiška 
  *
  */
-// @Component
+@Component
 @DependsOn("initApplicationData")
 public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -86,7 +86,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null, new PageRequest(0, 1));
+			Page<IdmTreeNode> rootsList = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);

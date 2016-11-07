@@ -48,7 +48,7 @@ public class SysSchemaAttribute extends AbstractEntity {
 	private String classType;
 
 	@Audited
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "native_name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String nativeName;
 

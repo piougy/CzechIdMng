@@ -3,6 +3,11 @@ module.exports = {
   component: 'div',
   childRoutes: [
     {
+      path: 'schema-object-class/:entityId/detail',
+      component: require('./src/content/schema/SchemaObjectClass'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

@@ -17,6 +17,29 @@
       "header": "Napojené systémy",
       "title": "$t(acc:content.systems.header)"
     },
+    "schema": {
+      "detail": {
+        "header": "Schéma systému <small> - typy objektů na koncovém systému</small>",
+        "title": "Schéma",
+        "objectClassHeader": "Objekt na koncovém systému",
+        "schemaAttributesHeader": "Atributy schématu",
+        "edit": {
+          "header": "Detail typu objektu na koncovém systému"
+        },
+        "create": {
+          "header": "Nová typ objektu na koncovém systému"
+        },
+        "save": {
+          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "name": {
+            "label": "Název atributu",
+            "placeholder": "Název atributu ve schématu"
+          }
+        }
+      }
+    },
     "system": {
       "detail" : {
         "header": "Napojený systém",
@@ -153,6 +176,13 @@
       "container": "Je kontejnerem",
       "objectClassName": "Název objektu",
       "system": "Napojený systém"
+    },
+    "SchemaAttribute": {
+      "name": "Název atributu",
+      "classType": "Datový typ",
+      "required": "Je povinný",
+      "system": "Napojený systém",
+      "multivalued": "Obsahuje více hodnot"
     },
     "Account": {
       "_type": "Účet na koncovém systému",

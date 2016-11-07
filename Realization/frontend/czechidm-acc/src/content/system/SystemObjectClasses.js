@@ -32,14 +32,18 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
     this.selectNavigationItems(['sys-systems', 'system-object-classes']);
   }
 
-  showDetail(entity) {
-    const entityFormData = _.merge({}, entity, {
-      system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
-    });
-    //
-    super.showDetail(entityFormData, () => {
-      this.refs.uid.focus();
-    });
+  showDetail(entity, add) {
+    if (!add) {
+      this.context.router.push(`/schema-object-class/${entity.id}/detail`);
+    } else {
+      const entityFormData = _.merge({}, entity, {
+        system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
+      });
+      //
+      super.showDetail(entityFormData, () => {
+        this.refs.uid.focus();
+      });
+    }
   }
 
   save(entity, event) {
@@ -90,7 +94,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
+                  onClick={this.showDetail.bind(this, { }, true)}
                   rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -102,12 +106,13 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm" className="form-horizontal">
                   <Basic.Row className="last">
-                    <div className="col-lg-4">
+                    <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="objectClassName"
                         label={this.i18n('filter.objectClassName.label')}
                         placeholder={this.i18n('filter.objectClassName.placeholder')}/>
                     </div>
+                    <div className="col-lg-2"/>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </div>

@@ -52,6 +52,25 @@
           }
         }
       },
+      "system-object-classes": {
+        "header": "Schéma systému <small> - typy objektů na koncovém systému</small>",
+        "title": "Schéma",
+        "edit": {
+          "header": "Detail typu objektu na koncovém systému"
+        },
+        "create": {
+          "header": "Nová typ objektu na koncovém systému"
+        },
+        "save": {
+          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "objectClassName": {
+            "label": "Název objektu",
+            "placeholder": "Název objektu na koncovém systému"
+          }
+        }
+      },
       "accounts": {
         "header": "Účty na koncovém systému <small>uložené v idm</small>",
         "title": "Účty na systému",
@@ -127,6 +146,12 @@
       "_type": "Entita na systému",
       "entityType": "Typ entity",
       "uid": "Identifikátor na systému",
+      "system": "Napojený systém"
+    },
+    "SchemaObjectClass": {
+      "auxiliary": "Pomocný object",
+      "container": "Je kontejnerem",
+      "objectClassName": "Název objektu",
       "system": "Napojený systém"
     },
     "Account": {

@@ -3,13 +3,15 @@ import RoleSystemManager from './RoleSystemManager';
 import SystemEntityManager from './SystemEntityManager';
 import AccountManager from './AccountManager';
 import IdentityAccountManager from './IdentityAccountManager';
+import SchemaObjectClassManager from './SchemaObjectClassManager';
 
 const ManagerRoot = {
   SystemManager,
   RoleSystemManager,
   SystemEntityManager,
   AccountManager,
-  IdentityAccountManager
+  IdentityAccountManager,
+  SchemaObjectClassManager
 };
 
 ManagerRoot.version = '0.0.1';

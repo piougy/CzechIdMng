@@ -4,6 +4,9 @@ import SystemEntityManager from './SystemEntityManager';
 import AccountManager from './AccountManager';
 import IdentityAccountManager from './IdentityAccountManager';
 import SchemaObjectClassManager from './SchemaObjectClassManager';
+import SchemaAttributeManager from './SchemaAttributeManager';
+import SchemaAttributeHandlingManager from './SchemaAttributeHandlingManager';
+import SystemEntityHandlingManager from './SystemEntityHandlingManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -11,7 +14,10 @@ const ManagerRoot = {
   SystemEntityManager,
   AccountManager,
   IdentityAccountManager,
-  SchemaObjectClassManager
+  SchemaObjectClassManager,
+  SchemaAttributeManager,
+  SchemaAttributeHandlingManager,
+  SystemEntityHandlingManager
 };
 
 ManagerRoot.version = '0.0.1';

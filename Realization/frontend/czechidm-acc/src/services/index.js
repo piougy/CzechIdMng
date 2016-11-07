@@ -4,6 +4,9 @@ import SystemEntityService from './SystemEntityService';
 import AccountService from './AccountService';
 import IdentityAccountService from './IdentityAccountService';
 import SchemaObjectClassService from './SchemaObjectClassService';
+import SchemaAttributeService from './SchemaAttributeService';
+import SchemaAttributeHandlingService from './SchemaAttributeHandlingService';
+import SystemEntityHandlingService from './SystemEntityHandlingService';
 
 const ServiceRoot = {
   SystemService,
@@ -11,7 +14,10 @@ const ServiceRoot = {
   SystemEntityService,
   AccountService,
   IdentityAccountService,
-  SchemaObjectClassService
+  SchemaObjectClassService,
+  SchemaAttributeService,
+  SchemaAttributeHandlingService,
+  SystemEntityHandlingService
 };
 
 ServiceRoot.version = '0.1.0';

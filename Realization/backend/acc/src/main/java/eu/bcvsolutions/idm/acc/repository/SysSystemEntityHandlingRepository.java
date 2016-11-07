@@ -8,6 +8,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaObjectClassExcerpt;
+import eu.bcvsolutions.idm.acc.repository.projection.SysSystemEntityHandlingExcerpt;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		collectionResourceRel = "systemEntitiesHandling", //
 		path = "systemEntitiesHandling", //
 		itemResourceRel = "systemEntityHandling", //
+		excerptProjection = SysSystemEntityHandlingExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )

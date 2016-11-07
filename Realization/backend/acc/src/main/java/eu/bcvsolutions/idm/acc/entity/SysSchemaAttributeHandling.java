@@ -41,7 +41,6 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	private SysSchemaAttribute schemaAttribute;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "extended_attribute", nullable = false)
 	private boolean extendedAttribute = false;
 

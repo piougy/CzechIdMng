@@ -5,9 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaAttributeHandlingExcerpt;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 
@@ -21,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		collectionResourceRel = "schemaAttributesHandling", //
 		path = "schemaAttributesHandling", //
 		itemResourceRel = "schemaAttributeHandling", //
+		excerptProjection = SysSchemaAttributeHandlingExcerpt.class,//
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )

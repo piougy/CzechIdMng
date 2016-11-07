@@ -40,6 +40,7 @@ public class SysSchemaAttribute extends AbstractEntity {
 	@JoinColumn(name = "object_class_id", referencedColumnName = "id")
 	private SysSchemaObjectClass objectClass;
 
+
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
@@ -47,38 +48,31 @@ public class SysSchemaAttribute extends AbstractEntity {
 	private String classType;
 
 	@Audited
-	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "native_name", length = DefaultFieldLengths.NAME, nullable = false)
+	@Column(name = "native_name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String nativeName;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "required", nullable = false)
 	private boolean required = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "multivalued", nullable = false)
 	private boolean multivalued = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "createable", nullable = false)
 	private boolean createable = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "updateable", nullable = false)
 	private boolean updateable = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "readable", nullable = false)
 	private boolean readable = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "returned_by_default", nullable = false)
 	private boolean returnedByDefault = false;
 

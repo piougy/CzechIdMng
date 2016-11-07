@@ -44,12 +44,10 @@ public class SysSchemaObjectClass extends AbstractEntity {
 	private SysSystem system;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "container", nullable = false)
 	private boolean container = false;
 
 	@Audited
-	@NotEmpty
 	@Column(name = "auxiliary", nullable = false)
 	private boolean auxiliary = false;
 

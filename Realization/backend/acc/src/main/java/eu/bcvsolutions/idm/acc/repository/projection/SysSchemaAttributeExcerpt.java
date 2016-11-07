@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.repository.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
 
 /**
@@ -14,5 +15,12 @@ import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
  */
 @Projection(name = "excerpt", types = SysSchemaAttribute.class)
 public interface SysSchemaAttributeExcerpt extends AbstractDtoProjection {
+	
+	String getName();
 
+	String getClassType();
+	
+	boolean isRequired();
+	
+	boolean isMultivalued();
 }

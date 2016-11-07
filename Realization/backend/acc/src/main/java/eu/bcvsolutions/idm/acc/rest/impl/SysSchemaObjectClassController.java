@@ -20,14 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.service.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
@@ -38,7 +37,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/schema-object-classes")
-public class SysSchemaObjectClassController extends AbstractReadWriteEntityController<SysSchemaObjectClass, EmptyFilter> {
+public class SysSchemaObjectClassController extends AbstractReadWriteEntityController<SysSchemaObjectClass, SchemaObjectClassFilter> {
 
 	@Autowired
 	public SysSchemaObjectClassController(EntityLookupService entityLookupService, SysSchemaObjectClassService service) {
@@ -96,5 +95,13 @@ public class SysSchemaObjectClassController extends AbstractReadWriteEntityContr
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected SchemaObjectClassFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
+		filter.setSystemId(convertLongParameter(parameters, "systemId"));
+		filter.setObjectClassName(convertStringParameter(parameters, "objectClassName"));
+		return filter;
 	}
 }

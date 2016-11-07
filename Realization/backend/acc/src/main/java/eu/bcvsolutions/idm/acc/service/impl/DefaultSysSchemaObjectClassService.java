@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeService;
@@ -18,14 +19,14 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  *
  */
 @Service
-public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityService<SysSchemaObjectClass, EmptyFilter>
+public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityService<SysSchemaObjectClass, SchemaObjectClassFilter>
 		implements SysSchemaObjectClassService {
 
 	@Autowired
 	private SysSchemaObjectClassRepository repository;
 
 	@Override
-	protected BaseRepository<SysSchemaObjectClass, EmptyFilter> getRepository() {
+	protected BaseRepository<SysSchemaObjectClass, SchemaObjectClassFilter> getRepository() {
 		return repository;
 	}
 }

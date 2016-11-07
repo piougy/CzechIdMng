@@ -20,13 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
@@ -37,7 +38,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/schema-attributes")
-public class SysSchemaAttributeController extends AbstractReadWriteEntityController<SysSchemaAttribute, EmptyFilter> {
+public class SysSchemaAttributeController extends AbstractReadWriteEntityController<SysSchemaAttribute, SchemaAttributeFilter> {
 
 	@Autowired
 	public SysSchemaAttributeController(EntityLookupService entityLookupService, SysSchemaAttributeService service) {
@@ -95,5 +96,13 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected SchemaAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SchemaAttributeFilter filter = new SchemaAttributeFilter();
+		filter.setObjectClassId(convertLongParameter(parameters, "objectClass"));
+		filter.setName(convertStringParameter(parameters, "name"));
+		return filter;
 	}
 }

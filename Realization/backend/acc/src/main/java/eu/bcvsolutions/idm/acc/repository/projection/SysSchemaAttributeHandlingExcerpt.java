@@ -15,5 +15,11 @@ import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
  */
 @Projection(name = "excerpt", types = SysSchemaAttributeHandling.class)
 public interface SysSchemaAttributeHandlingExcerpt extends AbstractDtoProjection {
+	
+	String getIdmPropertyName();
+	
+	SysSchemaAttribute getSchemaAttribute();
+
+	boolean isExtendedAttribute();
 
 }

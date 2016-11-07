@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service;
 
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -9,6 +10,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author svandav
  *
  */
-public interface SysSchemaObjectClassService extends ReadWriteEntityService<SysSchemaObjectClass, EmptyFilter> {
+public interface SysSchemaObjectClassService extends ReadWriteEntityService<SysSchemaObjectClass, SchemaObjectClassFilter> {
 
 }

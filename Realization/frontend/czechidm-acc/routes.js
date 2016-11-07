@@ -8,6 +8,16 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
     },
     {
+      path: 'schema-attributes/:entityId/detail',
+      component: require('./src/content/schema/SchemaAttribute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'schema-attributes/:entityId/new',
+      component: require('./src/content/schema/SchemaAttribute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+    },
+    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

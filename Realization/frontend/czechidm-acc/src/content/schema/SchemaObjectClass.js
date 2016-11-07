@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager } from '../../redux';
+import uuid from 'uuid';
 
 const uiKey = 'schema-object-classe';
 const uiKeyAttributes = 'schema-attributes';
-const manager = new SchemaObjectClassManager();
-const systemManager = new SystemManager();
 const schemaAttributeManager = new SchemaAttributeManager();
+const systemManager = new SystemManager();
+const schemaObjectClassManager = new SchemaObjectClassManager();
 
 class SchemaObjectClass extends Basic.AbstractTableContent {
 
@@ -18,7 +19,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 
   getManager() {
-    return manager;
+    return schemaAttributeManager;
   }
 
   getUiKey() {
@@ -29,9 +30,19 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
     return 'acc:content.schema.detail';
   }
 
+  showDetail(entity, add) {
+    if (add) {
+      const uuidId = uuid.v1();
+      const objectClassId = this.props._schemaObjectClass.id;
+      this.context.router.push(`/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+    } else {
+      this.context.router.push(`/schema-attributes/${entity.id}/detail`);
+    }
+  }
+
   componentDidMount() {
     const { entityId} = this.props.params;
-    this.context.store.dispatch(this.getManager().fetchEntity(entityId));
+    this.context.store.dispatch(schemaObjectClassManager.fetchEntity(entityId));
     this.selectNavigationItems(['sys-systems', 'system-object-classes']);
   }
 
@@ -55,7 +66,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', _schemaObjectClass ? _schemaObjectClass.system : '-1');
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : '-1');
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -189,7 +200,7 @@ SchemaObjectClass.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.entityId);
+  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.params.entityId);
   if (entity) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
     entity.system = system;

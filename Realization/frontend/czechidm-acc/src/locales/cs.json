@@ -19,7 +19,7 @@
     },
     "schema": {
       "detail": {
-        "header": "Schéma systému <small> - typy objektů na koncovém systému</small>",
+        "header": "Schéma systému <small> typy objektů na koncovém systému</small>",
         "title": "Schéma",
         "objectClassHeader": "Objekt na koncovém systému",
         "schemaAttributesHeader": "Atributy schématu",
@@ -36,6 +36,19 @@
           "name": {
             "label": "Název atributu",
             "placeholder": "Název atributu ve schématu"
+          }
+        }
+      },
+      "attribute": {
+        "detail" : {
+          "title" : "Atribut ve schématu",
+          "header" : "{{name}} <small>detail atributu systému</small>",
+          "save": {
+            "success": "Atribut [{{name}}] systému byl úspěšně uložen"
+          },
+          "create": {
+            "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
+            "header": "Nový atribut systému"
           }
         }
       }
@@ -179,8 +192,14 @@
     },
     "SchemaAttribute": {
       "name": "Název atributu",
+      "objectClass": "Atribut náleží objektu",
       "classType": "Datový typ",
       "required": "Je povinný",
+      "readable": "Je možné ho číst",
+      "createable": "Je možné ho vytvořit",
+      "updateable": "Je možné ho upravit",
+      "returned_by_default": "Standardně je vracen",
+      "nativeName": "Nativní název",
       "system": "Napojený systém",
       "multivalued": "Obsahuje více hodnot"
     },

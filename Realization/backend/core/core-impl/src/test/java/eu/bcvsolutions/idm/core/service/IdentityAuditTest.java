@@ -193,7 +193,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 				exception = null;
 				
 				try {
-					identityController.findRevision(nonExistIdentityId, Integer.MAX_VALUE);
+					identityController.findRevision(nonExistIdentityId, Long.MAX_VALUE);
 				} catch (ResultCodeException e) {
 					exception = e;
 				} catch (Exception e) {

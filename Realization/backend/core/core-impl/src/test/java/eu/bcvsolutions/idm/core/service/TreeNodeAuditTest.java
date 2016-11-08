@@ -99,7 +99,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Long, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(1, revisions.size());
 					
@@ -136,13 +136,13 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Long, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					assertEquals(2, revisions.size());
 					
-					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends BaseEntity>>() {
+					Collections.sort(revisions, new Comparator<Revision<Long, ? extends BaseEntity>>() {
 						@Override
-						public int compare(Revision<Integer, ? extends BaseEntity> o1,
-								Revision<Integer, ? extends BaseEntity> o2) {
+						public int compare(Revision<Long, ? extends BaseEntity> o1,
+								Revision<Long, ? extends BaseEntity> o2) {
 							return o1.compareTo(o2);
 						}
 					});
@@ -186,13 +186,13 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					Long id = node.getId();
 					
-					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
+					List<Revision<Long, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, id);
 					assertEquals(2, revisions.size());
 					
-					Collections.sort(revisions, new Comparator<Revision<Integer, ? extends BaseEntity>>() {
+					Collections.sort(revisions, new Comparator<Revision<Long, ? extends BaseEntity>>() {
 						@Override
-						public int compare(Revision<Integer, ? extends BaseEntity> o1,
-								Revision<Integer, ? extends BaseEntity> o2) {
+						public int compare(Revision<Long, ? extends BaseEntity> o1,
+								Revision<Long, ? extends BaseEntity> o2) {
 							return o1.compareTo(o2);
 						}
 					});
@@ -227,12 +227,12 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			template.execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
-					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
+					List<Revision<Long, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
 					
 					assertEquals(10, revisions.size());
 					
-					for (Revision<Integer, ? extends BaseEntity> rev : revisions) {
-						Revision<Integer, ? extends BaseEntity> revSecond = auditService.findRevision(IdmTreeNode.class, rev.getRevisionNumber(), node.getId());
+					for (Revision<Long, ? extends BaseEntity> rev : revisions) {
+						Revision<Long, ? extends BaseEntity> revSecond = auditService.findRevision(IdmTreeNode.class, rev.getRevisionNumber(), node.getId());
 						assertEquals(rev, revSecond);
 					}
 					
@@ -277,7 +277,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 					exception = null;
 					
 					try {
-						treeNodeController.findRevision(nonExistOrganizationId, Integer.MAX_VALUE);
+						treeNodeController.findRevision(nonExistOrganizationId, Long.MAX_VALUE);
 					} catch (ResultCodeException e) {
 						exception = e;
 					} catch (Exception e) {

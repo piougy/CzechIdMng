@@ -29,7 +29,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException;
+	List<Revision<Long, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException;
 	
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
@@ -40,7 +40,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, Long entityId) throws RevisionDoesNotExistException;	
+	Revision<Long, ? extends BaseEntity> findRevision(Class<?> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException;	
 	
 	/**
 	 * Method return AuditReader for entity manager. Used for create specific queries.

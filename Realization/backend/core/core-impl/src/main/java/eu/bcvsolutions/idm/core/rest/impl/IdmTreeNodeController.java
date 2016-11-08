@@ -92,13 +92,13 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Integer revId) {
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Long revId) {
 		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
-		Revision<Integer, ? extends BaseEntity> revision;
+		Revision<Long, ? extends BaseEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmTreeNode.class, revId, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {
@@ -122,7 +122,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends BaseEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
+		List<Revision<Long, ? extends BaseEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		try {
 			revisions = this.auditService.findRevisions(IdmTreeNode.class, Long.parseLong(treeNodeId));
 		} catch (RevisionDoesNotExistException e) {

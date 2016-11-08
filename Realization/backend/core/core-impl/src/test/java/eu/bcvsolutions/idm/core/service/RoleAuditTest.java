@@ -92,7 +92,7 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 				exception = null;
 				
 				try {
-					roleController.findRevision(nonExistRoleId, Integer.MAX_VALUE);
+					roleController.findRevision(nonExistRoleId, Long.MAX_VALUE);
 				} catch (ResultCodeException e) {
 					exception = e;
 				} catch (Exception e) {

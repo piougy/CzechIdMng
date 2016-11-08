@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components//basic';
-import AuditTable from '../audit/AuditTable';
+import AuditTable from './AuditTable';
 import { IdentityManager, DataManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();

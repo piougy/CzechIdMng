@@ -87,13 +87,13 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Integer revId) {
+	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Long revId) {
 		IdmRole originalEntity = getEntity(roleId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
-		Revision<Integer, ? extends BaseEntity> revision;
+		Revision<Long, ? extends BaseEntity> revision;
 		try {
 			revision = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
@@ -117,7 +117,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		}
 		
 		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends BaseEntity>> results;
+		List<Revision<Long, ? extends BaseEntity>> results;
 		try {
 			 results = this.auditService.findRevisions(IdmRole.class, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {

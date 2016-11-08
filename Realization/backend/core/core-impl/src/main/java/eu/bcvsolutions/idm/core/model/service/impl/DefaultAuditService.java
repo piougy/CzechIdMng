@@ -57,8 +57,8 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException {	
-		List<Revision<Integer, ? extends BaseEntity>> result = new ArrayList<>();
+	public List<Revision<Long, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException {	
+		List<Revision<Long, ? extends BaseEntity>> result = new ArrayList<>();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		
 		// reader.createQuery().forRevisionsOfEntity(c, selectEntitiesOnly, selectDeletedEntities)
@@ -68,23 +68,23 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<>(ids));
 
 		for (Number revisionId : revisionsResult.keySet()) {
-			result.add(this.findRevision(classType, (Integer)revisionId, entityId));
+			result.add(this.findRevision(classType, (Long) revisionId, entityId));
 		}
 		// TODO: refactor to own class / or use query above
-		Collections.sort(result, (Revision<Integer, ? extends BaseEntity> o1, Revision<Integer, ? extends BaseEntity> o2) -> o2.compareTo(o1));		
+		Collections.sort(result, (Revision<Long, ? extends BaseEntity> o1, Revision<Long, ? extends BaseEntity> o2) -> o2.compareTo(o1));		
 		return result;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, Long entityId) throws RevisionDoesNotExistException  {
+	public Revision<Long, ? extends BaseEntity> findRevision(Class<?> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
 		
 		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, revisionId);
 
 		Object entity = reader.find(classType, entityId, revisionId);
-		return new Revision<>((RevisionMetadata<Integer>) getRevisionMetadata(revision), (BaseEntity) entity);
+		return new Revision<>((RevisionMetadata<Long>) getRevisionMetadata(revision), (BaseEntity) entity);
 	}
 	
 	private RevisionMetadata<?> getRevisionMetadata(Object object) {

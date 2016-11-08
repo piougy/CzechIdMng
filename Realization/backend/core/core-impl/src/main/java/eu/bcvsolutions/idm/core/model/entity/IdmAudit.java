@@ -59,6 +59,17 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "changedAttributes")
 	private String changedAttributes;
 	
+	@Column(name = "modifier")
+	private String modifier;
+	
+	public String getModifier() {
+		return modifier;
+	}
+
+	public void setModifier(String modifier) {
+		this.modifier = modifier;
+	}
+
 	public String getChangedAttributes() {
 		return changedAttributes;
 	}

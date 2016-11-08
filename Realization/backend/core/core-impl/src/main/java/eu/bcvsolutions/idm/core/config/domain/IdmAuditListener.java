@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import eu.bcvsolutions.idm.core.api.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 
@@ -34,15 +35,19 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	@Override
 	public void entityChanged(Class entityClass, String entityName, Serializable entityId, RevisionType revisionType,
 			Object revisionEntity) {
+		
 		List<String> changedColumns;
+		
+		autowireServices();
+		AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, (long)entityId);
+		
 		// if revision type is MOD - modification, get and set changed columns
 		// TODO: GUID? revision id?
 		if (revisionType == RevisionType.MOD) {
-			autowireServices();
-			changedColumns = auditService.getNameChangedColumns(entityClass, (long)entityId, ((IdmAudit)revisionEntity).getId(), entityManger.find(entityClass, (long)entityId));
+			changedColumns = auditService.getNameChangedColumns(entityClass, (long)entityId, ((IdmAudit)revisionEntity).getId(), currentEntity);
 			((IdmAudit)revisionEntity).addChanged(changedColumns);
 		}
-		
+		((IdmAudit)revisionEntity).setModifier(currentEntity.getModifier());
         ((IdmAudit)revisionEntity).setModification(revisionType.name());
         ((IdmAudit)revisionEntity).setType(entityName);
         

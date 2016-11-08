@@ -13,22 +13,17 @@ import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.history.Revision;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.AuditService;
@@ -48,9 +43,6 @@ import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeController;
 public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
-	
-	@Autowired
 	private IdmTreeNodeRepository treeNodeRepository;
 	
 	@Autowired
@@ -67,16 +59,10 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 	private IdmTreeType type = null;
 	private IdmTreeNode node = null;
-	private TransactionTemplate template;
 	
 	private final String testTypeName = "test_audit_type";
 	private final String testName = "test_audit_node";
 	private final String adminModifier = "admin";
-	
-	@Before
-	public void transactionTemplate() {
-		template = new TransactionTemplate(platformTransactionManager);
-	}
 	
 	@After
 	@Transactional
@@ -97,7 +83,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	
 			assertNotNull(node.getId());
 			
-			template.execute(new TransactionCallbackWithoutResult() {
+			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
@@ -134,7 +120,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			
 			final String secondName = node.getName();
 			
-			template.execute(new TransactionCallbackWithoutResult() {
+			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
@@ -182,7 +168,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 			
 			final String secondModifier = node.getModifier();
 			
-			template.execute(new TransactionCallbackWithoutResult() {
+			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					UUID id = node.getId();
@@ -225,7 +211,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 				node.setName(testName + "_" + index);
 				node = saveInTransaction(node, treeNodeRepository);
 			}
-			template.execute(new TransactionCallbackWithoutResult() {
+			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					List<Revision<Integer, ? extends BaseEntity>> revisions = auditService.findRevisions(IdmTreeNode.class, node.getId());
@@ -248,7 +234,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	public void testOrganizationController() {
 		loginAsAdmin(adminModifier);
 		try {
-			template.execute(new TransactionCallbackWithoutResult() {
+			getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 					type = constructTestType(testTypeName);
@@ -311,13 +297,5 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 		}
 		
 		return node;
-	}
-	
-	private <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T, ?> repository) {
-		return template.execute(new TransactionCallback<T>() {
-			public T doInTransaction(TransactionStatus transactionStatus) {
-				return repository.save(object);
-			}
-		});
 	}
 }

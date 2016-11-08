@@ -59,7 +59,9 @@ public class SysSystem extends AbstractEntity {
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
-	private List<SysRoleSystem> roleSystems; // only for auditing
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<SysRoleSystem> roleSystems; // only for auditing - is not used (without getter and setter)
 
 	public String getName() {
 		return name;

@@ -26,5 +26,12 @@ public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> exte
 	@Transactional(timeout = 10, readOnly = true)
 	Iterable<E> findAll();
 
+	/**
+	 * Quick filter
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
 	Page<E> find(F filter, Pageable pageable);
 }

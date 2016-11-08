@@ -89,6 +89,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.id = id;
 	}
 
+	/**
+	 * Entity identifier
+	 */
 	@Override
 	public UUID getId() {
 		return id;
@@ -99,6 +102,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.id = id;
 	}
 
+	/**
+	 * Created date
+	 */
 	@Override
 	public Date getCreated() {
 		return created;
@@ -109,6 +115,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.created = created;
 	}
 
+	/**
+	 * Last modified date
+	 */
 	@Override
 	public Date getModified() {
 		return modified;
@@ -118,27 +127,36 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-
-	@Override
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
+	
+	/**
+	 * Currently logged user, when record was created
+	 */
 	@Override
 	public String getCreator() {
 		return creator;
 	}
 
 	@Override
-	public void setModifier(String modifier) {
-		this.modifier = modifier;
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
+	/**
+	 * Currently logged user, when record was modified
+	 */
 	@Override
 	public String getModifier() {
 		return modifier;
 	}
+	
+	@Override
+	public void setModifier(String modifier) {
+		this.modifier = modifier;
+	}
 
+	/**
+	 * Currently logged user, when record was modified
+	 */
 	public String getOriginalCreator() {
 		return originalCreator;
 	}
@@ -155,11 +173,17 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.originalModifier = originalModifier;
 	}
 	
+	/**
+	 * Class + entity identifier
+	 */
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -167,6 +191,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		return hash;
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public boolean equals(Object object) {
 		if (object == null || !object.getClass().equals(getClass())) {

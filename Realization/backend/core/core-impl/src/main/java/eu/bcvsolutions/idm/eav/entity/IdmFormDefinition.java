@@ -45,6 +45,8 @@ public class IdmFormDefinition extends AbstractEntity {
 	
 	@OrderBy("seq")
 	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmFormAttributeDefinition> formAttributes;
 	//
 	// attribute definitions cache

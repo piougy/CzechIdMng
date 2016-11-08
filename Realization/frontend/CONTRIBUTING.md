@@ -24,9 +24,10 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 * Use JSDoc for documentation https://developers.google.com/closure/compiler/docs/js-for-compiler
 * Make tests (mocha, chai)
 * Při porovnání hodnot používat typové porovnání (`!==`, `===`)
-* DB tabulky jádra idm mají vždy prefix `idm_`
-* DB tabulky modulu mají vždy prefix dle modulu (e.g. `ca_`)
-* DB tabulky nazýváme v jednotmém čísle s podtržítky, vše malými písmeny (e.g. `wf_identity`)
+* DB objekty (tabulky, indexy, etc.) jádra idm mají vždy prefix `idm_`
+* DB objekty (tabulky, indexy, etc.) modulu mají vždy prefix dle modulu (e.g. `ca_`)
+* DB objekty (tabulky, indexy, etc.) nazýváme v jednotmém čísle s podtržítky, vše malými písmeny (e.g. `wf_identity`)
+* DB názvy objektů (tabulek, indexů, etc.) musí býti maximálně 30 znaků dlouhé (vyhovění omezením některých db)
 * Entity musí obsahovat validační annotace dle DB tabulky (jsr303)
 * Restové endpointy nazýváme vždy v množném čísle s pomlčkami (e.g. `wf-identities`)
 * `constructor` metoda musí býti na začátku třídy

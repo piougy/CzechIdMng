@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * @author svandav
  *
  */
-public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
+public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testHistoryProcessAndTask";
 

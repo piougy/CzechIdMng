@@ -12,28 +12,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.rest.impl.IdmRoleController;
 
-public class RoleAuditTest extends AbstractIntegrationTest {
-	
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
+public class RoleAuditIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmRoleRepository roleRepository;
@@ -45,13 +37,11 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 	private EntityManager entityManager;
 	
 	private IdmRole role = null;
-	private TransactionTemplate template;
 	
 	private final String testName = "test_audit role";
 	
 	@Before
-	public void transactionTemplate() {
-		template = new TransactionTemplate(platformTransactionManager);
+	public void initBefore() {
 		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 	
@@ -65,7 +55,7 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testRoleController() {
-		template.execute(new TransactionCallbackWithoutResult() {
+		getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
 			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus arg0) {
 				role = constructTestRole();
@@ -108,13 +98,5 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 		IdmRole role = new IdmRole();
 		role.setName(testName);		
 		return role;
-	}
-	
-	private <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T, ?> repository) {
-		return template.execute(new TransactionCallback<T>() {
-			public T doInTransaction(TransactionStatus transactionStatus) {
-				return repository.save(object);
-			}
-		});
 	}
 }

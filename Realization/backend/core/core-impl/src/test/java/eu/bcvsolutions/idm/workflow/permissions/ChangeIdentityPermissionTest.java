@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
+public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String ADDED_IDENTITY_ROLES_VARIABLE = "addedIdentityRoles";
 	private static final String REMOVED_IDENTITY_ROLES_VARIABLE = "removedIdentityRoles";

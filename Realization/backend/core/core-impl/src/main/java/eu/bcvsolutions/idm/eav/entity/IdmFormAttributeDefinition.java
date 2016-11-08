@@ -26,6 +26,12 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 
+/**
+ * Single attribute definition in one form defition
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Entity
 @Table(name = "idm_form_attribute_definition", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
@@ -90,6 +96,11 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		super(id);
 	}
 
+	/**
+	 * Name / key - unique in one form defifinition
+	 * 
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
@@ -98,14 +109,24 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.name = name;
 	}
 	
-	public void setFormDefinition(IdmFormDefinition formDefinition) {
-		this.formDefinition = formDefinition;
-	}
-	
+	/**
+	 * Form definition
+	 * 
+	 * @return
+	 */
 	public IdmFormDefinition getFormDefinition() {
 		return formDefinition;
 	}
+	
+	public void setFormDefinition(IdmFormDefinition formDefinition) {
+		this.formDefinition = formDefinition;
+	}
 
+	/**
+	 * Data type
+	 * 
+	 * @return
+	 */
 	public PersistentType getPersistentType() {
 		return persistentType;
 	}
@@ -114,6 +135,10 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.persistentType = persistentType;
 	}
 
+	/**
+	 * Multi values (list)
+	 * @return
+	 */
 	public boolean isMultiple() {
 		return multiple;
 	}
@@ -122,6 +147,11 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.multiple = multiple;
 	}
 
+	/**
+	 * Required attribute
+	 * 
+	 * @return
+	 */
 	public boolean isMandatory() {
 		return mandatory;
 	}
@@ -130,6 +160,11 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.mandatory = mandatory;
 	}
 
+	/**
+	 * Order on FE form
+	 * 
+	 * @return
+	 */
 	public short getSeq() {
 		return seq;
 	}
@@ -138,6 +173,11 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.seq = seq;
 	}
 
+	/**
+	 * Attribute can not be changed by user 
+	 * 
+	 * @return
+	 */
 	public boolean isReadonly() {
 		return readonly;
 	}
@@ -146,6 +186,11 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.readonly = readonly;
 	}
 
+	/**
+	 * User friendly name (label)
+	 * 
+	 * @return
+	 */
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -154,6 +199,10 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.displayName = displayName;
 	}
 
+	/**
+	 * User friendly description (tooltip)
+	 * @return
+	 */
 	public String getDescription() {
 		return description;
 	}
@@ -162,6 +211,10 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 		this.description = description;
 	}
 
+	/**
+	 * If attribute value is secured (password, token, etc.)
+	 * @return
+	 */
 	public boolean isConfidental() {
 		return confidental;
 	}

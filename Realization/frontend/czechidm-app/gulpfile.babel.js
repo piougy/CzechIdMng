@@ -338,8 +338,8 @@ gulp.task('themes', (cb) => {
     return gulp.src(path.join(themeFullPath, '/images/**'))
     .pipe(gulp.dest(paths.distImg))
     // Find theme styles and add them to srcLess array
-    .pipe(gulp.src(path.join(themeFullPath, '/css/*'))
-    .pipe(flatmap(function loadModule(stream, file) {
+    .pipe(gulp.src(path.join(themeFullPath, '/css/*.less'))
+    .pipe(flatmap(function iterateFiles(stream, file) {
       util.log('Add theme style from:', file.path);
       paths.srcIncludedLess.push(file.path);
       return stream;

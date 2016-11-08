@@ -35,33 +35,33 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 
 	private static final long serialVersionUID = 328041550861866181L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "valid_from")
 	@Temporal(TemporalType.DATE)
 	private Date validFrom;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "valid_till")
 	@Temporal(TemporalType.DATE)
 	private Date validTill;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
 	private IdmIdentity guarantee;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "working_position_id", referencedColumnName = "id")
 	private IdmTreeNode workingPosition;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "position", length = DefaultFieldLengths.NAME)
 	private String position; // string position - if working position tree is not configured, then this string could be used

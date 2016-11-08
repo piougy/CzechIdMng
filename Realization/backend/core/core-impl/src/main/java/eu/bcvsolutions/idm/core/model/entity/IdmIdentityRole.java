@@ -30,24 +30,24 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	private static final long serialVersionUID = 9208706652291035265L;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
 	@NotNull
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
 	private IdmRole role;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "valid_from")
 	@Temporal(TemporalType.DATE)
 	private Date validFrom;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "valid_till")
 	@Temporal(TemporalType.DATE)
 	private Date validTill;

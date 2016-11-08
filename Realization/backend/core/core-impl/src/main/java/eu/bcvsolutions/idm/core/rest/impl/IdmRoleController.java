@@ -29,7 +29,6 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
@@ -37,6 +36,7 @@ import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
+import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 
 /**
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
 public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, RoleFilter> {
 	
 	@Autowired
-	private AuditService auditService; 
+	private IdmAuditService auditService; 
 	
 	@Autowired
 	public IdmRoleController(EntityLookupService entityLookupService, IdmRoleService roleService) {

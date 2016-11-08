@@ -31,7 +31,7 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 
 	private static final long serialVersionUID = -1594762884461330895L;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@JsonBackReference
 	@JoinColumn(name = "superior_id", referencedColumnName = "id")
@@ -39,7 +39,7 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRole superior;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@JoinColumn(name = "sub_id", referencedColumnName = "id")
 	@ManyToOne(optional = false)

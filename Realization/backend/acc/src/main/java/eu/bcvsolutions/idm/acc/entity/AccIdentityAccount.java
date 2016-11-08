@@ -33,26 +33,26 @@ public class AccIdentityAccount extends AbstractEntity {
 
 	private static final long serialVersionUID = 1356548381619742855L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "account_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private AccAccount account;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity identity;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id")
 	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "ownership", nullable = false)
 	private boolean ownership = true;

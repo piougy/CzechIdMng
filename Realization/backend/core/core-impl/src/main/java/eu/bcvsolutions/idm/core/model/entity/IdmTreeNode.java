@@ -32,19 +32,19 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 
 	private static final long serialVersionUID = -3099001738101202320L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
 	private String code;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
@@ -53,13 +53,13 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id")
 	private IdmTreeNode parent;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "tree_type_id", referencedColumnName = "id")
 	private IdmTreeType treeType;

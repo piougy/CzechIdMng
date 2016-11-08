@@ -30,11 +30,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmTreeNodeController;
 
 /**
@@ -59,7 +59,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 	private IdmTreeNodeController treeNodeController;
 	
 	@Autowired
-	private AuditService auditService;
+	private IdmAuditService auditService;
 	
 	@PersistenceContext
 	private EntityManager entityManager;

@@ -31,14 +31,14 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	private static final long serialVersionUID = 6106304497345109366L;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmIdentity guarantee;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")

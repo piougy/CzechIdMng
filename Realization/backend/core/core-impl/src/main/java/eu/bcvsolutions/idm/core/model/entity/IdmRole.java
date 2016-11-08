@@ -2,14 +2,17 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -20,6 +23,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.ModifiedEntityNames;
+import org.hibernate.envers.RevisionEntity;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -46,13 +51,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
@@ -61,52 +66,52 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
 	private String approveAddWorkflow;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
 	private String approveRemoveWorkflow;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleAuthority> authorities;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleComposition> subRoles;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleGuarantee> guarantees;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private IdmRoleCatalogue roleCatalogue;
-	
+
 	public IdmRole() {
 	}
 	

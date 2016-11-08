@@ -23,4 +23,6 @@ public interface SysSchemaAttributeExcerpt extends AbstractDtoProjection {
 	boolean isRequired();
 	
 	boolean isMultivalued();
+	
+	SysSchemaObjectClass getObjectClass();
 }

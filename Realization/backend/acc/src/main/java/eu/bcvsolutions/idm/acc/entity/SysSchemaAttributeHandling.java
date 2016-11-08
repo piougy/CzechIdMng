@@ -39,6 +39,12 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "schema_attribute_id", referencedColumnName = "id")
 	private SysSchemaAttribute schemaAttribute;
+	
+	@Audited
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "system_entity_handling_id", referencedColumnName = "id")
+	private SysSystemEntityHandling systemEntityHandling;
 
 	@Audited
 	@Column(name = "extended_attribute", nullable = false)
@@ -92,6 +98,14 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 
 	public void setTransformToSystem(String transformToSystem) {
 		this.transformToSystem = transformToSystem;
+	}
+
+	public SysSystemEntityHandling getSystemEntityHandling() {
+		return systemEntityHandling;
+	}
+
+	public void setSystemEntityHandling(SysSystemEntityHandling systemEntityHandling) {
+		this.systemEntityHandling = systemEntityHandling;
 	}
 
 }

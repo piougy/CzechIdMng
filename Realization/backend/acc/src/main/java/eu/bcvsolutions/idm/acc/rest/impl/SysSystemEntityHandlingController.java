@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeHandlingService;
@@ -38,7 +40,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-entities-handling")
-public class SysSystemEntityHandlingController extends AbstractReadWriteEntityController<SysSystemEntityHandling, EmptyFilter> {
+public class SysSystemEntityHandlingController extends AbstractReadWriteEntityController<SysSystemEntityHandling, SystemEntityHandlingFilter> {
 
 	@Autowired
 	public SysSystemEntityHandlingController(EntityLookupService entityLookupService, SysSystemEntityHandlingService service) {
@@ -96,5 +98,12 @@ public class SysSystemEntityHandlingController extends AbstractReadWriteEntityCo
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected SystemEntityHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SystemEntityHandlingFilter filter = new SystemEntityHandlingFilter();
+		filter.setSystemId(convertLongParameter(parameters, "systemId"));
+		return filter;
 	}
 }

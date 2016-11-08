@@ -3,9 +3,14 @@ module.exports = {
   component: 'div',
   childRoutes: [
     {
-      path: 'schema-object-class/:entityId/detail',
+      path: 'schema-object-classes/:entityId/detail',
       component: require('./src/content/schema/SchemaObjectClass'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'schema-object-classes/:entityId/new',
+      component: require('./src/content/schema/SchemaObjectClass'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
     },
     {
       path: 'schema-attributes/:entityId/detail',

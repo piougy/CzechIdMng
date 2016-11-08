@@ -34,10 +34,15 @@ class SchemaAttribute extends Basic.AbstractTableContent {
     }
   }
 
+  // Did mount only call initComponent method
   componentDidMount() {
     this._initComponent(this.props);
   }
 
+  /**
+   * Method for init component from didMount method and from willReceiveProps method
+   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   */
   _initComponent(props) {
     const { entityId} = props.params;
     if (this._getIsNew(props)) {

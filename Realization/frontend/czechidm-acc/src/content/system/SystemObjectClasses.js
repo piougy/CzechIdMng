@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager } from '../../redux';
+import uuid from 'uuid';
 
 const uiKey = 'system-schema-object-classes-entities-table';
 const manager = new SchemaObjectClassManager();
@@ -33,16 +33,13 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    if (!add) {
-      this.context.router.push(`/schema-object-class/${entity.id}/detail`);
+    if (add) {
+      // When we add new object class, then we need id of system as parametr and use "new" url
+      const uuidId = uuid.v1();
+      const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
+      this.context.router.push(`/schema-object-classes/${uuidId}/new?new=1&systemId=${system}`);
     } else {
-      const entityFormData = _.merge({}, entity, {
-        system: entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId
-      });
-      //
-      super.showDetail(entityFormData, () => {
-        this.refs.uid.focus();
-      });
+      this.context.router.push(`/schema-object-classes/${entity.id}/detail`);
     }
   }
 

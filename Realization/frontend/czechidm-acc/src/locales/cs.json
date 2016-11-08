@@ -27,7 +27,7 @@
           "header": "Detail typu objektu na koncovém systému"
         },
         "create": {
-          "header": "Nová typ objektu na koncovém systému"
+          "header": "Nový typ objektu na koncovém systému"
         },
         "save": {
           "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
@@ -95,7 +95,8 @@
           "header": "Detail typu objektu na koncovém systému"
         },
         "create": {
-          "header": "Nová typ objektu na koncovém systému"
+          "success": "Typ objektu [{{name}}] systému byl úspěšně vytvořen",
+          "header": "Nový typ objektu na koncovém systému"
         },
         "save": {
           "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"

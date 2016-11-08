@@ -6,7 +6,7 @@ import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager } from '../../redux';
 import uuid from 'uuid';
 
-const uiKey = 'schema-object-classe';
+const uiKey = 'schema-object-classes';
 const uiKeyAttributes = 'schema-attributes';
 const schemaAttributeManager = new SchemaAttributeManager();
 const systemManager = new SystemManager();
@@ -40,10 +40,30 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { entityId} = nextProps.params;
+    if (entityId && entityId !== this.props.params.entityId) {
+      this._initComponent(nextProps);
+    }
+  }
+
+  // Did mount only call initComponent method
   componentDidMount() {
-    const { entityId} = this.props.params;
-    this.context.store.dispatch(schemaObjectClassManager.fetchEntity(entityId));
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this._initComponent(this.props);
+  }
+
+  /**
+   * Method for init component from didMount method and from willReceiveProps method
+   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   */
+  _initComponent(props) {
+    const { entityId} = props.params;
+    if (this._getIsNew(props)) {
+      this.setState({schemaObjectClass: {system: props.location.query.systemId}});
+    } else {
+      this.context.store.dispatch(schemaObjectClassManager.fetchEntity(entityId));
+    }
+    this.selectNavigationItems(['sys-systems']);
   }
 
   save(entity, event) {
@@ -53,9 +73,40 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
     super.save(formEntity, event);
   }
 
+  /**
+   * Saves give entity
+   */
+  save(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this.refs.form.isFormValid()) {
+      return;
+    }
+
+    const formEntity = this.refs.form.getData();
+    formEntity.system = systemManager.getSelfLink(formEntity.system);
+
+    if (formEntity.id === undefined) {
+      this.context.store.dispatch(schemaObjectClassManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+        this.afterSave(createdEntity, error);
+        if (!error) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      }));
+    } else {
+      this.context.store.dispatch(schemaObjectClassManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+    }
+  }
+
   afterSave(entity, error) {
     if (!error) {
-      this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+      if (this._getIsNew()) {
+        this.addMessage({ message: this.i18n('create.success', { name: entity.objectClassName }) });
+        this.context.router.replace(`/schema-object-classes/${entity.id}/detail`, {entityId: entity.id});
+      } else {
+        this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+      }
     }
     super.afterSave();
   }
@@ -64,9 +115,16 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
+  _getIsNew(nextProps) {
+    const { query } = nextProps ? nextProps.location : this.props.location;
+    return (query) ? query.new : null;
+  }
+
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : '-1');
+    const isNew = this._getIsNew();
+    const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -79,7 +137,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
 
         <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={_schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
             <Basic.SelectBox
               ref="system"
               manager={systemManager}
@@ -111,12 +169,12 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
-        <Basic.ContentHeader>
+        <Basic.ContentHeader rendered={schemaObjectClass && !isNew}>
           <Basic.Icon value="list"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel>
+        <Basic.Panel rendered={schemaObjectClass && !isNew}>
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}
@@ -175,17 +233,17 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.ColumnLink
-              to="schema-attributes/:id/detail"
-              property="name"
-              header={this.i18n('acc:entity.SchemaAttribute.name')}
-              sort />
-            <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
-            <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
-            <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>
-          </Advanced.Table>
-        </Basic.Panel>
-      </div>
+              <Advanced.ColumnLink
+                to="schema-attributes/:id/detail"
+                property="name"
+                header={this.i18n('acc:entity.SchemaAttribute.name')}
+                sort />
+              <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
+              <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
+              <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>
+            </Advanced.Table>
+          </Basic.Panel>
+        </div>
     );
   }
 }

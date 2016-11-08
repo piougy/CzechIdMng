@@ -52,6 +52,15 @@ module.exports = {
             'order': 40,
             'path': '/system/:entityId/object-classes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-entities-handling',
+            'type': 'TAB',
+            'icon': 'list-alt',
+            'labelKey': 'acc:content.system.system-entities-handling.title',
+            'order': 50,
+            'path': '/system/:entityId/entities-handling',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]
       },

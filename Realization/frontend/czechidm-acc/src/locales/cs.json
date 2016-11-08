@@ -39,17 +39,48 @@
           }
         }
       },
-      "attribute": {
-        "detail" : {
-          "title" : "Atribut ve schématu",
-          "header" : "{{name}} <small>detail atributu systému</small>",
-          "save": {
-            "success": "Atribut [{{name}}] systému byl úspěšně uložen"
-          },
-          "create": {
-            "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
-            "header": "Nový atribut systému"
+      "entity-handling": {
+        "header": "Mapování atributů na IDM entitu a operaci",
+        "title": "Mapování atributů",
+        "systemEntityHandlingHeader": "<small>Mapování atributů na </small>IDM entitu a typ operace",
+        "schemaAttributesHandlingHeader": "Namapované atributy",
+        "edit": {
+          "header": "Detail typu IDM entity a operace"
+        },
+        "create": {
+          "header": "Nový typ IDM entity a operace",
+          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
+        },
+        "save": {
+          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
+        },
+        "filter": {
+          "idmPropertyName": {
+            "label": "Název IDM atributu",
+            "placeholder": "Název atributu v IDM"
           }
+        }
+      },
+      "attribute": {
+        "title" : "Atribut ve schématu",
+        "header" : "{{name}} <small>detail atributu systému</small>",
+        "save": {
+          "success": "Atribut [{{name}}] systému byl úspěšně uložen"
+        },
+        "create": {
+          "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
+          "header": "Nový atribut systému"
+        }
+      },
+      "attribute-handling": {
+        "title" : "Atribut v IDM",
+        "header" : "{{name}} <small>detail mapování atributu</small>",
+        "save": {
+          "success": "Atribut [{{name}}] IDM byl úspěšně uložen"
+        },
+        "create": {
+          "success": "Atribut [{{name}}] IDM byl úspěšně vytvořen",
+          "header": "Nový atribut IDM"
         }
       }
     },
@@ -106,6 +137,20 @@
             "label": "Název objektu",
             "placeholder": "Název objektu na koncovém systému"
           }
+        }
+      },
+      "system-entities-handling": {
+        "header": "Mapování entit a operací <small> na koncový systém</small>",
+        "title": "Mapování atributů",
+        "edit": {
+          "header": "Detail mapování entit a operací"
+        },
+        "create": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
+          "header": "Nové mapování pro entitu a operaci"
+        },
+        "save": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
         }
       },
       "accounts": {
@@ -191,6 +236,11 @@
       "objectClassName": "Název objektu",
       "system": "Napojený systém"
     },
+    "SystemEntityHandling": {
+      "entityType": "Typ IDM entity",
+      "operationType": "Typ operace",
+      "system": "Napojený systém"
+    },
     "SchemaAttribute": {
       "name": "Název atributu",
       "objectClass": "Atribut náleží objektu",
@@ -203,6 +253,14 @@
       "nativeName": "Nativní název",
       "system": "Napojený systém",
       "multivalued": "Obsahuje více hodnot"
+    },
+    "SchemaAttributeHandling": {
+      "idmPropertyName": "Název IDM atributu",
+      "schemaAttribute": "Atribut ve schéma",
+      "systemEntityHandling": "Podskupina",
+      "extendedAttribute": "Rozšířený atribut",
+      "transformFromSystem": "Transformace ze systému",
+      "transformToSystem": "Transformace do systému"
     },
     "Account": {
       "_type": "Účet na koncovém systému",
@@ -221,6 +279,11 @@
     "SystemEntityTypeEnum": {
       "IDENTITY": "Identita",
       "GROUP": "Skupina"
+    },
+    "SystemOperationTypeEnum": {
+      "PROVISIONING": "Provisioning",
+      "RECONCILIACE": "Reconciliace",
+      "SYNCHRONISATION": "Synchronizace"
     },
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",

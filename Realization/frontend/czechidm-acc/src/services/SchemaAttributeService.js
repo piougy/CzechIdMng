@@ -11,7 +11,11 @@ export default class SchemaAttributeService extends Services.AbstractService {
     if (!entity) {
       return '';
     }
-    return entity.name;
+    let objectClass = entity.objectClass ? entity.objectClass.objectClassName : null;
+    if (!objectClass) {
+      objectClass = (entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.objectClassName : '');
+    }
+    return `${entity.name} (${objectClass})`;
   }
 
   getApiPath() {

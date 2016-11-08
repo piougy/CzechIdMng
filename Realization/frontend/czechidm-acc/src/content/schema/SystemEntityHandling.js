@@ -3,23 +3,25 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager } from '../../redux';
+import { SystemEntityHandlingManager, SystemManager, SchemaAttributeHandlingManager } from '../../redux';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import uuid from 'uuid';
 
-const uiKey = 'schema-object-classes';
-const uiKeyAttributes = 'schema-attributes';
-const schemaAttributeManager = new SchemaAttributeManager();
+const uiKey = 'system-entities-handling';
+const uiKeyAttributes = 'schema-attributes-handling';
+const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
 const systemManager = new SystemManager();
-const schemaObjectClassManager = new SchemaObjectClassManager();
+const systemEntityHandlingManager = new SystemEntityHandlingManager();
 
-class SchemaObjectClass extends Basic.AbstractTableContent {
+class SystemEntityHandling extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
   }
 
   getManager() {
-    return schemaAttributeManager;
+    return schemaAttributeHandlingManager;
   }
 
   getUiKey() {
@@ -27,16 +29,16 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.detail';
+    return 'acc:content.schema.entity-handling';
   }
 
   showDetail(entity, add) {
     if (add) {
       const uuidId = uuid.v1();
-      const objectClassId = this.props._schemaObjectClass.id;
-      this.context.router.push(`/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+      const entityHandlingId = this.props._entityHandling.id;
+      this.context.router.push(`/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}`);
     } else {
-      this.context.router.push(`/schema-attributes/${entity.id}/detail`);
+      this.context.router.push(`/schema-attributes-handling/${entity.id}/detail`);
     }
   }
 
@@ -59,9 +61,13 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({schemaObjectClass: {system: props.location.query.systemId}});
+      this.setState({entityHandling: {
+        system: props.location.query.systemId,
+        entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY),
+        operationType: SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING)
+      }});
     } else {
-      this.context.store.dispatch(schemaObjectClassManager.fetchEntity(entityId));
+      this.context.store.dispatch(systemEntityHandlingManager.fetchEntity(entityId));
     }
     this.selectNavigationItems(['sys-systems']);
   }
@@ -79,26 +85,25 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
 
     const formEntity = this.refs.form.getData();
     formEntity.system = systemManager.getSelfLink(formEntity.system);
-
     if (formEntity.id === undefined) {
-      this.context.store.dispatch(schemaObjectClassManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(systemEntityHandlingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));
     } else {
-      this.context.store.dispatch(schemaObjectClassManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(systemEntityHandlingManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 
   afterSave(entity, error) {
     if (!error) {
       if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.objectClassName }) });
-        this.context.router.replace(`/schema-object-classes/${entity.id}/detail`, {entityId: entity.id});
+        this.addMessage({ message: this.i18n('create.success', { entityType: entity.entityType, operationType: entity.operationType}) });
+        this.context.router.replace(`/system-entities-handling/${entity.id}/detail`, {entityId: entity.id});
       } else {
-        this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+        this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
     }
     super.afterSave();
@@ -114,40 +119,37 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _schemaObjectClass} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : '-1');
+    const { _showLoading, _entityHandling} = this.props;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandling ? _entityHandling.id : '-1');
     const isNew = this._getIsNew();
-    const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
+    const entityHandling = isNew ? this.state.entityHandling : _entityHandling;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
-          <Basic.Icon value="compressed"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('systemEntityHandlingHeader') }}/>
         </Basic.ContentHeader>
 
         <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={entityHandling} showLoading={_showLoading} className="form-horizontal">
             <Basic.SelectBox
               ref="system"
               manager={systemManager}
-              label={this.i18n('acc:entity.SchemaObjectClass.system')}
+              label={this.i18n('acc:entity.SystemEntityHandling.system')}
               readOnly
               required/>
-            <Basic.TextField
-              ref="objectClassName"
-              label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
-              required
-              max={255}/>
-            <Basic.Checkbox
-              ref="container"
-              label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
-            <Basic.Checkbox
-              ref="auxiliary"
-              label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
+            <Basic.EnumSelectBox
+              ref="entityType"
+              enum={SystemEntityTypeEnum}
+              label={this.i18n('acc:entity.SystemEntityHandling.entityType')}
+              required/>
+            <Basic.EnumSelectBox
+              ref="operationType"
+              enum={SystemOperationTypeEnum}
+              label={this.i18n('acc:entity.SystemEntityHandling.operationType')}
+              required/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link"
@@ -162,16 +164,16 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
             </Basic.Button>
           </Basic.PanelFooter>
         </Basic.Panel>
-        <Basic.ContentHeader rendered={schemaObjectClass && !isNew}>
-          <Basic.Icon value="list"/>
+        <Basic.ContentHeader rendered={entityHandling && !isNew}>
+          <Basic.Icon value="list-alt"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHandlingHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={schemaObjectClass && !isNew}>
+        <Basic.Panel rendered={entityHandling && !isNew}>
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}
-            manager={schemaAttributeManager}
+            manager={schemaAttributeHandlingManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
@@ -201,9 +203,9 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="name"
-                        label={this.i18n('filter.name.label')}
-                        placeholder={this.i18n('filter.name.placeholder')}/>
+                        ref="idmPropertyName"
+                        label={this.i18n('filter.idmPropertyName.label')}
+                        placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
                     </div>
                     <div className="col-lg-2"/>
                     <div className="col-lg-4 text-right">
@@ -227,13 +229,12 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to="schema-attributes/:id/detail"
-                property="name"
-                header={this.i18n('acc:entity.SchemaAttribute.name')}
+                to="schema-attributes-handling/:id/detail"
+                property="idmPropertyName"
+                header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
                 sort />
-              <Advanced.Column property="classType" header={this.i18n('acc:entity.SchemaAttribute.classType')} sort/>
-              <Advanced.Column property="required" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.required')} sort/>
-              <Advanced.Column property="multivalued" face="boolean" header={this.i18n('acc:entity.SchemaAttribute.multivalued')} sort/>
+              <Advanced.Column property="schemaAttribute.name" header={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
             </Advanced.Table>
           </Basic.Panel>
         </div>
@@ -241,25 +242,25 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 }
 
-SchemaObjectClass.propTypes = {
+SystemEntityHandling.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SchemaObjectClass.defaultProps = {
+SystemEntityHandling.defaultProps = {
   system: null,
   _showLoading: false,
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.params.entityId);
+  const entity = Utils.Entity.getEntity(state, systemEntityHandlingManager.getEntityType(), component.params.entityId);
   if (entity) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
     entity.system = system;
   }
   return {
-    _schemaObjectClass: entity,
+    _entityHandling: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }
 
-export default connect(select)(SchemaObjectClass);
+export default connect(select)(SystemEntityHandling);

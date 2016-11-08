@@ -3,13 +3,14 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Utils} from 'czechidm-core';
-import { SchemaObjectClassManager, SchemaAttributeManager } from '../../redux';
+import { SystemEntityHandlingManager, SchemaAttributeHandlingManager, SchemaAttributeManager} from '../../redux';
 
-const uiKey = 'schema-attribute';
-const manager = new SchemaAttributeManager();
-const schemaObjectClassManager = new SchemaObjectClassManager();
+const uiKey = 'schema-attribute-handling';
+const manager = new SchemaAttributeHandlingManager();
+const systemEntityHandlingManager = new SystemEntityHandlingManager();
+const schemaAttributeManager = new SchemaAttributeManager();
 
-class SchemaAttribute extends Basic.AbstractTableContent {
+class SchemaAttributeHandling extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -24,7 +25,7 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.attribute';
+    return 'acc:content.schema.attribute-handling';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -46,7 +47,7 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({attribute: {objectClass: props.location.query.objectClassId}});
+      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId}});
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(entityId));
     }
@@ -60,7 +61,8 @@ class SchemaAttribute extends Basic.AbstractTableContent {
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
-    formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
+    formEntity.systemEntityHandling = systemEntityHandlingManager.getSelfLink(formEntity.systemEntityHandling);
+    formEntity.schemaAttribute = schemaAttributeManager.getSelfLink(formEntity.schemaAttribute);
     //
     super.save(formEntity, event);
   }
@@ -68,10 +70,10 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.name }) });
-        this.context.router.replace(`/schema-attributes/${entity.id}/detail`, {entityId: entity.id});
+        this.addMessage({ message: this.i18n('create.success', { name: entity.idmPropertyName }) });
+        this.context.router.replace(`/schema-attributes-handling/${entity.id}/detail`, {entityId: entity.id});
       } else {
-        this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+        this.addMessage({ message: this.i18n('save.success', { name: entity.idmPropertyName }) });
       }
     }
     super.afterSave();
@@ -91,51 +93,40 @@ class SchemaAttribute extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
-          <Basic.Icon value="list"/>
+          <Basic.Icon value="list-alt"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: manager.getNiceLabel(attribute)} : {})}}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: attribute.idmPropertyName} : {})}}/>
         </Basic.ContentHeader>
 
         <Basic.Panel>
           <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
             <Basic.SelectBox
-              ref="objectClass"
-              manager={schemaObjectClassManager}
-              label={this.i18n('acc:entity.SchemaAttribute.objectClass')}
+              ref="systemEntityHandling"
+              manager={systemEntityHandlingManager}
+              label={this.i18n('acc:entity.SchemaAttributeHandling.systemEntityHandling')}
               readOnly
               required/>
             <Basic.TextField
-              ref="name"
-              label={this.i18n('acc:entity.SchemaAttribute.name')}
+              ref="idmPropertyName"
+              label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
               required
               max={255}/>
+            <Basic.SelectBox
+              ref="schemaAttribute"
+              manager={schemaAttributeManager}
+              label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
+              required/>
+            <Basic.Checkbox
+              ref="extendedAttribute"
+              label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
             <Basic.TextField
-              ref="classType"
-              label={this.i18n('acc:entity.SchemaAttribute.classType')}
-              required
+              ref="transformFromSystem"
+              label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromSystem')}
               max={255}/>
             <Basic.TextField
-              ref="nativeName"
-              label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
+              ref="transformToSystem"
+              label={this.i18n('acc:entity.SchemaAttributeHandling.transformToSystem')}
               max={255}/>
-            <Basic.Checkbox
-              ref="required"
-              label={this.i18n('acc:entity.SchemaAttribute.required')}/>
-            <Basic.Checkbox
-              ref="readable"
-              label={this.i18n('acc:entity.SchemaAttribute.readable')}/>
-            <Basic.Checkbox
-              ref="multivalued"
-              label={this.i18n('acc:entity.SchemaAttribute.multivalued')}/>
-            <Basic.Checkbox
-              ref="createable"
-              label={this.i18n('acc:entity.SchemaAttribute.createable')}/>
-            <Basic.Checkbox
-              ref="updateable"
-              label={this.i18n('acc:entity.SchemaAttribute.updateable')}/>
-            <Basic.Checkbox
-              ref="returnedByDefault"
-              label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
           </Basic.AbstractForm>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link"
@@ -155,11 +146,11 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   }
 }
 
-SchemaAttribute.propTypes = {
+SchemaAttributeHandling.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SchemaAttribute.defaultProps = {
+SchemaAttributeHandling.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -167,8 +158,10 @@ SchemaAttribute.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.entityId);
   if (entity) {
-    const objectClass = entity._embedded && entity._embedded.objectClass ? entity._embedded.objectClass.id : null;
-    entity.objectClass = objectClass;
+    const systemEntityHandling = entity._embedded && entity._embedded.systemEntityHandling ? entity._embedded.systemEntityHandling.id : null;
+    const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute.id : null;
+    entity.systemEntityHandling = systemEntityHandling;
+    entity.schemaAttribute = schemaAttribute;
   }
   return {
     _attribute: entity,
@@ -176,4 +169,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaAttribute);
+export default connect(select)(SchemaAttributeHandling);

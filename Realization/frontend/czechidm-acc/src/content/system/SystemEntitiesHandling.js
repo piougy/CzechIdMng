@@ -3,14 +3,16 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SchemaObjectClassManager, SystemManager } from '../../redux';
+import { SystemEntityHandlingManager, SystemManager } from '../../redux';
 import uuid from 'uuid';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
-const uiKey = 'system-schema-object-classes-entities-table';
-const manager = new SchemaObjectClassManager();
+const uiKey = 'system-entities-handling-table';
+const manager = new SystemEntityHandlingManager();
 const systemManager = new SystemManager();
 
-class SystemObjectClasses extends Basic.AbstractTableContent {
+class SystemEntitiesHandling extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,11 +27,11 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.system-object-classes';
+    return 'acc:content.system.system-entities-handling';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
   }
 
   showDetail(entity, add) {
@@ -37,9 +39,9 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
       // When we add new object class, then we need id of system as parametr and use "new" url
       const uuidId = uuid.v1();
       const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
-      this.context.router.push(`/schema-object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.router.push(`/system-entities-handling/${uuidId}/new?new=1&systemId=${system}`);
     } else {
-      this.context.router.push(`/schema-object-classes/${entity.id}/detail`);
+      this.context.router.push(`/system-entities-handling/${entity.id}/detail`);
     }
   }
 
@@ -52,7 +54,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
 
   afterSave(entity, error) {
     if (!error) {
-      this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+      this.addMessage({ message: this.i18n('save.success', { name: entity.entityType }) });
     }
     super.afterSave();
   }
@@ -96,24 +98,6 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
                   {this.i18n('button.add')}
                 </Basic.Button>
               ]
-            }
-            filter={
-              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                  <Basic.Row className="last">
-                    <div className="col-lg-6">
-                      <Advanced.Filter.TextField
-                        ref="objectClassName"
-                        label={this.i18n('filter.objectClassName.label')}
-                        placeholder={this.i18n('filter.objectClassName.placeholder')}/>
-                    </div>
-                    <div className="col-lg-2"/>
-                    <div className="col-lg-4 text-right">
-                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                    </div>
-                  </Basic.Row>
-                </Basic.AbstractForm>
-              </Advanced.Filter>
             }>
             <Advanced.Column
               property=""
@@ -128,17 +112,18 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-            <Advanced.ColumnLink
-              to={
-                ({ rowIndex, data }) => {
-                  this.showDetail(data[rowIndex]);
-                }
-              }
-              property="objectClassName"
-              header={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
-              sort />
-            <Advanced.Column property="auxiliary" face="boolean" header={this.i18n('acc:entity.SchemaObjectClass.auxiliary')} sort/>
-            <Advanced.Column property="container" face="boolean" header={this.i18n('acc:entity.SchemaObjectClass.container')} sort/>
+            <Advanced.Column
+              property="entityType"
+              face="enum"
+              enumClass={SystemEntityTypeEnum}
+              header={this.i18n('acc:entity.SystemEntityHandling.entityType')}
+              sort/>
+            <Advanced.Column
+              property="operationType"
+              face="enum"
+              enumClass={SystemOperationTypeEnum}
+              header={this.i18n('acc:entity.SystemEntityHandling.operationType')}
+              sort/>
           </Advanced.Table>
         </Basic.Panel>
       </div>
@@ -146,11 +131,11 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 }
 
-SystemObjectClasses.propTypes = {
+SystemEntitiesHandling.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SystemObjectClasses.defaultProps = {
+SystemEntitiesHandling.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -162,4 +147,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemObjectClasses);
+export default connect(select)(SystemEntitiesHandling);

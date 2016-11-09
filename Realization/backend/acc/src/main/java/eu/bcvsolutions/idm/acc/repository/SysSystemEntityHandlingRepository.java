@@ -6,12 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
-import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaObjectClassExcerpt;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSystemEntityHandlingExcerpt;
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 
 /**

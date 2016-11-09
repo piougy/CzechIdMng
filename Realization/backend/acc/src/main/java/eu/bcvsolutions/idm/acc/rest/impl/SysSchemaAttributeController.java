@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
@@ -101,7 +99,7 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 	@Override
 	protected SchemaAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaAttributeFilter filter = new SchemaAttributeFilter();
-		filter.setObjectClassId(convertLongParameter(parameters, "objectClassId"));
+		filter.setObjectClassId(convertUuidParameter(parameters, "objectClassId"));
 		filter.setName(convertStringParameter(parameters, "name"));
 		return filter;
 	}

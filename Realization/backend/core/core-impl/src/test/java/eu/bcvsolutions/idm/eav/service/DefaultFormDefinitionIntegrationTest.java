@@ -84,7 +84,6 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		return result;
 	}
 	
-	@Ignore
 	@Test
 	@Transactional
 	public void deleteDefinitionWithAttributes() {
@@ -96,7 +95,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	}
 	
 	@Test
-	// @Ignore
+	@Ignore
 	public void generateFormDefinitionsOneByOne() {
 		int start = 1020300;
 		int end = 1020400;

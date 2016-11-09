@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 
 /**
@@ -10,15 +12,15 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
  */
 public class SchemaAttributeHandlingFilter implements BaseFilter {
 	
-	private Long entityHandlingId;
+	private UUID entityHandlingId;
 	
 	private String idmPropertyName;
 
-	public Long getEntityHandlingId() {
+	public UUID getEntityHandlingId() {
 		return entityHandlingId;
 	}
 
-	public void setEntityHandlingId(Long entityHandlingId) {
+	public void setEntityHandlingId(UUID entityHandlingId) {
 		this.entityHandlingId = entityHandlingId;
 	}
 

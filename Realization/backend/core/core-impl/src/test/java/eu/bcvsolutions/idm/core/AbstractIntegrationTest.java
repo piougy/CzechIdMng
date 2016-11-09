@@ -35,8 +35,8 @@ import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 @SpringApplicationConfiguration(classes = IdmApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-@ActiveProfiles("dev")
-@Rollback(false)
+@ActiveProfiles("test")
+@Rollback(true)
 public abstract class AbstractIntegrationTest {
 	
 	@Autowired

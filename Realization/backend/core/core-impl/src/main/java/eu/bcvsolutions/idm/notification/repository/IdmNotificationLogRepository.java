@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.TemporalType;
 
@@ -94,7 +95,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmNotificationLog findOne(@Param("id") Long id);
+	IdmNotificationLog findOne(@Param("id") UUID id);
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

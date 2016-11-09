@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
@@ -15,6 +16,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
+/**
+ * Identity roles
+ * 
+ * @author Radek Tomiška
+ */
+@Transactional(readOnly = true)
 @RepositoryRestResource(//
 		collectionResourceRel = "identityRoles", //
 		path = "identityRoles", //
@@ -36,4 +43,13 @@ public interface IdmIdentityRoleRepository extends BaseRepository<IdmIdentityRol
 	Page<IdmIdentityRole> find(QuickFilter filter, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
+	
+	/**
+	 * Removes all roles of given identity
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	@Transactional
+	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 }

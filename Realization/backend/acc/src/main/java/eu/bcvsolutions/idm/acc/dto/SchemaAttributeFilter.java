@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 
 /**
@@ -10,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
  */
 public class SchemaAttributeFilter implements BaseFilter {
 	
-	private Long objectClassId;
+	private UUID objectClassId;
 	
 	private String name;
 
@@ -22,11 +24,11 @@ public class SchemaAttributeFilter implements BaseFilter {
 		this.name = name;
 	}
 
-	public Long getObjectClassId() {
+	public UUID getObjectClassId() {
 		return objectClassId;
 	}
 
-	public void setObjectClassId(Long objectClassId) {
+	public void setObjectClassId(UUID objectClassId) {
 		this.objectClassId = objectClassId;
 	}
 

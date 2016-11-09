@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 
 /**
@@ -10,22 +12,22 @@ import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 
 public class TreeNodeFilter extends QuickFilter {
 	
-	private Long treeType;
+	private UUID treeTypeId;
 	
-	private Long treeNode;
+	private UUID treeNodeId;
 
-	public Long getTreeType() {
-		return treeType;
+	public UUID getTreeTypeId() {
+		return treeTypeId;
 	}
 
-	public void setTreeType(Long treeType) {
-		this.treeType = treeType;
+	public void setTreeTypeId(UUID treeTypeId) {
+		this.treeTypeId = treeTypeId;
 	}
 
-	public Long getTreeNode() {
-		return treeNode;
+	public UUID getTreeNodeId() {
+		return treeNodeId;
 	}
 
-	public void setTreeNode(Long treeNode) {
-		this.treeNode = treeNode;
+	public void setTreeNodeId(UUID treeNodeId) {
+		this.treeNodeId = treeNodeId;
 	}}

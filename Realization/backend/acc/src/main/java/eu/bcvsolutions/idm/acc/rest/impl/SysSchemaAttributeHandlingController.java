@@ -20,11 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeHandlingService;
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -101,7 +99,7 @@ public class SysSchemaAttributeHandlingController extends AbstractReadWriteEntit
 	@Override
 	protected SchemaAttributeHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
-		filter.setEntityHandlingId(convertLongParameter(parameters, "entityHandlingId"));
+		filter.setEntityHandlingId(convertUuidParameter(parameters, "entityHandlingId"));
 		filter.setIdmPropertyName(convertStringParameter(parameters, "idmPropertyName"));
 		return filter;
 	}

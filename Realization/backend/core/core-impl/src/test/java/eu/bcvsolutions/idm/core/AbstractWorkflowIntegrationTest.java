@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
  * @author svandav
  *
  */
-public abstract class AbstractWorkflowTest extends AbstractIntegrationTest {
+public abstract class AbstractWorkflowIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
 	@Rule

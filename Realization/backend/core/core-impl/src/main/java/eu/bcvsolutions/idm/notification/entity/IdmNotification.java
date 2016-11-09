@@ -7,8 +7,10 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -19,9 +21,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -47,7 +46,9 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	private IdmMessage message;
 	
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "sender_id", referencedColumnName = "id")
+	@JoinColumn(name = "sender_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity sender;
 	
 	@JsonManagedReference
@@ -66,8 +67,9 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	
 	@JsonIgnore
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "parent_notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmNotification parent;
 	
 	public void setSender(IdmIdentity sender) {

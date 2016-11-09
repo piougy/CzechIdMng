@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,12 +21,20 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> extends BaseEntityService<E> {
 
 	/**
-	 * Returns entity by given id. Returns null, if entity is not exists
+	 * Returns entity by given id. Returns null, if entity is not exists.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	E get(Long id);
+	E get(UUID id);
+	
+	/**
+	 * Returns entity by given id (uuid as string). Returns null, if entity is not exists.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	E get(String id);
 	
 	/**
 	 * Returns page of entities

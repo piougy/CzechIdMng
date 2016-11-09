@@ -56,7 +56,7 @@ class Login extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <div >
+        <div>
           <form onSubmit={this.handleSubmit.bind(this)}>
             <Basic.Panel className="login-container" showLoading={userContext.showLoading}>
               <Basic.PanelHeader text={this.i18n('header')}/>

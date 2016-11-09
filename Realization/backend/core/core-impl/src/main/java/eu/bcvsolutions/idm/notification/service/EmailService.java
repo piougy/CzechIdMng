@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.notification.service;
 
 import java.util.Date;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
@@ -37,7 +38,7 @@ public interface EmailService extends NotificationService {
 	 * @param emailLogId
 	 * @param sent
 	 */
-	void setEmailSent(Long emailLogId, Date sent);
+	void setEmailSent(UUID emailLogId, Date sent);
 	
 	/**
 	 * Persists sent log to given emailLog
@@ -45,6 +46,6 @@ public interface EmailService extends NotificationService {
 	 * @param emailLogId
 	 * @param sentLog
 	 */
-	void setEmailSentLog(Long emailLogId, String sentLog);
+	void setEmailSentLog(UUID emailLogId, String sentLog);
 
 }

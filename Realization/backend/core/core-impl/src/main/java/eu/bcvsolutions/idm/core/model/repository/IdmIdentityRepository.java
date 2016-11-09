@@ -73,7 +73,7 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, Ident
 	        + " )")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	
-	@Transactional(timeout = 5)
+	@Transactional(timeout = 5, readOnly = true)
 	@Query(value = "SELECT e FROM IdmIdentity e "
 			+ "JOIN e.roles roles "
 			+ "WHERE "

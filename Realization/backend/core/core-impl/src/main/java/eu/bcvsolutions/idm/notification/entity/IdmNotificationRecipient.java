@@ -3,7 +3,10 @@ package eu.bcvsolutions.idm.notification.entity;
 import java.text.MessageFormat;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -17,7 +20,10 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 @Entity
-@Table(name = "idm_notification_recipient")
+@Table(name = "idm_notification_recipient", indexes = {
+		@Index(name = "idx_idm_notification_rec_not", columnList = "notification_id"),
+		@Index(name = "idx_idm_notification_rec_idnt", columnList = "identity_recipient_id")
+		})
 public class IdmNotificationRecipient extends AbstractEntity {
 
 	private static final long serialVersionUID = 6041589660726734115L;
@@ -25,11 +31,15 @@ public class IdmNotificationRecipient extends AbstractEntity {
 	@NotNull
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "notification_id", referencedColumnName = "id")
+	@JoinColumn(name = "notification_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmNotification notification;
 	
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "identity_recipient_id", referencedColumnName = "id")
+	@JoinColumn(name = "identity_recipient_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identityRecipient;
 	
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)

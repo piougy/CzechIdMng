@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
  * @author Radek Tomiška 
  *
  */
-public class DefaultModuleServiceTest extends AbstractUnitTest {
+public class DefaultModuleServiceUnitTest extends AbstractUnitTest {
 
 	private static final List<List<GroupPermission>> ALL_PERMISSIONS;
 

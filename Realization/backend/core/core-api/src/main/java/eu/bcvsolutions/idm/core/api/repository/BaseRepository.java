@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -18,11 +20,18 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  *
  */
 @NoRepositoryBean
-public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> extends PagingAndSortingRepository<E, Long> {
+public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> extends PagingAndSortingRepository<E, UUID> {
 
 	@Override
-	@Transactional(timeout = 10)
+	@Transactional(timeout = 10, readOnly = true)
 	Iterable<E> findAll();
 
+	/**
+	 * Quick filter
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
 	Page<E> find(F filter, Pageable pageable);
 }

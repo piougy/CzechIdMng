@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.activiti.engine.runtime.ProcessInstance;
 
@@ -56,7 +57,7 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @param roleId
 	 * @return String with all found usernames separate with comma
 	 */
-	String findAllByRoleAsString(Long roleId);
+	String findAllByRoleAsString(UUID roleId);
 	
 	/**
 	 * Find all identities by assigned role
@@ -74,7 +75,7 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @param id
 	 * @return String - usernames separate by commas
 	 */
-	String findAllManagersAsString(Long identityId);
+	String findAllManagersAsString(UUID identityId);
 
 	/**
 	 * Method finds all identity's managers by identity contract (guarantee or by assigned tree structure).

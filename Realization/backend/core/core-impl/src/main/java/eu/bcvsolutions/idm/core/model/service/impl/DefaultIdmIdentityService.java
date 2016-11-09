@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.runtime.ProcessInstance;
@@ -23,7 +24,9 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -46,6 +49,12 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	@Autowired
 	private SecurityService securityService;
 	
+	@Autowired
+	private IdmIdentityRoleRepository identityRoleRepository;
+	
+	@Autowired
+	private IdmIdentityContractRepository identityContractRepository;
+	
 	@Override
 	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
 		return identityRepository;
@@ -57,7 +66,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	@Override
 	public ProcessInstance changePermissions(IdmIdentity identity) {
 		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW,
-				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), null);
+				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId().toString(), null);
 	}
 
 	@Override
@@ -101,7 +110,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllByRoleAsString(Long roleId) {
+	public String findAllByRoleAsString(UUID roleId) {
 		IdmRole role = roleRepository.findOne(roleId);
 		Assert.notNull(role, "Role is required. Role by id [" + roleId + "] not foud.");
 		
@@ -137,7 +146,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllManagersAsString(Long identityId) {
+	public String findAllManagersAsString(UUID identityId) {
 		IdmIdentity identity = this.get(identityId);
 		Assert.notNull(identity, "Identity is required. Identity by id [" + identityId + "] not found.");
 		
@@ -205,5 +214,16 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	private IdmRole getAdminRole() {
 		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmIdentity identity) {
+		// clear referenced roles
+		identityRoleRepository.deleteByIdentity(identity);
+		// contracts
+		identityContractRepository.deleteByIdentity(identity);
+		//
+		super.delete(identity);
 	}
 }

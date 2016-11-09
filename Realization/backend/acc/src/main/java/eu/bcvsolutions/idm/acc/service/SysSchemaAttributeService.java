@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.service;
 
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**

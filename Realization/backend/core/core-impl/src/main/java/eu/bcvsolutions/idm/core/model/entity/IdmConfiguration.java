@@ -1,10 +1,13 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -19,13 +22,14 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
+@XmlRootElement
 @Table(name = "idm_configuration", indexes = { @Index(name = "ux_configuration_name", columnList = "name", unique = true) })
 public class IdmConfiguration extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -8377477231407116537L;
 
 	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String name;
 	
@@ -38,7 +42,7 @@ public class IdmConfiguration extends AbstractEntity implements IdentifiableByNa
 	public IdmConfiguration() {
 	}
 	
-	public IdmConfiguration(Long id) {
+	public IdmConfiguration(UUID id) {
 		super(id);
 	}
 	

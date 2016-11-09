@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import uuid from 'uuid';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager } from '../../redux';
-import uuid from 'uuid';
 
 const uiKey = 'schema-object-classes';
 const uiKeyAttributes = 'schema-attributes';
@@ -115,7 +115,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : '-1');
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : uuid.v4());
     const isNew = this._getIsNew();
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
     return (

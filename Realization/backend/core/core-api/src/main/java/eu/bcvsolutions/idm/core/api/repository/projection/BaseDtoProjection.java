@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.repository.projection;
 
+import java.util.UUID;
+
 /**
  * Base projection for any dto
  * 
@@ -7,5 +9,5 @@ package eu.bcvsolutions.idm.core.api.repository.projection;
  */
 public interface BaseDtoProjection {
 
-	Long getId();
+	UUID getId();
 }

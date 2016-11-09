@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
 /**
  * Application configuration
+ * 
+ * TODO: move security to rest endpoint
  * 
  * @author Radek Tomiška 
  *
@@ -109,7 +112,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 */
 	@Override
 	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	IdmConfiguration findOne(@Param("id") Long id);
+	IdmConfiguration findOne(@Param("id") UUID id);
 	
 	
 	@Override
@@ -119,7 +122,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
-	void delete(@Param("id") Long id);
+	void delete(@Param("id") UUID id);
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and #entity?.secured == false)")

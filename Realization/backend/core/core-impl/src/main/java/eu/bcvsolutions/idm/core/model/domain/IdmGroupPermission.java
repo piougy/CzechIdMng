@@ -61,7 +61,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	}
 	
 	@Override
-	public List<BasePermission> getPermissions() {		
+	public List<BasePermission> getPermissions() {
 		return permissions;
 	}
 	

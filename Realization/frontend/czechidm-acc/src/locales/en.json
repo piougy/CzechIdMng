@@ -1,0 +1,155 @@
+{
+  "module": {
+    "name": "Account managment",
+    "author": "BCV solutions s.r.o."
+  },
+  "navigation" : {
+    "menu" : {
+    }
+  },
+  "entity": {
+
+  },
+  "content": {
+    "dashboard": {
+    },
+    "systems": {
+      "header": "Napojené systémy",
+      "title": "$t(acc:content.systems.header)"
+    },
+    "system": {
+      "detail" : {
+        "header": "Napojený systém",
+        "title": "$t(acc:content.system.detail.header)",
+        "edit": {
+          "title": "Detail systému",
+          "header": "{{name}} <small>detail napojeného systému</small>"
+        },
+        "create": {
+          "header": "Nový napojený systém"
+        },
+        "save": {
+          "success": "Systém [{{name}}] byl úspěšně uložen"
+        },
+        "basic": "Základní informace"
+      },
+      "entities": {
+        "header": "Entity na koncovém systému <small>uložené v idm</small>",
+        "title": "Entity na systému",
+        "edit": {
+          "header": "Detail entity na koncovém systému"
+        },
+        "create": {
+          "header": "Nová entita na koncovém systému"
+        },
+        "save": {
+          "success": "Entita [{{name}}] na systému byla úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      },
+      "accounts": {
+        "header": "Účty na koncovém systému <small>uložené v idm</small>",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    },
+    "role": {
+      "systems": {
+        "header": "$t(acc:content.systems.header) <small>$t(acc:entity.RoleSystem._type)</small>",
+        "title": "$t(acc:content.systems.header)",
+        "edit": {
+          "header": "Detail napojeného systému pro roli"
+        },
+        "create": {
+          "header": "Nový napojený systém pro roli"
+        },
+        "save": {
+          "success": "Systém [{{system}}] pro roli {{role}} byl úspěšně uložen"
+        }
+      }
+    },
+    "identity": {
+      "accounts": {
+        "header": "Účty na koncovém systému",
+        "title": "Účty na systému",
+        "edit": {
+          "header": "Detail účtu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový účet na koncovém systému"
+        },
+        "save": {
+          "success": "Účet na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "uid": {
+            "label": "Identifikátor",
+            "placeholder": "$t(acc:entity.SystemEntity.uid)"
+          }
+        }
+      }
+    }
+  },
+  "entity": {
+    "System": {
+      "_type": "Koncový systém",
+      "name": "Název systému",
+      "disabled": "Neaktivní",
+      "description": "Popis",
+      "virtual": "Virtuální"
+    },
+    "RoleSystem": {
+      "_type": "Role přiřazuje účet na systému",
+      "type": "Typ přiřazení",
+      "role": "Role",
+      "system": "Systém"
+    },
+    "SystemEntity": {
+      "_type": "Entita na systému",
+      "entityType": "Typ entity",
+      "uid": "Identifikátor na systému",
+      "system": "Napojený systém"
+    },
+    "Account": {
+      "_type": "Účet na koncovém systému",
+      "accountType": "Typ účtu",
+      "system": "Systém",
+      "systemEntity": "Navázané entita na systému",
+      "uid": "Identifikátor účtu"
+    },
+    "IdentityAccount": {
+      "_type": "Účet identity na koncovém systému",
+      "ownership": "Vlastní účet",
+      "role": "Přiřazen dle role"
+    }
+  },
+  "enums" : {
+    "SystemEntityTypeEnum": {
+      "IDENTITY": "Identita",
+      "GROUP": "Skupina"
+    },
+    "AccountTypeEnum": {
+      "PERSONAL": "Osobní",
+      "TECHNICAL": "Systémový"
+    }
+  }
+}

@@ -149,7 +149,8 @@ class RoleSystems extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="type"
                   label={this.i18n('acc:entity.RoleSystem.type')}
-                  required/>
+                  required
+                  max={255}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

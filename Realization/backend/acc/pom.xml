@@ -26,15 +26,15 @@
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
-			            <manifestEntries>
-			              <Specification-Title>${project.description}</Specification-Title>
-			            </manifestEntries>
+						<manifestEntries>
+							<Specification-Title>${project.description}</Specification-Title>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

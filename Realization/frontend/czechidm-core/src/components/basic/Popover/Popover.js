@@ -80,27 +80,27 @@ BasicPopover.propTypes = {
    */
   level: PropTypes.oneOf(['default', 'warning']),
   /**
-   * Tooltip position
+   * Popover position
    */
   placement: PropTypes.oneOf(['top', 'bottom', 'right', 'left']),
   /**
-   * tooltip value / text
+   * Popover value / text
    */
   title: PropTypes.string,
   /**
-   * tooltip value / text
+   * Popover value / text
    */
   value: PropTypes.string,
   /**
-   * tooltip value / text - alias to value
+   * Popover value / text - alias to value
    */
   text: PropTypes.string,
   /**
-   * Specify which action or actions trigger tooltip visibility
+   * Specify which action or actions trigger popover visibility
    */
   trigger: PropTypes.arrayOf(PropTypes.oneOf(['click', 'hover', 'focus'])),
   /**
-   * A millisecond delay amount before showing the Tooltip once triggered.
+   * A millisecond delay amount before showing the Popover once triggered.
    */
   delayShow: PropTypes.number
 };

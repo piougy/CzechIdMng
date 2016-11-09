@@ -7,11 +7,12 @@ import RoleTypeEnum from '../../enums/RoleTypeEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
-import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager } from '../../redux';
+import { RoleManager, WorkflowProcessDefinitionManager, SecurityManager, IdentityManager, RoleCatalogueManager } from '../../redux';
 
 const workflowProcessDefinitionManager = new WorkflowProcessDefinitionManager();
 const roleManager = new RoleManager();
 const identityManger = new IdentityManager();
+const roleCatalogueManager = new RoleCatalogueManager();
 
 class RoleDetail extends Basic.AbstractContent {
 
@@ -49,6 +50,9 @@ class RoleDetail extends Basic.AbstractContent {
     copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
     copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
     copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
+    if (copyOfEntity._embedded !== undefined && copyOfEntity._embedded.roleCatalogue !== undefined) {
+      copyOfEntity.roleCatalogue = copyOfEntity._embedded.roleCatalogue.id;
+    }
     return copyOfEntity;
   }
 
@@ -88,6 +92,10 @@ class RoleDetail extends Basic.AbstractContent {
           guarantee: identityManger.getSelfLink(guaranteeId)
         };
       });
+    }
+    // transform object roleCatalogue to self link
+    if (entity.roleCatalogue) {
+      entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
     }
     // delete superior roles - we dont want to save them (they are ignored on BE anyway)
     delete entity.superiorRoles;
@@ -135,13 +143,19 @@ class RoleDetail extends Basic.AbstractContent {
                       <Basic.TextField
                         ref="name"
                         label={this.i18n('entity.Role.name')}
-                        required/>
+                        required
+                        min={0}
+                        max={255}/>
                       <Basic.EnumSelectBox
                         ref="roleType"
                         label={this.i18n('entity.Role.roleType')}
                         enum={RoleTypeEnum}
                         required
                         readOnly={!Utils.Entity.isNew(entity)}/>
+                      <Basic.SelectBox
+                          ref="roleCatalogue"
+                          label={this.i18n('entity.Role.roleCatalogue.name')}
+                          manager={roleCatalogueManager}/>
                       <Basic.SelectBox
                         ref="superiorRoles"
                         label={this.i18n('entity.Role.superiorRoles')}
@@ -161,7 +175,8 @@ class RoleDetail extends Basic.AbstractContent {
                           manager={identityManger}/>
                       <Basic.TextArea
                         ref="description"
-                        label={this.i18n('entity.Role.description')}/>
+                        label={this.i18n('entity.Role.description')}
+                        max={255}/>
                       <Basic.Checkbox
                         ref="disabled"
                         label={this.i18n('entity.Role.disabled')}/>

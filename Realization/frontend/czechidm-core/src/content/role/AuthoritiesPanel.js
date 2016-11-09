@@ -51,7 +51,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
       availableAuthorities.forEach(authorityGroup => {
         let permissions = new Immutable.OrderedMap();
         authorityGroup.permissions.forEach(permission => {
-          permissions = permissions.set(permission, _.includes(authorityNames, `${authorityGroup.name}_${permission}`));
+          permissions = permissions.set(permission.name, _.includes(authorityNames, `${authorityGroup.name}_${permission.name}`));
         });
         filledAuthorities = filledAuthorities.set(authorityGroup.name, permissions);
       });
@@ -118,6 +118,22 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
     return selectedAuthorities;
   }
 
+  /**
+   * Resolve authority group localization by authority module
+   * TODO: redesign authoritiy panel to structure: MODULE -> GROUP -> BASE
+   * TODO: permission localization is not supported not (depends on structure)
+   *
+   * @param  {string} authorityGroupName
+   * @return {string}
+   */
+  _authorityGroupI18n(authorityGroupName) {
+    const { availableAuthorities } = this.props;
+    const authorityGroup = availableAuthorities.find(a => {
+      return a.name === authorityGroupName;
+    });
+    return this.i18n(`${authorityGroup.module}:permission.group.${authorityGroup.name}`, { defaultValue: authorityGroupName});
+  }
+
   render() {
     const { _showLoading, showLoading, disabled, rendered } = this.props;
     const { openedAuthorities, filledAuthorities } = this.state;
@@ -155,7 +171,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                         <Basic.Icon value="fa:minus-square-o" rendered={ this.isSomeAuthorityGroupSelected(authorityGroupName) && !this.isAllAuthorityGroupSelected(authorityGroupName) }/>
                         <Basic.Icon value="fa:square-o" rendered={ !this.isSomeAuthorityGroupSelected(authorityGroupName) }/>
                         {' '}
-                        { authorityGroupName }
+                        { this._authorityGroupI18n(authorityGroupName)}
                       </Basic.Button>
                     </div>
                     <div className="pull-right">
@@ -184,7 +200,7 @@ export class AuthoritiesPanel extends Basic.AbstractContextComponent {
                                   style={{ marginBottom: 0 }}
                                   checked={selected}
                                   disabled={disabled}/>
-                                  {permission}
+                                { this.i18n('permission.base.' + permission)}
                               </label>
                             </div>
                           );

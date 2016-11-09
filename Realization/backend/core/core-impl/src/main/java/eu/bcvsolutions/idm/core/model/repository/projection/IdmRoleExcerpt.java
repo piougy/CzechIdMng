@@ -5,6 +5,7 @@ import org.springframework.data.rest.core.config.Projection;
 import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 /**
  * Trimmed role - projection is used in collections (search etc.)
@@ -26,4 +27,6 @@ public interface IdmRoleExcerpt extends AbstractDtoProjection {
 	IdmRoleType getRoleType();
 	
 	String getDescription();
+	
+	IdmRoleCatalogue getRoleCatalogue();
 }

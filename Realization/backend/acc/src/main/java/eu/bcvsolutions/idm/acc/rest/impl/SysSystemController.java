@@ -41,80 +41,80 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
-	
+
 	@Autowired
 	private SysSystemLookup systemLookup;
-	
+
 	@Autowired
 	public SysSystemController(EntityLookupService entityLookupService, SysSystemService systemService) {
 		super(entityLookupService, systemService);
 	}
-	
+
 	@Override
 	protected EntityLookup<SysSystem> getEntityLookup() {
 		return systemLookup;
 	}
-	
+
 	@Override
 	@RequestMapping(method = RequestMethod.GET)
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
-	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
+			+ IdmGroupPermission.ROLE_READ + "')")
+	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
-	
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
-	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
-	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
-			@PageableDefault Pageable pageable, 			
-			PersistentEntityResourceAssembler assembler) {
+
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
+			+ IdmGroupPermission.ROLE_READ + "')")
+	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
+	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
+			@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
 		return super.find(parameters, pageable, assembler);
 	}
-	
+
 	@Override
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
+			+ IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
-	
+
 	@Override
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
-	
+
 	@Override
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
-			@PathVariable @NotNull String backendId,
-			HttpServletRequest nativeRequest,
+	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
 	}
-	
+
 	@Override
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
-			throws HttpMessageNotReadableException {
+	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
-	
+
 	@Override
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
-	
+
 	@Override
 	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
 		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
+		filter.setText((String) parameters.toSingleValueMap().get("text"));
 		return filter;
 	}
 }

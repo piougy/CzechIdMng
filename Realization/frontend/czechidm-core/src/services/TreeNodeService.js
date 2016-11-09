@@ -10,7 +10,7 @@ class TreeNodeService extends AbstractService {
   }
 
   getApiPath() {
-    return '/tree/nodes';
+    return '/treeNodes';
   }
 
   getNiceLabel(entity) {

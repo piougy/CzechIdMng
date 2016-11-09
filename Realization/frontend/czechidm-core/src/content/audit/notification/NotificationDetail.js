@@ -142,15 +142,15 @@ class NotificationDetail extends Basic.AbstractContent {
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} />
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} />
+          <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} max={255} />
+          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} max={255} />
 
           <Basic.LabelWrapper hidden={isNew}
             label={this.i18n('entity.Notification.sent')}>
             <NotificationSentState notification={notification}/>
           </Basic.LabelWrapper>
 
-          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew}/>
+          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew} max={2000} />
         </Basic.AbstractForm>
         {
           notification.relatedNotifications

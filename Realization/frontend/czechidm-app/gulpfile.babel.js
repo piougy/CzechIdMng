@@ -335,15 +335,15 @@ gulp.task('themes', (cb) => {
   if (config.theme) {
     const themeFullPath = path.join(__dirname, '/node_modules/', config.theme);
     util.log('Theme will load form path:', themeFullPath);
-    return gulp.src(path.join(themeFullPath, '/images/**'))
-    .pipe(gulp.dest(paths.distImg))
+    gulp.src(path.join(themeFullPath, '/images/**'))
+    .pipe(gulp.dest(paths.distImg));
     // Find theme styles and add them to srcLess array
-    .pipe(gulp.src(path.join(themeFullPath, '/css/*'))
-    .pipe(flatmap(function loadModule(stream, file) {
+    return gulp.src(path.join(themeFullPath, '/css/*.less'))
+    .pipe(flatmap(function iterateFiles(stream, file) {
       util.log('Add theme style from:', file.path);
       paths.srcIncludedLess.push(file.path);
       return stream;
-    })));
+    }));
   }
   cb();
 });

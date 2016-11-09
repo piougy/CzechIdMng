@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
  */
 @RepositoryRestResource(
 	collectionResourceRel = "treenodes",
-	path = "tree/nodes",
+	path = "treeNodes",
 	itemResourceRel = "treenode",
 	collectionResourceDescription = @Description("Tree nodes"),
 	itemResourceDescription = @Description("Tree nodes"),
@@ -32,11 +32,16 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
 public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode, TreeNodeFilter> {
 	
 	@Override
-	@Query(value = "select e from IdmTreeNode e" +
-	        " where" +
-	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" + 
-	        "and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})" +
-	        " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})")
+	@Query(value = "select e from IdmTreeNode e"
+	        + " where"
+			// name and code
+	        + " ("
+	        	+ " ?#{[0].text} is null"
+	        	+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        	+ " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+        	+ " )"
+	        + " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
+	        + " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})")
 	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
 
 	/**

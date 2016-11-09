@@ -3,6 +3,46 @@ module.exports = {
   component: 'div',
   childRoutes: [
     {
+      path: 'schema-object-classes/:entityId/detail',
+      component: require('./src/content/schema/SchemaObjectClass'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'schema-object-classes/:entityId/new',
+      component: require('./src/content/schema/SchemaObjectClass'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+    },
+    {
+      path: 'system-entities-handling/:entityId/detail',
+      component: require('./src/content/schema/SystemEntityHandling'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'system-entities-handling/:entityId/new',
+      component: require('./src/content/schema/SystemEntityHandling'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+    },
+    {
+      path: 'schema-attributes/:entityId/detail',
+      component: require('./src/content/schema/SchemaAttribute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'schema-attributes/:entityId/new',
+      component: require('./src/content/schema/SchemaAttribute'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+    },
+    {
+      path: 'schema-attributes-handling/:entityId/detail',
+      component: require('./src/content/schema/SchemaAttributeHandling'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+    },
+    {
+      path: 'schema-attributes-handling/:entityId/new',
+      component: require('./src/content/schema/SchemaAttributeHandling'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+    },
+    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
@@ -20,6 +60,16 @@ module.exports = {
         {
           path: 'entities',
           component: require('./src/content/system/SystemEntities'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'object-classes',
+          component: require('./src/content/system/SystemObjectClasses'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'entities-handling',
+          component: require('./src/content/system/SystemEntitiesHandling'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {

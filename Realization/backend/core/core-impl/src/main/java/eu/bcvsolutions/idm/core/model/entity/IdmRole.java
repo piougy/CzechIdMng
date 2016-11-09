@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -36,7 +38,9 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
  *
  */
 @Entity
-@Table(name = "idm_role", indexes = { @Index(name = "ux_idm_role_name", columnList = "name", unique = true) })
+@Table(name = "idm_role", indexes = { 
+		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
+		@Index(name = "idx_idm_role_catalogue", columnList = "role_catalogue_id")})
 public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -94,6 +98,12 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleGuarantee> guarantees;
 	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private IdmRoleCatalogue roleCatalogue;
+	
 	public IdmRole() {
 	}
 	
@@ -101,6 +111,14 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 		super(id);
 	}
 	
+	public IdmRoleCatalogue getRoleCatalogue() {
+		return roleCatalogue;
+	}
+
+	public void setRoleCatalogue(IdmRoleCatalogue roleCatalogue) {
+		this.roleCatalogue = roleCatalogue;
+	}
+
 	@Override
 	public String getName() {
 		return name;

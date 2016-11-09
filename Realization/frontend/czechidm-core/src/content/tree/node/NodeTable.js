@@ -318,8 +318,8 @@ export class NodeTable extends Basic.AbstractContent {
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.TreeNode.name')}
-                        label={this.i18n('entity.TreeNode.name')}/>
+                        placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }
+                        label={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

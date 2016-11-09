@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.domain;
 import java.util.Arrays;
 import java.util.List;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
@@ -43,4 +44,9 @@ public enum AccGroupPermission implements GroupPermission {
 	public String getName() {
 		return name();
 	}	
+	
+	@Override
+	public String getModule() {
+		return AccModuleDescriptor.MODULE_ID;
+	}
 }

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.repository.lookup;
+package eu.bcvsolutions.idm.acc.rest.lookup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

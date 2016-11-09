@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.notification.service.EmailService;
  * @author Radek Tomiška 
  *
  */
-public class BasicEmailTest extends AbstractWorkflowTest {
+public class BasicEmailTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testEmailer";
 	private static final String EMAIL_TEXT = "wf_test";

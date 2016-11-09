@@ -66,6 +66,8 @@
     "send": "Odeslat",
     "sending": "Odesílám ...",
     "save": "Uložit",
+    "saveAndClose": "Uložit a zavřít",
+    "saveAndContinue": "Uložit a pokračovat",
     "saving": "Ukládám ...",
     "yes": "Ano",
     "set": "Nastavit"
@@ -304,6 +306,26 @@
       "goToProfil": "Přejít na detail profilu"
     }
   },
+  "permission": {
+    "base" : {
+      "ADMIN": "Administrace",
+      "READ": "Čtení",
+      "WRITE": "Zápis",
+      "DELETE": "Mazání"
+    },
+    "group": {
+      "APP": "Správa aplikace",
+      "AUDIT": "Audit",
+      "CONFIGURATION": "Konfigurace aplikace",
+      "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
+      "IDENTITY": "Uživatelé",
+      "MODULE": "Moduly",
+      "NOTIFICATION": "Notifikace",
+      "ROLE": "Role",
+      "TREENODE": "Prvky struktur",
+      "TREETYPE": "Typy struktur"
+    }
+  },
   "content": {
     "error": {
       "401": {
@@ -326,26 +348,6 @@
         "title": "503",
         "description": "Služba není momentálně dostupná.",
         "note": "Zkuste to prosím později."
-      }
-    },
-    "permission": {
-      "base" : {
-        "ADMIN": "správa",
-        "READ": "čtení",
-        "WRITE": "zápis",
-        "DELETE": "mazání"
-      },
-      "group": {
-        "APP": "Správa aplikace",
-        "AUDIT": "Audit",
-        "CONFIGURATION": "Konfigurace aplikace",
-        "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
-        "IDENTITY": "Uživatelé",
-        "MODULE": "Moduly",
-        "NOTIFICATION": "Notifikace",
-        "ROLE": "Role",
-        "TREENODE": "Prvky struktur",
-        "TREETYPE": "Typy struktur"
       }
     },
     "about": {

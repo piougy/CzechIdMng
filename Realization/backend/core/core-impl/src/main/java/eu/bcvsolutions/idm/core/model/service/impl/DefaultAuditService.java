@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -40,7 +41,7 @@ public class DefaultAuditService implements AuditService {
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException {	
+	public List<Revision<Integer, ? extends BaseEntity>> findRevisions(Class<?> classType, UUID entityId) throws RevisionDoesNotExistException {	
 		List<Revision<Integer, ? extends BaseEntity>> result = new ArrayList<>();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		
@@ -61,7 +62,7 @@ public class DefaultAuditService implements AuditService {
 	@Override
 	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, Long entityId) throws RevisionDoesNotExistException  {
+	public Revision<Integer, ? extends BaseEntity> findRevision(Class<?> classType, Integer revisionId, UUID entityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
 		
 		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, revisionId);

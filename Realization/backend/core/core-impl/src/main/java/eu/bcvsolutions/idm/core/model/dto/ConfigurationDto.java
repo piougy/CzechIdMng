@@ -41,7 +41,9 @@ public class ConfigurationDto {
 
 	public void setValue(String value) {
 		this.value = value;
-	}public void setSecured(boolean secured) {
+	}
+	
+	public void setSecured(boolean secured) {
 		this.secured = secured;
 	}
 	

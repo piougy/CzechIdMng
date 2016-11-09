@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -112,8 +113,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		// TODO: read events
 		if(getEntityLookup() == null) {
 			try {
-				return getEntityService().get(Long.valueOf(backendId));
-			} catch (NumberFormatException ex) {
+				return getEntityService().get(UUID.fromString(backendId));
+			} catch (IllegalArgumentException ex) {
 				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 			}
 		}		
@@ -228,6 +229,25 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			try {
 				return Long.valueOf(valueAsString);
 			} catch (NumberFormatException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+			}		
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected UUID convertUuidParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if(StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return UUID.fromString(valueAsString);
+			} catch (IllegalArgumentException ex) {
 				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
 			}		
 		}

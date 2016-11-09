@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,7 +43,7 @@ public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, E
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmConsoleLog findOne(@Param("id") Long id);
+	IdmConsoleLog findOne(@Param("id") UUID id);
 	
 	@Override
 	@RestResource(exported = false)
@@ -49,7 +51,7 @@ public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, E
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

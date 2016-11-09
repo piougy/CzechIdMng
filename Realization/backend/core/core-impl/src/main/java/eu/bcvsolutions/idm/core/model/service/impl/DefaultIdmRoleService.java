@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -45,7 +46,8 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 		List<IdmRole> idmRoles = new ArrayList<>();
 		String[] rolesArray = roles.split(",");
 		for (String id : rolesArray) {
-			idmRoles.add(get(Long.parseLong(id)));
+			// TODO: try - catch ...
+			idmRoles.add(get(UUID.fromString(id)));
 		}
 		return idmRoles;
 	}

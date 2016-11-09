@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration, QuickFilter> {
 	
 	private final IdmConfigurationService configurationService;

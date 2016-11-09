@@ -169,6 +169,10 @@
             "placeholder": "$t(acc:entity.SystemEntity.uid)"
           }
         }
+      },
+      "connector": {
+        "header": "Nastavení konektoru",
+        "title": "Konektor"
       }
     },
     "role": {
@@ -286,6 +290,12 @@
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
+    }
+  },
+  "permission": {
+    "group": {
+      "ACCOUNT": "Účty na koncových systémech",
+      "SYSTEM": "Napojené systémy"
     }
   }
 }

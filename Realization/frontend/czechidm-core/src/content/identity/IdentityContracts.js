@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import uuid from 'uuid';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -26,7 +27,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: {}
       },
       treeTypeId: null,
-      forceSearchParameters: new SearchParameters().setFilter('treeType', -1)
+      forceSearchParameters: new SearchParameters().setFilter('treeType', uuid.v4())
     };
   }
 
@@ -59,7 +60,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: entityFormData
       },
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || uuid.v4())
     }, () => {
       if (this.refs.treeTypeId) {
         this.refs.treeTypeId.focus();
@@ -74,7 +75,7 @@ class IdentityContracts extends Basic.AbstractContent {
         show: false
       },
       treeTypeId: null,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', uuid.v4())
     });
   }
 
@@ -147,7 +148,7 @@ class IdentityContracts extends Basic.AbstractContent {
     const treeTypeId = treeType ? treeType.id : null;
     this.setState({
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || uuid.v4())
     }, () => {
       // focus automatically - maybe will be usefull?
       // this.refs.workingPosition.focus();

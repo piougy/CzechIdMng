@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -26,15 +27,15 @@ public final class RepositoryUtils {
 	 * @param entities
 	 * @return
 	 */
-	public static List<Long> queryEntityIds(List<BaseEntity> entities) {
-		List<Long> entityIds = new ArrayList<>();
+	public static List<UUID> queryEntityIds(List<BaseEntity> entities) {
+		List<UUID> entityIds = new ArrayList<>();
 		if (entities != null && !entities.isEmpty()) {
 			for(BaseEntity entity : entities) {
 				entityIds.add(entity.getId());
 			}
 		} else {
 			// add non-existent long id 
-			entityIds.add(-1L);
+			entityIds.add(UUID.randomUUID());
 		}
 		return entityIds;
 	}

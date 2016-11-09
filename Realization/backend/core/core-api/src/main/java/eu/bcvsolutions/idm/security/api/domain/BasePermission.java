@@ -19,4 +19,11 @@ public interface BasePermission {
 	 * @return
 	 */
 	String getName();
+	
+	/**
+	 * Permission is defined in module
+	 * 
+	 * @return
+	 */
+	String getModule();
 }

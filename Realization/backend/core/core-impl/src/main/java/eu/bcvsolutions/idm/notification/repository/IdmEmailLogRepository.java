@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.TemporalType;
 
@@ -93,7 +94,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmEmailLog findOne(@Param("id") Long id);
+	IdmEmailLog findOne(@Param("id") UUID id);
 	
 	/**
 	 * Returns email log by given id - for internal purpose.
@@ -105,7 +106,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	@Query(value = "select e from #{#entityName} e" +
 	        " where "
 	        + "e.id = :id")
-	IdmEmailLog get(@Param("id") Long id);
+	IdmEmailLog get(@Param("id") UUID id);
 	
 	@Override
 	@RestResource(exported = false)
@@ -113,7 +114,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

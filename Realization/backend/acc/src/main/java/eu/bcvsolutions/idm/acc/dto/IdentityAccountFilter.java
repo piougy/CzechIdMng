@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -11,16 +13,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  */
 public class IdentityAccountFilter implements BaseFilter {
 
-	private Long accountId;
+	private UUID accountId;
 	private IdmIdentity identity;
-	private Long roleId;
-	private Long systemId;
+	private UUID roleId;
+	private UUID systemId;
 
-	public Long getAccountId() {
+	public UUID getAccountId() {
 		return accountId;
 	}
 
-	public void setAccountId(Long accountId) {
+	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
 	}
 
@@ -32,19 +34,19 @@ public class IdentityAccountFilter implements BaseFilter {
 		return identity;
 	}
 
-	public Long getRoleId() {
+	public UUID getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Long roleId) {
+	public void setRoleId(UUID roleId) {
 		this.roleId = roleId;
 	}
 	
-	public void setSystemId(Long systemId) {
+	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
 	
-	public Long getSystemId() {
+	public UUID getSystemId() {
 		return systemId;
 	}
 }

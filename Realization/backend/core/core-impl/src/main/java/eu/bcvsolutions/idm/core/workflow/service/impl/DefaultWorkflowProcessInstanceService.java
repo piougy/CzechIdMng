@@ -67,7 +67,7 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	
 	@Override
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
-			Long objectIdentifier, Map<String, Object> variables) {
+			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
 
 		IdmIdentity applicantIdentity = null;

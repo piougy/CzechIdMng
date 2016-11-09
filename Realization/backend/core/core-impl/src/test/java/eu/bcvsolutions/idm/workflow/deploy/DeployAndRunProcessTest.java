@@ -7,14 +7,14 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.Deployment;
 import org.junit.Test;
 
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 
 /**
  * Test deploy and run process with groovy script
  * @author svandav
  *
  */
-public class DeployAndRunProcessTest extends AbstractWorkflowTest {
+public class DeployAndRunProcessTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testDeployAndRun";
 

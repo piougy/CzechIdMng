@@ -2,11 +2,16 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -16,8 +21,14 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityRoleService;
 
+/**
+ * Operations with identity roles - usable in wf
+ * 
+ * @author svanda
+ *
+ */
 @Service
-public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
+public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, QuickFilter> implements IdmIdentityRoleService {
 
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -27,25 +38,26 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 	private IdmIdentityRepository identityRepository;
 
 	@Override
-	public IdmIdentityRole get(Long id) {
-		IdmIdentityRole entity = identityRoleRepository.findOne(id);
-		return entity;
+	protected BaseRepository<IdmIdentityRole, QuickFilter> getRepository() {
+		return identityRoleRepository;
 	}
-
+	
 	@Override
+	@Transactional(readOnly = true)
 	public List<IdmIdentityRole> getByIds(List<String> ids) {
 		if (ids == null) {
 			return null;
 		}
 		List<IdmIdentityRole> idmRoles = new ArrayList<>();
 		for (String id : ids) {
-			idmRoles.add(get(Long.parseLong(id)));
+			idmRoles.add(get(id));
 		}
 		return idmRoles;
 	}
 	
 	@Override
-	public IdmIdentityRole updateByDto(Long id, IdmIdentityRoleDto dto){
+	@Transactional
+	public IdmIdentityRole updateByDto(UUID id, IdmIdentityRoleDto dto){
 		Assert.notNull(id);
 		Assert.notNull(dto);
 		
@@ -54,19 +66,13 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 	}
 	
 	@Override
+	@Transactional
 	public IdmIdentityRole addByDto(IdmIdentityRoleDto dto){
 		Assert.notNull(dto);
-		
+		//
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		return identityRoleRepository.save(toEntity(dto, identityRole));
-	}
-	
-	@Override
-	public void delete(Long id){
-		Assert.notNull(id);
-		identityRoleRepository.delete(id);
-	}
-	
+	}	
 	
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {
 		if (identityRoleDto == null || identityRole == null) {
@@ -89,7 +95,4 @@ public class DefaultIdmIdentityRoleService implements IdmIdentityRoleService {
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
 	}
-
-
-
 }

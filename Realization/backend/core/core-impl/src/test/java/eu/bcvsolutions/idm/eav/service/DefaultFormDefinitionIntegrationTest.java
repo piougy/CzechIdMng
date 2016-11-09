@@ -17,6 +17,12 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
 
+/**
+ * EAV definition tests
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
@@ -35,7 +41,9 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	 * @param name
 	 * @param randomAttributes with random count of attributes
 	 */
-	private IdmFormDefinition createDefinition(String name, boolean randomAttributes, boolean log) {
+	private ResultHolder createDefinition(String name, boolean randomAttributes, boolean log) {
+		ResultHolder result = new ResultHolder();
+		
 		IdmFormDefinition formDefinition = new IdmFormDefinition();
 		formDefinition.setName(name);
 		if (log) {
@@ -44,7 +52,8 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		long startTime = System.currentTimeMillis();
 		formDefinition = formDefinitionService.save(formDefinition);
 		if (log) {
-			LOG.info("--- {}ms:  After definition save [{}]", System.currentTimeMillis() - startTime, name);
+			result.createTime = System.currentTimeMillis() - startTime;
+			LOG.info("--- {}ms:  After definition save [{}]", result.createTime, name);
 		}
 		int attributeCount = r.nextInt(40);
 		if (log) {
@@ -60,20 +69,26 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 			formAttributeDefinitionRepository.save(attributeDefinition);
 		}
 		if (log) {
-			LOG.info("--- {}ms:  After definition [{}] attributes save, attributes count [{}]", System.currentTimeMillis() - startTime, name, attributeCount);
+			result.childrenCreateTime = (double) System.currentTimeMillis() - startTime;
+			LOG.info("--- {}ms:  After definition [{}] attributes save, attributes count [{}]", result.childrenCreateTime, name, attributeCount);
+			if(attributeCount > 0) {
+				result.childrenCreateTime = result.childrenCreateTime / attributeCount;
+			}
 			startTime = System.currentTimeMillis();
 			int realAttributeCount = formAttributeDefinitionRepository.findByFormDefinitionOrderBySeq(formDefinition).size();
 			assertEquals(attributeCount, realAttributeCount);
-			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", System.currentTimeMillis() - startTime, name, realAttributeCount);
+			result.childrenLoadTime = System.currentTimeMillis() - startTime;
+			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", result.childrenLoadTime, name, realAttributeCount);
 		}
-		return formDefinition;
+		result.formDefinition = formDefinition;
+		return result;
 	}
 	
 	@Ignore
 	@Test
 	@Transactional
 	public void deleteDefinitionWithAttributes() {
-		IdmFormDefinition formDefinition = createDefinition("one", true, true);
+		IdmFormDefinition formDefinition = createDefinition("one", true, true).formDefinition;
 		
 		formDefinitionService.delete(formDefinition);
 		
@@ -81,10 +96,22 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	}
 	
 	@Test
-	public void generateFormDefinitionsOneByOne() {		
-		for (int i = 649100; i < 650000; i++) {
-			createDefinition(i + "_def", true, true);
+	// @Ignore
+	public void generateFormDefinitionsOneByOne() {
+		int start = 1020300;
+		int end = 1020400;
+		//
+		ResultHolder averageResult = new ResultHolder();
+		for (int i = start; i < end; i++) {
+			ResultHolder result = createDefinition(i + "_def", true, true);
+			averageResult.createTime += result.createTime;
+			averageResult.childrenCreateTime += result.childrenCreateTime;
+			averageResult.childrenLoadTime += result.childrenLoadTime;
 		}
+		LOG.info("----");
+		LOG.info("---- Average definition save: {}ms", averageResult.createTime / (end - start));
+		LOG.info("---- Average children save: {}ms", averageResult.childrenCreateTime / (end - start));
+		LOG.info("---- Average children load: {}ms", averageResult.childrenLoadTime / (end - start));
 	}
 	
 	@Test
@@ -92,11 +119,11 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	public void generateFormDefinitions() throws InterruptedException {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(75);
 		
-		for (int i = 100000; i < 1000000; i++) {
+		for (int i = 700000; i < 1020000; i++) {
 			Runnable creator = new FormDefinitionCreator(i);
             executor.execute(creator);
             int queueSize = executor.getQueue().size();
-            if (queueSize > 500) {
+            if (queueSize > 5000) {
             	LOG.warn("Form definition generator has full queue [{}], pausing ...", queueSize);
             	Thread.sleep(5000);
             }
@@ -121,5 +148,12 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 			createDefinition(id + "_def", true, ((id % 100) == 99));
 		}
 		
+	}
+	
+	private class ResultHolder {
+		public IdmFormDefinition formDefinition;
+		public double createTime;
+		public double childrenCreateTime;
+		public double childrenLoadTime;
 	}
 }

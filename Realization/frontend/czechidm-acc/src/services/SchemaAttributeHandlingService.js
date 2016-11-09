@@ -11,7 +11,7 @@ export default class SchemaAttributeHandlingService extends Services.AbstractSer
     if (!entity) {
       return '';
     }
-    return entity.name;
+    return entity.idmPropertyName;
   }
 
   getApiPath() {

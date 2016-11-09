@@ -102,6 +102,7 @@ public class SysSchemaAttributeHandlingController extends AbstractReadWriteEntit
 	protected SchemaAttributeHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
 		filter.setEntityHandlingId(convertLongParameter(parameters, "entityHandlingId"));
+		filter.setIdmPropertyName(convertStringParameter(parameters, "idmPropertyName"));
 		return filter;
 	}
 }

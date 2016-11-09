@@ -29,7 +29,7 @@ class SystemEntityHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.entity-handling';
+    return 'acc:content.schema.entityHandling';
   }
 
   showDetail(entity, add) {

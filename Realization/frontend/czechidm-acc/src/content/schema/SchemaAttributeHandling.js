@@ -25,7 +25,7 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.attribute-handling';
+    return 'acc:content.schema.attributeHandling';
   }
 
   componentWillReceiveProps(nextProps) {

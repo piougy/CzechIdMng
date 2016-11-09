@@ -27,7 +27,7 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.system-entities-handling';
+    return 'acc:content.system.systemEntitiesHandling';
   }
 
   componentDidMount() {

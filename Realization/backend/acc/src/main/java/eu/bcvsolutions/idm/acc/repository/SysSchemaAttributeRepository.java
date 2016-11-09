@@ -31,7 +31,8 @@ public interface SysSchemaAttributeRepository extends BaseRepository<SysSchemaAt
 
 	@Override
 	@Query(value = "select e from SysSchemaAttribute e" + " where"
-			+ " (?#{[0].objectClassId} is null or e.objectClass.id = ?#{[0].objectClassId})" + " and"
+			+ " (?#{[0].objectClassId} is null or e.objectClass.id = ?#{[0].objectClassId})" 
+			+ " and"
 			+ " (lower(e.name) like ?#{[0].name == null ? '%' : '%'.concat([0].name.toLowerCase()).concat('%')})")
 	Page<SysSchemaAttribute> find(SchemaAttributeFilter filter, Pageable pageable);
 }

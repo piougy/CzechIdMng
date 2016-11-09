@@ -28,6 +28,12 @@ export default class SystemOperationTypeEnum extends Enums.AbstractEnum {
       case this.PROVISIONING: {
         return 'success';
       }
+      case this.RECONCILIACE: {
+        return 'primary';
+      }
+      case this.SYNCHRONISATION: {
+        return 'warning';
+      }
       default: {
         return 'default';
       }

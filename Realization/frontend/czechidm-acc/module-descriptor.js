@@ -48,7 +48,8 @@ module.exports = {
           {
             'id': 'system-object-classes',
             'type': 'TAB',
-            'labelKey': 'acc:content.system.system-object-classes.title',
+            'icon': 'fa:object-group',
+            'labelKey': 'acc:content.system.systemObjectClasses.title',
             'order': 40,
             'path': '/system/:entityId/object-classes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
@@ -57,7 +58,7 @@ module.exports = {
             'id': 'system-entities-handling',
             'type': 'TAB',
             'icon': 'list-alt',
-            'labelKey': 'acc:content.system.system-entities-handling.title',
+            'labelKey': 'acc:content.system.systemEntitiesHandling.title',
             'order': 50,
             'path': '/system/:entityId/entities-handling',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]

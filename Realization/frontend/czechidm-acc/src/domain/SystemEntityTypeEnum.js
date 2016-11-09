@@ -28,6 +28,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.IDENTITY: {
         return 'success';
       }
+      case this.GROUP: {
+        return 'primary';
+      }
       default: {
         return 'default';
       }

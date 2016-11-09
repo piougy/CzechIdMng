@@ -1,8 +1,9 @@
 package eu.bcvsolutions.idm.security.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import eu.bcvsolutions.idm.security.api.domain.BasePermission;
 
 /**
  * Group permission representation
@@ -10,36 +11,37 @@ import java.util.List;
  * @author Radek Tomiška 
  *
  */
-public class GroupPermissionDto  implements Serializable {
+public class GroupPermissionDto extends BasePermissionDto {
 
 	private static final long serialVersionUID = -7680244766930626618L;
-	private String name;
-	private List<String> permissions;
+	
+	private List<BasePermissionDto> permissions;
 	
 	public GroupPermissionDto() {
 	}
 	
-	public GroupPermissionDto(String name, List<String> permissions) {
-		this.name = name;
+	public GroupPermissionDto(BasePermission permission) {
+		super(permission);
+	}
+	
+	public GroupPermissionDto(BasePermission permission, List<BasePermissionDto> permissions) {
+		this(permission);
+		this.permissions = permissions;
+	}
+	
+	public GroupPermissionDto(String module, String name, List<BasePermissionDto> permissions) {
+		super(module, name);
 		this.permissions = permissions;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public List<String> getPermissions() {
+	public List<BasePermissionDto> getPermissions() {
 		if (permissions == null) {
 			permissions = new ArrayList<>();
 		}
 		return permissions;
 	}
 	
-	public void setPermissions(List<String> permissions) {
+	public void setPermissions(List<BasePermissionDto> permissions) {
 		this.permissions = permissions;
 	}
 }

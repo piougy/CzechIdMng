@@ -289,5 +289,11 @@
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
     }
+  },
+  "permission": {
+    "group": {
+      "ACCOUNT": "Účty na koncových systémech",
+      "SYSTEM": "Napojené systémy"
+    }
   }
 }

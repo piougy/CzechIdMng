@@ -27,7 +27,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.detail';
+    return 'acc:content.schema.objectClass';
   }
 
   showDetail(entity, add) {

@@ -25,7 +25,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.system-object-classes';
+    return 'acc:content.system.systemObjectClasses';
   }
 
   componentDidMount() {

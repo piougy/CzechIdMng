@@ -25,6 +25,7 @@ export default class LocalizationService {
         nonExplicitWhitelist: true,
         lowerCaseLng: true,
         fallbackLng: 'cs',
+        compatibilityJSON: 'v2', // breaking change with multi plural: https://github.com/i18next/i18next/blob/master/CHANGELOG.md#300
 
         detection: {
           // order and from where user language should be detected

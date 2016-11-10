@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import uuid from 'uuid';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager } from '../../redux';
+import { SchemaObjectClassManager, SystemManager, SchemaAttributeManager} from '../../redux';
 
 const uiKey = 'schema-object-classes';
 const uiKeyAttributes = 'schema-attributes';

@@ -56,8 +56,11 @@
         }
       },
       "systemObjectClasses": {
-        "header": "Schéma systému <small> typy objektů na koncovém systému</small>",
+        "header": "Schéma systému",
         "title": "Schéma systému",
+        "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
+        "generateSchemaBtn": "Generovat schema",
+        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
         },
@@ -72,6 +75,13 @@
           "objectClassName": {
             "label": "Název objektu",
             "placeholder": "Název objektu na koncovém systému"
+          }
+        },
+        "action": {
+          "generateSchema": {
+            "message": "Opravdu chcete zahájit generování schématu do tohoto systému, dle aktuální konfigurace konektoru?",
+            "header": "Generování schématu",
+            "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
           }
         }
       },
@@ -132,7 +142,7 @@
           }
         }
       },
-      "ontityHandlingDetail": {
+      "entityHandlingDetail": {
         "title" :"Skupina atributů",
         "systemEntityHandlingHeader": "Skupina atributů <small>pro IDM entitu a typ operace</small>",
         "schemaAttributesHandlingHeader": "Namapované atributy",

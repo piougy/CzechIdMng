@@ -57,8 +57,42 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
     super.afterSave();
   }
 
+  _generateSchema() {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-delete`].show(
+      this.i18n(`action.generateSchema.message`),
+      this.i18n(`action.generateSchema.header`)
+    ).then(() => {
+      const {entityId} = this.props.params;
+      this.setState({
+        showLoading: true
+      });
+      const promise = systemManager.getService().generateSchema(entityId);
+      promise.then((json) => {
+        this.setState({
+          showLoading: false
+        });
+        this.refs.table.getWrappedInstance().reload();
+        this.addMessage({ message: this.i18n('action.generateSchema.success', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(ex);
+        this.refs.table.getWrappedInstance().reload();
+      });
+    }, () => {
+      // Rejected
+    });
+  }
+
   render() {
     const { entityId } = this.props.params;
+    const { _showLoading } = this.props;
+    const { showLoading } = this.state;
+    const innerShowLoading = _showLoading || showLoading;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);
     return (
       <div>
@@ -66,13 +100,34 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
+          <Basic.Icon type="fa" icon="object-group"/>
+          {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
+        <Basic.PanelBody>
+          <Basic.Button
+            style={{display: 'block', margin: 'auto'}}
+            level="success"
+            showLoading={innerShowLoading}
+            onClick={this._generateSchema.bind(this)}
+            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+            title={ this.i18n('generateSchemaBtnTooltip') }>
+            <Basic.Icon type="fa" icon="object-group"/>
+            {' '}
+            { this.i18n('generateSchemaBtn') }
+          </Basic.Button>
+        </Basic.PanelBody>
 
+        <Basic.ContentHeader>
+          <Basic.Icon value="compressed"/>
+          {' '}
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaObjectClassesHeader') }}/>
+        </Basic.ContentHeader>
         <Basic.Panel className="no-border last">
           <Advanced.Table
             ref="table"
             uiKey={uiKey}
+            showLoading={innerShowLoading}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
@@ -84,7 +139,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
               null
             }
             buttons={
-              [
+              [<span>
                 <Basic.Button
                   level="success"
                   key="add_button"
@@ -95,6 +150,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
                   {' '}
                   {this.i18n('button.add')}
                 </Basic.Button>
+              </span>
               ]
             }
             filter={

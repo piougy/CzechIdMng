@@ -115,7 +115,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _schemaObjectClass} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : uuid.v4());
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
     return (

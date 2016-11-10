@@ -120,7 +120,7 @@ class SystemEntityHandling extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _entityHandling} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandling ? _entityHandling.id : uuid.v4());
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandling ? _entityHandling.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const entityHandling = isNew ? this.state.entityHandling : _entityHandling;
     return (

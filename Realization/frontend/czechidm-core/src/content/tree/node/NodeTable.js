@@ -158,7 +158,6 @@ export class NodeTable extends Basic.AbstractContent {
             showLoading: false
           });
         }
-        this.refs.parent.reload();
         this.useFilter();
       }));
       this.context.router.push('/tree/nodes/?type=' + entity.id);

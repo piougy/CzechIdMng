@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -25,7 +26,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_system_entity_handling")
+@Table(name = "sys_system_entity_handling", indexes = {
+		@Index(name = "ux_system_enth_types_sys", columnList = "entity_type,operation_type,system_id", unique = true) })
 public class SysSystemEntityHandling extends AbstractEntity {
 
 	private static final long serialVersionUID = -8492560756893726050L;

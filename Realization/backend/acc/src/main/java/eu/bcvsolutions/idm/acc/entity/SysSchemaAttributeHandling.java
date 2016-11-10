@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -23,7 +24,9 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_schema_attribute_handling")
+@Table(name = "sys_schema_attribute_handling", indexes = {
+		@Index(name = "ux_schema_atth_name_enth", columnList = "idm_property_name,system_entity_handling_id", unique = true)})
+
 public class SysSchemaAttributeHandling extends AbstractEntity {
 
 	private static final long serialVersionUID = -8492560756893726050L;
@@ -39,7 +42,7 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "schema_attribute_id", referencedColumnName = "id")
 	private SysSchemaAttribute schemaAttribute;
-	
+
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)

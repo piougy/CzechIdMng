@@ -97,8 +97,8 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Test
 	@Ignore
 	public void generateFormDefinitionsOneByOne() {
-		int start = 1020300;
-		int end = 1020400;
+		int start = 2000000;
+		int end = 2000100;
 		//
 		ResultHolder averageResult = new ResultHolder();
 		for (int i = start; i < end; i++) {
@@ -118,7 +118,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	public void generateFormDefinitions() throws InterruptedException {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(75);
 		
-		for (int i = 700000; i < 1020000; i++) {
+		for (int i = 1500100; i < 2000000; i++) {
 			Runnable creator = new FormDefinitionCreator(i);
             executor.execute(creator);
             int queueSize = executor.getQueue().size();

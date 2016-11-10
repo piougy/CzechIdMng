@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import java.util.UUID;
+import java.io.Serializable;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +26,7 @@ public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> e
 	 * @param id
 	 * @return
 	 */
-	E get(UUID id);
-	
-	/**
-	 * Returns entity by given id (uuid as string). Returns null, if entity is not exists.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	E get(String id);
+	E get(Serializable id);
 	
 	/**
 	 * Returns page of entities

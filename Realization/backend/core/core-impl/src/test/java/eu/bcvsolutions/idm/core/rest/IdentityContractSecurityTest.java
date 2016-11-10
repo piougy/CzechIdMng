@@ -8,10 +8,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,7 +142,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
 		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity(user, null);
 		
-		UUID positionId = null;
+		Serializable positionId = null;
 		for	(IdmIdentityContract position : pages) {
 			positionId = position.getId();
 			break;

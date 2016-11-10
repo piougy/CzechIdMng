@@ -6,8 +6,6 @@ import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 
 /**
  * Target system configuration service 

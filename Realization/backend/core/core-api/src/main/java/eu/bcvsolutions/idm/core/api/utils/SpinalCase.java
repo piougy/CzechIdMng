@@ -26,7 +26,7 @@ public class SpinalCase {
 		String out = normalize(input);
 		out = removeDuplicateWhiteSpaces(out);
 		out = out.toLowerCase();
-		out = out.replace(" ", "-");
+		out = out.replace(' ', '-');
 
 		return out;
 	}

@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.accessibility.AccessibleResourceBundle;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +26,8 @@ import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;

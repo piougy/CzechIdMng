@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest.lookup;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.springframework.data.rest.core.support.EntityLookupSupport;
 
@@ -17,8 +16,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  */
 public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSupport<E> {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookup.class);
-
 	private final ReadEntityService<E, ?> service;
 
 	public DefaultEntityLookup(ReadEntityService<E, ?> service) {
@@ -32,18 +29,7 @@ public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSuppo
 
 	@Override
 	public Object lookupEntity(Serializable id) {
-		try {
-			UUID uuid = null;
-			if (id instanceof UUID) {
-				uuid = (UUID) id;
-			} else {
-				uuid = UUID.fromString(id.toString());
-			}
-			return service.get(uuid);
-		} catch (IllegalArgumentException ex) {
-			log.warn("Wrong entity id [{}], expecting Long, returning null", id);
-			return null;
-		}
+		return service.get(id);
 	}
 	
 	@Override

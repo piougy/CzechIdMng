@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest.lookup;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.springframework.data.rest.core.support.EntityLookupSupport;
 
@@ -10,11 +9,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 
 /**
- * Some entities could be found by name
+ * Some entities could be found by name.
  * 
  * @author Radek Tomiška 
  *
- * @param <T>
+ * @param <E>
  */
 public abstract class IdentifiableByNameLookup<E extends BaseEntity> extends EntityLookupSupport<E>{
 	
@@ -33,7 +32,7 @@ public abstract class IdentifiableByNameLookup<E extends BaseEntity> extends Ent
 	public Object lookupEntity(Serializable id) {
 		E entity = null;
 		try {
-			entity = getEntityService().get(UUID.fromString(id.toString()));
+			entity = getEntityService().get(id);
 		} catch (IllegalArgumentException ex) {
 			// simply not found
 		}

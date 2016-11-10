@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +28,8 @@ public final class RepositoryUtils {
 	 * @param entities
 	 * @return
 	 */
-	public static List<UUID> queryEntityIds(List<BaseEntity> entities) {
-		List<UUID> entityIds = new ArrayList<>();
+	public static List<Serializable> queryEntityIds(List<BaseEntity> entities) {
+		List<Serializable> entityIds = new ArrayList<>();
 		if (entities != null && !entities.isEmpty()) {
 			for(BaseEntity entity : entities) {
 				entityIds.add(entity.getId());

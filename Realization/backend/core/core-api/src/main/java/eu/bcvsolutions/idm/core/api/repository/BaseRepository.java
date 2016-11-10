@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * Common repository for base entities
  * 
  * TODO: QueryDslPredicateExecutor<E>
+ * ID extends Serializable
  * 
  * @author Radek Tomiška 
  *

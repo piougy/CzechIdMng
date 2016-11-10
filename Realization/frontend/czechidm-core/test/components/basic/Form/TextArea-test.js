@@ -5,7 +5,7 @@ import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
-import TestFieldsUtil from '../TextField/TestFieldsUtil';
+import TestFieldsUtil from './TestFieldsUtil';
 
 describe('textArea', function textAreaTest() {
   it('- text area max and min propery', function test() {

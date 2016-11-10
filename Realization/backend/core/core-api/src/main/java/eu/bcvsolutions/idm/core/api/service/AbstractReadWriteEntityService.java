@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import java.util.UUID;
+import java.io.Serializable;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -50,7 +50,7 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	 */
 	@Override
 	@Transactional
-	public void deleteById(UUID id){
+	public void deleteById(Serializable id){
 		Assert.notNull(id);
 		//
 		delete(get(id));

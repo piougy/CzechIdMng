@@ -85,8 +85,8 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	public AbstractEntity() {
 	}
 
-	public AbstractEntity(UUID id) {
-		this.id = id;
+	public AbstractEntity(UUID uuid) {
+		this.id = uuid;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	public UUID getId() {
 		return id;
 	}
-
+	
 	@Override
 	public void setId(UUID id) {
 		this.id = id;

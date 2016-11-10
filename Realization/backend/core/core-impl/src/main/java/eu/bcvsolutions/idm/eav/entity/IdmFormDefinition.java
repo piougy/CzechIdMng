@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.eav.entity;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,8 +51,8 @@ public class IdmFormDefinition extends AbstractEntity {
 	private List<IdmFormAttributeDefinition> formAttributes;
 	//
 	// attribute definitions cache
-	private transient Map<UUID, IdmFormAttributeDefinition> mappedAttributes;
-	private transient Map<String, UUID> mappedKeys;
+	private transient Map<Serializable, IdmFormAttributeDefinition> mappedAttributes;
+	private transient Map<String, Serializable> mappedKeys;
 
 	public IdmFormDefinition() {
 	}
@@ -85,7 +86,7 @@ public class IdmFormDefinition extends AbstractEntity {
 		mappedAttributes = null; // musime refresnout
 	}
 
-	private Map<UUID, IdmFormAttributeDefinition> getMappedAttributes() {
+	private Map<Serializable, IdmFormAttributeDefinition> getMappedAttributes() {
 		if (mappedAttributes == null || mappedKeys == null) {
 			mappedAttributes = Maps.newHashMap();
 			mappedKeys = Maps.newHashMap();
@@ -97,7 +98,7 @@ public class IdmFormDefinition extends AbstractEntity {
 		return mappedAttributes;
 	}
 
-	private Map<String, UUID> getMappedNames() {
+	private Map<String, Serializable> getMappedNames() {
 		if (mappedAttributes == null || mappedKeys == null) {
 			getMappedAttributes();
 		}

@@ -10,7 +10,7 @@ const manager = new SchemaAttributeHandlingManager();
 const systemEntityHandlingManager = new SystemEntityHandlingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 
-class SchemaAttributeHandling extends Basic.AbstractTableContent {
+class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,7 +25,7 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.attributeHandling';
+    return 'acc:content.system.attributeHandlingDetail';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -47,7 +47,8 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId}});
+      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId,
+        system: props.location.query.systemId}});
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(entityId));
     }
@@ -87,8 +88,7 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
     const { _showLoading, _attribute} = this.props;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', _attribute && _attribute.system ? _attribute.system : Domain.SearchParameters.BLANK_UUID);
-    console.log("rrrrrrr", _attribute, forceSearchParameters);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -149,12 +149,10 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   }
 }
 
-SchemaAttributeHandling.propTypes = {
-  system: PropTypes.object,
+SchemaAttributeHandlingDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SchemaAttributeHandling.defaultProps = {
-  system: null,
+SchemaAttributeHandlingDetail.defaultProps = {
   _showLoading: false,
 };
 
@@ -174,4 +172,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaAttributeHandling);
+export default connect(select)(SchemaAttributeHandlingDetail);

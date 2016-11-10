@@ -14,7 +14,7 @@ const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
 const systemManager = new SystemManager();
 const systemEntityHandlingManager = new SystemEntityHandlingManager();
 
-class SystemEntityHandling extends Basic.AbstractTableContent {
+class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -29,14 +29,15 @@ class SystemEntityHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.entityHandling';
+    return 'acc:content.system.entityHandlingDetail';
   }
 
   showDetail(entity, add) {
     if (add) {
       const uuidId = uuid.v1();
       const entityHandlingId = this.props._entityHandling.id;
-      this.context.router.push(`/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}`);
+      const systemId = this.props._entityHandling.system;
+      this.context.router.push(`/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}&systemId=${systemId}`);
     } else {
       this.context.router.push(`/schema-attributes-handling/${entity.id}/detail`);
     }
@@ -242,12 +243,10 @@ class SystemEntityHandling extends Basic.AbstractTableContent {
   }
 }
 
-SystemEntityHandling.propTypes = {
-  system: PropTypes.object,
+SystemEntityHandlingDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SystemEntityHandling.defaultProps = {
-  system: null,
+SystemEntityHandlingDetail.defaultProps = {
   _showLoading: false,
 };
 
@@ -263,4 +262,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemEntityHandling);
+export default connect(select)(SystemEntityHandlingDetail);

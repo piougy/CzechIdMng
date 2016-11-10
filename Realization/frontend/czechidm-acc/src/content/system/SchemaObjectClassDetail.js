@@ -12,7 +12,7 @@ const schemaAttributeManager = new SchemaAttributeManager();
 const systemManager = new SystemManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaObjectClass extends Basic.AbstractTableContent {
+class SchemaObjectClassDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -27,7 +27,7 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.objectClass';
+    return 'acc:content.system.objectClassDetail';
   }
 
   showDetail(entity, add) {
@@ -241,11 +241,11 @@ class SchemaObjectClass extends Basic.AbstractTableContent {
   }
 }
 
-SchemaObjectClass.propTypes = {
+SchemaObjectClassDetail.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SchemaObjectClass.defaultProps = {
+SchemaObjectClassDetail.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -262,4 +262,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaObjectClass);
+export default connect(select)(SchemaObjectClassDetail);

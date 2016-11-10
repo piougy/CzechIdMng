@@ -4,29 +4,24 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.hibernate.envers.RevisionNumber;
-import org.hibernate.envers.RevisionTimestamp;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.history.AnnotationRevisionMetadata;
-import org.springframework.data.history.Revision;
-import org.springframework.data.history.RevisionMetadata;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -49,53 +44,26 @@ import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, AuditFilter> implements IdmAuditService {
 	
 	@PersistenceContext
-    private EntityManager entityManager;
+	private EntityManager entityManager;
 	
 	@Autowired
 	private IdmAuditRepository auditRepository;
 	
-	@Override
-	@SuppressWarnings("unchecked")
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public List<Revision<Long, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException {	
-		List<Revision<Long, ? extends BaseEntity>> result = new ArrayList<>();
-		AuditReader reader = AuditReaderFactory.get(entityManager);
-		
-		// reader.createQuery().forRevisionsOfEntity(c, selectEntitiesOnly, selectDeletedEntities)
-		
-		List<Number> ids = reader.getRevisions(classType, entityId);
-		
-		Map<Number, DefaultRevisionEntity> revisionsResult = (Map<Number, DefaultRevisionEntity>) reader.findRevisions(classType, new HashSet<>(ids));
-
-		for (Number revisionId : revisionsResult.keySet()) {
-			result.add(this.findRevision(classType, (Long) revisionId, entityId));
-		}
-		// TODO: refactor to own class / or use query above
-		Collections.sort(result, (Revision<Long, ? extends BaseEntity> o1, Revision<Long, ? extends BaseEntity> o2) -> o2.compareTo(o1));		
-		return result;
-	}
+	@LazyCollection(LazyCollectionOption.TRUE)
+	private List<String> allAuditedEntititesNames;
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public Revision<Long, ? extends BaseEntity> findRevision(Class<?> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException  {
+	public <T> T findRevision(Class<T> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
-		
-		DefaultRevisionEntity revision = (DefaultRevisionEntity) reader.findRevision(classType, revisionId);
-
-		Object entity = reader.find(classType, entityId, revisionId);
-		return new Revision<>((RevisionMetadata<Long>) getRevisionMetadata(revision), (BaseEntity) entity);
+		return reader.find(classType, entityId, revisionId);
 	}
 	
-	private RevisionMetadata<?> getRevisionMetadata(Object object) {
-		return new AnnotationRevisionMetadata<>(object, RevisionNumber.class, RevisionTimestamp.class);
-	}
-	
-	@Override
-	public AuditReader getAuditReader() {
+	private AuditReader getAuditReader() {
 		return AuditReaderFactory.get(entityManager);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getPreviousVersion(T entity, long currentRevId) {
 		AuditReader reader = this.getAuditReader();
@@ -169,5 +137,38 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	@Override
 	protected BaseRepository<IdmAudit, AuditFilter> getRepository() {
 		return this.auditRepository;
+	}
+
+	@Override
+	public Page<IdmAudit> getRevisionsForEntity(String entityClass, long entityId, Pageable pageable) {
+		AuditFilter filter = new AuditFilter();
+		filter.setType(entityClass);
+		filter.setEntityId(entityId);
+		return this.find(filter, pageable);
+	}
+
+	@Override
+	public List<String> getAllAuditedEntitiesNames() {
+		// load from cache
+		if (this.allAuditedEntititesNames != null) {
+			return this.allAuditedEntititesNames;
+		}
+		
+		List<String> result = new ArrayList<>();
+		Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
+		for (EntityType<?> entityType : entities) {
+			if (entityType.getJavaType() == null) {
+				continue;
+			}
+			// get entities methods and search annotation Audited.
+			for (Field field : entityType.getJavaType().getDeclaredFields()) {
+				if (field.getAnnotation(Audited.class) != null) {
+					result.add(entityType.getJavaType().getSimpleName());
+					break;
+				}
+			}
+		}
+		this.allAuditedEntititesNames = result;
+		return result;
 	}
 }

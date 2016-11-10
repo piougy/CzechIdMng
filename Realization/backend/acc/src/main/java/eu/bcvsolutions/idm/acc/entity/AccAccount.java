@@ -72,7 +72,7 @@ public class AccAccount extends AbstractEntity {
 	@JoinColumn(name = "role_system_id", referencedColumnName = "id")
 	private SysRoleSystem roleSystem;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
 	@OnDelete(action = OnDeleteAction.CASCADE)

@@ -17,7 +17,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 	)
 public interface IdmAuditRepository extends BaseRepository<IdmAudit, AuditFilter> {
 	
-	// TODO: timestamp and datetime colision!
 	@Override
 	@Query(value = "SELECT e "
 				+ "FROM "
@@ -25,7 +24,7 @@ public interface IdmAuditRepository extends BaseRepository<IdmAudit, AuditFilter
 				+ "WHERE "
 					+ "("
 						+ "?#{[0].modification} IS null "
-						+ "OR lower(e.modification) = ?#{[0].modification} "
+						+ "OR lower(e.modification) like ?#{[0].modification == null ? '%' : '%'.concat([0].modification.toLowerCase()).concat('%')} "
 					+ ")"
 					+ " AND "
 					+ "("
@@ -34,18 +33,26 @@ public interface IdmAuditRepository extends BaseRepository<IdmAudit, AuditFilter
 					+ ")"
 					+ " AND "
 					+ "("
-						+ "?#{[0].from} IS null "
-						+ "OR e.timestamp = ?#{[0].from} "
+						+ "?#{[0].modifier} IS null "
+						+ "OR lower(e.modifier) like ?#{[0].modifier == null ? '%' : '%'.concat([0].modifier.toLowerCase()).concat('%')} "
 					+ ")"
 					+ " AND "
 					+ "("
-						+ "?#{[0].to} IS null "
-						+ "OR e.timestamp = ?#{[0].to} "
+						+ "?#{[0].entityId} IS null "
+						+ "OR e.entityId = ?#{[0].entityId} "
+					+ ")"
+					+ " AND "
+					+ "(" 
+						+ "?#{[0].from == null ? 'null' : ''} = 'null' or e.timestamp >= ?#{[0].from} "
 					+ ")"
 					+ " AND "
 					+ "("
-						+ "?#{[0].entity} IS null "
-						+ "OR e.type like ?#{[0].entity == null ? '%' : '%'.concat([0].entity.getName().toLowerCase()).concat('%')} "
+						+ "?#{[0].to == null ? 'null' : ''} = 'null' or e.timestamp <= ?#{[0].to} "
+					+ ")"
+					+ " AND "
+					+ "("
+						+ "?#{[0].type} IS null "
+						+ "OR lower(e.type) like ?#{[0].type == null ? '%' : '%'.concat([0].type.toLowerCase()).concat('%')} "
 					+ ")" )
 	Page<IdmAudit> find(AuditFilter filter, Pageable pageable);
 }

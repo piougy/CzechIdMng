@@ -4,16 +4,19 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.hibernate.envers.EntityTrackingRevisionListener;
 import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 @Configurable
 public class IdmAuditListener implements EntityTrackingRevisionListener {
@@ -22,6 +25,9 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	private IdmAuditService auditService;
 	
 	@Autowired
+	private SecurityService securityService;
+	
+	@PersistenceContext
 	private EntityManager entityManger;
 	
 	
@@ -30,27 +36,35 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// nothing ...
 	}
 	
-	// TODO: suppressWarnings is necessary?
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
+	@Transactional
 	public void entityChanged(Class entityClass, String entityName, Serializable entityId, RevisionType revisionType,
 			Object revisionEntity) {
 		
 		List<String> changedColumns;
+		AbstractEntity currentEntity = null;
 		
+		// autowire services
 		autowireServices();
-		AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, (long)entityId);
 		
 		// if revision type is MOD - modification, get and set changed columns
-		// TODO: GUID? revision id?
 		if (revisionType == RevisionType.MOD) {
+			currentEntity = (AbstractEntity) entityManger.find(entityClass, (long)entityId);
 			changedColumns = auditService.getNameChangedColumns(entityClass, (long)entityId, ((IdmAudit)revisionEntity).getId(), currentEntity);
 			((IdmAudit)revisionEntity).addChanged(changedColumns);
 		}
-		((IdmAudit)revisionEntity).setModifier(currentEntity.getModifier());
-        ((IdmAudit)revisionEntity).setModification(revisionType.name());
+		
+        // name of entity class - full name. 
         ((IdmAudit)revisionEntity).setType(entityName);
-        
+        // revision type - MOD, DEL, ADD
+        ((IdmAudit)revisionEntity).setModification(revisionType.name());
+        // actual modifier
+     	((IdmAudit)revisionEntity).setModifier(securityService.getUsername());
+     	// original modifier before switch
+     	((IdmAudit)revisionEntity).setOriginalModifier(securityService.getOriginalUsername());
+     	// entity id TODO: link from collection to master.
+     	((IdmAudit)revisionEntity).setEntityId((long)entityId);
 	}
 	
 	/**
@@ -63,6 +77,9 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		}
 		if (this.entityManger == null) {
 			AutowireHelper.autowire(this, this.auditService);
+		}
+		if (this.securityService == null) {
+			AutowireHelper.autowire(this, this.securityService);
 		}
 	}
 

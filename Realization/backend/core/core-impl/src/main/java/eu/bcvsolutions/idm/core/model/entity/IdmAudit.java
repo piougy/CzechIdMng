@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -16,6 +17,7 @@ import org.hibernate.envers.RevisionTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.config.domain.IdmAuditListener;
 
@@ -50,7 +52,7 @@ public class IdmAudit implements BaseEntity {
 	@ModifiedEntityNames
 	private Set<String> modifiedEntityNames;
 	
-	@Column(name = "modofication")
+	@Column(name = "modification")
     private String modification;
 	
 	@Column(name = "type")
@@ -59,9 +61,33 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "changedAttributes")
 	private String changedAttributes;
 	
-	@Column(name = "modifier")
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "modifier", length = DefaultFieldLengths.NAME)
 	private String modifier;
 	
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
+	private String originalModifier;
+	
+	@Column(name = "entityId")
+	private Long entityId;
+	
+	public String getOriginalModifier() {
+		return originalModifier;
+	}
+
+	public void setOriginalModifier(String originalModifier) {
+		this.originalModifier = originalModifier;
+	}
+
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
+	}
+
 	public String getModifier() {
 		return modifier;
 	}

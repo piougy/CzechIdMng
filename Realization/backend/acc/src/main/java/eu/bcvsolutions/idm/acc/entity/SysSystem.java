@@ -58,7 +58,7 @@ public class SysSystem extends AbstractEntity {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
 	@OnDelete(action = OnDeleteAction.CASCADE)

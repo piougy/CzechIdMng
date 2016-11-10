@@ -194,8 +194,13 @@ export default class AbstractService {
     if (newSearchParameters.getPage() !== null) {
       _searchParameters = _searchParameters.setPage(newSearchParameters.getPage());
     }
+    // override size
     if (newSearchParameters.getSize() !== null) {
       _searchParameters = _searchParameters.setSize(newSearchParameters.getSize());
+    }
+    // override name
+    if (newSearchParameters.getName() !== SearchParameters.NAME_QUICK) {
+      _searchParameters = _searchParameters.setName(newSearchParameters.getName());
     }
     return _searchParameters;
   }

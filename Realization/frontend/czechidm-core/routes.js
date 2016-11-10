@@ -217,6 +217,11 @@ module.exports = {
           component: require('./src/content/audit/email/EmailContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
+        {
+          path: 'entities',
+          component: require('./src/content/audit/AuditContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
+        },
       ]
     },
     // About site

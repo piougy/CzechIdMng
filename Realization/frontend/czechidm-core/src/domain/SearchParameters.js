@@ -230,7 +230,9 @@ export default class SearchParameters {
     });
     // filterable
     this.filters.forEach((filter, property) => {
-      url += `&${property}=${encodeURIComponent(filter)}`;
+      if (filter !== null && filter !== undefined) {
+        url += `&${property}=${encodeURIComponent(filter)}`;
+      }
     });
     return url;
   }

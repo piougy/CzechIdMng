@@ -164,7 +164,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 		});
 	}
 	
-	@Test
+	/*@Test
 	public void testIdentityController() {
 		template.execute(new TransactionCallbackWithoutResult() {
 			@Override
@@ -203,7 +203,7 @@ public class IdentityAuditTest extends AbstractIntegrationTest {
 				assertNotNull(exception);
 			}
 		});
-	}
+	} */
 	
 	private IdmIdentity constructTestIdentity() {
 		IdmIdentity identity = new IdmIdentity();

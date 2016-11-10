@@ -2,11 +2,10 @@ package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
 
-import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
-import org.springframework.data.history.Revision;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -21,33 +20,16 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter> {
 	
 	/**
-	 * Method for find all revisions by class type and id identity.
-	 * Method return list of {@link BaseEntity} not list of Revison. For compare entity with revision
-	 * use {@link #findRevision(Class, Long, Long)}
-	 * @param classType
-	 * @param entityId
-	 * @return
-	 * @throws RevisionDoesNotExistException when no revision found
-	 */
-	List<Revision<Long, ? extends BaseEntity>> findRevisions(Class<?> classType, Long entityId) throws RevisionDoesNotExistException;
-	
-	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
 	 * Id of revision may be found by method {@link #findRevisions(Class, Long)}
+	 * @param <T>
 	 * @param classType
 	 * @param revisionId
 	 * @param entityId
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	Revision<Long, ? extends BaseEntity> findRevision(Class<?> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException;	
-	
-	/**
-	 * Method return AuditReader for entity manager. Used for create specific queries.
-	 * 
-	 * @return AuditReader
-	 */
-	AuditReader getAuditReader();
+	<T> T findRevision(Class<T> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException;	
 	
 	/**
 	 * TODO:
@@ -77,5 +59,25 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param currentEntity
 	 * @return
 	 */
-	<T> List<String> getNameChangedColumns(Class<T> entityClass, long entityId, long currentRevId, T currentEntity);	
+	<T> List<String> getNameChangedColumns(Class<T> entityClass, long entityId, long currentRevId, T currentEntity);
+	
+	/**
+	 * Method return list of class simple name for which is audited. Must at least one attribute with
+	 * annotation {@value Audited}
+	 * 
+	 * @return instance of list IdmSimpleEntityDto
+	 */
+	List<String> getAllAuditedEntitiesNames();
+	
+	/**
+	 * Get all revision for entity class. Method use {@link AuditFilter} and method for quick
+	 * search - {@link find}. Method set filter with enum {@link AuditClassMapping} and {@code entityId}. 
+	 * When is entityId null, you will recive all entities for {@link AuditClassMapping}.
+	 * 
+	 * @param clazz
+	 * @param entityId
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmAudit> getRevisionsForEntity(String clazz, long entityId, Pageable pageable);
 }

@@ -1,16 +1,15 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.activiti.engine.runtime.ProcessInstance;
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.history.Revision;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -27,21 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
@@ -159,60 +156,35 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId) {
+	public ResponseEntity<?> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		
-		Revision<Long, ? extends BaseEntity> revision;
+		IdmIdentity revisionIdentity;
 		try {
-			revision = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
+			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}
-		
-		IdmIdentity entity = (IdmIdentity) revision.getEntity();
-		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
-		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(getEntityIdentifier(entity)), revision, revId);
 
-		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
+		return new ResponseEntity<>(toResource(revisionIdentity, assembler), HttpStatus.OK);
 	}
-
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("identityId") String identityId) {
+	public Resources<?> findRevisions(@PathVariable("identityId") String identityId, Pageable pageable,
+			PersistentEntityResourceAssembler assembler) {
 		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
 		}
 		
-		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Long, ? extends BaseEntity>> revisions;
-		try {
-			revisions = this.auditService.findRevisions(IdmIdentity.class, originalEntity.getId());
-		} catch (RevisionDoesNotExistException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", originalEntity.getId()));
-		}
+		// get original entity id
+		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmIdentity.class.getSimpleName(), originalEntity.getId(), pageable);
 		
-		RevisionAssembler<IdmIdentity> assembler = new RevisionAssembler<IdmIdentity>();
-		
-		revisions.forEach(revision -> {
-			wrappers.add(assembler.toResource(
-					this.getClass(), 
-					String.valueOf(getEntityIdentifier((IdmIdentity)revision.getEntity())),
-					revision, 
-					revision.getRevisionNumber()));
-		});
-		
-		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
-				wrappers);
-		
-		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>>(resources, HttpStatus.OK);
+		return toResources(results, assembler, IdmAudit.class, null);
 	}
 	
 	@Override

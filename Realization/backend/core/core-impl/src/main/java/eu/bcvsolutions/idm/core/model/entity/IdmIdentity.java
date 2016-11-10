@@ -95,13 +95,13 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "description")
 	private String description;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmIdentityRole> roles;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@OnDelete(action = OnDeleteAction.CASCADE)

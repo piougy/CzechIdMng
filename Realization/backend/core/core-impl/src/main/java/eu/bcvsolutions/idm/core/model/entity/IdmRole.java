@@ -84,23 +84,23 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "description")
 	private String description;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleAuthority> authorities;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleComposition> subRoles;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)

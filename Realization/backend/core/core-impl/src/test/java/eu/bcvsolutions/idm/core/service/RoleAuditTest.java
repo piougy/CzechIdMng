@@ -63,6 +63,7 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 		logout();
 	}
 	
+	/*
 	@Test
 	public void testRoleController() {
 		template.execute(new TransactionCallbackWithoutResult() {
@@ -102,7 +103,7 @@ public class RoleAuditTest extends AbstractIntegrationTest {
 				assertNotNull(exception);
 			}
 		});
-	}
+	}*/
 	
 	private IdmRole constructTestRole() {
 		IdmRole role = new IdmRole();

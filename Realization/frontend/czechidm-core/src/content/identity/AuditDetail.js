@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import moment from 'moment';
 //
 import * as Basic from '../../components/basic';
 import { IdentityManager, DataManager } from '../../redux';
@@ -44,14 +45,24 @@ class AuditDetail extends Basic.AbstractContent {
             ||
             <div>
               <Basic.PageHeader>
-              {identityManager.getNiceLabel(auditIdentity.entity)} <small> {this.i18n('content.audit.profile.userDetail')} <Advanced.DateValue value={auditIdentity.metadata.delegate.revisionDate} showTime/> </small>
+                {identityManager.getNiceLabel(auditIdentity)}
+                {' '}
+                  <small>
+                    {
+                      this.i18n('content.audit.profile.userDetail',
+                        {
+                          name: auditIdentity.username,
+                          date: moment(auditIdentity.modified).format(this.i18n('format.datetime'))
+                        })
+                    }
+                  </small>
               </Basic.PageHeader>
               <Basic.Panel>
-                <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity.entity)} <small> Detail uživatele</small></span>} className="hidden">
+                <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity)} <small> Detail uživatele</small></span>} className="hidden">
                 </Basic.PanelHeader>
                 <div className="tab-vertical clearfix">
                   <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
-                    <IdentityDetail identity={auditIdentity.entity} entityId={entityId} readOnly />
+                    <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
                   </Advanced.TabPanel>
                 </div>
               </Basic.Panel>

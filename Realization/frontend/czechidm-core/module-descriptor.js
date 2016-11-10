@@ -216,6 +216,19 @@ module.exports = {
                 'authorities': ['NOTIFICATION_READ']
               }
             ]
+          },
+          {
+            'id': 'audit-entities',
+            'labelKey': 'content.audit.title-entities',
+            'order': 40,
+            'path': '/audit/entities',
+            'icon': 'eye-open',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['AUDIT_READ']
+              }
+            ]
           }
         ]
       },

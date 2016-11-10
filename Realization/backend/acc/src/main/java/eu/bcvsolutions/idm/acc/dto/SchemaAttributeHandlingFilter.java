@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
  */
 public class SchemaAttributeHandlingFilter implements BaseFilter {
 	
+	private UUID systemId;
+	
 	private UUID entityHandlingId;
 	
 	private String idmPropertyName;
@@ -30,6 +32,14 @@ public class SchemaAttributeHandlingFilter implements BaseFilter {
 
 	public void setIdmPropertyName(String idmPropertyName) {
 		this.idmPropertyName = idmPropertyName;
+	}
+
+	public UUID getSystemId() {
+		return systemId;
+	}
+
+	public void setSystemId(UUID systemId) {
+		this.systemId = systemId;
 	}
 	
 }

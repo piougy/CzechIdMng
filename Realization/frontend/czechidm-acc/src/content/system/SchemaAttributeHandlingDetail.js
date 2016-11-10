@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils} from 'czechidm-core';
+import { Basic, Utils, Domain} from 'czechidm-core';
 import { SystemEntityHandlingManager, SchemaAttributeHandlingManager, SchemaAttributeManager} from '../../redux';
 
 const uiKey = 'schema-attribute-handling';
@@ -10,7 +10,7 @@ const manager = new SchemaAttributeHandlingManager();
 const systemEntityHandlingManager = new SystemEntityHandlingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 
-class SchemaAttributeHandling extends Basic.AbstractTableContent {
+class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,7 +25,7 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.attributeHandling';
+    return 'acc:content.system.attributeHandlingDetail';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -47,7 +47,8 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { entityId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId}});
+      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId,
+        system: props.location.query.systemId}});
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(entityId));
     }
@@ -87,6 +88,7 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
     const { _showLoading, _attribute} = this.props;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -106,16 +108,17 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
               label={this.i18n('acc:entity.SchemaAttributeHandling.systemEntityHandling')}
               readOnly
               required/>
+            <Basic.SelectBox
+              ref="schemaAttribute"
+              manager={schemaAttributeManager}
+              forceSearchParameters={forceSearchParameters}
+              label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
+              required/>
             <Basic.TextField
               ref="idmPropertyName"
               label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
               required
               max={255}/>
-            <Basic.SelectBox
-              ref="schemaAttribute"
-              manager={schemaAttributeManager}
-              label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
-              required/>
             <Basic.Checkbox
               ref="extendedAttribute"
               label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
@@ -146,12 +149,10 @@ class SchemaAttributeHandling extends Basic.AbstractTableContent {
   }
 }
 
-SchemaAttributeHandling.propTypes = {
-  system: PropTypes.object,
+SchemaAttributeHandlingDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SchemaAttributeHandling.defaultProps = {
-  system: null,
+SchemaAttributeHandlingDetail.defaultProps = {
   _showLoading: false,
 };
 
@@ -159,9 +160,11 @@ function select(state, component) {
   const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.entityId);
   if (entity) {
     const systemEntityHandling = entity._embedded && entity._embedded.systemEntityHandling ? entity._embedded.systemEntityHandling.id : null;
+    const system = entity._embedded && entity._embedded.systemEntityHandling && entity._embedded.systemEntityHandling.system ? entity._embedded.systemEntityHandling.system.id : null;
     const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute.id : null;
     entity.systemEntityHandling = systemEntityHandling;
     entity.schemaAttribute = schemaAttribute;
+    entity.system = system;
   }
   return {
     _attribute: entity,
@@ -169,4 +172,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaAttributeHandling);
+export default connect(select)(SchemaAttributeHandlingDetail);

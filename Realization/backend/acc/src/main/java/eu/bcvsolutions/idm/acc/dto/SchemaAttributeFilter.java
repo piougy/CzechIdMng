@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 public class SchemaAttributeFilter implements BaseFilter {
 	
 	private UUID objectClassId;
-	
+	private UUID systemId;
 	private String name;
 
 	public String getName() {
@@ -30,6 +30,14 @@ public class SchemaAttributeFilter implements BaseFilter {
 
 	public void setObjectClassId(UUID objectClassId) {
 		this.objectClassId = objectClassId;
+	}
+
+	public UUID getSystemId() {
+		return systemId;
+	}
+
+	public void setSystemId(UUID systemId) {
+		this.systemId = systemId;
 	}
 
 }

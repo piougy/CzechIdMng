@@ -18,69 +18,7 @@
       "title": "$t(acc:content.systems.header)"
     },
     "schema": {
-      "objectClass": {
-        "title": "Objekt na koncovém systému",
-        "objectClassHeader": "Objekt na koncovém systému",
-        "schemaAttributesHeader": "Atributy schématu",
-        "edit": {
-          "header": "Detail typu objektu na koncovém systému"
-        },
-        "create": {
-          "header": "Nový typ objektu na koncovém systému"
-        },
-        "save": {
-          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
-        },
-        "filter": {
-          "name": {
-            "label": "Název atributu",
-            "placeholder": "Název atributu ve schématu"
-          }
-        }
-      },
-      "entityHandling": {
-        "title" :"Skupina atributů",
-        "systemEntityHandlingHeader": "Skupina atributů <small>pro IDM entitu a typ operace</small>",
-        "schemaAttributesHandlingHeader": "Namapované atributy",
-        "edit": {
-          "header": "Detail typu IDM entity a operace"
-        },
-        "create": {
-          "header": "Nový typ IDM entity a operace",
-          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
-        },
-        "save": {
-          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
-        },
-        "filter": {
-          "idmPropertyName": {
-            "label": "Název IDM atributu",
-            "placeholder": "Název atributu v IDM"
-          }
-        }
-      },
-      "attribute": {
-        "title" : "Atribut ve schématu",
-        "header" : "Detail atributu systému",
-        "save": {
-          "success": "Atribut [{{name}}] systému byl úspěšně uložen"
-        },
-        "create": {
-          "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
-          "header": "Nový atribut systému"
-        }
-      },
-      "attributeHandling": {
-        "title" : "Atribut v IDM",
-        "header" : "Detail mapování atributu ",
-        "save": {
-          "success": "Atribut [{{name}}] IDM byl úspěšně uložen"
-        },
-        "create": {
-          "success": "Atribut [{{name}}] IDM byl úspěšně vytvořen",
-          "header": "Nový atribut IDM"
-        }
-      }
+
     },
     "system": {
       "detail" : {
@@ -173,6 +111,69 @@
       "connector": {
         "header": "Nastavení konektoru",
         "title": "Konektor"
+      },
+      "objectClassDetail": {
+        "title": "Objekt na koncovém systému",
+        "objectClassHeader": "Objekt na koncovém systému",
+        "schemaAttributesHeader": "Atributy schématu",
+        "edit": {
+          "header": "Detail typu objektu na koncovém systému"
+        },
+        "create": {
+          "header": "Nový typ objektu na koncovém systému"
+        },
+        "save": {
+          "success": "Typ objektu [{{name}}] na systému byl úspěšně uložen"
+        },
+        "filter": {
+          "name": {
+            "label": "Název atributu",
+            "placeholder": "Název atributu ve schématu"
+          }
+        }
+      },
+      "ontityHandlingDetail": {
+        "title" :"Skupina atributů",
+        "systemEntityHandlingHeader": "Skupina atributů <small>pro IDM entitu a typ operace</small>",
+        "schemaAttributesHandlingHeader": "Namapované atributy",
+        "edit": {
+          "header": "Detail typu IDM entity a operace"
+        },
+        "create": {
+          "header": "Nový typ IDM entity a operace",
+          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
+        },
+        "save": {
+          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
+        },
+        "filter": {
+          "idmPropertyName": {
+            "label": "Název IDM atributu",
+            "placeholder": "Název atributu v IDM"
+          }
+        }
+      },
+      "attributeDetail": {
+        "title" : "Atribut ve schématu",
+        "header" : "Detail atributu systému",
+        "save": {
+          "success": "Atribut [{{name}}] systému byl úspěšně uložen"
+        },
+        "create": {
+          "success": "Atribut [{{name}}] systému byl úspěšně vytvořen",
+          "header": "Nový atribut systému"
+        }
+      },
+      "attributeHandlingDetail": {
+        "title" : "Atribut v IDM",
+        "header" : "Detail mapování atributu ",
+        "save": {
+          "success": "Atribut [{{name}}] IDM byl úspěšně uložen"
+        },
+        "create": {
+          "success": "Atribut [{{name}}] IDM byl úspěšně vytvořen",
+          "header": "Nový atribut IDM"
+        }
       }
     },
     "role": {

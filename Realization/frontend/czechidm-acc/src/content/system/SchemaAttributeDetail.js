@@ -9,7 +9,7 @@ const uiKey = 'schema-attribute';
 const manager = new SchemaAttributeManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SchemaAttribute extends Basic.AbstractTableContent {
+class SchemaAttributeDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -24,7 +24,7 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.schema.attribute';
+    return 'acc:content.system.attributeDetail';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -155,11 +155,11 @@ class SchemaAttribute extends Basic.AbstractTableContent {
   }
 }
 
-SchemaAttribute.propTypes = {
+SchemaAttributeDetail.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SchemaAttribute.defaultProps = {
+SchemaAttributeDetail.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -176,4 +176,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaAttribute);
+export default connect(select)(SchemaAttributeDetail);

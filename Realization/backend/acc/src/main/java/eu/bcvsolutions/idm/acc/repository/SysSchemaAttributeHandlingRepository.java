@@ -30,6 +30,8 @@ public interface SysSchemaAttributeHandlingRepository extends BaseRepository<Sys
 			" where" +
 	        " (?#{[0].entityHandlingId} is null or e.systemEntityHandling.id = ?#{[0].entityHandlingId})"
 	        + " and"
+	        + " (?#{[0].systemId} is null or e.systemEntityHandling.system.id = ?#{[0].systemId})"
+	        + " and"
 			+ " (lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
 			)
 	Page<SysSchemaAttributeHandling> find(SchemaAttributeHandlingFilter filter, Pageable pageable);

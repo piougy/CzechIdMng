@@ -246,3 +246,8 @@ SearchParameters.NAME_QUICK = 'quick';
  * @type {Number}
  */
 SearchParameters.DEFAUT_SIZE = 10;
+/**
+ * Blank UUID. Can be use for sitiuations when we don't have ID for some entity, but we need use some "default" value.
+ * @type {String}
+ */
+SearchParameters.BLANK_UUID = '00000000-0000-0000-0000-000000000000';

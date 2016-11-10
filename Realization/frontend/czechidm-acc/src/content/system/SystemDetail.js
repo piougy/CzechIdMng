@@ -22,11 +22,7 @@ export default class SystemDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entity } = this.props;
-    if (entity !== undefined) {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    }
+    this.refs.name.focus();
   }
 
   save(afterAction, event) {
@@ -73,9 +69,6 @@ export default class SystemDetail extends Basic.AbstractContent {
     });
   }
 
-  closeDetail() {
-  }
-
   render() {
     const { uiKey, entity } = this.props;
     const { _showLoading } = this.state;
@@ -88,7 +81,7 @@ export default class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -96,7 +89,8 @@ export default class SystemDetail extends Basic.AbstractContent {
                   max={255}/>
                 <Basic.TextArea
                   ref="description"
-                  label={this.i18n('acc:entity.System.description')}/>
+                  label={this.i18n('acc:entity.System.description')}
+                  max={255}/>
                 <Basic.Checkbox
                   ref="virtual"
                   label={this.i18n('acc:entity.System.virtual')}/>

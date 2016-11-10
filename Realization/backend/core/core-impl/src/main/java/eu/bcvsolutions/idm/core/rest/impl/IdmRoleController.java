@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -105,7 +107,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("role", roleId));
 		}
 		
-		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmRole.class.getSimpleName(), Long.parseLong(roleId), pageable);
+		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmRole.class.getSimpleName(), UUID.fromString(roleId), pageable);
 		
 		return toResources(results, assembler, IdmRole.class, null);
 	}

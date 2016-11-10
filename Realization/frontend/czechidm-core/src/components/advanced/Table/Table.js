@@ -331,11 +331,11 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   onChange={this.onBulkAction.bind(this)}
                   ref="bulkActionSelect"
                   componentSpan=""
-                  className={selectedRows <= 0 ? 'hidden' : 'bulk-action'}
+                  className={selectedRows.length <= 0 ? 'hidden' : 'bulk-action'}
                   multiSelect={false}
                   options={actions}
                   placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
-                  readOnly={selectedRows <= 0}
+                  readOnly={selectedRows.length <= 0}
                   rendered={actions !== null && actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>

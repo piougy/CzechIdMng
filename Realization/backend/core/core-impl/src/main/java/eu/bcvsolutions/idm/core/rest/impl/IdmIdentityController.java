@@ -115,7 +115,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
-		return grantedAuthoritiesFactory.getGrantedAuthorities(identityId);
+		IdmIdentity identity = getEntity(identityId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+		}
+		//
+		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
 	}
 
 	/**

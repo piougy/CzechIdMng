@@ -24,7 +24,7 @@
     <sequenceFlow id="flow3" name="Neschváleno" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask1" name="Odstranění vazby" activiti:expression="#{defaultIdmIdentityRoleService.delete(identityRoleIdentifier)}"></serviceTask>
+    <serviceTask id="servicetask1" name="Odstranění vazby" activiti:expression="#{defaultIdmIdentityRoleService.deleteById(identityRoleIdentifier)}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="servicetask1"></sequenceFlow>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="endevent2"></sequenceFlow>

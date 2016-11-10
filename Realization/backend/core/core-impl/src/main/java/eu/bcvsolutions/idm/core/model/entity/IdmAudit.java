@@ -4,12 +4,14 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.ModifiedEntityNames;
 import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
@@ -31,15 +33,20 @@ import eu.bcvsolutions.idm.core.config.domain.IdmAuditListener;
 @Entity
 @RevisionEntity(IdmAuditListener.class)
 public class IdmAudit implements BaseEntity {
-	
-	private static final long serialVersionUID = -1829259500087921896L;
-	
+
+	private static final long serialVersionUID = -2762812245969363775L;
+
 	public static final String DELIMITER = ",";
 	
 	@Id
-	@GeneratedValue
-	@RevisionNumber
+    @GeneratedValue
+    @RevisionNumber
 	private Long id;
+	
+	@GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@Column(name = "idm_id")
+	private UUID idmId;
 	
 	@JsonIgnore
 	@RevisionTimestamp
@@ -70,7 +77,7 @@ public class IdmAudit implements BaseEntity {
 	private String originalModifier;
 	
 	@Column(name = "entityId")
-	private Long entityId;
+	private UUID entityId;
 	
 	public String getOriginalModifier() {
 		return originalModifier;
@@ -80,11 +87,11 @@ public class IdmAudit implements BaseEntity {
 		this.originalModifier = originalModifier;
 	}
 
-	public Long getEntityId() {
+	public UUID getEntityId() {
 		return entityId;
 	}
 
-	public void setEntityId(Long entityId) {
+	public void setEntityId(UUID entityId) {
 		this.entityId = entityId;
 	}
 
@@ -153,17 +160,6 @@ public class IdmAudit implements BaseEntity {
 	public Date getRevisionDate() {
 		return new Date( timestamp );
 	}
-
-	@Override
-	public Long getId() {
-		return this.id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-		
-	}
 	
 	@Override
 	public boolean equals(Object o) {
@@ -181,7 +177,7 @@ public class IdmAudit implements BaseEntity {
 			return false;
 		}
 		
-		if (id == that.id && timestamp == that.timestamp) {
+		if (timestamp == that.timestamp) {
 			return true;
 		} 
 
@@ -191,8 +187,7 @@ public class IdmAudit implements BaseEntity {
 	@Override
 	public int hashCode() {
 		int result;
-		result = id.intValue();
-		result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+		result = (int) (timestamp ^ (timestamp >>> 32));
 		result = 31 * result + (modifiedEntityNames != null ? modifiedEntityNames.hashCode() : 0);
 		return result;
 	}
@@ -200,8 +195,27 @@ public class IdmAudit implements BaseEntity {
 	@Override
 	public String toString() {
 		return "IdmAuditEntity("
-				+ "id = " + id
+				+ "id = " + serialVersionUID
 				+ ", revisionDate = " + DateFormat.getDateTimeInstance().format( getRevisionDate() )
 				+ ", modifiedEntityNames = " + modifiedEntityNames + ")";
+	}
+
+	@Override
+	public UUID getId() {
+		return this.idmId;
+	}
+
+	public Long getRevId() {
+		return id;
+	}
+
+	public void setRevId(Long id) {
+		this.id = id;
+	}
+
+	@Override
+	public void setId(UUID idmId) {
+		this.idmId = idmId;
+		
 	}
 }

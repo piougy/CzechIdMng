@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	<T> T findRevision(Class<T> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException;	
+	<T> T findRevision(Class<T> classType, Long revisionId, UUID entityId) throws RevisionDoesNotExistException;	
 	
 	/**
 	 * TODO:
@@ -48,7 +49,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param currentRevId
 	 * @return
 	 */
-	<T> T getPreviousVersion(Class<T> entityClass, long entityId, long currentRevId);
+	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevId);
 	
 	/**
 	 * Return names of changed columns with annotation @Audited. Diff is realized by previous revision and actual entity.
@@ -59,7 +60,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param currentEntity
 	 * @return
 	 */
-	<T> List<String> getNameChangedColumns(Class<T> entityClass, long entityId, long currentRevId, T currentEntity);
+	<T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, long currentRevId, T currentEntity);
 	
 	/**
 	 * Method return list of class simple name for which is audited. Must at least one attribute with
@@ -79,5 +80,5 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param pageable
 	 * @return
 	 */
-	Page<IdmAudit> getRevisionsForEntity(String clazz, long entityId, Pageable pageable);
+	Page<IdmAudit> getRevisionsForEntity(String clazz, UUID entityId, Pageable pageable);
 }

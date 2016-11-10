@@ -33,15 +33,16 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, Ident
 	IdmIdentity findOneByUsername(@Param("username") String username);
 
 	@Override
-	@Query(value = "select e from IdmIdentity e" +
-	        " where" +
-			" (" +
-	        " lower(e.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " or lower(e.firstName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " or lower(e.lastName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " or lower(e.email) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " or lower(e.description) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
-	        " )"
+	@Query(value = "select e from IdmIdentity e"
+	        + " where"
+			+ " ("
+	        	// naive "fulltext"
+				+ " lower(e.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or lower(e.firstName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or lower(e.lastName) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or lower(e.email) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or lower(e.description) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        + " )"
 	        + " and"
 	        + " ("
 		        + " (?#{[0].subordinatesFor} is null and ?#{[0].subordinatesByTreeType} is null)"
@@ -66,12 +67,13 @@ public interface IdmIdentityRepository extends BaseRepository<IdmIdentity, Ident
 	        + " )"
 	        + " and "
 	        + " ("
+	        	// identity with any of given role (OR)
 	        	+ " ?#{[0].roles == null ? 0 : [0].roles.size()} = 0"
 	        	+ " or exists (from IdmIdentityRole ir where ir.identity = e and ir.role.id IN (?#{T(eu.bcvsolutions.idm.core.api.utils.RepositoryUtils).queryEntityIds([0].roles)}))"
 	        + " )")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	
-	@Transactional(timeout = 5)
+	@Transactional(timeout = 5, readOnly = true)
 	@Query(value = "SELECT e FROM IdmIdentity e "
 			+ "JOIN e.roles roles "
 			+ "WHERE "

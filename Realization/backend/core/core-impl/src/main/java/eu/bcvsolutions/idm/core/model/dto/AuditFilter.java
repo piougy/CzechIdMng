@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
@@ -16,7 +18,7 @@ public class AuditFilter extends QuickFilter {
 	
 	private String modifier;
 	
-	private Long entityId;
+	private UUID entityId;
 
 	public String getModifier() {
 		return modifier;
@@ -26,11 +28,11 @@ public class AuditFilter extends QuickFilter {
 		this.modifier = modifier;
 	}
 
-	public Long getEntityId() {
+	public UUID getEntityId() {
 		return entityId;
 	}
 
-	public void setEntityId(Long entityId) {
+	public void setEntityId(UUID entityId) {
 		this.entityId = entityId;
 	}
 

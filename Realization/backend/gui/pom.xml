@@ -53,15 +53,37 @@
                  </configuration>
                  <phase>generate-resources</phase>
               </execution>
+              <execution>
+                 <id>npm run-script czechidm-modules-link</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>run-script czechidm-modules-link</arguments>
+                    <workingDirectory>../../frontend/czechidm-app/</workingDirectory>
+                 </configuration>
+                 <phase>generate-resources</phase>
+              </execution>
               <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
               <execution>
-                 <id>install dependencies</id>
+                 <id>install czechidm-core dependencies</id>
                  <goals>
                     <goal>npm</goal>
                  </goals>
                  <configuration>
                     <arguments>install</arguments>
                     <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+                    <installDirectory>target</installDirectory>
+                 </configuration>
+              </execution>
+              <execution>
+                 <id>install czechidm-acc dependencies</id>
+                 <goals>
+                    <goal>npm</goal>
+                 </goals>
+                 <configuration>
+                    <arguments>install</arguments>
+                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
                     <installDirectory>target</installDirectory>
                  </configuration>
               </execution>
@@ -83,6 +105,7 @@
                  <phase>generate-resources</phase>
                  <configuration>
                     <arguments>build -p default</arguments>
+                    <workingDirectory>../../frontend/czechidm-app</workingDirectory>
                     <installDirectory>target</installDirectory>
                  </configuration>
               </execution>
@@ -130,7 +153,7 @@
             <snapshotRepository>
                <id>nexus</id>
                <name>Nexus Staging repo</name>
-               <url>http://localhost:8082/repository/maven-snapshots/</url>
+               <url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
             </snapshotRepository>
          </distributionManagement>
       </profile>
@@ -166,7 +189,7 @@
             <repository>
                <id>nexus</id>
                <name>Nexus Staging repo</name>
-               <url>http://localhost:8082/repository/maven-releases/</url>
+               <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
             </repository>
          </distributionManagement>
       </profile>

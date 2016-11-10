@@ -9,11 +9,11 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 
 /**
- * Some entities could be found by name
+ * Some entities could be found by name.
  * 
  * @author Radek Tomiška 
  *
- * @param <T>
+ * @param <E>
  */
 public abstract class IdentifiableByNameLookup<E extends BaseEntity> extends EntityLookupSupport<E>{
 	
@@ -30,13 +30,14 @@ public abstract class IdentifiableByNameLookup<E extends BaseEntity> extends Ent
 
 	@Override
 	public Object lookupEntity(Serializable id) {
-		E entity = getEntityService().getByName(id.toString());
-		if(entity == null) {
-			try {
-				entity = getEntityService().get(Long.valueOf(id.toString()));
-			} catch (NumberFormatException ex) {
-				// simply not found		
-			}
+		E entity = null;
+		try {
+			entity = getEntityService().get(id);
+		} catch (IllegalArgumentException ex) {
+			// simply not found
+		}
+		if (entity == null) {
+			entity = getEntityService().getByName(id.toString());
 		}
 		return entity;
 	}

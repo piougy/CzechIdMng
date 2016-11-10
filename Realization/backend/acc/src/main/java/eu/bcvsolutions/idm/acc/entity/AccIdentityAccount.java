@@ -1,14 +1,14 @@
 package eu.bcvsolutions.idm.acc.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -25,9 +25,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 @Entity
 @Table(name = "acc_identity_account", indexes = {
 		@Index(name = "ux_identity_account", columnList = "identity_id,account_id", unique = true),
-		@Index(name = "idx_acc_identity_account_account_id", columnList = "account_id"),
-		@Index(name = "idx_acc_identity_account_identity_id", columnList = "identity_id"),
-		@Index(name = "idx_acc_identity_identity_role_id", columnList = "identity_role_id")
+		@Index(name = "idx_acc_identity_account_acc", columnList = "account_id"),
+		@Index(name = "idx_acc_identity_account_ident", columnList = "identity_id"),
+		@Index(name = "idx_acc_identity_identity_role", columnList = "identity_role_id")
 		})
 public class AccIdentityAccount extends AbstractEntity {
 
@@ -36,20 +36,24 @@ public class AccIdentityAccount extends AbstractEntity {
 	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "account_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private AccAccount account;
 	
 	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "identity_role_id", referencedColumnName = "id")
+	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
 	
 	@Audited(withModifiedFlag=true)

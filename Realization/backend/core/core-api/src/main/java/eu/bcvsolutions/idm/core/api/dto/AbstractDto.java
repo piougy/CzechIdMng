@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
@@ -17,7 +18,7 @@ public abstract class AbstractDto implements Serializable, BaseDto {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
-	private Long id;
+	private UUID id;
 	private Date created;
 	private Date modified;
 	@Size(max = DefaultFieldLengths.NAME)
@@ -32,17 +33,17 @@ public abstract class AbstractDto implements Serializable, BaseDto {
 	public AbstractDto() {
 	}
 
-	public AbstractDto(Long id) {
+	public AbstractDto(UUID id) {
 		this.id = id;
 	}
 
 	@Override
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(UUID	 id) {
 		this.id = id;
 	}
 

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -57,14 +58,14 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findRoots(Long treeType, Pageable pageable) {
-		return this.treeNodeRepository.findRoots(treeType, pageable);
+	public Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable) {
+		return this.treeNodeRepository.findChildren(treeTypeId, null, pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findChildrenByParent(Long parent, Pageable pageable) {
-		return this.treeNodeRepository.findChildrenByParent(parent, pageable);
+	public Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable) {
+		return this.treeNodeRepository.findChildren(null, parentId, pageable);
 	}
 	
 	private void validate(IdmTreeNode node) {		

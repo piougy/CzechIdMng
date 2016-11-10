@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -92,7 +94,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		
 		IdmTreeNode revision;
 		try {
-			revision = this.auditService.findRevision(IdmTreeNode.class, revId, Long.parseLong(treeNodeId));
+			revision = this.auditService.findRevision(IdmTreeNode.class, revId, treeNode.getId());
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}
@@ -107,27 +109,27 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
-		
-		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmTreeNode.class.getSimpleName(), Long.parseLong(treeNodeId), pageable);
-
+		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(treeNodeId), pageable);
 		return toResources(results, assembler, IdmRole.class, null);
 	}
 	
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(
-			@Param(value = "treeType") Long treeType,
+			@Param(value = "treeType") String treeType,
 			PersistentEntityResourceAssembler assembler,
-			@PageableDefault Pageable pageable) {	
-		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(treeType, pageable);
+			@PageableDefault Pageable pageable) {
+		// TODO: try - catch ... or better findRoots with tree type instance (aditional select, but type save)
+		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeType), pageable);
 		return toResources(roots, assembler, IdmTreeNode.class, null);
 	}
 	
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
 	public Resources<?> findChildren(
-			@Param(value = "parent") @NotNull Long parent, 
+			@Param(value = "parent") @NotNull String parent, 
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {	
-		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(parent, pageable);
+		// TODO: try - catch ... or better findChildrenByParent with tree node instance (aditional select, but type save)
+		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
 		return toResources(children, assembler, IdmTreeNode.class, null);
 	}
 	
@@ -135,8 +137,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	protected TreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		TreeNodeFilter filter = new TreeNodeFilter();
 		filter.setText((String)parameters.toSingleValueMap().get("text"));
-		filter.setTreeNode(convertLongParameter(parameters, "parent"));
-		filter.setTreeType(convertLongParameter(parameters, "treeType"));
+		filter.setTreeNodeId(convertUuidParameter(parameters, "parent"));
+		filter.setTreeTypeId(convertUuidParameter(parameters, "treeType"));
 		return filter;
 	}
 }

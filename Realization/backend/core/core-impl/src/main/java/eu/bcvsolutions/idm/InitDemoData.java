@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Charsets;
+
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -86,7 +88,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeRepository.findRoots(null, new PageRequest(0, 1));
+			Page<IdmTreeNode> rootsList = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);
@@ -123,7 +125,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmIdentity identity = new IdmIdentity();
 				identity.setUsername("tomiska");
-				identity.setPassword("heslo".getBytes());
+				identity.setPassword("heslo".getBytes(Charsets.UTF_8));
 				identity.setFirstName("Radek");
 				identity.setLastName("Tomiška");
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
@@ -143,7 +145,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmIdentity identity2 = new IdmIdentity();
 				identity2.setUsername("svanda");
 				identity2.setFirstName("Vít");
-				identity2.setPassword("heslo".getBytes());
+				identity2.setPassword("heslo".getBytes(Charsets.UTF_8));
 				identity2.setLastName("Švanda");
 				identity2.setEmail("vit.svanda@bcvsolutions.eu");
 				identity2 = this.identityRepository.save(identity2);
@@ -152,7 +154,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmIdentity identity3 = new IdmIdentity();
 				identity3.setUsername("kopr");
 				identity3.setFirstName("Ondrej");
-				identity3.setPassword("heslo".getBytes());
+				identity3.setPassword("heslo".getBytes(Charsets.UTF_8));
 				identity3.setLastName("Kopr");
 				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
 				identity3 = this.identityRepository.save(identity3);

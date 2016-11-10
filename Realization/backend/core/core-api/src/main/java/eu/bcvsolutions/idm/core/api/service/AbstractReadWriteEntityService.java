@@ -1,6 +1,9 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
+
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
@@ -37,6 +40,20 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	@Transactional
 	public void delete(E entity) {
 		getRepository().delete(entity);
+	}
+	
+	/**
+	 * Deletes a given entity.
+	 * 
+	 * @param entity
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 */
+	@Override
+	@Transactional
+	public void deleteById(Serializable id){
+		Assert.notNull(id);
+		//
+		delete(get(id));
 	}
 
 }

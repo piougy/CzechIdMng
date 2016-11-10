@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.config.domain;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -10,7 +11,6 @@ import org.hibernate.envers.EntityTrackingRevisionListener;
 import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -38,7 +38,6 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	@Transactional
 	public void entityChanged(Class entityClass, String entityName, Serializable entityId, RevisionType revisionType,
 			Object revisionEntity) {
 		
@@ -50,8 +49,8 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		
 		// if revision type is MOD - modification, get and set changed columns
 		if (revisionType == RevisionType.MOD) {
-			currentEntity = (AbstractEntity) entityManger.find(entityClass, (long)entityId);
-			changedColumns = auditService.getNameChangedColumns(entityClass, (long)entityId, ((IdmAudit)revisionEntity).getId(), currentEntity);
+			currentEntity = (AbstractEntity) entityManger.find(entityClass, (UUID)entityId);
+			changedColumns = auditService.getNameChangedColumns(entityClass, (UUID)entityId, ((IdmAudit)revisionEntity).getRevId(), currentEntity);
 			((IdmAudit)revisionEntity).addChanged(changedColumns);
 		}
 		
@@ -64,7 +63,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
      	// original modifier before switch
      	((IdmAudit)revisionEntity).setOriginalModifier(securityService.getOriginalUsername());
      	// entity id TODO: link from collection to master.
-     	((IdmAudit)revisionEntity).setEntityId((long)entityId);
+     	((IdmAudit)revisionEntity).setEntityId((UUID)entityId);
 	}
 	
 	/**

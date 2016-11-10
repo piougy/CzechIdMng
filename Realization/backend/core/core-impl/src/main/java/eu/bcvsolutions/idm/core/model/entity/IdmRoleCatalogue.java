@@ -1,15 +1,15 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -27,8 +27,8 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 
 @Entity
 @Table(name = "idm_role_catalogue", indexes = { 
-		@Index(name = "ux_role_catalogue_name", columnList = "name"),
-		@Index(name = "idx_idm_role_catalogue_parent", columnList = "parent_id")})
+		@Index(name = "ux_role_catalogue_name", columnList = "name", unique = true),
+		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
 public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByName, BaseTreeEntity<IdmRoleCatalogue> {
 
 	private static final long serialVersionUID = 1883443149941011579L;
@@ -36,13 +36,14 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
 	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "parent_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleCatalogue parent;
 	
 	@Audited(withModifiedFlag=true)

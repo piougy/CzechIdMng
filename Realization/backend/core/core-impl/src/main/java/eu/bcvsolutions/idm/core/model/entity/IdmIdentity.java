@@ -12,8 +12,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -42,7 +40,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
 	private String username;
 
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -98,13 +96,15 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles;
 	
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityContract> contracts;
 
 	public String getUsername() {

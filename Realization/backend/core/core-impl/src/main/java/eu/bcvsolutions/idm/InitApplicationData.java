@@ -11,18 +11,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Charsets;
+
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
@@ -105,7 +107,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				//
 				IdmIdentity identityAdmin = new IdmIdentity();
 				identityAdmin.setUsername(ADMIN_USERNAME);
-				identityAdmin.setPassword(ADMIN_PASSWORD.getBytes());
+				identityAdmin.setPassword(ADMIN_PASSWORD.getBytes(Charsets.UTF_8));
 				identityAdmin.setLastName("Administrator");
 				identityAdmin = this.identityRepository.save(identityAdmin);
 				log.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
@@ -126,7 +128,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			}
 			//
 			// create organization root
-			if (treeNodeRepository.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (treeNodeRepository.findChildren(treeType.getId(), null, new PageRequest(0, 1)).getTotalElements() == 0) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Root organization");

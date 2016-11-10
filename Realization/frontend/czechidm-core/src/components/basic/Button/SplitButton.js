@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { SplitButton } from 'react-bootstrap';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
+import Icon from '../Icon/Icon';
 
 class BasicSplitButton extends AbstractComponent {
 
@@ -9,11 +10,41 @@ class BasicSplitButton extends AbstractComponent {
   }
 
   render() {
-    const { level, rendered, showLoading, disabled, title, ...others } = this.props;
+    const { level, rendered, showLoading, showLoadingIcon, showLoadingText, disabled, title, ...others } = this.props;
     if (!rendered) {
       return null;
     }
-    const _title = title || ''; // title is required for SplitButton ... why?
+    let _showLoadingText = title;
+    if (showLoadingText !== null) {
+      _showLoadingText = showLoadingText;
+    }
+    const _title = (
+      <span>
+        {
+          showLoading
+          ?
+          <span>
+            {
+              showLoadingIcon
+              ?
+              <Icon type="fa" icon="refresh" showLoading/>
+              :
+              null
+            }
+            {
+              showLoadingIcon && _showLoadingText
+              ?
+              '\u00a0'
+              :
+              null
+            }
+            {_showLoadingText}
+          </span>
+          :
+          title
+        }
+      </span>
+    );
     return (
       <SplitButton bsStyle={level} disabled={disabled || showLoading} title={_title} {...others}>
         {this.props.children}
@@ -24,6 +55,7 @@ class BasicSplitButton extends AbstractComponent {
 
 BasicSplitButton.propTypes = {
   ...AbstractComponent.propTypes,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
   level: PropTypes.oneOf(['default', 'success', 'warning', 'info', 'danger', 'link']),
 };
 BasicSplitButton.defaultProps = {

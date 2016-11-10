@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
+
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
@@ -28,4 +30,12 @@ public interface ReadWriteEntityService<E extends BaseEntity, F extends BaseFilt
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	void delete(E entity);
+	
+	/**
+	 * Deletes a given entity.
+	 * 
+	 * @param entity
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 */
+	void deleteById(Serializable id);
 }

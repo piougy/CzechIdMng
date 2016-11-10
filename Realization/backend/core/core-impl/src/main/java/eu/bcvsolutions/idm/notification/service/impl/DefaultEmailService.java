@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.lang3.StringUtils;
@@ -85,7 +86,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sent
 	 */
 	@Override
-	public void setEmailSent(Long emailLogId, Date sent) {
+	public void setEmailSent(UUID emailLogId, Date sent) {
 		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
@@ -101,7 +102,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sentLog
 	 */
 	@Override
-	public void setEmailSentLog(Long emailLogId, String sentLog) {
+	public void setEmailSentLog(UUID emailLogId, String sentLog) {
 		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//

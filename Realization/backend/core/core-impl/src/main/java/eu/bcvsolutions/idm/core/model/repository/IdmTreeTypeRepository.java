@@ -32,9 +32,11 @@ public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType, Quick
 	
 	@Override
 	@Query(value = "select e from IdmTreeType e" +
-	        " where" +
-	        "(?#{[0].text} is null "
-	        + " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
-	        + " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
+	        " where"
+	        + " ("
+		        + " ?#{[0].text} is null"
+		        + " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+	        + " )")
 	Page<IdmTreeType> find(QuickFilter filter, Pageable pageable);
 }

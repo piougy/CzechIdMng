@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import merge from 'object-assign';

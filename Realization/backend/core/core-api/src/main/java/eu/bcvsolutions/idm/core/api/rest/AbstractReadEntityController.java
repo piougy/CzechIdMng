@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -92,14 +93,31 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return entityLookupService.getEntityLookup(getEntityClass());
 	}
 
+	/**
+	 * Returns entity service configured to current controller
+	 * 
+	 * @return
+	 */
 	protected ReadEntityService<E, F> getEntityService() {
 		return entityService;
 	}
 	
+	/**
+	 * Returns controlled entity class
+	 * 
+	 * @return
+	 */
 	protected Class<E> getEntityClass() {
 		return getEntityService().getEntityClass();
 	}
 	
+	/**
+	 * Returns response dto with entity by given backendId 
+	 * 
+	 * @param backendId
+	 * @param assembler
+	 * @return
+	 */
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		E entity = getEntity(backendId);
 		if (entity == null) {
@@ -108,14 +126,20 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return new ResponseEntity<>(toResource(entity, assembler), HttpStatus.OK);
 	}
 	
+	/**
+	 * Returns entity by given backendId
+	 * 
+	 * @param backendId
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public E getEntity(String backendId) {
 		// TODO: read events
 		if(getEntityLookup() == null) {
 			try {
-				return getEntityService().get(Long.valueOf(backendId));
-			} catch (NumberFormatException ex) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+				return getEntityService().get(backendId);
+			} catch (IllegalArgumentException ex) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId), ex);
 			}
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
@@ -134,6 +158,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return getEntityLookup().getResourceIdentifier(entity);
 	}
 	
+	/**
+	 * 
+	 * @param parameters
+	 * @param pageable
+	 * @param assembler
+	 * @return
+	 */
 	public Resources<?> find(
 			@RequestParam MultiValueMap<String, Object> parameters,
 			@PageableDefault Pageable pageable, 
@@ -146,13 +177,20 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return getEntityService().find(filter, pageable);
 	}	
 	
+	/**
+	 * Converts entity to dto (using controller defined assembler or default)
+	 * 
+	 * @param entity
+	 * @param assembler default PersistentEntityResourceAssembler assembler
+	 * @return
+	 */
 	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
 		if(getAssembler() != null) {
 			return getAssembler().toResource(entity);
 		}
 		return assembler.toFullResource(entity);
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Resources<?> toResources(Iterable<?> source, PersistentEntityResourceAssembler assembler,
 			Class<?> domainType, Link baseLink) {
@@ -182,7 +220,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			Class<?> domainType) {
 
 		if (!entities.iterator().hasNext()) {
-
+			// empty collection
 			List<Object> content = Arrays.<Object> asList(WRAPPERS.emptyCollectionOf(domainType));
 			return new Resources<Object>(content, getDefaultSelfLink());
 		}
@@ -229,7 +267,26 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			try {
 				return Long.valueOf(valueAsString);
 			} catch (NumberFormatException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
+			}		
+		}
+		return null;
+	}
+	
+	/**
+	 * Converts parameter to {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected UUID convertUuidParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if(StringUtils.isNotEmpty(valueAsString)) {
+			try {
+				return UUID.fromString(valueAsString);
+			} catch (IllegalArgumentException ex) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
 			}		
 		}
 		return null;
@@ -253,7 +310,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
         try {
             return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
         } catch(IllegalArgumentException ex) {
-        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString));
+        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
         }
 	}
 	

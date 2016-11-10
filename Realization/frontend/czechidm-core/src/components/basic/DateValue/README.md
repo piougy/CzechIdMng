@@ -1,6 +1,6 @@
 # DateValue component
 
-Basic DateValue date formatter. Extended from AbstractComponent. You can use advanced component DateValue with showTime parameters, please use advanced component.
+Basic DateValue date formatter. Extended from AbstractComponent. You can use advanced component DateValue with default date/time format loaded from localization.
 
 ## Parameters
 

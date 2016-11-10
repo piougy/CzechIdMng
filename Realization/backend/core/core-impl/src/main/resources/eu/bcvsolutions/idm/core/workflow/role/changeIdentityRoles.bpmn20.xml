@@ -106,7 +106,7 @@ def changeIdentityRoleWrapperList = [];
 
 for (changedIdentityRole in changedIdentityRoles) {
 	//Load IdentityRole entity by ID
-	idmIdentityRole = defaultIdmIdentityRoleService.get(changedIdentityRole.id.toLong());
+	idmIdentityRole = defaultIdmIdentityRoleService.get(changedIdentityRole.id);
 	if(!idmIdentityRole) {
 		// IdentityRole not found ... subprocess will be not started
 		continue;

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +25,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -45,7 +46,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
+public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String ADDED_IDENTITY_ROLES_VARIABLE = "addedIdentityRoles";
 	private static final String REMOVED_IDENTITY_ROLES_VARIABLE = "removedIdentityRoles";
@@ -312,7 +313,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void removeApprovableSuperAdminRole() {
 	
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, true);
-		List<Long> roles = new ArrayList<>();
+		List<UUID> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		IdmIdentityRole superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		// Add permission ID to remove list
@@ -364,7 +365,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 	public void removeNotApprovableUserRole() {
 	
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, true);
-		List<Long> roles = new ArrayList<>();
+		List<UUID> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
 		IdmIdentityRole userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		// Add permission ID to remove list
@@ -447,7 +448,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowTest {
 		return role;
 	}
 	
-	private Map<String, Object> createChangePermission(Long identityRoleId, Date validFrom, Date validTill) {
+	private Map<String, Object> createChangePermission(UUID identityRoleId, Date validFrom, Date validTill) {
 		Map<String, Object> role = new HashMap<>();
 		
 		role.put("validTill", validTill == null ? "" : sdf.format(validTill));

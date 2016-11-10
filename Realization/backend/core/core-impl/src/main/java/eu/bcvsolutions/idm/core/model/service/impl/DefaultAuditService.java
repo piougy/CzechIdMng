@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -54,7 +55,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public <T> T findRevision(Class<T> classType, Long revisionId, Long entityId) throws RevisionDoesNotExistException  {
+	public <T> T findRevision(Class<T> classType, Long revisionId, UUID entityId) throws RevisionDoesNotExistException  {
 		AuditReader reader = getAuditReader();
 		return reader.find(classType, entityId, revisionId);
 	}
@@ -83,7 +84,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	}
 
 	@Override
-	public <T> T getPreviousVersion(Class<T> entityClass, long entityId, long currentRevId) {
+	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevId) {
 		AuditReader reader = this.getAuditReader();
 
 	    Number prior_revision = (Number) reader.createQuery()
@@ -101,7 +102,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	}
 
 	@Override
-	public <T> List<String> getNameChangedColumns(Class<T> entityClass, long entityId, long currentRevId,
+	public <T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, long currentRevId,
 			T currentEntity) {
 		List<String> changedColumns = new ArrayList<>();
 		T previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
@@ -140,7 +141,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	}
 
 	@Override
-	public Page<IdmAudit> getRevisionsForEntity(String entityClass, long entityId, Pageable pageable) {
+	public Page<IdmAudit> getRevisionsForEntity(String entityClass, UUID entityId, Pageable pageable) {
 		AuditFilter filter = new AuditFilter();
 		filter.setType(entityClass);
 		filter.setEntityId(entityId);

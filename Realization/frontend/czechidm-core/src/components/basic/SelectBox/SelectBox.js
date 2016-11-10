@@ -23,9 +23,26 @@ class SelectBox extends AbstractFormComponent {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { forceSearchParameters} = nextProps;
+    if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
+      this._initComponent(nextProps);
+    }
+  }
+
+  // Did mount only call initComponent method
   componentDidMount() {
-    // initialize values
-    this.getOptions('');
+    this._initComponent(this.props);
+  }
+
+  /**
+   * Method for init component from didMount method and from willReceiveProps method
+   * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
+   */
+  _initComponent(props) {
+    // initialize value
+    // We have to propagat actual forceSearchParameters (maybe from this.props, maybe from nextProps)
+    this.getOptions('', props.forceSearchParameters);
   }
 
   getRequiredValidationSchema() {
@@ -38,8 +55,8 @@ class SelectBox extends AbstractFormComponent {
   /**
    * Merge hard and user deffined search parameters
    */
-  _createSearchParameters(inputText) {
-    const { forceSearchParameters, manager } = this.props;
+  _createSearchParameters(inputText, forceSearchParameters) {
+    const {manager } = this.props;
     // user input
     const searchParameters = manager.getDefaultSearchParameters().setSize(10).setFilter('text', inputText); // TODO: configurable search properties
     // hard filters
@@ -51,9 +68,9 @@ class SelectBox extends AbstractFormComponent {
     return manager.mergeSearchParameters(searchParameters, _forceSearchParameters);
   }
 
-  getOptions(input) {
+  getOptions(input, forceSearchParameters) {
     const { manager } = this.props;
-    const searchParameters = this._createSearchParameters(input);
+    const searchParameters = this._createSearchParameters(input, forceSearchParameters);
     this.setState({
       isLoading: true
     }, () => {
@@ -259,25 +276,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   onInputChange(value) {
-    this.getOptions(value);
-  }
-
-  reload(cb) {
-    const value = null;
-    this.setState({
-      value
-    }, () => {
-      this.validate();
-      this.getOptions('');
-
-      if (this.props.onChange) {
-        this.props.onChange(value);
-      }
-
-      if (cb) {
-        cb(value);
-      }
-    });
+    this.getOptions(value, this.props.forceSearchParameters);
   }
 
   getBody(feedback) {

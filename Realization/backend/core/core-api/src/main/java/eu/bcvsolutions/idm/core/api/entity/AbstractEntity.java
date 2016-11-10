@@ -1,23 +1,23 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.hateoas.Identifiable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -32,14 +32,15 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  */
 @MappedSuperclass
 @EntityListeners({AuditingEntityListener.class})
-public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Identifiable<Long> {
+public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
-	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	@GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@Column(name = "id")
+	private UUID id;
 
 	@Audited
 	@CreatedDate
@@ -84,20 +85,26 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	public AbstractEntity() {
 	}
 
-	public AbstractEntity(Long id) {
-		this.id = id;
+	public AbstractEntity(UUID uuid) {
+		this.id = uuid;
 	}
 
+	/**
+	 * Entity identifier
+	 */
 	@Override
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
-
+	
 	@Override
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
+	/**
+	 * Created date
+	 */
 	@Override
 	public Date getCreated() {
 		return created;
@@ -108,6 +115,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 		this.created = created;
 	}
 
+	/**
+	 * Last modified date
+	 */
 	@Override
 	public Date getModified() {
 		return modified;
@@ -117,27 +127,36 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-
-	@Override
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
+	
+	/**
+	 * Currently logged user, when record was created
+	 */
 	@Override
 	public String getCreator() {
 		return creator;
 	}
 
 	@Override
-	public void setModifier(String modifier) {
-		this.modifier = modifier;
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
+	/**
+	 * Currently logged user, when record was modified
+	 */
 	@Override
 	public String getModifier() {
 		return modifier;
 	}
+	
+	@Override
+	public void setModifier(String modifier) {
+		this.modifier = modifier;
+	}
 
+	/**
+	 * Currently logged user, when record was modified
+	 */
 	public String getOriginalCreator() {
 		return originalCreator;
 	}
@@ -154,11 +173,17 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 		this.originalModifier = originalModifier;
 	}
 	
+	/**
+	 * Class + entity identifier
+	 */
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -166,6 +191,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 		return hash;
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public boolean equals(Object object) {
 		if (object == null || !object.getClass().equals(getClass())) {

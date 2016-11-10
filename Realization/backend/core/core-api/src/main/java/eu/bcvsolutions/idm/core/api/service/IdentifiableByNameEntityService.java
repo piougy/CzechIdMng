@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
+
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -17,7 +19,7 @@ public interface IdentifiableByNameEntityService<E extends BaseEntity> {
 	 * @param id
 	 * @return
 	 */
-	E get(Long id);
+	E get(Serializable id);
 	
 	/**
 	 * Return entity by given name

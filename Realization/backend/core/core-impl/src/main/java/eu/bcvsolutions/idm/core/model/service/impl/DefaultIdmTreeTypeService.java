@@ -42,7 +42,7 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	@Override
 	public void delete(IdmTreeType entity) {
 		List<IdmIdentityContract> listWorkingPositions = workingPositionRepository.findAllByTreeType(entity);
-		Page<IdmTreeNode> nodes = treeNodeRepository.findRoots(entity.getId(), new PageRequest(0, 2));
+		Page<IdmTreeNode> nodes = treeNodeRepository.findChildren(entity.getId(), null, new PageRequest(0, 2));
 		
 		if (!listWorkingPositions.isEmpty() || nodes.getTotalElements() != 0) {
 			throw new TreeTypeException(CoreResultCode.TREE_TYPE_CANNOT_DELETE,  ImmutableMap.of("node", entity.getName()));

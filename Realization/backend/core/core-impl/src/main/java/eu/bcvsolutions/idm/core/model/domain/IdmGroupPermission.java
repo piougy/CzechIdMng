@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.domain;
 import java.util.Arrays;
 import java.util.List;
 
+import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
 import eu.bcvsolutions.idm.security.api.domain.BasePermission;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
@@ -60,7 +61,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	}
 	
 	@Override
-	public List<BasePermission> getPermissions() {		
+	public List<BasePermission> getPermissions() {
 		return permissions;
 	}
 	
@@ -68,4 +69,9 @@ public enum IdmGroupPermission implements GroupPermission {
 	public String getName() {
 		return name();
 	}	
+	
+	@Override
+	public String getModule() {
+		return CoreModuleDescriptor.MODULE_ID;
+	}
 }

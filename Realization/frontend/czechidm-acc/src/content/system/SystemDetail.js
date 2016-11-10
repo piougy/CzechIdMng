@@ -12,6 +12,9 @@ export default class SystemDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.manager = new SystemManager();
+    this.state = {
+      _showLoading: false
+    };
   }
 
   getContentKey() {
@@ -19,14 +22,10 @@ export default class SystemDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { entity } = this.props;
-    if (entity !== undefined) {
-      this.refs.form.setData(entity);
-      this.refs.name.focus();
-    }
+    this.refs.name.focus();
   }
 
-  save(event) {
+  save(afterAction, event) {
     const { uiKey } = this.props;
 
     if (event) {
@@ -35,40 +34,44 @@ export default class SystemDetail extends Basic.AbstractContent {
     if (!this.refs.form.isFormValid()) {
       return;
     }
-
+    //
     this.setState({
-      showLoading: true
-    }, this.refs.form.processStarted());
-
-    const entity = this.refs.form.getData();
-
-    if (entity.parent) {
-      entity.parent = this.manager.getSelfLink(entity.parent);
-    }
-
-    if (entity.id === undefined) {
-      this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
-        this._afterSave(createdEntity, error);
-      }));
-    } else {
-      this.context.store.dispatch(this.manager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
-    }
+      _showLoading: true
+    }, () => {
+      const entity = this.refs.form.getData();
+      if (entity.id === undefined) {
+        this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+          this._afterSave(createdEntity, error, afterAction);
+        }));
+      } else {
+        this.context.store.dispatch(this.manager.patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
+          this._afterSave(patchedEntity, error, afterAction);
+        }));
+      }
+    });
   }
 
-  _afterSave(entity, error) {
-    if (error) {
-      this.addError(error);
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    this.context.router.replace(`systems`);
-  }
-
-  closeDetail() {
+  _afterSave(entity, error, afterAction = 'CLOSE') {
+    this.setState({
+      _showLoading: false
+    }, () => {
+      if (error) {
+        this.addError(error);
+        return;
+      }
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      //
+      if (afterAction === 'CLOSE') {
+        this.context.router.replace(`systems`);
+      } else {
+        this.context.router.replace(`system/${entity.id}/detail`);
+      }
+    });
   }
 
   render() {
     const { uiKey, entity } = this.props;
+    const { _showLoading } = this.state;
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
@@ -78,7 +81,7 @@ export default class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -86,7 +89,8 @@ export default class SystemDetail extends Basic.AbstractContent {
                   max={255}/>
                 <Basic.TextArea
                   ref="description"
-                  label={this.i18n('acc:entity.System.description')}/>
+                  label={this.i18n('acc:entity.System.description')}
+                  max={255}/>
                 <Basic.Checkbox
                   ref="virtual"
                   label={this.i18n('acc:entity.System.virtual')}/>
@@ -97,16 +101,32 @@ export default class SystemDetail extends Basic.AbstractContent {
             </Basic.PanelBody>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+
+              <Basic.SplitButton
+                level="success"
+                title={this.i18n('button.saveAndContinue')}
+                onClick={this.save.bind(this, 'CONTINUE')}
+                showLoading={_showLoading}
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}
+                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+                pullRight
+                dropup>
+                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              </Basic.SplitButton>
+
               <Basic.Button
                 type="submit"
                 level="success"
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}>
+                rendered={false}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>
+          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

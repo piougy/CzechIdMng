@@ -16,8 +16,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  */
 public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSupport<E> {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookup.class);
-
 	private final ReadEntityService<E, ?> service;
 
 	public DefaultEntityLookup(ReadEntityService<E, ?> service) {
@@ -31,12 +29,7 @@ public class DefaultEntityLookup<E extends BaseEntity> extends EntityLookupSuppo
 
 	@Override
 	public Object lookupEntity(Serializable id) {
-		try {
-			return service.get(Long.valueOf(id.toString()));
-		} catch (NumberFormatException ex) {
-			log.warn("Wrong entity id [{}], expecting Long, returning null", id);
-			return null;
-		}
+		return service.get(id);
 	}
 	
 	@Override

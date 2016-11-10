@@ -2,17 +2,18 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
+import java.util.UUID;
+
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -20,11 +21,7 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.ModifiedEntityNames;
-import org.hibernate.envers.RevisionEntity;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -87,7 +84,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleAuthority> authorities;
 	
 	@Audited
@@ -103,19 +99,19 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<IdmRoleGuarantee> guarantees;
 	
 	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleCatalogue roleCatalogue;
 
 	public IdmRole() {
 	}
 	
-	public IdmRole(Long id) {
+	public IdmRole(UUID id) {
 		super(id);
 	}
 	

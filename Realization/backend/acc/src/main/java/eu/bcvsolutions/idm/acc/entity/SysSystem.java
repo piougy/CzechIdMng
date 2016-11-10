@@ -11,8 +11,6 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -61,8 +59,9 @@ public class SysSystem extends AbstractEntity {
 	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<SysRoleSystem> roleSystems; // only for auditing
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<SysRoleSystem> roleSystems; // only for auditing - is not used (without getter and setter)
 
 	public String getName() {
 		return name;

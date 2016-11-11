@@ -216,7 +216,8 @@
           "selection_empty": "Vyberte záznamy ...",
           "selection_0": "Vyberte záznamy ...",
           "selection_1": "Operace s vybraným záznamem:",
-          "selection_2": "Operace s vybranými záznamy ({{count}}):"
+          "selection_2": "Operace s vybranými záznamy ({{count}}):",
+          "selection_5": "Operace s vybranými záznamy ({{count}}):"
         },
         "error": {
           "load": "Při načítání záznamů do tabulky nastala chyba"

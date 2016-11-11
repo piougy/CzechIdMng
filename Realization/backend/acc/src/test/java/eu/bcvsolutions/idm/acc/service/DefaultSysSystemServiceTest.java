@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.test.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
 import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
@@ -47,5 +49,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		IdmFormDefinition formDefinition = new IdmFormDefinition();
 		formDefinition.setName(SysSystem.class.getCanonicalName());
 		formDefinition = formDefinitionService.save(formDefinition);
+		
+		IdmFormAttributeDefinition attributeDefinition = new IdmFormAttributeDefinition();
+		attributeDefinition.setFormDefinition(formDefinition);
+		attributeDefinition.setName("name_" + System.currentTimeMillis());
+		attributeDefinition.setDisplayName(attributeDefinition.getName());
+		attributeDefinition.setPersistentType(PersistentType.TEXT);			
+		attributeDefinition = formAttributeDefinitionRepository.save(attributeDefinition);
 	}
 }

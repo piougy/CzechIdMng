@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +16,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExcerpt;
 
 /**
- * Role catalogue reppository
+ * Role catalogue repository
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @RepositoryRestResource( //
 		collectionResourceRel = "roleCatalogues", // 
 		path = "roleCatalogues", //
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExce
 		excerptProjection = IdmRoleCatalogueExcerpt.class,
 		exported = false,
 		collectionResourceDescription = @Description("Role catalogues"))
-public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter>{
+public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter> {
 	
 	IdmRoleCatalogue findOneByName(@Param("name") String name);
 	
@@ -40,12 +40,7 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
 	
 	@Query(value = "select e from IdmRoleCatalogue e" +
-	        " where" +
-	        " e.parent.id = null")
-	List<IdmRoleCatalogue> findRoots();
-	
-	@Query(value = "select e from IdmRoleCatalogue e" +
 			" where" +
-			" (:parent is null and e.parent.id IS NULL) or (e.parent.id = :parent)")
-	List<IdmRoleCatalogue> findChildrenByParent(@Param(value = "parent") Long parent);
+			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")
+	List<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId);
 }

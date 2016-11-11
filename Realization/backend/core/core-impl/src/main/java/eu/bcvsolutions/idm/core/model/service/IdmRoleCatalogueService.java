@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -11,5 +12,5 @@ public interface IdmRoleCatalogueService extends ReadWriteEntityService<IdmRoleC
 
 	List<IdmRoleCatalogue> findRoots();
 	
-	List<IdmRoleCatalogue> findChildrenByParent(Long parent);
+	List<IdmRoleCatalogue> findChildrenByParent(UUID parent);
 }

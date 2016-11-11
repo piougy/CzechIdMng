@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,13 +54,13 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findRoots() {
-		return this.roleCatalogueRepository.findRoots();
+		return this.roleCatalogueRepository.findChildren(null);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmRoleCatalogue> findChildrenByParent(Long parent) {
-		return this.roleCatalogueRepository.findChildrenByParent(parent);
+	public List<IdmRoleCatalogue> findChildrenByParent(UUID parent) {
+		return this.roleCatalogueRepository.findChildren(parent);
 	}
 	
 }

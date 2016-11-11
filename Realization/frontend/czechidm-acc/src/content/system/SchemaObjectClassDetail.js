@@ -69,7 +69,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(entity, event) {
+  save(event) {
     if (event) {
       event.preventDefault();
     }
@@ -120,48 +120,50 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-
-        <Basic.ContentHeader>
-          <Basic.Icon value="compressed"/>
-          {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
-        </Basic.ContentHeader>
-
-        <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
-            <Basic.SelectBox
-              ref="system"
-              manager={systemManager}
-              label={this.i18n('acc:entity.SchemaObjectClass.system')}
-              readOnly
-              required/>
-            <Basic.TextField
-              ref="objectClassName"
-              label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
-              required
-              max={255}/>
-            <Basic.Checkbox
-              ref="container"
-              label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
-            <Basic.Checkbox
-              ref="auxiliary"
-              label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
-          </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <Basic.Button type="button" level="link"
-              onClick={this.context.router.goBack}
-              showLoading={_showLoading}>
-              {this.i18n('button.back')}
-            </Basic.Button>
-            <Basic.Button
-              onClick={this.save.bind(this)}
-              level="success" showLoading={_showLoading}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
+        <form onSubmit={this.save.bind(this)}>
+          <Helmet title={this.i18n('title')} />
+          <Basic.Confirm ref="confirm-delete" level="danger"/>
+          <Basic.ContentHeader>
+            <Basic.Icon value="compressed"/>
+            {' '}
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
+          </Basic.ContentHeader>
+          <Basic.Panel>
+            <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
+              <Basic.SelectBox
+                ref="system"
+                manager={systemManager}
+                label={this.i18n('acc:entity.SchemaObjectClass.system')}
+                readOnly
+                required/>
+              <Basic.TextField
+                ref="objectClassName"
+                label={this.i18n('acc:entity.SchemaObjectClass.objectClassName')}
+                required
+                max={255}/>
+              <Basic.Checkbox
+                ref="container"
+                label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
+              <Basic.Checkbox
+                ref="auxiliary"
+                label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
+            </Basic.AbstractForm>
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link"
+                onClick={this.context.router.goBack}
+                showLoading={_showLoading}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+              <Basic.Button
+                onClick={this.save.bind(this)}
+                level="success"
+                type="submit"
+                showLoading={_showLoading}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
         <Basic.ContentHeader rendered={schemaObjectClass && !isNew}>
           <Basic.Icon value="list"/>
           {' '}

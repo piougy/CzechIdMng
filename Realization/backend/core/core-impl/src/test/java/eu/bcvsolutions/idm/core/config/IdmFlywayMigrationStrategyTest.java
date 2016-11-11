@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
-import eu.bcvsolutions.idm.core.test.AbstractUnitTest;
 
 /**
  * Resolving location by jdbc database name

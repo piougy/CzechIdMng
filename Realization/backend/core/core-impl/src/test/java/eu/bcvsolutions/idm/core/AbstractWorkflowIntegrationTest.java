@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.test;
+package eu.bcvsolutions.idm.core;
 
 import java.io.InputStream;
 

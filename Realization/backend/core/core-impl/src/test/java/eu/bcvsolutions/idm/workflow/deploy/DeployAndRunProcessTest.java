@@ -7,7 +7,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.Deployment;
 import org.junit.Test;
 
-import eu.bcvsolutions.idm.core.test.AbstractWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 
 /**
  * Test deploy and run process with groovy script

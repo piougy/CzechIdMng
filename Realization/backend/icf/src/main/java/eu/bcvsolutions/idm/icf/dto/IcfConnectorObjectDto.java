@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.icf.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
@@ -16,6 +17,8 @@ public class IcfConnectorObjectDto implements IcfConnectorObject {
 	private List<IcfAttribute> attributes;
 
 	
+	public IcfConnectorObjectDto() {
+	}
 
 	public IcfConnectorObjectDto(IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		super();
@@ -24,6 +27,9 @@ public class IcfConnectorObjectDto implements IcfConnectorObject {
 	}
 
 	public List<IcfAttribute> getAttributes() {
+		if(attributes == null){
+			this.attributes = new ArrayList<>();
+		}
 		return attributes;
 	}
 

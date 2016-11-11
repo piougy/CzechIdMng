@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
@@ -56,7 +56,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	private IdmIdentityContractRepository identityContractRepository;
 	
 	@Override
-	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
+	protected AbstractEntityRepository<IdmIdentity, IdentityFilter> getRepository() {
 		return identityRepository;
 	}
 

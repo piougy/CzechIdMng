@@ -19,13 +19,13 @@ import org.springframework.plugin.core.SimplePluginRegistry;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
+import eu.bcvsolutions.idm.core.test.AbstractUnitTest;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;

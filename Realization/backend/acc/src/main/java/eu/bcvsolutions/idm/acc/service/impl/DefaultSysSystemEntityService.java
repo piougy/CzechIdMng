@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.service.SysSystemEntityService;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -23,7 +23,7 @@ public class DefaultSysSystemEntityService extends AbstractReadWriteEntityServic
 	private SysSystemEntityRepository systemEntityRepository;
 	
 	@Override
-	protected BaseRepository<SysSystemEntity, SystemEntityFilter> getRepository() {
+	protected AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> getRepository() {
 		return systemEntityRepository;
 	}
 }

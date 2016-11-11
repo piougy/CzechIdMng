@@ -10,9 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.web.cors.CorsConfiguration;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.test.AbstractUnitTest;
 
 /**
  * Test configuration change for DynamicCorsConfiguration

@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
@@ -35,7 +35,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	private DefaultBaseTreeService<IdmTreeNode> baseTreeSevice;
 
 	@Override
-	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
+	protected AbstractEntityRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
 		return this.treeNodeRepository;
 	}
 	

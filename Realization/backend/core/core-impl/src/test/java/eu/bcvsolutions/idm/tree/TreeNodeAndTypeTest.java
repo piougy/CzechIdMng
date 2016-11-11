@@ -20,12 +20,12 @@ import org.springframework.security.core.Authentication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.test.AbstractRestTest;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 

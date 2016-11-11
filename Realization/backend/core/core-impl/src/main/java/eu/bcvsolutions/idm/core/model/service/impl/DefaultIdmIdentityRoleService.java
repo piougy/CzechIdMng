@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -38,7 +38,7 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	private IdmIdentityRepository identityRepository;
 
 	@Override
-	protected BaseRepository<IdmIdentityRole, QuickFilter> getRepository() {
+	protected AbstractEntityRepository<IdmIdentityRole, QuickFilter> getRepository() {
 		return identityRoleRepository;
 	}
 	

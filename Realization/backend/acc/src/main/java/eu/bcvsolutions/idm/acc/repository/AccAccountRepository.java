@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Accounts on target system
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		itemResourceRel = "account", //
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface AccAccountRepository extends BaseRepository<AccAccount, AccountFilter> {
+public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {
 	
 	@Override
 	@Query(value = "select e from AccAccount e left join e.systemEntity se" +

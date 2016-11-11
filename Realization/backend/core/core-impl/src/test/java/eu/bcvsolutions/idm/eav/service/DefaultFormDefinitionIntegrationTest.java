@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
+import eu.bcvsolutions.idm.core.test.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -97,8 +97,8 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Test
 	@Ignore
 	public void generateFormDefinitionsOneByOne() {
-		int start = 2000000;
-		int end = 2000100;
+		int start = 5000000;
+		int end = 5000100;
 		//
 		ResultHolder averageResult = new ResultHolder();
 		for (int i = start; i < end; i++) {
@@ -118,7 +118,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	public void generateFormDefinitions() throws InterruptedException {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(75);
 		
-		for (int i = 1500100; i < 2000000; i++) {
+		for (int i = 4555000; i < 5000000; i++) {
 			Runnable creator = new FormDefinitionCreator(i);
             executor.execute(creator);
             int queueSize = executor.getQueue().size();

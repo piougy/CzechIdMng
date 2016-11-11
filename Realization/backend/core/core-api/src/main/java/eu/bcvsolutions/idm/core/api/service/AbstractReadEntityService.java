@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and
@@ -37,7 +37,7 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	 * 
 	 * @return
 	 */
-	protected abstract BaseRepository<E, F> getRepository();
+	protected abstract AbstractEntityRepository<E, F> getRepository();
 
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service

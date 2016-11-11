@@ -18,7 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 	path = "notifications", //
 	itemResourceRel = "notification"
 )
-public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog, EmptyFilter> {
+public interface IdmNotificationLogRepository extends AbstractEntityRepository<IdmNotificationLog, EmptyFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmNotificationLog e")

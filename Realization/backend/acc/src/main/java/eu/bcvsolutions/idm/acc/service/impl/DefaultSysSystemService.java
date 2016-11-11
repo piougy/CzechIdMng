@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
@@ -62,7 +62,7 @@ public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysS
 	}
 
 	@Override
-	protected BaseRepository<SysSystem, QuickFilter> getRepository() {
+	protected AbstractEntityRepository<SysSystem, QuickFilter> getRepository() {
 		return systemRepository;
 	}
 

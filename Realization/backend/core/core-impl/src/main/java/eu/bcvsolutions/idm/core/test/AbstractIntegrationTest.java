@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.core.test;
 
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.IdmApplication;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
@@ -97,7 +97,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param repository
 	 * @return
 	 */
-	protected <T extends BaseEntity> T saveInTransaction(final T object, final BaseRepository<T, ?> repository) {
+	protected <T extends BaseEntity> T saveInTransaction(final T object, final AbstractEntityRepository<T, ?> repository) {
 		return getTransactionTemplate().execute(new TransactionCallback<T>() {
 			public T doInTransaction(TransactionStatus transactionStatus) {
 				return repository.save(object);

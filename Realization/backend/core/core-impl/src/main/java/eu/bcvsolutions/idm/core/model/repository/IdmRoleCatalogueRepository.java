@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExcerpt;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExce
 		excerptProjection = IdmRoleCatalogueExcerpt.class,
 		exported = false,
 		collectionResourceDescription = @Description("Role catalogues"))
-public interface IdmRoleCatalogueRepository extends BaseRepository<IdmRoleCatalogue, RoleCatalogueFilter>{
+public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter>{
 	
 	IdmRoleCatalogue findOneByName(@Param("name") String name);
 	

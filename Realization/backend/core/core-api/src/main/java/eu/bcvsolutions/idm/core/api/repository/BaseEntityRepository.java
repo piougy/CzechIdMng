@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.repository;
 
-import java.util.UUID;
+import java.io.Serializable;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +14,18 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Common repository for base entities
  * 
- * TODO: QueryDslPredicateExecutor<E>
- * ID extends Serializable
- * 
- * @author Radek Tomiška 
+ * @author Radek Tomiška
  *
+ * @param <E> entity type
+ * @param <ID> entity identifier type
+ * @param <F> basic filter
  */
 @NoRepositoryBean
-public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> extends PagingAndSortingRepository<E, UUID> {
+public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializable, F extends BaseFilter> extends PagingAndSortingRepository<E, ID> {
 
+	/**
+	 * Find all is not supposed to be used on big recourd counts
+	 */
 	@Override
 	@Transactional(timeout = 10, readOnly = true)
 	Iterable<E> findAll();
@@ -36,3 +39,4 @@ public interface BaseRepository<E extends BaseEntity, F extends BaseFilter> exte
 	 */
 	Page<E> find(F filter, Pageable pageable);
 }
+

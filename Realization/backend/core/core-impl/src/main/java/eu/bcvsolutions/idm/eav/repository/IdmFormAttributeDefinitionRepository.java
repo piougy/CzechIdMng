@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.eav.dto.FormAttributeDefinitionFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionE
 		itemResourceRel = "formAttributeDefinition", //
 		excerptProjection = IdmFormAttributeDefinitionExcerpt.class,
 		exported = false)
-public interface IdmFormAttributeDefinitionRepository extends BaseRepository<IdmFormAttributeDefinition, FormAttributeDefinitionFilter> {
+public interface IdmFormAttributeDefinitionRepository extends AbstractEntityRepository<IdmFormAttributeDefinition, FormAttributeDefinitionFilter> {
 	
 	/**
 	 * Attribute definition name is unique in one form definition

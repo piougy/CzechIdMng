@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.core.test;
 
 import java.io.InputStream;
 
@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
 
 /**
  * 

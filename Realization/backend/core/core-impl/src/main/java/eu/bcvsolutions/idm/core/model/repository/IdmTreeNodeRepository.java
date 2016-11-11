@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
 	excerptProjection = IdmTreeNodeExcerpt.class,
 	exported = false
 )
-public interface IdmTreeNodeRepository extends BaseRepository<IdmTreeNode, TreeNodeFilter> {
+public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmTreeNode e"

@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeHandlingService;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -24,7 +24,7 @@ public class DefaultSysSchemaAttributeHandlingService extends AbstractReadWriteE
 	private SysSchemaAttributeHandlingRepository repository;
 
 	@Override
-	protected BaseRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> getRepository() {
+	protected AbstractEntityRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> getRepository() {
 		return repository;
 	}
 }

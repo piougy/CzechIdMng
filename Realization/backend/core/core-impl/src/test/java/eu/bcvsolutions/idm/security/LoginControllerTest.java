@@ -9,8 +9,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.core.test.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.rest.LoginController;

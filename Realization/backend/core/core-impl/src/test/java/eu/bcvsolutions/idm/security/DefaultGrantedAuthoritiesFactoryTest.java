@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -23,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.test.AbstractUnitTest;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.service.impl.DefaultGrantedAuthoritiesFactory;

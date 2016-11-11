@@ -13,11 +13,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
+import eu.bcvsolutions.idm.core.test.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
 
 /**
  * Sipmle test for sending emails from workflow

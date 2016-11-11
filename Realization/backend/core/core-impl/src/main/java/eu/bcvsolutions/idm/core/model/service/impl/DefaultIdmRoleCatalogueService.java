@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
@@ -37,7 +37,7 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		return roleCatalogueRepository.findOneByName(name);
 	}
 	@Override
-	protected BaseRepository<IdmRoleCatalogue, RoleCatalogueFilter> getRepository() {
+	protected AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter> getRepository() {
 		return roleCatalogueRepository;
 	}
 	

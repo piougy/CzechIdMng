@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleExcerpt;
 		itemResourceRel = "role", //
 		excerptProjection = IdmRoleExcerpt.class,
 		exported = false)
-public interface IdmRoleRepository extends BaseRepository<IdmRole, RoleFilter> {
+public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, RoleFilter> {
 	
 	public static final String ADMIN_ROLE = "superAdminRole"; // TODO: move to configurationService
 	

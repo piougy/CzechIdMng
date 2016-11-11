@@ -60,7 +60,7 @@
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
         "generateSchemaBtn": "Generovat schema",
-        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace",
+        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
         },
@@ -79,7 +79,7 @@
         },
         "action": {
           "generateSchema": {
-            "message": "Opravdu chcete zahájit generování schématu do tohoto systému, dle aktuální konfigurace konektoru?",
+            "message": "<b>Vygeneruje a uloží schéma do tohoto systému.</b> Schéma se získá z napojeného konektoru, dle aktuální konfigurace.<br/>Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě. <br/><br/><b>Opravdu chcete zahájit generování/obnovu schématu?</b>",
             "header": "Generování schématu",
             "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
           }

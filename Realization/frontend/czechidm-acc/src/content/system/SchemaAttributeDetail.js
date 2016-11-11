@@ -58,7 +58,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
-  save(entity, event) {
+  save(event) {
     const formEntity = this.refs.form.getData();
     formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
     //
@@ -95,61 +95,64 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: manager.getNiceLabel(attribute)} : {})}}/>
         </Basic.ContentHeader>
-
-        <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
-            <Basic.SelectBox
-              ref="objectClass"
-              manager={schemaObjectClassManager}
-              label={this.i18n('acc:entity.SchemaAttribute.objectClass')}
-              readOnly
-              required/>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('acc:entity.SchemaAttribute.name')}
-              required
-              max={255}/>
-            <Basic.TextField
-              ref="classType"
-              label={this.i18n('acc:entity.SchemaAttribute.classType')}
-              required
-              max={255}/>
-            <Basic.TextField
-              ref="nativeName"
-              label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
-              max={255}/>
-            <Basic.Checkbox
-              ref="required"
-              label={this.i18n('acc:entity.SchemaAttribute.required')}/>
-            <Basic.Checkbox
-              ref="readable"
-              label={this.i18n('acc:entity.SchemaAttribute.readable')}/>
-            <Basic.Checkbox
-              ref="multivalued"
-              label={this.i18n('acc:entity.SchemaAttribute.multivalued')}/>
-            <Basic.Checkbox
-              ref="createable"
-              label={this.i18n('acc:entity.SchemaAttribute.createable')}/>
-            <Basic.Checkbox
-              ref="updateable"
-              label={this.i18n('acc:entity.SchemaAttribute.updateable')}/>
-            <Basic.Checkbox
-              ref="returnedByDefault"
-              label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
-          </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <Basic.Button type="button" level="link"
-              onClick={this.context.router.goBack}
-              showLoading={_showLoading}>
-              {this.i18n('button.back')}
-            </Basic.Button>
-            <Basic.Button
-              onClick={this.save.bind(this)}
-              level="success" showLoading={_showLoading}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel>
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+              <Basic.SelectBox
+                ref="objectClass"
+                manager={schemaObjectClassManager}
+                label={this.i18n('acc:entity.SchemaAttribute.objectClass')}
+                readOnly
+                required/>
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('acc:entity.SchemaAttribute.name')}
+                required
+                max={255}/>
+              <Basic.TextField
+                ref="classType"
+                label={this.i18n('acc:entity.SchemaAttribute.classType')}
+                required
+                max={255}/>
+              <Basic.TextField
+                ref="nativeName"
+                label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
+                max={255}/>
+              <Basic.Checkbox
+                ref="required"
+                label={this.i18n('acc:entity.SchemaAttribute.required')}/>
+              <Basic.Checkbox
+                ref="readable"
+                label={this.i18n('acc:entity.SchemaAttribute.readable')}/>
+              <Basic.Checkbox
+                ref="multivalued"
+                label={this.i18n('acc:entity.SchemaAttribute.multivalued')}/>
+              <Basic.Checkbox
+                ref="createable"
+                label={this.i18n('acc:entity.SchemaAttribute.createable')}/>
+              <Basic.Checkbox
+                ref="updateable"
+                label={this.i18n('acc:entity.SchemaAttribute.updateable')}/>
+              <Basic.Checkbox
+                ref="returnedByDefault"
+                label={this.i18n('acc:entity.SchemaAttribute.returned_by_default')}/>
+            </Basic.AbstractForm>
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link"
+                onClick={this.context.router.goBack}
+                showLoading={_showLoading}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+              <Basic.Button
+                onClick={this.save.bind(this)}
+                level="success"
+                type="submit"
+                showLoading={_showLoading}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
       </div>
     );
   }

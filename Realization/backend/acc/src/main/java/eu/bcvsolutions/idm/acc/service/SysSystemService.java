@@ -18,6 +18,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	/**
 	 * Generate and persist schema to system. 
 	 * Use connector info and connector configuration stored in system.
+	 * If system contains any schema, then will be every object compare and only same will be regenerated
 	 * @param system
 	 */
 	void generateSchema(SysSystem system);

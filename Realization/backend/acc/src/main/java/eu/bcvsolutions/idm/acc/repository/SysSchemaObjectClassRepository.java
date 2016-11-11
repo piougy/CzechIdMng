@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +35,5 @@ public interface SysSchemaObjectClassRepository extends AbstractEntityRepository
 	        " and" +
 	        " (lower(e.objectClassName) like ?#{[0].objectClassName == null ? '%' : '%'.concat([0].objectClassName.toLowerCase()).concat('%')})")
 	Page<SysSchemaObjectClass> find(SchemaObjectClassFilter filter, Pageable pageable);
+	
 }

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.test.api;
 
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -19,8 +19,8 @@ import eu.bcvsolutions.idm.IdmApplication;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
 /**
  * Test rest services will be based on spring integration tests with MockMvc / hamcrest and junit test framework

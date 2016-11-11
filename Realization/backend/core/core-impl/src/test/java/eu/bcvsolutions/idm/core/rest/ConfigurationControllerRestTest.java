@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractRestTest;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 
 public class ConfigurationControllerRestTest extends AbstractRestTest {

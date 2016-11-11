@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
@@ -83,7 +83,7 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	}
 	
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
-	public Resources<?> findChildren(@Param(value = "parent") @NotNull String parentId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> findChildren(@RequestParam(name = "parent", required = true) @NotNull String parentId, PersistentEntityResourceAssembler assembler) {
 		IdmRoleCatalogue parent = getEntity(parentId);
 		if (parent == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("roleCatalogue", parentId));

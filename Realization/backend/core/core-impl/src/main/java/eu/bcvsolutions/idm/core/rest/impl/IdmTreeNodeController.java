@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.Revision;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -25,6 +24,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
@@ -146,7 +146,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(
-			@Param(value = "treeType") String treeType,
+			@RequestParam(value = "treeType", required = false) String treeType,
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {
 		// TODO: try - catch ... or better findRoots with tree type instance (aditional select, but type save)
@@ -156,7 +156,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
 	public Resources<?> findChildren(
-			@Param(value = "parent") @NotNull String parent, 
+			@RequestParam(value = "parent") @NotNull String parent, 
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {	
 		// TODO: try - catch ... or better findChildrenByParent with tree node instance (aditional select, but type save)

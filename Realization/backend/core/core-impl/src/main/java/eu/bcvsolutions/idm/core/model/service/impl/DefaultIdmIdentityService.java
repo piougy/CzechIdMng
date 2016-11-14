@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.SysProvisioningService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -54,6 +55,10 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
+	
+	// TODO MOCKUP
+	@Autowired(required = false)
+	private SysProvisioningService provisioningService;
 	
 	@Override
 	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
@@ -214,6 +219,17 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	private IdmRole getAdminRole() {
 		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
+	}
+	
+	@Override
+	@Transactional
+	public IdmIdentity save(IdmIdentity entity) {
+		IdmIdentity identity =  super.save(entity);
+		// MOCKUP TODO
+		if(provisioningService != null){
+			provisioningService.doIdentityProvisioning(identity);
+		}
+		return identity;
 	}
 	
 	@Override

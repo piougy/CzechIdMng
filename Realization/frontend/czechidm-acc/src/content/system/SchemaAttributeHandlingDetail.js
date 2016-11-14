@@ -84,11 +84,25 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
+  _uidChange(event) {
+    const checked = event.currentTarget.checked;
+    this.setState({isUid: checked}, () => {
+      if (checked) {
+        this.refs.idmPropertyName.setValue(null);
+      }
+    });
+  }
+
   render() {
     const { _showLoading, _attribute} = this.props;
+    const { isUid} = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
+    let _isUid = (isUid != null ? isUid : null);
+    if (_isUid == null) {
+      _isUid = attribute ? attribute.uid : false;
+    }
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -114,10 +128,16 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
                 forceSearchParameters={forceSearchParameters}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
                 required/>
+              <Basic.Checkbox
+                ref="uid"
+                onChange={this._uidChange.bind(this)}
+                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uidTooltip')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.uid')}/>
               <Basic.TextField
                 ref="idmPropertyName"
+                readOnly = {_isUid}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
-                required
+                required = {!_isUid}
                 max={255}/>
               <Basic.Checkbox
                 ref="extendedAttribute"

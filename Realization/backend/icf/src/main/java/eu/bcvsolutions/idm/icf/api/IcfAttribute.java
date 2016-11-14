@@ -4,6 +4,11 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
+/**
+ * Basic interface for all ICF attributes
+ * @author svandav
+ *
+ */
 public interface IcfAttribute {
 
 	/**

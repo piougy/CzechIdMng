@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 
+/**
+ * Basic implementation of ICF attribute
+ * @author svandav
+ *
+ */
 public class IcfAttributeDto implements IcfAttribute {
 	protected String name;
 	protected List<Object> values;

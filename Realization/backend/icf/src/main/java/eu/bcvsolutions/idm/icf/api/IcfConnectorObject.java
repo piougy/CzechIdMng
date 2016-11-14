@@ -7,9 +7,17 @@ import java.util.List;
  *
  */
 public interface IcfConnectorObject {
-
+	
+	/**
+	 * Define type of object on resource
+	 * @return
+	 */
 	IcfObjectClass getObjectClass();
 
+	/**
+	 * Return attributes for this connector object
+	 * @return
+	 */
 	List<IcfAttribute> getAttributes();
 
 }

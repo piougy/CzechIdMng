@@ -8,10 +8,15 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  */
 public class IcfConnectorKeyDto implements IcfConnectorKey {
 
+	private String icfType;
+	private String bundleName;
+	private String bundleVersion;
+	private String connectorName;
+
 	public IcfConnectorKeyDto() {
 		super();
 	}
-	
+
 	public IcfConnectorKeyDto(String icfType, String bundleName, String bundleVersion, String connectorName) {
 		super();
 		this.icfType = icfType;
@@ -20,11 +25,6 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 		this.connectorName = connectorName;
 	}
 
-	private String icfType;
-	private String bundleName;
-	private String bundleVersion;
-	private String connectorName;
-	
 	@Override
 	public String getIcfType() {
 		return icfType;
@@ -61,7 +61,6 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 		this.connectorName = connectorName;
 	}
 
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -72,7 +71,6 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 		return result;
 	}
 
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -109,6 +107,5 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 		return "IcfConnectorKeyDto [icfType=" + icfType + ", bundleName=" + bundleName + ", bundleVersion="
 				+ bundleVersion + ", connectorName=" + connectorName + "]";
 	}
-
 
 }

@@ -316,7 +316,8 @@ public class ConnIdIcfConvertUtil {
 				for (ObjectClassInfo oci : objectClasesConnid) {
 					objectClassesForOperation.add(oci.getType());
 				}
-				icfSchema.getSupportedObjectClassesByOperation().put(operation.getSimpleName(), objectClassesForOperation);
+				icfSchema.getSupportedObjectClassesByOperation().put(operation.getSimpleName(),
+						objectClassesForOperation);
 			}
 		}
 		return icfSchema;
@@ -347,10 +348,11 @@ public class ConnIdIcfConvertUtil {
 		}
 		IcfAttributeInfoDto icfAttribute = new IcfAttributeInfoDto();
 		if (attribute.getType() != null) {
-			if(GuardedString.class.isAssignableFrom(attribute.getType())){
-				// We do converse between BCV GuardedString and ConnId GuardedString
+			if (GuardedString.class.isAssignableFrom(attribute.getType())) {
+				// We do converse between BCV GuardedString and ConnId
+				// GuardedString
 				icfAttribute.setClassType(eu.bcvsolutions.idm.security.domain.GuardedString.class.getName());
-			}else{
+			} else {
 				icfAttribute.setClassType(attribute.getType().getName());
 			}
 		}

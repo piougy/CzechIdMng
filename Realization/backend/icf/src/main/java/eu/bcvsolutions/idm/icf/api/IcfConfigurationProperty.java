@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.icf.api;
 
+/**
+ * Elementary configuration property for connector
+ * @author svandav
+ *
+ */
 public interface IcfConfigurationProperty {
 
 	/**

@@ -4,6 +4,11 @@ import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 
+/**
+ * Configuration for ICF connector
+ * @author svandav
+ *
+ */
 public class IcfConnectorConfigurationDto implements IcfConnectorConfiguration {
 	/**
 	 * Instance of the configuration properties.

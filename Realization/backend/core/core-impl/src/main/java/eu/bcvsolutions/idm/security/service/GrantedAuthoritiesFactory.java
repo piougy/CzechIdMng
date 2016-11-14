@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 
 /**

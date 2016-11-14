@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 		itemResourceRel = "identityRole",
 		exported = false//
 	)
-public interface IdmIdentityRoleRepository extends BaseRepository<IdmIdentityRole, QuickFilter> {
+public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, QuickFilter> {
 	
 	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	

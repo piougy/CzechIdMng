@@ -335,7 +335,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   multiSelect={false}
                   options={actions}
                   placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
-                  readOnly={selectedRows.length <= 0}
                   rendered={actions !== null && actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>

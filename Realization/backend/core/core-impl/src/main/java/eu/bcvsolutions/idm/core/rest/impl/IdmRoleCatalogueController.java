@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +15,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
@@ -79,8 +83,12 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	}
 	
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
-	public Resources<?> findChildren(@Param(value = "parent") @NotNull Long parent, PersistentEntityResourceAssembler assembler) {	
-		List<IdmRoleCatalogue> listOfChildren = this.roleCatalogueService.findChildrenByParent(parent);
+	public Resources<?> findChildren(@RequestParam(name = "parent", required = true) @NotNull String parentId, PersistentEntityResourceAssembler assembler) {
+		IdmRoleCatalogue parent = getEntity(parentId);
+		if (parent == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("roleCatalogue", parentId));
+		}
+		List<IdmRoleCatalogue> listOfChildren = this.roleCatalogueService.findChildrenByParent(parent.getId());
 		
 		return toResources((Iterable<?>) listOfChildren, assembler, IdmRoleCatalogue.class, null);
 	}

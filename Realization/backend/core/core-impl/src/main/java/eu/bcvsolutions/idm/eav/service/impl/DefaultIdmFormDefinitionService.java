@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
@@ -36,7 +36,7 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	protected BaseRepository<IdmFormDefinition, EmptyFilter> getRepository() {
+	protected AbstractEntityRepository<IdmFormDefinition, EmptyFilter> getRepository() {
 		return formDefinitionRepository;
 	}
 

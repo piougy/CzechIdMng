@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -18,9 +19,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -37,6 +40,7 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
+	@JsonDeserialize(as = UUID.class)
 	@GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
 	@Column(name = "id")
@@ -98,8 +102,11 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	}
 	
 	@Override
-	public void setId(UUID id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "AbstractEntity supports only UUID identifier. For different identifier generalize BaseEntity.");
+		}
+		this.id = (UUID) id;
 	}
 
 	/**

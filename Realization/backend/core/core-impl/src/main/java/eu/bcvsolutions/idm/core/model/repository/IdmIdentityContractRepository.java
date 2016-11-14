@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 		itemResourceRel = "identityContract", //
 		exported = false
 )
-public interface IdmIdentityContractRepository extends BaseRepository<IdmIdentityContract, EmptyFilter> {
+public interface IdmIdentityContractRepository extends AbstractEntityRepository<IdmIdentityContract, EmptyFilter> {
 
 	@Override
 	@Query(value = "select e from #{#entityName} e")

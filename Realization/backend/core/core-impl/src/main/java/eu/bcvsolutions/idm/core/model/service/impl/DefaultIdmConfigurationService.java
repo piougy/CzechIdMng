@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
@@ -47,7 +47,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	private IdmConfigurationRepository configurationRepository;
 	
 	@Override
-	protected BaseRepository<IdmConfiguration, QuickFilter> getRepository() {
+	protected AbstractEntityRepository<IdmConfiguration, QuickFilter> getRepository() {
 		return configurationRepository;
 	}
 	

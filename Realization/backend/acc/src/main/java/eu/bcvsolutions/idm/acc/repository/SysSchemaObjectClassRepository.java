@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.repository;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaObjectClassExcerpt;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Schema object class
@@ -26,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		excerptProjection = SysSchemaObjectClassExcerpt.class,//
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface SysSchemaObjectClassRepository extends BaseRepository<SysSchemaObjectClass, SchemaObjectClassFilter> {
+public interface SysSchemaObjectClassRepository extends AbstractEntityRepository<SysSchemaObjectClass, SchemaObjectClassFilter> {
 
 	@Override
 	@Query(value = "select e from SysSchemaObjectClass e" +

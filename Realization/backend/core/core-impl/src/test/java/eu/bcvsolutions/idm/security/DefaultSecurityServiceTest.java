@@ -17,12 +17,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
+import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Test for {@link DefaultSecurityService}

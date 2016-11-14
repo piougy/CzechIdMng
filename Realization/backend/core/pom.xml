@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>core-api</module>
+		<module>core-test-api</module>
 		<module>core-impl</module>
 	</modules>
 

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.domain;
+package eu.bcvsolutions.idm.security.api.domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.springframework.security.core.GrantedAuthority;
-
-import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
 
 /**
  * Identity JWT authentication

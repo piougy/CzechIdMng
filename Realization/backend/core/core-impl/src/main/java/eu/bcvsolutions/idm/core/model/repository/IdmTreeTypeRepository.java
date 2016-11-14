@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
 		excerptProjection = IdmTreeTypeExcerpt.class,
 		exported = false
 	)
-public interface IdmTreeTypeRepository extends BaseRepository<IdmTreeType, QuickFilter> {
+public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeType, QuickFilter> {
 	
 	IdmTreeType findOneByCode(@Param("code") String code);
 	

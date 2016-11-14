@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaAttributeExcerpt;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Schema attributes
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )
-public interface SysSchemaAttributeRepository extends BaseRepository<SysSchemaAttribute, SchemaAttributeFilter> {
+public interface SysSchemaAttributeRepository extends AbstractEntityRepository<SysSchemaAttribute, SchemaAttributeFilter> {
 
 	@Override
 	@Query(value = "select e from SysSchemaAttribute e" + " where"

@@ -14,7 +14,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 		path = "configurations", //
 		itemResourceRel = "configuration",
 		exported = false)
-public interface IdmConfigurationRepository extends BaseRepository<IdmConfiguration, QuickFilter> {
+public interface IdmConfigurationRepository extends AbstractEntityRepository<IdmConfiguration, QuickFilter> {
 
 	/**
 	 * Public configurations only

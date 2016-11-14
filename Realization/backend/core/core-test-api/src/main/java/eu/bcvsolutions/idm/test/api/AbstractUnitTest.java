@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core;
+package eu.bcvsolutions.idm.test.api;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

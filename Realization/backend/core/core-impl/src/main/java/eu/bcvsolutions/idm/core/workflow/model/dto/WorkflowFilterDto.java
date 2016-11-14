@@ -3,11 +3,8 @@ package eu.bcvsolutions.idm.core.workflow.model.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Component
 public class WorkflowFilterDto {
 	
 	public static final String ORDER_ASC = "asc";

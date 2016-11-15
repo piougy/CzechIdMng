@@ -102,6 +102,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Override
+	@Transactional
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public IcfConnectorConfiguration getConnectorConfiguration(SysSystem system) {
 		// load filled form values
@@ -258,6 +259,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 	
 	@Override
+	@Transactional
 	public IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey) {
 		Assert.notNull(connectorKey);
 		//
@@ -368,6 +370,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 	
 	@Deprecated
+	@Transactional
 	public SysSystem createTestSystem() {
 		// create owner
 		SysSystem system = new SysSystem();
@@ -420,9 +423,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");
 		values.add(disabledStatusValue);
-		SysSystemFormValue enabled = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("enabled"));
-		enabled.setValue("enabled");
-		values.add(enabled);
+		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
+		enabledStatusValue.setValue("enabled");
+		values.add(enabledStatusValue);
 		
 		getFormService().saveValues(system, values);
 		

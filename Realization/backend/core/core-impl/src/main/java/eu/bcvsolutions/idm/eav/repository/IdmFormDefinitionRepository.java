@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.eav.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -25,8 +27,26 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormDefinitionExcerpt;
 		exported = false)
 public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition, EmptyFilter> {
 	
-	IdmFormDefinition findOneByName(@Param("name") String name);
+	/**
+	 * Returns all form definitions by given type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	List<IdmFormDefinition> findByType(@Param("type") String type);
 	
+	/**
+	 * Returns form definition by given type and name (unique)
+	 * 
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	IdmFormDefinition findOneByTypeAndName(@Param("type") String type, @Param("name") String name);
+	
+	/**
+	 * Quick search
+	 */
 	@Override
 	@Query(value = "select e from #{#entityName} e")
 	Page<IdmFormDefinition> find(EmptyFilter filter, Pageable pageable);

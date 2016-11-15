@@ -39,6 +39,11 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	protected AbstractEntityRepository<IdmFormDefinition, EmptyFilter> getRepository() {
 		return formDefinitionRepository;
 	}
+	
+	@Override
+	public IdmFormDefinition get(String type, String name) {
+		return formDefinitionRepository.findOneByTypeAndName(type, name != null ? name : DEFAULT_DEFINITION_NAME);
+	}
 
 	@Override
 	@Transactional

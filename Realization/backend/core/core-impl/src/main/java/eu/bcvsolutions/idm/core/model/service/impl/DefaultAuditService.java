@@ -55,9 +55,8 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
-	public <T> T findRevision(Class<T> classType, Long revisionId, UUID entityId) throws RevisionDoesNotExistException  {
-		AuditReader reader = getAuditReader();
-		return reader.find(classType, entityId, revisionId);
+	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
+		return this.find(classType, entityId, revisionNumber);
 	}
 	
 	private AuditReader getAuditReader() {
@@ -69,36 +68,50 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	public <T> T getPreviousVersion(T entity, long currentRevId) {
 		AuditReader reader = this.getAuditReader();
 
-	    Number prior_revision = (Number) reader.createQuery()
+	    Number previousRevId = (Number) reader.createQuery()
 	    .forRevisionsOfEntity(entity.getClass(), false, true)
 	    .addProjection(AuditEntity.revisionNumber().max())
 	    .add(AuditEntity.id().eq(((BaseEntity) entity).getId()))
 	    .add(AuditEntity.revisionNumber().lt(currentRevId))
 	    .getSingleResult();
 
-	    if (prior_revision != null) {
-	        return (T) reader.find(entity.getClass(), ((BaseEntity) entity).getId(), prior_revision);
+	    if (previousRevId != null) {
+	        return (T) this.find(entity.getClass(), ((BaseEntity) entity).getId(), previousRevId.longValue());
 	    } else {
 	        return null;
 	    }
 	}
-
+	
 	@Override
-	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevId) {
+	public <T> List<IdmAudit> findRevisions(Class<T> classType, UUID entityId) {
+		AuditFilter filter = new AuditFilter();
+		filter.setEntityId(entityId);
+		filter.setType(classType.getName());
+		Page<IdmAudit> result = this.find(filter, null);
+		return result.getContent();
+	}
+	
+	@Override
+	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevisionId) {
 		AuditReader reader = this.getAuditReader();
 
-	    Number prior_revision = (Number) reader.createQuery()
-	    .forRevisionsOfEntity(entityClass, false, true)
-	    .addProjection(AuditEntity.revisionNumber().max())
-	    .add(AuditEntity.id().eq(entityId))
-	    .add(AuditEntity.revisionNumber().lt(currentRevId))
-	    .getSingleResult();
+	    Number previousRevisionId = (Number) reader.createQuery()
+		    .forRevisionsOfEntity(entityClass, false, true)
+		    .addProjection(AuditEntity.revisionNumber().max())
+		    .add(AuditEntity.id().eq(entityId))
+		    .add(AuditEntity.revisionNumber().lt(currentRevisionId))
+		    .getSingleResult();
 
-	    if (prior_revision != null) {
-	        return (T) reader.find(entityClass, entityId, prior_revision);
+	    if (previousRevisionId != null) {
+	        return this.find(entityClass, entityId, previousRevisionId.longValue());
 	    } else {
-	        return null;
+	    	return this.find(entityClass, entityId, currentRevisionId);
 	    }
+	}
+	
+	private <T> T find(Class<T> entityClass, UUID entityId, long revisionId) {
+		AuditReader reader = this.getAuditReader();
+		return reader.find(entityClass, entityId, revisionId);
 	}
 
 	@Override
@@ -106,6 +119,10 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 			T currentEntity) {
 		List<String> changedColumns = new ArrayList<>();
 		T previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
+		
+		if (previousEntity == null) {
+			return changedColumns;
+		}
 		
 		Field[] fields = entityClass.getDeclaredFields();
 		
@@ -171,5 +188,14 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 		}
 		this.allAuditedEntititesNames = result;
 		return result;
+	}
+
+	@Override
+	public <T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId) {
+		return (Number) this.getAuditReader().createQuery()
+			    .forRevisionsOfEntity(entityClass, false, true)
+			    .addProjection(AuditEntity.revisionProperty("revisionNumber").max())
+			    .add(AuditEntity.revisionProperty("entityId").eq(entityId))
+			    .getSingleResult();
 	}
 }

@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/audits")
 public class IdmAuditController extends AbstractReadEntityController<IdmAudit, AuditFilter> {
-	
+
 	@Autowired
 	private IdmAuditService auditService;
 	
@@ -39,7 +39,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
 			PersistentEntityResourceAssembler assembler) {
-		return super.find(parameters, pageable, assembler);
+		return this.find(parameters, pageable, assembler);
 	}
 	
 	@RequestMapping(value= "/search/entities", method = RequestMethod.GET)

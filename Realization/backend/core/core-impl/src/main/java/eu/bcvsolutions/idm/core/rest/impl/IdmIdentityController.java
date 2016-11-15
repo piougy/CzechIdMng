@@ -170,7 +170,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		
 		IdmIdentity revisionIdentity;
 		try {
-			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, revId, originalEntity.getId());
+			revisionIdentity = this.auditService.findRevision(IdmIdentity.class, originalEntity.getId(), revId);
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}

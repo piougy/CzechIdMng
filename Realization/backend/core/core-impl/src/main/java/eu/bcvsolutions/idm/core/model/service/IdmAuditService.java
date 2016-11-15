@@ -30,7 +30,9 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @return
 	 * @throws RevisionDoesNotExistException when no revision found
 	 */
-	<T> T findRevision(Class<T> classType, Long revisionId, UUID entityId) throws RevisionDoesNotExistException;	
+	<T> T findRevision(Class<T> classType, UUID entityId, Long revisionId) throws RevisionDoesNotExistException;	
+	
+	<T> List<IdmAudit> findRevisions(Class<T> classType, UUID entityId);
 	
 	/**
 	 * TODO:
@@ -50,6 +52,8 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @return
 	 */
 	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevId);
+	
+	<T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId);
 	
 	/**
 	 * Return names of changed columns with annotation @Audited. Diff is realized by previous revision and actual entity.

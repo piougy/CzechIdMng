@@ -91,7 +91,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		
 		IdmRole revisionRole;
 		try {
-			revisionRole = this.auditService.findRevision(IdmRole.class, revId, originalEntity.getId());
+			revisionRole = this.auditService.findRevision(IdmRole.class, originalEntity.getId(), revId);
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", roleId));
 		}

@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
@@ -39,14 +40,19 @@ public class IdmAudit implements BaseEntity {
 	public static final String DELIMITER = ",";
 	
 	@Id
-    @GeneratedValue
+	@GeneratedValue
     @RevisionNumber
+    @JsonProperty(value = "id")
+    @Column(name = "id")
 	private Long id;
-	
+
 	@GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@Column(name = "idm_id")
+	@Column(name = "idmId")
 	private UUID idmId;
+	
+	@Column(name = "revisionNumber")
+	private Long revisionNumber;
 	
 	@JsonIgnore
 	@RevisionTimestamp
@@ -54,7 +60,6 @@ public class IdmAudit implements BaseEntity {
 	
 	@ElementCollection(fetch = FetchType.EAGER)
 	@JoinTable(name = "revchanges", joinColumns = @JoinColumn(name = "rev"))
-	@Column(name = "entityname")
 	@Fetch(FetchMode.JOIN)
 	@ModifiedEntityNames
 	private Set<String> modifiedEntityNames;
@@ -79,6 +84,14 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "entityId")
 	private UUID entityId;
 	
+	public Long getRevisionId() {
+		return id;
+	}
+
+	public void setRevisionId(Long id) {
+		this.id = id;
+	}
+
 	public String getOriginalModifier() {
 		return originalModifier;
 	}
@@ -205,12 +218,12 @@ public class IdmAudit implements BaseEntity {
 		return this.idmId;
 	}
 
-	public Long getRevId() {
-		return id;
+	public Long getRevisionNumber() {
+		return revisionNumber;
 	}
 
-	public void setRevId(Long id) {
-		this.id = id;
+	public void setRevisionNumber(Long revisionNumber) {
+		this.revisionNumber = revisionNumber;
 	}
 
 	@Override

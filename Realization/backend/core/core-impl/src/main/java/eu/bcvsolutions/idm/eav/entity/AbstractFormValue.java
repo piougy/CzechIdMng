@@ -20,15 +20,15 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @param <E> Owner entity class
  */
 @MappedSuperclass
-public abstract class IdmFormAttributeValue<E extends FormableEntity> extends AbstractEntity {
+public abstract class AbstractFormValue<O extends FormableEntity> extends AbstractEntity {
 
 	private static final long serialVersionUID = -5914285774914667917L;
 
 	@ManyToOne(optional = false) // TODO: should we support values without definition?
-	@JoinColumn(name = "attribute_definition_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmFormAttributeDefinition attributeDefinition;
+	private IdmFormAttribute formAttribute;
 	
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "string_value", nullable = true, length = DefaultFieldLengths.LOG)
@@ -45,19 +45,19 @@ public abstract class IdmFormAttributeValue<E extends FormableEntity> extends Ab
 	 * 
 	 * @return
 	 */
-	public abstract E getOwner();
+	public abstract O getOwner();
 
 	/**
 	 * Attribute definition
 	 * 
 	 * @return
 	 */
-	public IdmFormAttributeDefinition getAttributeDefinition() {
-		return attributeDefinition;
+	public IdmFormAttribute getFormAttribute() {
+		return formAttribute;
 	}
 
-	public void setAttributeDefinition(IdmFormAttributeDefinition attributeDefinition) {
-		this.attributeDefinition = attributeDefinition;
+	public void setFormAttribute(IdmFormAttribute formAttribute) {
+		this.formAttribute = formAttribute;
 	}
 
 	public String getStringValue() {

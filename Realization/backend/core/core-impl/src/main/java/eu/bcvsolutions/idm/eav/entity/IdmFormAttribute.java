@@ -31,12 +31,12 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
  *
  */
 @Entity
-@Table(name = "idm_form_attribute_definition", indexes = {
+@Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormAttributeDefinition extends AbstractEntity {
+public class IdmFormAttribute extends AbstractEntity {
 
 	private static final long serialVersionUID = 6037781154742359100L;
 	//
@@ -87,7 +87,7 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	@Column(name = "seq")
 	private short seq;
 
-	public IdmFormAttributeDefinition() {
+	public IdmFormAttribute() {
 	}
 
 	/**

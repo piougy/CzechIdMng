@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -45,6 +45,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		ResultHolder result = new ResultHolder();
 		
 		IdmFormDefinition formDefinition = new IdmFormDefinition();
+		formDefinition.setType("test_type");
 		formDefinition.setName(name);
 		if (log) {
 			LOG.info("Before definition save [{}]", name);
@@ -61,7 +62,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		}
 		startTime = System.currentTimeMillis();
 		for(int i = 0; i < attributeCount; i++) {
-			IdmFormAttributeDefinition attributeDefinition = new IdmFormAttributeDefinition();
+			IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 			attributeDefinition.setFormDefinition(formDefinition);
 			attributeDefinition.setName("name_" + i);
 			attributeDefinition.setDisplayName(attributeDefinition.getName());

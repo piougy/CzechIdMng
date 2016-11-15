@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_name", columnList = "name", unique = true) })
+@Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IdmFormDefinition extends AbstractEntity {
@@ -39,23 +40,47 @@ public class IdmFormDefinition extends AbstractEntity {
 	
 	@Basic(optional = false)
 	@NotNull
-	@Size(min = 1, max = 100)
-	@Column(name = "name", nullable = false, length = 100)
-	private String name; // for entity / object type
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "definition_type", nullable = false, length = DefaultFieldLengths.NAME)
+	private String type; // for entity / object type
+	
+	@Basic(optional = false)
+	@NotNull
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
+	private String name; // unique name for entity / object type
 	
 	@OrderBy("seq")
 	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmFormAttributeDefinition> formAttributes;
+	private List<IdmFormAttribute> formAttributes;
 	//
 	// attribute definitions cache
-	private transient Map<Serializable, IdmFormAttributeDefinition> mappedAttributes;
+	private transient Map<Serializable, IdmFormAttribute> mappedAttributes;
 	private transient Map<String, Serializable> mappedKeys;
 
 	public IdmFormDefinition() {
 	}
+	
+	/**
+	 * Form definition for entity / object type
+	 * 
+	 * @return
+	 */
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
 
+	/**
+	 * Unique name for entity / object type
+	 * 
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
@@ -64,28 +89,38 @@ public class IdmFormDefinition extends AbstractEntity {
 		this.name = name;
 	}
 
-	public List<IdmFormAttributeDefinition> getFormAttributes() {
+	/**
+	 * Returns defined form attributes. Returns empty list, when no attribute is defined.
+	 * 
+	 * @return
+	 */
+	public List<IdmFormAttribute> getFormAttributes() {
 		if (formAttributes == null) {
 			formAttributes = Lists.newArrayList();
 		}
 		return formAttributes;
 	}
 
-	public void setFormAttributes(List<IdmFormAttributeDefinition> formAttributes) {
+	public void setFormAttributes(List<IdmFormAttribute> formAttributes) {
 		this.formAttributes = formAttributes;
 		mappedAttributes = null; // musime refresnout
 	}
 	
-	public void addFormAttribute(IdmFormAttributeDefinition formAttribute) {
+	public void addFormAttribute(IdmFormAttribute formAttribute) {
 		getFormAttributes().add(formAttribute);
 		mappedAttributes = null; // musime refresnout
 	}
 
-	private Map<Serializable, IdmFormAttributeDefinition> getMappedAttributes() {
+	/**
+	 * Returns defined attributes as map
+	 * 
+	 * @return
+	 */
+	private Map<Serializable, IdmFormAttribute> getMappedAttributes() {
 		if (mappedAttributes == null || mappedKeys == null) {
 			mappedAttributes = Maps.newHashMap();
 			mappedKeys = Maps.newHashMap();
-			for (IdmFormAttributeDefinition attribute : getFormAttributes()) {
+			for (IdmFormAttribute attribute : getFormAttributes()) {
 				mappedAttributes.put(attribute.getId(), attribute);
 				mappedKeys.put(attribute.getName(), attribute.getId());
 			}
@@ -93,6 +128,11 @@ public class IdmFormDefinition extends AbstractEntity {
 		return mappedAttributes;
 	}
 
+	/**
+	 * Return defined attributes by <name, id>
+	 * 
+	 * @return
+	 */
 	private Map<String, Serializable> getMappedNames() {
 		if (mappedAttributes == null || mappedKeys == null) {
 			getMappedAttributes();
@@ -101,25 +141,25 @@ public class IdmFormDefinition extends AbstractEntity {
 	}
 
 	/**
-	 * Vrati definici atributu dle identifikatoru
+	 * Returns attribute definition by identifier
 	 *
 	 * @param formAttributeId
 	 * @return
 	 */
-	public IdmFormAttributeDefinition getMappedAttribute(Long formAttributeId) {
+	public IdmFormAttribute getMappedAttribute(Long formAttributeId) {
 		return getMappedAttributes().get(formAttributeId);
 	}
 
 	/**
-	 * Vrati definici atributu dle klice
+	 * Returns attribute definition by name
 	 *
 	 * @param formAttributeKey
 	 * @return
 	 */
-	public IdmFormAttributeDefinition getMappedAttributeByKey(String formAttributeKey) {
-		if (!getMappedNames().containsKey(formAttributeKey)) {
+	public IdmFormAttribute getMappedAttributeByName(String formAttributeName) {
+		if (!getMappedNames().containsKey(formAttributeName)) {
 			return null;
 		}
-		return getMappedAttributes().get(getMappedNames().get(formAttributeKey));
+		return getMappedAttributes().get(getMappedNames().get(formAttributeName));
 	}
 }

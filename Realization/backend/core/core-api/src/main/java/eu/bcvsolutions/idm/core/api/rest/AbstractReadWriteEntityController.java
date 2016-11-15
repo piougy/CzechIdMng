@@ -158,6 +158,7 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	/**
 	 * Returns entity service configured to current controller
 	 */
+	@Override
 	protected ReadWriteEntityService<E, F> getEntityService() {
 		return (ReadWriteEntityService<E, F>) super.getEntityService();
 	}

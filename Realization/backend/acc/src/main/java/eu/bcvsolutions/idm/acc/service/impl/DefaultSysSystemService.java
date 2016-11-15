@@ -25,7 +25,8 @@ import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.eav.service.FormService;
+import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
@@ -46,7 +47,7 @@ import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
  *
  */
 @Service
-public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysSystem, QuickFilter>
+public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter>
 		implements SysSystemService {
 
 	private SysSystemRepository systemRepository;
@@ -55,10 +56,13 @@ public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysS
 	private SysSchemaAttributeRepository attributeRepository;
 
 	@Autowired
-	public DefaultSysSystemService(SysSystemRepository systemRepository,
+	public DefaultSysSystemService(
+			FormService formService,
+			SysSystemRepository systemRepository,
 			DefaultIcfConfigurationFacade icfConfigurationAggregatorService,
-			SysSchemaObjectClassRepository objectClassRepository, SysSchemaAttributeRepository attributeRepository) {
-		super();
+			SysSchemaObjectClassRepository objectClassRepository, 
+			SysSchemaAttributeRepository attributeRepository) {
+		super(formService);
 		this.systemRepository = systemRepository;
 		this.icfConfigurationAggregatorService = icfConfigurationAggregatorService;
 		this.objectClassRepository = objectClassRepository;

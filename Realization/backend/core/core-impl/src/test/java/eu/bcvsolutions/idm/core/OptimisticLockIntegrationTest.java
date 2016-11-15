@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class OptimisticLockIntegrationTest extends AbstractIntegrationTest {
 

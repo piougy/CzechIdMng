@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSystemEntityExcerpt;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Entity on target system
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		excerptProjection = SysSystemEntityExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface SysSystemEntityRepository extends BaseRepository<SysSystemEntity, SystemEntityFilter> {
+public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> {
 
 	SysSystem findOneByUidAndEntityType(@Param("uid") String uid, @Param("entityType") SystemEntityType entityType);
 	

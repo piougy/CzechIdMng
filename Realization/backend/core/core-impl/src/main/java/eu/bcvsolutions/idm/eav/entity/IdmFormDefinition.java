@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.eav.entity;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -55,10 +54,6 @@ public class IdmFormDefinition extends AbstractEntity {
 	private transient Map<String, Serializable> mappedKeys;
 
 	public IdmFormDefinition() {
-	}
-
-	public IdmFormDefinition(UUID id) {
-		super(id);
 	}
 
 	public String getName() {

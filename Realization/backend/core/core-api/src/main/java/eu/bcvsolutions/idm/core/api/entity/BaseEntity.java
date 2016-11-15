@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * Base entity
@@ -16,12 +15,12 @@ public interface BaseEntity extends Serializable {
 	 *
 	 * @return
 	 */
-	UUID getId();
+	Serializable getId();
 	
 	/**
 	 * Set indentifier
 	 *
 	 * @param id
 	 */
-	void setId(UUID id);
+	void setId(Serializable id);
 }

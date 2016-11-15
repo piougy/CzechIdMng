@@ -9,7 +9,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSystemExcerpt;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Target system configuration
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		excerptProjection = SysSystemExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
-public interface SysSystemRepository extends BaseRepository<SysSystem, QuickFilter> {
+public interface SysSystemRepository extends AbstractEntityRepository<SysSystem, QuickFilter> {
 
 	SysSystem findOneByName(@Param("name") String name);
 	

@@ -133,38 +133,42 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('systemEntityHandlingHeader') }}/>
         </Basic.ContentHeader>
 
-        <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={entityHandling} showLoading={_showLoading} className="form-horizontal">
-            <Basic.SelectBox
-              ref="system"
-              manager={systemManager}
-              label={this.i18n('acc:entity.SystemEntityHandling.system')}
-              readOnly
-              required/>
-            <Basic.EnumSelectBox
-              ref="entityType"
-              enum={SystemEntityTypeEnum}
-              label={this.i18n('acc:entity.SystemEntityHandling.entityType')}
-              required/>
-            <Basic.EnumSelectBox
-              ref="operationType"
-              enum={SystemOperationTypeEnum}
-              label={this.i18n('acc:entity.SystemEntityHandling.operationType')}
-              required/>
-          </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <Basic.Button type="button" level="link"
-              onClick={this.context.router.goBack}
-              showLoading={_showLoading}>
-              {this.i18n('button.back')}
-            </Basic.Button>
-            <Basic.Button
-              onClick={this.save.bind(this)}
-              level="success" showLoading={_showLoading}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel>
+            <Basic.AbstractForm ref="form" data={entityHandling} showLoading={_showLoading} className="form-horizontal">
+              <Basic.SelectBox
+                ref="system"
+                manager={systemManager}
+                label={this.i18n('acc:entity.SystemEntityHandling.system')}
+                readOnly
+                required/>
+              <Basic.EnumSelectBox
+                ref="entityType"
+                enum={SystemEntityTypeEnum}
+                label={this.i18n('acc:entity.SystemEntityHandling.entityType')}
+                required/>
+              <Basic.EnumSelectBox
+                ref="operationType"
+                enum={SystemOperationTypeEnum}
+                label={this.i18n('acc:entity.SystemEntityHandling.operationType')}
+                required/>
+            </Basic.AbstractForm>
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link"
+                onClick={this.context.router.goBack}
+                showLoading={_showLoading}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+              <Basic.Button
+                onClick={this.save.bind(this)}
+                level="success"
+                type="submit"
+                showLoading={_showLoading}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
         <Basic.ContentHeader rendered={entityHandling && !isNew}>
           <Basic.Icon value="list-alt"/>
           {' '}

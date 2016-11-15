@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.icf.api;
 
 import java.util.List;
 
+/**
+ * Keep configuration properties for ICF connector
+ * @author svandav
+ *
+ */
 public interface IcfConfigurationProperties {
 
 	/**

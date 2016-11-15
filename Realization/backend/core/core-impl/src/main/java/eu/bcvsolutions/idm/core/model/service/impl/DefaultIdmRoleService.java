@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -27,7 +27,7 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 	private IdmRoleRepository idmRoleRepository;
 	
 	@Override
-	protected BaseRepository<IdmRole, RoleFilter> getRepository() {
+	protected AbstractEntityRepository<IdmRole, RoleFilter> getRepository() {
 		return idmRoleRepository;
 	}
 

@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
@@ -29,6 +29,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.SysProvisioningService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -55,8 +56,12 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
 	
+	// TODO MOCKUP
+	@Autowired(required = false)
+	private SysProvisioningService provisioningService;
+	
 	@Override
-	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
+	protected AbstractEntityRepository<IdmIdentity, IdentityFilter> getRepository() {
 		return identityRepository;
 	}
 
@@ -214,6 +219,17 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	private IdmRole getAdminRole() {
 		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
+	}
+	
+	@Override
+	@Transactional
+	public IdmIdentity save(IdmIdentity entity) {
+		IdmIdentity identity =  super.save(entity);
+		// MOCKUP TODO
+		if(provisioningService != null){
+			provisioningService.doIdentityProvisioning(identity);
+		}
+		return identity;
 	}
 	
 	@Override

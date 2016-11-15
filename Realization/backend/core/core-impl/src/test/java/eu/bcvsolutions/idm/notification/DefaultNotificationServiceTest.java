@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
@@ -21,6 +20,7 @@ import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.notification.service.EmailService;
 import eu.bcvsolutions.idm.notification.service.NotificationService;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
+import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Test for {@link DefaultSecurityService}

@@ -34,10 +34,10 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
 
 /**
  * Test change permissions for identity

@@ -12,7 +12,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
  *
  */
 @RepositoryRestResource(exported = false)
-public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, EmptyFilter> {
+public interface IdmConsoleLogRepository extends AbstractEntityRepository<IdmConsoleLog, EmptyFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmConsoleLog e")

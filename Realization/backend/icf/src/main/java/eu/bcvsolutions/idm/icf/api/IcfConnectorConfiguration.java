@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.icf.api;
 
+/**
+ * Configuration for ICF connector
+ * @author svandav
+ *
+ */
 public interface IcfConnectorConfiguration {
 
 	/**

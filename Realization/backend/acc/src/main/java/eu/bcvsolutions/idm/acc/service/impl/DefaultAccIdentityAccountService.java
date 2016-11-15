@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.AccIdentityAccountService;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -23,7 +23,7 @@ public class DefaultAccIdentityAccountService extends AbstractReadWriteEntitySer
 	private AccIdentityAccountRepository identityAccountRepository;
 	
 	@Override
-	protected BaseRepository<AccIdentityAccount, IdentityAccountFilter> getRepository() {
+	protected AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> getRepository() {
 		return identityAccountRepository;
 	}
 }

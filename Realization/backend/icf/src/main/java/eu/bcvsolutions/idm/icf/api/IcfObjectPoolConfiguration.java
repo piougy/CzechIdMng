@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.icf.api;
 
+/**
+ * Keep pool configuration
+ * @author svandav
+ *
+ */
 public interface IcfObjectPoolConfiguration {
 
 	/**

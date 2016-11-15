@@ -6,6 +6,11 @@ import java.util.List;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 
+/**
+ * Keep configuration properties for ICF connector
+ * @author svandav
+ *
+ */
 public class IcfConfigurationPropertiesDto implements IcfConfigurationProperties {
 
     

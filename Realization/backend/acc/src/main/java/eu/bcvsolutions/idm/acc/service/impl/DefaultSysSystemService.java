@@ -2,8 +2,10 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -11,6 +13,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -20,7 +24,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
@@ -62,7 +66,7 @@ public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysS
 	}
 
 	@Override
-	protected BaseRepository<SysSystem, QuickFilter> getRepository() {
+	protected AbstractEntityRepository<SysSystem, QuickFilter> getRepository() {
 		return systemRepository;
 	}
 
@@ -114,16 +118,23 @@ public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysS
 	@Override
 	public void generateSchema(SysSystem system) {
 		Assert.notNull(system);
+
+		// Find connector identification persist in system
 		IcfConnectorInfo connectorInfo = getConnectorInfo(system);
-		IcfConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
 		if (connectorInfo == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
+
+		// Find connector configuration persist in system
+		IcfConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
+
+		// Call ICF module and find schema for given connector key and
+		// configuration
 		IcfSchema icfSchema = icfConfigurationAggregatorService.getSchema(connectorInfo.getConnectorKey(),
 				connectorConfig);
 		if (icfSchema == null) {
@@ -131,39 +142,89 @@ public class DefaultSysSystemService extends AbstractReadWriteEntityService<SysS
 					ImmutableMap.of("system", system.getName()));
 		}
 
+		// Load existing object class from system
+		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		objectClassFilter.setSystemId(system.getId());
+		List<SysSchemaObjectClass> sysObjectClassesInSystem = null;
+		Page<SysSchemaObjectClass> page = objectClassRepository.find(objectClassFilter, null);
+		sysObjectClassesInSystem = page.getContent();
+
+		// Convert ICF schema to ACC entities
 		List<SysSchemaObjectClass> sysObjectClasses = new ArrayList<SysSchemaObjectClass>();
 		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
 		for (IcfObjectClassInfo objectClass : icfSchema.getDeclaredObjectClasses()) {
-			SysSchemaObjectClass sysObjectClass = convertIcfObjectClassInfo(objectClass);
+			SysSchemaObjectClass sysObjectClass = null;
+			// If existed some object class in system, then we will compared every object with object class in resource
+			// If will be same (same name), then we do only refresh object values from resource 
+			if (sysObjectClassesInSystem != null) {
+				Optional<SysSchemaObjectClass> objectClassSame = sysObjectClassesInSystem.stream()
+						.filter(objectClassInSystem -> { //
+							return objectClassInSystem.getObjectClassName().equals(objectClass.getType());
+						}) //
+						.findFirst();
+				if (objectClassSame.isPresent()) {
+					sysObjectClass = objectClassSame.get();
+				}
+			}
+			// Convert ICF object class to ACC (if is null, then will be created new instance)
+			sysObjectClass = convertIcfObjectClassInfo(objectClass, sysObjectClass);
 			sysObjectClass.setSystem(system);
 			sysObjectClasses.add(sysObjectClass);
+
+			List<SysSchemaAttribute> attributesInSystem = null;
+			// Load existing attributes for existing object class in system
+			if (sysObjectClass.getId() != null) {
+				SchemaAttributeFilter attFilter = new SchemaAttributeFilter();
+				attFilter.setSystemId(system.getId());
+				attFilter.setObjectClassId(sysObjectClass.getId());
+
+				Page<SysSchemaAttribute> attributesInSystemPage = attributeRepository.find(attFilter, null);
+				attributesInSystem = attributesInSystemPage.getContent();
+			}
 			for (IcfAttributeInfo attribute : objectClass.getAttributeInfos()) {
-				SysSchemaAttribute sysAttribute = convertIcfAttributeInfo(attribute);
+				// If will be ICF and ACC attribute same (same name), then we will do only refresh object values from resource 
+				SysSchemaAttribute sysAttribute = null;
+				if (attributesInSystem != null) {
+					Optional<SysSchemaAttribute> sysAttributeOptional = attributesInSystem.stream().filter(a -> {
+						return a.getName().equals(attribute.getName());
+					}).findFirst();
+					if (sysAttributeOptional.isPresent()) {
+						sysAttribute = sysAttributeOptional.get();
+					}
+				}
+				sysAttribute = convertIcfAttributeInfo(attribute, sysAttribute);
 				sysAttribute.setObjectClass(sysObjectClass);
 				sysAttributes.add(sysAttribute);
 			}
 		}
-		
+
+		// Persist generated schema to system
 		sysObjectClasses = (List<SysSchemaObjectClass>) objectClassRepository.save(sysObjectClasses);
 		sysAttributes = (List<SysSchemaAttribute>) attributeRepository.save(sysAttributes);
 	}
 
-	private SysSchemaObjectClass convertIcfObjectClassInfo(IcfObjectClassInfo objectClass) {
+	private SysSchemaObjectClass convertIcfObjectClassInfo(IcfObjectClassInfo objectClass,
+			SysSchemaObjectClass sysObjectClass) {
 		if (objectClass == null) {
 			return null;
 		}
-		SysSchemaObjectClass sysObjectClass = new SysSchemaObjectClass();
+		if (sysObjectClass == null) {
+			sysObjectClass = new SysSchemaObjectClass();
+		}
 		sysObjectClass.setObjectClassName(objectClass.getType());
 		sysObjectClass.setAuxiliary(objectClass.isAuxiliary());
 		sysObjectClass.setContainer(objectClass.isContainer());
 		return sysObjectClass;
 	}
 
-	private SysSchemaAttribute convertIcfAttributeInfo(IcfAttributeInfo attributeInfo) {
+	private SysSchemaAttribute convertIcfAttributeInfo(IcfAttributeInfo attributeInfo,
+			SysSchemaAttribute sysAttribute) {
 		if (attributeInfo == null) {
 			return null;
 		}
-		SysSchemaAttribute sysAttribute = new SysSchemaAttribute();
+		if (sysAttribute == null) {
+			sysAttribute = new SysSchemaAttribute();
+		}
 		sysAttribute.setClassType(attributeInfo.getClassType());
 		sysAttribute.setName(attributeInfo.getName());
 		sysAttribute.setMultivalued(attributeInfo.isMultivalued());

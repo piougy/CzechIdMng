@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.eav.entity;
 
-import java.util.UUID;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
@@ -86,14 +84,10 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	private boolean confidental;
 	
 	@Max(99999)
-	@Column(name = "SEQ")
+	@Column(name = "seq")
 	private short seq;
 
 	public IdmFormAttributeDefinition() {
-	}
-
-	public IdmFormAttributeDefinition(UUID id) {
-		super(id);
 	}
 
 	/**

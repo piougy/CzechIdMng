@@ -1,13 +1,14 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
@@ -37,7 +38,7 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		return roleCatalogueRepository.findOneByName(name);
 	}
 	@Override
-	protected BaseRepository<IdmRoleCatalogue, RoleCatalogueFilter> getRepository() {
+	protected AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter> getRepository() {
 		return roleCatalogueRepository;
 	}
 	
@@ -53,13 +54,13 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findRoots() {
-		return this.roleCatalogueRepository.findRoots();
+		return this.roleCatalogueRepository.findChildren(null);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<IdmRoleCatalogue> findChildrenByParent(Long parent) {
-		return this.roleCatalogueRepository.findChildrenByParent(parent);
+	public List<IdmRoleCatalogue> findChildrenByParent(UUID parent) {
+		return this.roleCatalogueRepository.findChildren(parent);
 	}
 	
 }

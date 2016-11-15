@@ -1,5 +1,5 @@
 
-package eu.bcvsolutions.idm.core.workflow.model.dto;
+package eu.bcvsolutions.idm.workflow.api.dto;
 
 import java.util.Date;
 import org.activiti.engine.repository.Deployment;

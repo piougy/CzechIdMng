@@ -56,8 +56,11 @@
         }
       },
       "systemObjectClasses": {
-        "header": "Schéma systému <small> typy objektů na koncovém systému</small>",
+        "header": "Schéma systému",
         "title": "Schéma systému",
+        "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
+        "generateSchemaBtn": "Generovat schema",
+        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
         },
@@ -72,6 +75,13 @@
           "objectClassName": {
             "label": "Název objektu",
             "placeholder": "Název objektu na koncovém systému"
+          }
+        },
+        "action": {
+          "generateSchema": {
+            "message": "<b>Vygeneruje a uloží schéma do tohoto systému.</b> Schéma se získá z napojeného konektoru, dle aktuální konfigurace.<br/>Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě. <br/><br/><b>Opravdu chcete zahájit generování/obnovu schématu?</b>",
+            "header": "Generování schématu",
+            "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
           }
         }
       },
@@ -132,7 +142,7 @@
           }
         }
       },
-      "ontityHandlingDetail": {
+      "entityHandlingDetail": {
         "title" :"Skupina atributů",
         "systemEntityHandlingHeader": "Skupina atributů <small>pro IDM entitu a typ operace</small>",
         "schemaAttributesHandlingHeader": "Namapované atributy",
@@ -263,7 +273,9 @@
       "systemEntityHandling": "Podskupina",
       "extendedAttribute": "Rozšířený atribut",
       "transformFromSystem": "Transformace ze systému",
-      "transformToSystem": "Transformace do systému"
+      "transformToSystem": "Transformace do systému",
+      "uid": "Je identifikátorem",
+      "uidTooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."
     },
     "Account": {
       "_type": "Účet na koncovém systému",

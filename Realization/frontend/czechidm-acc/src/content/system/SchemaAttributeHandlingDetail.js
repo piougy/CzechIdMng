@@ -60,7 +60,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
-  save(entity, event) {
+  save(event) {
     const formEntity = this.refs.form.getData();
     formEntity.systemEntityHandling = systemEntityHandlingManager.getSelfLink(formEntity.systemEntityHandling);
     formEntity.schemaAttribute = schemaAttributeManager.getSelfLink(formEntity.schemaAttribute);
@@ -84,11 +84,25 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
+  _uidChange(event) {
+    const checked = event.currentTarget.checked;
+    this.setState({isUid: checked}, () => {
+      if (checked) {
+        this.refs.idmPropertyName.setValue(null);
+      }
+    });
+  }
+
   render() {
     const { _showLoading, _attribute} = this.props;
+    const { isUid} = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
+    let _isUid = (isUid != null ? isUid : null);
+    if (_isUid == null) {
+      _isUid = attribute ? attribute.uid : false;
+    }
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -99,51 +113,60 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: attribute.idmPropertyName} : {})}}/>
         </Basic.ContentHeader>
-
-        <Basic.Panel>
-          <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
-            <Basic.SelectBox
-              ref="systemEntityHandling"
-              manager={systemEntityHandlingManager}
-              label={this.i18n('acc:entity.SchemaAttributeHandling.systemEntityHandling')}
-              readOnly
-              required/>
-            <Basic.SelectBox
-              ref="schemaAttribute"
-              manager={schemaAttributeManager}
-              forceSearchParameters={forceSearchParameters}
-              label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
-              required/>
-            <Basic.TextField
-              ref="idmPropertyName"
-              label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
-              required
-              max={255}/>
-            <Basic.Checkbox
-              ref="extendedAttribute"
-              label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
-            <Basic.TextField
-              ref="transformFromSystem"
-              label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromSystem')}
-              max={255}/>
-            <Basic.TextField
-              ref="transformToSystem"
-              label={this.i18n('acc:entity.SchemaAttributeHandling.transformToSystem')}
-              max={255}/>
-          </Basic.AbstractForm>
-          <Basic.PanelFooter>
-            <Basic.Button type="button" level="link"
-              onClick={this.context.router.goBack}
-              showLoading={_showLoading}>
-              {this.i18n('button.back')}
-            </Basic.Button>
-            <Basic.Button
-              onClick={this.save.bind(this)}
-              level="success" showLoading={_showLoading}>
-              {this.i18n('button.save')}
-            </Basic.Button>
-          </Basic.PanelFooter>
-        </Basic.Panel>
+        <form onSubmit={this.save.bind(this)}>
+          <Basic.Panel>
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+              <Basic.SelectBox
+                ref="systemEntityHandling"
+                manager={systemEntityHandlingManager}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.systemEntityHandling')}
+                readOnly
+                required/>
+              <Basic.SelectBox
+                ref="schemaAttribute"
+                manager={schemaAttributeManager}
+                forceSearchParameters={forceSearchParameters}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
+                required/>
+              <Basic.Checkbox
+                ref="uid"
+                onChange={this._uidChange.bind(this)}
+                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uidTooltip')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.uid')}/>
+              <Basic.TextField
+                ref="idmPropertyName"
+                readOnly = {_isUid}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
+                required = {!_isUid}
+                max={255}/>
+              <Basic.Checkbox
+                ref="extendedAttribute"
+                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
+              <Basic.TextField
+                ref="transformFromSystem"
+                label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromSystem')}
+                max={255}/>
+              <Basic.TextField
+                ref="transformToSystem"
+                label={this.i18n('acc:entity.SchemaAttributeHandling.transformToSystem')}
+                max={255}/>
+            </Basic.AbstractForm>
+            <Basic.PanelFooter>
+              <Basic.Button type="button" level="link"
+                onClick={this.context.router.goBack}
+                showLoading={_showLoading}>
+                {this.i18n('button.back')}
+              </Basic.Button>
+              <Basic.Button
+                onClick={this.save.bind(this)}
+                level="success"
+                type="submit"
+                showLoading={_showLoading}>
+                {this.i18n('button.save')}
+              </Basic.Button>
+            </Basic.PanelFooter>
+          </Basic.Panel>
+        </form>
       </div>
     );
   }

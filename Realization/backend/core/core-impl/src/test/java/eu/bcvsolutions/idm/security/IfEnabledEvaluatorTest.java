@@ -9,13 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
 import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
 import eu.bcvsolutions.idm.security.service.impl.IfEnabledEvaluator;
+import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Test for {@link IfEnabledEvaluator}

@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.projection.IdmFormDefinitionExcerpt;
 
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormDefinitionExcerpt;
 		itemResourceRel = "formDefinition", //
 		excerptProjection = IdmFormDefinitionExcerpt.class,
 		exported = false)
-public interface IdmFormDefinitionRepository extends BaseRepository<IdmFormDefinition, EmptyFilter> {
+public interface IdmFormDefinitionRepository extends AbstractEntityRepository<IdmFormDefinition, EmptyFilter> {
 	
 	IdmFormDefinition findOneByName(@Param("name") String name);
 	

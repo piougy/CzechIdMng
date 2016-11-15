@@ -1,8 +1,8 @@
-package eu.bcvsolutions.idm.core.workflow.service;
+package eu.bcvsolutions.idm.workflow.api.service;
 
 import java.io.InputStream;
 
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
 
 
 /**

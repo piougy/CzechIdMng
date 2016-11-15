@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.repository.projection.SysSchemaAttributeHandlingExcerpt;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Schema attributes handling repository
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )
-public interface SysSchemaAttributeHandlingRepository extends BaseRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> {
+public interface SysSchemaAttributeHandlingRepository extends AbstractEntityRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> {
 	@Override
 	@Query(value = "select e from SysSchemaAttributeHandling e" +
 			" where" +
@@ -32,7 +32,7 @@ public interface SysSchemaAttributeHandlingRepository extends BaseRepository<Sys
 	        + " and"
 	        + " (?#{[0].systemId} is null or e.systemEntityHandling.system.id = ?#{[0].systemId})"
 	        + " and"
-			+ " (lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
+			+ " (?#{[0].idmPropertyName} is null or lower(e.idmPropertyName) like ?#{[0].idmPropertyName == null ? '%' : '%'.concat([0].idmPropertyName.toLowerCase()).concat('%')})"
 			)
 	Page<SysSchemaAttributeHandling> find(SchemaAttributeHandlingFilter filter, Pageable pageable);
 }

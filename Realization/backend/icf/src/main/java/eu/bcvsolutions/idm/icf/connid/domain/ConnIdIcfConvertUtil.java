@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorObjectDto;
+import eu.bcvsolutions.idm.icf.dto.IcfEnabledAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfLoginAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectClassDto;
 import eu.bcvsolutions.idm.icf.dto.IcfObjectClassInfoDto;
@@ -234,6 +235,14 @@ public class ConnIdIcfConvertUtil {
 						((GuardedString) attribute.getValue().get(0)).toString());
 			}
 			return new IcfPasswordAttributeDto(password);
+		}
+		if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
+			Boolean enabled = null;
+			if (attribute.getValue() != null && attribute.getValue().size() == 1
+					&& attribute.getValue().get(0) instanceof Boolean) {
+				enabled =  (Boolean) attribute.getValue().get(0);
+			}
+			return new IcfEnabledAttributeDto(enabled, OperationalAttributes.ENABLE_NAME);
 		}
 		if (attribute.getValue() == null || attribute.getValue().isEmpty()) {
 			return new IcfAttributeDto(attribute.getName(), null);

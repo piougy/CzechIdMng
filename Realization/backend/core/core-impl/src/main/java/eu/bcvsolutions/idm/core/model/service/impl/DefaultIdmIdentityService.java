@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.SysProvisioningService;
+import eu.bcvsolutions.idm.core.model.service.IdmProvisioningService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -58,7 +58,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	
 	// TODO MOCKUP
 	@Autowired(required = false)
-	private SysProvisioningService provisioningService;
+	private IdmProvisioningService provisioningService;
 	
 	@Override
 	protected AbstractEntityRepository<IdmIdentity, IdentityFilter> getRepository() {

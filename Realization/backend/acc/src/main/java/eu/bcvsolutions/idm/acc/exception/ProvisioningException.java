@@ -2,12 +2,7 @@ package eu.bcvsolutions.idm.acc.exception;
 
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 
 /**

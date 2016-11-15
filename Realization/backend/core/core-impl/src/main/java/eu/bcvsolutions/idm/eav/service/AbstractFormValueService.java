@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.eav.dto.FormValueFilter;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -23,9 +21,7 @@ import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
  * @param <E> values entity
  * @param <F> filter
  */
-public abstract class AbstractFormValueService<O extends FormableEntity, E extends AbstractFormValue<O>>
-		extends AbstractReadWriteEntityService<E, FormValueFilter<O>>
-		implements FormValueService<O, E> {
+public abstract class AbstractFormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> implements FormValueService<O, E> {
 
 	private final Class<O> ownerClass;
 
@@ -44,8 +40,20 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		return ownerClass.isAssignableFrom(delimiter);
 	}
 	
-	@Override
 	protected abstract AbstractFormValueRepository<O, E> getRepository();
+	
+	/**
+	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
+	 * entity instance completely.
+	 * 
+	 * @param entity
+	 * @return the saved entity
+	 */
+	@Override
+	@Transactional
+	public E save(E entity) {
+		return getRepository().save(entity);
+	}
 	
 	@Override
 	@Transactional(readOnly = true)

@@ -114,6 +114,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		properties.getProperties()
 				.add(new IcfConfigurationPropertyDto("jdbcUrlTemplate", "jdbc:postgresql://%h:%p/%d"));
 		properties.getProperties().add(new IcfConfigurationPropertyDto("rethrowAllSQLExceptions", true));
+		properties.getProperties().add(new IcfConfigurationPropertyDto("statusColumn", "status"));
+		properties.getProperties().add(new IcfConfigurationPropertyDto("disabledStatusValue", "disabled"));
+		properties.getProperties().add(new IcfConfigurationPropertyDto("enabledStatusValue", "enabled"));
 
 		return icfConf;
 

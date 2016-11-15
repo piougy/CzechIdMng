@@ -22,8 +22,8 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.icf.IcfModuleDescriptor;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
+import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
@@ -66,7 +66,7 @@ public class IcfConfigurationController implements BaseController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/connector-configuration")
 	public ResponseEntity<IcfConnectorConfiguration> getConnectorConfigurations(
-			@RequestBody(required = true) IcfConnectorKey key) {
+			@RequestBody(required = true) IcfConnectorKeyDto key) {
 		Assert.notNull(key);
 		if (!icfConfigurationAggregatorService.getIcfConfigs().containsKey(key.getIcfType())) {
 			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,

@@ -59,13 +59,16 @@ function _linkFunction(to, rowIndex, data, event) {
 const LinkCell = ({rowIndex, data, property, to, className, title, target, access, ...props}) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   const accessItems = (access && !Array.isArray(access)) ? [access] : access;
-  //
+  // when is property and accessItems null, then return only default cell
+  if (!accessItems && !propertyValue) {
+    return <DefaultCell {...props}/>;
+  }
   return (
     <DefaultCell {...props}>
       {
         !propertyValue
         ||
-        accessItems && !SecurityManager.hasAccess(accessItems)
+        (accessItems && !SecurityManager.hasAccess(accessItems))
         ?
         <span>
           {

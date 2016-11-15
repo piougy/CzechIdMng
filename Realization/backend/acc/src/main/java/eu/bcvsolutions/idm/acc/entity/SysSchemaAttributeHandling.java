@@ -32,9 +32,8 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	private static final long serialVersionUID = -8492560756893726050L;
 
 	@Audited
-	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "idm_property_name", length = DefaultFieldLengths.NAME, nullable = false)
+	@Column(name = "idm_property_name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String idmPropertyName;
 
 	@Audited
@@ -52,6 +51,10 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	@Audited
 	@Column(name = "extended_attribute", nullable = false)
 	private boolean extendedAttribute = false;
+	
+	@Audited
+	@Column(name = "uid", nullable = false)
+	private boolean uid = false;
 
 	@Audited
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
@@ -109,6 +112,14 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 
 	public void setSystemEntityHandling(SysSystemEntityHandling systemEntityHandling) {
 		this.systemEntityHandling = systemEntityHandling;
+	}
+
+	public boolean isUid() {
+		return uid;
+	}
+
+	public void setUid(boolean uid) {
+		this.uid = uid;
 	}
 
 }

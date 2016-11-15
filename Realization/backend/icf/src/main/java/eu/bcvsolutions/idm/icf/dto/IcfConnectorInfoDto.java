@@ -3,6 +3,11 @@ package eu.bcvsolutions.idm.icf.dto;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 
+/**
+ * Information about connector. Keep connector key, display name and category
+ * @author svandav
+ *
+ */
 public class IcfConnectorInfoDto implements IcfConnectorInfo {
 
 	public IcfConnectorInfoDto() {

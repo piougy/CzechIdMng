@@ -29,6 +29,11 @@ public interface SysSystemEntityHandlingRepository extends AbstractEntityReposit
 	@Override
 	@Query(value = "select e from SysSystemEntityHandling e"+ 
 			" where" +
-	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})")
+	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})"+
+			" and" +
+			" (?#{[0].operationType} is null or e.operationType = ?#{[0].operationType})"+
+			" and" +
+			" (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})"
+			)
 	Page<SysSystemEntityHandling> find(SystemEntityHandlingFilter filter, Pageable pageable);
 }

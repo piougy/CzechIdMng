@@ -1,13 +1,16 @@
 package eu.bcvsolutions.idm.icf.api;
 
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-
-public interface IcfUidAttribute {
+/**
+ * Attribute for uniquely identification object on target resource
+ * 
+ * @author svandav
+ *
+ */
+public interface IcfUidAttribute extends IcfAttribute {
 
 	/**
 	 * Obtain a string representation of the value of this attribute, which
-	 * value uniquely identifies a {@link ConnectorObject object} on the target
-	 * resource.
+	 * value uniquely identifies a connector object on the target resource.
 	 *
 	 * @return value that uniquely identifies an object.
 	 */

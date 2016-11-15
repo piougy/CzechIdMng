@@ -336,7 +336,7 @@ gulp.task('themes', (cb) => {
     const themeFullPath = path.join(__dirname, '/node_modules/', config.theme);
     util.log('Theme will load form path:', themeFullPath);
     gulp.src(path.join(themeFullPath, '/images/**'))
-    .pipe(gulp.dest(paths.distImg));
+    .pipe(gulp.dest(paths.distImg)); // Stream can not continue ...it was sometime problem during build (image directory was add as less)
     // Find theme styles and add them to srcLess array
     return gulp.src(path.join(themeFullPath, '/css/*.less'))
     .pipe(flatmap(function iterateFiles(stream, file) {

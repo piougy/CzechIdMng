@@ -11,7 +11,12 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 public enum AccResultCode implements ResultCode {
 	CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector info for system %s not found!"),
 	CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector configuration for system %s not found!"),
-	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system %s not found!");
+	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system %s not found!"),
+	
+	// Provisioning
+	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.BAD_REQUEST, "IDM field %property for entity %uid not found!"),
+	PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Attribute %attribute for entity %uid on resource not found!");
+	
 	
 	private final HttpStatus status;
 	private final String message;

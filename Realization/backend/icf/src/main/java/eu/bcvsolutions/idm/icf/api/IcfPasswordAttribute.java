@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.icf.api;
 
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
+/**
+ * Attribute keep password value
+ * @author svandav
+ *
+ */
 public interface IcfPasswordAttribute extends IcfAttribute{
 
 	/**

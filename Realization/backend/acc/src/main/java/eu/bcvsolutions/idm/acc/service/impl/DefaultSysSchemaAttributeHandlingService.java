@@ -1,10 +1,16 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -26,5 +32,32 @@ public class DefaultSysSchemaAttributeHandlingService extends AbstractReadWriteE
 	@Override
 	protected AbstractEntityRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> getRepository() {
 		return repository;
+	}
+	
+	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling){
+		Assert.notNull(entityHandling);
+		
+		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
+		filter.setEntityHandlingId(entityHandling.getId());
+		Page<SysSchemaAttributeHandling> page = repository.find(filter, null);
+		return page.getContent();
+	}
+	
+	@Override
+	public Object transformValueToSystem(Object value, SysSchemaAttributeHandling attributeHandling){
+		Assert.notNull(attributeHandling);
+		
+		// TODO transformation system
+		
+		return value;
+	}
+	
+	@Override
+	public Object transformValueFromSystem(Object value, SysSchemaAttributeHandling attributeHandling){
+		Assert.notNull(attributeHandling);
+		
+		// TODO transformation system
+		
+		return value;
 	}
 }

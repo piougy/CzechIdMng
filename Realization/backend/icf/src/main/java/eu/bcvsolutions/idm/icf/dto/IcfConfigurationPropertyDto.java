@@ -2,6 +2,11 @@ package eu.bcvsolutions.idm.icf.dto;
 
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 
+/**
+ * Elementary configuration property for connector
+ * @author svandav
+ *
+ */
 public class IcfConfigurationPropertyDto implements IcfConfigurationProperty {
 
 	

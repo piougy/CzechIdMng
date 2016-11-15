@@ -4,8 +4,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 
 /**
  * Target system configuration service 
@@ -24,16 +25,25 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	void generateSchema(SysSystem system);
 	
 	/**
-	 * Return connector info for given system
-	 * @param system
-	 * @return
-	 */
-	IcfConnectorInfo getConnectorInfo(SysSystem system);
-
-	/**
 	 * Return connector configuration for given system
 	 * @param system
 	 * @return
 	 */
 	IcfConnectorConfiguration getConnectorConfiguration(SysSystem system);
+	
+	/**
+	 * Returns form definition to given connector key. If no definition for connector type is found, then new definition is created by connector properties.
+	 * 
+	 * @param connectorKey
+	 * @return
+	 */
+	IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey);
+	
+	
+	
+	
+	@Deprecated
+	IcfConnectorKey getTestConnectorKey();
+	@Deprecated
+	SysSystem createTestSystem();
 }

@@ -33,13 +33,12 @@ import eu.bcvsolutions.idm.acc.service.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.SysProvisioningService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
@@ -137,9 +136,9 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		// Find connector identification persisted in system
-		IcfConnectorInfo connectorInfo = systemService.getConnectorInfo(system);
-		if (connectorInfo == null) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND,
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
@@ -157,15 +156,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			String objectClassName = ah.getSchemaAttribute().getObjectClass().getObjectClassName();
 			if (!objectByClassMap.containsKey(objectClassName)) {
 				IcfObjectClass icfObjectClass = new IcfObjectClassDto(objectClassName);
-				IcfConnectorObject connectorObject = connectorFacade.readObject(connectorInfo.getConnectorKey(),
-						connectorConfig, icfObjectClass, uidAttribute);
+				IcfConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute);
 				objectByClassMap.put(objectClassName, connectorObject);
 			}
 		}
 
 		if (SystemOperationType.PROVISIONING == operation) {
 			// Provisioning
-			doProvisioning(uid, entity, attributes, connectorInfo, connectorConfig, objectByClassMap);
+			doProvisioning(uid, entity, attributes, connectorKey, connectorConfig, objectByClassMap);
 
 		} else {
 			// TODO Synchronisation or reconciliace
@@ -179,13 +177,13 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param uid
 	 * @param entity
 	 * @param attributes
-	 * @param connectorInfo
+	 * @param connectorKey
 	 * @param connectorConfig
 	 * @param uidAttribute
 	 * @param objectByClassMap
 	 */
 	private void doProvisioning(String uid, AbstractEntity entity, List<SysSchemaAttributeHandling> attributes,
-			IcfConnectorInfo connectorInfo, IcfConnectorConfiguration connectorConfig,
+			IcfConnectorKey connectorKey, IcfConnectorConfiguration connectorConfig,
 			Map<String, IcfConnectorObject> objectByClassMap) {
 
 		Map<String, IcfConnectorObject> objectByClassMapForUpdate = new HashMap<>();
@@ -219,13 +217,13 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		// call create on ICF module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
-			connectorFacade.createObject(connectorInfo.getConnectorKey(), connectorConfig,
+			connectorFacade.createObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), connectorObject.getAttributes());
 		});
 
 		// call update on ICF module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
-			connectorFacade.updateObject(connectorInfo.getConnectorKey(), connectorConfig,
+			connectorFacade.updateObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 		});
 

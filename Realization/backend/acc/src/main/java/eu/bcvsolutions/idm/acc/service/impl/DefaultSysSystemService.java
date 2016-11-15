@@ -1,7 +1,10 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
@@ -25,18 +30,22 @@ import eu.bcvsolutions.idm.acc.service.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.FormService;
 import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
+import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
@@ -47,13 +56,25 @@ import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
  *
  */
 @Service
-public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter>
-		implements SysSystemService {
+public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter> implements SysSystemService {
 
 	private SysSystemRepository systemRepository;
 	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
 	private SysSchemaObjectClassRepository objectClassRepository;
 	private SysSchemaAttributeRepository attributeRepository;
+	/**
+	 * Connector property type vs. eav type mapping
+	 */
+	private static final  Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
+	
+	static {
+		// TODO: converter registration?
+		supportedConnectorPropertyMapping = new HashMap<>();
+		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
+	}
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -81,42 +102,38 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Override
-	public IcfConnectorInfo getConnectorInfo(SysSystem system) {
-		// TODO Mockup connector info
-		IcfConnectorInfoDto info = new IcfConnectorInfoDto();
-		IcfConnectorKeyDto key = new IcfConnectorKeyDto();
-		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
-		key.setBundleVersion("2.2.4");
-		key.setIcfType("connId");
-		key.setBundleName("net.tirasa.connid.bundles.db.table");
-		info.setConnectorKey(key);
-		return info;
-	}
-
-	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public IcfConnectorConfiguration getConnectorConfiguration(SysSystem system) {
-		// TODO Mockup connector configuration
+		// load filled form values
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
+		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toAttributeMap(formValues);
+		// fill connector configuration from form values
 		IcfConnectorConfigurationDto icfConf = new IcfConnectorConfigurationDto();
 		IcfConfigurationProperties properties = new IcfConfigurationPropertiesDto();
 		icfConf.setConfigurationProperties(properties);
-		// Set all of the ConfigurationProperties needed by the connector.
-		properties.getProperties().add(new IcfConfigurationPropertyDto("host", "localhost"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("port", "5432"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("user", "idmadmin"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("password",
-				new org.identityconnectors.common.security.GuardedString("idmadmin".toCharArray())));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("database", "bcv_idm_storage"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("table", "system_users"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("keyColumn", "name"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("passwordColumn", "password"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("allNative", true));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("jdbcDriver", "org.postgresql.Driver"));
-		properties.getProperties()
-				.add(new IcfConfigurationPropertyDto("jdbcUrlTemplate", "jdbc:postgresql://%h:%p/%d"));
-		properties.getProperties().add(new IcfConfigurationPropertyDto("rethrowAllSQLExceptions", true));
-
+		for(String attributeName : attributeValues.keySet()) {
+			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(attributeName);
+			IcfConfigurationPropertyDto property = new IcfConfigurationPropertyDto();
+			property.setName(attributeName);
+			// convert form attribute values to connector properties 
+			Object value = null;
+			if(!attributeValues.get(attributeName).isEmpty()) {
+				if (formAttribute.isMultiple()) {					
+					List valueList = formAttribute.getEmptyList();
+					for(AbstractFormValue<SysSystem> formValue : attributeValues.get(attributeName)) {
+						valueList.add(toPropertyValue(formValue));
+					}
+					value = valueList.toArray();
+				} else {
+					// single value
+					value = toPropertyValue(attributeValues.get(attributeName).get(0));
+				}
+			}			
+			property.setValue(value);
+			properties.getProperties().add(property);
+		}
 		return icfConf;
-
 	}
 
 	@Override
@@ -124,9 +141,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(system);
 
 		// Find connector identification persist in system
-		IcfConnectorInfo connectorInfo = getConnectorInfo(system);
-		if (connectorInfo == null) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND,
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
@@ -139,8 +156,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Call ICF module and find schema for given connector key and
 		// configuration
-		IcfSchema icfSchema = icfConfigurationAggregatorService.getSchema(connectorInfo.getConnectorKey(),
-				connectorConfig);
+		IcfSchema icfSchema = icfConfigurationAggregatorService.getSchema(connectorKey, connectorConfig);
 		if (icfSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -239,5 +255,183 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		sysAttribute.setUpdateable(attributeInfo.isUpdateable());
 		sysAttribute.setCreateable(attributeInfo.isCreateable());
 		return sysAttribute;
+	}
+	
+	@Override
+	public IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey) {
+		Assert.notNull(connectorKey);
+		//
+		// if form definition for given key already exists
+		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorKey.getConnectorName(), connectorKey.getFullName());
+		if (formDefinition == null) {
+			// we creates new form definition
+			formDefinition = createConnectorFormDefinition(connectorKey);
+		}
+		return formDefinition;
+	}
+	
+	/**
+	 * Create form definition to given connectorKey by connector properties
+	 * 
+	 * @param connectorKey
+	 * @return
+	 */
+	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
+		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
+				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		//
+		List<IdmFormAttribute> formAttributes = new ArrayList<>();
+		for(short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
+			IcfConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
+			IdmFormAttribute attribute = toAttribute(property);
+			attribute.setSeq(seq);
+			formAttributes.add(attribute);
+		}
+		return getFormService().createDefinition(connectorKey.getConnectorName(), connectorKey.getFullName(), formAttributes);
+	}
+	
+	/**
+	 * Returns eav form attribute from given connector preperty
+	 * 
+	 * @param property
+	 * @return
+	 */
+	private IdmFormAttribute toAttribute(IcfConfigurationProperty property) {
+		IdmFormAttribute attribute = new IdmFormAttribute();
+		attribute.setName(property.getName());
+		attribute.setDisplayName(property.getDisplayName());
+		attribute.setDescription(property.getHelpMessage());			
+		attribute.setPersistentType(convertPropertyType(property.getType()));
+		attribute.setConfidental(property.isConfidential());
+		attribute.setRequired(property.isRequired());
+		attribute.setMultiple(isMultipleProperty(property.getType()));	
+		attribute.setDefaultValue(property.getValue() == null ? null : property.getValue().toString());
+		return attribute;
+	}
+	
+	/**
+	 * Returns connector property value from given eav value
+	 * @param formValue
+	 * @return
+	 */
+	private Object toPropertyValue(AbstractFormValue<SysSystem> formValue) {
+		if (formValue == null) {
+			return null;
+		}
+		if(formValue.isConfidental()) {
+			return new org.identityconnectors.common.security.GuardedString(formValue.getValue().toString().toCharArray());
+		}
+		return formValue.getValue();
+	}
+	
+	/**
+	 * Returns true, if connector property supports multiple values
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private boolean isMultipleProperty(String connectorPropertyType) {
+		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
+			throw new UnsupportedOperationException(MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
+		}
+		return supportedConnectorPropertyMapping.get(connectorPropertyType).multiple;
+	}
+	
+	/**
+	 * Returns
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private PersistentType convertPropertyType(String connectorPropertyType) {
+		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
+			throw new UnsupportedOperationException(MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
+		}
+		return supportedConnectorPropertyMapping.get(connectorPropertyType).persistentType;
+	}
+	
+	/**
+	 * Connector property type vs. eav type mapping
+	 * 
+	 * @author Radek Tomiška
+	 *
+	 */
+	private static class ConnectorPropertyMapping {
+		
+		PersistentType persistentType;
+		boolean multiple;
+		
+		public ConnectorPropertyMapping(PersistentType persistentType, boolean multiple) {
+			this.persistentType = persistentType;
+			this.multiple = multiple;
+		}
+	}
+	
+	@Deprecated
+	public SysSystem createTestSystem() {
+		// create owner
+		SysSystem system = new SysSystem();
+		system.setName("sysOne_" + System.currentTimeMillis());	
+		system.setConnectorKey(new SysConnectorKey(getTestConnectorKey()));
+		save(system);
+	
+		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		
+		List<SysSystemFormValue> values = new ArrayList<>();
+		SysSystemFormValue host = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("host"));
+		host.setValue("localhost");
+		values.add(host);
+		SysSystemFormValue port = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("port"));
+		port.setValue("5432");
+		values.add(port);
+		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
+		user.setValue("idmadmin");
+		values.add(user);		
+		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
+		password.setValue("idmadmin");
+		values.add(password);	
+		SysSystemFormValue database = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("database"));
+		database.setValue("bcv_idm_storage");
+		values.add(database);
+		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
+		table.setValue("system_users");
+		values.add(table);
+		SysSystemFormValue keyColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("keyColumn"));
+		keyColumn.setValue("name");
+		values.add(keyColumn);
+		SysSystemFormValue passwordColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("passwordColumn"));
+		passwordColumn.setValue("password");
+		values.add(passwordColumn);
+		SysSystemFormValue allNative = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("allNative"));
+		allNative.setValue(true);
+		values.add(allNative);
+		SysSystemFormValue jdbcDriver = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
+		jdbcDriver.setValue("org.postgresql.Driver");
+		values.add(jdbcDriver);
+		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
+		jdbcUrlTemplate.setValue("jdbc:postgresql://%h:%p/%d");
+		values.add(jdbcUrlTemplate);
+		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
+		rethrowAllSQLExceptions.setValue(true);
+		values.add(rethrowAllSQLExceptions);
+		
+		getFormService().saveValues(system, values);
+		
+		return system;
+	}
+	
+	/**
+	 * Basic table connector
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	public IcfConnectorKey getTestConnectorKey() {
+		IcfConnectorKeyDto key = new IcfConnectorKeyDto();
+		key.setIcfType("connId");
+		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
+		key.setBundleName("net.tirasa.connid.bundles.db.table");
+		key.setBundleVersion("2.2.4");
+		return key;
 	}
 }

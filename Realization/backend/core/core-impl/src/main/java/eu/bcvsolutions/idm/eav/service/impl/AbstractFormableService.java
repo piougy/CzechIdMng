@@ -42,4 +42,13 @@ public abstract class AbstractFormableService<E extends FormableEntity, F extend
 		super.delete(entity);
 	}
 	
+	/**
+	 * Returns form service
+	 * 
+	 * @return
+	 */
+	protected FormService getFormService() {
+		return formService;
+	}
+	
 }

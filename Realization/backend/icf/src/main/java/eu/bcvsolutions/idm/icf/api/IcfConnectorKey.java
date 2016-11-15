@@ -31,5 +31,14 @@ public interface IcfConnectorKey {
 	 * @return
 	 */
 	String getConnectorName();
+	
+	/**
+	 * Returns full connector name
+	 * 
+	 * @return
+	 */
+	default String getFullName() {
+		return getIcfType() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
+	}
 
 }

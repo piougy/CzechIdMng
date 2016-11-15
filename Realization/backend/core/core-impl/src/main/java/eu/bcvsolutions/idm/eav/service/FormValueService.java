@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 public interface FormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> extends Plugin<Class<?>> {
 
 	/**
-	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
+	 * Saves a given form value. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
 	 * 
 	 * @param entity

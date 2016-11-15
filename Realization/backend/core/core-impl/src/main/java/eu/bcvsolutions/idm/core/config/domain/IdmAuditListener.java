@@ -21,8 +21,6 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
 @Configurable
 public class IdmAuditListener implements EntityTrackingRevisionListener {
 	
-	private static final Long FIRST_REVISION = 1l; 
-	
 	@Autowired
 	private IdmAuditService auditService;
 	

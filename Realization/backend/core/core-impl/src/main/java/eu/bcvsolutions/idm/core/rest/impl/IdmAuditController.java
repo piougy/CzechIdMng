@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
@@ -35,6 +37,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		super(entityLookupService);
 	}
 	
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters, 
 			@PageableDefault Pageable pageable, 			
@@ -42,6 +45,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		return this.find(parameters, pageable, assembler);
 	}
 	
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	@RequestMapping(value= "/search/entities", method = RequestMethod.GET)
 	public ResponseEntity<ResourcesWrapper<String>> findAuditedEntity(@PageableDefault Pageable pageable, PersistentEntityResourceAssembler assembler) {
 		// TODO: pageable is necessary? 

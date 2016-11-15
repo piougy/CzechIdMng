@@ -33,6 +33,13 @@ import eu.bcvsolutions.idm.core.config.domain.IdmAuditListener;
 
 @Entity
 @RevisionEntity(IdmAuditListener.class)
+@Table(name = "idm_audit", indexes = {
+		@Index(name = "idx_idm_audit_timestamp", columnList = "timestamp"),
+		@Index(name = "idx_idm_audit_modification", columnList = "modification"),
+		@Index(name = "idx_idm_audit_original_modifier", columnList = "original_modifier"),
+		@Index(name = "idx_idm_audit_modifier", columnList = "modifier"),
+		@Index(name = "idx_idm_audit_entity_id", columnList = "entity_id"),
+		@Index(name = "idx_idm_audit_changed_attributes", columnList = "changed_attributes") })
 public class IdmAudit implements BaseEntity {
 
 	private static final long serialVersionUID = -2762812245969363775L;
@@ -54,6 +61,7 @@ public class IdmAudit implements BaseEntity {
 	@JoinTable(name = "revchanges", joinColumns = @JoinColumn(name = "rev"))
 	@Fetch(FetchMode.JOIN)
 	@ModifiedEntityNames
+	@Column(name = "modified_entity_names")
 	private Set<String> modifiedEntityNames;
 	
 	@Column(name = "modification")
@@ -62,7 +70,7 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "type")
 	private String type;
 	
-	@Column(name = "changedAttributes")
+	@Column(name = "changed_attributes")
 	private String changedAttributes;
 	
 	@Size(max = DefaultFieldLengths.NAME)
@@ -73,7 +81,7 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	
-	@Column(name = "entityId")
+	@Column(name = "entity_id")
 	private UUID entityId;
 
 	public String getOriginalModifier() {

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 		itemResourceRel = "audit", //
 		exported = false // 
 	)
-public interface IdmAuditRepository extends BaseRepository<IdmAudit, AuditFilter> {
+public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, AuditFilter> {
 	
 	@Override
 	@Query(value = "SELECT e "

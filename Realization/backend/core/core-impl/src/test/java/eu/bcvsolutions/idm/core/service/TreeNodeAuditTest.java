@@ -93,7 +93,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 					assertEquals(1, revisions.size());
 					
 					IdmTreeNode org = (IdmTreeNode) auditService.findRevision(IdmTreeNode.class, 
-							node.getId(), revisions.get(revisions.size() - 1).getRevisionId());
+							node.getId(), (Long)revisions.get(revisions.size() - 1).getId());
 					
 					assertEquals(node.getId(), org.getId());
 					assertEquals(node.getName(), org.getName());
@@ -205,7 +205,7 @@ public class TreeNodeAuditTest extends AbstractIntegrationTest {
 					assertEquals(10, revisions.size());
 					
 					for (IdmAudit rev : revisions) {
-						IdmTreeNode revSecond = auditService.findRevision(IdmTreeNode.class, node.getId(), rev.getRevisionId());
+						IdmTreeNode revSecond = auditService.findRevision(IdmTreeNode.class, node.getId(), (Long)rev.getId());
 						assertEquals(rev.getModifier(), revSecond.getModifier());
 					}
 					

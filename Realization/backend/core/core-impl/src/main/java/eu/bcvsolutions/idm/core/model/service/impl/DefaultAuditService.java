@@ -27,7 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadEntityService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
@@ -65,7 +65,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T getPreviousVersion(T entity, long currentRevId) {
+	public <T> T getPreviousVersion(T entity, Long currentRevId) {
 		AuditReader reader = this.getAuditReader();
 
 	    Number previousRevId = (Number) reader.createQuery()
@@ -76,7 +76,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	    .getSingleResult();
 
 	    if (previousRevId != null) {
-	        return (T) this.find(entity.getClass(), ((BaseEntity) entity).getId(), previousRevId.longValue());
+	        return (T) this.find(entity.getClass(), (UUID)((BaseEntity) entity).getId(), previousRevId.longValue());
 	    } else {
 	        return null;
 	    }
@@ -92,7 +92,7 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	}
 	
 	@Override
-	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevisionId) {
+	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevisionId) {
 		AuditReader reader = this.getAuditReader();
 
 	    Number previousRevisionId = (Number) reader.createQuery()
@@ -109,13 +109,13 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	    }
 	}
 	
-	private <T> T find(Class<T> entityClass, UUID entityId, long revisionId) {
+	private <T> T find(Class<T> entityClass, UUID entityId, Long revisionId) {
 		AuditReader reader = this.getAuditReader();
 		return reader.find(entityClass, entityId, revisionId);
 	}
 
 	@Override
-	public <T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, long currentRevId,
+	public <T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId,
 			T currentEntity) {
 		List<String> changedColumns = new ArrayList<>();
 		T previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
@@ -150,11 +150,6 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 			}
 		}
 		return changedColumns;
-	}
-
-	@Override
-	protected BaseRepository<IdmAudit, AuditFilter> getRepository() {
-		return this.auditRepository;
 	}
 
 	@Override
@@ -194,8 +189,13 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	public <T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId) {
 		return (Number) this.getAuditReader().createQuery()
 			    .forRevisionsOfEntity(entityClass, false, true)
-			    .addProjection(AuditEntity.revisionProperty("revisionNumber").max())
-			    .add(AuditEntity.revisionProperty("entityId").eq(entityId))
+			    .addProjection(AuditEntity.revisionNumber().max())
+			    .add(AuditEntity.id().eq(entityId))
 			    .getSingleResult();
+	}
+
+	@Override
+	protected AbstractEntityRepository<IdmAudit, AuditFilter> getRepository() {
+		return this.auditRepository;
 	}
 }

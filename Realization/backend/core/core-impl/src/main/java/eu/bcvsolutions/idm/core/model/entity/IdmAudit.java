@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,6 @@ import javax.validation.constraints.Size;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.ModifiedEntityNames;
 import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
@@ -41,18 +41,10 @@ public class IdmAudit implements BaseEntity {
 	
 	@Id
 	@GeneratedValue
-    @RevisionNumber
     @JsonProperty(value = "id")
     @Column(name = "id")
+	@RevisionNumber
 	private Long id;
-
-	@GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@Column(name = "idmId")
-	private UUID idmId;
-	
-	@Column(name = "revisionNumber")
-	private Long revisionNumber;
 	
 	@JsonIgnore
 	@RevisionTimestamp
@@ -83,14 +75,6 @@ public class IdmAudit implements BaseEntity {
 	
 	@Column(name = "entityId")
 	private UUID entityId;
-	
-	public Long getRevisionId() {
-		return id;
-	}
-
-	public void setRevisionId(Long id) {
-		this.id = id;
-	}
 
 	public String getOriginalModifier() {
 		return originalModifier;
@@ -214,21 +198,13 @@ public class IdmAudit implements BaseEntity {
 	}
 
 	@Override
-	public UUID getId() {
-		return this.idmId;
-	}
-
-	public Long getRevisionNumber() {
-		return revisionNumber;
-	}
-
-	public void setRevisionNumber(Long revisionNumber) {
-		this.revisionNumber = revisionNumber;
+	public Serializable getId() {
+		return this.id;
 	}
 
 	@Override
-	public void setId(UUID idmId) {
-		this.idmId = idmId;
-		
+	public void setId(Serializable id) {
+		this.id = (Long) id;
 	}
+
 }

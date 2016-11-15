@@ -49,19 +49,10 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// autowire services
 		autowireServices();
 		
-		// set revision number, AbstractEntity dont have implement version number, then we must get last revision number
-		Number revisionNumber = this.auditService.getLastVersionNumber(entityClass, (UUID)entityId);
-		if (revisionNumber == null) {
-			((IdmAudit)revisionEntity).setRevisionNumber(FIRST_REVISION);
-		} else {
-			long number = revisionNumber.longValue();
-			((IdmAudit)revisionEntity).setRevisionNumber(number++);
-		}
-		
 		// if revision type is MOD - modification, get and set changed columns
 		if (revisionType == RevisionType.MOD) {
 			currentEntity = (AbstractEntity) entityManger.find(entityClass, (UUID)entityId);
-			changedColumns = auditService.getNameChangedColumns(entityClass, (UUID)entityId, ((IdmAudit)revisionEntity).getRevisionId(), currentEntity);
+			changedColumns = auditService.getNameChangedColumns(entityClass, (UUID)entityId, (Long)((IdmAudit)revisionEntity).getId(), currentEntity);
 			((IdmAudit)revisionEntity).addChanged(changedColumns);
 		}
 		

@@ -23,6 +23,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.
 	 * Id of revision may be found by method {@link #findRevisions(Class, Long)}
+	 * 
 	 * @param <T>
 	 * @param classType
 	 * @param revisionId
@@ -32,16 +33,23 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 */
 	<T> T findRevision(Class<T> classType, UUID entityId, Long revisionId) throws RevisionDoesNotExistException;	
 	
+	/**
+	 * Method find all revisions for class and entity id
+	 * 
+	 * @param classType
+	 * @param entityId
+	 * @return
+	 */
 	<T> List<IdmAudit> findRevisions(Class<T> classType, UUID entityId);
 	
 	/**
-	 * TODO:
+	 * Return previous version of entity. Return Entity object not {@link IdmAudit}.
 	 * 
 	 * @param entity
 	 * @param currentRevId
 	 * @return
 	 */
-	<T> T getPreviousVersion(T entity, long currentRevId);
+	<T> T getPreviousVersion(T entity, Long currentRevId);
 	
 	/**
 	 * TODO:
@@ -51,8 +59,15 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param currentRevId
 	 * @return
 	 */
-	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, long currentRevId);
+	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
+	/**
+	 * Return last version number id.
+	 * 
+	 * @param entityClass
+	 * @param entityId
+	 * @return
+	 */
 	<T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId);
 	
 	/**
@@ -64,7 +79,7 @@ public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter
 	 * @param currentEntity
 	 * @return
 	 */
-	<T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, long currentRevId, T currentEntity);
+	<T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId, T currentEntity);
 	
 	/**
 	 * Method return list of class simple name for which is audited. Must at least one attribute with

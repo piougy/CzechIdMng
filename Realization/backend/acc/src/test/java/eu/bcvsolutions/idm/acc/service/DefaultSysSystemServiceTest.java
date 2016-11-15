@@ -146,7 +146,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create owner
 		SysSystem system =  sysSystemService.createTestSystem();		
 		IcfConnectorConfiguration connectorConfiguration = sysSystemService.getConnectorConfiguration(system);		
-		assertEquals(12, connectorConfiguration.getConfigurationProperties().getProperties().size());
+		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
 		//
 		// check all supported data types
 		Integer checked = 0;

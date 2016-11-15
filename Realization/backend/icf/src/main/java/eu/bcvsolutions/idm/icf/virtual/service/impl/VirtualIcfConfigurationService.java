@@ -63,14 +63,14 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	}
 
 	/**
-	 * Return find connector default configuration by connector info
+	 * Return find connector default configuration by connector key
 	 * 
-	 * @param info
+	 * @param key
 	 * @return
 	 */
 	@Override
-	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorInfo info) {
-		Assert.notNull(info);
+	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+		Assert.notNull(key);
 		IcfConnectorConfigurationDto dto = new IcfConnectorConfigurationDto();
 		IcfConfigurationPropertiesDto propertiesDto = new IcfConfigurationPropertiesDto();
 		IcfConfigurationPropertyDto propertyDto = new IcfConfigurationPropertyDto();

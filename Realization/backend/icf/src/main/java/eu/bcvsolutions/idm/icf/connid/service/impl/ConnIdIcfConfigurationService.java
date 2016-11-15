@@ -111,14 +111,14 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	/**
 	 * Return find connector default configuration by connector info
 	 * 
-	 * @param info
+	 * @param key
 	 * @return
 	 */
 	@Override
-	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorInfo info) {
-		Assert.notNull(info);
+	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+		Assert.notNull(key);
 
-		ConnectorInfo i = getConnIdConnectorInfo(info.getConnectorKey());
+		ConnectorInfo i = getConnIdConnectorInfo(key);
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
 			IcfConnectorConfiguration configDto = ConnIdIcfConvertUtil.convertConnIdConnectorConfiguration(apiConf);

@@ -23,11 +23,11 @@ public interface IcfConfigurationService {
 	List<IcfConnectorInfo> getAvailableLocalConnectors();
 
 	/**
-	 * Return find connector default configuration by connector info
+	 * Return find connector default configuration by connector key
 	 * @param info
 	 * @return
 	 */
-	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorInfo info);
+	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key);
 	
 
 	/**

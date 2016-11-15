@@ -1,38 +1,12 @@
 package eu.bcvsolutions.idm.icf.rest.impl;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.identityconnectors.framework.api.APIConfiguration;
-import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
-import org.identityconnectors.framework.api.ConnectorFacade;
-import org.identityconnectors.framework.api.ConnectorFacadeFactory;
-import org.identityconnectors.framework.api.ConnectorInfo;
-import org.identityconnectors.framework.api.ConnectorInfoManager;
-import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
-import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.api.operations.APIOperation;
-import org.identityconnectors.framework.api.operations.CreateApiOp;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ObjectClassInfo;
-import org.identityconnectors.framework.common.objects.Schema;
-import org.identityconnectors.framework.common.objects.SearchResult;
-import org.identityconnectors.framework.spi.ConnectorClass;
-import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.ControllerUtils;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
@@ -52,6 +26,7 @@ import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
@@ -60,7 +35,6 @@ import eu.bcvsolutions.idm.icf.dto.IcfAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
 import eu.bcvsolutions.idm.icf.dto.IcfLoginAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfPasswordAttributeDto;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
@@ -252,15 +226,14 @@ public class IcfConfigurationController implements BaseController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/connector-configuration")
 	public ResponseEntity<IcfConnectorConfiguration> getConnectorConfigurations(
-			@RequestBody(required = true) IcfConnectorInfoDto info) {
-		Assert.notNull(info);
-		Assert.notNull(info.getConnectorKey());
-		if (!icfConfigurationAggregatorService.getIcfConfigs().containsKey(info.getConnectorKey().getIcfType())) {
+			@RequestBody(required = true) IcfConnectorKey key) {
+		Assert.notNull(key);
+		if (!icfConfigurationAggregatorService.getIcfConfigs().containsKey(key.getIcfType())) {
 			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
-					ImmutableMap.of("icf", info.getConnectorKey().getIcfType()));
+					ImmutableMap.of("icf", key.getIcfType()));
 		}
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
-				.get(info.getConnectorKey().getIcfType()).getConnectorConfiguration(info);
+				.get(key.getIcfType()).getConnectorConfiguration(key);
 		return new ResponseEntity<IcfConnectorConfiguration>(conf, HttpStatus.OK);
 	}
 

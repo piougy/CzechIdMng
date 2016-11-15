@@ -10,8 +10,8 @@ public class IcfEnabledAttributeDto extends IcfAttributeDto implements IcfEnable
 	private Date enabledDate;
 	private Date disabledDate;
 
-	public IcfEnabledAttributeDto(boolean enable) {
-		super();
+	public IcfEnabledAttributeDto(boolean enable, String name) {
+		super(name, enable);
 		this.enabled = enable;
 	}
 

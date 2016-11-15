@@ -129,4 +129,5 @@ public class AccAccount extends AbstractEntity {
 	public SysRoleSystem getRoleSystem() {
 		return roleSystem;
 	}
+	
 }

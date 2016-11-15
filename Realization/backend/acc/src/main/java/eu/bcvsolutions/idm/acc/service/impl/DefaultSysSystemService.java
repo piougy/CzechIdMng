@@ -414,6 +414,15 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(true);
 		values.add(rethrowAllSQLExceptions);
+		SysSystemFormValue statusColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("statusColumn"));
+		statusColumn.setValue("status");
+		values.add(statusColumn);
+		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
+		disabledStatusValue.setValue("disabled");
+		values.add(disabledStatusValue);
+		SysSystemFormValue enabled = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("enabled"));
+		enabled.setValue("enabled");
+		values.add(enabled);
 		
 		getFormService().saveValues(system, values);
 		

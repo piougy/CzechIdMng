@@ -46,7 +46,6 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
-import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.dto.IcfAttributeDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorObjectDto;
@@ -161,9 +160,9 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 
 		// Find connector identification persisted in system
-		IcfConnectorInfo connectorInfo = systemService.getConnectorInfo(system);
-		if (connectorInfo == null) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND,
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
@@ -190,7 +189,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value);
 		IcfObjectClass icfObjectClass = new IcfObjectClassDto(objectClassName);
 		// Call icf modul for update single attribute
-		connectorFacade.updateObject(connectorInfo.getConnectorKey(), connectorConfig,icfObjectClass , uidAttribute, ImmutableList.of(icfAttributeForCreate));
+		connectorFacade.updateObject(connectorKey, connectorConfig,icfObjectClass , uidAttribute, ImmutableList.of(icfAttributeForCreate));
 		
 	}
 

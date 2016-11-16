@@ -136,4 +136,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		filter.setText((String) parameters.toSingleValueMap().get("text"));
 		return filter;
 	}
+	
+	@Deprecated
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@RequestMapping(value = "/test/create-test-system", method = RequestMethod.POST)
+	public ResponseEntity<?> createTestSystem() throws HttpMessageNotReadableException {
+		SysSystemService service = (SysSystemService)this.getEntityService();
+		service.createTestSystem();
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
 }

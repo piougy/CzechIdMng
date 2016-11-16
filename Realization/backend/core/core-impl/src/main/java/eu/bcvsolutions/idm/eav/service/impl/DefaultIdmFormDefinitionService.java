@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.eav.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
 public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, EmptyFilter> implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
+	// TODO: form definition service
 	private final IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
 
 	@Autowired
@@ -38,6 +40,17 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	@Override
 	protected AbstractEntityRepository<IdmFormDefinition, EmptyFilter> getRepository() {
 		return formDefinitionRepository;
+	}
+	
+	/**
+	 * Fill default definition name, if no name is given
+	 */
+	@Override
+	public IdmFormDefinition save(IdmFormDefinition entity) {
+		if (StringUtils.isEmpty(entity.getName())) {
+			entity.setName(DEFAULT_DEFINITION_NAME);
+		}
+		return super.save(entity);
 	}
 	
 	@Override

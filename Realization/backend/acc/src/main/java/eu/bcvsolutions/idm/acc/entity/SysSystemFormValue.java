@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 
 /**
  * System extended attributes (system connector configuration, etc).
@@ -30,11 +31,19 @@ public class SysSystemFormValue extends AbstractFormValue<SysSystem> {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem owner;
 	
+	public SysSystemFormValue() {
+	}
+	
+	public SysSystemFormValue(IdmFormAttribute formAttribute) {
+		super(formAttribute);
+	}
+	
 	@Override
 	public SysSystem getOwner() {
 		return owner;
 	}
 	
+	@Override
 	public void setOwner(SysSystem owner) {
 		this.owner = owner;
 	}

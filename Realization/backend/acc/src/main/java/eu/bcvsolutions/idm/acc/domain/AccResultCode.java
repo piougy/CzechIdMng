@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
  * Every enum contains a string message and corresponding https HttpStatus code.
  */
 public enum AccResultCode implements ResultCode {
-	CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector info for system %s not found!"),
+	CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector key for system %s not found!"),
 	CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector configuration for system %s not found!"),
 	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system %s not found!"),
 	

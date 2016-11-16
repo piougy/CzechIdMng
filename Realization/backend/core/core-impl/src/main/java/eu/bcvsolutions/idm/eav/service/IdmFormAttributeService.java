@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.eav.service;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.eav.dto.FormAttributeDefinitionFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 
 /**
@@ -10,6 +10,6 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
  * @author Radek Tomiška
  *
  */
-public interface IdmFormAttributeService extends ReadWriteEntityService<IdmFormAttribute, EmptyFilter> {
+public interface IdmFormAttributeService extends ReadWriteEntityService<IdmFormAttribute, FormAttributeDefinitionFilter> {
 
 }

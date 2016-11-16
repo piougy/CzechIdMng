@@ -17,6 +17,10 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
 import eu.bcvsolutions.idm.eav.service.FormService;
 import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -41,7 +45,10 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private FormService formService;
-
+	
+	@Autowired
+	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
+	
 	/**
 	 * Test add and delete extended attributes to owner
 	 */
@@ -83,16 +90,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// fill extended attributes
 		List<SysSystemFormValue> values = new ArrayList<>();
 		
-		SysSystemFormValue value1 = new SysSystemFormValue();
-		value1.setOwner(systemOne);
-		value1.setFormAttribute(attributeDefinitionOne);
-		value1.setStringValue("test1");
+		SysSystemFormValue value1 = new SysSystemFormValue(attributeDefinitionOne);
+		value1.setValue("test1");
 		values.add(value1);
 		
-		SysSystemFormValue value2 = new SysSystemFormValue();
-		value2.setOwner(systemOne);
-		value2.setFormAttribute(attributeDefinitionTwo);
-		value2.setStringValue("test2");
+		SysSystemFormValue value2 = new SysSystemFormValue(attributeDefinitionTwo);
+		value2.setValue("test2");
 		values.add(value2);
 		
 		formService.saveValues(systemOne, values);
@@ -123,6 +126,50 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		sysSystemService.delete(systemOne);
 		
 		assertEquals(0, formService.getValues(systemOne).size());
-		
 	}
+	
+	@Test
+	public void testCreateConnectorConfiguration() {
+		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
+		
+		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
+				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		
+		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(connectorKey);
+		
+		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
+		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getDisplayName());
+	}
+	
+	@Test
+	public void testFillConnectorConfiguration() {
+		// create owner
+		SysSystem system =  sysSystemService.createTestSystem();		
+		IcfConnectorConfiguration connectorConfiguration = sysSystemService.getConnectorConfiguration(system);		
+		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
+		//
+		// check all supported data types
+		Integer checked = 0;
+		for(IcfConfigurationProperty property : connectorConfiguration.getConfigurationProperties().getProperties()) {
+			switch(property.getName()) {
+				case "host": {
+					assertEquals("localhost", property.getValue());
+					checked++;
+					break;
+				}
+				case "password": {
+					assertEquals(new org.identityconnectors.common.security.GuardedString("idmadmin".toCharArray()), property.getValue());
+					checked++;
+					break;
+				}
+				case "rethrowAllSQLExceptions": {
+					assertEquals(true, property.getValue());
+					checked++;
+					break;
+				}
+			}
+		};
+		
+		assertEquals(Integer.valueOf(3), checked);
+	}	
 }

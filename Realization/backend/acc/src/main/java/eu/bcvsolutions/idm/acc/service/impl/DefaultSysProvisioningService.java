@@ -43,7 +43,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.IdmProvisioningService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
@@ -217,9 +217,9 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 
 		// Find connector identification persisted in system
-		IcfConnectorInfo connectorInfo = systemService.getConnectorInfo(system);
-		if (connectorInfo == null) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_INFO_FOR_SYSTEM_NOT_FOUND,
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
@@ -237,15 +237,14 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			String objectClassName = ah.getSchemaAttribute().getObjectClass().getObjectClassName();
 			if (!objectByClassMap.containsKey(objectClassName)) {
 				IcfObjectClass icfObjectClass = new IcfObjectClassDto(objectClassName);
-				IcfConnectorObject connectorObject = connectorFacade.readObject(connectorInfo.getConnectorKey(),
-						connectorConfig, icfObjectClass, uidAttribute);
+				IcfConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute);
 				objectByClassMap.put(objectClassName, connectorObject);
 			}
 		}
 
 		if (SystemOperationType.PROVISIONING == provisioningType) {
 			// Provisioning
-			doProvisioning(uid, entity, operationType, attributes, connectorInfo, connectorConfig, objectByClassMap);
+			doProvisioning(uid, entity, operationType, attributes, connectorKey, connectorConfig, objectByClassMap);
 
 		} else {
 			// TODO Synchronisation or reconciliation
@@ -279,13 +278,13 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	 * @param uid
 	 * @param entity
 	 * @param attributes
-	 * @param connectorInfo
+	 * @param connectorKey
 	 * @param connectorConfig
 	 * @param uidAttribute
 	 * @param objectByClassMap
 	 */
 	private void doProvisioning(String uid, AbstractEntity entity, AccountOperationType operationType,
-			List<SysSchemaAttributeHandling> attributes, IcfConnectorInfo connectorInfo,
+			List<SysSchemaAttributeHandling> attributes, IcfConnectorKey connectorKey,
 			IcfConnectorConfiguration connectorConfig, Map<String, IcfConnectorObject> objectByClassMap) {
 
 		Map<String, IcfConnectorObject> objectByClassMapForUpdate = new HashMap<>();
@@ -336,22 +335,22 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
 			log.debug("Provisioning - create object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
-			connectorFacade.createObject(connectorInfo.getConnectorKey(), connectorConfig,
-					connectorObject.getObjectClass(), connectorObject.getAttributes());
+			connectorFacade.createObject(connectorKey, connectorConfig,
+			connectorObject.getObjectClass(), connectorObject.getAttributes());
 		});
 
 		// call update on ICF module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
 			log.debug("Provisioning - update object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
-			connectorFacade.updateObject(connectorInfo.getConnectorKey(), connectorConfig,
-					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
+			connectorFacade.updateObject(connectorKey, connectorConfig,
+			connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 		});
 		// call delete on ICF module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
 			log.debug("Provisioning - delete object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
-			connectorFacade.deleteObject(connectorInfo.getConnectorKey(), connectorConfig,
+			connectorFacade.deleteObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute);
 		});
 

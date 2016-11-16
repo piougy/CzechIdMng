@@ -25,6 +25,14 @@ export default class SystemManager extends Managers.EntityManager {
     return 'systems';
   }
 
+  /**
+   * Load connector configuration for given system
+   *
+   * @param  {string} id system identifier
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
   fetchConnectorConfiguration(id, uiKey, cb = null) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));
@@ -51,6 +59,15 @@ export default class SystemManager extends Managers.EntityManager {
     };
   }
 
+  /**
+   * Saves connector configuration form values
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
   saveConnectorConfiguration(id, values, uiKey, cb = null) {
     return (dispatch) => {
       dispatch(this.dataManager.requestData(uiKey));

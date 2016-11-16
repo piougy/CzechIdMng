@@ -45,7 +45,7 @@ class SystemService extends Services.AbstractService {
    * Returns connector form definition to given system
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 *
-   * @param  {string} id
+   * @param  {string} id system identifier
    * @return {promise}
    */
   getConnectorFormDefinition(id) {
@@ -72,7 +72,7 @@ class SystemService extends Services.AbstractService {
    * Returns filled connector configuration
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 *
-   * @param  {string} id
+   * @param  {string} id system identifier
    * @return {promise}
    */
   getConnectorFormValues(id) {
@@ -98,7 +98,7 @@ class SystemService extends Services.AbstractService {
   /**
    * Saves connector configuration form values
    *
-   * @param  {string} id
+   * @param  {string} id system identifier
    * @param  {arrayOf(entity)} values filled form values
    * @return {promise}
    */

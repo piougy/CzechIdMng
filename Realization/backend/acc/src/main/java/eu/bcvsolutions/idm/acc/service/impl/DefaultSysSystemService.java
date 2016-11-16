@@ -43,10 +43,10 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
@@ -111,12 +111,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
 		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toAttributeMap(formValues);
 		// fill connector configuration from form values
-		IcfConnectorConfigurationDto icfConf = new IcfConnectorConfigurationDto();
-		IcfConfigurationProperties properties = new IcfConfigurationPropertiesDto();
+		IcfConnectorConfigurationImpl icfConf = new IcfConnectorConfigurationImpl();
+		IcfConfigurationProperties properties = new IcfConfigurationPropertiesImpl();
 		icfConf.setConfigurationProperties(properties);
 		for(String attributeName : attributeValues.keySet()) {
 			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(attributeName);
-			IcfConfigurationPropertyDto property = new IcfConfigurationPropertyDto();
+			IcfConfigurationPropertyImpl property = new IcfConfigurationPropertyImpl();
 			property.setName(attributeName);
 			// convert form attribute values to connector properties 
 			Object value = null;
@@ -440,7 +440,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 */
 	@Deprecated
 	public IcfConnectorKey getTestConnectorKey() {
-		IcfConnectorKeyDto key = new IcfConnectorKeyDto();
+		IcfConnectorKeyImpl key = new IcfConnectorKeyImpl();
 		key.setIcfType("connId");
 		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
 		key.setBundleName("net.tirasa.connid.bundles.db.table");

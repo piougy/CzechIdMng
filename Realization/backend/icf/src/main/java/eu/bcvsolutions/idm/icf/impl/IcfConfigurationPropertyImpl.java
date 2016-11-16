@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 
@@ -7,15 +7,15 @@ import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
  * @author svandav
  *
  */
-public class IcfConfigurationPropertyDto implements IcfConfigurationProperty {
+public class IcfConfigurationPropertyImpl implements IcfConfigurationProperty {
 
 	
 	
-	public IcfConfigurationPropertyDto() {
+	public IcfConfigurationPropertyImpl() {
 		super();
 	}
 
-	public IcfConfigurationPropertyDto(String name, Object value) {
+	public IcfConfigurationPropertyImpl(String name, Object value) {
 		super();
 		this.name = name;
 		this.value = value;

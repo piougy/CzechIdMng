@@ -14,12 +14,12 @@ public enum AccResultCode implements ResultCode {
 	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system %s not found!"),
 	
 	// Provisioning
-	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.BAD_REQUEST, "IDM field %property for entity %uid not found!"),
-	PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE(HttpStatus.BAD_REQUEST, "Schema attribute %property for entity %uid is not updateable!"),
-	PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Attribute %attribute for entity %uid on resource not found!"),
+	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.BAD_REQUEST, "IDM field %s for entity %s not found!"),
+	PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE(HttpStatus.BAD_REQUEST, "Schema attribute %s for entity %s is not updateable!"),
+	PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Attribute %s for entity %s on resource not found!"),
 	PROVISIONING_PASSWORD_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Password attribute must be GuardedString type!"), 
-	PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Schema attribute %attribute defines typ %schamaAttributeType, but value is type %valueType!"),
-	PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Schema attribute %attribute defines typ %schamaAttributeType, but we were unable to load this class!");
+	PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE(HttpStatus.BAD_REQUEST, "Schema attribute %s defines typ %s, but value is type %s!"),
+	PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Schema attribute %s defines typ %s, but we were unable to load this class!");
 	
 	
 	private final HttpStatus status;

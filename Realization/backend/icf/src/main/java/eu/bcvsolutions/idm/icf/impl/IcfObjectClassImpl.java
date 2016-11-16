@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 
@@ -7,12 +7,12 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
  * @author svandav
  *
  */
-public class IcfObjectClassDto implements IcfObjectClass {
+public class IcfObjectClassImpl implements IcfObjectClass {
 	
 	private String type;
 	private String displayName;
 	
-	public IcfObjectClassDto(String type) {
+	public IcfObjectClassImpl(String type) {
 		super();
 		this.type = type;
 		this.displayName = type;
@@ -61,7 +61,7 @@ public class IcfObjectClassDto implements IcfObjectClass {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		IcfObjectClassDto other = (IcfObjectClassDto) obj;
+		IcfObjectClassImpl other = (IcfObjectClassImpl) obj;
 		if (type == null) {
 			if (other.type != null)
 				return false;

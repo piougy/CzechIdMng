@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 
@@ -6,18 +6,18 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  * Uniquely identifies a connector within an installation. Consists of the
  * quadruple (icfType, bundleName, bundleVersion, connectorName)
  */
-public class IcfConnectorKeyDto implements IcfConnectorKey {
+public class IcfConnectorKeyImpl implements IcfConnectorKey {
 
 	private String icfType;
 	private String bundleName;
 	private String bundleVersion;
 	private String connectorName;
 
-	public IcfConnectorKeyDto() {
+	public IcfConnectorKeyImpl() {
 		super();
 	}
 
-	public IcfConnectorKeyDto(String icfType, String bundleName, String bundleVersion, String connectorName) {
+	public IcfConnectorKeyImpl(String icfType, String bundleName, String bundleVersion, String connectorName) {
 		super();
 		this.icfType = icfType;
 		this.bundleName = bundleName;
@@ -78,7 +78,7 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		IcfConnectorKeyDto other = (IcfConnectorKeyDto) obj;
+		IcfConnectorKeyImpl other = (IcfConnectorKeyImpl) obj;
 		if (bundleName == null) {
 			if (other.bundleName != null)
 				return false;
@@ -104,7 +104,7 @@ public class IcfConnectorKeyDto implements IcfConnectorKey {
 
 	@Override
 	public String toString() {
-		return "IcfConnectorKeyDto [icfType=" + icfType + ", bundleName=" + bundleName + ", bundleVersion="
+		return "IcfConnectorKeyImpl [icfType=" + icfType + ", bundleName=" + bundleName + ", bundleVersion="
 				+ bundleVersion + ", connectorName=" + connectorName + "]";
 	}
 

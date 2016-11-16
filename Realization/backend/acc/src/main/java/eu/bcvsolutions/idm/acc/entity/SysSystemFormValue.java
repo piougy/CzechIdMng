@@ -8,7 +8,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeValue;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 
 /**
  * System extended attributes (system connector configuration, etc).
@@ -17,10 +18,10 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeValue;
  *
  */
 @Entity
-@Table(name = "sys_system_form_attribute", indexes = {
+@Table(name = "sys_system_form_value", indexes = {
 		@Index(name = "idx_sys_sys_form_a", columnList = "owner_id"),
-		@Index(name = "idx_sys_sys_form_a_def", columnList = "attribute_definition_id") })
-public class SysSystemFormAttribute extends IdmFormAttributeValue<SysSystem> {
+		@Index(name = "idx_sys_sys_form_a_def", columnList = "attribute_id") })
+public class SysSystemFormValue extends AbstractFormValue<SysSystem> {
 
 	private static final long serialVersionUID = -6873566385389649927L;
 	
@@ -30,11 +31,19 @@ public class SysSystemFormAttribute extends IdmFormAttributeValue<SysSystem> {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem owner;
 	
+	public SysSystemFormValue() {
+	}
+	
+	public SysSystemFormValue(IdmFormAttribute formAttribute) {
+		super(formAttribute);
+	}
+	
 	@Override
 	public SysSystem getOwner() {
 		return owner;
 	}
 	
+	@Override
 	public void setOwner(SysSystem owner) {
 		this.owner = owner;
 	}

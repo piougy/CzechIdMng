@@ -12,4 +12,18 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
  */
 public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmFormDefinition, EmptyFilter> {
 
+	/**
+	 * Default definition name for type (if no name is given)
+	 */
+	static final String DEFAULT_DEFINITION_NAME = "default";
+	
+	/**
+	 * Returns form definition by given type and name (unique).
+	 * 
+	 * @param type required
+	 * @param name if name is {@code null}, then {@value #DEFAULT_DEFINITION_NAME} is used.
+	 * @return
+	 */
+	IdmFormDefinition get(String type, String name);
+	
 }

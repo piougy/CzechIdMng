@@ -4,7 +4,7 @@ import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 
 /**
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška
  *
  */
-@Projection(name = "excerpt", types = IdmFormAttributeDefinition.class)
+@Projection(name = "excerpt", types = IdmFormAttribute.class)
 public interface IdmFormAttributeDefinitionExcerpt extends AbstractDtoProjection {
 
 	String getName();

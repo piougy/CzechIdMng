@@ -6,7 +6,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
 
 public interface IcfConfigurationService {
 

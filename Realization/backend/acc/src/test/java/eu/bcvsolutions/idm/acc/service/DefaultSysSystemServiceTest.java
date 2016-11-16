@@ -2,15 +2,25 @@ package eu.bcvsolutions.idm.acc.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttributeDefinition;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
+import eu.bcvsolutions.idm.eav.service.FormService;
 import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
+import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -21,7 +31,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  */
 public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
-	private static final String SYSTEM_NAME = "test_system_" + System.currentTimeMillis();
+	private static final String SYSTEM_NAME_ONE = "test_system_one_" + System.currentTimeMillis();
+	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
 	@Autowired
 	private SysSystemService sysSystemService;
@@ -31,30 +42,134 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
-
+	
+	@Autowired
+	private FormService formService;
+	
+	@Autowired
+	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
+	
 	/**
-	 * Test add and delete extended attributes
+	 * Test add and delete extended attributes to owner
 	 */
 	@Test
-	public void testFromAttributes() {
+	public void testFormAttributes() {
+		// create owner
 		SysSystem system = new SysSystem();
-		system.setName(SYSTEM_NAME);
+		system.setName(SYSTEM_NAME_ONE);		
+		sysSystemService.save(system);		
+		SysSystem systemOne = sysSystemService.getByName(SYSTEM_NAME_ONE);		
+		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
+		//
+		// create definition one
+		IdmFormDefinition formDefinitionOne = new IdmFormDefinition();
+		formDefinitionOne.setType(SysSystem.class.getCanonicalName());
+		formDefinitionOne.setName("v1");
+		formDefinitionOne = formDefinitionService.save(formDefinitionOne);
 		
-		sysSystemService.save(system);
+		IdmFormAttribute attributeDefinitionOne = new IdmFormAttribute();
+		attributeDefinitionOne.setFormDefinition(formDefinitionOne);
+		attributeDefinitionOne.setName("name_" + System.currentTimeMillis());
+		attributeDefinitionOne.setDisplayName(attributeDefinitionOne.getName());
+		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);			
+		attributeDefinitionOne = formAttributeDefinitionRepository.save(attributeDefinitionOne);
+		//
+		// create definition two
+		IdmFormDefinition formDefinitionTwo = new IdmFormDefinition();
+		formDefinitionTwo.setType(SysSystem.class.getCanonicalName());
+		formDefinitionTwo.setName("v2");
+		formDefinitionTwo = formDefinitionService.save(formDefinitionTwo);
 		
-		SysSystem savedSystem = sysSystemService.getByName(SYSTEM_NAME);
+		IdmFormAttribute attributeDefinitionTwo = new IdmFormAttribute();
+		attributeDefinitionTwo.setFormDefinition(formDefinitionTwo);
+		attributeDefinitionTwo.setName("name_" + System.currentTimeMillis());
+		attributeDefinitionTwo.setDisplayName(attributeDefinitionTwo.getName());
+		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);			
+		attributeDefinitionTwo = formAttributeDefinitionRepository.save(attributeDefinitionTwo);
+		//
+		// fill extended attributes
+		List<SysSystemFormValue> values = new ArrayList<>();
 		
-		assertEquals(SYSTEM_NAME, savedSystem.getName());
+		SysSystemFormValue value1 = new SysSystemFormValue(attributeDefinitionOne);
+		value1.setValue("test1");
+		values.add(value1);
 		
-		IdmFormDefinition formDefinition = new IdmFormDefinition();
-		formDefinition.setName(SysSystem.class.getCanonicalName());
-		formDefinition = formDefinitionService.save(formDefinition);
+		SysSystemFormValue value2 = new SysSystemFormValue(attributeDefinitionTwo);
+		value2.setValue("test2");
+		values.add(value2);
 		
-		IdmFormAttributeDefinition attributeDefinition = new IdmFormAttributeDefinition();
-		attributeDefinition.setFormDefinition(formDefinition);
-		attributeDefinition.setName("name_" + System.currentTimeMillis());
-		attributeDefinition.setDisplayName(attributeDefinition.getName());
-		attributeDefinition.setPersistentType(PersistentType.TEXT);			
-		attributeDefinition = formAttributeDefinitionRepository.save(attributeDefinition);
+		formService.saveValues(systemOne, values);
+		
+		List<AbstractFormValue<SysSystem>> savedValues = formService.getValues(systemOne);
+		
+		assertEquals(2, savedValues.size());
+		assertEquals("test1", formService.getValues(systemOne, formDefinitionOne).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
+		//
+		// create second owner
+		SysSystem systemTwo = new SysSystem();
+		systemTwo.setName(SYSTEM_NAME_TWO);		
+		systemTwo = sysSystemService.save(systemTwo);
+		
+		assertEquals(0, formService.getValues(systemTwo).size());
+		assertEquals(2, formService.getValues(systemOne).size());
+		
+		sysSystemService.delete(systemTwo);
+		
+		assertEquals(0, formService.getValues(systemTwo).size());
+		assertEquals(2, formService.getValues(systemOne).size());
+		
+		formService.deleteValues(systemOne, formDefinitionOne);		
+		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
+		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
+		
+		sysSystemService.delete(systemOne);
+		
+		assertEquals(0, formService.getValues(systemOne).size());
 	}
+	
+	@Test
+	public void testCreateConnectorConfiguration() {
+		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
+		
+		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
+				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		
+		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(connectorKey);
+		
+		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
+		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getDisplayName());
+	}
+	
+	@Test
+	public void testFillConnectorConfiguration() {
+		// create owner
+		SysSystem system =  sysSystemService.createTestSystem();		
+		IcfConnectorConfiguration connectorConfiguration = sysSystemService.getConnectorConfiguration(system);		
+		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
+		//
+		// check all supported data types
+		Integer checked = 0;
+		for(IcfConfigurationProperty property : connectorConfiguration.getConfigurationProperties().getProperties()) {
+			switch(property.getName()) {
+				case "host": {
+					assertEquals("localhost", property.getValue());
+					checked++;
+					break;
+				}
+				case "password": {
+					assertEquals(new org.identityconnectors.common.security.GuardedString("idmadmin".toCharArray()), property.getValue());
+					checked++;
+					break;
+				}
+				case "rethrowAllSQLExceptions": {
+					assertEquals(true, property.getValue());
+					checked++;
+					break;
+				}
+			}
+		};
+		
+		assertEquals(Integer.valueOf(3), checked);
+	}	
 }

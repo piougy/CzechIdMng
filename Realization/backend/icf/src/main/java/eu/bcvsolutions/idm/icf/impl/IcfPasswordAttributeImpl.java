@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 
@@ -6,11 +6,11 @@ import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 
-public class IcfPasswordAttributeDto extends IcfAttributeDto implements IcfPasswordAttribute {
+public class IcfPasswordAttributeImpl extends IcfAttributeImpl implements IcfPasswordAttribute {
 
 	private boolean password = false;
 
-	public IcfPasswordAttributeDto(GuardedString value) {
+	public IcfPasswordAttributeImpl(GuardedString value) {
 		super();
 		this.values = new ArrayList<>();
 		if (value != null) {

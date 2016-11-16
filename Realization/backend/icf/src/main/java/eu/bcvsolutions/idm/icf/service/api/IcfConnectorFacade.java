@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 public interface IcfConnectorFacade {
+	
+	public static final String PASSWORD_ATTRIBUTE_NAME = "__PASSWORD__";
 
 	/**
 	 * Create new object in resource

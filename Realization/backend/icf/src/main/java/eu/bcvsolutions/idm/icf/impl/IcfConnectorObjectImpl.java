@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +12,15 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
  * @author svandav
  *
  */
-public class IcfConnectorObjectDto implements IcfConnectorObject {
+public class IcfConnectorObjectImpl implements IcfConnectorObject {
 	private IcfObjectClass objectClass;
 	private List<IcfAttribute> attributes;
 
 	
-	public IcfConnectorObjectDto() {
+	public IcfConnectorObjectImpl() {
 	}
 
-	public IcfConnectorObjectDto(IcfObjectClass objectClass, List<IcfAttribute> attributes) {
+	public IcfConnectorObjectImpl(IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		super();
 		this.objectClass = objectClass;
 		this.attributes = attributes;
@@ -48,7 +48,7 @@ public class IcfConnectorObjectDto implements IcfConnectorObject {
 
 	@Override
 	public String toString() {
-		return "IcfConnectorObjectDto [objectClass=" + objectClass + ", attributes=" + attributes + "]";
+		return "IcfConnectorObjectImpl [objectClass=" + objectClass + ", attributes=" + attributes + "]";
 	}
 
 }

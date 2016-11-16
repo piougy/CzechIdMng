@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 
@@ -53,11 +53,11 @@ import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
  * that object. Uid extends {@link Attribute} only so that Uid can be searchable
  * and compatible with the filter translators.
  */
-public class IcfUidAttributeDto extends IcfAttributeDto implements IcfUidAttribute {
+public class IcfUidAttributeImpl extends IcfAttributeImpl implements IcfUidAttribute {
 
 	private final String revision;
 
-	public IcfUidAttributeDto(String name, String uid, String revision) {
+	public IcfUidAttributeImpl(String name, String uid, String revision) {
 		super();
 		this.name = name;
 		this.values = new ArrayList<>();

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,23 +12,23 @@ import eu.bcvsolutions.idm.icf.api.IcfAttribute;
  * @author svandav
  *
  */
-public class IcfAttributeDto implements IcfAttribute {
+public class IcfAttributeImpl implements IcfAttribute {
 	protected String name;
 	protected List<Object> values;
 	protected boolean multiValue = false;
 
-	public IcfAttributeDto() {
+	public IcfAttributeImpl() {
 		super();
 	}
 	
-	public IcfAttributeDto(String name, List<Object> values, boolean multiValue) {
+	public IcfAttributeImpl(String name, List<Object> values, boolean multiValue) {
 		super();
 		this.name = name;
 		this.values = values;
 		this.multiValue = multiValue;
 	}
 
-	public IcfAttributeDto(String name, List<Object> values) {
+	public IcfAttributeImpl(String name, List<Object> values) {
 		super();
 		this.name = name;
 		this.values = values;
@@ -37,7 +37,7 @@ public class IcfAttributeDto implements IcfAttribute {
 		}
 	}
 
-	public IcfAttributeDto(String name, Object value) {
+	public IcfAttributeImpl(String name, Object value) {
 		super();
 		this.name = name;
 		this.values = new ArrayList<>();
@@ -102,7 +102,7 @@ public class IcfAttributeDto implements IcfAttribute {
 
 	@Override
 	public String toString() {
-		return "IcfAttributeDto [name=" + name + ", values=" + values + "]";
+		return "IcfAttributeImpl [name=" + name + ", values=" + values + "]";
 	}
 
 }

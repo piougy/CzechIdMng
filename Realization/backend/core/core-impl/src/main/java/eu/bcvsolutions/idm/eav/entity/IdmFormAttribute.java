@@ -1,5 +1,10 @@
 package eu.bcvsolutions.idm.eav.entity;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
@@ -19,6 +24,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -31,12 +37,12 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
  *
  */
 @Entity
-@Table(name = "idm_form_attribute_definition", indexes = {
+@Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class IdmFormAttributeDefinition extends AbstractEntity {
+public class IdmFormAttribute extends AbstractEntity {
 
 	private static final long serialVersionUID = 6037781154742359100L;
 	//
@@ -58,8 +64,8 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	@Column(name = "display_name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String displayName;
 	
-	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "description", nullable = true, length = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
+	@Column(name = "description", nullable = true)
 	private String description;	
 	
 	@NotNull
@@ -72,8 +78,8 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	private boolean multiple;
 	
 	@NotNull
-	@Column(name = "mandatory", nullable = false)
-	private boolean mandatory;
+	@Column(name = "required", nullable = false)
+	private boolean required;
 	
 	@NotNull
 	@Column(name = "readonly", nullable = false)
@@ -86,8 +92,12 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	@Max(99999)
 	@Column(name = "seq")
 	private short seq;
+	
+	@Size(max = DefaultFieldLengths.LOG)
+	@Column(name = "default_value", nullable = true, length = DefaultFieldLengths.LOG)
+	private String defaultValue;
 
-	public IdmFormAttributeDefinition() {
+	public IdmFormAttribute() {
 	}
 
 	/**
@@ -128,6 +138,32 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	public void setPersistentType(PersistentType persistentType) {
 		this.persistentType = persistentType;
 	}
+	
+	/**
+	 * Returns empty list by persistentType
+	 * 
+	 * @param persistentType
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public List getEmptyList() {
+		Assert.notNull(persistentType);
+		//
+		switch (persistentType) {
+			case LONG:
+				return new ArrayList<Long>();
+			case BOOLEAN:
+				return new ArrayList<Boolean>();
+			case DATE:
+			case DATE_TIME:
+				return new ArrayList<Date>();
+			case DOUBLE:
+			case CURRENCY:
+				return new ArrayList<BigDecimal>();
+			default:
+				return new ArrayList<String>();
+		}
+	}
 
 	/**
 	 * Multi values (list)
@@ -146,12 +182,12 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 	 * 
 	 * @return
 	 */
-	public boolean isMandatory() {
-		return mandatory;
+	public boolean isRequired() {
+		return required;
 	}
 
-	public void setMandatory(boolean mandatory) {
-		this.mandatory = mandatory;
+	public void setRequired(boolean required) {
+		this.required = required;
 	}
 
 	/**
@@ -215,5 +251,18 @@ public class IdmFormAttributeDefinition extends AbstractEntity {
 
 	public void setConfidental(boolean confidental) {
 		this.confidental = confidental;
+	}
+	
+	/**
+	 * Default value (toString)
+	 * 
+	 * @return
+	 */
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+	
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
 	}
 }

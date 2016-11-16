@@ -1,7 +1,6 @@
 /**
+ * EAV entities
  * 
- */
-/**
  * @author Radek Tomiška
  *
  */

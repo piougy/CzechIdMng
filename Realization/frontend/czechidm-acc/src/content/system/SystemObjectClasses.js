@@ -57,7 +57,7 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
     super.afterSave();
   }
 
-  _generateSchema() {
+  _generateSchema(event) {
     if (event) {
       event.preventDefault();
     }

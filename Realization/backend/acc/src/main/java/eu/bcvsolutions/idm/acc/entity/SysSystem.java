@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
@@ -63,6 +64,10 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<SysRoleSystem> roleSystems; // only for auditing - is not used (without getter and setter)
+	
+	@Audited
+	@Embedded
+	private SysConnectorKey connectorKey;
 
 	public String getName() {
 		return name;
@@ -94,5 +99,18 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 	
 	public boolean isVirtual() {
 		return virtual;
+	}
+	
+	/**
+	 * Configured connector
+	 * 
+	 * @return
+	 */
+	public SysConnectorKey getConnectorKey() {
+		return connectorKey;
+	}
+	
+	public void setConnectorKey(SysConnectorKey connectorKey) {
+		this.connectorKey = connectorKey;
 	}
 }

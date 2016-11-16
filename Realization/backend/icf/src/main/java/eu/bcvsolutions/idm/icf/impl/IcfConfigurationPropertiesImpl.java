@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
  * @author svandav
  *
  */
-public class IcfConfigurationPropertiesDto implements IcfConfigurationProperties {
+public class IcfConfigurationPropertiesImpl implements IcfConfigurationProperties {
 
     
     List<IcfConfigurationProperty> properties;

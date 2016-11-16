@@ -1,21 +1,21 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.Date;
 
 import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
 
-public class IcfEnabledAttributeDto extends IcfAttributeDto implements IcfEnabledAttribute {
+public class IcfEnabledAttributeImpl extends IcfAttributeImpl implements IcfEnabledAttribute {
 
 	private Boolean enabled;
 	private Date enabledDate;
 	private Date disabledDate;
 
-	public IcfEnabledAttributeDto(boolean enable) {
-		super();
+	public IcfEnabledAttributeImpl(boolean enable, String name) {
+		super(name, enable);
 		this.enabled = enable;
 	}
 
-	public IcfEnabledAttributeDto(Boolean enabled, Date enabledDate, Date disabledDate) {
+	public IcfEnabledAttributeImpl(Boolean enabled, Date enabledDate, Date disabledDate) {
 		super();
 		this.enabled = enabled;
 		this.enabledDate = enabledDate;

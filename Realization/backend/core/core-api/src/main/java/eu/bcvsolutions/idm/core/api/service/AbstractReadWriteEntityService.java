@@ -9,11 +9,12 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
- * Interface for generic CRUD operations on a repository for a specific type.
+ * Abstract implementation for generic CRUD operations on a repository for a specific type.
  * 
  * @author Radek Tomiška
  *
  * @param <E> {@link BaseEntity} type
+ * @param <F> {@link BaseFilter} type
  */
 public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityService<E, F> implements ReadWriteEntityService<E, F> {
 

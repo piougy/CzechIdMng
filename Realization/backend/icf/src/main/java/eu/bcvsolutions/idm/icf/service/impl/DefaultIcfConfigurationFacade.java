@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;

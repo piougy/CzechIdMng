@@ -22,9 +22,8 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { node, type, isRoot } = this.props;
+    const { node, type } = this.props;
     this.selectNavigationItem('tree-nodes');
-    console.log(node, type);
     if (node !== undefined) {
       const loadedNode = _.merge({ }, node);
       // if exist _embedded - edit node, if not exist create new
@@ -36,7 +35,6 @@ export default class NodeDetail extends Basic.AbstractContent {
       } else {
         loadedNode.treeType = type;
       }
-      console.log('loadedNode', loadedNode);
       this.refs.form.setData(loadedNode);
       this.refs.parent.focus();
     }

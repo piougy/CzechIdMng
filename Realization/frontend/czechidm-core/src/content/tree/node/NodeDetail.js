@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import _ from 'lodash';
-import * as Utils from '../../../utils';
 
 /**
  * Node detail content
@@ -25,17 +24,19 @@ export default class NodeDetail extends Basic.AbstractContent {
   componentDidMount() {
     const { node, type, isRoot } = this.props;
     this.selectNavigationItem('tree-nodes');
+    console.log(node, type);
     if (node !== undefined) {
       const loadedNode = _.merge({ }, node);
       // if exist _embedded - edit node, if not exist create new
       if (node._embedded) {
-        if (!isRoot) {
+        if (node._embedded.parent) {
           loadedNode.parent = node._embedded.parent.id;
         }
         loadedNode.treeType = node._embedded.treeType.id;
       } else {
         loadedNode.treeType = type;
       }
+      console.log('loadedNode', loadedNode);
       this.refs.form.setData(loadedNode);
       this.refs.parent.focus();
     }
@@ -89,13 +90,8 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, isRoot, type, node } = this.props;
+    const { uiKey, type } = this.props;
     const { showLoading } = this.state;
-
-    let parentRequired = true;
-    if (Utils.Entity.isNew(node) || isRoot) {
-      parentRequired = false;
-    }
 
     return (
       <div>
@@ -111,8 +107,7 @@ export default class NodeDetail extends Basic.AbstractContent {
               ref="parent"
               label={this.i18n('entity.TreeNode.parent.name')}
               forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
-              manager={this.treeNodeManager}
-              required={parentRequired}/>
+              manager={this.treeNodeManager}/>
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.TreeType.code')}
@@ -148,7 +143,6 @@ export default class NodeDetail extends Basic.AbstractContent {
 
 NodeDetail.propTypes = {
   node: PropTypes.object,
-  type: PropTypes.number,
-  isRoot: PropTypes.bool,
+  type: PropTypes.string,
   uiKey: PropTypes.string.isRequired,
 };

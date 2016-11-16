@@ -54,7 +54,6 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	private List<String> allAuditedEntititesNames;
 	
 	@Override
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
 		return this.find(classType, entityId, revisionNumber);
 	}

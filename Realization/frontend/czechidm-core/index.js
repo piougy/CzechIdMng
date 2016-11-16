@@ -12,6 +12,7 @@ import * as Utils from './src/utils';
 import ComponentService from './src/services/ComponentService';
 //
 import SearchParameters from './src/domain/SearchParameters';
+import FormInstance from './src/domain/FormInstance';
 
 import AbstractEnum from './src/enums/AbstractEnum';
 
@@ -30,7 +31,8 @@ const ModuleRoot = {
   ComponentService,
   Utils,
   Domain: {
-    SearchParameters
+    SearchParameters,
+    FormInstance
   },
   Enums: {
     AbstractEnum

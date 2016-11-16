@@ -130,6 +130,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testCreateConnectorConfiguration() {
+		// TODO: test system will be moved here, after UI eav form implementation
 		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
 		
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
@@ -168,8 +169,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 					break;
 				}
 			}
-		};
-		
+		};		
 		assertEquals(Integer.valueOf(3), checked);
 	}	
 }

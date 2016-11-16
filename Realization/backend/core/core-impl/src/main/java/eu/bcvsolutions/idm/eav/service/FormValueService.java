@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.eav.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.plugin.core.Plugin;
 
@@ -26,6 +27,14 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @return the saved entity
 	 */
 	E save(E entity);
+	
+	/**
+	 * Returns entity by given id. Returns null, if entity is not exists.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	E get(UUID id);
 	
 	/**
 	 * Returns values by given owner and definition (optional). If no definition is given, then all values from given owner are returned.

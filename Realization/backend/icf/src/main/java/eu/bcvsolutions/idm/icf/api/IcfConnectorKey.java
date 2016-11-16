@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.icf.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Uniquely identifies a connector within an installation. Consists of the
  * quadruple (icfType, bundleName, bundleVersion, connectorName)
@@ -37,6 +39,7 @@ public interface IcfConnectorKey {
 	 * 
 	 * @return
 	 */
+	@JsonIgnore
 	default String getFullName() {
 		return getIcfType() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
 	}

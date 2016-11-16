@@ -14,8 +14,8 @@ import eu.bcvsolutions.idm.eav.service.FormService;
  * 
  * @author Radek Tomiška
  *
- * @param <E>
- * @param <F>
+ * @param <E> {@link FormableEntity} type which supports extended atributes
+ * @param <F> {@link BaseFilter} type
  */
 public abstract class AbstractFormableService<E extends FormableEntity, F extends BaseFilter> extends AbstractReadWriteEntityService<E, F> {
 

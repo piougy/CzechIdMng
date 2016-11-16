@@ -281,6 +281,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
 				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		if (conf == null) {
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{}] was not found on classpath.", connectorKey.getFullName()));
+		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
 		for(short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {

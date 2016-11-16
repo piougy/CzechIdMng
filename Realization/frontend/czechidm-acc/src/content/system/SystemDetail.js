@@ -22,15 +22,32 @@ export default class SystemDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    const { entity } = this.props;
+    let data;
+    if (Utils.Entity.isNew(entity) || !entity.connectorKey) {
+      data = {
+        ...entity
+      };
+    } else {
+      data = {
+        ...entity,
+        icfType: entity.connectorKey.icfType,
+        connectorName: entity.connectorKey.connectorName,
+        bundleName: entity.connectorKey.bundleName,
+        bundleVersion: entity.connectorKey.bundleVersion
+      };
+    }
+    data.host = 'local';
+    this.refs.form.setData(data);
     this.refs.name.focus();
   }
 
   save(afterAction, event) {
-    const { uiKey } = this.props;
-
     if (event) {
       event.preventDefault();
     }
+
+    const { uiKey } = this.props;
     if (!this.refs.form.isFormValid()) {
       return;
     }
@@ -39,12 +56,23 @@ export default class SystemDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
-      if (entity.id === undefined) {
-        this.context.store.dispatch(this.manager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+
+      const saveEntity = {
+        ...entity,
+        connectorKey: {
+          icfType: entity.icfType,
+          connectorName: entity.connectorName,
+          bundleName: entity.bundleName,
+          bundleVersion: entity.bundleVersion
+        }
+      };
+
+      if (Utils.Entity.isNew(saveEntity)) {
+        this.context.store.dispatch(this.manager.createEntity(saveEntity, `${uiKey}-detail`, (createdEntity, error) => {
           this._afterSave(createdEntity, error, afterAction);
         }));
       } else {
-        this.context.store.dispatch(this.manager.patchEntity(entity, `${uiKey}-detail`, (patchedEntity, error) => {
+        this.context.store.dispatch(this.manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, error) => {
           this._afterSave(patchedEntity, error, afterAction);
         }));
       }
@@ -81,7 +109,7 @@ export default class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} data={entity} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}
@@ -97,6 +125,25 @@ export default class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
+
+                <Basic.TextField ref="host" disabled label={this.i18n('acc:entity.System.connectorHost')}/>
+
+                <Basic.TextField
+                  ref="icfType"
+                  label={this.i18n('acc:entity.System.connectorKey.icfType')}
+                  max={255}/>
+                <Basic.TextField
+                  ref="connectorName"
+                  label={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                  max={255}/>
+                <Basic.TextField
+                  ref="bundleName"
+                  label={this.i18n('acc:entity.System.connectorKey.bundleName')}
+                  max={255}/>
+                <Basic.TextField
+                  ref="bundleVersion"
+                  label={this.i18n('acc:entity.System.connectorKey.bundleVersion')}
+                  max={30}/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter>
@@ -114,15 +161,6 @@ export default class SystemDetail extends Basic.AbstractContent {
                 dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
               </Basic.SplitButton>
-
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={false}>
-                {this.i18n('button.save')}
-              </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>
           {/* onEnter action - is needed because SplitButton is used instead standard submit button */}

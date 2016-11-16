@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.eav.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,15 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	}
 	
 	protected abstract AbstractFormValueRepository<O, E> getRepository();
+	
+	/**
+	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public E get(UUID id) {
+		return getRepository().findOne(id);
+	}
 	
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

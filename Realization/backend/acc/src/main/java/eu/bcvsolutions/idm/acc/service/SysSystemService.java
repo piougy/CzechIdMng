@@ -25,7 +25,8 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	void generateSchema(SysSystem system);
 	
 	/**
-	 * Return connector configuration for given system
+	 * Returns connector configuration for given system
+	 * 
 	 * @param system
 	 * @return
 	 */

@@ -72,7 +72,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.idmPropertyName }) });
-        this.context.router.replace(`/schema-attributes-handling/${entity.id}/detail`, {entityId: entity.id});
+        this.context.router.goBack();
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.idmPropertyName }) });
       }

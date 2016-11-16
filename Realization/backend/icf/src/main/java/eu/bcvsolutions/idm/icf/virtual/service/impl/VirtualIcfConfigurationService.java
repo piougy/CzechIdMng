@@ -11,12 +11,12 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
@@ -57,7 +57,7 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	@Override
 	public List<IcfConnectorInfo> getAvailableLocalConnectors() {
 		List<IcfConnectorInfo> localConnectorInfos = new ArrayList<>();
-		IcfConnectorInfoDto dto = new IcfConnectorInfoDto("Testovací konektor", "categori test", new IcfConnectorKeyDto(getIcfType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
+		IcfConnectorInfoImpl dto = new IcfConnectorInfoImpl("Testovací konektor", "categori test", new IcfConnectorKeyImpl(getIcfType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
 		localConnectorInfos.add(dto);
 		return localConnectorInfos;
 	}
@@ -71,9 +71,9 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	@Override
 	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
 		Assert.notNull(key);
-		IcfConnectorConfigurationDto dto = new IcfConnectorConfigurationDto();
-		IcfConfigurationPropertiesDto propertiesDto = new IcfConfigurationPropertiesDto();
-		IcfConfigurationPropertyDto propertyDto = new IcfConfigurationPropertyDto();
+		IcfConnectorConfigurationImpl dto = new IcfConnectorConfigurationImpl();
+		IcfConfigurationPropertiesImpl propertiesDto = new IcfConfigurationPropertiesImpl();
+		IcfConfigurationPropertyImpl propertyDto = new IcfConfigurationPropertyImpl();
 		propertyDto.setConfidential(true);
 		propertyDto.setDisplayName("First property");
 		propertyDto.setGroup("test");

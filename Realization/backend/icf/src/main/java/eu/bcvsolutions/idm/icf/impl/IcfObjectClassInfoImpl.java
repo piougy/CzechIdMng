@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
  * @author svandav
  *
  */
-public class IcfObjectClassInfoDto implements IcfObjectClassInfo {
+public class IcfObjectClassInfoImpl implements IcfObjectClassInfo {
 
 	private String type;
 	private List<IcfAttributeInfo> attributeInfos;

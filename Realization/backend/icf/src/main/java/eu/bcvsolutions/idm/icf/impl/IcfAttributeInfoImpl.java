@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
  * @author svandav
  *
  */
-public class IcfAttributeInfoDto implements IcfAttributeInfo {
+public class IcfAttributeInfoImpl implements IcfAttributeInfo {
 
 	private String name;
 	private String classType;

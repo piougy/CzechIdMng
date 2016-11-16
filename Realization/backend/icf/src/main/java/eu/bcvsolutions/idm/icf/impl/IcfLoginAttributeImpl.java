@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 
@@ -12,12 +12,12 @@ import eu.bcvsolutions.idm.icf.api.IcfLoginAttribute;
  * @author svandav
  *
  */
-public class IcfLoginAttributeDto extends IcfAttributeDto implements IcfLoginAttribute {
+public class IcfLoginAttributeImpl extends IcfAttributeImpl implements IcfLoginAttribute {
 
 	private final static String NAME = "__UID__";
 	protected boolean login = false;
 
-	public IcfLoginAttributeDto(String login) {
+	public IcfLoginAttributeImpl(String login) {
 		super();
 		this.name = NAME;
 		this.login = true;
@@ -28,7 +28,7 @@ public class IcfLoginAttributeDto extends IcfAttributeDto implements IcfLoginAtt
 		multiValue = false;
 	}
 
-	public IcfLoginAttributeDto(String name, String login) {
+	public IcfLoginAttributeImpl(String name, String login) {
 		super();
 		this.name = name;
 		this.login = true;

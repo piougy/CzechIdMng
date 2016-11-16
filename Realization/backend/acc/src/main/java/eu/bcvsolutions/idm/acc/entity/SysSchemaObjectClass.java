@@ -39,6 +39,8 @@ public class SysSchemaObjectClass extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 
 	@Audited

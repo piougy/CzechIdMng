@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
  * @author svandav
  *
  */
-public class IcfConnectorConfigurationDto implements IcfConnectorConfiguration {
+public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration {
 	/**
 	 * Instance of the configuration properties.
 	 */

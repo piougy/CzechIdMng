@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+    package eu.bcvsolutions.idm.icf.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.icf.api.IcfSchema;
  * @author svandav
  *
  */
-public class IcfSchemaDto implements IcfSchema {
+public class IcfSchemaImpl implements IcfSchema {
 
 	private List<IcfObjectClassInfo> declaredObjectClasses = new ArrayList<>();
 	private Map<String, List<String>> supportedObjectClassesByOperation = new HashMap<>();

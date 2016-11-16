@@ -38,13 +38,13 @@ import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorInfoDto;
-import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
-import eu.bcvsolutions.idm.icf.dto.IcfObjectPoolConfigurationDto;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
+import eu.bcvsolutions.idm.icf.impl.IcfObjectPoolConfigurationImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
@@ -98,9 +98,9 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 				if (key == null) {
 					continue;
 				}
-				IcfConnectorKeyDto keyDto = new IcfConnectorKeyDto(getIcfType(), key.getBundleName(),
+				IcfConnectorKeyImpl keyDto = new IcfConnectorKeyImpl(getIcfType(), key.getBundleName(),
 						key.getBundleVersion(), key.getConnectorName());
-				IcfConnectorInfoDto infoDto = new IcfConnectorInfoDto(info.getConnectorDisplayName(),
+				IcfConnectorInfoImpl infoDto = new IcfConnectorInfoImpl(info.getConnectorDisplayName(),
 						info.getConnectorCategory(), keyDto);
 				localConnectorInfos.add(infoDto);
 			}

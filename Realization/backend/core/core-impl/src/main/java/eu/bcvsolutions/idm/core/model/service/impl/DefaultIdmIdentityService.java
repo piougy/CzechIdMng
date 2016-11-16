@@ -210,6 +210,11 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		}
 		identity.setPassword(passwordChangeDto.getNewPassword());
 		identityRepository.save(identity);
+		// MOCKUP TODO
+		if(provisioningService != null){
+			provisioningService.changePassword(identity, passwordChangeDto);
+		}
+		
 	}
 	
 	/**

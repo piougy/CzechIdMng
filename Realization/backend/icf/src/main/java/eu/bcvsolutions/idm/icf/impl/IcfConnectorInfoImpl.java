@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.dto;
+package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -8,13 +8,13 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  * @author svandav
  *
  */
-public class IcfConnectorInfoDto implements IcfConnectorInfo {
+public class IcfConnectorInfoImpl implements IcfConnectorInfo {
 
-	public IcfConnectorInfoDto() {
+	public IcfConnectorInfoImpl() {
 		super();
 	}
 	
-	public IcfConnectorInfoDto(String connectorDisplayName, String connectorCategory, IcfConnectorKeyDto connectorKey) {
+	public IcfConnectorInfoImpl(String connectorDisplayName, String connectorCategory, IcfConnectorKeyImpl connectorKey) {
 		super();
 		this.connectorDisplayName = connectorDisplayName;
 		this.connectorCategory = connectorCategory;
@@ -30,7 +30,7 @@ public class IcfConnectorInfoDto implements IcfConnectorInfo {
 	 * Get the category this connector belongs to.
 	 */
 	private String connectorCategory;
-	private IcfConnectorKeyDto connectorKey;
+	private IcfConnectorKeyImpl connectorKey;
 
 	@Override
 	public String getConnectorDisplayName() {
@@ -51,17 +51,17 @@ public class IcfConnectorInfoDto implements IcfConnectorInfo {
 	}
 
 	@Override
-	public IcfConnectorKeyDto getConnectorKey() {
+	public IcfConnectorKeyImpl getConnectorKey() {
 		return connectorKey;
 	}
 
-	public void setConnectorKey(IcfConnectorKeyDto connectorKey) {
+	public void setConnectorKey(IcfConnectorKeyImpl connectorKey) {
 		this.connectorKey = connectorKey;
 	}
 
 	@Override
 	public String toString() {
-		return "IcfConnectorInfoDto [connectorDisplayName=" + connectorDisplayName + ", connectorCategory="
+		return "IcfConnectorInfoImpl [connectorDisplayName=" + connectorDisplayName + ", connectorCategory="
 				+ connectorCategory + ", connectorKey=" + connectorKey + "]";
 	}
 

@@ -12,46 +12,32 @@ class AbstractFormComponent extends AbstractContextComponent {
     super(props, context);
     this.onChange = this.onChange.bind(this);
     this.isValid = this.isValid.bind(this);
-    const disabled = this.props.disabled ? this.props.disabled : false;
-    const readOnly = this.props.readOnly ? this.props.readOnly : false;
     const value = this.props.value ? this.normalizeValue(this.props.value) : null;
-    const validation = this.getValidationDefinition(this.props.required);
 
     this.state = { value,
-                  validation,
                   showValidationError: false, // Validation error not show on UI
-                  readOnly,
                   formReadOnly: false,
-                  formDisabled: false,
-                  disabled};
+                  formDisabled: false};
+  }
+
+  componentDidMount() {
+    this._resolveReadOnly(this.props);
+    this._resolveDisabled(this.props);
+    this._resolveValidation(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
     // Read only
-    if (nextProps.readOnly != null && nextProps.readOnly !== this.props.readOnly) {
-      if (this.state.formReadOnly === true) {
-        if (nextProps.readOnly === true) {
-          this.setState({readOnly: true});
-        }
-      } else {
-        this.setState({readOnly: nextProps.readOnly});
-      }
+    if (nextProps.readOnly !== this.props.readOnly) {
+      this._resolveReadOnly(nextProps);
     }
     // Disable component
-    if (nextProps.disabled != null && nextProps.disabled !== this.props.disabled) {
-      if (this.state.formDisabled === true) {
-        if (nextProps.disabled === true) {
-          this.setState({disabled: true});
-        }
-      } else {
-        this.setState({disabled: nextProps.disabled});
-      }
+    if (nextProps.disabled !== this.props.disabled) {
+      this._resolveDisabled(nextProps);
     }
     // validation
     if ((nextProps.required !== this.props.required) || (nextProps.validation !== this.props.validation)) {
-      this.setState({validation: this.getValidationDefinition(nextProps.required)}, () => {
-        this.validate(false);
-      });
+      this._resolveValidation(nextProps);
     }
   }
 
@@ -64,6 +50,28 @@ class AbstractFormComponent extends AbstractContextComponent {
 
   normalizeValue(value) {
     return value;
+  }
+
+  _resolveReadOnly(props) {
+    if (props.readOnly || this.state.formReadOnly) {
+      this.setState({readOnly: true});
+    } else {
+      this.setState({readOnly: false});
+    }
+  }
+
+  _resolveDisabled(props) {
+    if (props.disabled || this.state.formDisabled) {
+      this.setState({disabled: true});
+    } else {
+      this.setState({disabled: false});
+    }
+  }
+
+  _resolveValidation(props) {
+    this.setState({validation: this.getValidationDefinition(props.required)}, () => {
+      this.validate(false);
+    });
   }
 
   /**

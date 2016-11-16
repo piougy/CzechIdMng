@@ -21,28 +21,25 @@ class AbstractForm extends AbstractContextComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.readOnly != null) {
+    if (nextProps.readOnly !== this.props.readOnly) {
       this.setReadOnly(nextProps.readOnly);
     }
-    if (nextProps.disabled != null) {
+    if (nextProps.disabled !== this.props.disabled) {
       this.setDisabled(nextProps.disabled);
     }
-    if (nextProps.showLoading && nextProps.showLoading !== this.props.showLoading) {
+    if (nextProps.showLoading !== this.props.showLoading) {
       this.setState({showLoading: nextProps.showLoading});
     }
-    if (nextProps.data != null && nextProps.data !== this.props.data) {
+    if (nextProps.data !== this.props.data) {
       this.setData(nextProps.data);
     }
   }
 
   componentDidMount() {
-    const {readOnly, data, rendered} = this.props;
-    if (rendered && readOnly != null) {
-      this.setReadOnly(readOnly);
-    }
-    if (rendered && data != null) {
-      this.setData(data);
-    }
+    const {readOnly, data, disabled} = this.props;
+    this.setReadOnly(readOnly);
+    this.setDisabled(disabled);
+    this.setData(data);
   }
 
   /**
@@ -190,29 +187,13 @@ class AbstractForm extends AbstractContextComponent {
       this.addMessage({title: this.i18n('message.success.delete'), level: 'success'});
     }
     this.setState({showLoading: false});
-    this.disableComponents(false);
+    // Form can be enabled only if props.disabled is false
+    this.setDisabled(false || this.props.disabled);
   }
 
   processStarted() {
     this.setState({showLoading: true});
-    this.disableComponents(true);
-  }
-
-  disableComponents(disabled) {
-    for (const componentRef in this.state.componentsKeys) {
-      if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
-        continue;
-      }
-      const component = this.getComponent(this.state.componentsKeys[componentRef]);
-      if (!component || !this.props.rendered) {
-        return;
-      }
-      if (component.props.disabled === null || component.props.disabled === false) {
-        component.setState({disabled, formDisabled: disabled});
-      } else {
-        component.setState({formDisabled: disabled});
-      }
-    }
+    this.setDisabled(true);
   }
 
   setReadOnly(readOnly) {
@@ -236,6 +217,23 @@ class AbstractForm extends AbstractContextComponent {
         component.setState({readOnly, formReadOnly: readOnly});
       } else {
         component.setState({formReadOnly: readOnly});
+      }
+    }
+  }
+
+  disableComponents(disabled) {
+    for (const componentRef in this.state.componentsKeys) {
+      if (!this.state.componentsKeys.hasOwnProperty(componentRef)) {
+        continue;
+      }
+      const component = this.getComponent(this.state.componentsKeys[componentRef]);
+      if (!component || !this.props.rendered) {
+        return;
+      }
+      if (component.props.disabled === null || component.props.disabled === false) {
+        component.setState({disabled, formDisabled: disabled});
+      } else {
+        component.setState({formDisabled: disabled});
       }
     }
   }

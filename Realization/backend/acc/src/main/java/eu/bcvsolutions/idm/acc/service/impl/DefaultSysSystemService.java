@@ -47,6 +47,7 @@ import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertiesDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConfigurationPropertyDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorConfigurationDto;
 import eu.bcvsolutions.idm.icf.dto.IcfConnectorKeyDto;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 /**
@@ -59,7 +60,7 @@ import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter> implements SysSystemService {
 
 	private SysSystemRepository systemRepository;
-	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
+	private IcfConfigurationFacade icfConfiguratioFacade;
 	private SysSchemaObjectClassRepository objectClassRepository;
 	private SysSchemaAttributeRepository attributeRepository;
 	/**
@@ -80,12 +81,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	public DefaultSysSystemService(
 			FormService formService,
 			SysSystemRepository systemRepository,
-			DefaultIcfConfigurationFacade icfConfigurationAggregatorService,
+			IcfConfigurationFacade icfConfigurationFacade,
 			SysSchemaObjectClassRepository objectClassRepository, 
 			SysSchemaAttributeRepository attributeRepository) {
 		super(formService);
 		this.systemRepository = systemRepository;
-		this.icfConfigurationAggregatorService = icfConfigurationAggregatorService;
+		this.icfConfiguratioFacade = icfConfigurationFacade;
 		this.objectClassRepository = objectClassRepository;
 		this.attributeRepository = attributeRepository;
 	}
@@ -157,7 +158,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Call ICF module and find schema for given connector key and
 		// configuration
-		IcfSchema icfSchema = icfConfigurationAggregatorService.getSchema(connectorKey, connectorConfig);
+		IcfSchema icfSchema = icfConfiguratioFacade.getSchema(connectorKey, connectorConfig);
 		if (icfSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -279,7 +280,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @return
 	 */
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
-		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
+		IcfConnectorConfiguration conf = icfConfiguratioFacade.getIcfConfigs()
 				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();

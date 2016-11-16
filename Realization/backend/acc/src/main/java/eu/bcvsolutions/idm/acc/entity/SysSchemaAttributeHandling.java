@@ -40,12 +40,16 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "schema_attribute_id", referencedColumnName = "id")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSchemaAttribute schemaAttribute;
 
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_entity_handling_id", referencedColumnName = "id")
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystemEntityHandling systemEntityHandling;
 
 	@Audited

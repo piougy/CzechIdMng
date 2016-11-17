@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
 @Component("notificationService")
 public class DefaultNotificationService extends AbstractNotificationService implements NotificationLogService {

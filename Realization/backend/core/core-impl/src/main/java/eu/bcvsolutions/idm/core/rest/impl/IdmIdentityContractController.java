@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identityContracts")

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.rest.lookup.IdentifiableByNameLookup;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 @Component
 public class IdmRoleLookup extends IdentifiableByNameLookup<IdmRole>{

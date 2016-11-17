@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.notification.service.EmailService;
-import eu.bcvsolutions.idm.notification.service.NotificationService;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationService;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 

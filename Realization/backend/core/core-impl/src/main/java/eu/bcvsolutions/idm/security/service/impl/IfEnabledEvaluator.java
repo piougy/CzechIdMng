@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
 import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;

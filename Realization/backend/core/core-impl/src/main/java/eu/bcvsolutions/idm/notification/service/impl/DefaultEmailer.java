@@ -22,8 +22,8 @@ import org.springframework.util.ObjectUtils;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.service.EmailService;
-import eu.bcvsolutions.idm.notification.service.Emailer;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.Emailer;
 
 /**
  * Default email sender implementation

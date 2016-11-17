@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.notification.entity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
 
 @Entity
 @Table(name = "idm_email_log")

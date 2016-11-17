@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
-import eu.bcvsolutions.idm.notification.service.ConsoleNotificationService;
+import eu.bcvsolutions.idm.notification.service.api.ConsoleNotificationService;
 
 /**
  * For testing purpose only

@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
-import eu.bcvsolutions.idm.eav.service.FormService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 
 /**
  * Abstract implementation for generic CRUD operations on a repository for a specific type with extended attributes.

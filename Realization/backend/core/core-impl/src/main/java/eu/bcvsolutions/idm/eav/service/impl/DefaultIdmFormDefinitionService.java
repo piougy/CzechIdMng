@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
 import eu.bcvsolutions.idm.eav.repository.IdmFormDefinitionRepository;
-import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 
 /**
  * Default implementation of form definition service

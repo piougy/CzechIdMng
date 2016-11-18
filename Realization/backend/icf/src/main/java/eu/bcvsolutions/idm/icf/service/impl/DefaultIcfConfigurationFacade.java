@@ -71,4 +71,13 @@ public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
 		return true;
 	}
 
+	@Override
+	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+		Assert.notNull(key);
+		Assert.notNull(key.getIcfType());
+		checkIcfType(key); 
+		return this.getIcfConfigs()
+			.get(key.getIcfType()).getConnectorConfiguration(key);
+	}
+
 }

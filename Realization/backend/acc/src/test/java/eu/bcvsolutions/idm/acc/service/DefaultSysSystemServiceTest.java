@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -48,7 +48,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private FormService formService;
 	
 	@Autowired
-	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
+	private IcfConfigurationFacade icfConfigurationAggregatorService;
 	
 	/**
 	 * Test add and delete extended attributes to owner
@@ -134,8 +134,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// TODO: test system will be moved here, after UI eav form implementation
 		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
 		
-		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
-				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
 		
 		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(connectorKey);
 		

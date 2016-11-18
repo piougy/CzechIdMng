@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 /**
  * Connector framework for virtual account implementation
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 public class VirtualIcfConfigurationService implements IcfConfigurationService {
 
 	@Autowired
-	public VirtualIcfConfigurationService(DefaultIcfConfigurationFacade icfConfigurationAggregator) {
+	public VirtualIcfConfigurationService(IcfConfigurationFacade icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}

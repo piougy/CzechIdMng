@@ -3,10 +3,15 @@ package eu.bcvsolutions.idm.icf.service.api;
 import java.util.List;
 import java.util.Map;
 
+import org.identityconnectors.framework.api.APIConfiguration;
+import org.identityconnectors.framework.api.ConnectorInfo;
+import org.springframework.util.Assert;
+
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
+import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 
 /**
  * Facade for get available connectors configuration
@@ -22,11 +27,19 @@ public interface IcfConfigurationFacade {
 	Map<String, List<IcfConnectorInfo>> getAvailableLocalConnectors();
 
 	/**
-	 * Return find connector default configuration by connector info
-	 * @param info
+	 * Return all registered ICF configuration service implementations
 	 * @return
 	 */
 	Map<String, IcfConfigurationService> getIcfConfigs();
+	
+	/**
+	 * Return find connector default configuration by connector key
+	 * 
+	 * @param key
+	 * @return
+	 */
+	
+	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key);
 
 	/**
 	 * Return schema for connector and given configuration. Schema contains list of attribute definitions in object classes.

@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
@@ -38,7 +39,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/" + IcfModuleDescriptor.MODULE_ID + "/configurations")
 public class IcfConfigurationController implements BaseController {
 
-	private DefaultIcfConfigurationFacade icfConfigurationAggregatorService;
+	private IcfConfigurationFacade icfConfigurationAggregatorService;
 
 	@Autowired
 	public IcfConfigurationController(DefaultIcfConfigurationFacade icfConfigurationAggregatorService) {

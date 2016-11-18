@@ -52,7 +52,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, labelSpan, label, componentSpan, placeholder, style, required, help } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required, help, helpBlock } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -99,6 +99,11 @@ class TextField extends AbstractFormComponent {
             </span>
           </Tooltip>
           <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
+          {
+            !helpBlock
+            ||
+            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+          }
         </div>
       </div>
     );

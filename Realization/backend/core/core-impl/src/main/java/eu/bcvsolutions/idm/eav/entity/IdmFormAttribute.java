@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
@@ -145,6 +147,7 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * @param persistentType
 	 * @return
 	 */
+	@JsonIgnore
 	@SuppressWarnings("rawtypes")
 	public List getEmptyList() {
 		Assert.notNull(persistentType);

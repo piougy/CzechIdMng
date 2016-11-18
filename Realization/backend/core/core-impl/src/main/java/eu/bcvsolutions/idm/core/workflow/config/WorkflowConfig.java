@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import eu.bcvsolutions.idm.core.workflow.domain.CustomActivityBehaviorFactory;
 import eu.bcvsolutions.idm.core.workflow.domain.StartSubprocessEventListener;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.CustomFormTypes;
-import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
 
 /**
  * Workflow configuration for: - custom behavior (sending email through

@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionE
  *
  */
 @RepositoryRestResource( //
-		collectionResourceRel = "formAttributeDefinitions", // 
-		path = "form-attribute-definitions", //
-		itemResourceRel = "formAttributeDefinition", //
+		collectionResourceRel = "formAttributes", // 
+		path = "form-attributes", //
+		itemResourceRel = "formAttribute", //
 		excerptProjection = IdmFormAttributeDefinitionExcerpt.class,
 		exported = false)
 public interface IdmFormAttributeDefinitionRepository extends AbstractEntityRepository<IdmFormAttribute, FormAttributeDefinitionFilter> {

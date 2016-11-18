@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.dto.FormAttributeDefinitionFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
-import eu.bcvsolutions.idm.eav.service.IdmFormAttributeService;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 
 /**
  * Form attribute (attribute definition) service

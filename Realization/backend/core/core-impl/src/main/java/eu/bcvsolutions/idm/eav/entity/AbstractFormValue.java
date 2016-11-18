@@ -22,6 +22,9 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
@@ -39,6 +42,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	private static final long serialVersionUID = -5914285774914667917L;
 
+	@NotNull
 	@ManyToOne(optional = false) // TODO: should we support values without definition?
 	@JoinColumn(name = "attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -48,10 +52,12 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "persistent_type", length = 45, nullable = false)
+	@JsonProperty(access = Access.READ_ONLY)
 	private PersistentType persistentType;
 	
 	@NotNull
 	@Column(name = "confidental", nullable = false)
+	@JsonProperty(access = Access.READ_ONLY)
 	private boolean confidental;
 
 	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
@@ -109,6 +115,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	 * 
 	 * @return
 	 */
+	@JsonProperty(access = Access.READ_ONLY)
 	public Object getValue() {
 		return getValue(persistentType);
 	}
@@ -143,6 +150,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	 *
 	 * @return
 	 */
+	@JsonProperty(access = Access.READ_ONLY)
 	public boolean isEmpty() {
 		Assert.notNull(persistentType);
 		//

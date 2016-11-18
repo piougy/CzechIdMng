@@ -7,7 +7,7 @@ chai.use(dirtyChai);
 import TestFieldsUtil from './TestFieldsUtil';
 import * as Basic from '../../../../src/components/basic';
 
-describe('TextField', function textFieldTest() {
+describe.skip('TextField', function textFieldTest() {
   it('- text field max and min propery', function test() {
     const maxProperty = Basic.AbstractComponent.supportsProperty(Basic.TextField, 'max');
     expect(maxProperty).equal(true);

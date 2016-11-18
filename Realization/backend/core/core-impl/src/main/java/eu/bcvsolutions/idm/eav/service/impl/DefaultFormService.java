@@ -19,10 +19,10 @@ import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.FormService;
-import eu.bcvsolutions.idm.eav.service.FormValueService;
-import eu.bcvsolutions.idm.eav.service.IdmFormAttributeService;
-import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.eav.service.api.FormValueService;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 
 /**
  * Work with form definitions, attributes and their values
@@ -76,6 +76,10 @@ public class DefaultFormService implements FormService {
 		return formDefinition;
 	}
 	
+	/**
+	 * TODO: validations by given form definitions
+	 * TODO: remove "skeleton" values
+	 */
 	@Transactional
 	@SuppressWarnings("unchecked")
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, List<E> values) {
@@ -83,7 +87,23 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(values, "Form values are required!");
 		//
 		values.forEach(value -> {
+			Assert.notNull(value.getFormAttribute(), "Form attribute is required");
+			// 
 			value.setOwner(owner);
+			// set attribute values
+			value.setPersistentType(value.getFormAttribute().getPersistentType());
+			value.setConfidental(value.getFormAttribute().isConfidental());
+			// set created and creator
+			// TODO: fix created and creator audit handler
+			if (value.getId() != null) {
+				AbstractFormValue<O> prev = ((FormValueService<O, E>) getFormValueService(owner)).get(value.getId());
+				if (prev != null) {
+					value.setCreator(prev.getCreator());
+					value.setCreated(prev.getCreated());
+				}
+			}
+			// TODO: check multi values by attribute definition
+			//
 			((FormValueService<O, E>) getFormValueService(owner)).save(value);
 		});		
 	}

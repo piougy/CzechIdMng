@@ -21,7 +21,7 @@ class System extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
-        <Basic.PageHeader showLoading={showLoading}>
+        <Basic.PageHeader showLoading={!entity && showLoading}>
           <Basic.Icon value="link"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity) }) }}/>

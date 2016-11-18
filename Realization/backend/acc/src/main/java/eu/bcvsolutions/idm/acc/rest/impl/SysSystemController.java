@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.rest.core.support.EntityLookup;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -13,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +28,10 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.rest.lookup.SysSystemLookup;
-import eu.bcvsolutions.idm.acc.service.SysSystemService;
+import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -34,6 +39,9 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 
 /**
@@ -47,17 +55,24 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
 
+	private final SysSystemService systemService;
+	private final FormService formService;
+	
+	@Autowired 
+	private IdmFormDefinitionController formDefinitionController;
+	
 	@Autowired
-	private SysSystemLookup systemLookup;
-
-	@Autowired
-	public SysSystemController(EntityLookupService entityLookupService, SysSystemService systemService) {
+	public SysSystemController(
+			EntityLookupService entityLookupService, 
+			SysSystemService systemService, 
+			FormService formService) {
 		super(entityLookupService, systemService);
-	}
-
-	@Override
-	protected EntityLookup<SysSystem> getEntityLookup() {
-		return systemLookup;
+		//
+		Assert.notNull(systemService);
+		Assert.notNull(formService);
+		//
+		this.systemService = systemService;
+		this.formService = formService;
 	}
 
 	@Override
@@ -118,15 +133,12 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/generate-schema", method = RequestMethod.POST)
-	public ResponseEntity<?> generateSchema(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
-			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		
+	public ResponseEntity<?> generateSchema(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		SysSystem system = getEntity(backendId);
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		SysSystemService service = (SysSystemService) this.getEntityService();
-		service.generateSchema(system);
+		systemService.generateSchema(system);
 		return new ResponseEntity<>(toResource(system, assembler), HttpStatus.OK);
 	}
 
@@ -137,12 +149,93 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		return filter;
 	}
 	
+	/**
+	 * Test usage only
+	 * 
+	 * @return
+	 */
 	@Deprecated
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/test/create-test-system", method = RequestMethod.POST)
-	public ResponseEntity<?> createTestSystem() throws HttpMessageNotReadableException {
-		SysSystemService service = (SysSystemService)this.getEntityService();
-		service.createTestSystem();
+	public ResponseEntity<?> createTestSystem() {
+		systemService.createTestSystem();
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}	
+	
+	/**
+	 * Returns connector form definition to given system
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 * 
+	 * @param backendId
+	 * @param assembler
+	 * @return
+	 */
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/connector-form-definition", method = RequestMethod.GET)
+	public ResponseEntity<?> getConnectorFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		SysSystem system = getEntity(backendId);
+		if (system == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
+		return formDefinitionController.get(formDefinition.getId().toString(), assembler);	
+	}
+	
+	/**
+	 * Returns filled connector configuration
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 * 
+	 * @param backendId
+	 * @param assembler
+	 * @return
+	 */
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.GET)
+	public Resources<?> getConnectorFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		SysSystem system = getEntity(backendId);
+		if (system == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
+		return toResources(formService.getValues(system, formDefinition), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * Saves connector configuration form values
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @param assembler
+	 * @return
+	 */
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.POST)
+	public Resources<?> saveConnectorFormValues(
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid List<SysSystemFormValue> formValues,
+			PersistentEntityResourceAssembler assembler) {		
+		SysSystem system = getEntity(backendId);
+		if (system == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		formService.saveValues(system, formValues);
+		return getConnectorFormValues(backendId, assembler);
+	}
+	
+	/**
+	 * Returns definition for given system 
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 * 
+	 * @param system
+	 * @return
+	 */
+	private IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
+		Assert.notNull(system);
+		//
+		try {
+			return systemService.getConnectorFormDefinition(system.getConnectorKey());
+		} catch(Exception ex) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND, ImmutableMap.of("system", system.getName()), ex);
+		}
 	}
 }

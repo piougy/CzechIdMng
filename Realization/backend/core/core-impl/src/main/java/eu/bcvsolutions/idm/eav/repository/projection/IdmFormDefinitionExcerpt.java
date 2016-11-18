@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.eav.repository.projection;
 
+import java.util.List;
+
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 
 /**
@@ -14,5 +17,9 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 @Projection(name = "excerpt", types = IdmFormDefinition.class)
 public interface IdmFormDefinitionExcerpt extends AbstractDtoProjection {
 
+	String getType();
+	
 	String getName();
+	
+	List<IdmFormAttribute> getFormAttributes();
 }

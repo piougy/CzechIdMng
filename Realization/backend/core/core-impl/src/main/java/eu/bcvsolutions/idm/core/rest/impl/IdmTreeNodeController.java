@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 /**
  * 

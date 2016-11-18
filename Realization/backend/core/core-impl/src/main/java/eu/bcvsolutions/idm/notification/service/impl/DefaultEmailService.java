@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
-import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
 
 @Component("emailService")
 public class DefaultEmailService extends AbstractNotificationService implements EmailService {

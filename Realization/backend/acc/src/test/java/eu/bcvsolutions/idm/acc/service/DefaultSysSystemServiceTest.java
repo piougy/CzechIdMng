@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
-import eu.bcvsolutions.idm.eav.service.FormService;
-import eu.bcvsolutions.idm.eav.service.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -130,6 +131,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void testCreateConnectorConfiguration() {
+		// TODO: test system will be moved here, after UI eav form implementation
 		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
 		
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getIcfConfigs()
@@ -168,8 +170,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 					break;
 				}
 			}
-		};
-		
+		};		
 		assertEquals(Integer.valueOf(3), checked);
 	}	
 }

@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
 /**
  * Sending notifications through rest

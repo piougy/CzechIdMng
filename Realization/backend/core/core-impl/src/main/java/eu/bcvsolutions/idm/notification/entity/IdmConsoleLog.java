@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.notification.entity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.notification.service.ConsoleNotificationService;
+import eu.bcvsolutions.idm.notification.service.api.ConsoleNotificationService;
 
 /**
  * For testing purpose only

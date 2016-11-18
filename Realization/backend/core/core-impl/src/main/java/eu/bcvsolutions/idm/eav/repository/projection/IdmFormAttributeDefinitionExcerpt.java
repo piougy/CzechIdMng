@@ -24,7 +24,7 @@ public interface IdmFormAttributeDefinitionExcerpt extends AbstractDtoProjection
 
 	boolean isMultiple();
 
-	boolean isMandatory();
+	boolean isRequired();
 
 	short getSeq();
 
@@ -35,4 +35,6 @@ public interface IdmFormAttributeDefinitionExcerpt extends AbstractDtoProjection
 	String getDescription();
 	
 	boolean isConfidental();
+	
+	String getDefaultValue();
 }

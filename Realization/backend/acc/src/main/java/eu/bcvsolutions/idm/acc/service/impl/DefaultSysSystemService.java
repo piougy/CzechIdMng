@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
-import eu.bcvsolutions.idm.acc.service.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.FormService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
@@ -48,7 +48,6 @@ import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 /**
  * Deafult target system configuration service
@@ -282,6 +281,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
 		IcfConnectorConfiguration conf = icfConfiguratioFacade.getIcfConfigs()
 				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		if (conf == null) {
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.", connectorKey.getFullName()));
+		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
 		for(short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {

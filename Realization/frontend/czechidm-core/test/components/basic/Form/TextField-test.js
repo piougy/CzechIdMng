@@ -2,12 +2,14 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
+import Joi from 'joi';
+//
 chai.use(dirtyChai);
 //
 import TestFieldsUtil from './TestFieldsUtil';
 import * as Basic from '../../../../src/components/basic';
 
-describe.skip('TextField', function textFieldTest() {
+describe('TextField', function textFieldTest() {
   it('- text field max and min propery', function test() {
     const maxProperty = Basic.AbstractComponent.supportsProperty(Basic.TextField, 'max');
     expect(maxProperty).equal(true);
@@ -23,9 +25,8 @@ describe.skip('TextField', function textFieldTest() {
 
     const textField2 = TestUtils.renderIntoDocument(<Basic.TextField max={3} min={2} />);
     TestFieldsUtil.testComponentWithValues(textField2, {
-      '': false,
-      '1': false,
       null: false,
+      '22': true,
       '123': true,
       '12345': false
     });
@@ -44,6 +45,7 @@ describe.skip('TextField', function textFieldTest() {
 
     const textField5 = TestUtils.renderIntoDocument(<Basic.TextField min={3} max={5} required />);
     TestFieldsUtil.testComponentWithValues(textField5, {
+      '': false,
       '12': false,
       '123': true,
       '123456': false,
@@ -62,6 +64,41 @@ describe.skip('TextField', function textFieldTest() {
     TestFieldsUtil.testComponentWithValues(textField7, {
       '': false,
       '123': true
+    });
+  });
+});
+
+describe('TextFieldValidation', function textFieldTest() {
+  it('- text field combination of validation with properties', function test() {
+    const textField = TestUtils.renderIntoDocument(<Basic.TextField max={16} min={6} validation={Joi.string().email()} />);
+    TestFieldsUtil.testComponentWithValues(textField, {
+      'test@example.com': true,
+      'test@example-example.com': false,
+      'example': false,
+      'exa.example.com': false,
+      'example@example': true, // email validation for email is ok for name@domain
+      'e@x.m': false,
+      'exa@mp.le': true
+    });
+
+    const textField2 = TestUtils.renderIntoDocument(<Basic.TextField max={5} min={2} validation={Joi.string().alphanum()} />);
+    TestFieldsUtil.testComponentWithValues(textField2, {
+      'test@example.com': false,
+      '@@@': false,
+      'test': true,
+      'te12': true,
+      'test1234': false,
+      '1': false,
+      'azAz1': true
+    });
+
+    const textField3 = TestUtils.renderIntoDocument(<Basic.TextField max={5} required validation={Joi.string().alphanum()} />);
+    TestFieldsUtil.testComponentWithValues(textField3, {
+      '': false,
+      '@': false,
+      'test': true,
+      'te12': true,
+      'test1234': false
     });
   });
 });

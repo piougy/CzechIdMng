@@ -13,6 +13,10 @@ export default class IdentityAccountManager extends Managers.EntityManager {
     return service;
   }
 
+  getNiceLabelWithSystem(systemName, username) {
+    return systemName + ' (' + username + ')';
+  }
+
   getEntityType() {
     return 'IdentityAccount'; // TODO: constant or enumeration
   }

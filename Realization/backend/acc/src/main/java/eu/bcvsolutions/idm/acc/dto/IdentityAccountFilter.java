@@ -17,6 +17,15 @@ public class IdentityAccountFilter implements BaseFilter {
 	private IdmIdentity identity;
 	private UUID roleId;
 	private UUID systemId;
+	private Boolean ownership;
+
+	public Boolean isOwnership() {
+		return ownership;
+	}
+
+	public void setOwnership(Boolean ownership) {
+		this.ownership = ownership;
+	}
 
 	public UUID getAccountId() {
 		return accountId;

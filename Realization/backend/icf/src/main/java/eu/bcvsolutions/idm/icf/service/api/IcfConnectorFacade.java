@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.icf.service.api;
 
 import java.util.List;
+import java.util.Map;
 
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
@@ -45,7 +45,7 @@ public interface IcfConnectorFacade {
 	 * @param objectClass - Type or category of connector object
 	 * @param uid - Identification of object in resource
 	 */
-	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid);
 	
 	/**
@@ -56,7 +56,7 @@ public interface IcfConnectorFacade {
 	 * @param uid - Identification of object in resource
 	 * @return
 	 */
-	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid);
 	
 	/**
@@ -68,7 +68,12 @@ public interface IcfConnectorFacade {
 	 * @param password
 	 * @return
 	 */
-	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
+	IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, String username, GuardedString password);
+	
+	/**
+	 * @return Connector services for all ICFs
+	 */
+	Map<String, IcfConnectorService> getIcfConnectors();
 
 }

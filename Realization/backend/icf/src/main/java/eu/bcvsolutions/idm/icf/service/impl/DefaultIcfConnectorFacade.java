@@ -35,10 +35,12 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 	/**
 	 * @return Connector services for all ICFs
 	 */
+	@Override
 	public Map<String, IcfConnectorService> getIcfConnectors() {
 		return icfConnectors;
 	}
 
+	@Override
 	public IcfUidAttribute createObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		Assert.notNull(key);
@@ -47,6 +49,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 
 	}
 
+	@Override
 	public IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
 		Assert.notNull(key);
@@ -56,6 +59,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 
 	}
 
+	@Override
 	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
@@ -63,7 +67,8 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 		icfConnectors.get(key.getIcfType()).deleteObject(key, connectorConfiguration, objectClass, uid);
 
 	}
-
+	
+	@Override
 	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
@@ -72,6 +77,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 
 	}
 
+	@Override
 	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, String username, GuardedString password) {
 		Assert.notNull(key);

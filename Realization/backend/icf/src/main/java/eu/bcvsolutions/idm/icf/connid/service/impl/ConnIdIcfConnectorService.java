@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
+import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConnectorFacade;
 import eu.bcvsolutions.idm.security.domain.GuardedString;
@@ -49,7 +50,7 @@ public class ConnIdIcfConnectorService implements IcfConnectorService {
 	private ConnIdIcfConfigurationService configurationServiceConnId;
 
 	@Autowired
-	public ConnIdIcfConnectorService(DefaultIcfConnectorFacade icfConnectorAggregator,
+	public ConnIdIcfConnectorService(IcfConnectorFacade icfConnectorAggregator,
 			ConnIdIcfConfigurationService configurationServiceConnId) {
 		if (icfConnectorAggregator.getIcfConnectors() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");

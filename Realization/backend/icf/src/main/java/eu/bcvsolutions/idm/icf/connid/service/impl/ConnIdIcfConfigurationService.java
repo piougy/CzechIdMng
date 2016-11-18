@@ -1,52 +1,35 @@
 package eu.bcvsolutions.idm.icf.connid.service.impl;
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import org.identityconnectors.common.pooling.ObjectPoolConfiguration;
 import org.identityconnectors.framework.api.APIConfiguration;
-import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Schema;
-import org.identityconnectors.framework.impl.api.APIConfigurationImpl;
-import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.icf.IcfModuleDescriptor;
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfEnabledAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 import eu.bcvsolutions.idm.icf.exception.IcfException;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfObjectPoolConfigurationImpl;
+import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 @Service
 public class ConnIdIcfConfigurationService implements IcfConfigurationService {
@@ -55,9 +38,11 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 
 	// Cached local connid managers
 	private List<ConnectorInfoManager> managers;
+	@Value("#{'${icf.localconnector.packages}'.split(',')}")
+	private List<String> localConnectorsPackages;
 
 	@Autowired
-	public ConnIdIcfConfigurationService(DefaultIcfConfigurationFacade icfConfigurationAggregator) {
+	public ConnIdIcfConfigurationService(IcfConfigurationFacade icfConfigurationAggregator) {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
@@ -154,8 +139,14 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
 		if (managers == null) {
 			managers = new ArrayList<>();
-			Reflections reflections = new Reflections();
-			Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(ConnectorClass.class);
+			List<Class<?>> annotated = new ArrayList<>();
+			// Find all class with annotation ConnectorClass under specific packages
+			localConnectorsPackages.forEach(packageWithConnectors -> {
+				Reflections reflections = new Reflections(packageWithConnectors);
+				annotated.addAll(reflections.getTypesAnnotatedWith(ConnectorClass.class));
+			});
+			
+			log.info(MessageFormat.format("Found annotated classes with ConnectorClass [{0}]", annotated));
 
 			for (Class<?> clazz : annotated) {
 				URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
@@ -163,6 +154,7 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 				ConnectorInfoManager manager = fact.getLocalManager(url);
 				managers.add(manager);
 			}
+			log.info(MessageFormat.format("Found all local connector managers [{0}]", managers.toString()));
 		}
 		return managers;
 	}

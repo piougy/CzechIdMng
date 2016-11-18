@@ -137,10 +137,11 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			return;
 		}
 		GuardedString guardedPassword = new GuardedString(passwordChange.getNewPassword());
-		// TODO: change password only for selected identity accounts!
+
+		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
 		idenittyAccoutnList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership();
-		}).forEach((identityAccount) -> {
+			return passwordChange.getResources().contains(identityAccount.getId().toString());
+		}).forEach(identityAccount -> {
 			doProvisioningForAttribute(identityAccount.getAccount().getUid(), PASSWORD_IDM_PROPERTY_NAME, guardedPassword,
 					identityAccount.getAccount().getSystem(), AccountOperationType.UPDATE, SystemEntityType.IDENTITY);
 		});

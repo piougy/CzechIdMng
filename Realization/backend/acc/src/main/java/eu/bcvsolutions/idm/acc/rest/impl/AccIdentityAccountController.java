@@ -105,6 +105,7 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 		filter.setIdentity(convertEntityParameter(parameters, "identity", IdmIdentity.class));
 		filter.setRoleId(convertUuidParameter(parameters, "roleId"));
 		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
+		filter.setOwnership(convertBooleanParameter(parameters, "ownership"));
 		return filter;
 	}
 }

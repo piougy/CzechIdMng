@@ -253,6 +253,14 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return (String)parameters.toSingleValueMap().get(parameterName);
 	}
 	
+	protected Boolean convertBooleanParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if (StringUtils.isNotEmpty(valueAsString)) {
+			return new Boolean(valueAsString);
+		}
+		return null;
+	}
+	
 	/**
 	 * Converts parameter to {@code Long} from given parameters.
 	 * 

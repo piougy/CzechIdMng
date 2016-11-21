@@ -21,7 +21,7 @@ class TextField extends AbstractFormComponent {
     } else if (min) {
       validation = validation.concat(Joi.string().min(min));
     } else if (max) {
-      if (!this.props.required) {
+      if (!required) {
         // if set only max is necessary to set allow null and empty string
         validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
       } else {

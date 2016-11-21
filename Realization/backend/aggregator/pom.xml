@@ -44,9 +44,14 @@
 			</modules>
 		</profile>
 
-		<!-- Result of build with this profile is single war file containing backendand frontend -->
+		<!-- Result of build with this profile is single war file containing backend and frontend with all modules -->
 		<profile>
 			<id>fullApp</id>
+			<modules>
+				<module>../example</module>
+				<module>../icf</module>
+				<module>../acc</module>
+			</modules>
 		</profile>
 
 		<profile>

@@ -24,6 +24,7 @@ class SystemContent extends Basic.AbstractContent {
     this.selectNavigationItems(['sys-systems', 'system-detail']);
     const { entityId } = this.props.params;
 
+    this.context.store.dispatch(manager.fetchAvailableFrameworks());
     if (this._isNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
     } else {

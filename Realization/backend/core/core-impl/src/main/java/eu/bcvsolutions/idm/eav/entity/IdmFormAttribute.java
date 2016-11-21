@@ -155,6 +155,7 @@ public class IdmFormAttribute extends AbstractEntity {
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
+			case INT:
 			case LONG:
 				return new ArrayList<Long>();
 			case BOOLEAN:

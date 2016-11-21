@@ -70,10 +70,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	static {
 		// TODO: converter registration?
 		supportedConnectorPropertyMapping = new HashMap<>();
+		supportedConnectorPropertyMapping.put("java.lang.Boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
 		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
+		supportedConnectorPropertyMapping.put("int", new ConnectorPropertyMapping(PersistentType.INT, false));
+		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
+		// TODO: correct data type ... 
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray", new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
 	}
 
 	@Autowired

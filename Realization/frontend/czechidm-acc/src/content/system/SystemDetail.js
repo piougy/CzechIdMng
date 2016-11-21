@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 //
 import { Basic, Managers, Utils } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -7,13 +8,14 @@ import { SystemManager } from '../../redux';
 /**
  * Target system detail content
  */
-export default class SystemDetail extends Basic.AbstractContent {
+class SystemDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
     this.manager = new SystemManager();
     this.state = {
-      _showLoading: false
+      _showLoading: false,
+      selectedFramework: null
     };
   }
 
@@ -31,15 +33,13 @@ export default class SystemDetail extends Basic.AbstractContent {
     } else {
       data = {
         ...entity,
-        icfType: entity.connectorKey.icfType,
-        connectorName: entity.connectorKey.connectorName,
-        bundleName: entity.connectorKey.bundleName,
-        bundleVersion: entity.connectorKey.bundleVersion
+        connector: entity.connectorKey.fullName
       };
     }
     data.host = 'local';
     this.refs.form.setData(data);
     this.refs.name.focus();
+    this.context.store.dispatch(this.manager.fetchAvailableFrameworks());
   }
 
   save(afterAction, event) {
@@ -47,7 +47,7 @@ export default class SystemDetail extends Basic.AbstractContent {
       event.preventDefault();
     }
 
-    const { uiKey } = this.props;
+    const { uiKey, availableFrameworks } = this.props;
     if (!this.refs.form.isFormValid()) {
       return;
     }
@@ -56,14 +56,14 @@ export default class SystemDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
-
+      const connector = availableFrameworks.get(entity.connector.split(':')[0]).get(entity.connector);
       const saveEntity = {
         ...entity,
         connectorKey: {
-          icfType: entity.icfType,
-          connectorName: entity.connectorName,
-          bundleName: entity.bundleName,
-          bundleVersion: entity.bundleVersion
+          framework: connector.connectorKey.framework,
+          connectorName: connector.connectorKey.connectorName,
+          bundleName: connector.connectorKey.bundleName,
+          bundleVersion: connector.connectorKey.bundleVersion
         }
       };
 
@@ -97,15 +97,33 @@ export default class SystemDetail extends Basic.AbstractContent {
     });
   }
 
+  _getConnectorOptions(availableFrameworks) {
+    if (!availableFrameworks) {
+      return [];
+    }
+    const options = [];
+    availableFrameworks.forEach((connectors, framework) => {
+      connectors.forEach((connector, fullName) => {
+        options.push({
+          value: fullName,
+          niceLabel: `${connector.connectorDisplayName} (${framework})`
+        });
+      });
+    });
+    return options;
+  }
+
   render() {
-    const { uiKey, entity } = this.props;
+    const { uiKey, entity, availableFrameworks } = this.props;
     const { _showLoading } = this.state;
+    const _availableConnectors = this._getConnectorOptions(availableFrameworks);
+
     return (
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'} showLoading={!availableFrameworks}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
@@ -115,6 +133,12 @@ export default class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.name')}
                   required
                   max={255}/>
+                <Basic.EnumSelectBox
+                  ref="connector"
+                  label={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                  placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                  options={_availableConnectors}
+                  required/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}
@@ -125,25 +149,6 @@ export default class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
-
-                <Basic.TextField ref="host" disabled label={this.i18n('acc:entity.System.connectorHost')}/>
-
-                <Basic.TextField
-                  ref="framework"
-                    label={this.i18n('acc:entity.System.connectorKey.framework')}
-                  max={255}/>
-                <Basic.TextField
-                  ref="connectorName"
-                  label={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                  max={255}/>
-                <Basic.TextField
-                  ref="bundleName"
-                  label={this.i18n('acc:entity.System.connectorKey.bundleName')}
-                  max={255}/>
-                <Basic.TextField
-                  ref="bundleVersion"
-                  label={this.i18n('acc:entity.System.connectorKey.bundleVersion')}
-                  max={30}/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
             <Basic.PanelFooter>
@@ -174,6 +179,16 @@ export default class SystemDetail extends Basic.AbstractContent {
 SystemDetail.propTypes = {
   entity: PropTypes.object,
   uiKey: PropTypes.string.isRequired,
+  availableFrameworks: PropTypes.object
 };
 SystemDetail.defaultProps = {
+  availableFrameworks: null
 };
+
+function select(state) {
+  return {
+    availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS)
+  };
+}
+
+export default connect(select)(SystemDetail);

@@ -121,6 +121,26 @@ class SystemService extends Services.AbstractService {
         return json;
       });
   }
+
+  /**
+   * Returns all available connectors
+   *
+   * @return {promise}
+   */
+  getAvailableConnectors() {
+    // TODO: remote connectors, filter etc.
+    return Services.RestApiService
+      .get(Services.RestApiService.getUrl(`/connectors/search/local`))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
 }
 
 export default SystemService;

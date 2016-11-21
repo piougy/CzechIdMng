@@ -2,9 +2,11 @@ package eu.bcvsolutions.idm.eav.domain;
 
 public enum PersistentType {
 
+	CHAR,
 	TEXT, 
 	TEXTAREA, 
-	RICHTEXTAREA, 
+	RICHTEXTAREA,
+	INT,
 	LONG, 
 	DOUBLE, 
 	CURRENCY, 

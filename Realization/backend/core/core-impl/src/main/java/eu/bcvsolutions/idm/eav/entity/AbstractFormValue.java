@@ -141,6 +141,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
+		case INT:
 		case LONG:
 			return longValue;
 		case BOOLEAN:
@@ -166,6 +167,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
+			case INT:
 			case LONG:
 				return longValue == null;
 			case BOOLEAN:
@@ -190,6 +192,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
+			case INT:
 			case LONG:
 				if (value == null) {
 					setLongValue(null);

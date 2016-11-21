@@ -229,7 +229,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param system
 	 * @return
 	 */
-	private IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
+	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
 		Assert.notNull(system);
 		//
 		try {

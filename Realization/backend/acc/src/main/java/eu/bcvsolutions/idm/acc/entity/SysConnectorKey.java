@@ -20,8 +20,8 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 public class SysConnectorKey implements IcfConnectorKey {
 
 	@Size(max = DefaultFieldLengths.NAME)
-	@Column(name = "connector_icf_type", length = DefaultFieldLengths.NAME)
-	private String icfType;
+	@Column(name = "connector_framework", length = DefaultFieldLengths.NAME)
+	private String framework;
 	
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "connector_name", length = DefaultFieldLengths.NAME)
@@ -39,18 +39,18 @@ public class SysConnectorKey implements IcfConnectorKey {
 	}
 	
 	public SysConnectorKey(IcfConnectorKey key) {
-		this.icfType = key.getIcfType();
+		this.framework = key.getFramework();
 		this.connectorName = key.getConnectorName();
 		this.bundleName = key.getBundleName();
 		this.bundleVersion = key.getBundleVersion();
 	}
 
-	public String getIcfType() {
-		return icfType;
+	public String getFramework() {
+		return framework;
 	}
 
-	public void setIcfType(String icfType) {
-		this.icfType = icfType;
+	public void setFramework(String framework) {
+		this.framework = framework;
 	}
 
 	public String getConnectorName() {

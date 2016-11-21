@@ -85,7 +85,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
   render() {
     const { formInstance, rendered, showLoading } = this.props;
     //
-    if (!rendered) {
+    if (!rendered || !formInstance) {
       return null;
     }
     //

@@ -45,7 +45,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 			IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).createObject(key, connectorConfiguration, objectClass, attributes);
+		return icfConnectors.get(key.getFramework()).createObject(key, connectorConfiguration, objectClass, attributes);
 
 	}
 
@@ -54,7 +54,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).updateObject(key, connectorConfiguration, objectClass, uid,
+		return icfConnectors.get(key.getFramework()).updateObject(key, connectorConfiguration, objectClass, uid,
 				replaceAttributes);
 
 	}
@@ -64,7 +64,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		icfConnectors.get(key.getIcfType()).deleteObject(key, connectorConfiguration, objectClass, uid);
+		icfConnectors.get(key.getFramework()).deleteObject(key, connectorConfiguration, objectClass, uid);
 
 	}
 	
@@ -73,7 +73,7 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).readObject(key, connectorConfiguration, objectClass, uid);
+		return icfConnectors.get(key.getFramework()).readObject(key, connectorConfiguration, objectClass, uid);
 
 	}
 
@@ -82,14 +82,14 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 			IcfObjectClass objectClass, String username, GuardedString password) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).authenticateObject(key, connectorConfiguration, objectClass,
+		return icfConnectors.get(key.getFramework()).authenticateObject(key, connectorConfiguration, objectClass,
 				username, password);
 	}
 
 	private boolean checkIcfType(IcfConnectorKey key) {
-		if (!icfConnectors.containsKey(key.getIcfType())) {
-			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
-					ImmutableMap.of("icf", key.getIcfType()));
+		if (!icfConnectors.containsKey(key.getFramework())) {
+			throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
+					ImmutableMap.of("icf", key.getFramework()));
 		}
 		return true;
 	}

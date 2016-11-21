@@ -129,8 +129,8 @@ export default class SystemDetail extends Basic.AbstractContent {
                 <Basic.TextField ref="host" disabled label={this.i18n('acc:entity.System.connectorHost')}/>
 
                 <Basic.TextField
-                  ref="icfType"
-                  label={this.i18n('acc:entity.System.connectorKey.icfType')}
+                  ref="framework"
+                    label={this.i18n('acc:entity.System.connectorKey.framework')}
                   max={255}/>
                 <Basic.TextField
                   ref="connectorName"

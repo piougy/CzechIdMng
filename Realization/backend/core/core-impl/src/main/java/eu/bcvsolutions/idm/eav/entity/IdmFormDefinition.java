@@ -34,7 +34,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Audited
 @Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -42,18 +41,21 @@ public class IdmFormDefinition extends AbstractEntity {
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
-	@Basic(optional = false)
 	@NotNull
+	@Audited
+	@Basic(optional = false)	
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "definition_type", nullable = false, length = DefaultFieldLengths.NAME)
 	private String type; // for entity / object type
 	
-	@Basic(optional = false)
 	@NotNull
+	@Audited
+	@Basic(optional = false)
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String name; // unique name for entity / object type
 	
+	@Audited
 	@OrderBy("seq")
 	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

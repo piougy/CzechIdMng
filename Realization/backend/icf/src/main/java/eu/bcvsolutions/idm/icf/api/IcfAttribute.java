@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.icf.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.security.domain.GuardedString;
-
 /**
  * Basic interface for all ICF attributes
  * @author svandav

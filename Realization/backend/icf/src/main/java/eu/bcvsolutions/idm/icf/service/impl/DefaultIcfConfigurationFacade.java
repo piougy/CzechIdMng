@@ -15,10 +15,8 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
-import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
 
 /**
  * Facade for get available connectors configuration
@@ -60,13 +58,13 @@ public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
 	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConfigs.get(key.getIcfType()).getSchema(key, connectorConfiguration);
+		return icfConfigs.get(key.getFramework()).getSchema(key, connectorConfiguration);
 	}
 
 	private boolean checkIcfType(IcfConnectorKey key) {
-		if (!icfConfigs.containsKey(key.getIcfType())) {
-			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
-					ImmutableMap.of("icf", key.getIcfType()));
+		if (!icfConfigs.containsKey(key.getFramework())) {
+			throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
+					ImmutableMap.of("icf", key.getFramework()));
 		}
 		return true;
 	}
@@ -74,10 +72,10 @@ public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
 	@Override
 	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
 		Assert.notNull(key);
-		Assert.notNull(key.getIcfType());
+		Assert.notNull(key.getFramework());
 		checkIcfType(key); 
 		return this.getIcfConfigs()
-			.get(key.getIcfType()).getConnectorConfiguration(key);
+			.get(key.getFramework()).getConnectorConfiguration(key);
 	}
 
 }

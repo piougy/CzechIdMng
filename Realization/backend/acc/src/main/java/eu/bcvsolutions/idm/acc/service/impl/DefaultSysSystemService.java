@@ -442,7 +442,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	@Deprecated
 	public IcfConnectorKey getTestConnectorKey() {
 		IcfConnectorKeyImpl key = new IcfConnectorKeyImpl();
-		key.setIcfType("connId");
+		key.setFramework("connId");
 		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");

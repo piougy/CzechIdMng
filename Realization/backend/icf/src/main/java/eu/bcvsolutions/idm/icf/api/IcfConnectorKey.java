@@ -14,7 +14,7 @@ public interface IcfConnectorKey {
 	 * Return connector framework type
 	 * @return
 	 */
-	String getIcfType();
+	String getFramework();
 
 	/**
 	 * Return bundle name for connector
@@ -41,7 +41,7 @@ public interface IcfConnectorKey {
 	 */
 	@JsonIgnore
 	default String getFullName() {
-		return getIcfType() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
+		return getFramework() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
 	}
 
 }

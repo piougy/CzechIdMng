@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.Assert;
 
@@ -39,6 +40,7 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
  *
  */
 @Entity
+@Audited
 @Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })

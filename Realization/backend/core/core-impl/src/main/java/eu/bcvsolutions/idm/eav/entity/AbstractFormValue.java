@@ -20,6 +20,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,6 +45,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private static final long serialVersionUID = -5914285774914667917L;
 
 	@NotNull
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = false) // TODO: should we support values without definition?
 	@JoinColumn(name = "attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -50,33 +53,41 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private IdmFormAttribute formAttribute;
 
 	@NotNull
+	@Audited
 	@Enumerated(EnumType.STRING)
 	@Column(name = "persistent_type", length = 45, nullable = false)
 	@JsonProperty(access = Access.READ_ONLY)
 	private PersistentType persistentType;
 	
 	@NotNull
+	@Audited
 	@Column(name = "confidental", nullable = false)
 	@JsonProperty(access = Access.READ_ONLY)
 	private boolean confidental;
 
+	@Audited
 	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
 	@Column(name = "string_value", nullable = true, length = DefaultFieldLengths.LOG)
 	private String stringValue;
 
+	@Audited
 	@Column(name = "boolean_value", nullable = true)
 	private Boolean booleanValue;
 
+	@Audited
 	@Column(name = "long_value", nullable = true)
 	private Long longValue;
 
+	@Audited
 	@Column(name = "double_value", nullable = true, precision = 38, scale = 4)
 	private BigDecimal doubleValue;
 
+	@Audited
 	@Column(name = "date_value")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateValue;
 
+	@Audited
 	@Max(99999)
 	@Column(name = "seq")
 	private int seq;

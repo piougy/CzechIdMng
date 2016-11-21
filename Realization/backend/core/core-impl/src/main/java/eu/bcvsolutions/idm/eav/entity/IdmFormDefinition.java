@@ -19,6 +19,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.envers.Audited;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -32,6 +34,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
+@Audited
 @Table(name = "idm_form_definition", indexes = { @Index(name = "ux_idm_form_definition_tn", columnList = "definition_type,name", unique = true) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

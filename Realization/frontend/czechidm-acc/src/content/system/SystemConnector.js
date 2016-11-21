@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Utils, Managers } from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 const uiKey = 'eav-connector-';
@@ -49,42 +49,14 @@ class SystemConnectorContent extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const { formInstance } = this.props;
-    const { entityId } = this.props.params;
-    const filledFormValues = [];
-    let isAllValid = true;
-    formInstance.getAttributes().forEach(attribute => {
-      const formComponent = this.refs[attribute.name];
-      if (!formComponent.validate()) {
-        isAllValid = false;
-      }
-      let formValue = formInstance.getSingleValue(attribute.name);
-      if (formValue === null) {
-        // construct form value
-        formValue = {
-          formAttribute: formInstance.getAttributeLink(attribute.name)
-        };
-      }
-      // set value by persistent type
-      switch (attribute.persistentType) {
-        case 'TEXT': {
-          formValue.stringValue = formComponent.getValue();
-          break;
-        }
-        case 'BOOLEAN': {
-          formValue.booleanValue = formComponent.getValue();
-          break;
-        }
-        default: {
-          this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
-        }
-      }
-      filledFormValues.push(formValue);
-    });
-    if (!isAllValid) {
+    if (!this.refs.eav.isValid()) {
+      this.addMessage({ level: 'warning', message: this.i18n('fuj') });
       return;
     }
-    this.getLogger().debug(`[EavForm]: Saving form [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
+    //
+    const { entityId } = this.props.params;
+    const filledFormValues = this.refs.eav.getValues();
+    this.getLogger().debug(`[EavForm]: Saving form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}]`);
     // save values
     this.context.store.dispatch(manager.saveConnectorConfiguration(entityId, filledFormValues, `${uiKey}-${entityId}`, (savedFormInstance, error) => {
       if (error) {
@@ -92,7 +64,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
       } else {
         const system = manager.getEntity(this.context.store.getState(), entityId);
         this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
-        this.getLogger().debug(`[EavForm]: Form [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}] saved`);
+        this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
       }
     }));
   }
@@ -100,6 +72,44 @@ class SystemConnectorContent extends Basic.AbstractContent {
   render() {
     const { formInstance, _showLoading } = this.props;
     const { error } = this.state;
+
+    let content;
+    if (error) {
+      // connector is wrong configured
+      content = (
+        <Basic.Alert level="info">
+          {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
+          <div style={{ marginTop: 15 }}>
+            <Basic.Button level="info" onClick={this.showDetail.bind(this)}>
+              {this.i18n('button.showBasicInfo')}
+            </Basic.Button>
+          </div>
+        </Basic.Alert>
+      );
+    } else if (!formInstance || _showLoading) {
+      // connector eav form is loaded from BE
+      content = (
+        <Basic.Loading isStatic showLoading/>
+      );
+    } else {
+      // connector setting is ready
+      content = (
+        <form className="form-horizontal" style={{ marginTop: 15, marginBottom: 15 }} onSubmit={this.save.bind(this)}>
+          <Basic.PanelBody>
+            <Advanced.EavForm ref="eav" formInstance={formInstance}/>
+          </Basic.PanelBody>
+          <Basic.PanelFooter>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}>
+              {this.i18n('button.save')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </form>
+      );
+    }
 
     return (
       <div>
@@ -110,68 +120,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
-          {
-            error
-            ?
-            <Basic.Alert level="info">
-              {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
-              <div style={{ marginTop: 15 }}>
-                <Basic.Button level="info" onClick={this.showDetail.bind(this)}>
-                  {this.i18n('button.showBasicInfo')}
-                </Basic.Button>
-              </div>
-            </Basic.Alert>
-            :
-            <span>
-              {
-                !formInstance || _showLoading
-                ?
-                <Basic.Loading isStatic showLoading/>
-                :
-                <form className="form-horizontal" style={{ marginTop: 15, marginBottom: 15 }} onSubmit={this.save.bind(this)}>
-                  <Basic.PanelBody>
-                    {
-                      formInstance.getAttributes().map(attribute => {
-                        const formValue = formInstance.getSingleValue(attribute.name);
-                        //
-                        if (attribute.persistentType === 'TEXT') {
-                          return (
-                            <Basic.TextField
-                              ref={attribute.name}
-                              required={attribute.required}
-                              label={attribute.displayName}
-                              value={formValue ? formValue.stringValue : null}
-                              helpBlock={attribute.description}/>
-                          );
-                        }
-                        if (attribute.persistentType === 'BOOLEAN') {
-                          return (
-                            <Basic.Checkbox
-                              ref={attribute.name}
-                              label={attribute.displayName}
-                              value={formValue ? formValue.booleanValue : (attribute.defaultValue === 'true')}
-                              helpBlock={attribute.description}/>
-                          );
-                        }
-                        return (
-                          <div>Unimplemented persistentType: { attribute.persistentType }</div>
-                        );
-                      })
-                    }
-                  </Basic.PanelBody>
-                  <Basic.PanelFooter>
-                    <Basic.Button
-                      type="submit"
-                      level="success"
-                      showLoadingIcon
-                      showLoadingText={this.i18n('button.saving')}>
-                      {this.i18n('button.save')}
-                    </Basic.Button>
-                  </Basic.PanelFooter>
-                </form>
-              }
-            </span>
-          }
+          { content }
         </Basic.Panel>
       </div>
     );

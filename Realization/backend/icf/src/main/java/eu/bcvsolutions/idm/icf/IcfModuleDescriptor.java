@@ -1,10 +1,9 @@
 package eu.bcvsolutions.idm.icf;
 
-import org.springframework.stereotype.Component;
-
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 
-@Component
+// TODO: icf module is "standard" java dependency for now. 
+// @Component
 public class IcfModuleDescriptor extends AbstractModuleDescriptor {
 
 	public static final String MODULE_ID = "icf";

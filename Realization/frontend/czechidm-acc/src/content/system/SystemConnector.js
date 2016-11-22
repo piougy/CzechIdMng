@@ -93,7 +93,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     } else {
       // connector setting is ready
       content = (
-        <form className="form-horizontal" style={{ marginTop: 15, marginBottom: 15 }} onSubmit={this.save.bind(this)}>
+        <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this)}>
           <Basic.PanelBody>
             <Advanced.EavForm ref="eav" formInstance={formInstance}/>
           </Basic.PanelBody>

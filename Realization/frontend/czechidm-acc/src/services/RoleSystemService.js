@@ -15,7 +15,7 @@ export default class RoleSystemService extends Services.AbstractService {
   }
 
   getApiPath() {
-    return '/roleSystems';
+    return '/role-systems';
   }
 
   getDefaultSearchParameters() {

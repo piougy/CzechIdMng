@@ -17,6 +17,6 @@ export default class TreeTypeManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'treetypes';
+    return 'treeTypes';
   }
 }

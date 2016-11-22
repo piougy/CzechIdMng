@@ -176,7 +176,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources((Iterable<?>) identity.getRoles(), assembler, IdmIdentityRole.class, null);
 	}
 	
-	@RequestMapping(value = "/{identityId}/identityContracts", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
 	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {

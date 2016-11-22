@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  */
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/systemEntities")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-entities")
 public class SysSystemEntityController extends AbstractReadWriteEntityController<SysSystemEntity, SystemEntityFilter> {
 
 	

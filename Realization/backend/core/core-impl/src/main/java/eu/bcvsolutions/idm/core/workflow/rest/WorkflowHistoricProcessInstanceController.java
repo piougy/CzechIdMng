@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstance
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/history/processes/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-history-processes")
 public class WorkflowHistoricProcessInstanceController {
 
 	@Value("${spring.data.rest.defaultPageSize}")
@@ -48,7 +48,7 @@ public class WorkflowHistoricProcessInstanceController {
 	 * user
 	 * 
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "search/")
+	@RequestMapping(method = RequestMethod.POST, value = "/search")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> result = workflowHistoricProcessInstanceService
@@ -68,7 +68,7 @@ public class WorkflowHistoricProcessInstanceController {
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricProcessInstanceDto>>> searchQuick(
 			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort,
 			@RequestParam(required = false) String name, @RequestParam(required = false) String processDefinition, @RequestParam(required = false) String superProcessInstanceId) {
@@ -85,7 +85,7 @@ public class WorkflowHistoricProcessInstanceController {
 		return this.search(filter);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "{historicProcessInstanceId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{historicProcessInstanceId}")
 	public ResponseEntity<ResourceWrapper<WorkflowHistoricProcessInstanceDto>> get(
 			@PathVariable String historicProcessInstanceId) {
 		ResourceWrapper<WorkflowHistoricProcessInstanceDto> resource = new ResourceWrapper<WorkflowHistoricProcessInstanceDto>(
@@ -99,7 +99,7 @@ public class WorkflowHistoricProcessInstanceController {
 	 * @param historicProcessInstanceId
 	 * @return
 	 */
-	@RequestMapping(value = "{historicProcessInstanceId}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
+	@RequestMapping(value = "/{historicProcessInstanceId}/diagram", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getDiagram(@PathVariable String historicProcessInstanceId) {
 		// check rights

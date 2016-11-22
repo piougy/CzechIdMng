@@ -4,7 +4,7 @@ import SearchParameters from '../domain/SearchParameters';
 class RoleCatalogueService extends AbstractService {
 
   getApiPath() {
-    return '/roleCatalogues';
+    return '/role-catalogues';
   }
 
   getNiceLabel(roleCatalogue) {

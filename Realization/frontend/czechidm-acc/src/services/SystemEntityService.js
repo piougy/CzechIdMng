@@ -16,7 +16,7 @@ export default class SystemEntityService extends Services.AbstractService {
   }
 
   getApiPath() {
-    return '/systemEntities';
+    return '/system-entities';
   }
 
   getDefaultSearchParameters() {

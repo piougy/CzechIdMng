@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
  */
 
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roleCatalogues")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/role-catalogues")
 public class IdmRoleCatalogueController extends DefaultReadWriteEntityController<IdmRoleCatalogue, RoleCatalogueFilter> {
 	
 	@Autowired

@@ -92,7 +92,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   passwordMustChange(username, oldPassword, newPassword) {
-    return RestApiService.put(this.getApiPath() + `/password/must/change`, {
+    return RestApiService.put(this.getApiPath() + `/password/must-change`, {
       identity: username,
       oldPassword,
       newPassword
@@ -179,7 +179,7 @@ class IdentityService extends AbstractService {
    */
   getContracts(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/identityContracts`)
+    .get(this.getApiPath() + `/${username}/identity-contracts`)
     .then(response => {
       return response.json();
     })

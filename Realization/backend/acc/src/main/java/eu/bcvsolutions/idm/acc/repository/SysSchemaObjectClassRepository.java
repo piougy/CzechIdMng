@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 @RepositoryRestResource(//
 		collectionResourceRel = "schemaObjectClasses", //
-		path = "schemaObjectClasses", //
+		path = "schema-object-classes", //
 		itemResourceRel = "schemaObjectClass", //
 		excerptProjection = SysSchemaObjectClassExcerpt.class,//
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually

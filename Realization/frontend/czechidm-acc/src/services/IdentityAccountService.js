@@ -16,7 +16,7 @@ export default class IdentityAccountService extends Services.AbstractService {
   }
 
   getApiPath() {
-    return '/identityAccounts';
+    return '/identity-accounts';
   }
 
   getDefaultSearchParameters() {

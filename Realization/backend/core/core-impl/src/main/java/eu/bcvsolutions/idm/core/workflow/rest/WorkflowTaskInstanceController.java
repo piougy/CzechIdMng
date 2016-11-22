@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/tasks/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-tasks")
 public class WorkflowTaskInstanceController {
 
 	@Autowired
@@ -41,7 +41,7 @@ public class WorkflowTaskInstanceController {
 	 * Search instances of tasks with same variables and for logged user
 	 * 
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "search/")
+	@RequestMapping(method = RequestMethod.POST, value = "/search")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 
@@ -58,7 +58,7 @@ public class WorkflowTaskInstanceController {
 		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>>(resources, HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowTaskInstanceDto>>> searchQuick(
 			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page, @RequestParam(required = false) String sort, @RequestParam(required = false) String processInstanceId) {
 		
@@ -76,14 +76,14 @@ public class WorkflowTaskInstanceController {
 		return this.search(new WorkflowFilterDto());
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "{taskId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{taskId}")
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> get(@PathVariable String taskId) {
 		ResourceWrapper<WorkflowTaskInstanceDto> resource = new ResourceWrapper<WorkflowTaskInstanceDto>(
 				workflowTaskInstanceService.get(taskId));
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(resource, HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.PUT, value = "{taskId}/complete")
+	@RequestMapping(method = RequestMethod.PUT, value = "/{taskId}/complete")
 	public void completeTask(@PathVariable String taskId, @RequestBody FormDataWrapperDto formData) {
 		workflowTaskInstanceService.completeTask(taskId, formData.getDecision(), formData.getFormData(), formData.getVariables());
 	}

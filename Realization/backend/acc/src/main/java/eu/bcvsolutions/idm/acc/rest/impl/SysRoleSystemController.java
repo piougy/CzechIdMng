@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  */
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roleSystems")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/role-systems")
 public class SysRoleSystemController extends DefaultReadWriteEntityController<SysRoleSystem, RoleSystemFilter> {
 	
 	@Autowired

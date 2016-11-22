@@ -95,7 +95,7 @@ public class IdmFormAttribute extends AbstractEntity {
 	
 	@Max(99999)
 	@Column(name = "seq")
-	private short seq;
+	private Short seq;
 	
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "default_value", nullable = true, length = DefaultFieldLengths.LOG)
@@ -201,11 +201,11 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * 
 	 * @return
 	 */
-	public short getSeq() {
+	public Short getSeq() {
 		return seq;
 	}
 
-	public void setSeq(short seq) {
+	public void setSeq(Short seq) {
 		this.seq = seq;
 	}
 

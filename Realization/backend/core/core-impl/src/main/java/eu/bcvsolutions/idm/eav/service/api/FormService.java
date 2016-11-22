@@ -15,11 +15,20 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
  *
  */
 public interface FormService {
+	
+	/**
+	 * Finds default definition by given type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	IdmFormDefinition getDefinition(String type);
 
 	/**
 	 * Finds definition by given type and name (optional) 
+	 * 
 	 * @param type
-	 * @param name
+	 * @param name optional - if no name given, then returns default definition
 	 * @return
 	 */
 	IdmFormDefinition getDefinition(String type, String name);
@@ -40,10 +49,10 @@ public interface FormService {
 	 * @param owner
 	 * @param values
 	 */
-	<O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, List<E> values);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
 	
 	/**
-	 * Reads form values by given owner
+	 * Reads form values by given owner. Return all values from all form definitions
 	 * 
 	 * @param owner
 	 * @return

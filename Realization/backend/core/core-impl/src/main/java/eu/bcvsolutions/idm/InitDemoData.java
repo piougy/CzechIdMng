@@ -17,18 +17,23 @@ import com.google.common.base.Charsets;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -49,10 +54,10 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private InitApplicationData initApplicationData;
 	
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private IdmIdentityService identityService;
 
 	@Autowired
-	private IdmRoleRepository roleRepository;
+	private IdmRoleService roleService;
 
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -71,6 +76,9 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	
 	@Autowired
 	private IdmConfigurationService configurationService;
+	
+	@Autowired
+	private FormService formService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -85,8 +93,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		SecurityContextHolder.getContext().setAuthentication(
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		try {
-			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
-			IdmIdentity identityAdmin = this.identityRepository.findOneByUsername(InitApplicationData.ADMIN_USERNAME);
+			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
+			IdmIdentity identityAdmin = this.identityService.getByName(InitApplicationData.ADMIN_USERNAME);
 			//
 			Page<IdmTreeNode> rootsList = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
@@ -105,7 +113,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName("userRole");
-				role1 = this.roleRepository.save(role1);
+				role1 = this.roleService.save(role1);
 				log.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();
@@ -113,13 +121,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				List<IdmRoleComposition> subRoles = new ArrayList<>();
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
-				role2 = this.roleRepository.save(role2);
+				role2 = this.roleService.save(role2);
 				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				log.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
 				IdmRole roleManager = new IdmRole();
 				roleManager.setName("manager");
-				roleManager = this.roleRepository.save(roleManager);
+				roleManager = this.roleService.save(roleManager);
 				log.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
 				//
 				//
@@ -129,7 +137,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity.setFirstName("Radek");
 				identity.setLastName("Tomiška");
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
-				identity = this.identityRepository.save(identity);
+				identity = this.identityService.save(identity);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
 				//
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
@@ -148,7 +156,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity2.setPassword("heslo".getBytes(Charsets.UTF_8));
 				identity2.setLastName("Švanda");
 				identity2.setEmail("vit.svanda@bcvsolutions.eu");
-				identity2 = this.identityRepository.save(identity2);
+				identity2 = this.identityService.save(identity2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
 				IdmIdentity identity3 = new IdmIdentity();
@@ -157,7 +165,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity3.setPassword("heslo".getBytes(Charsets.UTF_8));
 				identity3.setLastName("Kopr");
 				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
-				identity3 = this.identityRepository.save(identity3);
+				identity3 = this.identityService.save(identity3);
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
@@ -187,6 +195,47 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info("Demo data was created.");
 				//				
 				configurationService.setBooleanValue(PARAMETER_DEMO_DATA_CREATED, true);
+				//
+				// test idendentity form
+				List<IdmFormAttribute> attributes = new ArrayList<>();
+				IdmFormAttribute phone = new IdmFormAttribute();
+				phone.setName("phone");
+				phone.setDisplayName("Phone");
+				phone.setDescription("Additional identitiy's phone");
+				phone.setPersistentType(PersistentType.TEXT);
+				attributes.add(phone);
+				
+				IdmFormAttribute age = new IdmFormAttribute();
+				age.setName("age");
+				age.setDisplayName("Age");
+				age.setPersistentType(PersistentType.INT);
+				attributes.add(age);
+				
+				IdmFormAttribute webPages = new IdmFormAttribute();
+				webPages.setName("webPages");
+				webPages.setDisplayName("WWW");
+				webPages.setDescription("Favorite web pages");
+				webPages.setPersistentType(PersistentType.TEXT);
+				webPages.setMultiple(true);
+				attributes.add(webPages);
+				
+				IdmFormAttribute password = new IdmFormAttribute();
+				password.setName("password");
+				password.setDisplayName("Custom password");
+				password.setPersistentType(PersistentType.TEXT);
+				password.setConfidential(true);
+				password.setDescription("Test password");
+				attributes.add(password);
+				
+				IdmFormDefinition formDefinition = formService.createDefinition(IdmIdentity.class.getCanonicalName(), null, attributes);
+				
+				List<IdmIdentityFormValue> values = new ArrayList<>();				
+				IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();
+				phoneValue.setFormAttribute(phone);
+				phoneValue.setStringValue("12345679");
+				values.add(phoneValue);
+				
+				formService.saveValues(identity, formDefinition, values);
 			}
 		} finally {
 			SecurityContextHolder.clearContext();

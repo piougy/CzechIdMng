@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 
 /**
  * Identity extended attributes
@@ -29,6 +30,13 @@ public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity owner;
+	
+	public IdmIdentityFormValue() {
+	}
+	
+	public IdmIdentityFormValue(IdmFormAttribute formAttribute) {
+		super(formAttribute);
+	}
 	
 	@Override
 	public IdmIdentity getOwner() {

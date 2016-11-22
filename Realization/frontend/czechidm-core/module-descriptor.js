@@ -34,6 +34,14 @@ module.exports = {
             'icon': 'user'
           },
           {
+            'id': 'profile-eav',
+            'type': 'TAB',
+            'labelKey': 'content.identity.eav.title',
+            'order': 11,
+            'priority': 0,
+            'path': '/identity/:entityId/eav',
+          },
+          {
             'id': 'profile-password',
             'type': 'TAB',
             'label': 'Změna hesla',

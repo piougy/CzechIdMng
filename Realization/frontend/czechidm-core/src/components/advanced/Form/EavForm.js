@@ -109,7 +109,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
           formInstance.getAttributes().map(attribute => {
             const formValue = formInstance.getSingleValue(attribute.name);
             // text field
-            if (attribute.persistentType === 'TEXT' || attribute.persistentType === 'INT' || attribute.persistentType === 'LONG' || attribute.persistentType === 'CHAR') {
+            if (attribute.persistentType === 'TEXT' || attribute.persistentType === 'CHAR') {
               return (
                 <Basic.TextField
                   ref={attribute.name}
@@ -117,6 +117,32 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   required={attribute.required}
                   label={attribute.displayName}
                   value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
+              );
+            }
+            // integer
+            if (attribute.persistentType === 'INT' || attribute.persistentType === 'LONG') {
+              return (
+                <Basic.TextField
+                  ref={attribute.name}
+                  type={attribute.confidential ? 'password' : 'text'}
+                  required={attribute.required}
+                  label={attribute.displayName}
+                  value={formValue ? formValue.longValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
+              );
+            }
+            // real number
+            if (attribute.persistentType === 'DOUBLE') {
+              return (
+                <Basic.TextField
+                  ref={attribute.name}
+                  type={attribute.confidential ? 'password' : 'text'}
+                  required={attribute.required}
+                  label={attribute.displayName}
+                  value={formValue ? formValue.doubleValue : attribute.defaultValue}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}/>
               );

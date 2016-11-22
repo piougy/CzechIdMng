@@ -50,6 +50,12 @@ public class DefaultFormService implements FormService {
 		this.formAttributeService = formAttributeService;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormDefinition getDefinition(String type) {
+		return this.getDefinition(type, null);		
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -62,13 +68,21 @@ public class DefaultFormService implements FormService {
 	public IdmFormDefinition createDefinition(String type, String name, List<IdmFormAttribute> formAttributes) {
 		Assert.hasLength(type);
 		//
+		// create definition
 		IdmFormDefinition formDefinition = new  IdmFormDefinition();
 		formDefinition.setType(type);	
 		formDefinition.setName(name);
 		formDefinition = formDefinitionService.save(formDefinition);
 		//
+		// and their attributes
 		if (formAttributes != null) {
+			Short seq = 0;
 			for (IdmFormAttribute formAttribute : formAttributes) {
+				// default attribute order
+				if (formAttribute.getSeq() == null) {
+					formAttribute.setSeq(seq);
+					seq++;
+				}
 				formAttribute.setFormDefinition(formDefinition);
 				formDefinition.addFormAttribute(formAttributeService.save(formAttribute));
 			}
@@ -78,11 +92,12 @@ public class DefaultFormService implements FormService {
 	
 	/**
 	 * TODO: validations by given form definitions
-	 * TODO: remove "skeleton" values
+	 * TODO: remove "skeleton" values by form definition
+	 * TODO: save confidential values to securedRepository
 	 */
 	@Transactional
 	@SuppressWarnings("unchecked")
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, List<E> values) {
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(values, "Form values are required!");
 		//

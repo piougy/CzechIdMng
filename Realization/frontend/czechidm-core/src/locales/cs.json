@@ -1024,6 +1024,16 @@
       "subordinates": {
         "header": "Podřízení",
         "title": "$t(content.identity.subordinates.header)"
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "save": {
+          "success": "Údaje identity [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
+        }
       }
     },
     "audit": {

@@ -2,13 +2,19 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
-import { SystemManager } from '../../redux';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
+import { IdentityManager, DataManager } from '../../redux';
+import * as Utils from '../../utils';
 
-const uiKey = 'eav-connector-';
-const manager = new SystemManager();
+const uiKey = 'eav-identity-';
+const manager = new IdentityManager();
 
-class SystemConnectorContent extends Basic.AbstractContent {
+/**
+ * Extended identity attributes
+ * TODO: could be imploded to one form - profile?
+ */
+class IdentityEav extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -17,32 +23,26 @@ class SystemConnectorContent extends Basic.AbstractContent {
     };
   }
 
+  getManager() {
+    return this.identityManager;
+  }
+
   getContentKey() {
-    return 'acc:content.system.connector';
+    return 'content.identity.eav';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-connector']);
+    this.selectSidebarItem('profile-eav');
     // load definition and values
     const { entityId } = this.props.params;
-    this.context.store.dispatch(manager.fetchConnectorConfiguration(entityId, `${uiKey}-${entityId}`, (formInstance, error) => {
+    this.context.store.dispatch(manager.fetchFormInstance(entityId, `${uiKey}-${entityId}`, (formInstance, error) => {
       if (error) {
-        if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
-          this.addErrorMessage({ hidden: true, level: 'info' }, error);
-          this.setState({ error });
-        } else {
-          this.addError(error);
-          this.setState({ error: null });
-        }
+        this.addErrorMessage({ hidden: true, level: 'info' }, error);
+        this.setState({ error });
       } else {
         this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
       }
     }));
-  }
-
-  showDetail() {
-    const { entityId } = this.props.params;
-    this.context.router.push(`/system/${entityId}/detail`);
   }
 
   save(event) {
@@ -57,12 +57,12 @@ class SystemConnectorContent extends Basic.AbstractContent {
     const filledFormValues = this.refs.eav.getValues();
     this.getLogger().debug(`[EavForm]: Saving form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}]`);
     // save values
-    this.context.store.dispatch(manager.saveConnectorConfiguration(entityId, filledFormValues, `${uiKey}-${entityId}`, (savedFormInstance, error) => {
+    this.context.store.dispatch(manager.saveFormValues(entityId, filledFormValues, `${uiKey}-${entityId}`, (savedFormInstance, error) => {
       if (error) {
         this.addError(error);
       } else {
-        const system = manager.getEntity(this.context.store.getState(), entityId);
-        this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+        const identity = manager.getEntity(this.context.store.getState(), entityId);
+        this.addMessage({ message: this.i18n('save.success', { name: manager.getNiceLabel(identity) }) });
         this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
       }
     }));
@@ -76,14 +76,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     if (error) {
       // connector is wrong configured
       content = (
-        <Basic.Alert level="info">
-          {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
-          <div style={{ marginTop: 15 }}>
-            <Basic.Button level="info" onClick={this.showDetail.bind(this)}>
-              {this.i18n('button.showBasicInfo')}
-            </Basic.Button>
-          </div>
-        </Basic.Alert>
+        <Basic.Alert level="info" text={this.i18n('error.notFound')}/>
       );
     } else if (!formInstance || _showLoading) {
       // connector eav form is loaded from BE
@@ -115,7 +108,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          {this.i18n('header')}
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
@@ -126,11 +119,11 @@ class SystemConnectorContent extends Basic.AbstractContent {
   }
 }
 
-SystemConnectorContent.propTypes = {
+IdentityEav.propTypes = {
   formInstance: PropTypes.oject,
   _showLoading: PropTypes.bool
 };
-SystemConnectorContent.defaultProps = {
+IdentityEav.defaultProps = {
   formInstance: null,
   _showLoading: false
 };
@@ -139,8 +132,8 @@ function select(state, component) {
   const { entityId } = component.params;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
-    formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`)
+    formInstance: DataManager.getData(state, `${uiKey}-${entityId}`)
   };
 }
 
-export default connect(select)(SystemConnectorContent);
+export default connect(select)(IdentityEav);

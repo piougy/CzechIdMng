@@ -66,7 +66,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			EntityLookupService entityLookupService, 
 			SysSystemService systemService, 
 			FormService formService) {
-		super(entityLookupService, systemService);
+		super(entityLookupService);
 		//
 		Assert.notNull(systemService);
 		Assert.notNull(formService);
@@ -218,7 +218,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		if (system == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		formService.saveValues(system, formValues);
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
+		formService.saveValues(system, formDefinition, formValues);
 		return getConnectorFormValues(backendId, assembler);
 	}
 	

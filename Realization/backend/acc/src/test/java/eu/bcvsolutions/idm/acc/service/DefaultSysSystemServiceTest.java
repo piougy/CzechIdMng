@@ -2,11 +2,12 @@ package eu.bcvsolutions.idm.acc.service;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
@@ -87,19 +88,15 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		attributeDefinitionTwo.setDisplayName(attributeDefinitionTwo.getName());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);			
 		attributeDefinitionTwo = formAttributeDefinitionRepository.save(attributeDefinitionTwo);
-		//
-		// fill extended attributes
-		List<SysSystemFormValue> values = new ArrayList<>();
-		
+		//		
 		SysSystemFormValue value1 = new SysSystemFormValue(attributeDefinitionOne);
 		value1.setValue("test1");
-		values.add(value1);
 		
 		SysSystemFormValue value2 = new SysSystemFormValue(attributeDefinitionTwo);
 		value2.setValue("test2");
-		values.add(value2);
 		
-		formService.saveValues(systemOne, values);
+		formService.saveValues(systemOne, formDefinitionOne, Lists.newArrayList(value1));
+		formService.saveValues(systemOne, formDefinitionTwo, Lists.newArrayList(value2));
 		
 		List<AbstractFormValue<SysSystem>> savedValues = formService.getValues(systemOne);
 		

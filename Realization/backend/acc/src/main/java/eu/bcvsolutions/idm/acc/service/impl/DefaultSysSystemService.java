@@ -435,7 +435,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
 		
-		getFormService().saveValues(system, values);
+		getFormService().saveValues(system, savedFormDefinition, values);
 		
 		return system;
 	}

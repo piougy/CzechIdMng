@@ -72,10 +72,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	static {
 		// TODO: converter registration?
 		supportedConnectorPropertyMapping = new HashMap<>();
+		supportedConnectorPropertyMapping.put("java.lang.Boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
 		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
+		supportedConnectorPropertyMapping.put("int", new ConnectorPropertyMapping(PersistentType.INT, false));
+		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
+		// TODO: correct data type ... 
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray", new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
 	}
 	
 	@Autowired
@@ -311,7 +317,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		attribute.setDisplayName(property.getDisplayName());
 		attribute.setDescription(property.getHelpMessage());			
 		attribute.setPersistentType(convertPropertyType(property.getType()));
-		attribute.setConfidental(property.isConfidential());
+		attribute.setConfidential(property.isConfidential());
 		attribute.setRequired(property.isRequired());
 		attribute.setMultiple(isMultipleProperty(property.getType()));	
 		attribute.setDefaultValue(property.getValue() == null ? null : property.getValue().toString());
@@ -327,7 +333,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (formValue == null) {
 			return null;
 		}
-		if(formValue.isConfidental()) {
+		if(formValue.isConfidential()) {
 			return new org.identityconnectors.common.security.GuardedString(formValue.getValue().toString().toCharArray());
 		}
 		return formValue.getValue();

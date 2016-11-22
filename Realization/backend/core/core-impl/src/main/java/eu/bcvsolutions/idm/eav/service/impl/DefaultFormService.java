@@ -92,7 +92,7 @@ public class DefaultFormService implements FormService {
 			value.setOwner(owner);
 			// set attribute values
 			value.setPersistentType(value.getFormAttribute().getPersistentType());
-			value.setConfidental(value.getFormAttribute().isConfidental());
+			value.setConfidential(value.getFormAttribute().isConfidential());
 			// set created and creator
 			// TODO: fix created and creator audit handler
 			if (value.getId() != null) {

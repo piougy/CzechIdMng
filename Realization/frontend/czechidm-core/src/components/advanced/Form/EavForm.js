@@ -8,6 +8,7 @@ import * as Basic from '../../basic';
  * TODO:
  * - multiple attributes
  * - textarea, richtextarea, date, datetime, long, double, currency attribute types (and appropriate validation)
+ * - guarded string for confidential attributes
  */
 export default class EavForm extends Basic.AbstractContextComponent {
 
@@ -64,8 +65,15 @@ export default class EavForm extends Basic.AbstractContextComponent {
       }
       // set value by persistent type
       switch (attribute.persistentType) {
-        case 'TEXT': {
+        case 'CHAR':
+        case 'TEXT':
+        case 'TEXTAREA': {
           formValue.stringValue = formComponent.getValue();
+          break;
+        }
+        case 'INT':
+        case 'LONG': {
+          formValue.longValue = formComponent.getValue();
           break;
         }
         case 'BOOLEAN': {
@@ -101,14 +109,28 @@ export default class EavForm extends Basic.AbstractContextComponent {
           formInstance.getAttributes().map(attribute => {
             const formValue = formInstance.getSingleValue(attribute.name);
             // text field
-            if (attribute.persistentType === 'TEXT') {
+            if (attribute.persistentType === 'TEXT' || attribute.persistentType === 'INT' || attribute.persistentType === 'LONG' || attribute.persistentType === 'CHAR') {
               return (
                 <Basic.TextField
                   ref={attribute.name}
+                  type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
                   label={attribute.displayName}
-                  value={formValue ? formValue.stringValue : null}
-                  helpBlock={attribute.description}/>
+                  value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
+              );
+            }
+            // textarea field
+            if (attribute.persistentType === 'TEXTAREA') {
+              return (
+                <Basic.TextArea
+                  ref={attribute.name}
+                  required={attribute.required}
+                  label={attribute.displayName}
+                  value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
               );
             }
             // boolean field - boolean can not be multiple
@@ -118,7 +140,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   ref={attribute.name}
                   label={attribute.displayName}
                   value={formValue ? formValue.booleanValue : (attribute.defaultValue === 'true')}
-                  helpBlock={attribute.description}/>
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
               );
             }
             return (

@@ -198,7 +198,7 @@ public class ConnIdIcfConvertUtil {
 		}
 		if (icfAttribute instanceof IcfPasswordAttribute) {
 			return AttributeBuilder.buildPassword(((IcfPasswordAttribute) icfAttribute).getPasswordValue() != null
-					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : null);
+					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : "".toCharArray());
 		}
 		if (icfAttribute instanceof IcfLoginAttribute) {
 			return new Name((String) icfAttribute.getValue());

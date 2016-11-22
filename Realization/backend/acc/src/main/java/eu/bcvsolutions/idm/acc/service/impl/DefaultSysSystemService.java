@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -75,6 +77,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
 	}
+	
+	@Autowired
+	DataSource dataSource;
 
 	@Autowired
 	public DefaultSysSystemService(

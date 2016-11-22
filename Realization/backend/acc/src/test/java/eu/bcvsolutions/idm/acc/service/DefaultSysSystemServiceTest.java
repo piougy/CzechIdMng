@@ -168,5 +168,6 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 			}
 		};		
 		assertEquals(Integer.valueOf(3), checked);
-	}	
+	}
+
 }

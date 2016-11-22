@@ -2,10 +2,14 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
+import eu.bcvsolutions.idm.security.domain.GuardedString;
 
 public interface SysProvisioningService {
 
@@ -24,7 +28,6 @@ public interface SysProvisioningService {
 	void deleteAccount(AccAccount account);
 	
 	/**
-	 * TODO: Change only for selected accounts, now is password changed on all accounts
 	 * 
 	 * Change password for selected identity accounts.
 	 * @param identity
@@ -43,5 +46,26 @@ public interface SysProvisioningService {
 	 */
 	void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system, 
 			AccountOperationType operationType, SystemEntityType entityType);
+
+	
+	/**
+	 * Do authenticate check for given identityAccount on target resource. Username for check is get from account (attribute UID) linked in identityAccount.
+	 * @param identityAccount
+	 * @param system
+	 * @return
+	 */
+	IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system);
+	
+	/**
+	 * Do authenticate check for given username and password on target resource
+	 * @param username
+	 * @param password
+	 * @param system
+	 * @param operationType
+	 * @param entityType
+	 * @return
+	 */
+	IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+			SystemOperationType operationType, SystemEntityType entityType);
 	
 }

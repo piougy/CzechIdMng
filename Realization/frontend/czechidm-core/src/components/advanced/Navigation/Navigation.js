@@ -218,8 +218,8 @@ export class Navigation extends Basic.AbstractContextComponent {
       { 'nav-second-level': level === 2 },
       { 'nav-third-level': level === 3 },
       { 'hidden': (level > 3 || (navigationCollapsed && level > 1)) }, // only three levels are supported
-      { 'in': ((selectedNavigationItems.length > level - 1) && (selectedNavigationItems[level - 2] === parentId)) },
-      { 'collapse': (parentId && !this._isSelected(selectedNavigationItems, parentId) && (selectedNavigationItems.length > level - 1) && (selectedNavigationItems[level - 2] !== parentId)) }
+      { 'in': (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) === parentId },
+      { 'collapse': parentId && !this._isSelected(selectedNavigationItems, parentId) && (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) !== parentId }
     );
     return (
       <ul

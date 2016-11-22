@@ -39,7 +39,6 @@ class SystemDetail extends Basic.AbstractContent {
     data.host = 'local';
     this.refs.form.setData(data);
     this.refs.name.focus();
-    this.context.store.dispatch(this.manager.fetchAvailableFrameworks());
   }
 
   save(afterAction, event) {
@@ -123,7 +122,7 @@ class SystemDetail extends Basic.AbstractContent {
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'} showLoading={!availableFrameworks}>
+          <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>

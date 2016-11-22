@@ -61,9 +61,9 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	
 	@NotNull
 	@Audited
-	@Column(name = "confidental", nullable = false)
+	@Column(name = "confidential", nullable = false)
 	@JsonProperty(access = Access.READ_ONLY)
-	private boolean confidental;
+	private boolean confidential;
 
 	@Audited
 	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
@@ -104,7 +104,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		//
 		this.formAttribute = formAttribute;
 		this.persistentType = formAttribute.getPersistentType();
-		this.confidental = formAttribute.isConfidental();
+		this.confidential = formAttribute.isConfidential();
 	}
 
 	/**
@@ -330,11 +330,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.dateValue = dateValue;
 	}
 	
-	public boolean isConfidental() {
-		return confidental;
+	public boolean isConfidential() {
+		return confidential;
 	}
 	
-	public void setConfidental(boolean confidental) {
-		this.confidental = confidental;
+	public void setConfidential(boolean confidential) {
+		this.confidential = confidential;
 	}
 }

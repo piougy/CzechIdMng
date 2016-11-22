@@ -8,7 +8,7 @@ import * as Basic from '../../basic';
  * TODO:
  * - multiple attributes
  * - textarea, richtextarea, date, datetime, long, double, currency attribute types (and appropriate validation)
- * - guarded string for confidental attributes
+ * - guarded string for confidential attributes
  */
 export default class EavForm extends Basic.AbstractContextComponent {
 
@@ -113,7 +113,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
               return (
                 <Basic.TextField
                   ref={attribute.name}
-                  type={attribute.confidental ? 'password' : 'text'}
+                  type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
                   label={attribute.displayName}
                   value={formValue ? formValue.stringValue : null}

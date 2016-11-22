@@ -90,8 +90,8 @@ public class IdmFormAttribute extends AbstractEntity {
 	private boolean readonly;
 	
 	@NotNull
-	@Column(name = "confidental", nullable = false)
-	private boolean confidental;
+	@Column(name = "confidential", nullable = false)
+	private boolean confidential;
 	
 	@Max(99999)
 	@Column(name = "seq")
@@ -251,12 +251,12 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * If attribute value is secured (password, token, etc.)
 	 * @return
 	 */
-	public boolean isConfidental() {
-		return confidental;
+	public boolean isConfidential() {
+		return confidential;
 	}
 
-	public void setConfidental(boolean confidental) {
-		this.confidental = confidental;
+	public void setConfidential(boolean confidential) {
+		this.confidential = confidential;
 	}
 	
 	/**

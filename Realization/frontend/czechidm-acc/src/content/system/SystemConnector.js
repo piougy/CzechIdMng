@@ -50,7 +50,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
       event.preventDefault();
     }
     if (!this.refs.eav.isValid()) {
-      this.addMessage({ level: 'warning', message: this.i18n('fuj') });
       return;
     }
     //

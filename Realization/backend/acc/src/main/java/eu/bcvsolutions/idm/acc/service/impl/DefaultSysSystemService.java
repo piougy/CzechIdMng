@@ -312,7 +312,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		attribute.setDisplayName(property.getDisplayName());
 		attribute.setDescription(property.getHelpMessage());			
 		attribute.setPersistentType(convertPropertyType(property.getType()));
-		attribute.setConfidental(property.isConfidential());
+		attribute.setConfidential(property.isConfidential());
 		attribute.setRequired(property.isRequired());
 		attribute.setMultiple(isMultipleProperty(property.getType()));	
 		attribute.setDefaultValue(property.getValue() == null ? null : property.getValue().toString());
@@ -328,7 +328,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (formValue == null) {
 			return null;
 		}
-		if(formValue.isConfidental()) {
+		if(formValue.isConfidential()) {
 			return new org.identityconnectors.common.security.GuardedString(formValue.getValue().toString().toCharArray());
 		}
 		return formValue.getValue();

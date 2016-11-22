@@ -116,8 +116,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
                   label={attribute.displayName}
-                  value={formValue ? formValue.stringValue : null}
-                  helpBlock={attribute.description}/>
+                  value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
               );
             }
             // textarea field
@@ -127,8 +128,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   ref={attribute.name}
                   required={attribute.required}
                   label={attribute.displayName}
-                  value={formValue ? formValue.stringValue : null}
-                  helpBlock={attribute.description}/>
+                  value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
               );
             }
             // boolean field - boolean can not be multiple
@@ -138,7 +140,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   ref={attribute.name}
                   label={attribute.displayName}
                   value={formValue ? formValue.booleanValue : (attribute.defaultValue === 'true')}
-                  helpBlock={attribute.description}/>
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}/>
               );
             }
             return (

@@ -523,7 +523,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			String objectClassName, IcfAttribute icfAttribute) {
 
 		Object icfValue = icfAttribute != null ? icfAttribute.getValue() : null;
-		Object icfValueTransformed = attributeHandlingService.transformValueFromSystem(icfValue, attributeHandling);
+		Object icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValue, attributeHandling);
 
 		try {
 			Object idmValue = null;
@@ -560,15 +560,15 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	 * @return
 	 */
 	private IcfAttribute createIcfAttribute(SysSchemaAttributeHandling attributeHandling, Object idmValue) {
-		Object idmValueTransformed = attributeHandlingService.transformValueToSystem(idmValue, attributeHandling);
+		Object idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling);
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {
 			Class<?> classType = Class.forName(schemaAttribute.getClassType());
-			if(idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))){
+			if(idmValueTransformed != null && !(classType.isAssignableFrom(idmValueTransformed.getClass()))){
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 						ImmutableMap.of("attribute", attributeHandling.getIdmPropertyName(), "schemaAttributeType",
-								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
+								schemaAttribute.getClassType(), "valueType", idmValueTransformed.getClass().getName()));
 			}
 		} catch (ClassNotFoundException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
@@ -578,7 +578,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		IcfAttribute icfAttributeForUpdate  = null;
 		if(IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())){
 			// Attribute is password type
-			icfAttributeForUpdate = new IcfPasswordAttributeImpl((GuardedString) idmValue);
+			icfAttributeForUpdate = new IcfPasswordAttributeImpl((GuardedString) idmValueTransformed);
 			
 		} else {
 			icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(),

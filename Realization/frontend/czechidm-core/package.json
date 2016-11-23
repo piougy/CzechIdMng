@@ -64,6 +64,7 @@
     "normalize.less": "1.0.0",
     "object-assign": "4.0.1",
     "react": "^15.1.0",
+    "react-ace": "^4.1.0",
     "react-bootstrap": "0.29.0",
     "react-dom": "15.0.1",
     "react-dropzone": "3.5.0",

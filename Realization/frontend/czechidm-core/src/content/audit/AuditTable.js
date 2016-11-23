@@ -161,13 +161,13 @@ export class AuditTable extends Basic.AbstractContent {
     );
   }
 
-  _getDefaultSearchParameters() {
+  _getForceSearchParameters() {
     const { entityId, entityClass } = this.props;
 
     if (entityId !== undefined || entityClass !== undefined) {
       return auditManager.getDefaultSearchParameters().setFilter('type', entityClass).setFilter('entityId', entityId);
     }
-    return auditManager.getDefaultSearchParameters();
+    return null;
   }
 
   render() {
@@ -179,7 +179,7 @@ export class AuditTable extends Basic.AbstractContent {
           ref="table"
           uiKey={tableUiKey}
           manager={auditManager}
-          defaultSearchParameters={this._getDefaultSearchParameters()}
+          forceSearchParameters={this._getForceSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             !auditedEntities

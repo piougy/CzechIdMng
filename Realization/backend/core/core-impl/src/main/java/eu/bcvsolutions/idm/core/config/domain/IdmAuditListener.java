@@ -74,7 +74,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
      	revisionEntity.setModifier(securityService.getUsername());
      	// original modifier before switch
      	revisionEntity.setOriginalModifier(securityService.getOriginalUsername());
-     	// entity id TODO: link from collection to master.
+     	// entity id
      	revisionEntity.setEntityId((UUID)entityId);
 	}
 	

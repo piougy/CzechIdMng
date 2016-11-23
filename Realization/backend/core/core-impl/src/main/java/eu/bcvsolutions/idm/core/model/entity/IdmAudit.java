@@ -53,7 +53,6 @@ public class IdmAudit implements BaseEntity {
 	@RevisionNumber
 	private Long id;
 	
-	@JsonIgnore
 	@RevisionTimestamp
 	private long timestamp;
 	

@@ -161,7 +161,7 @@ export class AuditTable extends Basic.AbstractContent {
     );
   }
 
-  _getForceSearchParameters() {
+  _getDefaultSearchParameters() {
     const { entityId, entityClass } = this.props;
 
     if (entityId !== undefined || entityClass !== undefined) {
@@ -179,7 +179,7 @@ export class AuditTable extends Basic.AbstractContent {
           ref="table"
           uiKey={tableUiKey}
           manager={auditManager}
-          forceSearchParameters={this._getForceSearchParameters()}
+          defaultSearchParameters={this._getDefaultSearchParameters()}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             !auditedEntities
@@ -222,7 +222,7 @@ export class AuditTable extends Basic.AbstractContent {
               }}
           />
           <Advanced.Column property="modifier" sort face="text" rendered={_.includes(columns, 'modifier')}/>
-          <Advanced.Column property="revisionDate" sort face="datetime" rendered={_.includes(columns, 'revisionDate')}/>
+          <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime" rendered={_.includes(columns, 'revisionDate')}/>
           <Advanced.Column
             property="changedAttributes"
             rendered={_.includes(columns, 'changedAttributes')}

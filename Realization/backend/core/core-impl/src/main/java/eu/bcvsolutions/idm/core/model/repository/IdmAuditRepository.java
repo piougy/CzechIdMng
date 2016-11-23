@@ -57,7 +57,7 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 					+ " AND "
 					+ "("
 						+ "?#{[0].type} IS null "
-						+ "OR lower(e.type) like ?#{[0].type == null ? '%' : '%'.concat([0].type.toLowerCase()).concat('%')} "
+						+ "OR lower(e.type) like ?#{[0].type == null ? '%' : '%'.concat([0].type.toLowerCase())} "
 					+ ")" )
 	Page<IdmAudit> find(AuditFilter filter, Pageable pageable);
 }

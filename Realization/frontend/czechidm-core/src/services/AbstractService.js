@@ -205,7 +205,7 @@ export default class AbstractService {
       _searchParameters = _searchParameters.setSize(newSearchParameters.getSize());
     }
     // override name
-    if (newSearchParameters.getName() !== SearchParameters.NAME_QUICK) {
+    if (newSearchParameters.getName() !== null && newSearchParameters.getName() !== SearchParameters.NAME_QUICK) {
       _searchParameters = _searchParameters.setName(newSearchParameters.getName());
     }
     return _searchParameters;

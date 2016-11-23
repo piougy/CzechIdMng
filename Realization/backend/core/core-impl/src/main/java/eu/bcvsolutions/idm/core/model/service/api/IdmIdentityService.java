@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Operations with IdmIdentity
@@ -20,6 +21,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, IdentityFilter>, IdentifiableByNameEntityService<IdmIdentity> {
+	
+	static final String PASSWORD_CONFIDENTIAL_PROPERTY = "idm:password";
 	
 	/**
 	 * Returns identity by given username
@@ -85,4 +88,12 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @return
 	 */
 	List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType);
+	
+	/**
+	 * Returns identity's password
+	 * 
+	 * @param forIdentity
+	 * @return
+	 */
+	GuardedString getPassword(IdmIdentity identity);
 }

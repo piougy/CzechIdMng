@@ -20,6 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfidentialStorage;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -48,7 +49,8 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	
 	@After
 	public void clearData() {
-		repository.deleteAll();
+		repository.deleteByKey(STORAGE_KEY_ONE);
+		repository.deleteByKey(STORAGE_KEY_TWO);
 	}
 	
 	@Test
@@ -198,9 +200,7 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		String value = "one";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, value);
 
-		Integer readValue = confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class);
-		
-		assertEquals(value, readValue);
+		confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class);
 	}
 	
 	@Test
@@ -214,5 +214,29 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		Integer readValue = confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class, defaultValue);
 		
 		assertEquals(defaultValue, readValue);
+	}
+	
+	@Test
+	public void testLoadUnexistedValueWithDefault() {
+		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+
+		assertNull(confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class));
+		
+		Integer defaultValue = 10;
+		Integer readValue = confidentalStorage.get(identity, STORAGE_KEY_ONE, Integer.class, defaultValue);
+		
+		assertEquals(defaultValue, readValue);
+	}
+	
+	@Test
+	public void testGuardedString() {
+		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
+		
+		String password = "heslo";
+		confidentalStorage.save(identity, STORAGE_KEY_ONE, new GuardedString(password).asString());
+		
+		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, STORAGE_KEY_ONE);
+		
+		assertEquals(password, savedPassword.asString());
 	}
 }

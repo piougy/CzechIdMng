@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * "Naive" confidential storage. Values are persisted in standard database.
@@ -34,6 +35,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		this.repository = repository;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public <O extends AbstractEntity> void save(O owner, String key, Serializable values) {
@@ -54,6 +58,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		repository.save(storage);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public <O extends AbstractEntity> void delete(O owner, String key) {
@@ -66,17 +73,22 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends AbstractEntity> Serializable get(O owner, String key) {
 		Assert.notNull(owner);
 		Assert.hasLength(key);
 		//
-		IdmConfidentialStorageValue storage = getStorageValue(owner, key);
-		return storage == null ? null : fromStorageValue(storage.getValue());
+		IdmConfidentialStorageValue storageValue = getStorageValue(owner, key);
+		return storageValue == null ? null : fromStorageValue(storageValue.getValue());
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType) throws IllegalArgumentException {
@@ -93,16 +105,33 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType, T defaultValue) {
 		try {
-			return get(owner, key, valueType);
+			T value = get(owner, key, valueType);
+			return value != null ? value : defaultValue;
 		} catch(IllegalArgumentException ex) {
 			LOG.debug(MessageFormat.format("Storage value [{0}] could not be cast to type [{1}], returning default value", key, valueType), ex);
 			return defaultValue;
 		}
 	} 
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public <O extends AbstractEntity> GuardedString getGuardedString(O owner, String key) {
+		Serializable storageValue = get(owner, key);
+		if (storageValue == null) {
+			return new GuardedString();
+		}
+		return new GuardedString(storageValue.toString());
+	}
 	
 	
 	/**
@@ -133,6 +162,9 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 * @return
 	 */
 	private Serializable fromStorageValue(byte[] value) {
+		if (value == null) {
+			return null;
+		}
 	    return SerializationUtils.deserialize(value);
 	}
 

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.service;
+package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
 import java.util.UUID;
@@ -7,7 +7,7 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 
@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
  * TODO: Pageable method to find all revisions
  */
 
-public interface IdmAuditService extends ReadEntityService<IdmAudit, AuditFilter> {
+public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditFilter> {
 	
 	/**
 	 * Method find one revision by class type of entity, id revision and id identity.

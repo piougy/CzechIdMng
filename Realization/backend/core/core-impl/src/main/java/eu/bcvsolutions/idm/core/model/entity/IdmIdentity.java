@@ -94,14 +94,12 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

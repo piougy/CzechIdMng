@@ -58,7 +58,6 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

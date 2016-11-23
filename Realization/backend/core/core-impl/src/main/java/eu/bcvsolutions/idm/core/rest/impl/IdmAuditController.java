@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
 @RestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/audits")

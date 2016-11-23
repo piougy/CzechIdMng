@@ -27,11 +27,11 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadEntityService;
+import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.repository.IdmAuditRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 
 /**
  * Implementation of service for auditing
@@ -40,7 +40,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
  *
  */
 @Service
-public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, AuditFilter> implements IdmAuditService {
+public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit, AuditFilter> implements IdmAuditService {
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -115,7 +115,12 @@ public class DefaultAuditService extends AbstractReadEntityService<IdmAudit, Aud
 	public <T> List<String> getNameChangedColumns(Class<T> entityClass, UUID entityId, Long currentRevId,
 			T currentEntity) {
 		List<String> changedColumns = new ArrayList<>();
-		T previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
+		
+		T previousEntity = null;
+		if (currentRevId == null) {
+			currentRevId = this.getLastVersionNumber(entityClass, entityId).longValue();
+		}
+		previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
 		
 		if (previousEntity == null) {
 			return changedColumns;

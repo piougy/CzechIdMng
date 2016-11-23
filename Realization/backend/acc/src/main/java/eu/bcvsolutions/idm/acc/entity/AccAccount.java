@@ -77,7 +77,6 @@ public class AccAccount extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysRoleSystem roleSystem;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
 	private List<AccIdentityAccount> identityAccounts;

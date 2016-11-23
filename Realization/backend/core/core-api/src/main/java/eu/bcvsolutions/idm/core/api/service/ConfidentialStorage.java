@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Persists abstract entity's confidential informations (passwords, token etc.)
@@ -60,4 +61,13 @@ public interface ConfidentialStorage {
 	 * @return
 	 */
 	<O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType, T defaultValue);
+	
+	/**
+	 * Get value by owner and key as {@GuardedString}. Raw Serializable value is transformed toString internally. If value
+	 * 
+	 * @param owner
+	 * @param key
+	 * @return
+	 */
+	<O extends AbstractEntity> GuardedString getGuardedString(O owner, String key);
 }

@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
 import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 public interface IcfConnectorFacade {
 	

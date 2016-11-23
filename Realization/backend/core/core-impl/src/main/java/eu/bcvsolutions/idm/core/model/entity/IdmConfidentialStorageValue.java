@@ -5,7 +5,6 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -50,7 +49,6 @@ public class IdmConfidentialStorageValue extends AbstractEntity {
 	@Column(name = "storage_key", length = DefaultFieldLengths.NAME, nullable = false)
 	private String key;
 	
-	@Lob
 	@Column(name = "storage_value", length = Integer.MAX_VALUE - 1)
 	private byte[] value;
 

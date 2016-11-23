@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -94,6 +95,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	DataSource dataSource;
+	
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
 
 	@Before
 	public void init() {
@@ -165,7 +169,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		// Check incorrect password
 		try {
-			accountIdentityOne.getIdentity().setPassword(IDENTITY_PASSWORD_TWO.getBytes());
+			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY, IDENTITY_PASSWORD_TWO);
 			provisioningService.authenticate(accountIdentityOne, system);
 			fail("Bad credentials exception is expected here!");
 		} catch (ResultCodeException ex) {

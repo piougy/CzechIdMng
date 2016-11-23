@@ -17,14 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default implementation finds configuration in database, if configuration for
@@ -40,11 +40,18 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfigurationService.class);
 
+	private final IdmConfigurationRepository configurationRepository;
+	private final ConfigurableEnvironment env; // TODO: optional
+	
 	@Autowired
-	private ConfigurableEnvironment env;
-
-	@Autowired
-	private IdmConfigurationRepository configurationRepository;
+	public DefaultIdmConfigurationService(
+			ConfigurableEnvironment env, 
+			IdmConfigurationRepository configurationRepository) {
+		Assert.notNull(configurationRepository);
+		//
+		this.configurationRepository = configurationRepository;
+		this.env = env; // TODO: optional
+	}
 	
 	@Override
 	protected AbstractEntityRepository<IdmConfiguration, QuickFilter> getRepository() {
@@ -65,28 +72,31 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	
 	@Override
 	@Transactional
-	public void setValue(String key, String value) {
+	public void saveValue(String key, String value) {
 		Assert.hasText(key);
 		//
-		IdmConfiguration configuration = configurationRepository.get(key);
-		if (configuration == null) {
-			configuration = new IdmConfiguration(key, value);
-		} else {
-			configuration.setValue(value);
-		}		
-		setConfiguration(configuration);
+		saveConfiguration(new ConfigurationDto(key, value));
 	}
 	
 	@Override
 	@Transactional
-	public void setConfiguration(IdmConfiguration configuration) {
+	public void saveConfiguration(ConfigurationDto configuration) {
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
 		//
-		if (shouldBeSecured(configuration.getName())) {
-			configuration.setSecured(true);
+		IdmConfiguration configurationEntity = configurationRepository.get(configuration.getName());
+		if (configurationEntity == null) {
+			configurationEntity = new IdmConfiguration(configuration.getName(), configuration.getValue(), configuration.isSecured());
+		} else {
+			configurationEntity.setValue(configuration.getValue());
+			configurationEntity.setSecured(configuration.isSecured());
 		}
-		configurationRepository.save(configuration);
+		// check secured option
+		if (shouldBeSecured(configurationEntity.getName())) {
+			configurationEntity.setSecured(true);
+		}
+		//
+		configurationRepository.save(configurationEntity);
 	}
 	
 	@Override
@@ -128,7 +138,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional
 	public void setBooleanValue(String key, boolean value) {
-		setValue(key, Boolean.valueOf(value).toString());
+		saveValue(key, Boolean.valueOf(value).toString());
 	}
 	
 	@Override

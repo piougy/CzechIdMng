@@ -228,10 +228,10 @@ public class ConnIdIcfConvertUtil {
 			return new IcfLoginAttributeImpl(Name.NAME, (String) attribute.getValue().get(0));
 		}
 		if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
-			eu.bcvsolutions.idm.security.domain.GuardedString password = null;
+			eu.bcvsolutions.idm.security.api.domain.GuardedString password = null;
 			if (attribute.getValue() != null && attribute.getValue().size() == 1
 					&& attribute.getValue().get(0) instanceof GuardedString) {
-				password = new eu.bcvsolutions.idm.security.domain.GuardedString(
+				password = new eu.bcvsolutions.idm.security.api.domain.GuardedString(
 						((GuardedString) attribute.getValue().get(0)).toString());
 			}
 			return new IcfPasswordAttributeImpl(password);
@@ -360,7 +360,7 @@ public class ConnIdIcfConvertUtil {
 			if (GuardedString.class.isAssignableFrom(attribute.getType())) {
 				// We do converse between BCV GuardedString and ConnId
 				// GuardedString
-				icfAttribute.setClassType(eu.bcvsolutions.idm.security.domain.GuardedString.class.getName());
+				icfAttribute.setClassType(eu.bcvsolutions.idm.security.api.domain.GuardedString.class.getName());
 			} else {
 				icfAttribute.setClassType(attribute.getType().getName());
 			}

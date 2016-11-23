@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.icf.impl;
 import java.util.ArrayList;
 
 import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 
 public class IcfPasswordAttributeImpl extends IcfAttributeImpl implements IcfPasswordAttribute {

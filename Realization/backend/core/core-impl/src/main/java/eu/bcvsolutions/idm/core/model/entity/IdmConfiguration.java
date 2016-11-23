@@ -50,6 +50,11 @@ public class IdmConfiguration extends AbstractEntity implements IdentifiableByNa
 		this.name = name;
 		this.value = value;
 	}
+	
+	public IdmConfiguration(String name, String value, boolean secured) {
+		this(name, value);
+		this.secured = secured;		
+	}
 
 	@Override
 	public String getName() {

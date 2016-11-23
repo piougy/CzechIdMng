@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.icf.api;
 
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Attribute keep password value

@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -32,11 +33,13 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 @Service
 public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
 	@Autowired
@@ -57,13 +60,19 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
 	
+	private final ConfidentialStorage confidentialStorage;
+	
 	// TODO MOCKUP
 	@Autowired(required = false)
 	private IdmProvisioningService provisioningService;
 	
 	@Autowired
-	public DefaultIdmIdentityService(FormService formService) {
+	public DefaultIdmIdentityService(FormService formService, ConfidentialStorage confidentialStorage) {
 		super(formService);
+		//
+		Assert.notNull(confidentialStorage);
+		//
+		this.confidentialStorage = confidentialStorage;
 	}
 	
 	@Override
@@ -202,25 +211,24 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	/**
 	 * Changes given identity's password
 	 * 
-	 * TODO: propagate password change to other systems
-	 * 
 	 * @param identity
 	 * @param passwordChangeDto
 	 */
 	@Override
 	@Transactional
 	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
-		if (!securityService.isAdmin() && !StringUtils
-				.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+		if (!securityService.isAdmin()) {
+			// previous password check
+			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
+			if(!StringUtils.equals(new String(idmPassword.asString()), new String(passwordChangeDto.getOldPassword()))) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+			}
 		}
-		identity.setPassword(passwordChangeDto.getNewPassword());
-		identityRepository.save(identity);
+		savePassword(identity, new GuardedString(passwordChangeDto.getNewPassword()));
 		// MOCKUP TODO
 		if(provisioningService != null){
 			provisioningService.changePassword(identity, passwordChangeDto);
-		}
-		
+		}		
 	}
 	
 	/**
@@ -235,12 +243,18 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Override
 	@Transactional
 	public IdmIdentity save(IdmIdentity entity) {
-		IdmIdentity identity =  super.save(entity);
+		byte[] password = entity.getPassword();
+		
+		entity = super.save(entity);
+		// save password to confidential storage
+		if (password != null && password.length > 0) {
+			savePassword(entity, new GuardedString(password));
+		}
 		// MOCKUP TODO
 		if(provisioningService != null){
-			provisioningService.doIdentityProvisioning(identity);
+			provisioningService.doIdentityProvisioning(entity);
 		}
-		return identity;
+		return entity;
 	}
 	
 	@Override
@@ -252,5 +266,28 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		identityContractRepository.deleteByIdentity(identity);
 		//
 		super.delete(identity);
+	}
+
+	/**
+	 * Loads password from confidential storage
+	 */
+	@Override
+	public GuardedString getPassword(IdmIdentity identity) {
+		Assert.notNull(identity);
+		//
+		GuardedString password = confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
+		System.out.println("get: " + password.asString());
+		return password;
+	}
+	
+	/**
+	 * Saves identity's password to confidential storage
+	 * 
+	 * @param identity
+	 * @param newPassword
+	 */
+	private void savePassword(IdmIdentity identity, GuardedString newPassword) {
+		LOG.debug("Saving password for identity [{}] to configental storage under key [{}]", identity.getUsername(), PASSWORD_CONFIDENTIAL_PROPERTY);
+		confidentialStorage.save(identity, PASSWORD_CONFIDENTIAL_PROPERTY, newPassword.asString());
 	}
 }

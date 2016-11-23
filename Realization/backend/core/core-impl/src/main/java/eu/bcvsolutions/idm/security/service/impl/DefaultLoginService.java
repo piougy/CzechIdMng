@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.jwt.JwtHelper;
@@ -15,8 +13,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
@@ -27,7 +26,7 @@ import eu.bcvsolutions.idm.security.service.LoginService;
 @Service
 public class DefaultLoginService implements LoginService {
 
-	private static final Logger log = LoggerFactory.getLogger(DefaultLoginService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
 	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.core.security.jwt.expirationTimeout";
 	public static final int DEFAULT_EXPIRATION_TIMEOUT = 36000000;
 	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.core.security.jwt.secret.token";
@@ -37,7 +36,7 @@ public class DefaultLoginService implements LoginService {
 //	private PasswordEncoder passwordEncoder;
 
 	@Autowired
-	private IdmIdentityRepository idmIdentityRepository;
+	private IdmIdentityService identityService;
 
 	@Autowired
 	@Qualifier("objectMapper")
@@ -51,14 +50,14 @@ public class DefaultLoginService implements LoginService {
 
 	@Override
 	public LoginDto login(String username, String password) {
-		log.info("Identity with username [{}] authenticating", username);
+		LOG.info("Identity with username [{}] authenticating", username);
 
 		if (!validate(username, password)) {
-			log.debug("Username or password for identity [{}] is not correct!", username);			
+			LOG.debug("Username or password for identity [{}] is not correct!", username);			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity password: Failed for identity {0} because the password digests differ.", username));
 		}
 
-		log.info("Identity with username [{}] is authenticated", username);
+		LOG.info("Identity with username [{}] is authenticated", username);
 
 		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
@@ -82,15 +81,19 @@ public class DefaultLoginService implements LoginService {
 	}
 
 	private boolean validate(String username, String password) {
-		IdmIdentity identity = idmIdentityRepository.findOneByUsername(username);
+		IdmIdentity identity = identityService.getByUsername(username);
 		if (identity == null) {			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
 		}
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.",  username ));
 		}
-
-		if (password.equals(new String(identity.getPassword()))) {
+		GuardedString idmPassword = identityService.getPassword(identity);
+		if (idmPassword == null) {
+			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
+			return false;
+		}
+		if (password.equals(new String(idmPassword.asString()))) {
 			return true;
 		}
 		return false;

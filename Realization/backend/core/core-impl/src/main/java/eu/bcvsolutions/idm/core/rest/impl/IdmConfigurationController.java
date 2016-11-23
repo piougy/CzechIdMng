@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;;
 
@@ -33,7 +33,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	
 	@Autowired
 	public IdmConfigurationController(EntityLookupService entityLookupService, IdmConfigurationService configurationService) {
-		super(entityLookupService, configurationService);
+		super(entityLookupService);
 		this.configurationService = configurationService;
 	}
 	

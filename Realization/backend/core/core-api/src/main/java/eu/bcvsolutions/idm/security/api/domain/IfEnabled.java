@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
  *
  * @see ModuleDescriptor
  * @see ModuleService
- * @see IdmConfigurationService
+ * @see ConfigurationService
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -51,7 +51,7 @@ public @interface IfEnabled {
 	/**
 	 * configuration property value
 	 * 
-	 * @see IdmConfigurationService
+	 * @see ConfigurationService
 	 * 
 	 * @return
 	 */

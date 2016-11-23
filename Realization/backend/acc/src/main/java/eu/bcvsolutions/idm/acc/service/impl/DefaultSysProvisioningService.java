@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -72,7 +73,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	private final IcfConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private final AccIdentityAccountService identityAccoutnService;
-	private final IdmIdentityService identityService;
+	private final ConfidentialStorage confidentialStorage; // TODO: identity service (remove cycle dependencies)
 
 	@Autowired
 	public DefaultSysProvisioningService(
@@ -81,20 +82,20 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			IcfConnectorFacade connectorFacade,
 			SysSystemService systemService, 
 			AccIdentityAccountService identityAccoutnService, 
-			IdmIdentityService identityService) {
+			ConfidentialStorage confidentialStorage) {
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(identityAccoutnService);
-		Assert.notNull(identityService);
+		Assert.notNull(confidentialStorage);
 		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
 		this.identityAccoutnService = identityAccoutnService;
-		this.identityService = identityService;
+		this.confidentialStorage = confidentialStorage;
 	}
 
 	@Override
@@ -209,9 +210,9 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	
 	@Override
 	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
-		GuardedString password = identityService.getPassword(identityAccount.getIdentity());
+		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
 		if (password == null) {
-			password = new GuardedString(); // TOD: empty password or null?
+			password = new GuardedString(); // TODO: empty password or null?
 		}
 		return authenticate(identityAccount.getAccount().getUid(), password
 				, system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);

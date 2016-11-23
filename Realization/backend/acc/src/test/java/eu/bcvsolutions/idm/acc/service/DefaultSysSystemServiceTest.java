@@ -147,6 +147,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
 		//
 		// check all supported data types
+		// TODO: add all supported types
 		Integer checked = 0;
 		for(IcfConfigurationProperty property : connectorConfiguration.getConfigurationProperties().getProperties()) {
 			switch(property.getName()) {

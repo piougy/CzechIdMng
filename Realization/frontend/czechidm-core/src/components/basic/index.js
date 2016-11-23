@@ -39,6 +39,7 @@ import Collapse from './Collapse/Collapse';
 import Tooltip from './Tooltip/Tooltip';
 import Dropzone from './Dropzone/Dropzone';
 import Popover from './Popover/Popover';
+import ScriptArea from './ScriptArea/ScriptArea';
 
 const Components = {
   AbstractComponent,
@@ -95,7 +96,8 @@ const Components = {
   Collapse,
   Tooltip,
   Dropzone,
-  Popover
+  Popover,
+  ScriptArea
 };
 
 Components.version = '0.0.1';

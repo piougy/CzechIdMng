@@ -57,6 +57,8 @@ public enum CoreResultCode implements ResultCode {
 	CONFIGURATION_DISABLED(HttpStatus.BAD_REQUEST, "Configuration [%s] is disabled."),
 	// role
 	ROLE_DELETE_FAILED_IDENTITY_ASSIGNED(HttpStatus.CONFLICT, "Role (%s) cannot be deleted - some identites have role assigned."),
+	// groovy script
+	GROVY_SCRIPT_VALIDATION(HttpStatus.BAD_REQUEST, "Script contains compillation errors"),
 	//
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),

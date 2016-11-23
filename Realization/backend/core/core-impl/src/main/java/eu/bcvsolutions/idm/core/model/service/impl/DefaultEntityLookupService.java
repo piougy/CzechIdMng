@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 @Service
 public class DefaultEntityLookupService implements EntityLookupService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
 	private PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<ReadEntityService<?, ?>, Class<?>> entityServices;
 	
@@ -74,7 +74,7 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	public <E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId) {
 		EntityLookup<E> lookup = getEntityLookup(entityClass);
 		if (lookup == null) {
-			log.warn("Lookup for type [{}] does not found. Entity class is not loadable", entityClass);
+			LOG.warn("Lookup for type [{}] does not found. Entity class is not loadable", entityClass);
 			return null;
 		}
 		return (E)lookup.lookupEntity(entityId);

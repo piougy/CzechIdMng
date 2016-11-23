@@ -38,8 +38,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
@@ -53,7 +55,7 @@ import eu.bcvsolutions.idm.icf.impl.IcfObjectClassImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfPasswordAttributeImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfUidAttributeImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Service for do provisioning or synchronisation or reconciliation
@@ -66,22 +68,34 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 	public static final String PASSWORD_IDM_PROPERTY_NAME = "password";
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
-	private SysSystemEntityHandlingService entityHandlingService;
-	private SysSchemaAttributeHandlingService attributeHandlingService;
-	private IcfConnectorFacade connectorFacade;
-	private SysSystemService systemService;
-	private AccIdentityAccountService identityAccoutnService;
+	private final SysSystemEntityHandlingService entityHandlingService;
+	private final SysSchemaAttributeHandlingService attributeHandlingService;
+	private final IcfConnectorFacade connectorFacade;
+	private final SysSystemService systemService;
+	private final AccIdentityAccountService identityAccoutnService;
+	private final ConfidentialStorage confidentialStorage; // TODO: identity service (remove cycle dependencies)
 
 	@Autowired
-	public DefaultSysProvisioningService(SysSystemEntityHandlingService entityHandlingService,
-			SysSchemaAttributeHandlingService attributeHandlingService, IcfConnectorFacade connectorFacade,
-			SysSystemService systemService, AccIdentityAccountService identityAccoutnService) {
-		super();
+	public DefaultSysProvisioningService(
+			SysSystemEntityHandlingService entityHandlingService,
+			SysSchemaAttributeHandlingService attributeHandlingService,
+			IcfConnectorFacade connectorFacade,
+			SysSystemService systemService, 
+			AccIdentityAccountService identityAccoutnService, 
+			ConfidentialStorage confidentialStorage) {
+		Assert.notNull(entityHandlingService);
+		Assert.notNull(attributeHandlingService);
+		Assert.notNull(connectorFacade);
+		Assert.notNull(systemService);
+		Assert.notNull(identityAccoutnService);
+		Assert.notNull(confidentialStorage);
+		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
 		this.identityAccoutnService = identityAccoutnService;
+		this.confidentialStorage = confidentialStorage;
 	}
 
 	@Override
@@ -196,9 +210,11 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	
 	@Override
 	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
-		IdmIdentity identity = identityAccount.getIdentity();
-		byte[] password = identity.getPassword() != null ? identity.getPassword() : "".getBytes();
-		return authenticate(identityAccount.getAccount().getUid(), new GuardedString(password)
+		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
+		if (password == null) {
+			password = new GuardedString(); // TODO: empty password or null?
+		}
+		return authenticate(identityAccount.getAccount().getUid(), password
 				, system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
 	}
 	

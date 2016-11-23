@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
-import eu.bcvsolutions.idm.security.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 @Service
 /**

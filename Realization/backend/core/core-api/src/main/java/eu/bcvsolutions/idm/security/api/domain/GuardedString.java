@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.domain;
+package eu.bcvsolutions.idm.security.api.domain;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Guarded string used for storing sensitive data.
@@ -35,7 +35,8 @@ public final class GuardedString {
 	 */
 	private byte[] value;
 
-	protected GuardedString() {
+	public GuardedString() {
+		this(new byte[0]);
 	}
 
 	public GuardedString(final String value) {
@@ -118,7 +119,7 @@ public final class GuardedString {
 		Assert.notNull(propertyName, "Property name is required");
 		//
 		if(CollectionUtils.containsAny(
-				Arrays.asList(propertyName.split(IdmConfigurationService.SPLIT_PROPERTY_SEPARATOR)), 
+				Arrays.asList(propertyName.split(ConfigurationService.SPLIT_PROPERTY_SEPARATOR)),
 				Arrays.asList(GuardedString.GUARDED_PROPERTY_NAMES))) {
 			return true;
 		}

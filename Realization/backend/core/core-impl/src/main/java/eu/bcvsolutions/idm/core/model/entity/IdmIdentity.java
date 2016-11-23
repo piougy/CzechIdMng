@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -44,9 +45,9 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
 	private String username;
 
-	@JsonProperty(access = Access.WRITE_ONLY)
+	@Transient // passwords are saved to confidental storage
 	@Size(max = DefaultFieldLengths.PASSWORD)
-	@Column(name = "password", length = DefaultFieldLengths.PASSWORD)
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private byte[] password;
 
 	@Audited

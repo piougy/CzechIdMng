@@ -20,11 +20,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -39,17 +39,17 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
 @Component("initApplicationData")
 public class InitApplicationData implements ApplicationListener<ContextRefreshedEvent> {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitApplicationData.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitApplicationData.class);
 	public static final String ADMIN_USERNAME = "admin";
 	public static final String ADMIN_PASSWORD = "admin";
 	public static final String ADMIN_ROLE = "superAdminRole";
 	public static final String DEFAULT_TREE_TYPE = "ORGANIZATIONS";
 
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private IdmIdentityService identityService;
 
 	@Autowired
-	private IdmRoleRepository roleRepository;
+	private IdmRoleService roleService;
 
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -76,8 +76,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 		try {
 			//
 			// create super admin role
-			IdmRole existsSuperAdminRole = this.roleRepository.findOneByName(ADMIN_ROLE);
-			if (existsSuperAdminRole == null && this.roleRepository.count() == 0) {
+			IdmRole existsSuperAdminRole = this.roleService.getByName(ADMIN_ROLE);
+			if (existsSuperAdminRole == null && this.roleService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
 				final IdmRole superAdminRole = new IdmRole();
 				superAdminRole.setName(ADMIN_ROLE);
@@ -97,20 +97,20 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 		
 				});
 				superAdminRole.setAuthorities(authorities);
-				existsSuperAdminRole = this.roleRepository.save(superAdminRole);
-				log.info(MessageFormat.format("Super admin Role created [id: {0}]", superAdminRole.getId()));
+				existsSuperAdminRole = this.roleService.save(superAdminRole);
+				LOG.info(MessageFormat.format("Super admin Role created [id: {0}]", superAdminRole.getId()));
 			}
 			//
 			// create super admin
-			IdmIdentity existsSuperAdmin = this.identityRepository.findOneByUsername("admin");
-			if (existsSuperAdmin == null && this.identityRepository.count() == 0) {
+			IdmIdentity existsSuperAdmin = this.identityService.getByUsername("admin");
+			if (existsSuperAdmin == null && this.identityService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
 				IdmIdentity identityAdmin = new IdmIdentity();
 				identityAdmin.setUsername(ADMIN_USERNAME);
 				identityAdmin.setPassword(ADMIN_PASSWORD.getBytes(Charsets.UTF_8));
 				identityAdmin.setLastName("Administrator");
-				identityAdmin = this.identityRepository.save(identityAdmin);
-				log.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
+				identityAdmin = this.identityService.save(identityAdmin);
+				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
 		
 				
 				IdmIdentityRole identityRole = new IdmIdentityRole();

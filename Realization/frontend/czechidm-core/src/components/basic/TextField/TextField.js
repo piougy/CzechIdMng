@@ -10,29 +10,27 @@ class TextField extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
-    this._setMinAndMaxValidation();
   }
 
-  _setMinAndMaxValidation() {
+  getValidationDefinition(required) {
     const { min, max } = this.props;
-    // minimal one must be set or nothing..
-    if (min || max) {
-      let validation = Joi.string();
-      if (min && max) {
-        validation = validation.concat(Joi.string().min(min).max(max));
-      } else if (min) {
-        validation = validation.concat(Joi.string().min(min));
-      } else if (max) {
-        if (!this.props.required) {
-          // if set only max is necessary to set allow null and empty string
-          validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
-        } else {
-          // if set prop required it must not be set allow null or empty string
-          validation = validation.concat(Joi.string().max(max));
-        }
+    let validation = super.getValidationDefinition(min ? true : required);
+
+    if (min && max) {
+      validation = validation.concat(Joi.string().min(min).max(max));
+    } else if (min) {
+      validation = validation.concat(Joi.string().min(min));
+    } else if (max) {
+      if (!required) {
+        // if set only max is necessary to set allow null and empty string
+        validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
+      } else {
+        // if set prop required it must not be set allow null or empty string
+        validation = validation.concat(Joi.string().max(max));
       }
-      this.state = { validation };
     }
+
+    return validation;
   }
 
   getRequiredValidationSchema() {
@@ -52,7 +50,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, labelSpan, label, componentSpan, placeholder, style, required, help } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required, help, helpBlock } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -99,6 +97,11 @@ class TextField extends AbstractFormComponent {
             </span>
           </Tooltip>
           <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
+          {
+            !helpBlock
+            ||
+            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+          }
         </div>
       </div>
     );

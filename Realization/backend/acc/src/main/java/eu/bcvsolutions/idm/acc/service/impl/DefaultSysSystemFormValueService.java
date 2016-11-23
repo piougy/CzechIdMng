@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSystemFormValueRepository;
 import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.eav.service.AbstractFormValueService;
+import eu.bcvsolutions.idm.eav.service.api.AbstractFormValueService;
 
 /**
  * Form values for system entity

@@ -23,6 +23,24 @@ class NotificationDetail extends Basic.AbstractContent {
     return 'content.notification';
   }
 
+  componentDidMount() {
+    const { notification, isNew, userContext } = this.props;
+    let data;
+    if (isNew) {
+      notification.sender = userContext.username;
+      data = { ...notification };
+      this.refs.subject.focus();
+    } else {
+      data = {
+        ...notification,
+        subject: notification.message.subject,
+        textMessage: notification.message.textMessage,
+        htmlMessage: notification.message.htmlMessage
+      };
+    }
+    this.refs.form.setData(data);
+  }
+
   save(event) {
     const { uiKey } = this.props;
 
@@ -69,24 +87,6 @@ class NotificationDetail extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
     this.context.router.replace('audit/notifications/');
-  }
-
-  componentDidMount() {
-    const { notification, isNew, userContext } = this.props;
-    let data;
-    if (isNew) {
-      notification.sender = userContext.username;
-      data = { ...notification };
-      this.refs.subject.focus();
-    } else {
-      data = {
-        ...notification,
-        subject: notification.message.subject,
-        textMessage: notification.message.textMessage,
-        htmlMessage: notification.message.htmlMessage
-      };
-    }
-    this.refs.form.setData(data);
   }
 
   render() {

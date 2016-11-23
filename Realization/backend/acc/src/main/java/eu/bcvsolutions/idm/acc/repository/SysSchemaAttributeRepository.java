@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 @RepositoryRestResource(//
 		collectionResourceRel = "schemaAttributes", //
-		path = "schemaAttributes", //
+		path = "schema-attributes", //
 		itemResourceRel = "schemaAttribute", //
 		excerptProjection = SysSchemaAttributeExcerpt.class, //
 		exported = false // we are using repository metadata, but we want expose

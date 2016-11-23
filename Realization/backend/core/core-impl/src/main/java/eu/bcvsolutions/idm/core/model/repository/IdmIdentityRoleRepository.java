@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 @Transactional(readOnly = true)
 @RepositoryRestResource(//
 		collectionResourceRel = "identityRoles", //
-		path = "identityRoles", //
+		path = "identity-roles", //
 		itemResourceRel = "identityRole",
 		exported = false//
 	)

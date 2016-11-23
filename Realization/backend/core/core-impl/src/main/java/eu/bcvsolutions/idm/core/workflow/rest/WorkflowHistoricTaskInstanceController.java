@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceSer
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/history/tasks/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-history-tasks")
 public class WorkflowHistoricTaskInstanceController {
 
 	@Autowired
@@ -40,7 +40,7 @@ public class WorkflowHistoricTaskInstanceController {
 	 * Search historic instances of tasks for logged user
 	 * 
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "search/")
+	@RequestMapping(method = RequestMethod.POST, value = "/search")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> result = workflowHistoricTaskInstanceService.search(filter);
@@ -67,7 +67,7 @@ public class WorkflowHistoricTaskInstanceController {
 	 * @param sort
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowHistoricTaskInstanceDto>>> searchQuick(
 			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
 			@RequestParam(required = false) String sort, @RequestParam String processInstanceId) {
@@ -88,7 +88,7 @@ public class WorkflowHistoricTaskInstanceController {
 	 * @param historicTaskInstanceId
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "{historicTaskInstanceId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{historicTaskInstanceId}")
 	public ResponseEntity<ResourceWrapper<WorkflowHistoricTaskInstanceDto>> get(
 			@PathVariable String historicTaskInstanceId) {
 		ResourceWrapper<WorkflowHistoricTaskInstanceDto> resource = new ResourceWrapper<WorkflowHistoricTaskInstanceDto>(

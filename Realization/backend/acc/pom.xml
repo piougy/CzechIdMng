@@ -41,13 +41,13 @@
 			<artifactId>idm-core-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-			
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-icf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>idm-core-test-api</artifactId>

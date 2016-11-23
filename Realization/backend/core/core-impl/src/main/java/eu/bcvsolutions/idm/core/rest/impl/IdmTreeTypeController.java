@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "Types")
+@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-types")
 public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmTreeType, QuickFilter> {
 	
 	@Autowired

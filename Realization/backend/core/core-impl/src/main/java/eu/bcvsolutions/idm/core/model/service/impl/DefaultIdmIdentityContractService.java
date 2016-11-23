@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 @Service
 public class DefaultIdmIdentityContractService extends AbstractReadWriteEntityService<IdmIdentityContract, EmptyFilter> implements IdmIdentityContractService {

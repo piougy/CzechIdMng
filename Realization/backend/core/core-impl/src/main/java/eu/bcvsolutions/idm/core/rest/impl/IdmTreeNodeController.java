@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 /**
  * 
@@ -44,7 +44,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
  */
 
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "Nodes")
+@RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-nodes")
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
 	
 	@Autowired

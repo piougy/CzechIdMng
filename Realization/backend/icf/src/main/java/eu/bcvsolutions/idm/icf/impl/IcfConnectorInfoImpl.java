@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.icf.impl;
 
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 
 /**
  * Information about connector. Keep connector key, display name and category

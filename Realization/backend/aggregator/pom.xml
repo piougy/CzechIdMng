@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<name>CzechIdM aggregator</name>
-	
+
 	<description>
 		This module serves only like the sub module aggregator - it does not contain any source
 		code, but running Maven goals on this project runs successively Maven goals
@@ -43,6 +43,17 @@
 				<module>../gui</module>
 			</modules>
 		</profile>
+
+		<!-- Result of build with this profile is single war file containing backend and frontend with all modules -->
+		<profile>
+			<id>fullApp</id>
+			<modules>
+				<module>../example</module>
+				<module>../icf</module>
+				<module>../acc</module>
+			</modules>
+		</profile>
+
 		<profile>
 			<!-- Profile is used for releasing product. Usage is described in documentation -->
 			<id>release</id>

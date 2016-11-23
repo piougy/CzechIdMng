@@ -19,6 +19,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.envers.Audited;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -39,18 +41,21 @@ public class IdmFormDefinition extends AbstractEntity {
 
 	private static final long serialVersionUID = 8267096009610364911L;
 	
-	@Basic(optional = false)
 	@NotNull
+	@Audited
+	@Basic(optional = false)	
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "definition_type", nullable = false, length = DefaultFieldLengths.NAME)
 	private String type; // for entity / object type
 	
-	@Basic(optional = false)
 	@NotNull
+	@Audited
+	@Basic(optional = false)
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String name; // unique name for entity / object type
 	
+	@Audited
 	@OrderBy("seq")
 	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

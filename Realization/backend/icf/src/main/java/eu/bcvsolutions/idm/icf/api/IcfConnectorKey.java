@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.icf.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * Uniquely identifies a connector within an installation. Consists of the
  * quadruple (icfType, bundleName, bundleVersion, connectorName)
@@ -12,7 +15,7 @@ public interface IcfConnectorKey {
 	 * Return connector framework type
 	 * @return
 	 */
-	String getIcfType();
+	String getFramework();
 
 	/**
 	 * Return bundle name for connector
@@ -37,8 +40,9 @@ public interface IcfConnectorKey {
 	 * 
 	 * @return
 	 */
+	@JsonProperty(access = Access.READ_ONLY)
 	default String getFullName() {
-		return getIcfType() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
+		return getFramework() + ":" + getConnectorName() + ":" + getBundleName() + ":" + getBundleVersion();
 	}
 
 }

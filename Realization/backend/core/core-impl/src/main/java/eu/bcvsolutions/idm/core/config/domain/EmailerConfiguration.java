@@ -3,10 +3,10 @@ package eu.bcvsolutions.idm.core.config.domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
- * Configuration for {@link eu.bcvsolutions.idm.notification.service.Emailer}.
+ * Configuration for {@link eu.bcvsolutions.idm.notification.service.api.Emailer}.
  * 
  * @author Radek Tomiška
  *

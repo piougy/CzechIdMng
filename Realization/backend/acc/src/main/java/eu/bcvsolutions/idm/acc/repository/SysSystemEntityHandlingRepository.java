@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 @RepositoryRestResource(//
 		collectionResourceRel = "systemEntitiesHandling", //
-		path = "systemEntitiesHandling", //
+		path = "system-entities-handling", //
 		itemResourceRel = "systemEntityHandling", //
 		excerptProjection = SysSystemEntityHandlingExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose

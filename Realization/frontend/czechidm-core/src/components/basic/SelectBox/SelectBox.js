@@ -24,6 +24,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
     const { forceSearchParameters} = nextProps;
     if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
       this._initComponent(nextProps);
@@ -32,6 +33,7 @@ class SelectBox extends AbstractFormComponent {
 
   // Did mount only call initComponent method
   componentDidMount() {
+    super.componentDidMount();
     this._initComponent(this.props);
   }
 

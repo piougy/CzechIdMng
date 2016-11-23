@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  */
 @RepositoryRestResource(//
 		collectionResourceRel = "identityContracts", //
-		path = "identityContracts", //
+		path = "identity-contracts", //
 		itemResourceRel = "identityContract", //
 		exported = false
 )

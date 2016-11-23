@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
 @Entity
 @Table(name = "idm_notification_log")

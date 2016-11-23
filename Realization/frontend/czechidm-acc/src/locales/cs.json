@@ -120,7 +120,13 @@
       },
       "connector": {
         "header": "Nastavení konektoru",
-        "title": "Konektor"
+        "title": "Konfigurace",
+        "button": {
+          "showBasicInfo": "Přejít na základní údaje"
+        },
+        "save": {
+          "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
+        }
       },
       "objectClassDetail": {
         "title": "Objekt na koncovém systému",
@@ -229,7 +235,15 @@
       "name": "Název systému",
       "disabled": "Neaktivní",
       "description": "Popis",
-      "virtual": "Virtuální"
+      "virtual": "Virtuální",
+      "connectorKey": {
+        "_type": "Konektor",
+        "framework": "Framework",
+        "connectorName": "Typ konektoru",
+        "bundleName": "Bundle konektoru",
+        "bundleVersion": "Verze konektoru"
+      },
+      "connectorHost": "Server s konektory"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",
@@ -309,6 +323,12 @@
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
       "SYSTEM": "Napojené systémy"
+    }
+  },
+  "error": {
+    "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Nenalezen konektor pro systém",
+      "message": "Konektor pro systém [{{system}}] není definovaný. Vyplňte prosím definici konektoru v základních údajích systému."
     }
   }
 }

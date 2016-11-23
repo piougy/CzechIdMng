@@ -3,6 +3,7 @@ import Immutable from 'immutable';
 import {
   SELECT_NAVIGATION_ITEMS,
   SELECT_NAVIGATION_ITEM,
+  COLLAPSE_NAVIGATION,
   I18N_INIT,
   I18N_READY,
   MODULES_INIT,
@@ -20,6 +21,7 @@ import {
 const INITIAL_STATE = new Immutable.Map({
   navigation: null,  // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
+  navigationCollapsed: false, // TODO: move to local storage - different reducer
   i18nReady: false,              // localization context is ready
   modulesReady: false,            // modules loaders is ready
   navigationReady: false,
@@ -51,6 +53,9 @@ export function layout(state = INITIAL_STATE, action) {
         itemId = item.parentId;
       }
       return state.set('selectedNavigationItems', newState);
+    }
+    case COLLAPSE_NAVIGATION: {
+      return state.set('navigationCollapsed', action.collapsed);
     }
     case I18N_INIT: {
       return state.set('i18nReady', false);

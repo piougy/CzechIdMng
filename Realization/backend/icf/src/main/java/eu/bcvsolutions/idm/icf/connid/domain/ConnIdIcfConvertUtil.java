@@ -66,7 +66,7 @@ public class ConnIdIcfConvertUtil {
 	public static ConnectorKey convertConnectorKeyFromDto(IcfConnectorKey dto, String icfImplementationType) {
 		Assert.notNull(dto);
 		Assert.notNull(icfImplementationType);
-		Assert.isTrue(icfImplementationType.equals(dto.getIcfType()));
+		Assert.isTrue(icfImplementationType.equals(dto.getFramework()));
 
 		return new ConnectorKey(dto.getBundleName(), dto.getBundleVersion(), dto.getConnectorName());
 	}
@@ -198,7 +198,7 @@ public class ConnIdIcfConvertUtil {
 		}
 		if (icfAttribute instanceof IcfPasswordAttribute) {
 			return AttributeBuilder.buildPassword(((IcfPasswordAttribute) icfAttribute).getPasswordValue() != null
-					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : null);
+					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : "".toCharArray());
 		}
 		if (icfAttribute instanceof IcfLoginAttribute) {
 			return new Name((String) icfAttribute.getValue());

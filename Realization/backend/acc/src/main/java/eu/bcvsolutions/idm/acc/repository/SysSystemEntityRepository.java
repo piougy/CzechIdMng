@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  */
 @RepositoryRestResource(//
 		collectionResourceRel = "systemEntities", //
-		path = "systemEntities", //
+		path = "system-entities", //
 		itemResourceRel = "systemEntity", //
 		excerptProjection = SysSystemEntityExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually

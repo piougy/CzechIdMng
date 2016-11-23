@@ -6,7 +6,7 @@ import SearchParameters from '../domain/SearchParameters';
 class WorkflowProcessDefinitionService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/definitions';
+    return '/workflow-definitions';
   }
 
   getSearchQuickApiPatch() {

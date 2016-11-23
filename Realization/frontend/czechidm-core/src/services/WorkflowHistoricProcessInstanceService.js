@@ -7,7 +7,7 @@ import RestApiService from './RestApiService';
 class WorkflowHistoricProcessInstanceService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/history/processes';
+    return '/workflow-history-processes';
   }
 
   getNiceLabel(proc) {

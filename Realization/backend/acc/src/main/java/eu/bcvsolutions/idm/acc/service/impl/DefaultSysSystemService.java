@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
-import eu.bcvsolutions.idm.acc.service.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -34,7 +36,7 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.FormService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
@@ -48,7 +50,6 @@ import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
 
 /**
  * Deafult target system configuration service
@@ -71,11 +72,20 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	static {
 		// TODO: converter registration?
 		supportedConnectorPropertyMapping = new HashMap<>();
+		supportedConnectorPropertyMapping.put("java.lang.Boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
 		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
+		supportedConnectorPropertyMapping.put("int", new ConnectorPropertyMapping(PersistentType.INT, false));
+		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
+		// TODO: correct data type ... 
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray", new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
 	}
+	
+	@Autowired
+	DataSource dataSource;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -280,8 +290,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @return
 	 */
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
-		IcfConnectorConfiguration conf = icfConfiguratioFacade.getIcfConfigs()
-				.get(connectorKey.getIcfType()).getConnectorConfiguration(connectorKey);
+		IcfConnectorConfiguration conf = icfConfiguratioFacade.getConnectorConfiguration(connectorKey);
+		if (conf == null) {
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.", connectorKey.getFullName()));
+		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
 		for(short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
@@ -294,7 +306,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 	
 	/**
-	 * Returns eav form attribute from given connector preperty
+	 * Returns eav form attribute from given connector property
 	 * 
 	 * @param property
 	 * @return
@@ -305,7 +317,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		attribute.setDisplayName(property.getDisplayName());
 		attribute.setDescription(property.getHelpMessage());			
 		attribute.setPersistentType(convertPropertyType(property.getType()));
-		attribute.setConfidental(property.isConfidential());
+		attribute.setConfidential(property.isConfidential());
 		attribute.setRequired(property.isRequired());
 		attribute.setMultiple(isMultipleProperty(property.getType()));	
 		attribute.setDefaultValue(property.getValue() == null ? null : property.getValue().toString());
@@ -321,7 +333,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (formValue == null) {
 			return null;
 		}
-		if(formValue.isConfidental()) {
+		if(formValue.isConfidential()) {
 			return new org.identityconnectors.common.security.GuardedString(formValue.getValue().toString().toCharArray());
 		}
 		return formValue.getValue();
@@ -428,7 +440,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
 		
-		getFormService().saveValues(system, values);
+		getFormService().saveValues(system, savedFormDefinition, values);
 		
 		return system;
 	}
@@ -441,7 +453,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	@Deprecated
 	public IcfConnectorKey getTestConnectorKey() {
 		IcfConnectorKeyImpl key = new IcfConnectorKeyImpl();
-		key.setIcfType("connId");
+		key.setFramework("connId");
 		key.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
 		key.setBundleName("net.tirasa.connid.bundles.db.table");
 		key.setBundleVersion("2.2.4");

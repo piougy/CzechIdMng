@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.service.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  */
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/systemEntities")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-entities")
 public class SysSystemEntityController extends AbstractReadWriteEntityController<SysSystemEntity, SystemEntityFilter> {
 
 	

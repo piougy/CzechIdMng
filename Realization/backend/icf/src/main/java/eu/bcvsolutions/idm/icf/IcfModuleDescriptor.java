@@ -13,4 +13,12 @@ public class IcfModuleDescriptor extends AbstractModuleDescriptor {
 	public String getId() {
 		return MODULE_ID;
 	}
+	
+	/**
+	 * Its lib "only" now
+	 */
+	@Override
+	public boolean isDisableable() {
+		return false;
+	}
 }

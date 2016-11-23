@@ -23,8 +23,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -37,6 +40,7 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
  *
  */
 @Entity
+@Audited
 @Table(name = "idm_form_attribute", indexes = {
 		@Index(name = "idx_idm_f_a_definition_def", columnList = "definition_id"),
 		@Index(name = "ux_idm_f_a_definition_name", columnList = "definition_id, name", unique = true) })
@@ -86,12 +90,12 @@ public class IdmFormAttribute extends AbstractEntity {
 	private boolean readonly;
 	
 	@NotNull
-	@Column(name = "confidental", nullable = false)
-	private boolean confidental;
+	@Column(name = "confidential", nullable = false)
+	private boolean confidential;
 	
 	@Max(99999)
 	@Column(name = "seq")
-	private short seq;
+	private Short seq;
 	
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "default_value", nullable = true, length = DefaultFieldLengths.LOG)
@@ -145,11 +149,13 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * @param persistentType
 	 * @return
 	 */
+	@JsonIgnore
 	@SuppressWarnings("rawtypes")
 	public List getEmptyList() {
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
+			case INT:
 			case LONG:
 				return new ArrayList<Long>();
 			case BOOLEAN:
@@ -195,11 +201,11 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * 
 	 * @return
 	 */
-	public short getSeq() {
+	public Short getSeq() {
 		return seq;
 	}
 
-	public void setSeq(short seq) {
+	public void setSeq(Short seq) {
 		this.seq = seq;
 	}
 
@@ -245,12 +251,12 @@ public class IdmFormAttribute extends AbstractEntity {
 	 * If attribute value is secured (password, token, etc.)
 	 * @return
 	 */
-	public boolean isConfidental() {
-		return confidental;
+	public boolean isConfidential() {
+		return confidential;
 	}
 
-	public void setConfidental(boolean confidental) {
-		this.confidental = confidental;
+	public void setConfidential(boolean confidential) {
+		this.confidential = confidential;
 	}
 	
 	/**

@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 
 /**
  * Implementation of @IdmRoleCatalogueService

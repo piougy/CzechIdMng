@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.service.IdmAuditService;
-import eu.bcvsolutions.idm.core.model.service.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
  * IdmRole endpoint

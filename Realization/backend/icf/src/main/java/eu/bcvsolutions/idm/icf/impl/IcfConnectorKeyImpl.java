@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  */
 public class IcfConnectorKeyImpl implements IcfConnectorKey {
 
-	private String icfType;
+	private String framework;
 	private String bundleName;
 	private String bundleVersion;
 	private String connectorName;
@@ -17,21 +17,21 @@ public class IcfConnectorKeyImpl implements IcfConnectorKey {
 		super();
 	}
 
-	public IcfConnectorKeyImpl(String icfType, String bundleName, String bundleVersion, String connectorName) {
+	public IcfConnectorKeyImpl(String framework, String bundleName, String bundleVersion, String connectorName) {
 		super();
-		this.icfType = icfType;
+		this.framework = framework;
 		this.bundleName = bundleName;
 		this.bundleVersion = bundleVersion;
 		this.connectorName = connectorName;
 	}
 
 	@Override
-	public String getIcfType() {
-		return icfType;
+	public String getFramework() {
+		return framework;
 	}
 
-	public void setIcfType(String icfType) {
-		this.icfType = icfType;
+	public void setFramework(String framework) {
+		this.framework = framework;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class IcfConnectorKeyImpl implements IcfConnectorKey {
 		result = prime * result + ((bundleName == null) ? 0 : bundleName.hashCode());
 		result = prime * result + ((bundleVersion == null) ? 0 : bundleVersion.hashCode());
 		result = prime * result + ((connectorName == null) ? 0 : connectorName.hashCode());
-		result = prime * result + ((icfType == null) ? 0 : icfType.hashCode());
+		result = prime * result + ((framework == null) ? 0 : framework.hashCode());
 		return result;
 	}
 
@@ -94,17 +94,17 @@ public class IcfConnectorKeyImpl implements IcfConnectorKey {
 				return false;
 		} else if (!connectorName.equals(other.connectorName))
 			return false;
-		if (icfType == null) {
-			if (other.icfType != null)
+		if (framework == null) {
+			if (other.framework != null)
 				return false;
-		} else if (!icfType.equals(other.icfType))
+		} else if (!framework.equals(other.framework))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "IcfConnectorKeyImpl [icfType=" + icfType + ", bundleName=" + bundleName + ", bundleVersion="
+		return "IcfConnectorKeyImpl [framework=" + framework + ", bundleName=" + bundleName + ", bundleVersion="
 				+ bundleVersion + ", connectorName=" + connectorName + "]";
 	}
 

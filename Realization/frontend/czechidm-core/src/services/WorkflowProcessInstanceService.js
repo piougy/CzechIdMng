@@ -6,7 +6,7 @@ import SearchParameters from '../domain/SearchParameters';
 class WorkflowProcessInstanceService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/processes';
+    return '/workflow-processes';
   }
 
   getNiceLabel(proc) {

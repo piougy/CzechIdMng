@@ -35,55 +35,61 @@ public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
 	/**
 	 * @return Connector services for all ICFs
 	 */
+	@Override
 	public Map<String, IcfConnectorService> getIcfConnectors() {
 		return icfConnectors;
 	}
 
+	@Override
 	public IcfUidAttribute createObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, List<IcfAttribute> attributes) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).createObject(key, connectorConfiguration, objectClass, attributes);
+		return icfConnectors.get(key.getFramework()).createObject(key, connectorConfiguration, objectClass, attributes);
 
 	}
 
+	@Override
 	public IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).updateObject(key, connectorConfiguration, objectClass, uid,
+		return icfConnectors.get(key.getFramework()).updateObject(key, connectorConfiguration, objectClass, uid,
 				replaceAttributes);
 
 	}
 
+	@Override
 	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		icfConnectors.get(key.getIcfType()).deleteObject(key, connectorConfiguration, objectClass, uid);
+		icfConnectors.get(key.getFramework()).deleteObject(key, connectorConfiguration, objectClass, uid);
 
 	}
-
+	
+	@Override
 	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, IcfUidAttribute uid) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).readObject(key, connectorConfiguration, objectClass, uid);
+		return icfConnectors.get(key.getFramework()).readObject(key, connectorConfiguration, objectClass, uid);
 
 	}
 
+	@Override
 	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
 			IcfObjectClass objectClass, String username, GuardedString password) {
 		Assert.notNull(key);
 		checkIcfType(key);
-		return icfConnectors.get(key.getIcfType()).authenticateObject(key, connectorConfiguration, objectClass,
+		return icfConnectors.get(key.getFramework()).authenticateObject(key, connectorConfiguration, objectClass,
 				username, password);
 	}
 
 	private boolean checkIcfType(IcfConnectorKey key) {
-		if (!icfConnectors.containsKey(key.getIcfType())) {
-			throw new ResultCodeException(IcfResultCode.ICF_IMPLEMENTATTION_NOT_FOUND,
-					ImmutableMap.of("icf", key.getIcfType()));
+		if (!icfConnectors.containsKey(key.getFramework())) {
+			throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
+					ImmutableMap.of("icf", key.getFramework()));
 		}
 		return true;
 	}

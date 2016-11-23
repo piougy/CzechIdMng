@@ -13,7 +13,12 @@ class EnumSelectBox extends SelectBox {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     // nothing - just override parent behaviour
+  }
+
+  _initComponent() {
+    // initialize value
   }
 
   getOptions(input, callback) {

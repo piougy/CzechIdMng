@@ -2,6 +2,8 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
+import Joi from 'joi';
+//
 chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
@@ -54,6 +56,41 @@ describe('textArea', function textAreaTest() {
     TestFieldsUtil.testComponentWithValues(textArea6, {
       '\n': false,
       '\n\n\n\n': true
+    });
+  });
+});
+
+describe('TextAreaValidation', function textAreaTest() {
+  it('- text area combination of validation with properties', function test() {
+    const textField = TestUtils.renderIntoDocument(<Basic.TextArea max={16} min={6} validation={Joi.string().email()} />);
+    TestFieldsUtil.testComponentWithValues(textField, {
+      'test@example.com': true,
+      'test@example-example.com': false,
+      'example': false,
+      'exa.example.com': false,
+      'example@example': true, // email validation for email is ok for name@domain
+      'e@x.m': false,
+      'exa@mp.le': true
+    });
+
+    const textField2 = TestUtils.renderIntoDocument(<Basic.TextArea max={5} min={2} validation={Joi.string().alphanum()} />);
+    TestFieldsUtil.testComponentWithValues(textField2, {
+      'test@example.com': false,
+      '@@@': false,
+      'test': true,
+      'te12': true,
+      'test1234': false,
+      '1': false,
+      'azAz1': true
+    });
+
+    const textField3 = TestUtils.renderIntoDocument(<Basic.TextArea max={5} required validation={Joi.string().alphanum()} />);
+    TestFieldsUtil.testComponentWithValues(textField3, {
+      '': false,
+      '@': false,
+      'test': true,
+      'te12': true,
+      'test1234': false
     });
   });
 });

@@ -17,7 +17,7 @@ export default class TreeNodeManager extends EntityManager {
   }
 
   getCollectionType() {
-    return 'treenodes';
+    return 'treeNodes';
   }
 
   /**

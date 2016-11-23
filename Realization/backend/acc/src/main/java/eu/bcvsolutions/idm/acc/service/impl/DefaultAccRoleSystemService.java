@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
-import eu.bcvsolutions.idm.acc.service.AccRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.AccRoleSystemService;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 

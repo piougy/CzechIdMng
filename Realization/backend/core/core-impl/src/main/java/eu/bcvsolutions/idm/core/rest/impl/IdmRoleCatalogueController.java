@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
-import eu.bcvsolutions.idm.core.model.service.IdmRoleCatalogueService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 
 /**
  * Role catalogue controller
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmRoleCatalogueService;
  */
 
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/roleCatalogues")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/role-catalogues")
 public class IdmRoleCatalogueController extends DefaultReadWriteEntityController<IdmRoleCatalogue, RoleCatalogueFilter> {
 	
 	@Autowired

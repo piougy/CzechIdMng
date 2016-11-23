@@ -216,7 +216,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       actions,
       buttons,
       noData,
-      ...others
+      style
     } = this.props;
     const {
       filterOpened,
@@ -320,7 +320,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
 
     return (
-      <div className="advanced-table" {...others}>
+      <div className="advanced-table" style={style}>
         {
           !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||

@@ -60,6 +60,12 @@ export default class AbstractService {
       });
   }
 
+  /**
+   * Create new record
+   *
+   * @param  {entity} json created entity
+   * @return {promise}
+   */
   create(json) {
     return RestApiService
       .post(this.getApiPath(), json)

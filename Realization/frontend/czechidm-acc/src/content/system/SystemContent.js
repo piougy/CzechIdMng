@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { Basic } from 'czechidm-core';
+import { Basic, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 import SystemDetail from './SystemDetail';
 
@@ -24,6 +24,7 @@ class SystemContent extends Basic.AbstractContent {
     this.selectNavigationItems(['sys-systems', 'system-detail']);
     const { entityId } = this.props.params;
 
+    this.context.store.dispatch(manager.fetchAvailableFrameworks());
     if (this._isNew()) {
       this.context.store.dispatch(manager.receiveEntity(entityId, { }));
     } else {
@@ -38,12 +39,12 @@ class SystemContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { entity, showLoading } = this.props;
+    const { entity, showLoading, availableFrameworks } = this.props;
     return (
       <Basic.Row>
         <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
-            showLoading
+            showLoading || !availableFrameworks
             ?
             <Basic.Loading isStatic showLoading />
             :
@@ -67,7 +68,8 @@ function select(state, component) {
   //
   return {
     entity: manager.getEntity(state, entityId),
-    showLoading: manager.isShowLoading(state, null, entityId)
+    showLoading: manager.isShowLoading(state, null, entityId),
+    availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS)
   };
 }
 

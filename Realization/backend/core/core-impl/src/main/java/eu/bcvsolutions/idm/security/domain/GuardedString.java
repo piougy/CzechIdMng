@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
  * Guarded string used for storing sensitive data.

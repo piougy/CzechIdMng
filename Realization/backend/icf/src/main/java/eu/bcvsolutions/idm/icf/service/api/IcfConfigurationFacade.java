@@ -22,11 +22,19 @@ public interface IcfConfigurationFacade {
 	Map<String, List<IcfConnectorInfo>> getAvailableLocalConnectors();
 
 	/**
-	 * Return find connector default configuration by connector info
-	 * @param info
+	 * Return all registered ICF configuration service implementations
 	 * @return
 	 */
 	Map<String, IcfConfigurationService> getIcfConfigs();
+	
+	/**
+	 * Return find connector default configuration by connector key
+	 * 
+	 * @param key
+	 * @return
+	 */
+	
+	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key);
 
 	/**
 	 * Return schema for connector and given configuration. Schema contains list of attribute definitions in object classes.

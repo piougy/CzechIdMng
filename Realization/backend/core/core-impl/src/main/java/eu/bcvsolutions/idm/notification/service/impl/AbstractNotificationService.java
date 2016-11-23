@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.notification.service.NotificationService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationService;
 
 public abstract class AbstractNotificationService implements NotificationService {
 	

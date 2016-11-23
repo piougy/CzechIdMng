@@ -59,7 +59,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		Exception ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/")).andReturn().getResponse().getStatus();
+			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identity-contracts")).andReturn().getResponse().getStatus();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -71,7 +71,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/").with(authentication(getAuthentication()))).andReturn();
+			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -103,7 +103,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/identityContracts/")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/identity-contracts")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -119,7 +119,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/identityContracts").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonContent))
 						.andReturn()
@@ -151,7 +151,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
 					.getResponse()
 					.getStatus();
@@ -166,7 +166,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
 						.with(authentication(getAuthentication())))
 						.andReturn()
 						.getResponse()

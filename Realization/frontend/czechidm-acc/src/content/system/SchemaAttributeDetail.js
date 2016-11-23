@@ -73,6 +73,8 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }

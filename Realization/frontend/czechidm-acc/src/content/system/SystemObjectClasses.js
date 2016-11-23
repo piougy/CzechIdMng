@@ -53,6 +53,8 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }

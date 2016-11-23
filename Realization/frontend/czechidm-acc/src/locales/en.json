@@ -60,7 +60,7 @@
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
         "generateSchemaBtn": "Generovat schema",
-        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace",
+        "generateSchemaBtnTooltip": "Vygeneruje a uloží schéma do tohoto systému. Schéma se získá z napojeného konektoru, dle aktuální konfigurace. Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě.",
         "edit": {
           "header": "Detail typu objektu na koncovém systému"
         },
@@ -79,7 +79,7 @@
         },
         "action": {
           "generateSchema": {
-            "message": "Opravdu chcete zahájit generování schématu do tohoto systému, dle aktuální konfigurace konektoru?",
+            "message": "<b>Vygeneruje a uloží schéma do tohoto systému.</b> Schéma se získá z napojeného konektoru, dle aktuální konfigurace.<br/>Pokud bude nalezen objekt či atribut se stejným názvem, bude provedeno nahrazení (přegenerování dle stavu na koncovém systému). Ostatní objekty a atributy budou zachovány v nezměněné podobě. <br/><br/><b>Opravdu chcete zahájit generování/obnovu schématu?</b>",
             "header": "Generování schématu",
             "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
           }
@@ -120,7 +120,13 @@
       },
       "connector": {
         "header": "Nastavení konektoru",
-        "title": "Konektor"
+        "title": "Konfigurace",
+        "button": {
+          "showBasicInfo": "Přejít na základní údaje"
+        },
+        "save": {
+          "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
+        }
       },
       "objectClassDetail": {
         "title": "Objekt na koncovém systému",
@@ -229,7 +235,15 @@
       "name": "Název systému",
       "disabled": "Neaktivní",
       "description": "Popis",
-      "virtual": "Virtuální"
+      "virtual": "Virtuální",
+      "connectorKey": {
+        "_type": "Konektor",
+        "framework": "Framework",
+        "connectorName": "Typ konektoru",
+        "bundleName": "Bundle konektoru",
+        "bundleVersion": "Verze konektoru"
+      },
+      "connectorHost": "Server s konektory"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",
@@ -272,8 +286,16 @@
       "schemaAttribute": "Atribut ve schéma",
       "systemEntityHandling": "Podskupina",
       "extendedAttribute": "Rozšířený atribut",
-      "transformFromSystem": "Transformace ze systému",
-      "transformToSystem": "Transformace do systému"
+      "transformFromResourceScript": {
+        "label": "Transformace ze systému",
+        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IDM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue'."
+      },
+      "transformToResourceScript": {
+        "label": "Transformace do systému",
+        "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue'."
+      },
+      "uid": "Je identifikátorem",
+      "uidTooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."
     },
     "Account": {
       "_type": "Účet na koncovém systému",
@@ -307,6 +329,12 @@
     "group": {
       "ACCOUNT": "Účty na koncových systémech",
       "SYSTEM": "Napojené systémy"
+    }
+  },
+  "error": {
+    "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
+      "title": "Nenalezen konektor pro systém",
+      "message": "Konektor pro systém [{{system}}] není definovaný. Vyplňte prosím definici konektoru v základních údajích systému."
     }
   }
 }

@@ -16,8 +16,8 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
  *
  */
 @RepositoryRestResource(//
+		path = "identity-accounts", //
 		collectionResourceRel = "identityAccounts", //
-		path = "identityAccounts", //
 		itemResourceRel = "identityAccount", //
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)

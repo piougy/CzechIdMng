@@ -5,7 +5,7 @@ import SearchParameters from '../domain/SearchParameters';
 class IdentityRoleService extends AbstractService {
 
   getApiPath() {
-    return '/identityRoles';
+    return '/identity-roles';
   }
 
   /**

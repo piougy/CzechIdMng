@@ -6,7 +6,7 @@ import SearchParameters from '../domain/SearchParameters';
 class WorkflowHistoricTaskInstanceService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/history/tasks';
+    return '/workflow-history-tasks';
   }
 
   getNiceLabel(proc) {

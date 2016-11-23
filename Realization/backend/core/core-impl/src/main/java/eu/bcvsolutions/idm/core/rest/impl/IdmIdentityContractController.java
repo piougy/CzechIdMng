@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/identityContracts")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/identity-contracts")
 public class IdmIdentityContractController extends DefaultReadWriteEntityController<IdmIdentityContract, EmptyFilter> {
 	
 	@Autowired

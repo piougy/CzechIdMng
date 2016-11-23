@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExce
  */
 @RepositoryRestResource( //
 		collectionResourceRel = "roleCatalogues", // 
-		path = "roleCatalogues", //
+		path = "role-catalogues", //
 		itemResourceRel = "roleCatalogues", //
 		excerptProjection = IdmRoleCatalogueExcerpt.class,
 		exported = false,

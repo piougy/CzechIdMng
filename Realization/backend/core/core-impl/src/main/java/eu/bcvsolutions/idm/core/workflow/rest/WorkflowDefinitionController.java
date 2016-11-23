@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/definitions")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-definitions")
 public class WorkflowDefinitionController {
 
 	@Autowired

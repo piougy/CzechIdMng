@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import classNames from 'classnames';
+
 //
 import Footer from './Footer';
 import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
@@ -80,8 +82,12 @@ export class App extends Basic.AbstractContent {
   }
 
   render() {
-    const { location, userContext, bulk, appReady } = this.props;
+    const { location, userContext, bulk, appReady, navigationCollapsed } = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
+    const classnames = classNames(
+      { 'with-sidebar': Managers.SecurityManager.isAuthenticated(userContext) },
+      { 'collapsed': navigationCollapsed }
+    );
     //
     return (
       <div id="content-wrapper">
@@ -94,7 +100,7 @@ export class App extends Basic.AbstractContent {
           <div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
             <Advanced.Navigation />
-            <div id="content-container" className={Managers.SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
+            <div id="content-container" className={classnames}>
               {this.props.children}
               {
                 /* TODO: move to redux and hide it, when is needed */
@@ -170,13 +176,15 @@ App.propTypes = {
    * Globally bulk action
    */
   bulk: PropTypes.object,
-  appReady: PropTypes.bool
+  appReady: PropTypes.bool,
+  navigationCollapsed: PropTypes.bool
 };
 
 App.defaultProps = {
   userContext: null,
   bulk: { action: {} },
-  appReady: false
+  appReady: false,
+  navigationCollapsed: false
 };
 
 App.childContextTypes = {
@@ -188,7 +196,8 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     bulk: state.data.bulk,
-    appReady: state.layout.get('appReady')
+    appReady: state.layout.get('appReady'),
+    navigationCollapsed: state.layout.get('navigationCollapsed')
   };
 }
 

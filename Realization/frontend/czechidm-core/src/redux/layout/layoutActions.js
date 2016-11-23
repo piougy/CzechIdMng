@@ -24,6 +24,7 @@ export const MODULES_INIT = 'MODULES_INIT';
 export const MODULES_READY = 'MODULES_READY';
 export const CONFIGURATION_INIT = 'CONFIGURATION_INIT';
 export const CONFIGURATION_READY = 'CONFIGURATION_READY';
+export const COLLAPSE_NAVIGATION = 'COLLAPSE_NAVIGATION';
 
 /**
  * Select navigation items
@@ -37,13 +38,26 @@ export function selectNavigationItems(selectedNavigationItems) {
   };
 }
 /**
- * Select navigation item bz id
- * @return {[type]} [description]
+ * Select navigation item by id
+ * @return {action}
  */
 export function selectNavigationItem(selectedNavigationItemId) {
   return {
     type: SELECT_NAVIGATION_ITEM,
     selectedNavigationItemId
+  };
+}
+
+/**
+ * Collapse navigation
+ *
+ * @param  {bool} collapse
+ * @return {action}
+ */
+export function collapseNavigation(collapsed = false) {
+  return {
+    type: COLLAPSE_NAVIGATION,
+    collapsed
   };
 }
 

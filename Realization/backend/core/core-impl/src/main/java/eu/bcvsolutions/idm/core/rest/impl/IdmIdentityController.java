@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.activiti.engine.runtime.ProcessInstance;
@@ -18,8 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +41,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -47,7 +51,10 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.rest.WorkflowTaskInstanceController;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 
 /**
@@ -60,21 +67,36 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
 public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, IdentityFilter> {
 
-	@Autowired
-	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	private final IdmIdentityContractService identityContractService;
+	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
+	private final AuditService auditService; 	
+	private final FormService formService;
+	
+	@Autowired 
+	private IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
-	private IdmIdentityContractService identityContractService;
-
-	@Autowired
-	private WorkflowTaskInstanceController workflowTaskInstanceController;
-	
-	@Autowired
-	private AuditService auditService; 
-	
-	@Autowired
-	public IdmIdentityController(EntityLookupService entityLookupService) {
+	public IdmIdentityController(
+			EntityLookupService entityLookupService, 
+			FormService formService,
+			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
+			IdmIdentityContractService identityContractService,
+			WorkflowTaskInstanceService workflowTaskInstanceService,
+			AuditService auditService) {
 		super(entityLookupService);
+		//
+		Assert.notNull(formService);
+		Assert.notNull(grantedAuthoritiesFactory);
+		Assert.notNull(identityContractService);
+		Assert.notNull(workflowTaskInstanceService);
+		Assert.notNull(auditService);
+		//
+		this.formService = formService;
+		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
+		this.identityContractService = identityContractService;
+		this.workflowTaskInstanceService = workflowTaskInstanceService;
+		this.auditService = auditService;
 	}
 	
 	IdmIdentityService getIdentityService() {
@@ -120,7 +142,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
 		//
 		return grantedAuthoritiesFactory.getGrantedAuthorities(identity.getUsername());
@@ -135,31 +157,30 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
 		ProcessInstance processInstance = getIdentityService().changePermissions(identity);
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
-		List<ResourceWrapper<WorkflowTaskInstanceDto>> tasks = (List<ResourceWrapper<WorkflowTaskInstanceDto>>) workflowTaskInstanceController
-				.search(filter).getBody().getResources();
-		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(tasks.get(0), HttpStatus.OK);
+		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(filter).getResources();
+		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(new ResourceWrapper<WorkflowTaskInstanceDto>(tasks.get(0)), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
 	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
 		// TODO: IdmIdentityRoleService and pagination support?
 		return toResources((Iterable<?>) identity.getRoles(), assembler, IdmIdentityRole.class, null);
 	}
 	
-	@RequestMapping(value = "/{identityId}/identityContracts", method = RequestMethod.GET)
+	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
 	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}		
 		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
 	}
@@ -169,7 +190,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Integer revId) {
 		IdmIdentity originalEntity = getEntity(identityId);
 		if (originalEntity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
 		
 		Revision<Integer, ? extends BaseEntity> revision;
@@ -236,5 +257,73 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			}
 		}
 		return filter;
+	}
+	
+	/**
+	 * Returns form definition to given identity.
+	 * 
+	 * @param backendId
+	 * @param assembler
+	 * @return
+	 */
+	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
+	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		IdmFormDefinition formDefinition = getFormDefinition(null);
+		return formDefinitionController.get(formDefinition.getId().toString(), assembler);
+	}
+	
+	/**
+	 * Returns filled form values
+	 * 
+	 * @param backendId
+	 * @param assembler
+	 * @return
+	 */
+	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
+	public Resources<?> getConnectorFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		IdmIdentity identity = getEntity(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		return toResources(formService.getValues(identity, formDefinition), assembler, getEntityClass(), null);
+	}
+	
+	/**
+	 * Saves connector configuration form values
+	 * 
+	 * @param backendId
+	 * @param formValues
+	 * @param assembler
+	 * @return
+	 */
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
+	public Resources<?> saveFormValues(
+			@PathVariable @NotNull String backendId,
+			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
+			PersistentEntityResourceAssembler assembler) {		
+		IdmIdentity identity = getEntity(backendId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		formService.saveValues(identity, formDefinition, formValues);
+		return getConnectorFormValues(backendId, assembler);
+	}
+	
+	/**
+	 * Returns form definition for given identity
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	private IdmFormDefinition getFormDefinition(IdmIdentity identity) {
+		// find default definition only (maybe we will need to customize form definition to custom entity instance)
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName(), null);
+		if (formDefinition == null) {			
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", IdmIdentity.class.getCanonicalName()));
+		}			
+		return formDefinition;	
 	}
 }

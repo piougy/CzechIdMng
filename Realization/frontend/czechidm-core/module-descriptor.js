@@ -34,6 +34,14 @@ module.exports = {
             'icon': 'user'
           },
           {
+            'id': 'profile-eav',
+            'type': 'TAB',
+            'labelKey': 'content.identity.eav.title',
+            'order': 11,
+            'priority': 0,
+            'path': '/identity/:entityId/eav',
+          },
+          {
             'id': 'profile-password',
             'type': 'TAB',
             'label': 'Změna hesla',
@@ -121,6 +129,7 @@ module.exports = {
         'icon': 'tree-deciduous',
         'order': 1050,
         'iconColor': '#419641',
+        'path': '/tree/nodes',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
         'items': [
           {
@@ -182,6 +191,7 @@ module.exports = {
         'labelKey': 'content.audit.title',
         'icon': 'stats',
         'order': 1900,
+        'path': '/workflow/history/processes',
         'items': [
           {
             'id': 'workflow-historic-processes',

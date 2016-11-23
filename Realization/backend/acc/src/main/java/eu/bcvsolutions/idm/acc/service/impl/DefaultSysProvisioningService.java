@@ -64,7 +64,7 @@ import eu.bcvsolutions.idm.security.domain.GuardedString;
 @Service
 public class DefaultSysProvisioningService implements IdmProvisioningService, SysProvisioningService {
 
-	private static final String PASSWORD_IDM_PROPERTY_NAME = "password";
+	public static final String PASSWORD_IDM_PROPERTY_NAME = "password";
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
 	private SysSystemEntityHandlingService entityHandlingService;
 	private SysSchemaAttributeHandlingService attributeHandlingService;
@@ -192,6 +192,61 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		// Call icf modul for update single attribute
 		connectorFacade.updateObject(connectorKey, connectorConfig,icfObjectClass , uidAttribute, ImmutableList.of(icfAttributeForCreate));
 		
+	}
+	
+	@Override
+	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
+		IdmIdentity identity = identityAccount.getIdentity();
+		byte[] password = identity.getPassword() != null ? identity.getPassword() : "".getBytes();
+		return authenticate(identityAccount.getAccount().getUid(), new GuardedString(password)
+				, system, SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY);
+	}
+	
+	@Override
+	public IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+			SystemOperationType operationType, SystemEntityType entityType) {
+
+		Assert.notNull(username);
+		Assert.notNull(system);
+		Assert.notNull(entityType);
+		Assert.notNull(operationType);
+
+		List<SysSchemaAttributeHandling> attributes = findAttributesHandling(operationType,
+				entityType, system);
+		if (attributes == null || attributes.isEmpty()) {
+			return null;
+		}
+
+		// Find connector identification persisted in system
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+		// Find attribute handling mapped on schema password attribute
+		Optional<SysSchemaAttributeHandling> passwordAttributeHandlingOptional = attributes.stream()
+				.filter((attribute) -> {
+					return IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
+				}).findFirst();
+		if (!passwordAttributeHandlingOptional.isPresent()) {
+			throw new ResultCodeException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+					ImmutableMap.of("property", IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
+		}
+
+		SysSchemaAttributeHandling passwordAttributeHandling = passwordAttributeHandlingOptional.get();
+
+		String objectClassName = passwordAttributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
+		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
+		
+		// Call ICF module for check authenticate
+		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icfObjectClass, username, password);
 	}
 
 	/**

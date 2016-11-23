@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/processes/")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-processes")
 public class WorkflowProcessInstanceController {
 
 	@Autowired
@@ -44,7 +44,7 @@ public class WorkflowProcessInstanceController {
 	 * Search instances of processes with same variables and for logged user
 	 * 
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "search/")
+	@RequestMapping(method = RequestMethod.POST, value = "/search")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessInstanceDto>>> search(
 			@RequestBody WorkflowFilterDto filter) {
 		ResourcesWrapper<WorkflowProcessInstanceDto> result = workflowProcessInstanceService.search(filter);
@@ -73,7 +73,7 @@ public class WorkflowProcessInstanceController {
 	 * @param processDefinitionKey
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "search/quick")
+	@RequestMapping(method = RequestMethod.GET, value = "/search/quick")
 	public ResponseEntity<ResourcesWrapper<ResourceWrapper<WorkflowProcessInstanceDto>>> searchQuick(
 			@RequestParam(required = false) Integer size, @RequestParam(required = false) Integer page,
 			@RequestParam(required = false) String sort, @RequestParam(required = false) String identity,
@@ -93,7 +93,7 @@ public class WorkflowProcessInstanceController {
 		return this.search(filter);
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "{processInstanceId}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{processInstanceId}")
 	public ResponseEntity<WorkflowProcessInstanceDto> delete(@PathVariable String processInstanceId) {
 		return new ResponseEntity<WorkflowProcessInstanceDto>(
 				workflowProcessInstanceService.delete(processInstanceId, null), HttpStatus.OK);

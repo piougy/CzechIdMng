@@ -60,14 +60,12 @@ const LinkCell = ({rowIndex, data, property, to, className, title, target, acces
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   const accessItems = (access && !Array.isArray(access)) ? [access] : access;
   // when is property and accessItems null, then return only default cell
-  if (!accessItems && !propertyValue) {
+  if (!propertyValue) {
     return <DefaultCell {...props}/>;
   }
   return (
     <DefaultCell {...props}>
       {
-        !propertyValue
-        ||
         (accessItems && !SecurityManager.hasAccess(accessItems))
         ?
         <span>

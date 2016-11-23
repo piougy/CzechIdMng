@@ -92,7 +92,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   passwordMustChange(username, oldPassword, newPassword) {
-    return RestApiService.put(this.getApiPath() + `/password/must/change`, {
+    return RestApiService.put(this.getApiPath() + `/password/must-change`, {
       identity: username,
       oldPassword,
       newPassword
@@ -118,33 +118,6 @@ class IdentityService extends AbstractService {
       }
       return json;
     });
-  }
-
-  /**
-   * Search given user's subordinates
-   *
-   * @param username {string}
-   * @param searchParameters {SearchParameters}
-   * @return {Promise}
-   */
-  searchSubordinates(/* username, searchParameters */) {
-    throw new Error('not implemented');
-    /*
-    if (!username) {
-      return false;
-    }
-    if (!searchParameters) {
-      searchParameters = {
-        range: {
-          from: 0,
-          size: 3
-        }
-      }
-    }
-    return RestApiService.post(this.getApiPath() + `/${username}/subordinates`, searchParameters)
-    .then(response => {
-      return response.json();
-    });*/
   }
 
   /**
@@ -206,7 +179,7 @@ class IdentityService extends AbstractService {
    */
   getContracts(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/identityContracts`)
+    .get(this.getApiPath() + `/${username}/identity-contracts`)
     .then(response => {
       return response.json();
     })
@@ -253,6 +226,67 @@ class IdentityService extends AbstractService {
       }
       return json;
     });
+  }
+
+  /**
+   * Returns form definition to given identity
+	 *
+   * @param  {string} id identity identifier
+   * @return {promise}
+   */
+  getFormDefinition(id) {
+    return RestApiService
+      .get(this.getApiPath() + `/${id}/form-definition`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns filled form values
+	 *
+   * @param  {string} id identity identifier
+   * @return {promise}
+   */
+  getFormValues(id) {
+    return RestApiService
+      .get(this.getApiPath() + `/${id}/form-values`)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Saves form values
+   *
+   * @param  {string} id identity identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @return {promise}
+   */
+  saveFormValues(id, values) {
+    return RestApiService
+      .post(this.getApiPath() + `/${id}/form-values`, values)
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

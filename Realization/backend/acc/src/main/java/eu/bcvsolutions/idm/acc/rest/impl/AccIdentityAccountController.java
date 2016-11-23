@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  */
 @RestController
 @IfEnabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/identityAccounts")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/identity-accounts")
 public class AccIdentityAccountController extends DefaultReadWriteEntityController<AccIdentityAccount, IdentityAccountFilter> {
 	
 	@Autowired

@@ -76,7 +76,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(entity, event) {
+  save(event) {
     if (event) {
       event.preventDefault();
     }

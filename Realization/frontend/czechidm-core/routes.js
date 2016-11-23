@@ -55,6 +55,10 @@ module.exports = {
         {
           path: 'subordinates',
           component: require('./src/content/identity/IdentitySubordinates')
+        },
+        {
+          path: 'eav',
+          component: require('./src/content/identity/IdentityEav')
         }
       ]
     },

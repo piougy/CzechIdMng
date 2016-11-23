@@ -238,7 +238,7 @@
       "virtual": "Virtuální",
       "connectorKey": {
         "_type": "Konektor",
-        "icfType": "Framework",
+        "framework": "Framework",
         "connectorName": "Typ konektoru",
         "bundleName": "Bundle konektoru",
         "bundleVersion": "Verze konektoru"

@@ -2,7 +2,9 @@ import _ from 'lodash';
 import Immutable from 'immutable';
 
 /**
- * EAV form instance (definitio + values)
+ * EAV form instance (definition + values)
+ *
+ * TODO: multi values
  */
 export default class FormInstance {
 
@@ -38,22 +40,49 @@ export default class FormInstance {
     return _.clone(this);
   }
 
+  /**
+   * Returns hateoas link to attribute defition by given attribute name
+   *
+   * @param  {string} attributeName
+   * @return {string}
+   */
   getAttributeLink(attributeName) {
     return `/form-attributes/${this.attributes.get(attributeName).id}`;
   }
 
+  /**
+   * Return form definition used for this instance
+   *
+   * @return {formDefinition}
+   */
   getDefinition() {
     return this.definition;
   }
 
+  /**
+   * Return attribute definitions ordered by its seq
+   *
+   * @return {Immutable.OrderedMap} <attributeName, attribute>
+   */
   getAttributes() {
     return this.attributes;
   }
 
+  /**
+   * Returns filled  attribute values (multivalues are oreded by its seq)
+   *
+   * @return {Immutable.OrderedMap} <attributeName, Immutable.List(formValue)>
+   */
   getValues() {
     return this.values;
   }
 
+  /**
+   * Returns the first filled value of given attribute or null
+   *
+   * @param  {striung} attributeName
+   * @return {formValue}
+   */
   getSingleValue(attributeName) {
     if (!this.values.has(attributeName)) {
       return null;

@@ -3,15 +3,10 @@ package eu.bcvsolutions.idm.icf.service.api;
 import java.util.List;
 import java.util.Map;
 
-import org.identityconnectors.framework.api.APIConfiguration;
-import org.identityconnectors.framework.api.ConnectorInfo;
-import org.springframework.util.Assert;
-
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
 import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
 
 /**
  * Facade for get available connectors configuration

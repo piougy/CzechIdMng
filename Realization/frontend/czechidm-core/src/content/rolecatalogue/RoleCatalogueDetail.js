@@ -31,7 +31,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
         loadedEntity.parent = entity._embedded.parent.id;
       }
       this.refs.form.setData(loadedEntity);
-      // TODO: ?? where put focus?? this.refs.parent.focus();
+      this.refs.name.focus();
     }
   }
 

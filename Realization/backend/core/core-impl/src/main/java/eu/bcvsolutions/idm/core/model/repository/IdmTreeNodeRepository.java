@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeNodeExcerpt;
  *
  */
 @RepositoryRestResource(
-	collectionResourceRel = "treenodes",
-	path = "treeNodes",
-	itemResourceRel = "treenode",
+	collectionResourceRel = "treeNodes",
+	path = "tree-nodes",
+	itemResourceRel = "treeNode",
 	collectionResourceDescription = @Description("Tree nodes"),
 	itemResourceDescription = @Description("Tree nodes"),
 	excerptProjection = IdmTreeNodeExcerpt.class,

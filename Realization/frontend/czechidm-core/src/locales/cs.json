@@ -898,13 +898,13 @@
           "CUSTOM": "Změnit heslo je možné na každém systémy zvlášť.",
           "ALL_ONLY": "Změnit heslo je možné pouze pro všechny systémy naráz."
         },
-        "resources": {
+        "accounts": {
           "label": "Na systému",
           "placeholder": "Vyberte koncový systém, na kterém chcete změnit heslo"
         },
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
-          "success": "Heslo na systémech [{{resources}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
+          "success": "Heslo na systémech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
           "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném systému libovolně krát."
         },
         "button": {

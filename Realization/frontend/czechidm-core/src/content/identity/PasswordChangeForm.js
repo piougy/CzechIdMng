@@ -49,9 +49,9 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
         preload: false,
         accounts: []
       }, () => {
-        const resources = [RESOURCE_IDM];
+        const accounts = [RESOURCE_IDM];
         this.refs.form.setData({
-          resources,
+          accounts,
           oldPassword: '',
           newPassword: '',
           newPasswordAgain: ''
@@ -88,13 +88,13 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
       identity: entityId,
       oldPassword: btoa(formData.oldPassword),  // base64
       newPassword: btoa(formData.newPassword),  // base64
-      resources: []
+      accounts: []
     };
-    formData.resources.map(resourceValue => {
+    formData.accounts.map(resourceValue => {
       if (resourceValue === RESOURCE_IDM) {
         requestData.idm = true;
       } else {
-        requestData.resources.push(resourceValue);
+        requestData.accounts.push(resourceValue);
       }
     });
 
@@ -115,22 +115,22 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
       return json;
     })
     .then(() => {
-      let resources = (requestData.idm) ? 'czechidm' : '';
-      if (requestData.resources.length > 0 && resources) {
-        resources += ', ';
+      let accounts = (requestData.idm) ? 'czechidm' : '';
+      if (requestData.accounts.length > 0 && accounts) {
+        accounts += ', ';
       }
-      // resources += requestData.resources.join();
+      // accounts += requestData.accounts.join();
 
       const optionsNames = [];
-      requestData.resources.forEach(obj => {
+      requestData.accounts.forEach(obj => {
         optionsNames.push(
           accountOptions[_.findKey(accountOptions, ['value', obj])].niceLabel
         );
       });
-      resources += optionsNames.join();
+      accounts += optionsNames.join();
 
       this.addMessage({
-        message: this.i18n('message.success', { resources, username: entityId })
+        message: this.i18n('message.success', { accounts, username: entityId })
       });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
@@ -139,7 +139,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
 
       // TODO: do we want reset password input after change?
       this.refs.form.setData({
-        resources: formData.resources,
+        accounts: formData.accounts,
         oldPassword: null,
         newPassword: null,
         newPasswordAgain: null
@@ -212,9 +212,9 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                       label={this.i18n('password.newAgain')} required/>
 
                     <Basic.EnumSelectBox
-                      ref="resources"
-                      label={this.i18n('resources.label')}
-                      placeholder={this.i18n('resources.placeholder')}
+                      ref="accounts"
+                      label={this.i18n('accounts.label')}
+                      placeholder={this.i18n('accounts.placeholder')}
                       multiSelect
                       options={accountOptions}
                       required

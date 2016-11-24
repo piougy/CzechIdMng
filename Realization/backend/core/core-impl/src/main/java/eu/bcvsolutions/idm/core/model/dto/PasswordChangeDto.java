@@ -19,7 +19,7 @@ public class PasswordChangeDto implements Serializable {
 	@NotEmpty
 	private byte[] newPassword;
 	private boolean idm = false; // change in idm
-	private List<String> resources; // selected resources
+	private List<String> accounts; // selected accounts
 
 	public String getIdentity() {
 		return identity;
@@ -53,14 +53,14 @@ public class PasswordChangeDto implements Serializable {
 		this.idm = idm;
 	}
 
-	public List<String> getResources() {
-		if(resources == null) {
-			resources = new ArrayList<>();
+	public List<String> getAccounts() {
+		if(accounts == null) {
+			accounts = new ArrayList<>();
 		}
-		return resources;
+		return accounts;
 	}
 
-	public void setResources(List<String> resources) {
-		this.resources = resources;
+	public void setAccounts(List<String> accounts) {
+		this.accounts = accounts;
 	}
 }

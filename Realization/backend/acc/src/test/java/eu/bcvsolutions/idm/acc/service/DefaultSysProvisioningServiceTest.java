@@ -158,7 +158,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// Create new password one
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdentity(identity.getId().toString());
-		passwordChange.setResources(ImmutableList.of(accountIdentityOne.getId().toString()));
+		passwordChange.setAccounts(ImmutableList.of(accountIdentityOne.getId().toString()));
 		passwordChange.setNewPassword(IDENTITY_PASSWORD_ONE.getBytes());
 		// Do change of password for selected accounts
 		idmIdentityService.passwordChange(identity, passwordChange);

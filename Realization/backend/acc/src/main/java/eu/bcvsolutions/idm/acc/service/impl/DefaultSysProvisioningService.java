@@ -154,7 +154,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
 		idenittyAccoutnList.stream().filter(identityAccount -> {
-			return passwordChange.getResources().contains(identityAccount.getId().toString());
+			return passwordChange.getAccounts().contains(identityAccount.getId().toString());
 		}).forEach(identityAccount -> {
 			doProvisioningForAttribute(identityAccount.getAccount().getUid(), PASSWORD_IDM_PROPERTY_NAME, guardedPassword,
 					identityAccount.getAccount().getSystem(), AccountOperationType.UPDATE, SystemEntityType.IDENTITY);

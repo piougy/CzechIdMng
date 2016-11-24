@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -60,14 +61,14 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 	private boolean uid = false;
 
 	@Audited
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "transform_from_system", length = DefaultFieldLengths.NAME)
-	private String transformFromSystem;
+	@Lob
+	@Column(name = "transform_from_res_script")
+	private String transformFromResourceScript;
 
 	@Audited
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "transform_to_system", length = DefaultFieldLengths.NAME)
-	private String transformToSystem;
+	@Lob
+	@Column(name = "transform_to_res_script")
+	private String transformToResourceScript;
 
 	public String getIdmPropertyName() {
 		return idmPropertyName;
@@ -93,20 +94,20 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 		this.extendedAttribute = extendedAttribute;
 	}
 
-	public String getTransformFromSystem() {
-		return transformFromSystem;
+	public String getTransformFromResourceScript() {
+		return transformFromResourceScript;
 	}
 
-	public void setTransformFromSystem(String transformFromSystem) {
-		this.transformFromSystem = transformFromSystem;
+	public void setTransformFromResourceScript(String transformFromResourceScript) {
+		this.transformFromResourceScript = transformFromResourceScript;
 	}
 
-	public String getTransformToSystem() {
-		return transformToSystem;
+	public String getTransformToResourceScript() {
+		return transformToResourceScript;
 	}
 
-	public void setTransformToSystem(String transformToSystem) {
-		this.transformToSystem = transformToSystem;
+	public void setTransformToResourceScript(String transformToResourceScript) {
+		this.transformToResourceScript = transformToResourceScript;
 	}
 
 	public SysSystemEntityHandling getSystemEntityHandling() {

@@ -66,6 +66,8 @@
     "send": "Odeslat",
     "sending": "Odesílám ...",
     "save": "Uložit",
+    "saveAndClose": "Uložit a zavřít",
+    "saveAndContinue": "Uložit a pokračovat",
     "saving": "Ukládám ...",
     "yes": "Ano",
     "set": "Nastavit"
@@ -86,26 +88,32 @@
     },
     "activate": {
       "action": "Aktivovat",
+      "header_0": "N/A",
       "header_1": "Aktivovat záznam",
       "header_2": "Aktivovat záznamy",
       "header_5": "$t(action.activate.header_2)",
+      "message_0": "N/A",
       "message_1": "Opravdu chcete aktivovat vybraný záznam [<strong>{{record}}</strong>]?",
       "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybrané záznamy?",
       "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybraných záznamů?",
       "error": "Při activaci záznamu [{{record}}] nastala chyba",
+      "success_0": "N/A",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně aktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány"
     },
     "deactivate": {
       "action": "Deaktivovat",
+      "header_0": "N/A",
       "header_1": "Deaktivovat záznam",
       "header_2": "Deaktivovat záznamy",
       "header_5": "$t(action.deactivate.header_2)",
+      "message_0": "N/A",
       "message_1": "Opravdu chcete deaktivovat vybraný záznam [<strong>{{record}}</strong>]?",
       "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané záznamy?",
       "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybraných záznamů?",
       "error": "Při aktivaci záznamu [{{record}}] nastala chyba",
+      "success_0": "N/A",
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
@@ -206,6 +214,7 @@
       "Table": {
         "bulk-action": {
           "selection_empty": "Vyberte záznamy ...",
+          "selection_0": "Vyberte záznamy ...",
           "selection_1": "Operace s vybraným záznamem:",
           "selection_2": "Operace s vybranými záznamy ({{count}}):",
           "selection_5": "Operace s vybranými záznamy ({{count}}):"
@@ -304,6 +313,26 @@
       "goToProfil": "Přejít na detail profilu"
     }
   },
+  "permission": {
+    "base" : {
+      "ADMIN": "Administrace",
+      "READ": "Čtení",
+      "WRITE": "Zápis",
+      "DELETE": "Mazání"
+    },
+    "group": {
+      "APP": "Správa aplikace",
+      "AUDIT": "Audit",
+      "CONFIGURATION": "Konfigurace aplikace",
+      "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
+      "IDENTITY": "Uživatelé",
+      "MODULE": "Moduly",
+      "NOTIFICATION": "Notifikace",
+      "ROLE": "Role",
+      "TREENODE": "Prvky struktur",
+      "TREETYPE": "Typy struktur"
+    }
+  },
   "content": {
     "error": {
       "401": {
@@ -328,28 +357,8 @@
         "note": "Zkuste to prosím později."
       }
     },
-    "permission": {
-      "base" : {
-        "ADMIN": "správa",
-        "READ": "čtení",
-        "WRITE": "zápis",
-        "DELETE": "mazání"
-      },
-      "group": {
-        "APP": "Správa aplikace",
-        "AUDIT": "Audit",
-        "CONFIGURATION": "Konfigurace aplikace",
-        "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
-        "IDENTITY": "Uživatelé",
-        "MODULE": "Moduly",
-        "NOTIFICATION": "Notifikace",
-        "ROLE": "Role",
-        "TREENODE": "Prvky struktur",
-        "TREETYPE": "Typy struktur"
-      }
-    },
     "about": {
-      "header": "About application",
+      "header": "O aplikaci",
       "title": "$t(content.about.header)",
       "sourceCodeOn": "Projekt dostupný na",
       "link": "$t(content.about.header)"
@@ -634,6 +643,7 @@
         },
         "activate": {
           "action": "Aktivovat",
+          "header_0": "N/A",
           "header_1": "Aktivace uživatele",
           "header_2": "Aktivace uživatelů",
           "header_5": "$t(content.identities.action.activate.header_2)",
@@ -1014,6 +1024,16 @@
       "subordinates": {
         "header": "Podřízení",
         "title": "$t(content.identity.subordinates.header)"
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "save": {
+          "success": "Údaje identity [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
+        }
       }
     },
     "audit": {
@@ -1463,7 +1483,7 @@
       "title": "Chybný požadavek"
     },
     "BAD_VALUE": {
-      "title": "Špatná hodnota"
+      "title": "Špatná volba"
     },
     "ROLE_CATALOG_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
@@ -1506,6 +1526,10 @@
     "TREE_NODE_BAD_PARENT": {
       "title": "Nadřazený prvek nelze přiřadit",
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
+    },
+    "GROVY_SCRIPT_VALIDATION": {
+      "title": "Groovy skript obsahuje kompilační chyby.",
+      "message": ""
     }
 
   },

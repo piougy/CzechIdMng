@@ -1483,7 +1483,7 @@
       "title": "Chybný požadavek"
     },
     "BAD_VALUE": {
-      "title": "Špatná hodnota"
+      "title": "Špatná volba"
     },
     "ROLE_CATALOG_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
@@ -1526,6 +1526,10 @@
     "TREE_NODE_BAD_PARENT": {
       "title": "Nadřazený prvek nelze přiřadit",
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
+    },
+    "GROVY_SCRIPT_VALIDATION": {
+      "title": "Groovy skript obsahuje kompilační chyby.",
+      "message": ""
     }
 
   },

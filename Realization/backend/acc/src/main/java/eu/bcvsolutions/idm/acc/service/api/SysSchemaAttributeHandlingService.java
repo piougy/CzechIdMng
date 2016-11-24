@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  */
 public interface SysSchemaAttributeHandlingService extends ReadWriteEntityService<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> {
 	
+	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
+	
 	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling);
 	
 	/**
@@ -22,7 +24,7 @@ public interface SysSchemaAttributeHandlingService extends ReadWriteEntityServic
 	 * @param attributeHandling
 	 * @return transformed value
 	 */
-	public Object transformValueToSystem(Object value, SysSchemaAttributeHandling attributeHandling);
+	public Object transformValueToResource(Object value, SysSchemaAttributeHandling attributeHandling);
 	
 	/**
 	 * Do transformation given value to value for IDM system
@@ -30,5 +32,5 @@ public interface SysSchemaAttributeHandlingService extends ReadWriteEntityServic
 	 * @param attributeHandling
 	 * @return transformed value
 	 */
-	public Object transformValueFromSystem(Object value, SysSchemaAttributeHandling attributeHandling);
+	public Object transformValueFromResource(Object value, SysSchemaAttributeHandling attributeHandling);
 }

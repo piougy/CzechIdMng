@@ -55,6 +55,8 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       this.addMessage({ message: this.i18n('save.success', { name: entity.entityType }) });
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }

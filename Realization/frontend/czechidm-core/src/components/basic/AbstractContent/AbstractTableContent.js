@@ -74,7 +74,7 @@ export default class AbstractTableContent extends AbstractContent {
     if (entity.id === undefined) {
       this.context.store.dispatch(this.getManager().createEntity(entity, `${this.getUiKey()}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
-        if (!error) {
+        if (!error && this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));

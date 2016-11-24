@@ -100,6 +100,8 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       }
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }

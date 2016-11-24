@@ -106,6 +106,8 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }

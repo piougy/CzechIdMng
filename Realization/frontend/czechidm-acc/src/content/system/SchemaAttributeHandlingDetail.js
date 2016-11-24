@@ -76,6 +76,8 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.idmPropertyName }) });
       }
+    } else {
+      this.addError(error);
     }
     super.afterSave();
   }
@@ -88,7 +90,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     const checked = event.currentTarget.checked;
     this.setState({isUid: checked}, () => {
       if (checked) {
-        this.refs.idmPropertyName.setValue(null);
+        this.refs.idmPropertyName.setValue('UID');
       }
     });
   }
@@ -142,14 +144,15 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="extendedAttribute"
                 label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
-              <Basic.TextField
-                ref="transformFromSystem"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromSystem')}
-                max={255}/>
-              <Basic.TextField
-                ref="transformToSystem"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.transformToSystem')}
-                max={255}/>
+              <Basic.TextArea
+                ref="transformFromResourceScript"
+                mode="javascript"
+                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.help')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.label')}/>
+              <Basic.TextArea
+                ref="transformToResourceScript"
+                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.help')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.label')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

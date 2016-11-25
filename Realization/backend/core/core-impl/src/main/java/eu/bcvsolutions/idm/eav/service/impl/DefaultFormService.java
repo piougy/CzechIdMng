@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
@@ -26,6 +27,8 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 
 /**
  * Work with form definitions, attributes and their values
+ * 
+ * TODO: save confidential values to securedRepository
  * 
  * @author Radek Tomiška
  *
@@ -51,18 +54,27 @@ public class DefaultFormService implements FormService {
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(String type) {
 		return this.getDefinition(type, null);		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(String type, String name) {
 		return formDefinitionService.get(type, name);		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public IdmFormDefinition createDefinition(String type, String name, List<IdmFormAttribute> formAttributes) {
@@ -91,15 +103,22 @@ public class DefaultFormService implements FormService {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * TODO: validations by given form definitions
-	 * TODO: remove "skeleton" values by form definition
-	 * TODO: save confidential values to securedRepository
 	 */
 	@Transactional
 	@SuppressWarnings("unchecked")
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(values, "Form values are required!");
+		//
+		FormValueService<O, E> formValueService = (FormValueService<O, E>) getFormValueService(owner);
+		//
+		Map<UUID, E> previousValues = new HashMap<>();
+		formValueService.getValues(owner, formDefinition).forEach(formValue -> {
+			previousValues.put(formValue.getId(), formValue);
+		});
 		//
 		values.forEach(value -> {
 			Assert.notNull(value.getFormAttribute(), "Form attribute is required");
@@ -108,27 +127,38 @@ public class DefaultFormService implements FormService {
 			// set attribute values
 			value.setPersistentType(value.getFormAttribute().getPersistentType());
 			value.setConfidential(value.getFormAttribute().isConfidential());
-			// set created and creator
-			// TODO: fix created and creator audit handler
+			// find values to be removed
 			if (value.getId() != null) {
-				AbstractFormValue<O> prev = ((FormValueService<O, E>) getFormValueService(owner)).get(value.getId());
-				if (prev != null) {
-					value.setCreator(prev.getCreator());
-					value.setCreated(prev.getCreated());
+				E previousValue = previousValues.get(value.getId());
+				if (previousValue != null) {
+					// TODO: fix created and creator audit handler
+					value.setCreator(previousValue.getCreator());
+					value.setCreated(previousValue.getCreated());
+					previousValues.remove(value.getId());
 				}
 			}
-			// TODO: check multi values by attribute definition
 			//
-			((FormValueService<O, E>) getFormValueService(owner)).save(value);
-		});		
+			formValueService.save(value);
+		});
+		//
+		// remove unsaved values by attribute definition (patch method is not implemented now)
+		previousValues.values().forEach(formValue -> {
+			formValueService.deleteValue(formValue);
+		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner) {		
 		return getValues(owner, null);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition) {
@@ -143,12 +173,18 @@ public class DefaultFormService implements FormService {
 		return Lists.newArrayList(formValueService.getValues(owner, formDefinition));
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner) {
 		deleteValues(owner, null);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition) {
@@ -165,6 +201,7 @@ public class DefaultFormService implements FormService {
 	 * @param values
 	 * @return
 	 */
+	@Override
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> Map<String, List<E>> toAttributeMap(final List<E> values) {
 		Assert.notNull(values);
 		//

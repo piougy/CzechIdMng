@@ -58,7 +58,8 @@ import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
  *
  */
 @Service
-public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter> implements SysSystemService {
+public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter>
+		implements SysSystemService {
 
 	private SysSystemRepository systemRepository;
 	private IcfConfigurationFacade icfConfiguratioFacade;
@@ -67,32 +68,34 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	/**
 	 * Connector property type vs. eav type mapping
 	 */
-	private static final  Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
-	
+	private static final Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
+
 	static {
 		// TODO: converter registration?
 		supportedConnectorPropertyMapping = new HashMap<>();
-		supportedConnectorPropertyMapping.put("java.lang.Boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
+		supportedConnectorPropertyMapping.put("java.lang.Boolean",
+				new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
-		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString", new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString",
+				new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
-		supportedConnectorPropertyMapping.put("java.lang.String", new ConnectorPropertyMapping(PersistentType.TEXT, false));
-		supportedConnectorPropertyMapping.put("[Ljava.lang.String;", new ConnectorPropertyMapping(PersistentType.TEXT, true));
+		supportedConnectorPropertyMapping.put("java.lang.String",
+				new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put("[Ljava.lang.String;",
+				new ConnectorPropertyMapping(PersistentType.TEXT, true));
 		supportedConnectorPropertyMapping.put("int", new ConnectorPropertyMapping(PersistentType.INT, false));
 		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
-		// TODO: correct data type ... 
-		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray", new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
+		// TODO: correct data type ...
+		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray",
+				new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
 	}
-	
+
 	@Autowired
 	DataSource dataSource;
 
 	@Autowired
-	public DefaultSysSystemService(
-			FormService formService,
-			SysSystemRepository systemRepository,
-			IcfConfigurationFacade icfConfigurationFacade,
-			SysSchemaObjectClassRepository objectClassRepository, 
+	public DefaultSysSystemService(FormService formService, SysSystemRepository systemRepository,
+			IcfConfigurationFacade icfConfigurationFacade, SysSchemaObjectClassRepository objectClassRepository,
 			SysSchemaAttributeRepository attributeRepository) {
 		super(formService);
 		this.systemRepository = systemRepository;
@@ -124,16 +127,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		IcfConnectorConfigurationImpl icfConf = new IcfConnectorConfigurationImpl();
 		IcfConfigurationProperties properties = new IcfConfigurationPropertiesImpl();
 		icfConf.setConfigurationProperties(properties);
-		for(String attributeName : attributeValues.keySet()) {
+		for (String attributeName : attributeValues.keySet()) {
 			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(attributeName);
 			IcfConfigurationPropertyImpl property = new IcfConfigurationPropertyImpl();
 			property.setName(attributeName);
-			// convert form attribute values to connector properties 
+			// convert form attribute values to connector properties
 			Object value = null;
-			if(!attributeValues.get(attributeName).isEmpty()) {
-				if (formAttribute.isMultiple()) {					
+			if (!attributeValues.get(attributeName).isEmpty()) {
+				if (formAttribute.isMultiple()) {
 					List valueList = formAttribute.getEmptyList();
-					for(AbstractFormValue<SysSystem> formValue : attributeValues.get(attributeName)) {
+					for (AbstractFormValue<SysSystem> formValue : attributeValues.get(attributeName)) {
 						valueList.add(toPropertyValue(formValue));
 					}
 					value = valueList.toArray();
@@ -141,7 +144,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					// single value
 					value = toPropertyValue(attributeValues.get(attributeName).get(0));
 				}
-			}			
+			}
 			property.setValue(value);
 			properties.getProperties().add(property);
 		}
@@ -186,8 +189,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
 		for (IcfObjectClassInfo objectClass : icfSchema.getDeclaredObjectClasses()) {
 			SysSchemaObjectClass sysObjectClass = null;
-			// If existed some object class in system, then we will compared every object with object class in resource
-			// If will be same (same name), then we do only refresh object values from resource 
+			// If existed some object class in system, then we will compared
+			// every object with object class in resource
+			// If will be same (same name), then we do only refresh object
+			// values from resource
 			if (sysObjectClassesInSystem != null) {
 				Optional<SysSchemaObjectClass> objectClassSame = sysObjectClassesInSystem.stream()
 						.filter(objectClassInSystem -> { //
@@ -198,7 +203,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					sysObjectClass = objectClassSame.get();
 				}
 			}
-			// Convert ICF object class to ACC (if is null, then will be created new instance)
+			// Convert ICF object class to ACC (if is null, then will be created
+			// new instance)
 			sysObjectClass = convertIcfObjectClassInfo(objectClass, sysObjectClass);
 			sysObjectClass.setSystem(system);
 			sysObjectClasses.add(sysObjectClass);
@@ -214,7 +220,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				attributesInSystem = attributesInSystemPage.getContent();
 			}
 			for (IcfAttributeInfo attribute : objectClass.getAttributeInfos()) {
-				// If will be ICF and ACC attribute same (same name), then we will do only refresh object values from resource 
+				// If will be ICF and ACC attribute same (same name), then we
+				// will do only refresh object values from resource
 				SysSchemaAttribute sysAttribute = null;
 				if (attributesInSystem != null) {
 					Optional<SysSchemaAttribute> sysAttributeOptional = attributesInSystem.stream().filter(a -> {
@@ -268,21 +275,22 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		sysAttribute.setCreateable(attributeInfo.isCreateable());
 		return sysAttribute;
 	}
-	
+
 	@Override
 	@Transactional
 	public IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey) {
 		Assert.notNull(connectorKey);
 		//
 		// if form definition for given key already exists
-		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorKey.getConnectorName(), connectorKey.getFullName());
+		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorKey.getConnectorName(),
+				connectorKey.getFullName());
 		if (formDefinition == null) {
 			// we creates new form definition
 			formDefinition = createConnectorFormDefinition(connectorKey);
 		}
 		return formDefinition;
 	}
-	
+
 	/**
 	 * Create form definition to given connectorKey by connector properties
 	 * 
@@ -292,19 +300,21 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
 		IcfConnectorConfiguration conf = icfConfiguratioFacade.getConnectorConfiguration(connectorKey);
 		if (conf == null) {
-			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.", connectorKey.getFullName()));
+			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
+					connectorKey.getFullName()));
 		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
-		for(short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
+		for (short seq = 0; seq < conf.getConfigurationProperties().getProperties().size(); seq++) {
 			IcfConfigurationProperty property = conf.getConfigurationProperties().getProperties().get(seq);
 			IdmFormAttribute attribute = toAttribute(property);
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
-		return getFormService().createDefinition(connectorKey.getConnectorName(), connectorKey.getFullName(), formAttributes);
+		return getFormService().createDefinition(connectorKey.getConnectorName(), connectorKey.getFullName(),
+				formAttributes);
 	}
-	
+
 	/**
 	 * Returns eav form attribute from given connector property
 	 * 
@@ -315,17 +325,45 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		IdmFormAttribute attribute = new IdmFormAttribute();
 		attribute.setName(property.getName());
 		attribute.setDisplayName(property.getDisplayName());
-		attribute.setDescription(property.getHelpMessage());			
+		attribute.setDescription(property.getHelpMessage());
 		attribute.setPersistentType(convertPropertyType(property.getType()));
 		attribute.setConfidential(property.isConfidential());
 		attribute.setRequired(property.isRequired());
-		attribute.setMultiple(isMultipleProperty(property.getType()));	
-		attribute.setDefaultValue(property.getValue() == null ? null : property.getValue().toString());
+		attribute.setMultiple(isMultipleProperty(property.getType()));
+		attribute.setDefaultValue(convertDefaultValue(property));
 		return attribute;
 	}
-	
+
+	/**
+	 * Converts default value by property data type. If property supports
+	 * multiple values, then return multi lines string
+	 * 
+	 * @param property
+	 * @return
+	 */
+	private String convertDefaultValue(IcfConfigurationProperty property) {
+		if (property.getValue() == null) {
+			return null;
+		}
+		StringBuilder result = new StringBuilder();
+		if (!isMultipleProperty(property.getType())) {
+			result.append(property.getValue().toString());
+		} else {
+			// arrays only - see supportedConnectorPropertyMapping
+			Object[] values = (Object[]) property.getValue();
+			for (Object singleValue : values) {
+				if (result.length() > 0) {
+					result.append(System.getProperty("line.separator"));
+				}
+				result.append(singleValue.toString());
+			}
+		}
+		return result.toString();
+	}
+
 	/**
 	 * Returns connector property value from given eav value
+	 * 
 	 * @param formValue
 	 * @return
 	 */
@@ -333,12 +371,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (formValue == null) {
 			return null;
 		}
-		if(formValue.isConfidential()) {
-			return new org.identityconnectors.common.security.GuardedString(formValue.getValue().toString().toCharArray());
+		if (formValue.isConfidential()) {
+			return new org.identityconnectors.common.security.GuardedString(
+					formValue.getValue().toString().toCharArray());
 		}
 		return formValue.getValue();
 	}
-	
+
 	/**
 	 * Returns true, if connector property supports multiple values
 	 * 
@@ -347,11 +386,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 */
 	private boolean isMultipleProperty(String connectorPropertyType) {
 		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
-			throw new UnsupportedOperationException(MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
+			throw new UnsupportedOperationException(
+					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
 		}
 		return supportedConnectorPropertyMapping.get(connectorPropertyType).multiple;
 	}
-	
+
 	/**
 	 * Returns
 	 * 
@@ -360,11 +400,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 */
 	private PersistentType convertPropertyType(String connectorPropertyType) {
 		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
-			throw new UnsupportedOperationException(MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
+			throw new UnsupportedOperationException(
+					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));
 		}
 		return supportedConnectorPropertyMapping.get(connectorPropertyType).persistentType;
 	}
-	
+
 	/**
 	 * Connector property type vs. eav type mapping
 	 * 
@@ -372,27 +413,27 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 *
 	 */
 	private static class ConnectorPropertyMapping {
-		
+
 		PersistentType persistentType;
 		boolean multiple;
-		
+
 		public ConnectorPropertyMapping(PersistentType persistentType, boolean multiple) {
 			this.persistentType = persistentType;
 			this.multiple = multiple;
 		}
 	}
-	
+
 	@Deprecated
 	@Transactional
 	public SysSystem createTestSystem() {
 		// create owner
 		SysSystem system = new SysSystem();
-		system.setName("sysOne_" + System.currentTimeMillis());	
+		system.setName("sysOne_" + System.currentTimeMillis());
 		system.setConnectorKey(new SysConnectorKey(getTestConnectorKey()));
 		save(system);
-	
+
 		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorKey());
-		
+
 		List<SysSystemFormValue> values = new ArrayList<>();
 		SysSystemFormValue host = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("host"));
 		host.setValue("localhost");
@@ -402,49 +443,58 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		values.add(port);
 		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
 		user.setValue("idmadmin");
-		values.add(user);		
+		values.add(user);
 		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
 		password.setValue("idmadmin");
-		values.add(password);	
+		values.add(password);
 		SysSystemFormValue database = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("database"));
 		database.setValue("bcv_idm_storage");
 		values.add(database);
 		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
 		table.setValue("system_users");
 		values.add(table);
-		SysSystemFormValue keyColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("keyColumn"));
+		SysSystemFormValue keyColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("keyColumn"));
 		keyColumn.setValue("name");
 		values.add(keyColumn);
-		SysSystemFormValue passwordColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("passwordColumn"));
+		SysSystemFormValue passwordColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
 		passwordColumn.setValue("password");
 		values.add(passwordColumn);
-		SysSystemFormValue allNative = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("allNative"));
+		SysSystemFormValue allNative = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("allNative"));
 		allNative.setValue(true);
 		values.add(allNative);
-		SysSystemFormValue jdbcDriver = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
+		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
 		jdbcDriver.setValue("org.postgresql.Driver");
 		values.add(jdbcDriver);
-		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
+		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
 		jdbcUrlTemplate.setValue("jdbc:postgresql://%h:%p/%d");
 		values.add(jdbcUrlTemplate);
-		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
+		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
 		rethrowAllSQLExceptions.setValue(true);
 		values.add(rethrowAllSQLExceptions);
-		SysSystemFormValue statusColumn = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("statusColumn"));
+		SysSystemFormValue statusColumn = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("statusColumn"));
 		statusColumn.setValue("status");
 		values.add(statusColumn);
-		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
+		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
 		disabledStatusValue.setValue("disabled");
 		values.add(disabledStatusValue);
-		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
+		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
-		
+
 		getFormService().saveValues(system, savedFormDefinition, values);
-		
+
 		return system;
 	}
-	
+
 	/**
 	 * Basic table connector
 	 * 

@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 
@@ -56,37 +57,117 @@ export default class EavForm extends Basic.AbstractContextComponent {
     //
     formInstance.getAttributes().forEach(attribute => {
       const formComponent = this.refs[attribute.name];
-      let formValue = formInstance.getSingleValue(attribute.name);
-      if (formValue === null) {
-        // construct form value
-        formValue = {
-          formAttribute: formInstance.getAttributeLink(attribute.name)
-        };
+
+      if (attribute.multiple) {
+        const formValues = formInstance.getValues(attribute.name) || [];
+        // split multilines text = multi values
+        const textValue = formComponent.getValue();
+        if (textValue) {
+          const textValues = textValue.split('\n');
+          for (let i = 0; i < textValues.length; i++) {
+            let formValue = null;
+            if (i < formValues.length) {
+              formValue = formValues[i];
+            }
+            filledFormValues.push(this._fillFormValue(formInstance, attribute, formValue, textValues[i], i));
+          }
+        }
+      } else {
+        // single value
+        filledFormValues.push(this._fillFormValue(formInstance, attribute, formInstance.getSingleValue(attribute.name), formComponent.getValue()));
       }
-      // set value by persistent type
-      switch (attribute.persistentType) {
-        case 'CHAR':
-        case 'TEXT':
-        case 'TEXTAREA': {
-          formValue.stringValue = formComponent.getValue();
-          break;
-        }
-        case 'INT':
-        case 'LONG': {
-          formValue.longValue = formComponent.getValue();
-          break;
-        }
-        case 'BOOLEAN': {
-          formValue.booleanValue = formComponent.getValue();
-          break;
-        }
-        default: {
-          this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
-        }
-      }
-      filledFormValues.push(formValue);
     });
     return filledFormValues;
+  }
+
+  /**
+   * Fill form value by persistent type
+   *
+   * @param  {FormInstance} formInstance
+   * @param  {FormAttribute} attribute
+   * @param  {FormValue} formValue
+   * @param  {[type]} formComponent
+   * @return {FormValue}
+   */
+  _fillFormValue(formInstance, attribute, formValue, rawValue, seq = 0) {
+    if (formValue === null) {
+      formValue = {
+        formAttribute: formInstance.getAttributeLink(attribute.name)
+      };
+    }
+    formValue.seq = seq;
+    // set value by persistent type
+    switch (attribute.persistentType) {
+      case 'CHAR':
+      case 'TEXT':
+      case 'TEXTAREA': {
+        formValue.stringValue = rawValue;
+        break;
+      }
+      case 'INT':
+      case 'LONG': {
+        formValue.longValue = rawValue;
+        break;
+      }
+      case 'BOOLEAN': {
+        formValue.booleanValue = rawValue;
+        break;
+      }
+      default: {
+        this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
+      }
+    }
+    return formValue;
+  }
+
+  /**
+   * Return value by attribute persistent type
+   *
+   * @param  {FormAttrinute} attribute attribute definition
+   * @param  {FormValue} formValue form value
+   * @return {oneOf([string, boolean, long])}
+   */
+  _toInputValue(attribute, formValue) {
+    if (formValue === null) {
+      return attribute.defaultValue;
+    }
+    if (_.isArray(formValue)) {
+      // multi values are transformed to multi lines
+      let result = null;
+      formValue.forEach(singleValue => {
+        if (result !== null) {
+          result += '\n';
+        }
+        const inputValue = this._toInputValue(attribute, singleValue);
+        if (inputValue) {
+          if (result === null) { // single values should not be concated
+            result = inputValue;
+          } else {
+            result += inputValue;
+          }
+        }
+      });
+      return result;
+    }
+    //
+    switch (attribute.persistentType) {
+      case 'CHAR':
+      case 'TEXT':
+      case 'TEXTAREA': {
+        return formValue.stringValue;
+      }
+      case 'INT':
+      case 'LONG': {
+        return formValue.longValue;
+      }
+      case 'BOOLEAN': {
+        return formValue.booleanValue;
+      }
+      default: {
+        this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
+      }
+    }
+    return null;
   }
 
 
@@ -107,42 +188,50 @@ export default class EavForm extends Basic.AbstractContextComponent {
       <span>
         {
           formInstance.getAttributes().map(attribute => {
-            const formValue = formInstance.getSingleValue(attribute.name);
-            // text field
-            if (attribute.persistentType === 'TEXT' || attribute.persistentType === 'CHAR') {
+            const formValues = formInstance.getValues(attribute.name);
+            //
+            if (attribute.multiple) {
+              // unsupported variant
+              if (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BOOLEAN') {
+                return (
+                  <Basic.LabelWrapper label={attribute.displayName} >
+                    <Basic.Alert level="warning" className="no-margin">
+                      <div>{attribute.persistentType } - attribute can not be multiple.</div>
+                      <div>Form definition has to be fixed:</div>
+                      <div style={{ wordWrap: 'break-word' }}>Type: {formInstance.getDefinition().type}</div>
+                      <div style={{ wordWrap: 'break-word' }}>Name: {formInstance.getDefinition().name}</div>
+                    </Basic.Alert>
+                  </Basic.LabelWrapper>
+                );
+              }
+              // multi values are presented as multi lines string
+              // TODO: localization
               return (
-                <Basic.TextField
+                <Basic.TextArea
                   ref={attribute.name}
                   type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
-                  label={attribute.displayName}
-                  value={formValue ? formValue.stringValue : attribute.defaultValue}
-                  helpBlock={attribute.description}
+                  label={`${attribute.displayName} (multi)`}
+                  value={this._toInputValue(attribute, formValues)}
+                  helpBlock={attribute.description ? attribute.description : 'Every value is on new line'}
                   readOnly={attribute.readonly}/>
               );
             }
-            // integer
-            if (attribute.persistentType === 'INT' || attribute.persistentType === 'LONG') {
+            //
+            // single field
+            // TODO: validation
+            if (attribute.persistentType === 'TEXT'
+              || attribute.persistentType === 'CHAR'
+              || attribute.persistentType === 'INT'
+              || attribute.persistentType === 'LONG'
+              || attribute.persistentType === 'DOUBLE') {
               return (
                 <Basic.TextField
                   ref={attribute.name}
                   type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
                   label={attribute.displayName}
-                  value={formValue ? formValue.longValue : attribute.defaultValue}
-                  helpBlock={attribute.description}
-                  readOnly={attribute.readonly}/>
-              );
-            }
-            // real number
-            if (attribute.persistentType === 'DOUBLE') {
-              return (
-                <Basic.TextField
-                  ref={attribute.name}
-                  type={attribute.confidential ? 'password' : 'text'}
-                  required={attribute.required}
-                  label={attribute.displayName}
-                  value={formValue ? formValue.doubleValue : attribute.defaultValue}
+                  value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}/>
               );
@@ -154,7 +243,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   ref={attribute.name}
                   required={attribute.required}
                   label={attribute.displayName}
-                  value={formValue ? formValue.stringValue : attribute.defaultValue}
+                  value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}/>
               );
@@ -165,13 +254,15 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 <Basic.Checkbox
                   ref={attribute.name}
                   label={attribute.displayName}
-                  value={formValue ? formValue.booleanValue : (attribute.defaultValue === 'true')}
+                  value={formValues ? this._toInputValue(attribute, formValues) : (attribute.defaultValue === 'true')}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}/>
               );
             }
             return (
-              <div>Unimplemented persistentType: { attribute.persistentType }</div>
+              <Basic.LabelWrapper label={attribute.displayName}>
+                <Basic.Alert level="warning" text={`${attribute.persistentType } - unimplemented persistentType`} className="no-margin"/>
+              </Basic.LabelWrapper>
             );
           })
         }
@@ -182,6 +273,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
 
 EavForm.propTypes = {
   ...Basic.AbstractContextComponent.propTypes,
+  /**
+   * FormInstance (definition + values)
+   */
   formInstance: PropTypes.object
 };
 EavForm.defaultProps = {

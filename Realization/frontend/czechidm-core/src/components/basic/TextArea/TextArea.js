@@ -44,7 +44,7 @@ class TextArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
+    const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -85,6 +85,11 @@ class TextArea extends AbstractFormComponent {
                 !showAsterix
                 ||
                 <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
+              }
+              {
+                !helpBlock
+                ||
+                <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
               }
             </span>
           </Tooltip>

@@ -14,6 +14,15 @@ import * as Basic from '../../basic';
 export default class EavForm extends Basic.AbstractContextComponent {
 
   /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return 'core:component.advanced.EavForm';
+  }
+
+  /**
    * Returns true, when form is valid, otherwise false
    *
    * @return {Boolean} [description]
@@ -158,7 +167,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
       }
       case 'INT':
       case 'LONG': {
-        return formValue.longValue;
+        return formValue.longValue + ''; // TODO: TextField warning for numbers
       }
       case 'BOOLEAN': {
         return formValue.booleanValue;
@@ -196,10 +205,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 return (
                   <Basic.LabelWrapper label={attribute.displayName} >
                     <Basic.Alert level="warning" className="no-margin">
-                      <div>{attribute.persistentType } - attribute can not be multiple.</div>
-                      <div>Form definition has to be fixed:</div>
-                      <div style={{ wordWrap: 'break-word' }}>Type: {formInstance.getDefinition().type}</div>
-                      <div style={{ wordWrap: 'break-word' }}>Name: {formInstance.getDefinition().name}</div>
+                      <div>{ this.i18n('multiple.unsupported.title', { name: attribute.persistentType }) }</div>
+                      <div>{ this.i18n('multiple.unsupported.formDefinition.title') }:</div>
+                      <div style={{ wordWrap: 'break-word' }}>{ this.i18n('multiple.unsupported.formDefinition.type') }: {formInstance.getDefinition().type}</div>
+                      <div style={{ wordWrap: 'break-word' }}>{ this.i18n('multiple.unsupported.formDefinition.name') }: {formInstance.getDefinition().name}</div>
                     </Basic.Alert>
                   </Basic.LabelWrapper>
                 );
@@ -211,9 +220,15 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   ref={attribute.name}
                   type={attribute.confidential ? 'password' : 'text'}
                   required={attribute.required}
-                  label={`${attribute.displayName} (multi)`}
+                  label={
+                    <span>
+                      { attribute.displayName }
+                      {' '}
+                      <Basic.Tooltip placement="bottom" value={ this.i18n('multiple.title') }>{<small>({this.i18n('multiple.label')})</small>}</Basic.Tooltip>
+                    </span>
+                  }
                   value={this._toInputValue(attribute, formValues)}
-                  helpBlock={attribute.description ? attribute.description : 'Every value is on new line'}
+                  helpBlock={attribute.description ? attribute.description : this.i18n('multiple.title')}
                   readOnly={attribute.readonly}/>
               );
             }
@@ -261,7 +276,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
             }
             return (
               <Basic.LabelWrapper label={attribute.displayName}>
-                <Basic.Alert level="warning" text={`${attribute.persistentType } - unimplemented persistentType`} className="no-margin"/>
+                <Basic.Alert level="warning" text={ this.i18n('persistentType.unsupported.title', { name: attribute.persistentType}) } className="no-margin"/>
               </Basic.LabelWrapper>
             );
           })

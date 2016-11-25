@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom';
 import { Router, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import merge from 'object-assign';
-import _ from 'lodash';
 import Immutable from 'immutable';
 import { combineReducers, compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
@@ -130,7 +129,7 @@ const createPersistentStore = compose(
 const reduxRouterMiddleware = syncHistory(hashHistory);
 //
 // before dispatch handfler
-function dispatchLogger({ getState }) {
+function dispatchTrace({ getState }) {
   return (next) => (action) => {
     logger.trace('will dispatch', action);
     // Call the next dispatch method in the middleware chain.
@@ -142,8 +141,13 @@ function dispatchLogger({ getState }) {
   };
 }
 //
-// apply middleware (TODO: configurable middlewares)
-const createStoreWithMiddleware = applyMiddleware(/* dispatchLogger, */thunkMiddleware, promiseMiddleware, reduxRouterMiddleware)(createPersistentStore);
+// apply middleware
+let midlewares = [];
+if (logger.isTraceEnabled()) {
+  midlewares.push(dispatchTrace);
+}
+midlewares = [...midlewares, thunkMiddleware, promiseMiddleware, reduxRouterMiddleware];
+const createStoreWithMiddleware = applyMiddleware(...midlewares)(createPersistentStore);
 // redux store
 const store = createStoreWithMiddleware(reducer);
 // Required for replaying actions from devtools to work

@@ -229,6 +229,25 @@
       },
       "Tree": {
         "loading": "Načítání ..."
+      },
+      "EavForm": {
+        "multiple": {
+          "label": "multi",
+          "title": "Podporuje zádání více hodnot. Co hodnota, to nový řádek",
+          "unsupported": {
+            "title": "{{name}} - attribute can not be multiple",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name"
+            }
+          }
+        },
+        "persistentType": {
+          "unsupported": {
+            "title": "{{name}} - unimplemented persistentType"
+          }
+        }
       }
     }
   },

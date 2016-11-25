@@ -48,7 +48,7 @@ export class App extends Basic.AbstractContent {
     if (this.refs.form) { // when modal is closed, form is not defined
       this.refs.form.setData({
         username: userContext.username,
-        password: this.refs.password.getValue() // prevent filled password
+        password: this.refs.password.getValue() // preserve filled password
       });
     }
 

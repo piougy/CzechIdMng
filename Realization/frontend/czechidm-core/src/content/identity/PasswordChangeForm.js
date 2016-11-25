@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import classnames from 'classnames';
 import _ from 'lodash';
+import zxcvbn from 'zxcvbn';
 //
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
@@ -24,7 +25,9 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     this.state = {
       preload: true,
       showLoading: false,
-      accounts: []
+      accounts: [],
+      passwordStrength: 0,
+      passwordStrengthStyle: 'danger'
     };
   }
 
@@ -151,6 +154,9 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   _validatePassword(property, onlyValidate, value, result) {
+    if (property === 'newPasswordAgain') {
+      this._passwordStrength(value);
+    }
     if (onlyValidate) {
       this.refs[property].validate();
       return result;
@@ -165,9 +171,25 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     return result;
   }
 
+  _passwordStrength(password) {
+    if (password !== null) {
+      const response = zxcvbn(password);
+      let passwordStrengthStyle = 'danger';
+      if (response.score > 3) {
+        passwordStrengthStyle = 'success';
+      } else if (response.score > 1) {
+        passwordStrengthStyle = 'warning';
+      }
+      this.setState({
+        passwordStrength: response.score,
+        passwordStrengthStyle
+      });
+    }
+  }
+
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload } = this.state;
+    const { preload, passwordStrength, passwordStrengthStyle } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== ALL_ONLY || SecurityManager.isAdmin(userContext) }
@@ -207,6 +229,15 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                     <Basic.TextField type="password" ref="newPassword"
                       validate={this._validatePassword.bind(this, 'newPasswordAgain', true)}
                       label={this.i18n('password.new')} required/>
+                    <div className="form-group">
+                      <span className="col-sm-offset-3 col-sm-8">
+                        <Basic.ProgressBar
+                          className="password-change-bar"
+                          ref="passwordStrength"
+                          now={passwordStrength}
+                          bsStyle={passwordStrengthStyle} min={0} max={4} />
+                      </span>
+                    </div>
                     <Basic.TextField type="password" ref="newPasswordAgain"
                       validate={this._validatePassword.bind(this, 'newPassword', false)}
                       label={this.i18n('password.newAgain')} required/>

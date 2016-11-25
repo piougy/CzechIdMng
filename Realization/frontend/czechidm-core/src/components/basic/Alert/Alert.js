@@ -31,7 +31,7 @@ class Alert extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, className, icon, onClose, rendered, showLoading, children, ...others } = this.props;
+    const { level, title, text, className, icon, onClose, rendered, showLoading, children, style } = this.props;
     const { closed } = this.state;
     if (!rendered || closed || (!text && !title && !children)) {
       return null;
@@ -45,14 +45,14 @@ class Alert extends AbstractComponent {
     );
     if (showLoading) {
       return (
-        <div className={classNames} {...others}>
+        <div className={classNames} style={style}>
           <Icon type="fa" icon="refresh" showLoading/>
         </div>
       );
     }
 
     return (
-      <div className={classNames} {...others}>
+      <div className={classNames} style={style}>
         {
           !onClose
           ||

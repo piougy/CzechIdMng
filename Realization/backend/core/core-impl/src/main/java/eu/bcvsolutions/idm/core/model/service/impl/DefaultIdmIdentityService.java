@@ -275,9 +275,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	public GuardedString getPassword(IdmIdentity identity) {
 		Assert.notNull(identity);
 		//
-		GuardedString password = confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
-		System.out.println("get: " + password.asString());
-		return password;
+		return confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
 	}
 	
 	/**

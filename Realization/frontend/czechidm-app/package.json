@@ -96,7 +96,8 @@
     "redux-thunk": "2.0.1",
     "stringify": "5.1.0",
     "uuid": "2.0.1",
-    "vinyl-fs": "2.4.3"
+    "vinyl-fs": "2.4.3",
+    "zxcvbn": "4.4.1"
   },
   "devDependencies": {
     "babel": "5.8.38",

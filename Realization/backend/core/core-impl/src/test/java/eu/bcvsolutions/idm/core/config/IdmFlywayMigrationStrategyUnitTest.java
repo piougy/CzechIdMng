@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class IdmFlywayMigrationStrategyTest extends AbstractUnitTest {
+public class IdmFlywayMigrationStrategyUnitTest extends AbstractUnitTest {
 
 	private IdmFlywayMigrationStrategy flywayMigrationStrategy = new IdmFlywayMigrationStrategy();
 	

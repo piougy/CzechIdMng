@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DynamicCorsConfigurationTest extends AbstractUnitTest {
+public class DynamicCorsConfigurationUnitTest extends AbstractUnitTest {
 	
 	private static final String ORIGIN_VALUE = "http://localhost";
 	
@@ -68,12 +68,13 @@ public class DynamicCorsConfigurationTest extends AbstractUnitTest {
 	}
 	
 	@Test
-	public void testCheckOriginAllWithCredentials() {
+	public void testCheckOriginAllWithCredentials() {		
 		when(configurationService.getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN)).thenReturn(CorsConfiguration.ALL);
 		dynamicCorsConfiguration.setAllowCredentials(true);
 		assertEquals(ORIGIN_VALUE, dynamicCorsConfiguration.checkOrigin(ORIGIN_VALUE));
 		
 		verify(configurationService).getValue(DynamicCorsConfiguration.PROPERTY_ALLOWED_ORIGIN);
 	}
+	
 
 }

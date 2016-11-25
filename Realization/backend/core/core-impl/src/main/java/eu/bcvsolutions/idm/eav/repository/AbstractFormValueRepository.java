@@ -25,6 +25,9 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 @NoRepositoryBean
 public interface AbstractFormValueRepository<O extends FormableEntity, E extends AbstractFormValue<O>> extends AbstractEntityRepository<E, FormValueFilter<O>> {
 	
+	/**
+	 * Quick search 
+	 */
 	@Override
 	@Query(value = "select e from #{#entityName} e " + " where"
 			+ " (?#{[0].owner} is null or e.owner = ?#{[0].owner})"
@@ -34,7 +37,20 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 			+ " (?#{[0].formAttribute} is null or e.formAttribute = ?#{[0].formAttribute})")
 	Page<E> find(FormValueFilter<O> filter, Pageable pageable);
 	
+	/**
+	 * Returns all form values by given owner (from all definitions)
+	 * 
+	 * @param owner
+	 * @return
+	 */
 	List<E> findByOwner(@Param("owner") O owner);
 	
-	List<E> findByOwnerAndFormAttribute_FormDefinition(@Param("owner") O owner, @Param("formDefinition") IdmFormDefinition formDefiniton);
+	/**
+	 * Returns form values by given owner and definition ordered by seq
+	 * 
+	 * @param owner
+	 * @param formDefiniton
+	 * @return
+	 */
+	List<E> findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(@Param("owner") O owner, @Param("formDefinition") IdmFormDefinition formDefiniton);
 }

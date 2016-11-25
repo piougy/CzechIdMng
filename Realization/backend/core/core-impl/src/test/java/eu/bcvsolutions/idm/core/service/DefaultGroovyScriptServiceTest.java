@@ -16,13 +16,13 @@ import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
+import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 import groovy.lang.MissingPropertyException;
 
 public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 
 	private static final String TEST_ONE = "testOne";
-
 	private GroovyScriptService groovyScriptService;
 
 	@Before
@@ -65,42 +65,42 @@ public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitOne() {
 		String script = "System.exit(1);";
 		groovyScriptService.validateScript(script);
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitTwo() {
 		String script = "def c = System; c.exit(-1);";
 		groovyScriptService.validateScript(script);
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitThree() {
 		String script = "((Object)System).exit(-1)";
 		groovyScriptService.validateScript(script);
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitFour() {
 		String script = "Class.forName('java.lang.System').exit(-1)";
 		groovyScriptService.validateScript(script);
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitFive() {
 		String script = "('java.lang.System' as Class).exit(-1)";
 		groovyScriptService.validateScript(script);
 		groovyScriptService.evaluate(script, null);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptSystemExitSix() {
 		String script = "import static java.lang.System.exit; exit(-1)";
 		groovyScriptService.validateScript(script);
@@ -117,7 +117,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 		assertEquals(TEST_ONE, result);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
 		String script = "return entity.contracts;";
 		groovyScriptService.validateScript(script);
@@ -142,7 +142,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 		assertEquals(identity.getContracts(), result);
 	}
 
-	@Test(expected = SecurityException.class)
+	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptFile() {
 		String script = "return new File();";
 		groovyScriptService.validateScript(script);

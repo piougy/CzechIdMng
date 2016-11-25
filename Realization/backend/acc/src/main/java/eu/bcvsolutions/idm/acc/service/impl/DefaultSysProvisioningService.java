@@ -157,13 +157,13 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			return passwordChange.getAccounts().contains(identityAccount.getId().toString());
 		}).forEach(identityAccount -> {
 			doProvisioningForAttribute(identityAccount.getAccount().getUid(), PASSWORD_IDM_PROPERTY_NAME, guardedPassword,
-					identityAccount.getAccount().getSystem(), AccountOperationType.UPDATE, SystemEntityType.IDENTITY);
+					identityAccount.getAccount().getSystem(), AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
 		});
 	}
 	
 	@Override
 	public void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system, 
-			AccountOperationType operationType, SystemEntityType entityType){
+			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity){
 		
 		Assert.notNull(uid);
 		Assert.notNull(system);
@@ -201,7 +201,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 		
 		String objectClassName = attributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value);
+		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value, entity);
 		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
 		// Call icf modul for update single attribute
 		connectorFacade.updateObject(connectorKey, connectorConfig,icfObjectClass , uidAttribute, ImmutableList.of(icfAttributeForCreate));
@@ -478,7 +478,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 					idmValue = getEntityValue(entity, attributeHandling.getIdmPropertyName());
 
 				}
-				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValue);
+				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValue, entity);
 				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
@@ -518,7 +518,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		} else {
 			// Single value
 			updateAttributeSingleValue(uid, entity, objectByClassMapForUpdate, attributeHandling, objectClassName,
-					icfAttribute);
+					icfAttribute, icfAttributes );
 		}
 	}
 
@@ -536,10 +536,10 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	 */
 	private void updateAttributeSingleValue(String uid, AbstractEntity entity,
 			Map<String, IcfConnectorObject> objectByClassMapForUpdate, SysSchemaAttributeHandling attributeHandling,
-			String objectClassName, IcfAttribute icfAttribute) {
+			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes ) {
 
 		Object icfValue = icfAttribute != null ? icfAttribute.getValue() : null;
-		Object icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValue, attributeHandling);
+		Object icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValue, attributeHandling, icfAttributes);
 
 		try {
 			Object idmValue = null;
@@ -554,7 +554,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 			if (!Objects.equals(idmValue, icfValueTransformed)) {
 				// values is not equals
-				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValue);
+				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValue, entity);
 				IcfConnectorObject connectorObjectForUpdate = initConnectorObject(objectByClassMapForUpdate, objectClassName);
 				connectorObjectForUpdate.getAttributes().add(icfAttributeForUpdate);
 			}
@@ -573,10 +573,11 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	 * @param attributeHandling
 	 * @param icfAttribute
 	 * @param idmValue
+	 * @param entity 
 	 * @return
 	 */
-	private IcfAttribute createIcfAttribute(SysSchemaAttributeHandling attributeHandling, Object idmValue) {
-		Object idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling);
+	private IcfAttribute createIcfAttribute(SysSchemaAttributeHandling attributeHandling, Object idmValue, AbstractEntity entity) {
+		Object idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling, entity);
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {

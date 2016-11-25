@@ -10,6 +10,8 @@ import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -38,15 +40,19 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		GroovySandboxFilter sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
 		try {
 			sandboxFilter.register();
+
 			return shell.evaluate(script);
+		} catch (SecurityException ex) {
+			throw new ResultCodeException(CoreResultCode.GROVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} finally {
 			sandboxFilter.unregister();
 		}
 	}
 
 	/**
-	 * Return all unique class from variables.
-	 * If is variable list, then add all classes for all items.
+	 * Return all unique class from variables. If is variable list, then add all
+	 * classes for all items.
+	 * 
 	 * @param variables
 	 * @return
 	 */
@@ -61,8 +67,8 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			}
 			// We have to add types for all list items
 			if (object != null && object instanceof List) {
-				((List<?>)object).stream().forEach(item -> {
-					if(item != null && !allowType.contains(item.getClass())){
+				((List<?>) object).stream().forEach(item -> {
+					if (item != null && !allowType.contains(item.getClass())) {
 						allowType.add(item.getClass());
 					}
 				});
@@ -70,7 +76,6 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 		});
 		return allowType;
 	}
-
 
 	@Override
 	public Object validateScript(String script) throws ResultCodeException {

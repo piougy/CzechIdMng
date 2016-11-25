@@ -78,7 +78,10 @@ class Button extends AbstractComponent {
               {_showLoadingText}
             </span>
             :
-            children
+            <span>
+              { text }
+              { children }
+            </span>
           }
         </button>
       </Tooltip>

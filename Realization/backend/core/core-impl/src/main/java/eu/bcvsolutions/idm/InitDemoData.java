@@ -198,6 +198,15 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				// test idendentity form
 				List<IdmFormAttribute> attributes = new ArrayList<>();
+				
+				IdmFormAttribute letter = new IdmFormAttribute();
+				letter.setName("letter");
+				letter.setDisplayName("Favorite letter");
+				letter.setDescription("Favorite character");
+				letter.setPersistentType(PersistentType.CHAR);
+				letter.setRequired(true);
+				attributes.add(letter);
+				
 				IdmFormAttribute phone = new IdmFormAttribute();
 				phone.setName("phone");
 				phone.setDisplayName("Phone");
@@ -205,16 +214,62 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				phone.setPersistentType(PersistentType.TEXT);
 				attributes.add(phone);
 				
-				IdmFormAttribute age = new IdmFormAttribute();
-				age.setName("age");
-				age.setDisplayName("Age");
-				age.setPersistentType(PersistentType.INT);
-				attributes.add(age);
+				IdmFormAttribute description = new IdmFormAttribute();
+				description.setName("description");
+				description.setDisplayName("Description");
+				description.setDescription("Some longer optional text (2000 characters)");
+				description.setPersistentType(PersistentType.TEXTAREA);
+				attributes.add(description);
+				
+				IdmFormAttribute sure = new IdmFormAttribute();
+				sure.setName("sure");
+				sure.setDisplayName("Registration");
+				sure.setPersistentType(PersistentType.BOOLEAN);
+				sure.setDefaultValue(Boolean.TRUE.toString());
+				attributes.add(sure);
+				
+				IdmFormAttribute intNumber = new IdmFormAttribute();
+				intNumber.setName("intNumber");
+				intNumber.setDisplayName("Int number");
+				intNumber.setPersistentType(PersistentType.INT);
+				attributes.add(intNumber);
+				
+				IdmFormAttribute longNumber = new IdmFormAttribute();
+				longNumber.setName("longNumber");
+				longNumber.setDisplayName("Long number");
+				longNumber.setPersistentType(PersistentType.LONG);
+				attributes.add(longNumber);
+				
+				IdmFormAttribute doubleNumber = new IdmFormAttribute();
+				doubleNumber.setName("doubleNumber");
+				doubleNumber.setDisplayName("Double number");
+				doubleNumber.setPersistentType(PersistentType.DOUBLE);
+				attributes.add(doubleNumber);
+				
+				IdmFormAttribute currency = new IdmFormAttribute();
+				currency.setName("currency");
+				currency.setDisplayName("Price");
+				currency.setPersistentType(PersistentType.CURRENCY);
+				attributes.add(currency);
+				
+				IdmFormAttribute date = new IdmFormAttribute();
+				date.setName("date");
+				date.setDisplayName("Date");
+				date.setPersistentType(PersistentType.DATE);
+				date.setRequired(true);
+				date.setDescription("Important date");
+				attributes.add(date);
+				
+				IdmFormAttribute datetime = new IdmFormAttribute();
+				datetime.setName("datetime");
+				datetime.setDisplayName("Date and time");
+				datetime.setPersistentType(PersistentType.DATETIME);
+				attributes.add(datetime);
 				
 				IdmFormAttribute webPages = new IdmFormAttribute();
 				webPages.setName("webPages");
 				webPages.setDisplayName("WWW");
-				webPages.setDescription("Favorite web pages");
+				webPages.setDescription("Favorite web pages (every line in new value)");
 				webPages.setPersistentType(PersistentType.TEXT);
 				webPages.setMultiple(true);
 				attributes.add(webPages);

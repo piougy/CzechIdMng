@@ -217,7 +217,8 @@
           "selection_0": "Vyberte záznamy ...",
           "selection_1": "Operace s vybraným záznamem:",
           "selection_2": "Operace s vybranými záznamy ({{count}}):",
-          "selection_5": "Operace s vybranými záznamy ({{count}}):"
+          "selection_5": "Operace s vybranými záznamy ({{count}}):",
+          "notImplemented": "Omlouváme se, tato operace nebyla prozatím naimplementována."
         },
         "error": {
           "load": "Při načítání záznamů do tabulky nastala chyba"
@@ -245,7 +246,7 @@
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - unimplemented persistentType"
+            "title": "{{name}} - unsupported persistentType"
           }
         }
       }

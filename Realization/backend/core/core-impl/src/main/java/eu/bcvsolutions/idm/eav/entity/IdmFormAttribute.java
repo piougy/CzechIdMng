@@ -161,7 +161,7 @@ public class IdmFormAttribute extends AbstractEntity {
 			case BOOLEAN:
 				return new ArrayList<Boolean>();
 			case DATE:
-			case DATE_TIME:
+			case DATETIME:
 				return new ArrayList<Date>();
 			case DOUBLE:
 			case CURRENCY:

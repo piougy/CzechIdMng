@@ -19,6 +19,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     };
   }
 
+  /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return 'component.advanced.Table';
+  }
+
   componentDidMount() {
     this.reload();
   }
@@ -183,7 +192,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (actionItem.action) {
       actionItem.action(actionItem.value, this.state.selectedRows);
     } else {
-      this.addMessage({ level: 'info', message: 'Omlouváme se, tato operace nebyla prozatím naimplementována.' });
+      this.addMessage({ level: 'info', message: this.i18n('bulk-action.notImplemented') });
     }
     return false;
   }
@@ -193,7 +202,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return noData;
     }
     // default noData
-    return this.i18n('component.advanced.Table.noData', { defaultValue: 'No record found' });
+    return this.i18n('noData', { defaultValue: 'No record found' });
   }
 
   render() {
@@ -334,7 +343,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   className={selectedRows.length <= 0 ? 'hidden' : 'bulk-action'}
                   multiSelect={false}
                   options={actions}
-                  placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
+                  placeholder={this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
                   rendered={actions !== null && actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>
@@ -359,13 +368,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <div style={{ textAlign: 'center', display: 'none'}}>
               <Basic.Icon value="fa:warning"/>
               {' '}
-              { this.i18n('component.advanced.Table.error.load') }
+              { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
               <Basic.Button onClick={this.reload.bind(this)}>
                 <Basic.Icon value="fa:refresh"/>
                 {' '}
-                { this.i18n('component.advanced.Table.button.refresh') }
+                { this.i18n('button.refresh') }
               </Basic.Button>
             </div>
           </Basic.Alert>

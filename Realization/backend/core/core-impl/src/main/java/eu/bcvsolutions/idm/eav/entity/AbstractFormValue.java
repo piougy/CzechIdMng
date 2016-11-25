@@ -147,7 +147,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		case BOOLEAN:
 			return booleanValue;
 		case DATE:
-		case DATE_TIME:
+		case DATETIME:
 			return dateValue;
 		case DOUBLE:
 		case CURRENCY:
@@ -173,7 +173,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			case BOOLEAN:
 				return booleanValue == null;
 			case DATE:
-			case DATE_TIME:
+			case DATETIME:
 				return dateValue == null;
 			case DOUBLE:
 			case CURRENCY:
@@ -218,7 +218,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				}
 				break;
 			case DATE:
-			case DATE_TIME:
+			case DATETIME:
 				if (value == null) {
 					setDateValue(null);
 				} else if (value instanceof Date) {

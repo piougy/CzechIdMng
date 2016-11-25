@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.security.domain.GroovySandboxFilter;
+import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
@@ -43,7 +44,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 			return shell.evaluate(script);
 		} catch (SecurityException ex) {
-			throw new ResultCodeException(CoreResultCode.GROVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
+			throw new IdmSecurityException(CoreResultCode.GROVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} finally {
 			sandboxFilter.unregister();
 		}

@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.security.domain;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 
@@ -20,7 +22,7 @@ import groovy.lang.Script;
  */
 public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final List<Class<?>> ALLOWED_TYPES = ImmutableList.of(String.class, Integer.class, Double.class,
-			Long.class, Date.class, Enum.class, Boolean.class);
+			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class);
 
 	List<Class<?>> allowedCustomTypes = new ArrayList<>();
 	

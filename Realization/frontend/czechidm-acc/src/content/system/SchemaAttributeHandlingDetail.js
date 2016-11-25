@@ -144,12 +144,12 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="extendedAttribute"
                 label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
-              <Basic.TextArea
+              <Basic.ScriptArea
                 ref="transformFromResourceScript"
                 mode="javascript"
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.help')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.label')}/>
-              <Basic.TextArea
+              <Basic.ScriptArea
                 ref="transformToResourceScript"
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.help')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.label')}/>

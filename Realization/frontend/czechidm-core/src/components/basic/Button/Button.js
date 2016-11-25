@@ -32,7 +32,8 @@ class Button extends AbstractComponent {
       title,
       titlePlacement,
       titleDelayShow,
-      style
+      style,
+      onClick
     } = this.props;
     //
     if (!rendered) {
@@ -56,7 +57,8 @@ class Button extends AbstractComponent {
           type={type ? type : 'button'}
           disabled={disabled || showLoading}
           className={classNames}
-          style={style}>
+          style={style}
+          onClick={onClick}>
           {
             showLoading
             ?

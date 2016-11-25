@@ -1,22 +1,24 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 
 /**
  * Default schema attributes handling
@@ -55,22 +57,30 @@ public class DefaultSysSchemaAttributeHandlingService extends AbstractReadWriteE
 	}
 	
 	@Override
-	public Object transformValueToResource(Object value, SysSchemaAttributeHandling attributeHandling){
+	public Object transformValueToResource(Object value, SysSchemaAttributeHandling attributeHandling, AbstractEntity entity){
 		Assert.notNull(attributeHandling);
 		
 		if(attributeHandling.getTransformToResourceScript() != null){
-			return groovyScriptService.evaluate(attributeHandling.getTransformToResourceScript(), ImmutableMap.of(ATTRIBUTE_VALUE_KEY, value));
+			Map<String, Object> variables = new HashMap<>();
+			variables.put(ATTRIBUTE_VALUE_KEY, value);
+			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());
+			variables.put(ENTITY_KEY, entity);
+			return groovyScriptService.evaluate(attributeHandling.getTransformToResourceScript(), variables);
 		}
 		
 		return value;
 	}
 	
 	@Override
-	public Object transformValueFromResource(Object value, SysSchemaAttributeHandling attributeHandling){
+	public Object transformValueFromResource(Object value, SysSchemaAttributeHandling attributeHandling,  List<IcfAttribute> icfAttributes ){
 		Assert.notNull(attributeHandling);
 		
 		if(attributeHandling.getTransformFromResourceScript() != null){
-			return groovyScriptService.evaluate(attributeHandling.getTransformFromResourceScript(), ImmutableMap.of(ATTRIBUTE_VALUE_KEY, value));
+			Map<String, Object> variables = new HashMap<>();
+			variables.put(ATTRIBUTE_VALUE_KEY, value);
+			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());
+			variables.put(ICF_ATTRIBUTES_KEY, icfAttributes);
+			return groovyScriptService.evaluate(attributeHandling.getTransformFromResourceScript(), variables);
 		}
 
 		return value;

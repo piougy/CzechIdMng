@@ -10,7 +10,9 @@ import java.util.Map;
 public interface GroovyScriptService {
 
 	/**
-	 * Evaluates some script against the current Binding and returns the result
+	 * Evaluates some script against the current Binding and returns the result.
+	 * Script all secured with groovy sandbox. Only classes defined in GroovySandboxFilter and classes
+	 * from given variables will allowed in script.
 	 * @param script
 	 * @return
 	 */

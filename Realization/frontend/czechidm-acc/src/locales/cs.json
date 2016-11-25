@@ -288,11 +288,11 @@
       "extendedAttribute": "Rozšířený atribut",
       "transformFromResourceScript": {
         "label": "Transformace ze systému",
-        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IDM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue'."
+        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IDM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue'."
+        "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IDM entita 'entity'."
       },
       "uid": "Je identifikátorem",
       "uidTooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."

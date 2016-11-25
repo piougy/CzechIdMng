@@ -1549,6 +1549,10 @@
     "GROVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby.",
       "message": ""
+    },
+    "GROVY_SCRIPT_SECURITY_VALIDATION": {
+      "title": "Groovy skript neprošel bezpečností kontrolou!",
+      "message": "Příčina: {{message}}"
     }
 
   },

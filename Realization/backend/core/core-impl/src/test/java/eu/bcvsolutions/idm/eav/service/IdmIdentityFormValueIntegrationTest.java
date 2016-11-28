@@ -8,7 +8,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -20,6 +19,7 @@ import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -140,7 +140,7 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 	private FormableEntity createTestOwner(String name) {
 		IdmIdentity identity = new IdmIdentity();
 		identity.setUsername(name + "_" + System.currentTimeMillis());
-		identity.setPassword("heslo".getBytes(Charsets.UTF_8));
+		identity.setPassword(new GuardedString("heslo"));
 		identity.setFirstName("Test");
 		identity.setLastName("Identity");
 		identity = identityService.save(identity);

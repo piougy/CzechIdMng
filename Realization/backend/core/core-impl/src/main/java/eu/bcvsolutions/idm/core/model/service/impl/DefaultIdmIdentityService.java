@@ -218,13 +218,18 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Transactional
 	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
 		if (!securityService.isAdmin()) {
+			if(passwordChangeDto.getOldPassword() == null) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
+			}
 			// previous password check
 			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
-			if(!StringUtils.equals(new String(idmPassword.asString()), new String(passwordChangeDto.getOldPassword()))) {
+			if(!StringUtils.equals(new String(idmPassword.asString()),passwordChangeDto.getOldPassword().asString())) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 		}
-		savePassword(identity, new GuardedString(passwordChangeDto.getNewPassword()));
+		if (passwordChangeDto.isIdm()) { // change identity's password
+			savePassword(identity, passwordChangeDto.getNewPassword());
+		}
 		// MOCKUP TODO
 		if(provisioningService != null){
 			provisioningService.changePassword(identity, passwordChangeDto);
@@ -243,15 +248,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Override
 	@Transactional
 	public IdmIdentity save(IdmIdentity entity) {
-		byte[] password = entity.getPassword();
+		GuardedString password = entity.getPassword();
 		
 		entity = super.save(entity);
 		// save password to confidential storage
-		if (password != null && password.length > 0) {
-			savePassword(entity, new GuardedString(password));
+		if (password != null) {
+			savePassword(entity, password);
 		}
 		// MOCKUP TODO
-		if(provisioningService != null){
+		if(provisioningService != null) {
 			provisioningService.doIdentityProvisioning(entity);
 		}
 		return entity;

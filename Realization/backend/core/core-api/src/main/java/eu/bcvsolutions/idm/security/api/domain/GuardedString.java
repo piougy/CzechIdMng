@@ -6,16 +6,19 @@ import java.util.Arrays;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 
 /**
  * Guarded string used for storing sensitive data.
  * 
- * TODO: use for passwords (login, passwords in secured configuration)
+ * TODO: use for passwords (passwords in secured configuration)
  * 
  * @author BCV
  *
  */
+@JsonSerialize(using = GuardedStringSerializer.class)
 public final class GuardedString {
 
 	/**

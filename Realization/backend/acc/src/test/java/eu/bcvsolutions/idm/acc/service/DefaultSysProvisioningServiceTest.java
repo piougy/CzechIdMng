@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -163,7 +164,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdentity(identity.getId().toString());
 		passwordChange.setAccounts(ImmutableList.of(accountIdentityOne.getId().toString()));
-		passwordChange.setNewPassword(IDENTITY_PASSWORD_ONE.getBytes());
+		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
+		passwordChange.setIdm(true);
 		// Do change of password for selected accounts
 		idmIdentityService.passwordChange(identity, passwordChange);
 		accountIdentityOne = identityAccoutnService.get(accountIdentityOne.getId());

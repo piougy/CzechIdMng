@@ -1,14 +1,47 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import Joi from 'joi';
+import { Editor, EditorState, ContentState, RichUtils } from 'draft-js';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
 
-class TextArea extends AbstractFormComponent {
+/**
+ * Based on Draf.js
+ * TODO: to and from html conversion (draft-js-export-html - dependency hell)
+ * TODO: custom styles and controlls
+ *
+ */
+class RichTextArea extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
+    const editorState = this.props.value ? this._createEditorState(this.props.value) : EditorState.createEmpty();
+    this.state = {
+      ...this.state,
+      editorState,
+      value: editorState.getCurrentContent().getPlainText()
+    };
+  }
+
+  _handleKeyCommand(command) {
+    const { editorState } = this.state;
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      this.onChange(newState);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Creates EditorState from given value
+   *
+   * @param  {string} value
+   * @return {EditorState}
+   */
+  _createEditorState(value) {
+    return EditorState.createWithContent(ContentState.createFromText(value));
   }
 
   getValidationDefinition(required) {
@@ -43,17 +76,48 @@ class TextArea extends AbstractFormComponent {
     this.refs.input.focus();
   }
 
+  onChange(editorState) {
+    let result = true;
+    if (this.props.onChange) {
+      result = this.props.onChange(editorState); // TODO: event value only?
+    }
+    // if onChange listener returns false, then we can end
+    if (result === false) {
+      return;
+    }
+    //
+    this.setState({
+      editorState,
+      value: editorState.getCurrentContent().getPlainText()
+    }, () => {
+      this.validate();
+    });
+  }
+
+  setValue(value) {
+    const editorState = this._normalizeValue(value);
+    this.setState({
+      editorState,
+      value: editorState.getCurrentContent().getPlainText()
+    });
+  }
+
+  getValue() {
+    const { editorState } = this.state;
+    //
+    return editorState.getCurrentContent().getPlainText();
+  }
+
   getBody(feedback) {
     const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
-    //
-    const className = classNames('form-control');
+    const { editorState, disabled } = this.state;
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
     if (required && !this.state.value) {
       showAsterix = true;
     }
     const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
-
+    //
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
         {
@@ -64,29 +128,30 @@ class TextArea extends AbstractFormComponent {
             {label}
           </label>
         }
-
         <div className={componentSpan}>
           <Tooltip ref="popover" placement="right" value={title}>
-            <span>
-              <textarea
+            <div className="basic-richtextarea">
+              <Editor
                 ref="input"
-                className={className}
+                editorState={editorState}
+                onChange={this.onChange}
+                handleKeyCommand={this._handleKeyCommand.bind(this)}
+                className="form-control"
                 title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
-                disabled={this.state.disabled}
+                disabled={disabled}
                 placeholder={placeholder}
                 rows={this.props.rows}
                 style={style}
                 readOnly={this.state.readOnly}
-                onChange={this.onChange}
-                value={this.state.value || ''}/>
+                spellCheck/>
               {
                 feedback
                 ||
                 !showAsterix
                 ||
-                <span className="form-control-feedback" style={{color: 'red', zIndex: 0}}>*</span>
+                <span className="form-control-feedback" style={{ color: 'red', zIndex: 0 }}>*</span>
               }
-            </span>
+            </div>
           </Tooltip>
           {
             !helpBlock
@@ -99,7 +164,7 @@ class TextArea extends AbstractFormComponent {
   }
 }
 
-TextArea.propTypes = {
+RichTextArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
   rows: PropTypes.number,
@@ -107,9 +172,9 @@ TextArea.propTypes = {
   max: PropTypes.number
 };
 
-TextArea.defaultProps = {
+RichTextArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   rows: 3
 };
 
-export default TextArea;
+export default RichTextArea;

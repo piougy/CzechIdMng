@@ -17,9 +17,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.util.Assert;
@@ -27,7 +27,6 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 
@@ -66,8 +65,8 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	private boolean confidential;
 
 	@Audited
-	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
-	@Column(name = "string_value", nullable = true, length = DefaultFieldLengths.LOG)
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
+	@Column(name = "string_value", nullable = true, length = Integer.MAX_VALUE - 1)
 	private String stringValue;
 
 	@Audited

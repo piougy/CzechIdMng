@@ -4,7 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 
 /**
  * Dto for password change
@@ -15,9 +20,11 @@ public class PasswordChangeDto implements Serializable {
 
 	private static final long serialVersionUID = 8418885222359043739L;
 	private String identity;
-	private byte[] oldPassword;
-	@NotEmpty
-	private byte[] newPassword;
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString oldPassword;
+	@NotNull
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString newPassword;
 	private boolean idm = false; // change in idm
 	private List<String> accounts; // selected accounts
 
@@ -29,19 +36,19 @@ public class PasswordChangeDto implements Serializable {
 		this.identity = identity;
 	}
 
-	public byte[] getOldPassword() {
+	public GuardedString getOldPassword() {
 		return oldPassword;
 	}
 
-	public void setOldPassword(byte[] oldPassword) {
+	public void setOldPassword(GuardedString oldPassword) {
 		this.oldPassword = oldPassword;
 	}
 
-	public byte[] getNewPassword() {
+	public GuardedString getNewPassword() {
 		return newPassword;
 	}
 
-	public void setNewPassword(byte[] newPassword) {
+	public void setNewPassword(GuardedString newPassword) {
 		this.newPassword = newPassword;
 	}
 

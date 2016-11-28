@@ -13,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Charsets;
-
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -24,16 +22,17 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -60,7 +59,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmRoleService roleService;
 
 	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	private IdmTreeNodeRepository treeNodeRepository;
@@ -133,7 +132,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//
 				IdmIdentity identity = new IdmIdentity();
 				identity.setUsername("tomiska");
-				identity.setPassword("heslo".getBytes(Charsets.UTF_8));
+				identity.setPassword(new GuardedString("heslo"));
 				identity.setFirstName("Radek");
 				identity.setLastName("Tomiška");
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
@@ -143,17 +142,17 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
 				identityRole1.setIdentity(identity);
 				identityRole1.setRole(role1);
-				identityRoleRepository.save(identityRole1);
+				identityRoleService.save(identityRole1);
 				//
 				IdmIdentityRole identityRole2 = new IdmIdentityRole();
 				identityRole2.setIdentity(identity);
 				identityRole2.setRole(role2);
-				identityRoleRepository.save(identityRole2);
+				identityRoleService.save(identityRole2);
 				//
 				IdmIdentity identity2 = new IdmIdentity();
 				identity2.setUsername("svanda");
 				identity2.setFirstName("Vít");
-				identity2.setPassword("heslo".getBytes(Charsets.UTF_8));
+				identity2.setPassword(new GuardedString("heslo"));
 				identity2.setLastName("Švanda");
 				identity2.setEmail("vit.svanda@bcvsolutions.eu");
 				identity2 = this.identityService.save(identity2);
@@ -162,7 +161,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmIdentity identity3 = new IdmIdentity();
 				identity3.setUsername("kopr");
 				identity3.setFirstName("Ondrej");
-				identity3.setPassword("heslo".getBytes(Charsets.UTF_8));
+				identity3.setPassword(new GuardedString("heslo"));
 				identity3.setLastName("Kopr");
 				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
 				identity3 = this.identityService.save(identity3);
@@ -220,6 +219,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setDescription("Some longer optional text (2000 characters)");
 				description.setPersistentType(PersistentType.TEXTAREA);
 				attributes.add(description);
+				
+				IdmFormAttribute rich = new IdmFormAttribute();
+				rich.setName("rich");
+				rich.setDisplayName("RichText");
+				rich.setDescription("Some rich text (2000 characters)");
+				rich.setPersistentType(PersistentType.RICHTEXTAREA);
+				attributes.add(rich);
 				
 				IdmFormAttribute sure = new IdmFormAttribute();
 				sure.setName("sure");

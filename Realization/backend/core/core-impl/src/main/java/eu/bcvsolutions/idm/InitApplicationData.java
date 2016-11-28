@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Charsets;
-
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -20,11 +18,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -52,7 +51,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private IdmRoleService roleService;
 
 	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
+	private IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	private IdmTreeNodeRepository treeNodeRepository;
@@ -107,7 +106,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				//
 				IdmIdentity identityAdmin = new IdmIdentity();
 				identityAdmin.setUsername(ADMIN_USERNAME);
-				identityAdmin.setPassword(ADMIN_PASSWORD.getBytes(Charsets.UTF_8));
+				identityAdmin.setPassword(new GuardedString(ADMIN_PASSWORD));
 				identityAdmin.setLastName("Administrator");
 				identityAdmin = this.identityService.save(identityAdmin);
 				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
@@ -116,7 +115,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				IdmIdentityRole identityRole = new IdmIdentityRole();
 				identityRole.setIdentity(identityAdmin);
 				identityRole.setRole(existsSuperAdminRole);
-				identityRoleRepository.save(identityRole);
+				identityRoleService.save(identityRole);
 			}
 			// create Node type for organization
 			IdmTreeType treeType = treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE);

@@ -13,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Charsets;
-
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -27,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -115,7 +114,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				// Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
 				testUser1.setUsername(TEST_USER_1);
-				testUser1.setPassword("heslo".getBytes(Charsets.UTF_8));
+				testUser1.setPassword(new GuardedString("heslo"));
 				testUser1.setFirstName("Test");
 				testUser1.setLastName("First User");
 				testUser1.setEmail("test1@bscsolutions.eu");
@@ -124,7 +123,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 
 				IdmIdentity testUser2 = new IdmIdentity();
 				testUser2.setUsername(TEST_USER_2);
-				testUser2.setPassword("heslo".getBytes(Charsets.UTF_8));
+				testUser2.setPassword(new GuardedString("heslo"));
 				testUser2.setFirstName("Test");
 				testUser2.setLastName("Second User");
 				testUser2.setEmail("test2@bscsolutions.eu");

@@ -40,6 +40,7 @@ import Tooltip from './Tooltip/Tooltip';
 import Dropzone from './Dropzone/Dropzone';
 import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
+import RichTextArea from './RichTextArea/RichTextArea';
 
 const Components = {
   AbstractComponent,
@@ -97,7 +98,8 @@ const Components = {
   Tooltip,
   Dropzone,
   Popover,
-  ScriptArea
+  ScriptArea,
+  RichTextArea
 };
 
 Components.version = '0.0.1';

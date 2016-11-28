@@ -224,7 +224,9 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 		}
-		savePassword(identity, new GuardedString(passwordChangeDto.getNewPassword()));
+		if (passwordChangeDto.isIdm()) { // change identity's password
+			savePassword(identity, new GuardedString(passwordChangeDto.getNewPassword()));
+		}
 		// MOCKUP TODO
 		if(provisioningService != null){
 			provisioningService.changePassword(identity, passwordChangeDto);
@@ -251,7 +253,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			savePassword(entity, new GuardedString(password));
 		}
 		// MOCKUP TODO
-		if(provisioningService != null){
+		if(provisioningService != null) {
 			provisioningService.doIdentityProvisioning(entity);
 		}
 		return entity;

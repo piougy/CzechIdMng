@@ -221,6 +221,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				description.setPersistentType(PersistentType.TEXTAREA);
 				attributes.add(description);
 				
+				IdmFormAttribute rich = new IdmFormAttribute();
+				rich.setName("rich");
+				rich.setDisplayName("RichText");
+				rich.setDescription("Some rich text (2000 characters)");
+				rich.setPersistentType(PersistentType.RICHTEXTAREA);
+				attributes.add(rich);
+				
 				IdmFormAttribute sure = new IdmFormAttribute();
 				sure.setName("sure");
 				sure.setDisplayName("Registration");

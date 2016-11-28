@@ -37,7 +37,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return true;
       }
       // we need to call validate method on all component (break is not needed)
-      if (!formComponent.validate()) {
+      if (!formComponent.isValid()) {
+        formComponent.setState({
+          showValidationError: true
+        });
         isAllValid = false;
       }
     });
@@ -117,7 +120,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
     switch (attribute.persistentType) {
       case 'CHAR':
       case 'TEXT':
-      case 'TEXTAREA': {
+      case 'TEXTAREA':
+      case 'RICHTEXTAREA': {
         formValue.stringValue = rawValue;
         break;
       }
@@ -222,13 +226,15 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return validation;
       }
       case 'TEXT':
-      case 'TEXTAREA':
-      case 'RICHTEXTAREA': {
+      case 'TEXTAREA': {
         let validation = Joi.string().max(2000);
         if (!attribute.required) {
           validation = validation.concat(Joi.string().allow(null).allow(''));
         }
         return validation;
+      }
+      case 'RICHTEXTAREA': {
+        return null;
       }
       case 'INT': {
         let validation = Joi.number().integer().min(-2147483648).max(2147483647);
@@ -333,7 +339,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}
-                  validation={this._getInputValidation(attribute)}/>
+                  validation={this._getInputValidation(attribute)}
+                  required={attribute.required}/>
               );
             }
             // date and datetime field
@@ -359,7 +366,20 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}
-                  validation={this._getInputValidation(attribute)}/>
+                  validation={this._getInputValidation(attribute)}
+                  required={attribute.required}/>
+              );
+            }
+            // richtextarea
+            if (attribute.persistentType === 'RICHTEXTAREA') {
+              return (
+                <Basic.RichTextArea
+                  ref={attribute.name}
+                  label={attribute.displayName}
+                  value={this._toInputValue(attribute, formValues)}
+                  helpBlock={attribute.description}
+                  readOnly={attribute.readonly}
+                  required/>
               );
             }
             // boolean field - boolean can not be multiple
@@ -370,7 +390,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={formValues ? this._toInputValue(attribute, formValues) : (attribute.defaultValue === 'true')}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}/>
+                  readOnly={attribute.readonly}
+                  required={attribute.required}/>
               );
             }
             return (

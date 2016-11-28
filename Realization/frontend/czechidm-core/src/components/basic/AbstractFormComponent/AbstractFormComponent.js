@@ -112,15 +112,20 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   onChange(event) {
+    let result = true;
     if (this.props.onChange) {
-      this.props.onChange(event);
-    } else {
-      this.setState({
-        value: event.currentTarget.value
-      }, () => {
-        this.validate();
-      });
+      result = this.props.onChange(event); // TODO: event value only?
     }
+    // if onChange listener returns false, then we can end
+    if (result === false) {
+      return;
+    }
+    //
+    this.setState({
+      value: event.currentTarget.value
+    }, () => {
+      this.validate();
+    });
   }
 
 /**

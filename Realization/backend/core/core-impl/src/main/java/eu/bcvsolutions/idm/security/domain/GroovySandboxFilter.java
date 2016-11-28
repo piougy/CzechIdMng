@@ -11,6 +11,7 @@ import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import groovy.lang.Closure;
 import groovy.lang.Script;
 
@@ -22,7 +23,7 @@ import groovy.lang.Script;
  */
 public class GroovySandboxFilter extends GroovyValueFilter {
 	private static final List<Class<?>> ALLOWED_TYPES = ImmutableList.of(String.class, Integer.class, Double.class,
-			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class);
+			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class, GuardedString.class);
 
 	List<Class<?>> allowedCustomTypes = new ArrayList<>();
 	

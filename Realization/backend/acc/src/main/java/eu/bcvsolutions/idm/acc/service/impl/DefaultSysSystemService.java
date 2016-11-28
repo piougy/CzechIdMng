@@ -50,6 +50,7 @@ import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
 import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Deafult target system configuration service
@@ -77,6 +78,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("boolean", new ConnectorPropertyMapping(PersistentType.BOOLEAN, false));
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedString",
+				new ConnectorPropertyMapping(PersistentType.TEXT, false));
+		supportedConnectorPropertyMapping.put(GuardedString.class.getName(),
 				new ConnectorPropertyMapping(PersistentType.TEXT, false));
 		supportedConnectorPropertyMapping.put("char", new ConnectorPropertyMapping(PersistentType.CHAR, false));
 		supportedConnectorPropertyMapping.put("java.lang.String",
@@ -398,7 +401,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param type
 	 * @return
 	 */
-	private PersistentType convertPropertyType(String connectorPropertyType) {
+	@Override
+	public PersistentType convertPropertyType(String connectorPropertyType) {
 		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
 			throw new UnsupportedOperationException(
 					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));

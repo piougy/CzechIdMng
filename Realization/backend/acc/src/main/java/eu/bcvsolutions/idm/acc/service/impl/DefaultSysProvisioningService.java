@@ -43,6 +43,11 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.eav.service.api.FormValueService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -74,6 +79,8 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	private final SysSystemService systemService;
 	private final AccIdentityAccountService identityAccoutnService;
 	private final ConfidentialStorage confidentialStorage; // TODO: identity service (remove cycle dependencies)
+	private final FormService formService;
+
 
 	@Autowired
 	public DefaultSysProvisioningService(
@@ -82,13 +89,15 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			IcfConnectorFacade connectorFacade,
 			SysSystemService systemService, 
 			AccIdentityAccountService identityAccoutnService, 
-			ConfidentialStorage confidentialStorage) {
+			ConfidentialStorage confidentialStorage,
+			FormService formService) {
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(identityAccoutnService);
 		Assert.notNull(confidentialStorage);
+		Assert.notNull(formService);
 		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
@@ -96,6 +105,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		this.systemService = systemService;
 		this.identityAccoutnService = identityAccoutnService;
 		this.confidentialStorage = confidentialStorage;
+		this.formService = formService;
 	}
 
 	@Override
@@ -169,7 +179,8 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		Assert.notNull(system);
 		Assert.notNull(entityType);
 
-		List<SysSchemaAttributeHandling> attributes = findAttributesHandling(SystemOperationType.PROVISIONING, entityType, system);
+		List<SysSchemaAttributeHandling> attributes = findAttributesHandling(SystemOperationType.PROVISIONING,
+				entityType, system);
 		if (attributes == null || attributes.isEmpty()) {
 			return;
 		}
@@ -189,22 +200,25 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
 
-		Optional<SysSchemaAttributeHandling> attriubuteHandlingOptional = attributes.stream().filter((attribute) -> {return idmPropertyName.equals(attribute.getIdmPropertyName());}).findFirst();
-		if(!attriubuteHandlingOptional.isPresent()){
+		Optional<SysSchemaAttributeHandling> attriubuteHandlingOptional = attributes.stream().filter((attribute) -> {
+			return idmPropertyName.equals(attribute.getIdmPropertyName());
+		}).findFirst();
+		if (!attriubuteHandlingOptional.isPresent()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
 					ImmutableMap.of("property", idmPropertyName, "uid", uid));
 		}
 		SysSchemaAttributeHandling attributeHandling = attriubuteHandlingOptional.get();
-		if(!attributeHandling.getSchemaAttribute().isUpdateable()){
+		if (!attributeHandling.getSchemaAttribute().isUpdateable()) {
 			throw new ResultCodeException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
 					ImmutableMap.of("property", idmPropertyName, "uid", uid));
 		}
-		
+
 		String objectClassName = attributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
 		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value, entity);
 		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
 		// Call icf modul for update single attribute
-		connectorFacade.updateObject(connectorKey, connectorConfig,icfObjectClass , uidAttribute, ImmutableList.of(icfAttributeForCreate));
+		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
+				ImmutableList.of(icfAttributeForCreate));
 		
 	}
 	
@@ -468,16 +482,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			SysSchemaAttribute schemaAttribute, String objectClassName) {
 		if (schemaAttribute.isCreateable()) {
 			try {
-				Object idmValue = null;
-				if (attributeHandling.isUid()) {
-					// When is attribute marked as UID, then we use as
-					// value input uid
-					idmValue = uid;
-				} else {
-					// Find value from entity by property name
-					idmValue = getEntityValue(entity, attributeHandling.getIdmPropertyName());
-
-				}
+				Object idmValue = getAttributeValue(uid, entity, attributeHandling);
 				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValue, entity);
 				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
 
@@ -542,15 +547,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		Object icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValue, attributeHandling, icfAttributes);
 
 		try {
-			Object idmValue = null;
-			if (attributeHandling.isUid()) {
-				// When is attribute marked as UID, then we use as value input
-				// uid
-				idmValue = uid;
-			} else {
-				// Find value from entity by property name
-				idmValue = getEntityValue(entity, attributeHandling.getIdmPropertyName());
-			}
+			Object idmValue = getAttributeValue(uid, entity, attributeHandling);
 
 			if (!Objects.equals(idmValue, icfValueTransformed)) {
 				// values is not equals
@@ -564,6 +561,39 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
 					ImmutableMap.of("uid", uid, "property", attributeHandling.getIdmPropertyName()), e);
 		}
+	}
+
+	/**
+	 * Find value for this mapped attribute by property name
+	 * @param uid
+	 * @param entity
+	 * @param attributeHandling
+	 * @param idmValue
+	 * @return
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	private Object getAttributeValue(String uid, AbstractEntity entity, SysSchemaAttributeHandling attributeHandling) throws IntrospectionException, IllegalAccessException, InvocationTargetException {
+		if (attributeHandling.isUid()) {
+			// When is attribute marked as UID, then we use as value input
+			// uid
+			return uid;
+		}
+		if (attributeHandling.isExtendedAttribute()) {
+			// TODO: prototype of form service calling
+			IdmFormAttribute defAttribute = formService.getDefinition(entity.getClass().getCanonicalName()).getMappedAttributeByName(attributeHandling.getIdmPropertyName());
+			List<AbstractFormValue<FormableEntity>> abstractFormValues =  formService.toAttributeMap(formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition())).get(defAttribute.getName());
+			return abstractFormValues.get(0).getValue();
+		}
+		// Find value from entity
+		if (attributeHandling.getSchemaAttribute().getClassType().equals(GuardedString.class.getName())) {
+			// If is attribute type GuardedString, then we will find value in
+			// secured storage
+			return confidentialStorage.getGuardedString(entity, attributeHandling.getIdmPropertyName());
+		}
+		// We will search value directly in entity by property name
+		return getEntityValue(entity, attributeHandling.getIdmPropertyName());
 	}
 
 	/**

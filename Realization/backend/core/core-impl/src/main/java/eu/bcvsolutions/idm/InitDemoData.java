@@ -48,6 +48,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
+	public static final String FORM_ATTRIBUTE_PHONE = "phone";
+	public static final String FORM_ATTRIBUTE_WWW = "webPages";
 	
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -207,7 +209,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				attributes.add(letter);
 				
 				IdmFormAttribute phone = new IdmFormAttribute();
-				phone.setName("phone");
+				phone.setName(FORM_ATTRIBUTE_PHONE);
 				phone.setDisplayName("Phone");
 				phone.setDescription("Additional identitiy's phone");
 				phone.setPersistentType(PersistentType.TEXT);
@@ -273,7 +275,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				attributes.add(datetime);
 				
 				IdmFormAttribute webPages = new IdmFormAttribute();
-				webPages.setName("webPages");
+				webPages.setName(FORM_ATTRIBUTE_WWW);
 				webPages.setDisplayName("WWW");
 				webPages.setDescription("Favorite web pages (every line in new value)");
 				webPages.setPersistentType(PersistentType.TEXT);
@@ -288,7 +290,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				password.setDescription("Test password");
 				attributes.add(password);
 				
-				IdmFormDefinition formDefinition = formService.createDefinition(IdmIdentity.class.getCanonicalName(), null, attributes);
+				IdmFormDefinition formDefinition = formService.createDefinition(IdmIdentity.class, attributes);
 				
 				List<IdmIdentityFormValue> values = new ArrayList<>();				
 				IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.eav.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -32,6 +33,16 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 	@Override
 	protected AbstractEntityRepository<IdmFormAttribute, FormAttributeDefinitionFilter> getRepository() {
 		return formAttributeDefinitionRepository;
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormAttribute save(IdmFormAttribute entity) {
+		// default seq
+		if (entity.getSeq() == null) {
+			entity.setSeq((short) 0);
+		}
+		return super.save(entity);
 	}
 
 }

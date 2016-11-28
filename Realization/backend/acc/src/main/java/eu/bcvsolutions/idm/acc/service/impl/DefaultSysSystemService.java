@@ -125,7 +125,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// load filled form values
 		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorKey());
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
-		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toAttributeMap(formValues);
+		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
 		// fill connector configuration from form values
 		IcfConnectorConfigurationImpl icfConf = new IcfConnectorConfigurationImpl();
 		IcfConfigurationProperties properties = new IcfConfigurationPropertiesImpl();

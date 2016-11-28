@@ -66,7 +66,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	@Audited
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
-	@Column(name = "string_value", nullable = true, length = Integer.MAX_VALUE - 1)
+	@Column(name = "string_value", nullable = true)
 	private String stringValue;
 
 	@Audited
@@ -89,7 +89,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	@Audited
 	@Max(99999)
 	@Column(name = "seq")
-	private int seq;
+	private short seq;
 
 	public AbstractFormValue() {
 	}
@@ -281,11 +281,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.stringValue = stringValue;
 	}
 
-	public int getSeq() {
+	public short getSeq() {
 		return seq;
 	}
 
-	public void setSeq(int seq) {
+	public void setSeq(short seq) {
 		this.seq = seq;
 	}
 

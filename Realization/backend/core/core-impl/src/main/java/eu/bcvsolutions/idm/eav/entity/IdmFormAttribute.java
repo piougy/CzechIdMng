@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.Assert;
@@ -68,7 +69,7 @@ public class IdmFormAttribute extends AbstractEntity {
 	@Column(name = "display_name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String displayName;
 	
-	@Size(max = DefaultFieldLengths.LOG) // TODO: @Lob?
+	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "description", nullable = true)
 	private String description;	
 	
@@ -97,8 +98,8 @@ public class IdmFormAttribute extends AbstractEntity {
 	@Column(name = "seq")
 	private Short seq;
 	
-	@Size(max = DefaultFieldLengths.LOG)
-	@Column(name = "default_value", nullable = true, length = DefaultFieldLengths.LOG)
+	@Type(type = "org.hibernate.type.StringClobType")
+	@Column(name = "default_value", nullable = true)
 	private String defaultValue;
 
 	public IdmFormAttribute() {

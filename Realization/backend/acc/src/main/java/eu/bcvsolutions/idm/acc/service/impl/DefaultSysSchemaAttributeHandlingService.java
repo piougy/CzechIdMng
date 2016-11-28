@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +22,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -128,7 +125,8 @@ public class DefaultSysSchemaAttributeHandlingService
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
 		if (entity.isExtendedAttribute()) {
-			IdmFormDefinition definition = formService.getDefinition(IdmIdentity.class.getCanonicalName());
+			// TODO: wee need formable entity class - not hard coded to IdmIdentity.class
+			IdmFormDefinition definition = formService.getDefinition(IdmIdentity.class);
 			if (definition != null) {
 				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
 				if (defAttribute == null) {

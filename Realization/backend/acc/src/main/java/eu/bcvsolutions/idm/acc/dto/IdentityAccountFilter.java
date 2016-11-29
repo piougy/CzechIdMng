@@ -14,9 +14,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 public class IdentityAccountFilter implements BaseFilter {
 
 	private UUID accountId;
-	private IdmIdentity identity;
+	private UUID identityId;
 	private UUID roleId;
 	private UUID systemId;
+	private UUID identityRoleId;
 	private Boolean ownership;
 
 	public Boolean isOwnership() {
@@ -35,12 +36,12 @@ public class IdentityAccountFilter implements BaseFilter {
 		this.accountId = accountId;
 	}
 
-	public void setIdentity(IdmIdentity identity) {
-		this.identity = identity;
+	public UUID getIdentityId() {
+		return identityId;
 	}
-	
-	public IdmIdentity getIdentity() {
-		return identity;
+
+	public void setIdentityId(UUID identityId) {
+		this.identityId = identityId;
 	}
 
 	public UUID getRoleId() {
@@ -57,5 +58,13 @@ public class IdentityAccountFilter implements BaseFilter {
 	
 	public UUID getSystemId() {
 		return systemId;
+	}
+
+	public UUID getIdentityRoleId() {
+		return identityRoleId;
+	}
+
+	public void setIdentityRoleId(UUID identityRoleId) {
+		this.identityRoleId = identityRoleId;
 	}
 }

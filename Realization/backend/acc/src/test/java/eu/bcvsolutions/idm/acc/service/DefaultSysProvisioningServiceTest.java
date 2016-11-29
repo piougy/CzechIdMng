@@ -120,7 +120,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
 		provisioningService.doIdentityProvisioning(accountIdentityOne.getIdentity());
@@ -134,7 +134,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningChangeAccount() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		TestResource createdAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
@@ -153,7 +153,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningChangePassword() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		SysSystem system = accountIdentityOne.getAccount().getSystem();
 
@@ -194,7 +194,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	public void doIdentityProvisioningDeleteAccount() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
 		// Delete account
@@ -208,7 +208,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 				
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		
 		SchemaAttributeHandlingFilter filterSchemaAttr = new SchemaAttributeHandlingFilter();

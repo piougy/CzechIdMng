@@ -197,8 +197,12 @@
       },
       "Dropzone": {
         "infoText": "Přetáhněte soubory na tuto polochu a nebo na ní klikněte pro výběr souborů."
+      },
+      "TextField": {
+        "confidential": {
+          "edit": "Nastavit novou hodnotu"
+        }
       }
-
     },
     "advanced": {
       "IdentityInfo": {

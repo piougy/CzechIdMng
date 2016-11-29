@@ -125,8 +125,7 @@ public class DefaultSysSchemaAttributeHandlingService
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
 		if (entity.isExtendedAttribute()) {
-			// TODO: we need formable entity class - not hard coded to IdmIdentity.class
-			IdmFormDefinition definition = formService.getDefinition(IdmIdentity.class);
+			IdmFormDefinition definition = formService.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
 				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
 				if (defAttribute == null) {

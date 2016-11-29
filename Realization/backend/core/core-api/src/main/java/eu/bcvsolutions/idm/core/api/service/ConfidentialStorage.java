@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 public interface ConfidentialStorage {
 
 	/**
-	 * Persists (create, update) given values
+	 * Persists (create, update) given value
 	 * 
 	 * @param owner values owner
 	 * @param key identifier will be used to load storage value
@@ -70,4 +70,14 @@ public interface ConfidentialStorage {
 	 * @return
 	 */
 	<O extends AbstractEntity> GuardedString getGuardedString(O owner, String key);
+	
+	/**
+	 * Persists (create, update) given guarded string
+	 * 
+	 * @param owner
+	 * @param key
+	 * @param value
+	 */
+	<O extends AbstractEntity> void saveGuardedString(O owner, String key, GuardedString value);
+	
 }

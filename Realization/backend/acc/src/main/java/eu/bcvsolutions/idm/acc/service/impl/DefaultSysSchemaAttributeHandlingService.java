@@ -128,7 +128,7 @@ public class DefaultSysSchemaAttributeHandlingService
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
 		if (entity.isExtendedAttribute()) {
-			IdmFormDefinition definition = formService.getDefinition(IdmIdentity.class.getCanonicalName());
+			IdmFormDefinition definition = formService.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
 				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
 				if (defAttribute == null) {

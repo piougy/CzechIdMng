@@ -88,7 +88,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	
 	@Test
 	@Transactional
-	public void deleteDefinitionWithAttributes() {
+	public void testDeleteDefinitionWithAttributes() {
 		IdmFormDefinition formDefinition = createDefinition("one", true, true).formDefinition;
 		
 		formDefinitionService.delete(formDefinition);

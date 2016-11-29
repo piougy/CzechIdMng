@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +22,6 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;

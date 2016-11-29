@@ -43,11 +43,9 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.eav.service.api.FormValueService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -580,9 +578,10 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 		if (attributeHandling.isExtendedAttribute()) {
 			// TODO: prototype of form service calling
-			IdmFormAttribute defAttribute = formService.getDefinition(entity.getClass().getCanonicalName()).getMappedAttributeByName(attributeHandling.getIdmPropertyName());
-			List<AbstractFormValue<FormableEntity>> abstractFormValues =  formService.toAttributeMap(formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition())).get(defAttribute.getName());
-			return abstractFormValues.get(0).getValue();
+			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity)entity).getClass()).getMappedAttributeByName(attributeHandling.getIdmPropertyName());
+			List<Object> attributeValues = formService.toPersistentValues(formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition(), defAttribute.getName()));
+			// TODO: Multiple extended attribute?
+			return attributeValues.get(0);
 		}
 		// Find value from entity
 		if (attributeHandling.getSchemaAttribute().getClassType().equals(GuardedString.class.getName())) {

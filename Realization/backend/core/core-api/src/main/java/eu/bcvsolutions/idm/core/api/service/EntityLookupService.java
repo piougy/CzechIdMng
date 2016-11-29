@@ -19,6 +19,7 @@ public interface EntityLookupService {
 	 * 
 	 * @param entityClass
 	 * @param entityId
+	 * @param <E> {@link BaseEntity} type
 	 * @return
 	 */
 	<E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId);
@@ -27,6 +28,7 @@ public interface EntityLookupService {
 	 * Returns {@link EntityLookup} for given entityClass
 	 * 
 	 * @param entityClass
+	 * @param <E> {@link BaseEntity} type
 	 * @return
 	 */
 	<E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<E> entityClass);
@@ -35,6 +37,7 @@ public interface EntityLookupService {
 	 * Returns base service for given entity
 	 * 
 	 * @param entityClass
+	 * @param <E> {@link BaseEntity} type
 	 * @return
 	 */
 	<E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass);

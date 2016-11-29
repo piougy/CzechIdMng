@@ -915,8 +915,8 @@
         },
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",
-          "CUSTOM": "Změnit heslo je možné na každém systémy zvlášť.",
-          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny systémy naráz."
+          "CUSTOM": "Změnit heslo je možné na každém účtu zvlášť.",
+          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny účty naráz."
         },
         "accounts": {
           "label": "Na systému",
@@ -924,8 +924,8 @@
         },
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
-          "success": "Heslo na systémech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
-          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném systému libovolně krát."
+          "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
+          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát."
         },
         "button": {
           "change": "Změnit heslo"

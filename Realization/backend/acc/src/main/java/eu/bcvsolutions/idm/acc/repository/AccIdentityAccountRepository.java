@@ -32,6 +32,8 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	        " and" +
 	        " (?#{[0].roleId} is null or ir.role.id = ?#{[0].roleId})" + 
 	        " and" +
-	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})")
+	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})" + 
+	        " and" +
+	        " (?#{[0].ownership} is null or e.ownership = ?#{[0].ownership})")
 	Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable);
 }

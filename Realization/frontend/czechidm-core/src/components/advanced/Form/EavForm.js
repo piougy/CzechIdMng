@@ -8,7 +8,6 @@ import * as Basic from '../../basic';
  * Content of eav form by given form instance (= form definition + form values)
  *
  * TODO:
- * - richtextarea, date, datetime, currency attribute types (and appropriate validation)
  * - guarded string for confidential attributes
  */
 export default class EavForm extends Basic.AbstractContextComponent {
@@ -77,13 +76,17 @@ export default class EavForm extends Basic.AbstractContextComponent {
         // unsupported persistentType
         return true;
       }
-
+      const componentValue = formComponent.getValue();
+      // undefined values are not sent (confidential properties  etc.)
+      if (componentValue === undefined) {
+        return true;
+      }
+      //
       if (attribute.multiple) {
         const formValues = formInstance.getValues(attribute.name) || [];
         // split multilines text = multi values
-        const textValue = formComponent.getValue();
-        if (textValue) {
-          const textValues = textValue.split('\n');
+        if (componentValue) {
+          const textValues = componentValue.split('\n');
           for (let i = 0; i < textValues.length; i++) {
             let formValue = null;
             if (i < formValues.length) {
@@ -94,7 +97,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         }
       } else {
         // single value
-        filledFormValues.push(this._fillFormValue(formInstance, attribute, formInstance.getSingleValue(attribute.name), formComponent.getValue()));
+        filledFormValues.push(this._fillFormValue(formInstance, attribute, formInstance.getSingleValue(attribute.name), componentValue));
       }
     });
     return filledFormValues;
@@ -340,7 +343,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}
                   validation={this._getInputValidation(attribute)}
-                  required={attribute.required}/>
+                  required={attribute.required}
+                  confidential={attribute.confidential}/>
               );
             }
             // date and datetime field

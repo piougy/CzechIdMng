@@ -177,9 +177,15 @@ public class DefaultFormService implements FormService {
 		});
 		//
 		// remove unsaved values by attribute definition (patch method is not implemented now)
-		previousValues.values().forEach(formValue -> {
-			formValueService.deleteValue(formValue);
-		});
+		previousValues.values().stream()
+			.filter(formValue -> {
+				// confidential values has to removed directly
+				// they could not be sent with form (only changed values)
+				return !formValue.isConfidential();
+			})
+			.forEach(formValue -> {
+				formValueService.deleteValue(formValue);
+			});
 	}
 
 	/**

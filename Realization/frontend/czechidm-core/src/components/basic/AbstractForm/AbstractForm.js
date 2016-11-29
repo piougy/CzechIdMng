@@ -140,7 +140,15 @@ class AbstractForm extends AbstractContextComponent {
       }
       const key = this.state.componentsKeys[componentRef];
       const component = this.getComponent(this.state.componentsKeys[componentRef]);
-      merge(result, {[key]: component.getValue()});
+      const componentValue = component.getValue();
+      if (componentValue === undefined) {
+        // undefined values are not sent (confidential properties etc.)
+        return true;
+      }
+      //
+      merge(result, {
+        [key]: componentValue
+      });
     }
     return result;
   }

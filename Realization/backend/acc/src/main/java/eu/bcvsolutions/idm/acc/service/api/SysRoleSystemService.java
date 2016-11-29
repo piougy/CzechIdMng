@@ -10,6 +10,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author Radek Tomiška
  *
  */
-public interface AccRoleSystemService extends ReadWriteEntityService<SysRoleSystem, RoleSystemFilter> {
+public interface SysRoleSystemService extends ReadWriteEntityService<SysRoleSystem, RoleSystemFilter> {
 
 }

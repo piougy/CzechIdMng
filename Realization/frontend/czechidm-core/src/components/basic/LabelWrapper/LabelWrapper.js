@@ -51,7 +51,7 @@ class LabelWrapper extends AbstractFormComponent {
             {label}
           </label>
         }
-        <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
+        <div className={componentSpan}>
           <Tooltip ref="popover" placement="right" value={title}>
             <span>
               {this.props.children}

@@ -4,6 +4,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -47,4 +48,6 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	IcfConnectorKey getTestConnectorKey();
 	@Deprecated
 	SysSystem createTestSystem();
+
+	PersistentType convertPropertyType(String connectorPropertyType);
 }

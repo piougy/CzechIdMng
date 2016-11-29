@@ -89,7 +89,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemEntityHandlingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
-        if (!error) {
+        if (!error && this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));

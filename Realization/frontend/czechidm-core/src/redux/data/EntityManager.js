@@ -163,9 +163,12 @@ export default class EntityManager {
    * Load data from server
    */
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
-    searchParameters = this.getSearchParameters(searchParameters);
-    uiKey = this.resolveUiKey(uiKey);
-    return (dispatch) => {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      searchParameters = this.getSearchParameters(searchParameters);
+      uiKey = this.resolveUiKey(uiKey);
       dispatch(this.requestEntities(searchParameters, uiKey));
       this.getService().search(searchParameters)
       .then(json => {
@@ -219,8 +222,12 @@ export default class EntityManager {
    * @return {object} - action
    */
   fetchEntity(id, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, id);
-    return (dispatch) => {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      //
+      uiKey = this.resolveUiKey(uiKey, id);
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {

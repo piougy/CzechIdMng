@@ -45,6 +45,13 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	List<E> getValues(O owner, IdmFormDefinition formDefiniton);
 	
 	/**
+	 * Deletes form value
+	 * 
+	 * @param value
+	 */
+	void deleteValue(E value);
+	
+	/**
 	 * Deletes values by given owner and definition. If no definition is given, then all values from given owner are deleted.
 	 *
 	 * @param owner

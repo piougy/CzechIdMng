@@ -17,6 +17,15 @@ class AbstractContextComponent extends AbstractComponent {
   }
 
   /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return null;
+  }
+
+  /**
    * Add flash message, see more in FlashMessages component
    *
    * @param {Message} message
@@ -80,13 +89,37 @@ class AbstractContextComponent extends AbstractComponent {
    * @param  {object} options parameters
    * @return {string}         localized message
    */
-  i18n(key, options) {
+  _i18n(key, options) {
     let result = i18n(key, options);
     // escape html
     if (options && options.escape === false && key !== result) {
       result = (<span dangerouslySetInnerHTML={{__html: i18n(key, options)}}/>);
     }
     return result;
+  }
+
+  /**
+   * Automatically prepend component prefix to localization key
+   * If overridened key isn't found in localization, then previous key is used
+   *
+   * @param  {string} key     localization key
+   * @param  {object} options parameters
+   * @return {string}         localized message
+   */
+  i18n(key, options) {
+    if (!key) {
+      return '';
+    }
+    //
+    const componentKey = this.getComponentKey();
+    //
+    const resultKeyWithModule = (key.indexOf(':') > -1 || !componentKey) ? key : `${componentKey}.${key}`;
+    const resultKeyWithoutModule = (resultKeyWithModule.indexOf(':') > -1) ? resultKeyWithModule.split(':')[1] : resultKeyWithModule;
+    const i18nValue = this._i18n(resultKeyWithModule, options);
+    if (i18nValue === resultKeyWithModule || i18nValue === resultKeyWithoutModule) {
+      return this._i18n(key, options);
+    }
+    return i18nValue;
   }
 
   /**

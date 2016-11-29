@@ -20,11 +20,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Identity
@@ -46,9 +49,9 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	private String username;
 
 	@Transient // passwords are saved to confidental storage
-	@Size(max = DefaultFieldLengths.PASSWORD)
 	@JsonProperty(access = Access.WRITE_ONLY)
-	private byte[] password;
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString password;
 
 	@Audited
 	@NotNull
@@ -123,11 +126,11 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 		this.username = username;
 	}
 
-	public byte[] getPassword() {
+	public GuardedString getPassword() {
 		return password;
 	}
 
-	public void setPassword(byte[] password) {
+	public void setPassword(GuardedString password) {
 		this.password = password;
 	}
 

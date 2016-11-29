@@ -69,12 +69,22 @@ export default class FormInstance {
   }
 
   /**
-   * Returns filled  attribute values (multivalues are oreded by its seq)
+   * Returns filled attribute values (multivalues are oreded by its seq)
    *
-   * @return {Immutable.OrderedMap} <attributeName, Immutable.List(formValue)>
+   * @return {arrayOf(FormValue)}
    */
-  getValues() {
-    return this.values;
+  getValues(attributeName) {
+    if (!attributeName) {
+      let result = [];
+      this.values.forEach(valueList => {
+        result = _.concat(result, valueList.toArray());
+      });
+      return result;
+    }
+    if (!this.values.has(attributeName)) {
+      return null;
+    }
+    return this.values.get(attributeName).toArray();
   }
 
   /**

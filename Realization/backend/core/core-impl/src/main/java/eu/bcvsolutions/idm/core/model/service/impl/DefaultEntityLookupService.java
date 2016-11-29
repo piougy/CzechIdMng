@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
- * Support for loading {@link BaseEntity} by identifier
+ * Provide entity services through whole application. 
+ * Support for loading {@link BaseEntity} by identifier.
  * 
  * @author Radek Tomiška
  *
@@ -49,12 +50,19 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		this.entityLookups = OrderAwarePluginRegistry.create(entityLookupsWithDefault);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
 		return (ReadEntityService<E, ?>)entityServices.getPluginFor(entityClass);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<E> entityClass) {
 		EntityLookup<E> lookup = (EntityLookup<E>)entityLookups.getPluginFor(entityClass);
@@ -69,6 +77,9 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId) {

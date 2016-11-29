@@ -41,6 +41,11 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		return ownerClass.isAssignableFrom(delimiter);
 	}
 	
+	/**
+	 * Returns entity repository
+	 * 
+	 * @return
+	 */
 	protected abstract AbstractFormValueRepository<O, E> getRepository();
 	
 	/**
@@ -65,6 +70,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		return getRepository().save(entity);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<E> getValues(O owner, IdmFormDefinition formDefiniton) {
@@ -72,14 +80,22 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		if (formDefiniton == null) {
 			return Lists.newArrayList(getRepository().findByOwner(owner));
 		}
-		return getRepository().findByOwnerAndFormAttribute_FormDefinition(owner, formDefiniton);
+		return getRepository().findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(owner, formDefiniton);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional
+	public void deleteValue(E value) {
+		getRepository().delete(value);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Transactional
 	public void deleteValues(O owner, IdmFormDefinition formDefiniton) {
 		getRepository().delete(getValues(owner, formDefiniton));
 	}
-	
-	
-
 }

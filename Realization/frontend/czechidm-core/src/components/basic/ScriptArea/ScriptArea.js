@@ -4,8 +4,6 @@ import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
-// import 'brace/mode/groovy';
-// import 'brace/theme/github';
 
 
 class ScriptArea extends AbstractFormComponent {

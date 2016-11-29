@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
@@ -44,10 +45,12 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -61,7 +64,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	private static final String IDENTITY_PASSWORD_ONE = "password_one";
 	private static final String IDENTITY_PASSWORD_TWO = "password_two";
+	private static final String IDENTITY_PASSWORD_THREE = "password_three";
 	private static final String IDENTITY_USERNAME = "provisioningTestUser";
+	private static final String IDENTITY_EXT_PASSWORD = "passwordExt";
 
 	@Autowired
 	private SysSystemService sysSystemService;
@@ -159,7 +164,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
 		passwordChange.setIdentity(identity.getId().toString());
 		passwordChange.setAccounts(ImmutableList.of(accountIdentityOne.getId().toString()));
-		passwordChange.setNewPassword(IDENTITY_PASSWORD_ONE.getBytes());
+		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_ONE));
+		passwordChange.setIdm(true);
 		// Do change of password for selected accounts
 		idmIdentityService.passwordChange(identity, passwordChange);
 		accountIdentityOne = identityAccoutnService.get(accountIdentityOne.getId());
@@ -196,6 +202,41 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource removedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNull(removedAccount);
 	}
+	
+	@Test
+	public void doIdentityProvisioningExtendedAttribute() {
+		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+				
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentity(identity);
+		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		
+		SchemaAttributeHandlingFilter filterSchemaAttr = new SchemaAttributeHandlingFilter();
+		filterSchemaAttr.setIdmPropertyName("password");
+		filterSchemaAttr.setSystemId(accountIdentityOne.getAccount().getSystem().getId());
+		SysSchemaAttributeHandling attributeHandling = schemaAttributeHandlingService.find(filterSchemaAttr, null).getContent().get(0);
+		// Set attribute to extended attribute and modify idmPropety to extPassword
+		attributeHandling.setIdmPropertyName(IDENTITY_EXT_PASSWORD);
+		attributeHandling.setExtendedAttribute(true);
+		attributeHandling.setTransformToResourceScript("return new eu.bcvsolutions.idm.security.api.domain.GuardedString(attributeValue)");
+		// Form attribute definition will be created during save attribute handling
+		schemaAttributeHandlingService.save(attributeHandling);
+		
+		// Create extended attribute value for password
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName());
+		List<IdmIdentityFormValue> values = new ArrayList<>();
+		IdmIdentityFormValue phoneValue = new IdmIdentityFormValue();
+		phoneValue.setFormAttribute(formDefinition.getMappedAttributeByName(IDENTITY_EXT_PASSWORD));
+		phoneValue.setStringValue(IDENTITY_PASSWORD_THREE);
+		values.add(phoneValue);
+		formService.saveValues(identity, formDefinition, values);
+		
+		// save account
+		provisioningService.doIdentityProvisioning(identity);
+		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
+		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getPassword());;
+	}
+
 
 	/**
 	 * Create test system connected to same database (using configuration from

@@ -76,32 +76,21 @@ export default class AbstractContent extends AbstractContextComponent {
   }
 
   /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return this.getContentKey() || super.getComponentKey();
+  }
+
+  /**
    * Return navigation identifier, with can be used to show content header, title, icon ...
    *
    * @return {string} navigation item identifier
    */
   getNavigationKey() {
     return null;
-  }
-
-  /**
-   * Automatically prepend page prefix to localization key
-   * If overridened key isn't found in localization, then previous key is used
-   *
-   * @param  {string} key     localization key
-   * @param  {object} options parameters
-   * @return {string}         localized message
-   */
-  i18n(key, options) {
-    const contentKey = this.getContentKey();
-    //
-    const resultKeyWithModule = (key.indexOf(':') > -1 || !contentKey) ? key : `${contentKey}.${key}`;
-    const resultKeyWithoutModule = (resultKeyWithModule.indexOf(':') > -1) ? resultKeyWithModule.split(':')[1] : resultKeyWithModule;
-    const i18nValue = super.i18n(resultKeyWithModule, options);
-    if (i18nValue === resultKeyWithModule || i18nValue === resultKeyWithoutModule) {
-      return super.i18n(key, options);
-    }
-    return i18nValue;
   }
 
   /**

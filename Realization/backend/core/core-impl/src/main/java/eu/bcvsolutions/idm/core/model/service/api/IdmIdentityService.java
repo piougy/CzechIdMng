@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  */
 public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, IdentityFilter>, IdentifiableByNameEntityService<IdmIdentity> {
 	
-	static final String PASSWORD_CONFIDENTIAL_PROPERTY = "idm:password";
+	static final String PASSWORD_CONFIDENTIAL_PROPERTY = "password";
 	
 	/**
 	 * Returns identity by given username

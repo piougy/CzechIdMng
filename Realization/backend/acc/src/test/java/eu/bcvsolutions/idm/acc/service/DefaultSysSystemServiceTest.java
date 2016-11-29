@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -58,8 +59,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void testFormAttributes() {
 		// create owner
 		SysSystem system = new SysSystem();
-		system.setName(SYSTEM_NAME_ONE);		
-		sysSystemService.save(system);		
+		system.setName(SYSTEM_NAME_ONE);
+		sysSystemService.save(system);	
 		SysSystem systemOne = sysSystemService.getByName(SYSTEM_NAME_ONE);		
 		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
 		//
@@ -98,24 +99,26 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		formService.saveValues(systemOne, formDefinitionOne, Lists.newArrayList(value1));
 		formService.saveValues(systemOne, formDefinitionTwo, Lists.newArrayList(value2));
 		
-		List<AbstractFormValue<SysSystem>> savedValues = formService.getValues(systemOne);
-		
-		assertEquals(2, savedValues.size());
 		assertEquals("test1", formService.getValues(systemOne, formDefinitionOne).get(0).getStringValue());
 		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
+		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo, attributeDefinitionTwo.getName()).get(0).getValue());
 		//
 		// create second owner
 		SysSystem systemTwo = new SysSystem();
 		systemTwo.setName(SYSTEM_NAME_TWO);		
 		systemTwo = sysSystemService.save(systemTwo);
 		
-		assertEquals(0, formService.getValues(systemTwo).size());
-		assertEquals(2, formService.getValues(systemOne).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(systemOne, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(systemOne, formDefinitionTwo).size());
 		
 		sysSystemService.delete(systemTwo);
 		
-		assertEquals(0, formService.getValues(systemTwo).size());
-		assertEquals(2, formService.getValues(systemOne).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
+		assertEquals(1, formService.getValues(systemOne, formDefinitionOne).size());
+		assertEquals(1, formService.getValues(systemOne, formDefinitionTwo).size());
 		
 		formService.deleteValues(systemOne, formDefinitionOne);		
 		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
@@ -123,7 +126,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		
 		sysSystemService.delete(systemOne);
 		
-		assertEquals(0, formService.getValues(systemOne).size());
+		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
+		assertEquals(0, formService.getValues(systemOne, formDefinitionTwo).size());
 	}
 	
 	@Test
@@ -170,5 +174,19 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		};		
 		assertEquals(Integer.valueOf(3), checked);
 	}
+	
+	@Test
+	public void testDefaultFormDefinitionNotExists() {
+		assertNull(formService.getDefinition(SysSystem.class));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadValuesFromDefaultFormDefinitionNotExists() {
+		SysSystem system = new SysSystem();
+		system.setName(SYSTEM_NAME_ONE + "_" + System.currentTimeMillis());
+		sysSystemService.save(system);
+		formService.getValues(system);
+	}
+	
 
 }

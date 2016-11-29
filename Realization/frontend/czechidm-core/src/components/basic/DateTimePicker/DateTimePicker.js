@@ -25,10 +25,12 @@ class DateTimePicker extends AbstractFormComponent {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.setValue(this.props.value);
   }
 
   componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(nextProps);
     if (nextProps.value && this.props.value && nextProps.value !== this.props.value) {
       this.setValue(nextProps.value);
     }
@@ -170,7 +172,8 @@ class DateTimePicker extends AbstractFormComponent {
       style,
       locale,
       dateFormat,
-      timeFormat
+      timeFormat,
+      helpBlock
     } = this.props;
 
     const { readOnly, disabled, value } = this.state;
@@ -194,50 +197,54 @@ class DateTimePicker extends AbstractFormComponent {
           </label>
         }
         <div className={componentSpan}>
-          {(disabled || readOnly)
+          {
+            (disabled || readOnly)
             ?
             <div style={{marginTop: '7px', marginLeft: '13px'}}>
               {value && value._isAMomentObject ? this._format(value) : value}
             </div>
             :
-            (
-              <div className="btn-group input-group basic-date-time-picker">
-                <Datetime
-                  ref="input"
-                  onChange={this.onChange}
-                  disabled={disabled}
-                  readOnly={readOnly}
-                  style={style}
-                  closeOnSelect
-                  locale={_locale === 'cs' ? 'cs' : 'en'}
-                  dateFormat={mode === 'time' ? false : _dateFormat}
-                  timeFormat={mode === 'date' ? false : _timeFormat}
-                  inputProps={{
-                    title: (this.getValidationResult() != null ? this.getValidationResult().message : ''),
-                    placeholder,
-                    style: {
-                      zIndex: 0
-                    }
-                  }}/>
-                <Button type="button"
-                  level="default"
-                  className="btn-sm"
-                  disabled={disabled}
-                  style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
-                  onClick={this._openDialog.bind(this)}>
-                  <Icon type="fa" icon="calendar"/>
-                </Button>
-                <Button type="button"
-                  level="default"
-                  className="btn-sm"
-                  disabled={disabled}
-                  style={{marginTop: '0px', height: '34px'}}
-                  onClick={this._clear.bind(this)}>
-                  <Icon type="fa" icon="remove"/>
-                </Button>
-                  { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
-              </div>
-            )
+            <div className="btn-group input-group basic-date-time-picker">
+              <Datetime
+                ref="input"
+                onChange={this.onChange}
+                disabled={disabled}
+                readOnly={readOnly}
+                style={style}
+                closeOnSelect
+                locale={_locale === 'cs' ? 'cs' : 'en'}
+                dateFormat={mode === 'time' ? false : _dateFormat}
+                timeFormat={mode === 'date' ? false : _timeFormat}
+                inputProps={{
+                  title: (this.getValidationResult() != null ? this.getValidationResult().message : ''),
+                  placeholder,
+                  style: {
+                    zIndex: 0
+                  }
+                }}/>
+              <Button type="button"
+                level="default"
+                className="btn-sm"
+                disabled={disabled}
+                style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
+                onClick={this._openDialog.bind(this)}>
+                <Icon type="fa" icon="calendar"/>
+              </Button>
+              <Button type="button"
+                level="default"
+                className="btn-sm"
+                disabled={disabled}
+                style={{marginTop: '0px', height: '34px'}}
+                onClick={this._clear.bind(this)}>
+                <Icon type="fa" icon="remove"/>
+              </Button>
+              { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
+            </div>
+          }
+          {
+            !helpBlock
+            ||
+            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
           }
         </div>
       </div>

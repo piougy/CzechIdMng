@@ -280,7 +280,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @return
 	 */
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
-	public Resources<?> getConnectorFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity identity = getEntity(backendId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
@@ -309,7 +309,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		}
 		IdmFormDefinition formDefinition = getFormDefinition(identity);
 		formService.saveValues(identity, formDefinition, formValues);
-		return getConnectorFormValues(backendId, assembler);
+		return getFormValues(backendId, assembler);
 	}
 	
 	/**

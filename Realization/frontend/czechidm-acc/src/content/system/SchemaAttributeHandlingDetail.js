@@ -135,18 +135,17 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
                 onChange={this._uidChange.bind(this)}
                 tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uidTooltip')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.uid')}/>
+              <Basic.Checkbox
+                ref="extendedAttribute"
+                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
               <Basic.TextField
                 ref="idmPropertyName"
                 readOnly = {_isUid}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
                 required = {!_isUid}
                 max={255}/>
-              <Basic.Checkbox
-                ref="extendedAttribute"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
               <Basic.ScriptArea
                 ref="transformFromResourceScript"
-                mode="javascript"
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.help')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.label')}/>
               <Basic.ScriptArea

@@ -6,6 +6,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
@@ -45,7 +46,7 @@ public interface SysProvisioningService {
 	 * @param entityType
 	 */
 	void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system, 
-			AccountOperationType operationType, SystemEntityType entityType);
+			AccountOperationType operationType, SystemEntityType entityType,  AbstractEntity entity);
 
 	
 	/**

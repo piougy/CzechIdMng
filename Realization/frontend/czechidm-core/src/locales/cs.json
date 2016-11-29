@@ -217,7 +217,8 @@
           "selection_0": "Vyberte záznamy ...",
           "selection_1": "Operace s vybraným záznamem:",
           "selection_2": "Operace s vybranými záznamy ({{count}}):",
-          "selection_5": "Operace s vybranými záznamy ({{count}}):"
+          "selection_5": "Operace s vybranými záznamy ({{count}}):",
+          "notImplemented": "Omlouváme se, tato operace nebyla prozatím naimplementována."
         },
         "error": {
           "load": "Při načítání záznamů do tabulky nastala chyba"
@@ -229,6 +230,25 @@
       },
       "Tree": {
         "loading": "Načítání ..."
+      },
+      "EavForm": {
+        "multiple": {
+          "label": "multi",
+          "title": "Podporuje zádání více hodnot. Co hodnota, to nový řádek",
+          "unsupported": {
+            "title": "{{name}} - attribute can not be multiple",
+            "formDefinition": {
+              "title": "Form definition has to be fixed",
+              "type": "Type",
+              "name": "Name"
+            }
+          }
+        },
+        "persistentType": {
+          "unsupported": {
+            "title": "{{name}} - unsupported persistentType"
+          }
+        }
       }
     }
   },
@@ -1530,6 +1550,10 @@
     "GROVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby.",
       "message": ""
+    },
+    "GROVY_SCRIPT_SECURITY_VALIDATION": {
+      "title": "Groovy skript neprošel bezpečností kontrolou!",
+      "message": "Příčina: {{message}}"
     }
 
   },

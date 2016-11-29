@@ -44,6 +44,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		Assert.notNull(owner);
 		Assert.hasLength(key);
 		//
+		LOG.debug("Saving value for owner [{}] and key [{}] to confidential storage", owner, key);
 		IdmConfidentialStorageValue storage = getStorageValue(owner, key);
 		if (storage == null) {
 			// create new storage
@@ -67,6 +68,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		Assert.notNull(owner);
 		Assert.hasLength(key);
 		//
+		LOG.debug("Delete value for owner [{}] and key [{}] from confidential storage", owner, key);
 		IdmConfidentialStorageValue storageValue = getStorageValue(owner, key);
 		if (storageValue != null) {
 			repository.delete(storageValue);
@@ -133,6 +135,15 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 		return new GuardedString(storageValue.toString());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public <O extends AbstractEntity> void saveGuardedString(O owner, String key, GuardedString value) {
+		save(owner, key, value == null ? null : value.asString());
+	}
+	
 	
 	/**
 	 * Get persisted storage by owner and key
@@ -142,6 +153,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 * @return
 	 */
 	private IdmConfidentialStorageValue getStorageValue(AbstractEntity owner, String key) {
+		LOG.debug("Get value for owner [{}] and key [{}] from confidential storage", owner, key);
 		return repository.findOneByOwnerTypeAndOwnerIdAndKey(getOwnerType(owner), owner.getId(), key);
 	}
 	

@@ -33,7 +33,7 @@ public class AccIdentityAccount extends AbstractEntity {
 
 	private static final long serialVersionUID = 1356548381619742855L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -41,7 +41,7 @@ public class AccIdentityAccount extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private AccAccount account;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -49,14 +49,14 @@ public class AccIdentityAccount extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "ownership", nullable = false)
 	private boolean ownership = true;

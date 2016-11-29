@@ -33,7 +33,7 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 
 	private static final long serialVersionUID = -1594762884461330895L;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@JsonBackReference
 	@ManyToOne(optional = false)
@@ -42,7 +42,7 @@ public class IdmRoleComposition extends AbstractEntity implements EntityComposit
 	@org.hibernate.annotations.ForeignKey( name = "none" )	
 	private IdmRole superior;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "sub_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))

@@ -1,18 +1,14 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.history.Revision;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
@@ -30,17 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
-import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.api.service.AuditService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.repository.processor.RevisionAssembler;
+import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 /**
@@ -57,7 +51,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private AuditService auditService; 
+	private IdmAuditService auditService; 
 	
 	@Autowired
 	public IdmTreeNodeController(EntityLookupService entityLookupService, IdmTreeNodeService treeNodeService) {
@@ -91,57 +85,32 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		return super.delete(backendId);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
-	public ResponseEntity<ResourceWrapper<DefaultRevisionEntity>> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Integer revId) {
+	public ResponseEntity<?> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
 		
-		Revision<Integer, ? extends BaseEntity> revision;
+		IdmTreeNode revision;
 		try {
-			revision = this.auditService.findRevision(IdmTreeNode.class, revId, treeNode.getId());
+			revision = this.auditService.findRevision(IdmTreeNode.class, treeNode.getId(), revId);
 		} catch (RevisionDoesNotExistException e) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
 		}
-		
-		IdmTreeNode entity = (IdmTreeNode) revision.getEntity();
-		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
-		ResourceWrapper<DefaultRevisionEntity> resource = assembler.toResource(this.getClass(),
-				String.valueOf(entity.getId()), revision, revId);
 
-		return new ResponseEntity<ResourceWrapper<DefaultRevisionEntity>>(resource, HttpStatus.OK);
+		return new ResponseEntity<>(toResource(revision, assembler), HttpStatus.OK);
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "{treeNodeId}/revisions", method = RequestMethod.GET)
-	public ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>> findRevisions(@PathVariable("treeNodeId") String treeNodeId) {
+	public Resources<?> findRevisions(@PathVariable("treeNodeId") String treeNodeId, Pageable pageable, 
+			PersistentEntityResourceAssembler assembler) {
 		IdmTreeNode treeNode = getEntity(treeNodeId);
 		if (treeNode == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("treeNode", treeNodeId));
 		}
-		
-		List<ResourceWrapper<DefaultRevisionEntity>> wrappers = new ArrayList<>();
-		List<Revision<Integer, ? extends BaseEntity>> revisions = this.auditService.findRevisions(IdmTreeNode.class, treeNode.getId());
-		try {
-			revisions = this.auditService.findRevisions(IdmTreeNode.class, treeNode.getId());
-		} catch (RevisionDoesNotExistException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", treeNodeId));
-		}
-		
-		RevisionAssembler<IdmTreeNode> assembler = new RevisionAssembler<IdmTreeNode>();
-		
-		revisions.forEach(revision -> {
-			wrappers.add(assembler.toResource(this.getClass(), 
-					String.valueOf(revision.getEntity().getId()),
-					revision, revision.getRevisionNumber()));
-		});
-		
-		ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>> resources = new ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>(
-				wrappers);
-		
-		return new ResponseEntity<ResourcesWrapper<ResourceWrapper<DefaultRevisionEntity>>>(resources, HttpStatus.OK);
+		Page<IdmAudit> results = this.auditService.getRevisionsForEntity(IdmTreeNode.class.getSimpleName(), UUID.fromString(treeNodeId), pageable);
+		return toResources(results, assembler, IdmRole.class, null);
 	}
 	
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)

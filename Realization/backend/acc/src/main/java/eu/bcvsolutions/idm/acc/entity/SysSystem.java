@@ -34,22 +34,22 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String name;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "virtual", nullable = false)
 	private boolean virtual;
@@ -58,7 +58,6 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

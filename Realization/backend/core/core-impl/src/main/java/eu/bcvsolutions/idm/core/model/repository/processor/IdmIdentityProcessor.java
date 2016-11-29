@@ -30,9 +30,10 @@ public class IdmIdentityProcessor implements ResourceProcessor<Resource<IdmIdent
 		Link authoritiesLink = linkTo(methodOn(IdmIdentityController.class)
 				.getGrantedAuthotrities(identityUserName)).withRel("authorities");
 		resource.add(authoritiesLink);
-		Link revisionLink = linkTo(methodOn(IdmIdentityController.class)
+		// TODO: link to revision?
+		/*Link revisionLink = linkTo(methodOn(IdmIdentityController.class)
 				.findRevisions(identityUserName)).withRel("revisions");
-		resource.add(revisionLink);
+		resource.add(revisionLink);*/
 		return resource;
 	}
 

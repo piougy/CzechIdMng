@@ -329,6 +329,11 @@
       "IS_AUTHENTICATED": "Je třeba přihlášení",
       "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
       "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
+    },
+    "AuditModificationEnum": {
+      "ADD": "vytvoření",
+      "MOD": "modifikace",
+      "DEL": "smazání"
     }
   },
   "dashboard": {
@@ -1240,12 +1245,23 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "title-entities": "Audit pro entity",
       "modifier": "Změnu provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
       "id": "ID",
       "profile": {
-        "userDetail": "Auditní záznám z"
+        "userDetail": "Auditní záznám identity: {{name}} z {{date}}"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        }
       }
     }
   },
@@ -1435,7 +1451,13 @@
       "secured": "Systémové nastavení"
     },
     "Audit": {
-      "label": "Audit"
+      "label": "Audit",
+      "id": "Id revize",
+      "modification": "Typ modifikace",
+      "modifier": "Změnu provedl",
+      "revisionDate": "Datum revize",
+      "changedAttributes": "Změněné atributy",
+      "type": "Typ entity"
     },
     "Module": {
       "id": "Id",

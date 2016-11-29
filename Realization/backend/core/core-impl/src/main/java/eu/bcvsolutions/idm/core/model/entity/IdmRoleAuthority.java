@@ -36,7 +36,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	
 	private static final long serialVersionUID = -4935521717718151720L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@JsonBackReference
 	@ManyToOne(optional = false)
@@ -47,7 +47,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Group
 	 */
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "target_permission", length = DefaultFieldLengths.NAME, nullable = false)
@@ -55,7 +55,7 @@ public class IdmRoleAuthority extends AbstractEntity {
 	/**
 	 * Base permission
 	 */
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "action_permission", length = DefaultFieldLengths.NAME, nullable = false)

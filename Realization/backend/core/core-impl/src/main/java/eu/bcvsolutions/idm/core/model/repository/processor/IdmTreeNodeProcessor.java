@@ -21,10 +21,10 @@ public class IdmTreeNodeProcessor implements ResourceProcessor<Resource<IdmTreeN
 	@Override
 	public Resource<IdmTreeNode> process(Resource<IdmTreeNode> resource) {
 		String identityId = String.valueOf(resource.getContent().getId());
-		
-		Link revisionLink = linkTo(methodOn(IdmTreeNodeController.class)
+		// TODO: link to revision?
+		/*Link revisionLink = linkTo(methodOn(IdmTreeNodeController.class)
 				.findRevisions(identityId)).withRel("revisions");
-		resource.add(revisionLink);
+		resource.add(revisionLink);*/
 		return resource;
 	}
 }

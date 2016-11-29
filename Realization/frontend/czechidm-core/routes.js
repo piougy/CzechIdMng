@@ -37,6 +37,7 @@ module.exports = {
         },
         {
           path: 'password',
+          priority: 0,
           component: require('./src/content/identity/PasswordChange')
         },
         {

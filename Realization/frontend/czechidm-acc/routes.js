@@ -99,6 +99,7 @@ module.exports = {
         },
         {
           path: 'password',
+          priority: 10,
           component: require('./src/content/identity/PasswordAccounts')
         }
       ]

@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
  * Interface for Audit service
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
- * TODO: Pageable method to find all revisions
+ * 
  */
 
 public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditFilter> {

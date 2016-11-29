@@ -57,7 +57,6 @@ class PasswordAccounts extends Basic.AbstractContent {
     const { passwordChangeType, userContext, requireOldPassword, showLoading } = this.props;
     const { entityId } = this.props.params;
     const options = this._getOptions();
-    console.log(options);
     return (
       <div>
         {

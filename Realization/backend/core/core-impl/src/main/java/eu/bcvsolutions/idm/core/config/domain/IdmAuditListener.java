@@ -36,7 +36,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		// nothing ...
 	}
 	
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void entityChanged(Class entityClass, String entityName, Serializable entityId, RevisionType revisionType,
 			Object revisionEntity) {
@@ -47,22 +47,21 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 		if (((IdmAudit)revisionEntity).getEntityId() != null) { // child revision
 			IdmAudit childRevision = new IdmAudit();
 			childRevision.setTimestamp(((IdmAudit)revisionEntity).getTimestamp());
-			this.changeRevisionEntity(entityClass, entityName, entityId, childRevision, revisionType);
+			this.changeRevisionEntity((Class<AbstractEntity>)entityClass, entityName, (UUID)entityId, childRevision, revisionType);
 			this.auditService.save(childRevision);
 		} else { // parent revision
-			this.changeRevisionEntity(entityClass, entityName, entityId, (IdmAudit)revisionEntity, revisionType);
+			this.changeRevisionEntity((Class<AbstractEntity>)entityClass, entityName, (UUID)entityId, (IdmAudit)revisionEntity, revisionType);
 		}
 	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void changeRevisionEntity(Class entityClass, String entityName, Serializable entityId, IdmAudit revisionEntity, RevisionType revisionType) {
+
+	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId, IdmAudit revisionEntity, RevisionType revisionType) {
 		List<String> changedColumns;
 		AbstractEntity currentEntity = null;
 		
 		// if revision type is MOD - modification, get and set changed columns
 		if (revisionType == RevisionType.MOD) {
-			currentEntity = (AbstractEntity) entityManger.find(entityClass, (UUID)entityId);
-			changedColumns = auditService.getNameChangedColumns(entityClass, (UUID)entityId, (Long)revisionEntity.getId(), currentEntity);
+			currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, (Long)revisionEntity.getId(), currentEntity);
 			revisionEntity.addChanged(changedColumns);
 		}
 		

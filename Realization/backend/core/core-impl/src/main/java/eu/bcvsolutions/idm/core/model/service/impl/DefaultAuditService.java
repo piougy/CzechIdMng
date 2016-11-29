@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -146,8 +147,10 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 						changedColumns.add(field.getName());
 					}
 				} catch (IllegalArgumentException | IllegalAccessException | 
-						NoSuchMethodException | InvocationTargetException e) {
-					e.printStackTrace();
+						NoSuchMethodException | InvocationTargetException ex) {
+					throw new IllegalArgumentException(
+							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], can not be found name of changed columns.",
+									entityClass, entityId, currentRevId), ex);
 				}
 			}
 		}

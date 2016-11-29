@@ -118,7 +118,7 @@ export class AuditTable extends Basic.AbstractContent {
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row>
+          <Basic.Row className="last">
             {
               !_.includes(columns, 'type')
               ||
@@ -135,7 +135,6 @@ export class AuditTable extends Basic.AbstractContent {
               ||
               <div className="col-lg-4">
                 <Advanced.Filter.EnumSelectBox
-                  className="col-lg-4"
                   ref="modification"
                   placeholder={this.i18n('entity.Audit.modification')}
                   label={this.i18n('entity.Audit.modification')}
@@ -146,12 +145,11 @@ export class AuditTable extends Basic.AbstractContent {
               !_.includes(columns, 'modifier')
               ||
               <div className="col-lg-4">
-                <Advanced.Filter.SelectBox
+                <Advanced.Filter.TextField
+                  className="pull-right"
                   ref="modifier"
                   label={this.i18n('entity.Audit.modifier')}
                   placeholder={this.i18n('entity.Audit.modifier')}
-                  multiSelect={false}
-                  manager={identityManager}
                   returnProperty="username"/>
               </div>
             }

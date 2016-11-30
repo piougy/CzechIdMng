@@ -90,7 +90,6 @@ class IdentityDetail extends Basic.AbstractContent {
     const { showLoading, showLoadingIdentityTrimmed } = this.state;
     const canEditMap = identityManager.canEditMap(userContext, identity);
     const deactiveDisabled = !userContext || entityId === userContext.username || !canEditMap.get('isSaveEnabled');
-
     return (
       <div>
         <form onSubmit={this.onSave.bind(this)}>

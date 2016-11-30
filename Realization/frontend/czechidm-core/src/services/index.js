@@ -18,6 +18,7 @@ import ConfigurationService from './ConfigurationService';
 import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
 import RoleCatalogueService from './RoleCatalogueService';
+import AuditService from './AuditService';
 
 const ServiceRoot = {
   RestApiService,
@@ -39,7 +40,8 @@ const ServiceRoot = {
   ConfigurationService,
   EmailService,
   BackendModuleService,
-  RoleCatalogueService
+  RoleCatalogueService,
+  AuditService
 };
 
 ServiceRoot.version = '0.0.1';

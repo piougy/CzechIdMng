@@ -23,10 +23,10 @@ public class IdmRoleProcessor implements ResourceProcessor<Resource<IdmRole>>{
 	@Override
 	public Resource<IdmRole> process(Resource<IdmRole> resource) {
 		String identityId = String.valueOf(resource.getContent().getName());
-		
-		Link revisionLink = linkTo(methodOn(IdmRoleController.class)
+		// TODO: link to revision?
+		/*Link revisionLink = linkTo(methodOn(IdmRoleController.class)
 				.findRevisions(identityId)).withRel("revisions");
-		resource.add(revisionLink);
+		resource.add(revisionLink);*/
 		return resource;
 	}
 

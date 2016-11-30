@@ -35,7 +35,7 @@ public class SysRoleSystem extends AbstractEntity {
 	private static final long serialVersionUID = -7589083183676265957L;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -43,7 +43,7 @@ public class SysRoleSystem extends AbstractEntity {
 	private IdmRole role;
 	
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -51,7 +51,7 @@ public class SysRoleSystem extends AbstractEntity {
 	private SysSystem system;
 	
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "type", length = DefaultFieldLengths.NAME, nullable = false)
 	private String type;

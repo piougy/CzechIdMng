@@ -27,13 +27,13 @@ public class IdmTreeType extends AbstractEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "code", length = DefaultFieldLengths.NAME, nullable = false)
 	private String code;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)

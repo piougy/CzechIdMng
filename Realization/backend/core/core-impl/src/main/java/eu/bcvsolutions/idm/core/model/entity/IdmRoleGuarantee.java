@@ -31,7 +31,7 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	private static final long serialVersionUID = 6106304497345109366L;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -39,7 +39,7 @@ public class IdmRoleGuarantee extends AbstractEntity {
 	private IdmIdentity guarantee;
 
 	@NotNull
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@JsonBackReference
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))

@@ -47,14 +47,14 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   _initForm() {
+    const { accountOptions } = this.props;
     if (this._canPasswordChange()) {
       this.setState({
         preload: false,
         accounts: []
       }, () => {
-        const accounts = [RESOURCE_IDM];
         this.refs.form.setData({
-          accounts,
+          accounts: accountOptions,
           oldPassword: '',
           newPassword: '',
           newPasswordAgain: ''
@@ -234,8 +234,8 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                         <Basic.ProgressBar
                           className="password-change-bar"
                           ref="passwordStrength"
-                          now={passwordStrength}
-                          bsStyle={passwordStrengthStyle} min={0} max={4} />
+                          now={passwordStrength + 1}
+                          bsStyle={passwordStrengthStyle} min={0} max={5} />
                       </span>
                     </div>
                     <Basic.TextField type="password" ref="newPasswordAgain"

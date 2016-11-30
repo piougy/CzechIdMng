@@ -43,7 +43,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
@@ -54,7 +54,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
 	private GuardedString password;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -63,50 +63,48 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "first_name", length = DefaultFieldLengths.NAME)
 	private String firstName;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "last_name", length = DefaultFieldLengths.NAME)
 	private String lastName;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Email
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)
 	@Column(name = "email", length = DefaultFieldLengths.EMAIL_ADDRESS)
 	private String email;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(max = 30)
 	@Column(name = "phone", length = 30)
 	private String phone;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(max = 100)
 	@Column(name = "title_before", length = 100)
 	private String titleBefore;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Size(max = 100)
 	@Column(name = "title_after", length = 100)
 	private String titleAfter;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

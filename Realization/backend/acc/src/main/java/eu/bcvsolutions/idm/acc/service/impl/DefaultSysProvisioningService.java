@@ -90,6 +90,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			AccIdentityAccountService identityAccoutnService, 
 			ConfidentialStorage confidentialStorage,
 			FormService formService) {
+		
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(connectorFacade);
@@ -108,10 +109,10 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	}
 
 	@Override
-	public void doIdentityProvisioning(IdmIdentity identity) {
+	public void doProvisioning(IdmIdentity identity) {
 		Assert.notNull(identity);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
@@ -127,24 +128,38 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	}
 
 	@Override
-	public void deleteAccount(AccAccount account) {
+	public void doDeleteProvisioning(AccAccount account) {
 		Assert.notNull(account);
 		doOperation(account.getUid(), null, AccountOperationType.DELETE, SystemOperationType.PROVISIONING,
 				SystemEntityType.IDENTITY, account.getSystem());
 	}
 
-	/**
-	 * Do provisioning/synchronisation/reconciliation for given identity account
-	 * 
-	 * @param identityAccount
-	 * @param operation
-	 */
-	public void doAccountOperation(AccIdentityAccount identityAccount, SystemOperationType operation) {
-		Assert.notNull(operation);
+	@Override
+	public void doProvisioning(AccAccount account) {
+		Assert.notNull(account);
+		
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setAccountId(account.getId());
+		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
+		if (idenittyAccoutnList == null) {
+			return;
+		}
+		idenittyAccoutnList.stream().filter(identityAccount -> {
+			return identityAccount.isOwnership();
+		}).forEach((identityAccount) -> {
+			doOperation(account.getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
+					SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY,
+					account.getSystem());
+		});
+	}
+	
+	@Override
+	public void doProvisioning(AccIdentityAccount identityAccount) {
 		Assert.notNull(identityAccount);
 
 		doOperation(identityAccount.getAccount().getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
-				operation, SystemEntityType.IDENTITY, identityAccount.getAccount().getSystem());
+				SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY, identityAccount.getAccount().getSystem());
 	}
 	
 	
@@ -152,8 +167,9 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange){
 		Assert.notNull(identity);
 		Assert.notNull(passwordChange);
+		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
+		filter.setIdentityId(identity.getId());
 		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 		if (identityAccountList == null) {
@@ -333,6 +349,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 
 	}
+	
 
 	/**
 	 * Find list of {@link SysSchemaAttributeHandling} by provisioning type and entity type on given system

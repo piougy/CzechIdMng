@@ -286,6 +286,8 @@
       "schemaAttribute": "Atribut ve schéma",
       "systemEntityHandling": "Podskupina",
       "extendedAttribute": "Rozšířený atribut",
+      "transformationFromResource": "Transfor. ze systému",
+      "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
         "label": "Transformace ze systému",
         "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IDM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."

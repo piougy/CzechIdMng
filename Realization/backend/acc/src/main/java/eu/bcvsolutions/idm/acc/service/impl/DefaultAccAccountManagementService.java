@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.AccRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -37,12 +37,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 public class DefaultAccAccountManagementService implements IdmAccountManagementService {
 
 	private AccAccountService accountService;
-	private AccRoleSystemService roleSystemService;
+	private SysRoleSystemService roleSystemService;
 	private AccIdentityAccountService identityAccountService;
 	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
-	public DefaultAccAccountManagementService(AccRoleSystemService roleSystemService, AccAccountService accountService,
+	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
 			AccIdentityAccountService identityAccountService, IdmIdentityRoleService identityRoleService) {
 		super();
 		Assert.notNull(identityAccountService);

@@ -3,8 +3,6 @@ import TestUtils from 'react-addons-test-utils';
 import chai, { expect, fail } from 'chai';
 import dirtyChai from 'dirty-chai';
 import _ from 'lodash';
-// import Joi from 'joi';
-// import Select from 'react-select';
 //
 chai.use(dirtyChai);
 //
@@ -38,24 +36,22 @@ describe('EnumSelectBox', function enumSelectBoxTest() {
   });
 
   it('- enum select box check all options data', function test() {
-    console.log(enumSelectBox.getOptions(null, function callback(param, data) {
+    enumSelectBox.getOptions(null, function callback(param, data) {
       for (const index in data.options) {
         if (data.options.hasOwnProperty(index)) {
-          console.log(data.options[index]);
-          expect(data.options[index].value).to.equal(options[index].value)
+          expect(data.options[index].value).to.equal(options[index].value);
         }
       }
-    }));
+    });
   });
 
   it('- enum select box normalized value ', function test() {
-    console.log(enumSelectBox.getOptions(null, function callback(param, data) {
+    enumSelectBox.getOptions(null, function callback(param, data) {
       for (const index in data.options) {
         if (data.options.hasOwnProperty(index)) {
-          console.log(data.options[index]);
-          expect(data.options[index].itemFullKey).to.equal(options[index].value)
+          expect(data.options[index].itemFullKey).to.equal(options[index].value);
         }
       }
-    }));
+    });
   });
 });

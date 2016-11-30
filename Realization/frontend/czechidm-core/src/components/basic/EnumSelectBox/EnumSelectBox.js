@@ -21,6 +21,10 @@ class EnumSelectBox extends SelectBox {
     // initialize value
   }
 
+  setValue(value) {
+    super.setValue(this.normalizeValue(value));
+  }
+
   getOptions(input, callback) {
     if (this.props.enum) {
       let data = null;
@@ -148,6 +152,12 @@ class EnumSelectBox extends SelectBox {
             // add item to array
             valueArray.push(this.itemRenderer({ value: item }));
           }
+        }
+        return valueArray;
+      } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'object') {
+        const valueArray = [];
+        for (const item of value) {
+          valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));
         }
         return valueArray;
       }

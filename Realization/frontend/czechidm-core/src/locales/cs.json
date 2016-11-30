@@ -921,7 +921,8 @@
         "password": {
           "old": "Původní heslo",
           "new": "Nové heslo",
-          "newAgain": "Heslo znovu"
+          "newAgain": "Heslo znovu",
+          "strength": "Síla hesla"
         },
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",

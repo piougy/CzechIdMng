@@ -158,14 +158,14 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	public void generateSchema(SysSystem system) {
 		Assert.notNull(system);
 
-		// Find connector identification persist in system
+		// Find connector identification persisted in system
 		IcfConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
-		// Find connector configuration persist in system
+		// Find connector configuration persisted in system
 		IcfConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,

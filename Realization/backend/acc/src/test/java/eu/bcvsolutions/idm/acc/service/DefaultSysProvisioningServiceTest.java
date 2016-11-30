@@ -123,7 +123,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
-		provisioningService.doIdentityProvisioning(accountIdentityOne.getIdentity());
+		provisioningService.doProvisioning(accountIdentityOne.getIdentity());
 
 		TestResource createdAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNotNull(createdAccount);
@@ -143,7 +143,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		identity = idmIdentityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
-		provisioningService.doIdentityProvisioning(identity);
+		provisioningService.doProvisioning(identity);
 		TestResource changedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
@@ -198,7 +198,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
 		// Delete account
-		provisioningService.deleteAccount(accountIdentityOne.getAccount());
+		provisioningService.doDeleteProvisioning(accountIdentityOne.getAccount());
 		TestResource removedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNull(removedAccount);
 	}
@@ -232,7 +232,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		formService.saveValues(identity, formDefinition, values);
 		
 		// save account
-		provisioningService.doIdentityProvisioning(identity);
+		provisioningService.doProvisioning(identity);
 		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getPassword());;
 	}

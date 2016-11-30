@@ -10,7 +10,7 @@ public interface IdmProvisioningService {
 	 * 
 	 * @param identity
 	 */
-	void doIdentityProvisioning(IdmIdentity identity);
+	void doProvisioning(IdmIdentity identity);
 	
 	/**
 	 * TODO: Change only for selected accounts, now is password changed on all accounts

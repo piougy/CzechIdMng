@@ -1,16 +1,25 @@
 package eu.bcvsolutions.idm.eav.service.api;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.eav.service.impl.AbstractFormValueService;
 
 /**
  * Work with form definitions, attributes and their values
+ * 
+ * Confidential values are stored in confidential storage.
+ * 
+ * TODO: EAV entities dto and move to api
+ * 
+ * @see {@link ConfidentialStorage}
  * 
  * @author Radek Tomiška
  *
@@ -79,6 +88,8 @@ public interface FormService {
 	 * @param owner
 	 * @param formDefinition
 	 * @param values
+	 * @param <O> values owner
+	 * @param <E> values entity
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
 	
@@ -88,6 +99,7 @@ public interface FormService {
 	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * 
 	 * @param owner
+	 * @param <O> values owner
 	 * @return
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
@@ -98,6 +110,7 @@ public interface FormService {
 	 * 
 	 * @param owner
 	 * @param formDefinition [optional] if form definition is not given, then return attribute values from default definition
+	 * @param <O> values owner
 	 * @return
 	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
 	 */
@@ -111,6 +124,7 @@ public interface FormService {
 	 * @param owner
 	 * @param formDefinition [optional] if form definition is not given, then return attribute values from default definition
 	 * @param attributeName
+	 * @param <O> values owner
 	 * @return
 	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
 	 */
@@ -120,6 +134,8 @@ public interface FormService {
 	 * Returns form values as map, where key is attribute name
 	 * 
 	 * @param values
+	 * @param <O> values owner
+	 * @param <E> values entity
 	 * @return
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> Map<String, List<E>> toValueMap(final List<E> values);
@@ -156,6 +172,7 @@ public interface FormService {
 	 * Deletes form values by given owner
 	 * 
 	 * @param owner
+	 * @param <O> values owner
 	 * @return
 	 */
 	<O extends FormableEntity> void deleteValues(O owner);
@@ -163,9 +180,34 @@ public interface FormService {
 	/**
 	 * Deletes form values by given owner and form definition
 	 * 
-	 * @param owner
+	 * @param owner values owner
 	 * @param formDefinition
+	 * @param <O> values owner
 	 * @return
 	 */
 	<O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition);
+	
+	/**
+	 * Returns key in confidential storage for given extended attribute and owner
+	 * 
+	 * @see {@link ConfidentialStorage}
+	 * @see {@link AbstractFormValueService#getConfidentialStorageKey(IdmFormAttribute)}
+	 * 
+	 * @param owner attribute owner
+	 * @param attribute extended attribute
+	 * @return key to confidential storage to given owner and attribute
+	 */
+	String getConfidentialStorageKey(FormableEntity owner, IdmFormAttribute attribute);
+	
+	/**
+	 * Returns value in FormValue's persistent type from confidential storage
+	 * 
+	 * @see {@link #getConfidentialStorageKey(FormableEntity, IdmFormAttribute)}
+	 * 
+	 * @param guardedValue
+	 * @param <O> values owner
+	 * @param <E> values entity
+	 * @return
+	 */
+	<O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue);
 }

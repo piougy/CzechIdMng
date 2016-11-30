@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -43,6 +44,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -75,10 +77,11 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
 	private final IcfConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private final AccIdentityAccountService identityAccoutnService;
+	private AccIdentityAccountService identityAccountService;
 	private final ConfidentialStorage confidentialStorage; // TODO: identity service (remove cycle dependencies)
 	private final FormService formService;
-
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Autowired
 	public DefaultSysProvisioningService(
@@ -86,14 +89,13 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			SysSchemaAttributeHandlingService attributeHandlingService,
 			IcfConnectorFacade connectorFacade,
 			SysSystemService systemService, 
-			AccIdentityAccountService identityAccoutnService, 
 			ConfidentialStorage confidentialStorage,
 			FormService formService) {
+		
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
-		Assert.notNull(identityAccoutnService);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(formService);
 		//
@@ -101,17 +103,16 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		this.attributeHandlingService = attributeHandlingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.identityAccoutnService = identityAccoutnService;
 		this.confidentialStorage = confidentialStorage;
 		this.formService = formService;
 	}
 
 	@Override
-	public void doIdentityProvisioning(IdmIdentity identity) {
+	public void doProvisioning(IdmIdentity identity) {
 		Assert.notNull(identity);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
-		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		filter.setIdentityId(identity.getId());
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -126,24 +127,38 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	}
 
 	@Override
-	public void deleteAccount(AccAccount account) {
+	public void doDeleteProvisioning(AccAccount account) {
 		Assert.notNull(account);
 		doOperation(account.getUid(), null, AccountOperationType.DELETE, SystemOperationType.PROVISIONING,
 				SystemEntityType.IDENTITY, account.getSystem());
 	}
 
-	/**
-	 * Do provisioning/synchronisation/reconciliation for given identity account
-	 * 
-	 * @param identityAccount
-	 * @param operation
-	 */
-	public void doAccountOperation(AccIdentityAccount identityAccount, SystemOperationType operation) {
-		Assert.notNull(operation);
+	@Override
+	public void doProvisioning(AccAccount account) {
+		Assert.notNull(account);
+		
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setAccountId(account.getId());
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
+		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
+		if (idenittyAccoutnList == null) {
+			return;
+		}
+		idenittyAccoutnList.stream().filter(identityAccount -> {
+			return identityAccount.isOwnership();
+		}).forEach((identityAccount) -> {
+			doOperation(account.getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
+					SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY,
+					account.getSystem());
+		});
+	}
+	
+	@Override
+	public void doProvisioning(AccIdentityAccount identityAccount) {
 		Assert.notNull(identityAccount);
 
 		doOperation(identityAccount.getAccount().getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
-				operation, SystemEntityType.IDENTITY, identityAccount.getAccount().getSystem());
+				SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY, identityAccount.getAccount().getSystem());
 	}
 	
 	
@@ -151,9 +166,10 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange){
 		Assert.notNull(identity);
 		Assert.notNull(passwordChange);
+		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentity(identity);
-		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		filter.setIdentityId(identity.getId());
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 		if (identityAccountList == null) {
 			return;
@@ -332,6 +348,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		}
 
 	}
+	
 
 	/**
 	 * Find list of {@link SysSchemaAttributeHandling} by provisioning type and entity type on given system
@@ -561,6 +578,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 	/**
 	 * Find value for this mapped attribute by property name
+	 * 
 	 * @param uid
 	 * @param entity
 	 * @param attributeHandling
@@ -579,9 +597,16 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		if (attributeHandling.isExtendedAttribute()) {
 			// TODO: prototype of form service calling
 			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity)entity).getClass()).getMappedAttributeByName(attributeHandling.getIdmPropertyName());
-			List<Object> attributeValues = formService.toPersistentValues(formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition(), defAttribute.getName()));
+			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition(), defAttribute.getName());
 			// TODO: Multiple extended attribute?
-			return attributeValues.get(0);
+			if(formValues.isEmpty()) {
+				return null;
+			}
+			AbstractFormValue<FormableEntity> formValue = formValues.get(0);
+			if (formValue.isConfidential()) {
+				return formService.getConfidentialPersistentValue(formValue);
+			}
+			return formValue.getValue();
 		}
 		// Find value from entity
 		if (attributeHandling.getSchemaAttribute().getClassType().equals(GuardedString.class.getName())) {
@@ -657,4 +682,14 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		return propertyDescriptor.getReadMethod().invoke(entity);
 	}
 
+	/**
+	 * TODO: remove this lazy injection after provisioning event event will be done
+	 * @return
+	 */
+	private AccIdentityAccountService getIdentityAccountService() {
+		if (identityAccountService == null) {
+			this.identityAccountService = applicationContext.getBean(AccIdentityAccountService.class);
+		}
+		return identityAccountService;
+	}
 }

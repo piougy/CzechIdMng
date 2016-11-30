@@ -257,7 +257,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		}
 		// MOCKUP TODO
 		if(provisioningService != null) {
-			provisioningService.doIdentityProvisioning(entity);
+			provisioningService.doProvisioning(entity);
 		}
 		return entity;
 	}

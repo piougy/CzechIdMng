@@ -85,7 +85,7 @@ public class DefaultSysSchemaAttributeHandlingService
 			AbstractEntity entity) {
 		Assert.notNull(attributeHandling);
 
-		if (attributeHandling.getTransformToResourceScript() != null) {
+		if (attributeHandling.getTransformToResourceScript() != null && !attributeHandling.getTransformToResourceScript().isEmpty()) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());
@@ -101,7 +101,7 @@ public class DefaultSysSchemaAttributeHandlingService
 			List<IcfAttribute> icfAttributes) {
 		Assert.notNull(attributeHandling);
 
-		if (attributeHandling.getTransformFromResourceScript() != null) {
+		if (attributeHandling.getTransformFromResourceScript() != null  && !attributeHandling.getTransformFromResourceScript().isEmpty()) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());

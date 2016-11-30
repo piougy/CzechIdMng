@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,8 +27,8 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 
 /**
  * Identity
@@ -109,6 +110,13 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityContract> contracts;
+	
+	public IdmIdentity() {
+	}
+	
+	public IdmIdentity(UUID id) {
+		super(id);
+	}
 
 	public String getUsername() {
 		return username;

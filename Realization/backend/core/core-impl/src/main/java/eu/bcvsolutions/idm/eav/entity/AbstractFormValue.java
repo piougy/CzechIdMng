@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.eav.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -33,6 +34,8 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
 /**
  * Super class for "extended" attribute values, which can be added to custom
  * abstract entity
+ * 
+ * TODO: byte[] persistent type?
  * 
  * @author Radek Tomiška
  *
@@ -126,7 +129,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	 * @return
 	 */
 	@JsonProperty(access = Access.READ_ONLY)
-	public Object getValue() {
+	public Serializable getValue() {
 		return getValue(persistentType);
 	}
 
@@ -136,7 +139,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	 * @param persistentType
 	 * @return
 	 */
-	public Object getValue(PersistentType persistentType) {
+	public Serializable getValue(PersistentType persistentType) {
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
@@ -187,7 +190,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	 *
 	 * @param value
 	 */
-	public void setValue(Object value) {
+	public void setValue(Serializable value) {
 		Assert.notNull(persistentType);
 		//
 		switch (persistentType) {
@@ -258,6 +261,17 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 							formAttribute.getName(), persistentType, value));
 				}
 		}
+	}
+	
+	/**
+	 * Clears all values
+	 */
+	public void clear() {
+		this.booleanValue = null;
+		this.stringValue = null;
+		this.dateValue = null;
+		this.longValue = null;
+		this.doubleValue = null;
 	}
 
 	/**

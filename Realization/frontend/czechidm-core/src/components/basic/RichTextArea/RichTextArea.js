@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import Joi from 'joi';
-import { Editor, EditorState, ContentState, RichUtils } from 'draft-js';
+import { Editor, EditorState, ContentState, RichUtils, convertFromHTML, DefaultDraftBlockRenderMap, getSafeBodyFromHTML } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
 
 /**
  * Based on Draf.js
- * TODO: to and from html conversion (draft-js-export-html - dependency hell)
  * TODO: custom styles and controlls
  *
  */
@@ -37,11 +37,27 @@ class RichTextArea extends AbstractFormComponent {
   /**
    * Creates EditorState from given value
    *
-   * @param  {string} value
+   * @param  {string} value html or plaintext value
    * @return {EditorState}
    */
   _createEditorState(value) {
-    return EditorState.createWithContent(ContentState.createFromText(value));
+    try {
+      //
+      // paragraph is block (need for rich - html conversions)
+      const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
+      const blocksFromHTML = convertFromHTML(value, getSafeBodyFromHTML, blockRenderMap)
+        .map(block => (block.get('type') === 'p' ? block.set('type', 'unstyled') : block));
+      // set converted content
+      const state = ContentState.createFromBlockArray(blocksFromHTML);
+      return EditorState.createWithContent(state);
+    } catch (err) {
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`, err);
+      } else {
+        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`);
+      }
+      return EditorState.createWithContent(ContentState.createFromText(value));
+    }
   }
 
   getValidationDefinition(required) {
@@ -102,18 +118,34 @@ class RichTextArea extends AbstractFormComponent {
     });
   }
 
+  /**
+   * Returns filled value as html
+   *
+   * TODO: markdown, raw js?
+   *
+   * @return {string} html
+   */
   getValue() {
     const { editorState } = this.state;
     //
-    return editorState.getCurrentContent().getPlainText();
+    try {
+      return stateToHTML(editorState.getCurrentContent());
+    } catch (err) {
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.warn(`[RichTextArea]: editorState will be returned as plain text.`, err);
+      } else {
+        LOGGER.warn(`[RichTextArea]: editorState will be rendered as plain text.`);
+      }
+      return editorState.getCurrentContent().getPlainText();
+    }
   }
 
   getBody(feedback) {
     const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
-    const { editorState, disabled } = this.state;
+    const { editorState, disabled, readOnly } = this.state;
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && !this.state.value) {
+    if (required && !feedback) {
       showAsterix = true;
     }
     const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
@@ -140,9 +172,8 @@ class RichTextArea extends AbstractFormComponent {
                 title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
                 disabled={disabled}
                 placeholder={placeholder}
-                rows={this.props.rows}
                 style={style}
-                readOnly={this.state.readOnly}
+                readOnly={readOnly}
                 spellCheck/>
               {
                 feedback
@@ -167,14 +198,12 @@ class RichTextArea extends AbstractFormComponent {
 RichTextArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
-  rows: PropTypes.number,
   min: PropTypes.number,
   max: PropTypes.number
 };
 
 RichTextArea.defaultProps = {
-  ...AbstractFormComponent.defaultProps,
-  rows: 3
+  ...AbstractFormComponent.defaultProps
 };
 
 export default RichTextArea;

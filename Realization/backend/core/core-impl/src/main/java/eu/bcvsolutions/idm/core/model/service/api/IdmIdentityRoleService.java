@@ -1,10 +1,9 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
-import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
@@ -14,7 +13,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  * @author svanda
  *
  */
-public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdentityRole, QuickFilter> {
+public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter> {
 	
 	/**
 	 * Returns identity roles by their ids (uuid in string).
@@ -24,7 +23,7 @@ public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdenti
 	 */
 	List<IdmIdentityRole> getByIds(List<String> ids);
 
-	IdmIdentityRole updateByDto(UUID id, IdmIdentityRoleDto dto);
+	IdmIdentityRole updateByDto(String id, IdmIdentityRoleDto dto);
 
 	IdmIdentityRole addByDto(IdmIdentityRoleDto dto);
 }

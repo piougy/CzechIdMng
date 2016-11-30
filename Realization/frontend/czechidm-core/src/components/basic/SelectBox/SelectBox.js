@@ -11,6 +11,7 @@ import EntityManager from '../../../redux/data/EntityManager';
 
 const NICE_LABEL = 'niceLabel';
 const ITEM_FULL_KEY = 'itemFullKey';
+const ITEM_VALUE = 'value';
 
 class SelectBox extends AbstractFormComponent {
 
@@ -410,6 +411,7 @@ SelectBox.defaultProps = {
 
 SelectBox.NICE_LABEL = NICE_LABEL;
 SelectBox.ITEM_FULL_KEY = ITEM_FULL_KEY;
+SelectBox.ITEM_VALUE = ITEM_VALUE;
 
 
 export default SelectBox;

@@ -231,11 +231,17 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                       label={this.i18n('password.new')} required/>
                     <div className="form-group">
                       <span className="col-sm-offset-3 col-sm-8">
-                        <Basic.ProgressBar
-                          className="password-change-bar"
-                          ref="passwordStrength"
-                          now={passwordStrength + 1}
-                          bsStyle={passwordStrengthStyle} min={0} max={5} />
+                        <Basic.Tooltip
+                          trigger={['hover']}
+                          ref="popover"
+                          placement="right"
+                          value={this.i18n('password.strength')} >
+                          <Basic.ProgressBar
+                            className="password-change-bar"
+                            ref="passwordStrength"
+                            now={passwordStrength + 1}
+                            bsStyle={passwordStrengthStyle} min={0} max={5} />
+                        </Basic.Tooltip>
                       </span>
                     </div>
                     <Basic.TextField type="password" ref="newPasswordAgain"

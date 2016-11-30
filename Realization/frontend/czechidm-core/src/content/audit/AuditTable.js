@@ -10,8 +10,6 @@ import AuditModificationEnum from '../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();
 
-const identityManager = new IdentityManager();
-
 /**
 * Table of Audit for entities
 */

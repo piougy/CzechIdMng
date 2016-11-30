@@ -33,20 +33,20 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 
 	private static final long serialVersionUID = 1883443149941011579L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleCatalogue parent;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "description")
 	private String description;
 

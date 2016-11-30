@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -358,5 +359,21 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
 		}
 		return entity;
+	}
+	
+	/**
+	 * Converts parameter {@code DateTime} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	protected DateTime convertDateTimeParameter(MultiValueMap<String, Object> parameters, String parameterName) {
+		String valueAsString = convertStringParameter(parameters, parameterName);
+		if (valueAsString == null || valueAsString.isEmpty()) {
+			return null;
+		} else {
+			return new DateTime(valueAsString);
+		}
 	}
 }

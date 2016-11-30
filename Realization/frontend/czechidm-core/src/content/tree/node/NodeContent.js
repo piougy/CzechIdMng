@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
@@ -14,6 +14,9 @@ class NodeContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = ({
+      showLoading: true
+    });
   }
 
   getContentKey() {
@@ -26,17 +29,20 @@ class NodeContent extends Basic.AbstractContent {
     const isNew = this._getIsNew();
 
     if (isNew) {
-      this.context.store.dispatch(treeNodeManager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(treeNodeManager.receiveEntity(entityId, { }, null, entity => {
+        this.setState({
+          showLoading: false,
+          node: entity
+        });
+      }));
     } else {
       this.getLogger().debug(`[NodeContent] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(treeNodeManager.fetchEntity(entityId));
-    }
-  }
-
-  _getIsRoot() {
-    const { node } = this.props;
-    if (node._embedded !== undefined) {
-      return node._embedded.parent === undefined;
+      this.context.store.dispatch(treeNodeManager.fetchEntity(entityId, null, entity => {
+        this.setState({
+          showLoading: false,
+          node: entity
+        });
+      }));
     }
   }
 
@@ -51,7 +57,8 @@ class NodeContent extends Basic.AbstractContent {
   */
   _getDefaultType() {
     const { query } = this.props.location;
-    const { node } = this.props;
+    const { node } = this.state;
+
     if (node._embedded) {
       return node._embedded.treeType.id;
     }
@@ -59,7 +66,7 @@ class NodeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { node, showLoading } = this.props;
+    const { node, showLoading } = this.state;
     return (
       <div>
         <Helmet title={this.i18n('title')} rendered={!this._getIsNew()} />
@@ -84,7 +91,7 @@ class NodeContent extends Basic.AbstractContent {
           {
             !node
             ||
-            <NodeDetail node={node} type={this._getDefaultType()} isRoot={this._getIsRoot()} />
+            <NodeDetail node={node} type={this._getDefaultType()} />
           }
         </Basic.Panel>
 
@@ -94,18 +101,13 @@ class NodeContent extends Basic.AbstractContent {
 }
 
 NodeContent.propTypes = {
-  node: PropTypes.object,
-  showLoading: PropTypes.bool
 };
+
 NodeContent.defaultProps = {
 };
 
-function select(state, component) {
-  const { entityId } = component.params;
-  //
+function select() {
   return {
-    node: treeNodeManager.getEntity(state, entityId),
-    showLoading: treeNodeManager.isShowLoading(state, null, entityId)
   };
 }
 

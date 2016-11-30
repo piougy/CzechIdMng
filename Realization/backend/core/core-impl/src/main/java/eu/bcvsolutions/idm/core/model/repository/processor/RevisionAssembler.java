@@ -41,15 +41,15 @@ public class RevisionAssembler<T extends BaseEntity> extends ResourceAssemblerSu
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, T entity, Integer revId) {
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, T entity, Long revId) {
 		ResourceWrapper<T> wrapper = new ResourceWrapper<T>(entity);
 		//Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
 		//wrapper.add(selfLink);
 		return wrapper;
 	}
 	
-	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Integer, ? extends BaseEntity> entity, Integer revId) {
-		ResourceWrapper<Revision<Integer, ? extends BaseEntity>> wrapper = new ResourceWrapper<Revision<Integer, ? extends BaseEntity>>(entity);
+	public ResourceWrapper toResource(Class<?> controllerClass, String entityIdentifier, Revision<Long, ? extends BaseEntity> entity, Long revId) {
+		ResourceWrapper<Revision<Long, ? extends BaseEntity>> wrapper = new ResourceWrapper<Revision<Long, ? extends BaseEntity>>(entity);
 //		Link selfLink = linkTo((methodOn(clazz)).findRevision(String.valueOf(entityIdentifier), revId)).withSelfRel();
 //		wrapper.add(selfLink);
 		return wrapper;

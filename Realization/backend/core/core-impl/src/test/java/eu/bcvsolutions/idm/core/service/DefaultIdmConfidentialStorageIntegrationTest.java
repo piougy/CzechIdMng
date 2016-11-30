@@ -229,11 +229,23 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	public void testGuardedString() {
+	public void testReadGuardedString() {
 		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_1);
 		
 		String password = "heslo";
 		confidentalStorage.save(identity, STORAGE_KEY_ONE, new GuardedString(password).asString());
+		
+		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, STORAGE_KEY_ONE);
+		
+		assertEquals(password, savedPassword.asString());
+	}
+	
+	@Test
+	public void testSaveAndReadGuardedString() {
+		IdmIdentity identity = identityService.getByUsername(InitTestData.TEST_USER_2);
+		
+		String password = "heslo_save";
+		confidentalStorage.saveGuardedString(identity, STORAGE_KEY_ONE, new GuardedString(password));
 		
 		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, STORAGE_KEY_ONE);
 		

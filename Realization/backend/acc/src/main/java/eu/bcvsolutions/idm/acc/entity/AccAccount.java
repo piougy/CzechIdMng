@@ -49,13 +49,13 @@ public class AccAccount extends AbstractEntity {
 	@Column(name = "uid", length = DefaultFieldLengths.UID, nullable = false)
 	private String uid;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "account_type", nullable = false)
 	private AccountType accountType;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -63,21 +63,20 @@ public class AccAccount extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystemEntity systemEntity;
 	
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysRoleSystem roleSystem;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
 	private List<AccIdentityAccount> identityAccounts;

@@ -2,10 +2,11 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import java.util.UUID;
+
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -47,13 +48,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
@@ -62,51 +63,47 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
 
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
 	private String approveAddWorkflow;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
 	private String approveRemoveWorkflow;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleAuthority> authorities;
 	
-	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "superior", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleComposition> subRoles;
 	
-	@Audited
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "sub")
 	private List<IdmRoleComposition> superiorRoles;
 	
-	@Audited
 	@JsonManagedReference
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleGuarantee> guarantees;
 	
-	@Audited
+	@Audited(withModifiedFlag=true)
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRoleCatalogue roleCatalogue;
-	
+
 	public IdmRole() {
 	}
 	

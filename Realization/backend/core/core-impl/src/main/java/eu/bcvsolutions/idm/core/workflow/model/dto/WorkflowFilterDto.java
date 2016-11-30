@@ -26,7 +26,7 @@ public class WorkflowFilterDto {
 	private String category;
 
 	public WorkflowFilterDto(int defaultPageSize) {
-		this.setPageSize(defaultPageSize);
+		this.pageSize = defaultPageSize;
 	}
 	
 	public WorkflowFilterDto() {

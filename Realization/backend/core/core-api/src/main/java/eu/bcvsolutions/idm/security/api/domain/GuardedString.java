@@ -79,7 +79,7 @@ public final class GuardedString {
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() {
 		clear();
 	}
 

@@ -68,7 +68,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         CorsConfiguration config = corsConfiguration();
         // TODO: depends on FlywayConfigCore 
         // log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("PUT");

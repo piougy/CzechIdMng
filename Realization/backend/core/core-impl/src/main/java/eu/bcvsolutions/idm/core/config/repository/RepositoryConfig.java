@@ -83,7 +83,7 @@ public class RepositoryConfig extends RepositoryRestMvcConfiguration {
 		config.setBasePath(BaseEntityController.BASE_PATH);
 		// it will be usefull for some clients (e.g. for putting new / updated
 		// resource to client storage - redux etc.)
-		config.setReturnBodyForPutAndPost(true);
+		config.setReturnBodyForPutAndPost(Boolean.TRUE);
 		// Only repositories annotated with @(Repository)RestResource are
 		// exposed, unless their exported flag is set to false.
 		config.setRepositoryDetectionStrategy(RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED);

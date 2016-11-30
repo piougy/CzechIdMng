@@ -108,16 +108,16 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		}
 		StringBuilder sb = new StringBuilder();
 		if (identity.getTitleBefore() != null) {
-			sb.append(identity.getTitleBefore()).append(" ");
+			sb.append(identity.getTitleBefore()).append(' ');
 		}
 		if (identity.getFirstName() != null) {
-			sb.append(identity.getFirstName()).append(" ");
+			sb.append(identity.getFirstName()).append(' ');
 		}
 		if (identity.getLastName() != null) {
-			sb.append(identity.getLastName()).append(" ");
+			sb.append(identity.getLastName()).append(' ');
 		}
 		if (identity.getTitleAfter() != null) {
-			sb.append(identity.getTitleAfter()).append(" ");
+			sb.append(identity.getTitleAfter()).append(' ');
 		}
 		return sb.toString().trim();
 	}
@@ -138,7 +138,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		StringBuilder sb = new StringBuilder();
 		for (IdmIdentity i : identities) {
 			sb.append(i.getUsername());
-			sb.append(",");
+			sb.append(',');
 		}
 		return sb.toString();
 	}
@@ -223,7 +223,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 			}
 			// previous password check
 			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
-			if(!StringUtils.equals(new String(idmPassword.asString()),passwordChangeDto.getOldPassword().asString())) {
+			if(!StringUtils.equals(String.valueOf(idmPassword.asString()), passwordChangeDto.getOldPassword().asString())) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 		}

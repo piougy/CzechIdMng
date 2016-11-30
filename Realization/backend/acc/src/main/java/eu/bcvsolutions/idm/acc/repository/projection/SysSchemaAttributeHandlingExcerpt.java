@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.repository.projection;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -21,5 +22,14 @@ public interface SysSchemaAttributeHandlingExcerpt extends AbstractDtoProjection
 	SysSchemaAttribute getSchemaAttribute();
 
 	boolean isExtendedAttribute();
+	
+	boolean isUid();
+	
+	@Value("#{target.transformFromResourceScript != null && !target.transformFromResourceScript.isEmpty()}") 
+	boolean isTransformationFromResource();
+	
+	@Value("#{target.transformToResourceScript != null && !target.transformToResourceScript.isEmpty()}") 
+	boolean isTransformationToResource();
+
 
 }

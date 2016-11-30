@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -76,10 +77,11 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
 	private final IcfConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private final AccIdentityAccountService identityAccoutnService;
+	private AccIdentityAccountService identityAccountService;
 	private final ConfidentialStorage confidentialStorage; // TODO: identity service (remove cycle dependencies)
 	private final FormService formService;
-
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Autowired
 	public DefaultSysProvisioningService(
@@ -87,7 +89,6 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 			SysSchemaAttributeHandlingService attributeHandlingService,
 			IcfConnectorFacade connectorFacade,
 			SysSystemService systemService, 
-			AccIdentityAccountService identityAccoutnService, 
 			ConfidentialStorage confidentialStorage,
 			FormService formService) {
 		
@@ -95,7 +96,6 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
-		Assert.notNull(identityAccoutnService);
 		Assert.notNull(confidentialStorage);
 		Assert.notNull(formService);
 		//
@@ -103,7 +103,6 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		this.attributeHandlingService = attributeHandlingService;
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.identityAccoutnService = identityAccoutnService;
 		this.confidentialStorage = confidentialStorage;
 		this.formService = formService;
 	}
@@ -113,7 +112,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		Assert.notNull(identity);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -140,7 +139,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -170,7 +169,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccoutnService.find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 		if (identityAccountList == null) {
 			return;
@@ -683,4 +682,14 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		return propertyDescriptor.getReadMethod().invoke(entity);
 	}
 
+	/**
+	 * TODO: remove this lazy injection after provisioning event event will be done
+	 * @return
+	 */
+	private AccIdentityAccountService getIdentityAccountService() {
+		if (identityAccountService == null) {
+			this.identityAccountService = applicationContext.getBean(AccIdentityAccountService.class);
+		}
+		return identityAccountService;
+	}
 }

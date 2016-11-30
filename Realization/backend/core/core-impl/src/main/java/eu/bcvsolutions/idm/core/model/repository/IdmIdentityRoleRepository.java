@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -28,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 		itemResourceRel = "identityRole",
 		exported = false//
 	)
-public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, QuickFilter> {
+public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> {
 	
 	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	
@@ -39,8 +40,10 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	@Override
 	@Query(value = "select e from IdmIdentityRole e" +
 	        " where " +
+	        " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})" +
+	        " and" +
 	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')})")
-	Page<IdmIdentityRole> find(QuickFilter filter, Pageable pageable);
+	Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 	

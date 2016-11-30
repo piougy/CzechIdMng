@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
-public interface IdmAccountService {
+public interface IdmAccountManagementService {
 
 	/**
 	 * Create or delete accounts for this identity according their roles

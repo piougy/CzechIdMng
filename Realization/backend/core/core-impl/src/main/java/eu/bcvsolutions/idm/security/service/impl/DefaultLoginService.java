@@ -23,6 +23,12 @@ import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.security.service.LoginService;
 
+/**
+ * Default login service
+ * 
+ * @author svandav
+ *
+ */
 @Service
 public class DefaultLoginService implements LoginService {
 
@@ -69,8 +75,8 @@ public class DefaultLoginService implements LoginService {
 		String authenticationJson;
 		try {
 			authenticationJson = mapper.writeValueAsString(authenticationDto);
-		} catch (IOException e) {
-			throw new IdmAuthenticationException(e.getMessage());
+		} catch (IOException ex) {
+			throw new IdmAuthenticationException(ex.getMessage(), ex);
 		}
 
 		LoginDto loginDto = new LoginDto();
@@ -93,7 +99,7 @@ public class DefaultLoginService implements LoginService {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;
 		}
-		if (password.equals(new String(idmPassword.asString()))) {
+		if (password.equals(idmPassword.asString())) {
 			return true;
 		}
 		return false;

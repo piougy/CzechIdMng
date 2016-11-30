@@ -42,6 +42,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Transactional
 	public <O extends AbstractEntity> void save(O owner, String key, Serializable values) {
 		Assert.notNull(owner);
+		Assert.notNull(owner.getId());
 		Assert.hasLength(key);
 		//
 		LOG.debug("Saving value for owner [{}] and key [{}] to confidential storage", owner, key);
@@ -66,6 +67,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Transactional
 	public <O extends AbstractEntity> void delete(O owner, String key) {
 		Assert.notNull(owner);
+		Assert.notNull(owner.getId());
 		Assert.hasLength(key);
 		//
 		LOG.debug("Delete value for owner [{}] and key [{}] from confidential storage", owner, key);
@@ -82,6 +84,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	@Transactional(readOnly = true)
 	public <O extends AbstractEntity> Serializable get(O owner, String key) {
 		Assert.notNull(owner);
+		Assert.notNull(owner.getId());
 		Assert.hasLength(key);
 		//
 		IdmConfidentialStorageValue storageValue = getStorageValue(owner, key);

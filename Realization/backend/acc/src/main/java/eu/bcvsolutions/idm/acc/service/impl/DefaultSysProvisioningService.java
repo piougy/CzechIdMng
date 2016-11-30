@@ -43,6 +43,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
+import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -561,6 +562,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 	/**
 	 * Find value for this mapped attribute by property name
+	 * 
 	 * @param uid
 	 * @param entity
 	 * @param attributeHandling
@@ -579,9 +581,16 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		if (attributeHandling.isExtendedAttribute()) {
 			// TODO: prototype of form service calling
 			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity)entity).getClass()).getMappedAttributeByName(attributeHandling.getIdmPropertyName());
-			List<Object> attributeValues = formService.toPersistentValues(formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition(), defAttribute.getName()));
+			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity, defAttribute.getFormDefinition(), defAttribute.getName());
 			// TODO: Multiple extended attribute?
-			return attributeValues.get(0);
+			if(formValues.isEmpty()) {
+				return null;
+			}
+			AbstractFormValue<FormableEntity> formValue = formValues.get(0);
+			if (formValue.isConfidential()) {
+				return formService.getConfidentialPersistentValue(formValue);
+			}
+			return formValue.getValue();
 		}
 		// Find value from entity
 		if (attributeHandling.getSchemaAttribute().getClassType().equals(GuardedString.class.getName())) {

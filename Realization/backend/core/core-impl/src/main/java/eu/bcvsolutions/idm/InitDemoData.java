@@ -50,6 +50,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
+	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
 	
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -283,7 +284,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				attributes.add(webPages);
 				
 				IdmFormAttribute password = new IdmFormAttribute();
-				password.setName("password");
+				password.setName(FORM_ATTRIBUTE_PASSWORD);
 				password.setDisplayName("Custom password");
 				password.setPersistentType(PersistentType.TEXT);
 				password.setConfidential(true);

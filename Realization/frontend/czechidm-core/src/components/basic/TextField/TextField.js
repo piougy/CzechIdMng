@@ -110,7 +110,7 @@ class TextField extends AbstractFormComponent {
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && value && !this._showConfidentialWrapper()) {
+    if (required && !feedback && !this._showConfidentialWrapper()) {
       showAsterix = true;
     }
     const validationResult = this.getValidationResult();

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.eav.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,14 +32,13 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 /**
  * Work with form definitions, attributes and their values
  * 
- * TODO: save confidential values to securedRepository
- * 
  * @author Radek Tomiška
  *
  */
 @Service
 public class DefaultFormService implements FormService {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormService.class);
 	private final IdmFormDefinitionService formDefinitionService;
 	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
@@ -204,6 +204,7 @@ public class DefaultFormService implements FormService {
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition) {
 		Assert.notNull(owner, "Form values owner is required!");
+		Assert.notNull(owner.getId(), "Owner id is required!");
 		//
 		FormValueService<O, ?> formValueService = getFormValueService(owner);
 		//
@@ -222,6 +223,7 @@ public class DefaultFormService implements FormService {
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName) {
 		Assert.notNull(owner, "Form values owner is required!");
+		Assert.notNull(owner.getId(), "Owner id is required!");
 		Assert.hasLength(attributeName, "Attribute name is required");
 		// TODO: possible optimalization - repository - find single value
 		List<AbstractFormValue<O>> rawFormValues = this.getValues(owner, formDefinition);
@@ -248,6 +250,7 @@ public class DefaultFormService implements FormService {
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition) {
 		Assert.notNull(owner, "Form values owner is required!");
+		Assert.notNull(owner.getId(), "Owner id is required!");
 		//
 		FormValueService<O, ?> formValueService = getFormValueService(owner);
 		formValueService.deleteValues(owner, formDefinition);
@@ -332,9 +335,38 @@ public class DefaultFormService implements FormService {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getConfidentialStorageKey(FormableEntity owner, IdmFormAttribute attribute) {
+		Assert.notNull(owner, "Form values owner is required!");
+		Assert.notNull(owner.getId(), "Owner id is required!");
+		Assert.notNull(attribute, "Form attribute is required!");
+		//
+		FormValueService<FormableEntity, ?> formValueService = getFormValueService(owner);
+		String key = formValueService.getConfidentialStorageKey(attribute);
+		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getName());
+		return key;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue) {
+		Assert.notNull(guardedValue);
+		Assert.notNull(guardedValue.getOwner());
+		//
+		FormValueService<O, E> formValueService = getFormValueService(guardedValue.getOwner());
+		return formValueService.getConfidentialPersistentValue(guardedValue);
+	}
+	
+	/**
 	 * Returns FormValueService for given owner 
 	 * 
 	 * @param owner
+	 * @param <O> values owner
+	 * @param <E> values entity
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked" })

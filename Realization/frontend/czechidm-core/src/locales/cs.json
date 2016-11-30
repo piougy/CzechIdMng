@@ -250,7 +250,8 @@
         },
         "persistentType": {
           "unsupported": {
-            "title": "{{name}} - unsupported persistentType"
+            "title": "{{name}} - unsupported persistentType",
+            "confidential": "{{name}} - confidential is not supported"
           }
         }
       }

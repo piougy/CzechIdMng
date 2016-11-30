@@ -19,14 +19,28 @@ public interface SysProvisioningService {
 	 * 
 	 * @param identity
 	 */
-	void doIdentityProvisioning(IdmIdentity identity);
+	void doProvisioning(IdmIdentity identity);
+	
+	/**
+	 * Do provisioning for given account on connected system
+	 * 
+	 * @param account
+	 */
+	void doProvisioning(AccAccount account);
+	
+	/**
+	 * Do provisioning for given identity account
+	 * 
+	 * @param identityAccount
+	 */
+	void doProvisioning(AccIdentityAccount identityAccount);
 
 	/**
 	 * Do delete provisioning for given account on connected system
 	 * 
 	 * @param account
 	 */
-	void deleteAccount(AccAccount account);
+	void doDeleteProvisioning(AccAccount account);
 	
 	/**
 	 * 
@@ -68,5 +82,6 @@ public interface SysProvisioningService {
 	 */
 	IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
 			SystemOperationType operationType, SystemEntityType entityType);
+
 	
 }

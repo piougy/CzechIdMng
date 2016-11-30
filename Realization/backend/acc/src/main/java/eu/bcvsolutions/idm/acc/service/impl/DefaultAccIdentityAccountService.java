@@ -28,10 +28,10 @@ public class DefaultAccIdentityAccountService
 
 	private AccIdentityAccountRepository identityAccountRepository;
 	private AccAccountService accountService;
+	private SysProvisioningService provisioningService;
 	
 	@Autowired
 	private ApplicationContext applicationContext;
-	private SysProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
@@ -51,11 +51,8 @@ public class DefaultAccIdentityAccountService
 	
 	@Override
 	public AccIdentityAccount save(AccIdentityAccount entity) {
-		AccIdentityAccount account =  super.save(entity);
-		if(this.provisioningService == null){
-			this.provisioningService = applicationContext.getBean(SysProvisioningService.class);
-		}
-		this.provisioningService.doProvisioning(account);
+		AccIdentityAccount account =  super.save(entity);		
+		getProvisioningService().doProvisioning(account);
 		return account;
 	}
 
@@ -80,5 +77,16 @@ public class DefaultAccIdentityAccountService
 		} else {
 			super.delete(entity);
 		}
+	}
+	
+	/**
+	 * TODO: remove this lazy injection after provisioning event event will be done
+	 * @return
+	 */
+	public SysProvisioningService getProvisioningService() {
+		if(provisioningService == null){
+			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+		}
+		return provisioningService;
 	}
 }

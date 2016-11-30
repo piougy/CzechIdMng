@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.eav.service.api;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.springframework.plugin.core.Plugin;
 
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 
 /**
@@ -19,6 +21,8 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
  */
 public interface FormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> extends Plugin<Class<?>> {
 
+	public static final String CONFIDENTIAL_STORAGE_VALUE_PREFIX = "eav";
+	
 	/**
 	 * Saves a given form value. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
@@ -58,4 +62,24 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param definiton
 	 */
 	void deleteValues(O owner, IdmFormDefinition formDefiniton);
+	
+	/**
+	 * Returns key in confidential storage for given extended attribute
+	 * 
+	 * TODO: owner is not needed now ... but?
+	 * 
+	 * @param attribute
+	 * @return
+	 */
+	String getConfidentialStorageKey(IdmFormAttribute attribute);
+	
+	/**
+	 * Returns value in FormValue's persistent type from confidential storage
+	 * 
+	 * @see {@link #getConfidentialStorageKey(IdmFormAttribute)}
+	 * 
+	 * @param guardedValue
+	 * @return
+	 */
+	Serializable getConfidentialPersistentValue(E guardedValue);
 }

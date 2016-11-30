@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
 		// TODO: correct data type ...
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray",
-				new ConnectorPropertyMapping(PersistentType.TEXTAREA, false));
+				new ConnectorPropertyMapping(PersistentType.TEXT, false)); // TODO byte[] persistent type?
 	}
 
 	@Autowired
@@ -375,8 +376,13 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			return null;
 		}
 		if (formValue.isConfidential()) {
+			// persistent value from confidential storage
+			Serializable value = getFormService().getConfidentialPersistentValue(formValue);
+			if (value == null) {
+				return null;
+			}
 			return new org.identityconnectors.common.security.GuardedString(
-					formValue.getValue().toString().toCharArray());
+					value.toString().toCharArray());
 		}
 		return formValue.getValue();
 	}

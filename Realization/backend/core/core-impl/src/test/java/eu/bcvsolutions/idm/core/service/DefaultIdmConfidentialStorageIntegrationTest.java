@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -250,5 +251,19 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 		GuardedString savedPassword = confidentalStorage.getGuardedString(identity, STORAGE_KEY_ONE);
 		
 		assertEquals(password, savedPassword.asString());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testOwnerWithoutId() {
+		// unpersisted identity
+		IdmIdentity owner = new IdmIdentity();
+		confidentalStorage.get(owner, STORAGE_KEY_ONE);
+	}
+	
+	@Test
+	public void testUnpersistedOwnerWithId() {
+		// unpersisted identity
+		IdmIdentity owner = new IdmIdentity(UUID.randomUUID());
+		assertNull(confidentalStorage.get(owner, STORAGE_KEY_ONE));
 	}
 }

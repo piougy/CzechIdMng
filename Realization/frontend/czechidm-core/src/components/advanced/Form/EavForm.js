@@ -6,9 +6,6 @@ import * as Basic from '../../basic';
 
 /**
  * Content of eav form by given form instance (= form definition + form values)
- *
- * TODO:
- * - guarded string for confidential attributes
  */
 export default class EavForm extends Basic.AbstractContextComponent {
 
@@ -184,6 +181,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
       return result;
     }
     //
+    if (attribute.confidential) {
+      return formValue.stringValue; // returns proxied guarded string everytime
+    }
+    //
     switch (attribute.persistentType) {
       case 'CHAR':
       case 'TEXT':
@@ -216,8 +217,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
   /**
    * Returns joi validator by persistent type
    *
-   * @param  {[type]} attribute [description]
-   * @return {[type]}           [description]
+   * @param  {FormAttribute} attribute
+   * @return {Joi}
    */
   _getInputValidation(attribute) {
     switch (attribute.persistentType) {
@@ -265,7 +266,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return null;
       }
       default: {
-        this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported, no validation will be empty!`);
+        this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported, validation will be empty!`);
       }
     }
   }
@@ -309,6 +310,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 );
               }
               // multi values are presented as multi lines string
+              // TODO: use SelectBox component instead
               return (
                 <Basic.TextArea
                   ref={attribute.name}
@@ -345,6 +347,13 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   validation={this._getInputValidation(attribute)}
                   required={attribute.required}
                   confidential={attribute.confidential}/>
+              );
+            } else if (attribute.confidential) {
+              // other persistent type does not support confidential for now
+              return (
+                <Basic.LabelWrapper label={attribute.displayName}>
+                  <Basic.Alert level="warning" text={ this.i18n('persistentType.unsupported.confidential', { name: attribute.persistentType}) } className="no-margin"/>
+                </Basic.LabelWrapper>
               );
             }
             // date and datetime field
@@ -383,7 +392,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={attribute.readonly}
-                  required/>
+                  required={attribute.required}/>
               );
             }
             // boolean field - boolean can not be multiple

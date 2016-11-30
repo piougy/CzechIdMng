@@ -5,9 +5,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import com.google.common.collect.Lists;
 
@@ -161,6 +163,20 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 		assertEquals(PersistentType.TEXT, formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE).getPersistentType());
 	}
 	
+	@Test(expected = IllegalArgumentException.class)
+	public void testOwnerWithoutId() {
+		// unpersisted identity
+		FormableEntity owner = new IdmIdentity();
+		formService.getValues(owner);
+	}
+	
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testUnpersistedOwnerWithId() {
+		// unpersisted identity
+		FormableEntity owner = new IdmIdentity(UUID.randomUUID());
+		formService.getValues(owner);
+	}
+	
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testReadDefaultDefinitionValue() {
@@ -193,6 +209,22 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 		List<AbstractFormValue<FormableEntity>> savedValues = formService.getValues(owner);
 		assertEquals(2, savedValues.size());
 		formService.toSinglePersistentValue(savedValues);
+	}
+	
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testReadConfidentialFormValue() {
+		FormableEntity owner = createTestOwner("test6");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		// save password
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		value1.setValue(FORM_VALUE_ONE);
+		
+		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
+		
+		List<AbstractFormValue<FormableEntity>> savedValues = formService.getValues(owner);
+		assertEquals(1, savedValues.size());
+		assertEquals(GuardedString.SECRED_PROXY_STRING, formService.toSinglePersistentValue(savedValues));
 	}
 	
 	private FormableEntity createTestOwner(String name) {

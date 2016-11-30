@@ -7,8 +7,9 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSystemFormValueRepository;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.eav.service.api.AbstractFormValueService;
+import eu.bcvsolutions.idm.eav.service.impl.AbstractFormValueService;
 
 /**
  * Form values for system entity
@@ -22,7 +23,11 @@ public class DefaultSysSystemFormValueService extends AbstractFormValueService<S
 	private final SysSystemFormValueRepository systemFormValueRepository;
 	
 	@Autowired
-	public DefaultSysSystemFormValueService(SysSystemFormValueRepository systemFormValueRepository) {
+	public DefaultSysSystemFormValueService(
+			ConfidentialStorage confidentialStorage,
+			SysSystemFormValueRepository systemFormValueRepository) {
+		super(confidentialStorage);
+		//
 		Assert.notNull(systemFormValueRepository);
 		//
 		this.systemFormValueRepository = systemFormValueRepository;

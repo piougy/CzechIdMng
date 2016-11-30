@@ -49,7 +49,7 @@ class TextArea extends AbstractFormComponent {
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && !this.state.value) {
+    if (required && !feedback) {
       showAsterix = true;
     }
     const title = this.getValidationResult() != null ? this.getValidationResult().message : null;

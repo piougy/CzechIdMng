@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface IfEnabled {
+public @interface Enabled {
 	
 	/**
 	 * Module ids (alias)

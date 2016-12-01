@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
  * Target system setting controller
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  *
  */
 @RestController
-@IfEnabled(AccModuleDescriptor.MODULE_ID)
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
 

@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
 import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
 import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
 import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
  * Rest endpoint provides available connectors and their configuration
@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  *
  */
 @RestController
-@IfEnabled(IcfModuleDescriptor.MODULE_ID)
+@Enabled(IcfModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/connectors")
 public class IcfConnectorController implements BaseController {
 

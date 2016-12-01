@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
  * System entity handling rest
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  *
  */
 @RestController
-@IfEnabled(AccModuleDescriptor.MODULE_ID)
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-entities-handling")
 public class SysSystemEntityHandlingController extends AbstractReadWriteEntityController<SysSystemEntityHandling, SystemEntityHandlingFilter> {
 

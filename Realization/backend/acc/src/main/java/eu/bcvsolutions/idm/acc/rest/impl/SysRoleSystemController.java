@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
  * Role could assign identity account on target system.
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  *
  */
 @RestController
-@IfEnabled(AccModuleDescriptor.MODULE_ID)
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/role-systems")
 public class SysRoleSystemController extends DefaultReadWriteEntityController<SysRoleSystem, RoleSystemFilter> {
 	

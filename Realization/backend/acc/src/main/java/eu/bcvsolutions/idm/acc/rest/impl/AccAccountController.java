@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
  * Accounts on target system
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.security.api.domain.IfEnabled;;
  *
  */
 @RestController
-@IfEnabled(AccModuleDescriptor.MODULE_ID)
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/accounts")
 public class AccAccountController extends DefaultReadWriteEntityController<AccAccount, AccountFilter> {
 	

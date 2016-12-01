@@ -5,7 +5,7 @@ import _ from 'lodash';
 import * as Utils from '../../utils';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { AuditManager, IdentityManager } from '../../redux';
+import { AuditManager } from '../../redux';
 import AuditModificationEnum from '../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();

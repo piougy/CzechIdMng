@@ -69,7 +69,7 @@ export class App extends Basic.AbstractContent {
     }
   }
 
-  handleSubmit(event) {
+  login(event) {
     if (event) {
       event.preventDefault();
     }
@@ -81,11 +81,20 @@ export class App extends Basic.AbstractContent {
     this.context.store.dispatch(this.securityManager.login(formData.username, formData.password));
   }
 
+  logout(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.store.dispatch(this.securityManager.logout(() => {
+      this.context.router.replace('/login');
+    }));
+  }
+
   render() {
     const { location, userContext, bulk, appReady, navigationCollapsed } = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
     const classnames = classNames(
-      { 'with-sidebar': Managers.SecurityManager.isAuthenticated(userContext) },
+      { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
       { 'collapsed': navigationCollapsed }
     );
     //
@@ -99,12 +108,17 @@ export class App extends Basic.AbstractContent {
           :
           <div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
-            <Advanced.Navigation />
+            <Advanced.Navigation/>
             <div id="content-container" className={classnames}>
-              {this.props.children}
+              {
+                userContext.isExpired
+                ||
+                this.props.children
+              }
+
               {
                 /* TODO: move to redux and hide it, when is needed */
-                location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
+                !userContext.isExpired && location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
                 ?
                 <Footer />
                 :
@@ -118,7 +132,7 @@ export class App extends Basic.AbstractContent {
                 counter={bulk.counter}/>
 
               <Basic.Modal dialogClassName="login-container" show={userContext.isExpired}>
-                <form onSubmit={this.handleSubmit.bind(this)}>
+                <form onSubmit={this.login.bind(this)}>
                   <Basic.Modal.Header text={this.i18n('error.LOG_IN.title')} />
                   <Basic.Modal.Body>
                     <Basic.Loading showLoading={userContext.showLoading}>
@@ -147,7 +161,7 @@ export class App extends Basic.AbstractContent {
                   <Basic.Modal.Footer>
                     <Basic.Button
                       level="link"
-                      onClick={() => this.context.router.push('/logout')}
+                      onClick={this.logout.bind(this)}
                       showLoading={userContext.showLoading}
                       title={this.i18n('content.login.button.logout.title')}
                       titlePlacement="bottom">

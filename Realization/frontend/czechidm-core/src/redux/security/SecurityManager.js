@@ -39,9 +39,11 @@ export default class SecurityManager {
       authenticateService.login(username, password)
       .then(json => {
         getState().logger.debug('logged user', json);
+        //
         // resolve authorities from auth
         const authorities = json.authentication.authorities.map(authority => { return authority.authority; });
         getState().logger.debug('logged user authorities', authorities);
+        //
         // construct logged user context
         const userContext = {
           username: json.username,
@@ -50,6 +52,11 @@ export default class SecurityManager {
           tokenCSRF: authenticateService.getCookie(TOKEN_COOKIE_NAME),
           authorities
         };
+        //
+        // remove all messages (only logout could be fond in messages after logout)
+        dispatch(this.flashMessagesManager.removeAllMessages());
+        //
+        // send userContext to state
         dispatch(this.receiveLogin(userContext, redirect));
       })
       .catch(error => {
@@ -107,8 +114,13 @@ export default class SecurityManager {
   logout(redirect) {
     return dispatch => {
       authenticateService.logout();
-      dispatch(this.flashMessagesManager.hideAllMessages());
-      dispatch(this.flashMessagesManager.addMessage({key: 'login', message: LocalizationService.i18n('content.logout.message.logout'), level: 'info', position: 'tc'}));
+      dispatch(this.flashMessagesManager.removeAllMessages());
+      dispatch(this.flashMessagesManager.addMessage({
+        key: 'logout',
+        message: LocalizationService.i18n('content.logout.message.logout'),
+        level: 'info',
+        position: 'tc'
+      }));
       dispatch(this.receiveLogout());
       if (redirect) {
         redirect();

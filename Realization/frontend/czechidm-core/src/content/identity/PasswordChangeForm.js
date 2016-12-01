@@ -2,8 +2,8 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import classnames from 'classnames';
 import _ from 'lodash';
-import zxcvbn from 'zxcvbn';
 //
+import * as Advance from '../../components/advanced';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
@@ -55,9 +55,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
       }, () => {
         this.refs.form.setData({
           accounts: accountOptions,
-          oldPassword: '',
-          newPassword: '',
-          newPasswordAgain: ''
+          oldPassword: ''
         });
         // focus old password
         this.refs.oldPassword.focus();
@@ -79,6 +77,11 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     }
     const { entityId, accountOptions } = this.props;
     const formData = this.refs.form.getData();
+
+    // add data from child component to formData
+    formData.newPassword = this.refs.passwords.getNewPassword();
+    formData.newPasswordAgain = this.refs.passwords.getNewPasswordAgain();
+
     if (formData.newPassword !== formData.newPasswordAgain) {
       return;
     }
@@ -154,9 +157,6 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
   }
 
   _validatePassword(property, onlyValidate, value, result) {
-    if (property === 'newPasswordAgain') {
-      this._passwordStrength(value);
-    }
     if (onlyValidate) {
       this.refs[property].validate();
       return result;
@@ -171,30 +171,14 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     return result;
   }
 
-  _passwordStrength(password) {
-    if (password !== null) {
-      const response = zxcvbn(password);
-      let passwordStrengthStyle = 'danger';
-      if (response.score > 3) {
-        passwordStrengthStyle = 'success';
-      } else if (response.score > 1) {
-        passwordStrengthStyle = 'warning';
-      }
-      this.setState({
-        passwordStrength: response.score,
-        passwordStrengthStyle
-      });
-    }
-  }
-
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload, passwordStrength, passwordStrengthStyle } = this.state;
+    const { preload, passwordStrength } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== ALL_ONLY || SecurityManager.isAdmin(userContext) }
     );
-
+    // TODO: All accounts in enumSelectBox, selectBox isn't ideal component for this.
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -226,27 +210,8 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
 
                   <Basic.AbstractForm ref="form" className="form-horizontal">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
-                    <Basic.TextField type="password" ref="newPassword"
-                      validate={this._validatePassword.bind(this, 'newPasswordAgain', true)}
-                      label={this.i18n('password.new')} required/>
-                    <div className="form-group">
-                      <span className="col-sm-offset-3 col-sm-8">
-                        <Basic.Tooltip
-                          trigger={['hover']}
-                          ref="popover"
-                          placement="right"
-                          value={this.i18n('password.strength')} >
-                          <Basic.ProgressBar
-                            className="password-change-bar"
-                            ref="passwordStrength"
-                            now={passwordStrength + 1}
-                            bsStyle={passwordStrengthStyle} min={0} max={5} />
-                        </Basic.Tooltip>
-                      </span>
-                    </div>
-                    <Basic.TextField type="password" ref="newPasswordAgain"
-                      validate={this._validatePassword.bind(this, 'newPassword', false)}
-                      label={this.i18n('password.newAgain')} required/>
+
+                    <Advance.Password className="form-control" ref="passwords" validate={this._validatePassword} passwordStrength={passwordStrength} />
 
                     <Basic.EnumSelectBox
                       ref="accounts"

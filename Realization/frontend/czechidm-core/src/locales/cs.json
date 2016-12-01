@@ -454,6 +454,7 @@
         "title": "Změna hesla",
         "passwordOld": "Staré heslo",
         "password": "Nové heslo",
+        "passwordChangeTooltip": "Síla hesla",
         "passwordAgain": {
           "label": "Heslo znovu",
           "placeholder": "Nové heslo pro kontrolu"
@@ -477,6 +478,12 @@
             }
           }
         }
+      },
+      "strength" : {
+        "weak": "slabé",
+        "okay": "normální",
+        "strong": "silné",
+        "great": "perfektní"
       }
     },
     "messages": {

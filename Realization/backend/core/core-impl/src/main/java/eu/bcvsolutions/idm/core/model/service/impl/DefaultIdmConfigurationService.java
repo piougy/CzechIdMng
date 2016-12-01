@@ -132,7 +132,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	@Transactional(readOnly = true)
 	public boolean getBooleanValue(String key, boolean defaultValue) {
 		String value = getValue(key);
-		return value == null ? defaultValue : Boolean.valueOf(value);
+		return value == null ? defaultValue : Boolean.parseBoolean(value);
 	}
 	
 	@Override

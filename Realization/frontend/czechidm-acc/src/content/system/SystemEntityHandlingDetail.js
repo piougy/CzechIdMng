@@ -242,6 +242,9 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
                 sort />
               <Advanced.Column property="schemaAttribute.name" header={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')} sort/>
               <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid')} sort/>
+              <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationFromResource')}/>
+              <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationToResource')}/>
             </Advanced.Table>
           </Basic.Panel>
         </div>

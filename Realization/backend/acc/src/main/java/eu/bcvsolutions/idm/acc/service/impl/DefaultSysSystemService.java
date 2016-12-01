@@ -143,14 +143,19 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					for (AbstractFormValue<SysSystem> formValue : attributeValues.get(attributeName)) {
 						valueList.add(toPropertyValue(formValue));
 					}
-					value = valueList.toArray();
+					if (!valueList.isEmpty()) {
+						value = valueList.toArray();
+					}
 				} else {
 					// single value
 					value = toPropertyValue(attributeValues.get(attributeName).get(0));
 				}
 			}
-			property.setValue(value);
-			properties.getProperties().add(property);
+			if (value != null) {
+				// only filled values to configuration
+				property.setValue(value);
+				properties.getProperties().add(property);
+			}
 		}
 		return icfConf;
 	}

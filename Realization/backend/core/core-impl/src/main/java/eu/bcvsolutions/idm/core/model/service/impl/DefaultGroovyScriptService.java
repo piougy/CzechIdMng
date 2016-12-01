@@ -67,7 +67,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 				allowType.add(object.getClass());
 			}
 			// We have to add types for all list items
-			if (object != null && object instanceof List) {
+			if (object instanceof List) {
 				((List<?>) object).stream().forEach(item -> {
 					if (item != null && !allowType.contains(item.getClass())) {
 						allowType.add(item.getClass());

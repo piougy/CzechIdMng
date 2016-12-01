@@ -52,7 +52,6 @@ public class DefaultSysSchemaAttributeHandlingService
 	public DefaultSysSchemaAttributeHandlingService(SysSchemaAttributeHandlingRepository repository,
 			GroovyScriptService groovyScriptService, FormService formService,
 			IdmFormAttributeService formAttributeService, SysSystemService systemService) {
-		super();
 		Assert.notNull(repository);
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(formService);
@@ -124,6 +123,7 @@ public class DefaultSysSchemaAttributeHandlingService
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
 		if (entity.isExtendedAttribute()) {
+			// TODO: only FormableEntity could have extended attributes - entity type should generalize FormableEntity  
 			IdmFormDefinition definition = formService.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
 				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());

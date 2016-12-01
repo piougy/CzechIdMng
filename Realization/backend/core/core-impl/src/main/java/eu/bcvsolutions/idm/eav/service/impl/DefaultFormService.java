@@ -345,7 +345,7 @@ public class DefaultFormService implements FormService {
 		//
 		FormValueService<FormableEntity, ?> formValueService = getFormValueService(owner);
 		String key = formValueService.getConfidentialStorageKey(attribute);
-		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getName());
+		LOG.debug("Confidential storage key for attribute [{}] is [{}].", attribute.getName(), key);
 		return key;
 	}
 	

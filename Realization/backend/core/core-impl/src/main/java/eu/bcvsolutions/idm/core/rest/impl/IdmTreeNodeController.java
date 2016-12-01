@@ -95,8 +95,8 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		IdmTreeNode revision;
 		try {
 			revision = this.auditService.findRevision(IdmTreeNode.class, treeNode.getId(), revId);
-		} catch (RevisionDoesNotExistException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId));
+		} catch (RevisionDoesNotExistException ex) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND,  ImmutableMap.of("revision", revId), ex);
 		}
 
 		return new ResponseEntity<>(toResource(revision, assembler), HttpStatus.OK);

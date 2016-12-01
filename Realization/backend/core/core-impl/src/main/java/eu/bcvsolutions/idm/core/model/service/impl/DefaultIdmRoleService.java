@@ -59,7 +59,7 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 		} catch(DataIntegrityViolationException ex) {
 			// TODO: constraint name - result code mapping and move lower to AbstractReadWriteEntityService
 			if (ex.getMessage().contains("fk_idm_identity_role_role")) {
-				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", entity.getName()));
+				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", entity.getName()), ex);
 			}
 			throw ex;
 		}

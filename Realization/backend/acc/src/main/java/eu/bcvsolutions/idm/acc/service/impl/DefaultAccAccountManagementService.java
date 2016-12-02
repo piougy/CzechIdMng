@@ -136,7 +136,6 @@ public class DefaultAccAccountManagementService implements IdmAccountManagementS
 					account = new AccAccount();
 					account.setUid(uid);
 					account.setAccountType(AccountType.PERSONAL);
-					account.setRoleSystem(roleSystem);
 					account.setSystem(roleSystem.getSystem());
 				} else {
 					// We use existed account

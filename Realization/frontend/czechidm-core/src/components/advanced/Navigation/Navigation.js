@@ -243,7 +243,11 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { environment, userContext, navigationCollapsed } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered } = this.props;
+    //
+    if (!rendered) {
+      return false;
+    }
 
     let environmentLabel = null;
     if (environment) {
@@ -290,7 +294,7 @@ export class Navigation extends Basic.AbstractContextComponent {
             </div>
             <div id="navbar" className="navbar-collapse">
               {
-                !SecurityManager.isAuthenticated(userContext)
+                !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
                 <ul className="nav navbar-nav">
                   {mainItems}
@@ -300,11 +304,15 @@ export class Navigation extends Basic.AbstractContextComponent {
               }
               <ul className="nav navbar-nav navbar-right">
                 {environmentLabel}
-                {systemItems}
+                {
+                  userContext.isExpired
+                  ||
+                  systemItems
+                }
               </ul>
             </div>
             {
-              SecurityManager.isAuthenticated(userContext)
+              !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
               <div className={sidebarClassName} role="navigation">
                 <div className="sidebar-nav navbar-collapse">
@@ -322,6 +330,7 @@ export class Navigation extends Basic.AbstractContextComponent {
 }
 
 Navigation.propTypes = {
+  rendered: PropTypes.bool,
   navigation: PropTypes.object,
   navigationCollapsed: PropTypes.bool,
   selectedNavigationItems: PropTypes.array,
@@ -330,6 +339,7 @@ Navigation.propTypes = {
 };
 
 Navigation.defaultProps = {
+  rendered: true,
   navigation: null,
   navigationCollapsed: false,
   selectedNavigationItems: null,

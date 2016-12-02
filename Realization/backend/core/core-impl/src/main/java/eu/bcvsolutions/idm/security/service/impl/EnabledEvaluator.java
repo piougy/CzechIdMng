@@ -9,25 +9,25 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
 
 /**
- * Evaluates {@link IfEnabled} annotation.
+ * Evaluates {@link Enabled} annotation.
  * 
  * @author Radek Tomiška
  *
  */
 @Aspect
 @Component
-public class IfEnabledEvaluator {
+public class EnabledEvaluator {
 	
 	private final ModuleService moduleService;
 	private final IdmConfigurationService configurationService;
 	
 	@Autowired
-	public IfEnabledEvaluator(ModuleService moduleService, IdmConfigurationService configurationService) {
+	public EnabledEvaluator(ModuleService moduleService, IdmConfigurationService configurationService) {
 		Assert.notNull(moduleService, "ModuleService is required");
 		Assert.notNull(configurationService, "IdmConfigurationService is configurationService");
 		//
@@ -45,7 +45,7 @@ public class IfEnabledEvaluator {
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
 	@Before(value = "target(bean) && (@annotation(ifEnabled) || @within(ifEnabled))", argNames="bean,ifEnabled")
-	public void checkIsEnabled(JoinPoint jp, Object bean, IfEnabled ifEnabled) {
+	public void checkIsEnabled(JoinPoint jp, Object bean, Enabled ifEnabled) {
 		// modules
 		checkEnabledModules(ifEnabled.module());
 		checkEnabledModules(ifEnabled.value());

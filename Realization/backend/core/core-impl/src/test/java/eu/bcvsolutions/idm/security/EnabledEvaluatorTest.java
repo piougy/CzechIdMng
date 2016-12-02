@@ -11,19 +11,19 @@ import org.mockito.Mock;
 
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.security.api.domain.IfEnabled;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
-import eu.bcvsolutions.idm.security.service.impl.IfEnabledEvaluator;
+import eu.bcvsolutions.idm.security.service.impl.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
- * Test for {@link IfEnabledEvaluator}
+ * Test for {@link EnabledEvaluator}
  * 
  * @author Radek Tomiška
  *
  */
-public class IfEnabledEvaluatorTest extends AbstractUnitTest {
+public class EnabledEvaluatorTest extends AbstractUnitTest {
 
 	private static final String MODULE_ONE = "test-module-one";
 	private static final String MODULE_TWO = "test-module-two";
@@ -36,27 +36,27 @@ public class IfEnabledEvaluatorTest extends AbstractUnitTest {
 	@Mock
 	private ModuleService moduleService;
 
-	private IfEnabledEvaluator evaluator;
+	private EnabledEvaluator evaluator;
 
 	@Before
 	public void init() {
-		evaluator = new IfEnabledEvaluator(moduleService, configurationService);
+		evaluator = new EnabledEvaluator(moduleService, configurationService);
 	}
 
 	/**
-	 * Constructs test {@link IfEnabled} annotation.
+	 * Constructs test {@link Enabled} annotation.
 	 * 
 	 * @param modules
 	 * @param properties
 	 * @param asValue if given modules will be set to value or module annotation property.
 	 * @return
 	 */
-	private IfEnabled prepareAnnotation(String[] modules, String[] properties, boolean asValue) {
-		return new IfEnabled() {
+	private Enabled prepareAnnotation(String[] modules, String[] properties, boolean asValue) {
+		return new Enabled() {
 
 			@Override
 			public Class<? extends Annotation> annotationType() {
-				return IfEnabled.class;
+				return Enabled.class;
 			}
 
 			@Override

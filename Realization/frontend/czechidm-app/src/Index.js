@@ -94,7 +94,7 @@ const reducersApp = combineReducers({
   security: Reducers.security,
   routing: routeReducer,
   logger: (state = logger) => {
-    // TODO: can be moved to separate redecuer and
+    // TODO: can be moved to separate redecuer
     return state;
   }
 });
@@ -129,7 +129,7 @@ const createPersistentStore = compose(
 // Sync dispatched route actions to the history
 const reduxRouterMiddleware = syncHistory(hashHistory);
 //
-// before dispatch handfler
+// before dispatch handler
 function dispatchTrace({ getState }) {
   return (next) => (action) => {
     logger.trace('will dispatch', action);

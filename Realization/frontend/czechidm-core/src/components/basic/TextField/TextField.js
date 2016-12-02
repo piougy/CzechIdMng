@@ -66,7 +66,14 @@ class TextField extends AbstractFormComponent {
    *
    * @param  {bool} showInput
    */
-  toogleConfidentialState(showInput) {
+  toogleConfidentialState(showInput, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!this._showConfidentialWrapper()) {
+      return;
+    }
+    //
     this.setState({
       value: null,
       confidentialState: {
@@ -77,6 +84,11 @@ class TextField extends AbstractFormComponent {
     });
   }
 
+  /**
+   * Returns filled value. Depends on confidential property
+   *
+   * @return {string} filled value or undefined, if confidential value is not edited
+   */
   getValue() {
     const { confidential } = this.props;
     const { confidentialState } = this.state;
@@ -85,9 +97,13 @@ class TextField extends AbstractFormComponent {
       // preserve previous value
       return undefined;
     }
+    // return filled value
     return super.getValue();
   }
 
+  /**
+   * Clears filled values
+   */
   clearValue() {
     this.setState({ value: null }, () => { this.validate(); });
   }
@@ -99,15 +115,18 @@ class TextField extends AbstractFormComponent {
    */
   _showConfidentialWrapper() {
     const { required, confidential } = this.props;
-    const { value, confidentialState } = this.state;
-    return confidential && !confidentialState.showInput && (!required || value);
+    const { value, confidentialState, disabled, readOnly } = this.state;
+    return confidential && !confidentialState.showInput && (!required || value) && !disabled && !readOnly;
   }
 
   getBody(feedback) {
     const { type, labelSpan, label, componentSpan, placeholder, style, required, help, helpBlock } = this.props;
     const { value, disabled, readOnly } = this.state;
     //
-    const className = classNames('form-control');
+    const className = classNames(
+      'form-control',
+      { 'confidential': this._showConfidentialWrapper() }
+    );
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
     if (required && !feedback && !this._showConfidentialWrapper()) {
@@ -121,7 +140,7 @@ class TextField extends AbstractFormComponent {
     let _readOnly = readOnly;
     if (this._showConfidentialWrapper()) {
       if (value) {
-        _value = '*****'; // asterix wil be shown, when value is filled
+        _value = '*****'; // asterix will be shown, when value is filled
       } else {
         _value = null;
       }
@@ -136,6 +155,7 @@ class TextField extends AbstractFormComponent {
         disabled={disabled}
         placeholder={placeholder}
         onChange={this.onChange.bind(this)}
+        onClick={this.toogleConfidentialState.bind(this, true)}
         value={_value}
         style={style}
         readOnly={_readOnly}/>
@@ -145,21 +165,21 @@ class TextField extends AbstractFormComponent {
     let confidentialWrapper = component;
     if (this._showConfidentialWrapper()) {
       confidentialWrapper = (
-        <div className="input-group">
-          { component }
-          <span className="input-group-btn">
-            <Button
-              type="button"
-              level="default"
-              className="btn-sm"
-              style={{ marginTop: '0px', height: '34px' }}
-              onClick={this.toogleConfidentialState.bind(this, true)}
-              title={this.i18n('confidential.edit')}
-              titlePlacement="bottom">
-              <Icon type="fa" icon="edit"/>
-            </Button>
-          </span>
-        </div>
+        <Tooltip ref="popover" placement="bottom" value={this.i18n('confidential.edit')}>
+          <div className="input-group">
+            { component }
+            <span className="input-group-btn">
+              <Button
+                type="button"
+                level="default"
+                className="btn-sm"
+                style={{ marginTop: '0px', height: '34px' }}
+                onClick={this.toogleConfidentialState.bind(this, true)}>
+                <Icon icon="fa:edit"/>
+              </Button>
+            </span>
+          </div>
+        </Tooltip>
       );
     }
 

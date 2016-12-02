@@ -144,6 +144,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		//
 		switch (persistentType) {
 		case INT:
+			return longValue == null ? null : longValue.intValue();
 		case LONG:
 			return longValue;
 		case BOOLEAN:

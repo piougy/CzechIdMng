@@ -144,7 +144,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 						valueList.add(toPropertyValue(formValue));
 					}
 					if (!valueList.isEmpty()) {
-						value = valueList.toArray();
+						if (PersistentType.TEXT.equals(formAttribute.getPersistentType())) {
+							value = valueList.toArray(new String[]{});
+						} else {
+							value = valueList.toArray();
+						}
 					}
 				} else {
 					// single value

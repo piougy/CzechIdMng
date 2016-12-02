@@ -90,7 +90,7 @@ class StrengthEstimator extends AbstractFormComponent {
         value={this.i18n(tooltip)}
         rendered={isTooltip} >
         <span className={spanClassName} style={{ opacity }}>
-        <Icon type="fa" icon={icon} showLoading={false} rendered={isIcon} />
+        <Icon icon={icon} showLoading={false} rendered={isIcon} />
             <span className="strength-estimator" style={{ width: width + '%', background }}>
             </span>
           {this.i18n('content.password.strength.' + info)}

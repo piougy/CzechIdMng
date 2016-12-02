@@ -8,6 +8,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.envers.Audited;
+
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 
@@ -25,6 +27,7 @@ public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> {
 
 	private static final long serialVersionUID = -6873566385389649927L;
 	
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "owner_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

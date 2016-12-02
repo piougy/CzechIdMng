@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
  * Type of entity on target system
@@ -12,7 +11,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 public enum SystemEntityType {
 
-	IDENTITY(IdmIdentity.class), GROUP(IdmRole.class);
+	IDENTITY(IdmIdentity.class)/* unimplemented for now: GROUP(IdmRole.class)*/;
 
 	private Class<? extends AbstractEntity> entityType;
 

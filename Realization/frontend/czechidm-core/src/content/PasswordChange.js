@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../components/basic';
+import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
 import { SecurityManager, IdentityManager } from '../redux';
 import help from './PasswordChange_cs.md';
@@ -65,7 +66,7 @@ class PasswordChange extends Basic.AbstractContent {
     });
     const username = this.refs.username.getValue();
     const oldPassword = this.refs.passwordOld.getValue();
-    const password = this.refs.password.getValue();
+    const password = this.refs.passwords.getNewPasswordAgain();
 
     identityManager.getService().passwordChange(username, {
       identity: username,
@@ -163,25 +164,12 @@ class PasswordChange extends Basic.AbstractContent {
                     required
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>
-                  <Basic.TextField
-                    type={'password'}
-                    ref="password"
-                    label={this.i18n('password')}
-                    placeholder={this.i18n('password')}
-                    required
+                  <Advanced.Password
+                    className="form-control"
+                    ref="passwords"
+                    validate={this._validatePassword}
                     labelSpan="col-md-4"
-                    componentSpan="col-md-8"
-                    validate={this._validatePassword.bind(this, 'passwordAgain', true)}/>
-                  <Basic.TextField
-                    type={'password'}
-                    ref="passwordAgain"
-                    label={this.i18n('passwordAgain.label')}
-                    placeholder={this.i18n('passwordAgain.placeholder')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"
-                    validate={this._validatePassword.bind(this, 'password', false)}
-                    className="last"/>
+                    componentSpan="col-md-8"/>
                 </Basic.AbstractForm>
 
                 <Basic.PanelFooter>

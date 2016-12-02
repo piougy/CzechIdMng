@@ -40,14 +40,19 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	 * @return
 	 */
 	IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey);
+
+	/**
+	 * Returns persistent type for given connector property type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	PersistentType convertPropertyType(String connectorPropertyType);
 	
-	
-	
+	//
 	// TODO: move to test after FE form implementation
 	@Deprecated
 	IcfConnectorKey getTestConnectorKey();
 	@Deprecated
 	SysSystem createTestSystem();
-
-	PersistentType convertPropertyType(String connectorPropertyType);
 }

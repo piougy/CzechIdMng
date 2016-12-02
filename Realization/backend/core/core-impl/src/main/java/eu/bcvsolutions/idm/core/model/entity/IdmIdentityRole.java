@@ -31,7 +31,7 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	private static final long serialVersionUID = 9208706652291035265L;
 
 	@NotNull
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
@@ -39,19 +39,19 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 	private IdmIdentity identity;
 	
 	@NotNull
-	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag=true)
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "valid_from")
 	@Temporal(TemporalType.DATE)
 	private Date validFrom;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "valid_till")
 	@Temporal(TemporalType.DATE)
 	private Date validTill;

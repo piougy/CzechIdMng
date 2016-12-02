@@ -91,7 +91,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		supportedConnectorPropertyMapping.put("long", new ConnectorPropertyMapping(PersistentType.LONG, false));
 		// TODO: correct data type ...
 		supportedConnectorPropertyMapping.put("org.identityconnectors.common.security.GuardedByteArray",
-				new ConnectorPropertyMapping(PersistentType.TEXT, false)); // TODO byte[] persistent type?
+				new ConnectorPropertyMapping(PersistentType.TEXT, false)); // TODO byte[] persistent type
 	}
 
 	@Autowired
@@ -144,7 +144,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 						valueList.add(toPropertyValue(formValue));
 					}
 					if (!valueList.isEmpty()) {
-						value = valueList.toArray();
+						if (PersistentType.TEXT.equals(formAttribute.getPersistentType())) {
+							value = valueList.toArray(new String[]{});
+						} else {
+							value = valueList.toArray();
+						}
 					}
 				} else {
 					// single value
@@ -407,7 +411,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	/**
-	 * Returns
+	 * Returns persistent type for given connector property type
 	 * 
 	 * @param type
 	 * @return

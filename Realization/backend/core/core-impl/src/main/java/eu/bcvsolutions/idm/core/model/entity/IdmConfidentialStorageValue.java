@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "idm_confidential_storage_value", indexes = { 
+@Table(name = "idm_confidential_storage", indexes = { 
 		@Index(name = "idx_confidential_storage_o_i", columnList = "owner_id"),
 		@Index(name = "idx_confidential_storage_o_t", columnList = "owner_type"),
 		@Index(name = "idx_confidential_storage_key", columnList = "storage_key")

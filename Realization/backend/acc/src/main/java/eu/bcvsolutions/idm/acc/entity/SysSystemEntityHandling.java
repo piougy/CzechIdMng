@@ -1,9 +1,11 @@
 package eu.bcvsolutions.idm.acc.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -47,7 +49,7 @@ public class SysSystemEntityHandling extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id")
+	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;

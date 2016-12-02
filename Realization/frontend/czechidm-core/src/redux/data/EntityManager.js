@@ -7,6 +7,7 @@ import * as Utils from '../../utils';
 
 /**
  * action types
+ * TODO: move to action constant (prevent manager import only because action type usage)
  */
 export const REQUEST_ENTITIES = 'REQUEST_ENTITIES';
 export const RECEIVE_ENTITIES = 'RECEIVE_ENTITIES';

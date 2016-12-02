@@ -153,9 +153,9 @@ class RoleDetail extends Basic.AbstractContent {
                         required
                         readOnly={!Utils.Entity.isNew(entity)}/>
                       <Basic.SelectBox
-                          ref="roleCatalogue"
-                          label={this.i18n('entity.Role.roleCatalogue.name')}
-                          manager={roleCatalogueManager}/>
+                        ref="roleCatalogue"
+                        label={this.i18n('entity.Role.roleCatalogue.name')}
+                        manager={roleCatalogueManager}/>
                       <Basic.SelectBox
                         ref="superiorRoles"
                         label={this.i18n('entity.Role.superiorRoles')}
@@ -169,10 +169,10 @@ class RoleDetail extends Basic.AbstractContent {
                         manager={roleManager}
                         multiSelect/>
                       <Basic.SelectBox
-                          ref="guarantees"
-                          label={this.i18n('entity.Role.guarantees')}
-                          multiSelect
-                          manager={identityManger}/>
+                        ref="guarantees"
+                        label={this.i18n('entity.Role.guarantees')}
+                        multiSelect
+                        manager={identityManger}/>
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}

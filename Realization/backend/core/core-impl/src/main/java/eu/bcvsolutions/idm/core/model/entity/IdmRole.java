@@ -48,13 +48,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
@@ -63,21 +63,21 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
 	private String approveAddWorkflow;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "approve_remove_workflow", length = DefaultFieldLengths.NAME)
 	private String approveRemoveWorkflow;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "description")
 	private String description;
 	
@@ -97,7 +97,7 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleGuarantee> guarantees;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

@@ -43,7 +43,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
@@ -54,7 +54,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
 	private GuardedString password;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
@@ -63,39 +63,39 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "first_name", length = DefaultFieldLengths.NAME)
 	private String firstName;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotEmpty
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "last_name", length = DefaultFieldLengths.NAME)
 	private String lastName;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Email
 	@Size(max = DefaultFieldLengths.EMAIL_ADDRESS)
 	@Column(name = "email", length = DefaultFieldLengths.EMAIL_ADDRESS)
 	private String email;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Size(max = 30)
 	@Column(name = "phone", length = 30)
 	private String phone;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_before", length = 100)
 	private String titleBefore;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Size(max = 100)
 	@Column(name = "title_after", length = 100)
 	private String titleAfter;
 
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "description")
 	private String description;
 	

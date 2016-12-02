@@ -34,22 +34,22 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
 	private String name;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotNull
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@Column(name = "description")
 	private String description;
 	
-	@Audited(withModifiedFlag=true)
+	@Audited
 	@NotNull
 	@Column(name = "virtual", nullable = false)
 	private boolean virtual;

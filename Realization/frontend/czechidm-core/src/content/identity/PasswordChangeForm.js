@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import classnames from 'classnames';
 import _ from 'lodash';
 //
-import * as Advance from '../../components/advanced';
+import * as Advanced from '../../components/advanced';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
@@ -25,9 +25,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     this.state = {
       preload: true,
       showLoading: false,
-      accounts: [],
-      passwordStrength: 0,
-      passwordStrengthStyle: 'danger'
+      accounts: []
     };
   }
 
@@ -173,7 +171,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
 
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload, passwordStrength } = this.state;
+    const { preload } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== ALL_ONLY || SecurityManager.isAdmin(userContext) }
@@ -211,7 +209,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                   <Basic.AbstractForm ref="form" className="form-horizontal">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
 
-                    <Advance.Password className="form-control" ref="passwords" validate={this._validatePassword} passwordStrength={passwordStrength} />
+                    <Advanced.Password className="form-control" ref="passwords" validate={this._validatePassword} />
 
                     <Basic.EnumSelectBox
                       ref="accounts"

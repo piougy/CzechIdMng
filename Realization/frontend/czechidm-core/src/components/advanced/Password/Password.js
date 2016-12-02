@@ -14,6 +14,12 @@ class Password extends Basic.AbstractContextComponent {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.refs.newPassword.setValue(nextProps.newPassword);
+    this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
+    this._updateStrengthEstimator(null, nextProps.newPassword);
+  }
+
   getNewPassword() {
     return this.refs.newPassword.getValue();
   }
@@ -22,36 +28,55 @@ class Password extends Basic.AbstractContextComponent {
     return this.refs.newPasswordAgain.getValue();
   }
 
-  _updateStrengthEstimator(event) {
+  _updateStrengthEstimator(event, value) {
     if (event) {
       event.preventDefault();
     }
+    let passwordForValidation = null;
+
+    if (value) {
+      passwordForValidation = value;
+    } else {
+      passwordForValidation = this.refs.newPassword.getValue();
+    }
+
     this.setState({
-      passwordForValidation: this.refs.newPassword.getValue()
+      passwordForValidation
     });
   }
 
   render() {
-    const { validate, newPassword, newPasswordAgain } = this.props;
+    const { validate, newPassword, newPasswordAgain, type, required, readOnly, labelSpan, componentSpan } = this.props;
     const { passwordForValidation } = this.state;
+
     return (
       <div>
-        <Basic.TextField type="password" ref="newPassword" value={newPassword}
+        <Basic.TextField type={type} ref="newPassword" value={newPassword}
           validate={validate.bind(this, 'newPassword', false)}
-          onChange={this._updateStrengthEstimator.bind(this)}
-          label={this.i18n('content.password.change.password')} required/>
+          onChange={this._updateStrengthEstimator.bind(this)} readOnly={readOnly}
+          label={this.i18n('content.password.change.password')} required={required}
+          labelSpan={labelSpan}
+          componentSpan={componentSpan}/>
         <div className="form-group">
+          {
+            !labelSpan
+            ||
+            <span className={labelSpan}></span>
+          }
           <Basic.StrengthEstimator
             max={5}
             initialStrength={1}
             opacity={1}
             value={passwordForValidation}
-            isIcon={false}/>
+            isIcon={false}
+            spanClassName={componentSpan} />
         </div>
-        <Basic.TextField type="password" ref="newPasswordAgain"
-          value={newPasswordAgain}
+        <Basic.TextField type={type} ref="newPasswordAgain"
+          value={newPasswordAgain} readOnly={readOnly}
           validate={validate.bind(this, 'newPassword', false)}
-          label={this.i18n('content.password.change.passwordAgain.label')} required/>
+          label={this.i18n('content.password.change.passwordAgain.label')} required={required}
+          labelSpan={labelSpan}
+          componentSpan={componentSpan}/>
       </div>
     );
   }
@@ -60,12 +85,20 @@ class Password extends Basic.AbstractContextComponent {
 Password.propTypes = {
   newPassword: PropTypes.string,
   newPasswordAgain: PropTypes.string,
-  validate: PropTypes.func
+  readOnly: PropTypes.bool,
+  validate: PropTypes.func,
+  type: PropTypes.string,
+  required: PropTypes.bool,
+  labelSpan: PropTypes.string,
+  componentSpan: PropTypes.string
 };
 
 Password.defaultProps = {
   newPassword: '',
-  newPasswordAgain: ''
+  readOnly: false,
+  newPasswordAgain: '',
+  type: 'password',
+  required: true
 };
 
 

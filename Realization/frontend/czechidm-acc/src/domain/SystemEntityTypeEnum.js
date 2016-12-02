@@ -39,4 +39,4 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 }
 
 SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
-SystemEntityTypeEnum.GROUP = Symbol('GROUP');
+// SystemEntityTypeEnum.GROUP = Symbol('GROUP');

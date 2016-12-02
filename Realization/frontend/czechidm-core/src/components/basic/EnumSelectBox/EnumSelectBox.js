@@ -161,7 +161,6 @@ class EnumSelectBox extends SelectBox {
         }
         return valueArray;
       } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'object') {
-        console.log(typeof value[0], value[0]);
         const valueArray = [];
         for (const item of value) {
           valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));

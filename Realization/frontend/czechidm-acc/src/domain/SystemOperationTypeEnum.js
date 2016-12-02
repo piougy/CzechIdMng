@@ -42,5 +42,5 @@ export default class SystemOperationTypeEnum extends Enums.AbstractEnum {
 }
 
 SystemOperationTypeEnum.PROVISIONING = Symbol('PROVISIONING');
-SystemOperationTypeEnum.RECONCILIACE = Symbol('RECONCILIACE');
-SystemOperationTypeEnum.SYNCHRONISATION = Symbol('SYNCHRONISATION');
+// SystemOperationTypeEnum.RECONCILIACE = Symbol('RECONCILIACE');
+// SystemOperationTypeEnum.SYNCHRONISATION = Symbol('SYNCHRONISATION');

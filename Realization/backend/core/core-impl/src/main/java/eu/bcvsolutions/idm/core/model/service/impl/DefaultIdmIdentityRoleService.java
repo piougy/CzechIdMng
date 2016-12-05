@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -38,8 +39,9 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	private IdmRoleRepository roleRepository;
 	@Autowired
 	private IdmIdentityRepository identityRepository;
-	@Autowired(required = false)
-	private IdmAccountManagementService accountService;
+	private IdmAccountManagementService accountManagementService;
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Override
 	protected AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> getRepository() {
@@ -83,18 +85,15 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		IdmIdentityRole role = super.save(entity);
 
 		// TODO move to asynchronouse queue
-		if (accountService != null) {
-			accountService.resolveIdentityAccounts(role.getIdentity());
-		}
+		getAccountManagementService().resolveIdentityAccounts(role.getIdentity());
+
 		return role;
 	}
-	
+
 	@Override
 	public void delete(IdmIdentityRole entity) {
 		// TODO move to asynchronouse queue
-		if (accountService != null) {
-			accountService.deleteIdentityAccount(entity);
-		}
+		getAccountManagementService().deleteIdentityAccount(entity);
 		super.delete(entity);
 
 	}
@@ -119,5 +118,17 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
+	}
+
+	/**
+	 * TODO: remove this lazy injection after account event event will be done
+	 * 
+	 * @return
+	 */
+	private IdmAccountManagementService getAccountManagementService() {
+		if (accountManagementService == null) {
+			this.accountManagementService = applicationContext.getBean(IdmAccountManagementService.class);
+		}
+		return accountManagementService;
 	}
 }

@@ -2,14 +2,15 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -22,28 +23,34 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 public class DefaultAccAccountService extends AbstractReadWriteEntityService<AccAccount, AccountFilter>
 		implements AccAccountService {
 
-	private AccAccountRepository accountRepository;
+	private final AccIdentityAccountRepository accIdentityAccountRepository;
+	private final SysProvisioningService provisioningService;
 
 	@Autowired
-	private SysProvisioningService provisioningService;
-
-	@Autowired
-	public DefaultAccAccountService(AccAccountRepository accountRepository) {
-		super();
-		Assert.notNull(accountRepository);
-
-		this.accountRepository = accountRepository;
+	public DefaultAccAccountService(
+			AccAccountRepository accountRepository,
+			AccIdentityAccountRepository accIdentityAccountRepository,
+			SysProvisioningService provisioningService) {
+		super(accountRepository);
+		//
+		Assert.notNull(accIdentityAccountRepository);
+		Assert.notNull(provisioningService);
+		//
+		this.accIdentityAccountRepository = accIdentityAccountRepository;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
-	protected AbstractEntityRepository<AccAccount, AccountFilter> getRepository() {
-		return accountRepository;
-	}
-
-	@Override
-	public void delete(AccAccount entity) {
-		super.delete(entity);
+	@Transactional
+	public void delete(AccAccount account) {
+		Assert.notNull(account);
+		//
+		// delete all identity accounts
+		// we are calling repository instead service to prevent cycle - we only need clean db in this case
+		accIdentityAccountRepository.deleteByAccount(account);
+		//
+		super.delete(account);
 		// TODO move to asynchronouse queue
-		this.provisioningService.doDeleteProvisioning(entity);
+		this.provisioningService.doDeleteProvisioning(account);
 	}
 }

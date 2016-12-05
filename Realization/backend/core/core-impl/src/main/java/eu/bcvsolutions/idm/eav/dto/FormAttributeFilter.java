@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
  * @author Radek Tomiška
  *
  */
-public class FormAttributeDefinitionFilter implements BaseFilter {
+public class FormAttributeFilter implements BaseFilter {
 
 	private IdmFormDefinition formDefinition;
 	private String name;

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
@@ -21,7 +20,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * 
  * @author Radek Tomiška
  */
-@Transactional(readOnly = true)
 @RepositoryRestResource(//
 		collectionResourceRel = "identityRoles", //
 		path = "identity-roles", //
@@ -30,12 +28,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 	)
 public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> {
 	
-	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
-	
-	List<IdmIdentityRole> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
-
-	Page<IdmIdentityRole> findByIdentityUsername(@Param("username") String username, Pageable pageable);
-	
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from IdmIdentityRole e" +
 	        " where " +
@@ -43,6 +39,16 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	        " and" +
 	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')})")
 	Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable);
+	
+	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
+	
+	List<IdmIdentityRole> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
+
+	Page<IdmIdentityRole> findByIdentityUsername(@Param("username") String username, Pageable pageable);
+	
+	Long countByRole(@Param("role") IdmRole role);
+	
+	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 	
@@ -52,6 +58,5 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	 * @param identity
 	 * @return
 	 */
-	@Transactional
 	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 }

@@ -8,6 +8,12 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
+/**
+ * Role could be in one catalogue (simply roles folder)
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 public interface IdmRoleCatalogueService extends ReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>, IdentifiableByNameEntityService<IdmRoleCatalogue> {
 
 	List<IdmRoleCatalogue> findRoots();

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.repository.projection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
-import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.core.api.repository.projection.AbstractDtoProjection;

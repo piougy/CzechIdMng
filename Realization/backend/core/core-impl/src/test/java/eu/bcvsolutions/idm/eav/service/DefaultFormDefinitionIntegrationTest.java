@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
+import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -32,7 +32,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	private IdmFormDefinitionService formDefinitionService;
 	
 	@Autowired
-	private IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
+	private IdmFormAttributeRepository formAttributeDefinitionRepository;
 	
 	private Random r = new Random();
 	

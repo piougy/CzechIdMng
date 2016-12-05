@@ -3,18 +3,20 @@ package eu.bcvsolutions.idm.acc.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
+import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
@@ -41,13 +43,18 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private IdmFormDefinitionService formDefinitionService;
 	
 	@Autowired
-	private IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
+	private IdmFormAttributeRepository formAttributeDefinitionRepository;
 	
 	@Autowired
 	private FormService formService;
 	
 	@Autowired
 	private IcfConfigurationFacade icfConfigurationAggregatorService;
+	
+	@Before
+	public void login() {
+		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
 	
 	/**
 	 * Test add and delete extended attributes to owner

@@ -13,7 +13,7 @@ import filterHelp from '../../components/advanced/Filter/README_cs.md';
 /**
 * Table of users
 */
-export class IdentityTable extends Basic.AbstractContent {
+export class IdentityTable extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -30,11 +30,8 @@ export class IdentityTable extends Basic.AbstractContent {
   componentDidUpdate() {
   }
 
-  onRowDoubleClick() {
-    // redirect to profile
-    /*
-    const username = data[rowIndex]['name'];
-    this.context.router.push('/identity/' + username + '/profile');*/
+  getManager() {
+    return this.props.identityManager;
   }
 
   /**
@@ -45,7 +42,7 @@ export class IdentityTable extends Basic.AbstractContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push('/identity/' + entity.id + '/profile');
+      this.context.router.push('/identity/' + entity.username + '/profile');
     }
   }
 
@@ -107,14 +104,6 @@ export class IdentityTable extends Basic.AbstractContent {
     this.context.router.push(`/identities/password/reset`);
   }
 
-  onRemove(selectedRows) {
-    this.refs.confirm.show('Are you sure ' + selectedRows + '?', 'Title').then(() => {
-      // alert('onRemove');
-    }, () => {
-      // Rejected
-    });
-  }
-
   _homeNodeFilter(node, event) {
     event.stopPropagation();
     this.setState({selectedNode: node ? node.id : null}, ()=>{this.useFilter();});
@@ -145,12 +134,12 @@ export class IdentityTable extends Basic.AbstractContent {
       <div>
         <Basic.Confirm ref="confirm-deactivate" level="danger"/>
         <Basic.Confirm ref="confirm-activate"/>
+        <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Advanced.Table
           ref="table"
           uiKey={uiKey}
           manager={identityManager}
-          onRowDoubleClick={this.onRowDoubleClick.bind(this)}
           showRowSelection={SecurityManager.hasAuthority('IDENTITY_WRITE')}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
@@ -198,7 +187,7 @@ export class IdentityTable extends Basic.AbstractContent {
           forceSearchParameters={forceSearchParameters}
           actions={
             [
-              { value: 'remove', niceLabel: this.i18n('content.identities.action.remove.action'), action: this.onRemove.bind(this), disabled: true },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false },
               { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) },
               { value: 'deactivate', niceLabel: this.i18n('content.identities.action.deactivate.action'), action: this.onActivate.bind(this) },
               { value: 'password-reset', niceLabel: this.i18n('content.identities.action.reset.action'), action: this.onReset.bind(this), disabled: true }

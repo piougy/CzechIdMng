@@ -7,7 +7,6 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -22,10 +21,7 @@ public class DefaultSysRoleSystemAttributeService
 		implements SysRoleSystemAttributeService {
 
 	@Autowired
-	private SysRoleSystemAttributeRepository repository;
-
-	@Override
-	protected AbstractEntityRepository<SysRoleSystemAttribute, RoleSystemAttributeFilter> getRepository() {
-		return repository;
+	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
+		super(repository);
 	}
 }

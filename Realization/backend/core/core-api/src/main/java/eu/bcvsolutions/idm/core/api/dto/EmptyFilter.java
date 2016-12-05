@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 /**
- * Void filter
+ * Void filter = findAll with pagination and sort support.
  * 
  * @author Radek Tomiška
  *

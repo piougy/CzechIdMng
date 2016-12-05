@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmProvisioningService;
@@ -42,14 +43,17 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 
-	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private final IdmIdentityRepository identityRepository;
+	private final ConfidentialStorage confidentialStorage;
 
 	@Autowired
 	private WorkflowProcessInstanceService workflowProcessInstanceService;
 	
 	@Autowired
 	private IdmRoleRepository roleRepository;
+	
+	@Autowired
+	private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 
 	@Autowired
 	private SecurityService securityService;
@@ -60,24 +64,60 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Autowired
 	private IdmIdentityContractRepository identityContractRepository;
 	
-	private final ConfidentialStorage confidentialStorage;
-	
 	// TODO MOCKUP
 	@Autowired(required = false)
 	private IdmProvisioningService provisioningService;
 	
 	@Autowired
-	public DefaultIdmIdentityService(FormService formService, ConfidentialStorage confidentialStorage) {
-		super(formService);
+	public DefaultIdmIdentityService(
+			IdmIdentityRepository identityRepository,
+			FormService formService, 
+			ConfidentialStorage confidentialStorage) {
+		super(identityRepository, formService);
 		//
 		Assert.notNull(confidentialStorage);
 		//
+		this.identityRepository = identityRepository;
 		this.confidentialStorage = confidentialStorage;
 	}
 	
 	@Override
 	protected AbstractEntityRepository<IdmIdentity, IdentityFilter> getRepository() {
 		return identityRepository;
+	}
+	
+	@Override
+	@Transactional
+	public IdmIdentity save(IdmIdentity entity) {
+		GuardedString password = entity.getPassword();
+		
+		entity = super.save(entity);
+		// save password to confidential storage
+		if (password != null) {
+			savePassword(entity, password);
+		}
+		// MOCKUP TODO
+		if(provisioningService != null) {
+			provisioningService.doProvisioning(entity);
+		}
+		return entity;
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmIdentity identity) {
+		// clear referenced roles
+		identityRoleRepository.deleteByIdentity(identity);
+		// contracts
+		identityContractRepository.deleteByIdentity(identity);
+		// contract guaratee - set to null
+		identityContractRepository.clearGuarantee(identity);
+		// remove role guarantee
+		roleGuaranteeRepository.deleteByGuarantee(identity);
+		// remove password from confidential storage
+		deletePassword(identity);
+		// deletes identity (eav included - @see AbstractFormableService#delete)
+		super.delete(identity);
 	}
 
 	/**
@@ -244,34 +284,6 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private IdmRole getAdminRole() {
 		return this.roleRepository.findOneByName(IdmRoleRepository.ADMIN_ROLE);
 	}
-	
-	@Override
-	@Transactional
-	public IdmIdentity save(IdmIdentity entity) {
-		GuardedString password = entity.getPassword();
-		
-		entity = super.save(entity);
-		// save password to confidential storage
-		if (password != null) {
-			savePassword(entity, password);
-		}
-		// MOCKUP TODO
-		if(provisioningService != null) {
-			provisioningService.doProvisioning(entity);
-		}
-		return entity;
-	}
-	
-	@Override
-	@Transactional
-	public void delete(IdmIdentity identity) {
-		// clear referenced roles
-		identityRoleRepository.deleteByIdentity(identity);
-		// contracts
-		identityContractRepository.deleteByIdentity(identity);
-		//
-		super.delete(identity);
-	}
 
 	/**
 	 * Loads password from confidential storage
@@ -292,5 +304,15 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	private void savePassword(IdmIdentity identity, GuardedString newPassword) {
 		LOG.debug("Saving password for identity [{}] to configental storage under key [{}]", identity.getUsername(), PASSWORD_CONFIDENTIAL_PROPERTY);
 		confidentialStorage.save(identity, PASSWORD_CONFIDENTIAL_PROPERTY, newPassword.asString());
+	}
+	
+	/**
+	 * Delete identity's password from confidential storage
+	 * 
+	 * @param identity
+	 */
+	private void deletePassword(IdmIdentity identity) {
+		LOG.debug("Deleting password for identity [{}] to configental storage under key [{}]", identity.getUsername(), PASSWORD_CONFIDENTIAL_PROPERTY);
+		confidentialStorage.delete(identity, PASSWORD_CONFIDENTIAL_PROPERTY);
 	}
 }

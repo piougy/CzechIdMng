@@ -240,7 +240,7 @@
           "label": "multi",
           "title": "Podporuje zádání více hodnot. Co hodnota, to nový řádek",
           "unsupported": {
-            "title": "{{name}} - attribute can not be multiple",
+            "title": "{{name}} - attribute cannot be multiple",
             "formDefinition": {
               "title": "Form definition has to be fixed",
               "type": "Type",
@@ -1566,13 +1566,21 @@
       "title": "Funkce je deaktivovaná",
       "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
     },
-    "TREE_TYPE_CANNOT_DELETE": {
-      "title": "Existuje závislost",
-      "message": "Na typu existuje závislost, nemůže být smazán."
+    "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Typ struktury nelze odebrat",
+      "message": "Typ struktury [{{treeType}}] již obsahuje navázané prvky. Před odebráním tohoto typu odeberte všechny jeho prvky."
     },
-    "TREE_NODE_CANNOT_DELETE": {
-      "title": "Existuje závislost",
-      "message": "Na prvku existuje závislost, nemůže být smazán."
+    "TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS": {
+      "title": "Typ struktury nelze odebrat",
+      "message": "Typ struktury [{{treeType}}] je již použit v pracovně právních vztazích. Před odebráním tohoto typu upravte všechny vztahy."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] již obsahuje navázané prvky. Před odebráním tohoto prvku odeberte všechny jeho podřízené prvky."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",
@@ -1589,8 +1597,11 @@
     "GROVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy skript neprošel bezpečností kontrolou!",
       "message": "Příčina: {{message}}"
+    },
+    "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Katalog rolí nelze odebrat",
+      "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
     }
-
   },
   "validationError": {
     "string": {

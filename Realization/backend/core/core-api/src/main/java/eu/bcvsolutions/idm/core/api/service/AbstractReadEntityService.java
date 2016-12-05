@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.UUID;
 
 import org.springframework.core.GenericTypeResolver;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -26,10 +28,15 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;
+	private final AbstractEntityRepository<E, F> repository;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractReadEntityService() {
+	public AbstractReadEntityService(AbstractEntityRepository<E, F> repository) {
 		entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityService.class);
+		//
+		Assert.notNull(repository, MessageFormat.format("Repository for class [{0}] is required!", entityClass));
+		//
+		this.repository = repository;
 	}
 	
 	/**
@@ -37,7 +44,9 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	 * 
 	 * @return
 	 */
-	protected abstract AbstractEntityRepository<E, F> getRepository();
+	protected AbstractEntityRepository<E, F> getRepository() {
+		return repository;
+	}
 
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service

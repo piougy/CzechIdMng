@@ -144,7 +144,8 @@ class SystemDetail extends Basic.AbstractContent {
                   max={255}/>
                 <Basic.Checkbox
                   ref="virtual"
-                  label={this.i18n('acc:entity.System.virtual')}/>
+                  label={this.i18n('acc:entity.System.virtual')}
+                  rendered={false}/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>

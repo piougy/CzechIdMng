@@ -114,8 +114,13 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: roleCatalogueManager.getNiceLabel(selectedEntities[0]), records: roleCatalogueManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: roleCatalogueManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(roleCatalogueManager.deleteEntities(selectedEntities, uiKey, () => {
-        this.refs.table.getWrappedInstance().reload();
+      this.context.store.dispatch(roleCatalogueManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
+        if (entity && error) {
+          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: roleCatalogueManager.getNiceLabel(entity) }) }, error);
+        }
+        if (!error && successEntities) {
+          this.refs.table.getWrappedInstance().reload();
+        }
       }));
     }, () => {
       // nothing

@@ -5,36 +5,49 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
+/**
+ * Default role service
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Service
 public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRole, RoleFilter>  implements IdmRoleService {
 
-	@Autowired
-	private IdmRoleRepository idmRoleRepository;
+	private final IdmRoleRepository roleRepository;
+	private final IdmIdentityRoleRepository identityRoleRepository;
 	
-	@Override
-	protected AbstractEntityRepository<IdmRole, RoleFilter> getRepository() {
-		return idmRoleRepository;
+	@Autowired
+	public DefaultIdmRoleService(
+			IdmRoleRepository roleRepository,
+			IdmIdentityRoleRepository identityRoleRepository) {
+		super(roleRepository);
+		//
+		Assert.notNull(identityRoleRepository);
+		//
+		this.roleRepository = roleRepository;
+		this.identityRoleRepository = identityRoleRepository;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRole getByName(String name) {
-		return idmRoleRepository.findOneByName(name);
+		return roleRepository.findOneByName(name);
 	}
 	
 	@Override
@@ -53,15 +66,12 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 	}
 	
 	@Override
-	public void delete(IdmRole entity) {
-		try {
-			super.delete(entity);
-		} catch(DataIntegrityViolationException ex) {
-			// TODO: constraint name - result code mapping and move lower to AbstractReadWriteEntityService
-			if (ex.getMessage().contains("fk_idm_identity_role_role")) {
-				throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", entity.getName()), ex);
-			}
-			throw ex;
+	public void delete(IdmRole role) {
+		// role assigned to identity could not be deleted
+		if(identityRoleRepository.countByRole(role) > 0) {
+			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
 		}
+		// guarantees and compositions are deleted by hibernate mapping		
+		super.delete(role);
 	}
 }

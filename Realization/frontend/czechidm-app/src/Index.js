@@ -13,7 +13,6 @@ import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise';
 import Promise from 'es6-promise';
 import log4js from 'log4js';
-import _ from 'lodash';
 //
 import persistState, {mergePersistedState} from 'redux-localstorage';
 import filter from 'redux-localstorage-filter';
@@ -94,7 +93,7 @@ const reducersApp = combineReducers({
   security: Reducers.security,
   routing: routeReducer,
   logger: (state = logger) => {
-    // TODO: can be moved to separate redecuer
+    // TODO: can be moved to separate redecuer - now is inline
     return state;
   }
 });
@@ -191,7 +190,7 @@ function isPrioGreater(prio1, prio2) {
 }
 
 // list for check overriding routes with priority
-const checkRouteList = [];
+let checkRouteList = new Immutable.Map();
 
 // fills default onEnter on all routes
 // and sort by priority if exist
@@ -209,18 +208,18 @@ function appendRoutes(route, moduleId) {
     moduleId = route.module;
   }
   // if exist route in check list = override, get priority o both routes and compare
-  if (checkRouteList[route.path] !== undefined) {
+  if (checkRouteList.has(route.path)) {
     // check priority
-    if (isPrioGreater(route.priority, checkRouteList[route.path].priority)) {
-      checkRouteList[route.path] = route;
+    if (isPrioGreater(route.priority, checkRouteList.get(route.path).priority)) {
+      checkRouteList = checkRouteList.set(route.path, route);
     }
   } else {
-    checkRouteList[route.path] = route;
+    checkRouteList = checkRouteList.set(route.path, route);
   }
 
   // check childRoutes and transform to Immutable, for easy remove override routes
   if (route.childRoutes) {
-    const childRoutes = _.merge(route.childRoutes, []);
+    const childRoutes = route.childRoutes;
     delete route.childRoutes;
     route.childRoutes = new Immutable.List([]);
     childRoutes.forEach((childRoute) => {
@@ -233,14 +232,12 @@ function appendRoutes(route, moduleId) {
 function removeUnusedRoutes(route) {
   if (route.childRoutes) {
     route.childRoutes.forEach((childRoute, index) => {
-      if (checkRouteList[childRoute.path].priority !== undefined && checkRouteList[childRoute.path].priority > childRoute.priority) {
+      if (checkRouteList.get(childRoute.path).priority !== undefined && checkRouteList.get(childRoute.path).priority > childRoute.priority) {
         route.childRoutes = route.childRoutes.remove(index);
       }
       removeUnusedRoutes(childRoute);
     });
-    const childRoutes = _.merge(route.childRoutes, []);
-    delete route.childRoutes;
-    route.childRoutes = childRoutes.toArray();
+    route.childRoutes = route.childRoutes.toArray();
   }
 }
 //

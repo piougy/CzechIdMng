@@ -101,7 +101,7 @@ public class SysSchemaAttributeController extends AbstractReadWriteEntityControl
 		SchemaAttributeFilter filter = new SchemaAttributeFilter();
 		filter.setObjectClassId(convertUuidParameter(parameters, "objectClassId"));
 		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setName(convertStringParameter(parameters, "name"));
+		filter.setName(convertStringParameter(parameters, "text"));
 		return filter;
 	}
 }

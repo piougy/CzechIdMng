@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 @Service
 public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
+	
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
+			.getLogger(DefaultIdmIdentityRoleService.class);
 
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -85,7 +89,9 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		IdmIdentityRole role = super.save(entity);
 
 		// TODO move to asynchronouse queue
-		getAccountManagementService().resolveIdentityAccounts(role.getIdentity());
+		if(getAccountManagementService() != null){
+			getAccountManagementService().resolveIdentityAccounts(role.getIdentity());
+		}
 
 		return role;
 	}
@@ -93,7 +99,9 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	@Override
 	public void delete(IdmIdentityRole entity) {
 		// TODO move to asynchronouse queue
-		getAccountManagementService().deleteIdentityAccount(entity);
+		if(getAccountManagementService() != null){
+			getAccountManagementService().deleteIdentityAccount(entity);
+		}
 		super.delete(entity);
 
 	}
@@ -127,7 +135,12 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	 */
 	private IdmAccountManagementService getAccountManagementService() {
 		if (accountManagementService == null) {
-			this.accountManagementService = applicationContext.getBean(IdmAccountManagementService.class);
+			try {
+				this.accountManagementService = applicationContext.getBean(IdmAccountManagementService.class);
+			} catch (NoSuchBeanDefinitionException ex) {
+				// Nothing because acc module is not have to loaded.
+				log.info(ex.getLocalizedMessage());
+			}
 		}
 		return accountManagementService;
 	}

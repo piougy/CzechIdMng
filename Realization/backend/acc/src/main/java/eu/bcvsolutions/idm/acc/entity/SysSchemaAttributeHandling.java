@@ -144,4 +144,27 @@ public class SysSchemaAttributeHandling extends AbstractEntity {
 		this.uid = uid;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isEntityAttribute() {
+		return entityAttribute;
+	}
+
+	public void setEntityAttribute(boolean entityAttribute) {
+		this.entityAttribute = entityAttribute;
+	}
+
+	public boolean isConfidentialAttribute() {
+		return confidentialAttribute;
+	}
+
+	public void setConfidentialAttribute(boolean confidentialAttribute) {
+		this.confidentialAttribute = confidentialAttribute;
+	}
 }

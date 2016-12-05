@@ -31,6 +31,5 @@ public class RoleSystemFilter implements BaseFilter {
 	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
-
 	
 }

@@ -203,7 +203,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertNull(removedAccount);
 	}
 	
-	@Test
+	//@Test
 	public void doIdentityProvisioningExtendedAttribute() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 				

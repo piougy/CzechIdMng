@@ -7,6 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.repository.projection.SysRoleSystemExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "roleSystems", //
 		path = "role-systems", //
 		itemResourceRel = "roleSystem", //
+		excerptProjection = SysRoleSystemExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface SysRoleSystemRepository extends AbstractEntityRepository<SysRoleSystem, RoleSystemFilter> {

@@ -114,6 +114,26 @@ module.exports = {
           component: require('./src/content/role/RoleSystems'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
         },
+        {
+          path: 'systems/:roleSystemId/new',
+          component: require('./src/content/role/RoleSystemDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'systems/:roleSystemId/detail',
+          component: require('./src/content/role/RoleSystemDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'systems/:roleSystemId/attributes/:attributeId/detail',
+          component: require('./src/content/role/RoleSystemAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+        },
+        {
+          path: 'systems/:roleSystemId/attributes/:attributeId/new',
+          component: require('./src/content/role/RoleSystemAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE', 'SYSTEM_READ'] } ]
+        }
       ]
     },
   ]

@@ -1,5 +1,6 @@
 import SystemService from './SystemService';
 import RoleSystemService from './RoleSystemService';
+import RoleSystemAttributeService from './RoleSystemAttributeService';
 import SystemEntityService from './SystemEntityService';
 import AccountService from './AccountService';
 import IdentityAccountService from './IdentityAccountService';
@@ -17,7 +18,8 @@ const ServiceRoot = {
   SchemaObjectClassService,
   SchemaAttributeService,
   SchemaAttributeHandlingService,
-  SystemEntityHandlingService
+  SystemEntityHandlingService,
+  RoleSystemAttributeService
 };
 
 ServiceRoot.version = '0.1.0';

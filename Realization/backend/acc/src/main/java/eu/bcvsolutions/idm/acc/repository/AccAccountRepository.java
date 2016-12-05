@@ -28,6 +28,8 @@ public interface AccAccountRepository extends AbstractEntityRepository<AccAccoun
 	        " where" +
 	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
 	        " and" +
+	        " (?#{[0].uidId} is null or e.uid = ?#{[0].uidId})" +
+	        " and" +
 	        " (?#{[0].systemEntityId} is null or se.id = ?#{[0].systemEntityId})" +
 	        " and" +
 	        " (?#{[0].identityId} is null or exists (from AccIdentityAccount ia where ia.account = e and ia.identity.id = ?#{[0].identityId}))" + 

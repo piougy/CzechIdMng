@@ -77,10 +77,9 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
-    formData.newPassword = this.refs.passwords.getNewPassword();
-    formData.newPasswordAgain = this.refs.passwords.getNewPasswordAgain();
+    formData.newPassword = this.refs.passwords.getValue();
 
-    if (formData.newPassword !== formData.newPasswordAgain) {
+    if (!this.refs.passwords.validate()) {
       return;
     }
 
@@ -154,21 +153,6 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     });
   }
 
-  _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate) {
-      this.refs[property].validate();
-      return result;
-    }
-    if (result.error) {
-      return result;
-    }
-    const opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value) {
-      return {error: {key: 'passwords_not_same'}};
-    }
-    return result;
-  }
-
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
     const { preload } = this.state;
@@ -209,7 +193,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                   <Basic.AbstractForm ref="form" className="form-horizontal">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
 
-                    <Advanced.Password className="form-control" ref="passwords" validate={this._validatePassword} />
+                    <Advanced.PasswordField className="form-control" ref="passwords" />
 
                     <Basic.EnumSelectBox
                       ref="accounts"

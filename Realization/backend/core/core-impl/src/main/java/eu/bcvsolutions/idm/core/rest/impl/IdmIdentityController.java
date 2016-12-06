@@ -126,7 +126,8 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@Override
 	public void deleteEntity(IdmIdentity identity) {
-		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
+		//throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
+		super.deleteEntity(identity);
 	}
 
 	/**

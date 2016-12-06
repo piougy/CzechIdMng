@@ -27,6 +27,10 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 public interface SysRoleSystemAttributeRepository
 		extends AbstractEntityRepository<SysRoleSystemAttribute, RoleSystemAttributeFilter> {
 
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from SysRoleSystemAttribute e" + " where"
 			+ " (?#{[0].roleSystemId} is null or e.roleSystem.id = ?#{[0].roleSystemId})")

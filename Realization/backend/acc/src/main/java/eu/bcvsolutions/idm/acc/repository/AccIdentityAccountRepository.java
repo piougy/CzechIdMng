@@ -3,11 +3,14 @@ package eu.bcvsolutions.idm.acc.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
  * Target system configuration
@@ -24,6 +27,10 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 	)
 public interface AccIdentityAccountRepository extends AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> {
 	
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from AccIdentityAccount e left join e.identityRole ir" +
 	        " where" +
@@ -41,4 +48,20 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	        " and" +
 	        " (?#{[0].ownership} is null or e.ownership = ?#{[0].ownership})")
 	Page<AccIdentityAccount> find(IdentityAccountFilter filter, Pageable pageable);
+	
+	/**
+	 * Removes mapping by given account
+	 * 
+	 * @param account
+	 * @return
+	 */
+	int deleteByAccount(@Param("account") AccAccount account);
+	
+	/**
+	 * Removes mapping by given identity
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	int deleteByIdentity(@Param("identity") IdmIdentity identity);
 }

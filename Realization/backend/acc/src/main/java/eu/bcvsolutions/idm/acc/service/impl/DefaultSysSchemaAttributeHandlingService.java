@@ -21,7 +21,6 @@ import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
@@ -55,7 +54,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	public DefaultSysSchemaAttributeHandlingService(SysSchemaAttributeHandlingRepository repository,
 			GroovyScriptService groovyScriptService, FormService formService,
 			IdmFormAttributeService formAttributeService, SysSystemService systemService) {
-		Assert.notNull(repository);
+		super(repository);
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(formService);
 		Assert.notNull(formAttributeService);
@@ -66,11 +65,6 @@ public class DefaultSysSchemaAttributeHandlingService
 		this.groovyScriptService = groovyScriptService;
 		this.formAttributeService = formAttributeService;
 		this.systemService = systemService;
-	}
-
-	@Override
-	protected AbstractEntityRepository<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> getRepository() {
-		return repository;
 	}
 
 	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling) {

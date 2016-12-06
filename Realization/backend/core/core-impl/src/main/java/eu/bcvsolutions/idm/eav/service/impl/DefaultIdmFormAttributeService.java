@@ -3,13 +3,11 @@ package eu.bcvsolutions.idm.eav.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.eav.dto.FormAttributeDefinitionFilter;
+import eu.bcvsolutions.idm.eav.dto.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
+import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 
 /**
@@ -19,20 +17,11 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
  *
  */
 @Service
-public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityService<IdmFormAttribute, FormAttributeDefinitionFilter> implements IdmFormAttributeService{
-
-	private final IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
+public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityService<IdmFormAttribute, FormAttributeFilter> implements IdmFormAttributeService{
 
 	@Autowired
-	public DefaultIdmFormAttributeService(IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository) {
-		Assert.notNull(formAttributeDefinitionRepository);
-		//
-		this.formAttributeDefinitionRepository = formAttributeDefinitionRepository;
-	}
-	
-	@Override
-	protected AbstractEntityRepository<IdmFormAttribute, FormAttributeDefinitionFilter> getRepository() {
-		return formAttributeDefinitionRepository;
+	public DefaultIdmFormAttributeService(IdmFormAttributeRepository formAttributeDefinitionRepository) {
+		super(formAttributeDefinitionRepository);
 	}
 	
 	@Override
@@ -43,6 +32,14 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 			entity.setSeq((short) 0);
 		}
 		return super.save(entity);
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmFormAttribute entity) {
+		// attribute with filled values cannot be deleted
+		
+		super.delete(entity);
 	}
 
 }

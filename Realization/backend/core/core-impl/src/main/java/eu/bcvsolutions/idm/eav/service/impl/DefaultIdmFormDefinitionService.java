@@ -7,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeDefinitionRepository;
+import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 
@@ -24,22 +23,16 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, EmptyFilter> implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
-	// TODO: form definition service
-	private final IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository;
+	private final IdmFormAttributeRepository formAttributeRepository;
 
 	@Autowired
 	public DefaultIdmFormDefinitionService(IdmFormDefinitionRepository formDefinitionRepository,
-			IdmFormAttributeDefinitionRepository formAttributeDefinitionRepository) {
-		Assert.notNull(formDefinitionRepository);
+			IdmFormAttributeRepository formAttributeDefinitionRepository) {
+		super(formDefinitionRepository);
 		Assert.notNull(formAttributeDefinitionRepository);
 		//
 		this.formDefinitionRepository = formDefinitionRepository;
-		this.formAttributeDefinitionRepository = formAttributeDefinitionRepository;
-	}
-
-	@Override
-	protected AbstractEntityRepository<IdmFormDefinition, EmptyFilter> getRepository() {
-		return formDefinitionRepository;
+		this.formAttributeRepository = formAttributeDefinitionRepository;
 	}
 	
 	/**
@@ -62,7 +55,7 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	@Transactional
 	public void delete(IdmFormDefinition entity) {
 		// delete all attributes in definition
-		formAttributeDefinitionRepository.deleteByFormDefinition(entity);
+		formAttributeRepository.deleteByFormDefinition(entity);
 		//
 		// TODO: disable definition remove with filled form instances (values)
 		// ... or remove relation to deleted definition? Requires get all

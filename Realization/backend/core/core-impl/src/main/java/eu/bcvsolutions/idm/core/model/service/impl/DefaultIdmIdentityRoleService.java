@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
@@ -37,19 +36,27 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
 			.getLogger(DefaultIdmIdentityRoleService.class);
 
-	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
-	@Autowired
-	private IdmRoleRepository roleRepository;
-	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final IdmRoleRepository roleRepository;
+	private final IdmIdentityRepository identityRepository;
+	//
 	private IdmAccountManagementService accountManagementService;
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Override
-	protected AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> getRepository() {
-		return identityRoleRepository;
+	@Autowired
+	public DefaultIdmIdentityRoleService(
+			IdmIdentityRoleRepository identityRoleRepository,
+			IdmRoleRepository roleRepository,
+			IdmIdentityRepository identityRepository) {
+		super(identityRoleRepository);
+		//
+		Assert.notNull(roleRepository);
+		Assert.notNull(identityRepository);
+		//
+		this.identityRoleRepository = identityRoleRepository;
+		this.roleRepository = roleRepository;
+		this.identityRepository = identityRepository;
 	}
 
 	@Override

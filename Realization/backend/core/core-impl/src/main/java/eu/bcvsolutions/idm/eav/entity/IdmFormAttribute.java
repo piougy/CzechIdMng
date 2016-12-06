@@ -211,7 +211,7 @@ public class IdmFormAttribute extends AbstractEntity {
 	}
 
 	/**
-	 * Attribute can not be changed by user 
+	 * Attribute cannot be changed by user 
 	 * 
 	 * @return
 	 */

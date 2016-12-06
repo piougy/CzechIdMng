@@ -30,8 +30,10 @@ import eu.bcvsolutions.idm.core.model.repository.projection.IdmRoleCatalogueExce
 		collectionResourceDescription = @Description("Role catalogues"))
 public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<IdmRoleCatalogue, RoleCatalogueFilter> {
 	
-	IdmRoleCatalogue findOneByName(@Param("name") String name);
-	
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from IdmRoleCatalogue e" +
 	        " where" +
@@ -39,6 +41,9 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	        " and (?#{[0].parent} is null or e.parent = ?#{[0].parent})")
 	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
 	
+	IdmRoleCatalogue findOneByName(@Param("name") String name);
+	
+	// TODO: pageable - see treeNode
 	@Query(value = "select e from IdmRoleCatalogue e" +
 			" where" +
 			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")

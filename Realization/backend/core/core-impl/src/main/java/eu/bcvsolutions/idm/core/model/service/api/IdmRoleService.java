@@ -7,7 +7,19 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
+/**
+ * Role service
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public interface IdmRoleService extends ReadWriteEntityService<IdmRole, RoleFilter>, IdentifiableByNameEntityService<IdmRole> {
 
-	List<IdmRole> getRolesByIds(String roles);
+	/**
+	 * Return roles by uuids in string
+	 * 
+	 * @param roles
+	 * @return
+	 */
+	List<IdmRole> getRolesByIds(String roleIds);
 }

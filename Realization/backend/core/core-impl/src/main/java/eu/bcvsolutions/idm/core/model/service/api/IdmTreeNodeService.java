@@ -16,7 +16,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Service
 public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter> {
 	
@@ -34,5 +33,5 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @param parent
 	 * @return Page of children
 	 */
-	Page<IdmTreeNode> findChildrenByParent(UUID parentId	, Pageable pageable);
+	Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable);
 }

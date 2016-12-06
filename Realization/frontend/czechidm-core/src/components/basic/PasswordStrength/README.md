@@ -1,7 +1,6 @@
-# SelectBox component
+# PasswordStrength component
 
-Component for search and select item any entity. Extended from AbstractFormComponent.
-Component supported single select and multi select mode.
+Component with password strength estimator. Estimator used from DropBox zxcvbn.
 
 ## Parameters
 
@@ -24,7 +23,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 ## Usage
 ### Select
 ```html
-<StrengthEstimator
+<PasswordStrength
   max="5"
   initialStrength="1"
   value="testPassword321!@#$" />

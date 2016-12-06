@@ -3,9 +3,9 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../basic';
 
 /**
- * Simple date formatter with default format from localization
+ * Component with two TextField and password estimator.
  */
-class Password extends Basic.AbstractContextComponent {
+class PasswordField extends Basic.AbstractFormComponent {
 
   constructor(props, context) {
     super(props, context);
@@ -17,27 +17,19 @@ class Password extends Basic.AbstractContextComponent {
   componentWillReceiveProps(nextProps) {
     this.refs.newPassword.setValue(nextProps.newPassword);
     this.refs.newPasswordAgain.setValue(nextProps.newPasswordAgain);
-    this._updateStrengthEstimator(null, nextProps.newPassword);
+    this._updatePasswordForValidation(nextProps.newPassword);
   }
 
-  getNewPassword() {
+  getValue() {
     return this.refs.newPassword.getValue();
   }
 
-  getNewPasswordAgain() {
-    return this.refs.newPasswordAgain.getValue();
-  }
+  _updatePasswordForValidation(value) {
+    let passwordForValidation = '';
 
-  _updateStrengthEstimator(event, value) {
-    if (event) {
-      event.preventDefault();
-    }
-    let passwordForValidation = null;
-
+    // if exist value, set passwordForValidation, other way set empty string
     if (value) {
       passwordForValidation = value;
-    } else {
-      passwordForValidation = this.refs.newPassword.getValue();
     }
 
     this.setState({
@@ -45,15 +37,42 @@ class Password extends Basic.AbstractContextComponent {
     });
   }
 
+  validate(showValidationError) {
+    const showValidations = showValidationError != null ? showValidationError : true;
+    if (!this.refs.newPassword.validate() || !this.refs.newPasswordAgain.validate()) {
+      return false;
+    }
+
+    return showValidations;
+  }
+
+  _validatePassword(property, onlyValidate, value, result) {
+    if (property === 'newPasswordAgain') {
+      this._updatePasswordForValidation(this.refs.newPassword.getValue());
+    }
+
+    if (onlyValidate) {
+      this.refs[property].validate();
+      return result;
+    }
+    if (result.error) {
+      return result;
+    }
+    const opositeValue = this.refs[property].getValue();
+    if (opositeValue !== value) {
+      return {error: {key: 'passwords_not_same'}};
+    }
+    return result;
+  }
+
   render() {
-    const { validate, newPassword, newPasswordAgain, type, required, readOnly, labelSpan, componentSpan } = this.props;
+    const { newPassword, newPasswordAgain, type, required, readOnly, labelSpan, componentSpan } = this.props;
     const { passwordForValidation } = this.state;
 
     return (
       <div>
         <Basic.TextField type={type} ref="newPassword" value={newPassword}
-          validate={validate.bind(this, 'newPassword', false)}
-          onChange={this._updateStrengthEstimator.bind(this)} readOnly={readOnly}
+          validate={this._validatePassword.bind(this, 'newPasswordAgain', true)} readOnly={readOnly}
           label={this.i18n('content.password.change.password')} required={required}
           labelSpan={labelSpan}
           componentSpan={componentSpan}/>
@@ -63,7 +82,7 @@ class Password extends Basic.AbstractContextComponent {
             ||
             <span className={labelSpan}></span>
           }
-          <Basic.StrengthEstimator
+          <Basic.PasswordStrength
             max={5}
             initialStrength={1}
             opacity={1}
@@ -73,7 +92,7 @@ class Password extends Basic.AbstractContextComponent {
         </div>
         <Basic.TextField type={type} ref="newPasswordAgain"
           value={newPasswordAgain} readOnly={readOnly}
-          validate={validate.bind(this, 'newPassword', false)}
+          validate={this._validatePassword.bind(this, 'newPassword', false)}
           label={this.i18n('content.password.change.passwordAgain.label')} required={required}
           labelSpan={labelSpan}
           componentSpan={componentSpan}/>
@@ -82,18 +101,15 @@ class Password extends Basic.AbstractContextComponent {
   }
 }
 
-Password.propTypes = {
+PasswordField.propTypes = {
   newPassword: PropTypes.string,
   newPasswordAgain: PropTypes.string,
   readOnly: PropTypes.bool,
-  validate: PropTypes.func,
   type: PropTypes.string,
-  required: PropTypes.bool,
-  labelSpan: PropTypes.string,
-  componentSpan: PropTypes.string
+  required: PropTypes.bool
 };
 
-Password.defaultProps = {
+PasswordField.defaultProps = {
   newPassword: '',
   readOnly: false,
   newPasswordAgain: '',
@@ -102,4 +118,4 @@ Password.defaultProps = {
 };
 
 
-export default Password;
+export default PasswordField;

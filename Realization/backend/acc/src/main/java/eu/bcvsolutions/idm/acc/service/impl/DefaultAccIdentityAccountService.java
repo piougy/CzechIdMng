@@ -14,7 +14,6 @@ import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
@@ -29,7 +28,6 @@ public class DefaultAccIdentityAccountService
 		extends AbstractReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter>
 		implements AccIdentityAccountService {
 
-	private AccIdentityAccountRepository identityAccountRepository;
 	private AccAccountService accountService;
 	private SysProvisioningService provisioningService;
 	private IdmIdentityRoleService identityRoleService;
@@ -39,20 +37,13 @@ public class DefaultAccIdentityAccountService
 
 	@Autowired
 	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
+
 			AccAccountService accountService, IdmIdentityRoleService identityRoleService) {
-		super();
-		Assert.notNull(identityAccountRepository);
+		super(identityAccountRepository);
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleService);
-
-		this.identityAccountRepository = identityAccountRepository;
 		this.accountService = accountService;
 		this.identityRoleService = identityRoleService;
-	}
-
-	@Override
-	protected AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> getRepository() {
-		return identityAccountRepository;
 	}
 	
 	@Override

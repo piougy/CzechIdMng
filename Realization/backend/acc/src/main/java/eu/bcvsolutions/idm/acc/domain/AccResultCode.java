@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import org.springframework.http.HttpStatus;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 
 /**
@@ -9,10 +10,15 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
  * Every enum contains a string message and corresponding https HttpStatus code.
  */
 public enum AccResultCode implements ResultCode {
-	CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Connector key for system %s not found!"),
-	CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Connector configuration for system %s not found!"),
-	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Connector schema for system %s not found!"),
-	
+	// connector
+	CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector key for system %s not found!"),
+	CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector configuration for system %s not found!"),
+	CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "Connector schema for system %s not found!"),
+	//
+	// system
+	SYSTEM_DELETE_FAILED_HAS_ENTITIES(HttpStatus.BAD_REQUEST, "System [%s] has system entities assigned, cannot be deleted."),
+	SYSTEM_DELETE_FAILED_HAS_ACCOUNTS(HttpStatus.BAD_REQUEST, "System [%s] has accounts assigned, cannot be deleted."),
+	//
 	// Provisioning
 	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM field %s for entity %s not found!"),
 	PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE(HttpStatus.BAD_REQUEST, "Schema attribute %s for entity %s is not updateable!"),
@@ -25,7 +31,6 @@ public enum AccResultCode implements ResultCode {
 	PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING(HttpStatus.BAD_REQUEST, "Value of UID attribute must be String, but value is %s."),
 	PROVISIONING_ATTRIBUTE_UID_NOT_FOUND(HttpStatus.NOT_FOUND, "UID attribute was not found for system %s. UID attribute is mandatory for provisioning!"),
 	PROVISIONING_DUPLICATE_ROLE_MAPPING(HttpStatus.CONFLICT, "Was found more attribute definitions for same UID for same role %s, system %s and entity type %s!");
-	
 	
 	private final HttpStatus status;
 	private final String message;
@@ -40,7 +45,7 @@ public enum AccResultCode implements ResultCode {
 	}
 	
 	public String getModule() {
-		return "acc";
+		return AccModuleDescriptor.MODULE_ID;
 	}
 	
 	public HttpStatus getStatus() {

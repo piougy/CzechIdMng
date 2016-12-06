@@ -27,9 +27,11 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface SysSystemEntityRepository extends AbstractEntityRepository<SysSystemEntity, SystemEntityFilter> {
-
-	SysSystem findOneByUidAndEntityType(@Param("uid") String uid, @Param("entityType") SystemEntityType entityType);
 	
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from SysSystemEntity e" +
 	        " where" +
@@ -40,4 +42,7 @@ public interface SysSystemEntityRepository extends AbstractEntityRepository<SysS
 	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<SysSystemEntity> find(SystemEntityFilter filter, Pageable pageable);
 	
+	SysSystem findOneByUidAndEntityType(@Param("uid") String uid, @Param("entityType") SystemEntityType entityType);
+	
+	Long countBySystem(@Param("system") SysSystem system);	
 }

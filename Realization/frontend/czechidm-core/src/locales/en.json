@@ -221,7 +221,8 @@
           "selection_0": "Vyberte záznamy ...",
           "selection_1": "Operace s vybraným záznamem:",
           "selection_2": "Operace s vybranými záznamy ({{count}}):",
-          "selection_5": "Operace s vybranými záznamy ({{count}}):"
+          "selection_5": "Operace s vybranými záznamy ({{count}}):",
+          "notImplemented": "Omlouváme se, tato operace nebyla prozatím naimplementována."
         },
         "error": {
           "load": "Při načítání záznamů do tabulky nastala chyba"
@@ -329,6 +330,11 @@
       "IS_AUTHENTICATED": "Je třeba přihlášení",
       "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
       "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
+    },
+    "AuditModificationEnum": {
+      "ADD": "vytvoření",
+      "MOD": "modifikace",
+      "DEL": "smazání"
     }
   },
   "dashboard": {
@@ -448,6 +454,7 @@
         "title": "Změna hesla",
         "passwordOld": "Staré heslo",
         "password": "Nové heslo",
+        "passwordChangeTooltip": "Síla hesla",
         "passwordAgain": {
           "label": "Heslo znovu",
           "placeholder": "Nové heslo pro kontrolu"
@@ -471,6 +478,12 @@
             }
           }
         }
+      },
+      "strength" : {
+        "weak": "slabé",
+        "okay": "normální",
+        "strong": "silné",
+        "great": "perfektní"
       }
     },
     "messages": {
@@ -915,21 +928,22 @@
         "password": {
           "old": "Původní heslo",
           "new": "Nové heslo",
-          "newAgain": "Heslo znovu"
+          "newAgain": "Heslo znovu",
+          "strength": "Síla hesla"
         },
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",
-          "CUSTOM": "Změnit heslo je možné na každém systémy zvlášť.",
-          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny systémy naráz."
+          "CUSTOM": "Změnit heslo je možné na každém účtu zvlášť.",
+          "ALL_ONLY": "Změnit heslo je možné pouze pro všechny účty naráz."
         },
-        "resources": {
+        "accounts": {
           "label": "Na systému",
           "placeholder": "Vyberte koncový systém, na kterém chcete změnit heslo"
         },
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
-          "success": "Heslo na systémech [{{resources}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
-          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném systému libovolně krát."
+          "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
+          "isAdmin": "Jste přihlášen jako administrátor. Při změně hesla není vyžadováno původní heslo a je možné jej měnit na libovolném účtu libovolně krát."
         },
         "button": {
           "change": "Změnit heslo"
@@ -1240,12 +1254,23 @@
     "audit": {
       "header": "Audit",
       "title": "Audit",
+      "title-entities": "Audit pro entity",
       "modifier": "Změnu provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
       "id": "ID",
       "profile": {
-        "userDetail": "Auditní záznám z"
+        "userDetail": "Auditní záznám identity: {{name}} z {{date}}"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        }
       }
     }
   },
@@ -1435,7 +1460,13 @@
       "secured": "Systémové nastavení"
     },
     "Audit": {
-      "label": "Audit"
+      "label": "Audit",
+      "id": "Id revize",
+      "modification": "Typ modifikace",
+      "modifier": "Změnu provedl",
+      "revisionDate": "Datum revize",
+      "changedAttributes": "Změněné atributy",
+      "type": "Typ entity"
     },
     "Module": {
       "id": "Id",
@@ -1535,13 +1566,21 @@
       "title": "Funkce je deaktivovaná",
       "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
     },
-    "TREE_TYPE_CANNOT_DELETE": {
-      "title": "Existuje závislost",
-      "message": "Na typu existuje závislost, nemůže být smazán."
+    "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Typ struktury nelze odebrat",
+      "message": "Typ struktury [{{treeType}}] již obsahuje navázané prvky. Před odebráním tohoto typu odeberte všechny jeho prvky."
     },
-    "TREE_NODE_CANNOT_DELETE": {
-      "title": "Existuje závislost",
-      "message": "Na prvku existuje závislost, nemůže být smazán."
+    "TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS": {
+      "title": "Typ struktury nelze odebrat",
+      "message": "Typ struktury [{{treeType}}] je již použit v pracovně právních vztazích. Před odebráním tohoto typu upravte všechny vztahy."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] již obsahuje navázané prvky. Před odebráním tohoto prvku odeberte všechny jeho podřízené prvky."
+    },
+    "TREE_NODE_DELETE_FAILED_HAS_CONTRACTS": {
+      "title": "Prvek struktury nelze odebrat",
+      "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
       "title": "Špatný typ prvku",
@@ -1554,8 +1593,15 @@
     "GROVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby.",
       "message": ""
+    },
+    "GROVY_SCRIPT_SECURITY_VALIDATION": {
+      "title": "Groovy skript neprošel bezpečností kontrolou!",
+      "message": "Příčina: {{message}}"
+    },
+    "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
+      "title": "Katalog rolí nelze odebrat",
+      "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
     }
-
   },
   "validationError": {
     "string": {

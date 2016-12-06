@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -30,26 +29,22 @@ public class DefaultSysRoleSystemAttributeService
 		extends AbstractReadWriteEntityService<SysRoleSystemAttribute, RoleSystemAttributeFilter>
 		implements SysRoleSystemAttributeService {
 
-	@Autowired
-	private SysRoleSystemAttributeRepository repository;
-
 	@Autowired(required = false)
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
 	private ApplicationContext applicationContext;
-
 	private AccAccountManagementService accountManagementService;
 
-	@Override
-	protected AbstractEntityRepository<SysRoleSystemAttribute, RoleSystemAttributeFilter> getRepository() {
-		return repository;
+	@Autowired
+	public DefaultSysRoleSystemAttributeService(SysRoleSystemAttributeRepository repository) {
+		super(repository);
 	}
 
 	@Override
 	public SysRoleSystemAttribute save(SysRoleSystemAttribute entity) {
 
 		SysRoleSystemAttribute roleSystemAttribute = super.save(entity);
-		
+
 		// RoleSystemAttribute was changed. We need do ACC management for all
 		// connected identities
 		IdentityAccountFilter filter = new IdentityAccountFilter();

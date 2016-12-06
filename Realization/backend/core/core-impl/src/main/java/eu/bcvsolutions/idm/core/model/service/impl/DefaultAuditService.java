@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -46,11 +45,13 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	@Autowired
-	private IdmAuditRepository auditRepository;
-	
 	@LazyCollection(LazyCollectionOption.TRUE)
 	private List<String> allAuditedEntititesNames;
+	
+	@Autowired
+	public DefaultAuditService(IdmAuditRepository auditRepository) {
+		super(auditRepository);
+	}
 	
 	@Override
 	public <T> T findRevision(Class<T> classType, UUID entityId, Long revisionNumber) throws RevisionDoesNotExistException  {
@@ -149,7 +150,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				} catch (IllegalArgumentException | IllegalAccessException | 
 						NoSuchMethodException | InvocationTargetException ex) {
 					throw new IllegalArgumentException(
-							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], can not be found name of changed columns.",
+							MessageFormat.format("For entity class [{0}] with id [{1}] and revision id [{2}], name of changed columns cannot be found.",
 									entityClass, entityId, currentRevId), ex);
 				}
 			}
@@ -197,10 +198,5 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			    .addProjection(AuditEntity.revisionNumber().max())
 			    .add(AuditEntity.id().eq(entityId))
 			    .getSingleResult();
-	}
-
-	@Override
-	protected AbstractEntityRepository<IdmAudit, AuditFilter> getRepository() {
-		return this.auditRepository;
 	}
 }

@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		path = "identity-accounts", //
 		collectionResourceRel = "identityAccounts", //
 		itemResourceRel = "identityAccount", //
+		// excerptProjection=AccIdentityAccountExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface AccIdentityAccountRepository extends AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> {
@@ -33,6 +34,8 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	        " (?#{[0].roleId} is null or ir.role.id = ?#{[0].roleId})" + 
 	        " and" +
 	        " (?#{[0].identityRoleId} is null or ir.id = ?#{[0].identityRoleId})" + 
+	        " and" +
+	        " (?#{[0].roleSystemId} is null or e.roleSystem.id = ?#{[0].roleSystemId})" + 
 	        " and" +
 	        " (?#{[0].systemId} is null or e.account.system.id = ?#{[0].systemId})" + 
 	        " and" +

@@ -8,8 +8,7 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum SystemOperationType {
 
-	PROVISIONING; 
-	// unimplemented for now
-	// RECONCILIACE,
-	//SYNCHRONISATION;
+	PROVISIONING, 
+	RECONCILIACE,// unimplemented for now
+	SYNCHRONISATION;// unimplemented for now
 }

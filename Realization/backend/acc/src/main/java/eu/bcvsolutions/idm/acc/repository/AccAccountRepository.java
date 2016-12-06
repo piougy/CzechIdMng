@@ -7,6 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.repository.projection.AccAccountExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "accounts", //
 		path = "accounts", //
 		itemResourceRel = "account", //
+		// excerptProjection = AccAccountExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose rest endpoint manually
 	)
 public interface AccAccountRepository extends AbstractEntityRepository<AccAccount, AccountFilter> {

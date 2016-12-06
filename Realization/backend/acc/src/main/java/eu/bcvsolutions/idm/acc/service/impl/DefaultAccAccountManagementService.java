@@ -135,8 +135,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 			roleSystems.stream().filter(roleSystem -> {
 
 				return !identityAccountList.stream().filter(identityAccount -> {
-					if (roleSystem.getSystem().equals(identityAccount.getAccount().getSystem())
-							&& roleSystem.getRole().equals(identityAccount.getIdentityRole().getRole())) {
+					if (roleSystem.equals(identityAccount.getRoleSystem())) {
 						
 						// Has identity account same uid as account?
 						String uid = generateUID(identity, roleSystem);
@@ -144,6 +143,11 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 							// Identity account for this role, system and uid is
 							// created
 							return true;
+						}else{
+							// We found identityAccount for same identity and roleSystem, but this identityAccount
+							// is link to Account with different UID. It's probably means definition of UID (transformation)\
+							// on roleSystem was changed. We have to delete this identityAccount. 
+							identityAccountsToDelete.add(identityAccount);
 						}
 					}
 					return false;
@@ -173,6 +177,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				identityAccount.setAccount(account);
 				identityAccount.setIdentity(identity);
 				identityAccount.setIdentityRole(identityRole);
+				identityAccount.setRoleSystem(roleSystem);
 				// TODO: Add flag ownership to SystemRole and set here.
 				identityAccount.setOwnership(true);
 

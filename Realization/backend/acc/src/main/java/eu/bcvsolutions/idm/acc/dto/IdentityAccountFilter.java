@@ -17,6 +17,7 @@ public class IdentityAccountFilter implements BaseFilter {
 	private UUID roleId;
 	private UUID systemId;
 	private UUID identityRoleId;
+	private UUID roleSystemId;
 	private Boolean ownership;
 
 	public Boolean isOwnership() {
@@ -66,4 +67,13 @@ public class IdentityAccountFilter implements BaseFilter {
 	public void setIdentityRoleId(UUID identityRoleId) {
 		this.identityRoleId = identityRoleId;
 	}
+
+	public UUID getRoleSystemId() {
+		return roleSystemId;
+	}
+
+	public void setRoleSystemId(UUID roleSystemId) {
+		this.roleSystemId = roleSystemId;
+	}
+
 }

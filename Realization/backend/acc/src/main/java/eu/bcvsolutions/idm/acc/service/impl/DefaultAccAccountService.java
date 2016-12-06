@@ -24,20 +24,18 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		implements AccAccountService {
 
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
-	private final SysProvisioningService provisioningService;
+	@Autowired(required = false)
+	private SysProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultAccAccountService(
 			AccAccountRepository accountRepository,
-			AccIdentityAccountRepository accIdentityAccountRepository,
-			SysProvisioningService provisioningService) {
+			AccIdentityAccountRepository accIdentityAccountRepository) {
 		super(accountRepository);
 		//
 		Assert.notNull(accIdentityAccountRepository);
-		Assert.notNull(provisioningService);
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
-		this.provisioningService = provisioningService;
 	}
 
 	@Override

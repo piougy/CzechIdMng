@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -24,7 +25,8 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		implements AccAccountService {
 
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
-	@Autowired(required = false)
+	@Autowired
+	private ApplicationContext applicationContext;
 	private SysProvisioningService provisioningService;
 
 	@Autowired
@@ -49,6 +51,9 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		//
 		super.delete(account);
 		// TODO move to asynchronouse queue
+		if(provisioningService == null){
+			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+		}
 		this.provisioningService.doDeleteProvisioning(account);
 	}
 }

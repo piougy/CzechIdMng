@@ -180,9 +180,9 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	@Override
 	public void doProvisioning(AccIdentityAccount identityAccount) {
 		Assert.notNull(identityAccount);
-		
+
 		String uid = identityAccount.getAccount().getUid();
-		
+
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identityAccount.getIdentity().getId());
 		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
@@ -201,8 +201,8 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 		List<MappingAttribute> finalAttributes = new ArrayList<>();
 
 		idenityAccoutnList.stream().filter(ia -> {
-			return ia.getIdentityRole() != null
-					&& ia.getAccount().getSystem() != null && ia.getAccount().getSystem().equals(identityAccount.getAccount().getSystem());
+			return ia.getIdentityRole() != null && ia.getAccount().getSystem() != null
+					&& ia.getAccount().getSystem().equals(identityAccount.getAccount().getSystem());
 		}).forEach((identityAccountInner) -> {
 			// All identity account with same system and with filled
 			// identityRole
@@ -218,8 +218,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 				SysSystemEntityHandling entityHandling = roleSystem.getSystemEntityHandling();
 				return (operationType == entityHandling.getOperationType()
-						&& entityType == entityHandling.getEntityType()
-						&& roleSystemUID.equals(uid));
+						&& entityType == entityHandling.getEntityType() && roleSystemUID.equals(uid));
 			}).collect(Collectors.toList());
 
 			if (roleSystemsForSameAccount.size() > 1) {
@@ -242,46 +241,51 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 
 		List<? extends MappingAttribute> defaultAttributes = findAttributesHandling(operationType, entityType,
 				identityAccount.getAccount().getSystem());
+		if (defaultAttributes != null) {
+			defaultAttributes.stream().forEach(defaultAttribute -> {
 
-		defaultAttributes.stream().forEach(defaultAttribute -> {
+				Optional<SysRoleSystemAttribute> overloadingAttributeOptional = roleSystemAttributesAll.stream()
+						.filter(roleSystemAttribute -> {
+							// Search attribute override same schema attribute
+							return roleSystemAttribute.getSchemaAttributeHandling().equals(defaultAttribute);
+						}).sorted((att1, att2) -> {
+							// Sort attributes by role name
+							return att1.getRoleSystem().getRole().getName()
+									.compareTo(att2.getRoleSystem().getRole().getName());
+						}).findFirst();
 
-			Optional<SysRoleSystemAttribute> overloadingAttributeOptional = roleSystemAttributesAll.stream()
-					.filter(roleSystemAttribute -> {
-						// Search attribute override same schema attribute
-						return roleSystemAttribute.getSchemaAttributeHandling().equals(defaultAttribute);
-					}).sorted((att1, att2) -> {
-						// Sort attributes by role name
-						return att1.getRoleSystem().getRole().getName()
-								.compareTo(att2.getRoleSystem().getRole().getName());
-					}).findFirst();
-
-			if (overloadingAttributeOptional.isPresent()) {
-				SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
-				// Disabled attribute will be skipped
-				if (!overloadingAttribute.isDisabledDefaultAttribute()) {
-					// We can't use instance of SchemaAttributeHandling and set up overloaded value (it is entity). 
-					// We have to create own dto and set up all values (overloaded and default)
-					MappingAttribute overloadedAttribute = new MappingAttributeDto();
-					// Default values (values from schema attribute handling)
-					overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
-					overloadedAttribute.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
-					// Overloaded values
-					overloadedAttribute.setName(overloadingAttribute.getName());
-					overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
-					overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
-					overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
-					overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
-					overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
-					overloadedAttribute.setUid(overloadingAttribute.isUid());
-					// Add modified attribute to final list
-					finalAttributes.add(overloadedAttribute);
+				if (overloadingAttributeOptional.isPresent()) {
+					SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
+					// Disabled attribute will be skipped
+					if (!overloadingAttribute.isDisabledDefaultAttribute()) {
+						// We can't use instance of SchemaAttributeHandling and
+						// set up overloaded value (it is entity).
+						// We have to create own dto and set up all values
+						// (overloaded and default)
+						MappingAttribute overloadedAttribute = new MappingAttributeDto();
+						// Default values (values from schema attribute
+						// handling)
+						overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+						overloadedAttribute
+								.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
+						// Overloaded values
+						overloadedAttribute.setName(overloadingAttribute.getName());
+						overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
+						overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
+						overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
+						overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
+						overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
+						overloadedAttribute.setUid(overloadingAttribute.isUid());
+						// Add modified attribute to final list
+						finalAttributes.add(overloadedAttribute);
+					}
+				} else {
+					// We don't have overloading attribute, we will use default
+					finalAttributes.add(defaultAttribute);
 				}
-			} else {
-				// We don't have overloading attribute, we will use default
-				finalAttributes.add(defaultAttribute);
-			}
 
-		});
+			});
+		}
 		doOperation(identityAccount.getAccount().getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
 				SystemOperationType.PROVISIONING, SystemEntityType.IDENTITY, identityAccount.getAccount().getSystem(),
 				finalAttributes);

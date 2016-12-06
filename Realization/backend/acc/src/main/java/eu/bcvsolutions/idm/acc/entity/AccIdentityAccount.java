@@ -56,6 +56,13 @@ public class AccIdentityAccount extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentityRole identityRole; // identity account is based on identity role asing and  system mapping
 	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "role_system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private SysRoleSystem roleSystem; 
+	
 	@Audited
 	@NotNull
 	@Column(name = "ownership", nullable = false)
@@ -92,4 +99,13 @@ public class AccIdentityAccount extends AbstractEntity {
 	public IdmIdentityRole getIdentityRole() {
 		return identityRole;
 	}
+
+	public SysRoleSystem getRoleSystem() {
+		return roleSystem;
+	}
+
+	public void setRoleSystem(SysRoleSystem roleSystem) {
+		this.roleSystem = roleSystem;
+	}
+
 }

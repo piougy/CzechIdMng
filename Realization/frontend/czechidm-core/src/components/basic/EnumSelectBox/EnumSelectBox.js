@@ -236,7 +236,7 @@ class EnumSelectBox extends SelectBox {
         ignoreAccents={false}
         multi={multiSelect}
         onValueClick={this.gotoContributor}
-        valueKey={SelectBox.ITEM_FULL_KEY}
+        valueKey={SelectBox.ITEM_VALUE}
         labelKey={fieldLabel}
         noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
         placeholder={this.getPlaceholder(placeholder)}

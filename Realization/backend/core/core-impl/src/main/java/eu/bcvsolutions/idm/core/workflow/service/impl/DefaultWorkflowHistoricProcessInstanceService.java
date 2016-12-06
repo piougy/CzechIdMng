@@ -93,7 +93,8 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			query.processDefinitionKey(convertProcessIdToKey(filter.getProcessDefinitionKey()));
 		}
 		if (filter.getName() != null) {
-			query.processInstanceNameLikeIgnoreCase(filter.getName());
+			// with case sensitive
+			query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
 		}
 		if (equalsVariables != null) {
 			for (String key : equalsVariables.keySet()) {

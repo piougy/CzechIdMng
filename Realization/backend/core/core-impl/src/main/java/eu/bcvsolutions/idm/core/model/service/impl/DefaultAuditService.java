@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -136,6 +137,9 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				Object currentValue;
 				try {
 					Method readMethod = PropertyUtils.getPropertyDescriptor(currentEntity, field.getName()).getReadMethod();
+					
+					// check if exists readMethod
+					Assert.notNull(readMethod, "DefaultAuditService: read method for audited field " + field.getName() + ", can't be null.");
 					
 					previousValue = readMethod.invoke(previousEntity);
 					currentValue = readMethod.invoke(currentEntity);

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.service.api;
+package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;

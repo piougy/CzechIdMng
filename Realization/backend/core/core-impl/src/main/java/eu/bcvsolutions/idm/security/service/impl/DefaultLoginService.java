@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -38,11 +39,11 @@ public class DefaultLoginService implements LoginService {
 	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.core.security.jwt.secret.token";
 	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 
-//	@Autowired
-//	private PasswordEncoder passwordEncoder;
-
 	@Autowired
 	private IdmIdentityService identityService;
+	
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
 
 	@Autowired
 	@Qualifier("objectMapper")
@@ -94,7 +95,7 @@ public class DefaultLoginService implements LoginService {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.",  username ));
 		}
-		GuardedString idmPassword = identityService.getPassword(identity);
+		GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
 		if (idmPassword == null) {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;

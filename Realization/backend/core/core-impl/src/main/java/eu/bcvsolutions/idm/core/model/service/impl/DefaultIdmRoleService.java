@@ -9,14 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
@@ -29,25 +27,35 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 @Service
 public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRole, RoleFilter>  implements IdmRoleService {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository roleRepository;
-	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final EntityEventProcessorService entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository roleRepository,
-			IdmIdentityRoleRepository identityRoleRepository) {
+			EntityEventProcessorService entityEventProcessorService) {
 		super(roleRepository);
 		//
-		Assert.notNull(identityRoleRepository);
+		Assert.notNull(entityEventProcessorService);
 		//
 		this.roleRepository = roleRepository;
-		this.identityRoleRepository = identityRoleRepository;
+		this.entityEventProcessorService = entityEventProcessorService;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRole getByName(String name) {
 		return roleRepository.findOneByName(name);
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmRole role) {
+		Assert.notNull(role);
+		//
+		LOG.debug("Deleting role [{}]", role.getName());
+		entityEventProcessorService.process(new RoleEvent(RoleOperationType.DELETE, role));
 	}
 	
 	@Override
@@ -63,15 +71,5 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 			idmRoles.add(get(UUID.fromString(id)));
 		}
 		return idmRoles;
-	}
-	
-	@Override
-	public void delete(IdmRole role) {
-		// role assigned to identity could not be deleted
-		if(identityRoleRepository.countByRole(role) > 0) {
-			throw new ResultCodeException(CoreResultCode.ROLE_DELETE_FAILED_IDENTITY_ASSIGNED, ImmutableMap.of("role", role.getName()));
-		}
-		// guarantees and compositions are deleted by hibernate mapping		
-		super.delete(role);
 	}
 }

@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.core.model.service.api;
 import java.util.List;
 import java.util.UUID;
 
-import org.activiti.engine.runtime.ProcessInstance;
-
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
@@ -12,7 +10,6 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Operations with IdmIdentity
@@ -23,6 +20,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, IdentityFilter>, IdentifiableByNameEntityService<IdmIdentity> {
 	
 	static final String PASSWORD_CONFIDENTIAL_PROPERTY = "password";
+	static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
 	
 	/**
 	 * Returns identity by given username
@@ -38,13 +36,6 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @return
 	 */
 	String getNiceLabel(IdmIdentity identity);
-
-	/**
-	 * Start workflow for change permissions
-	 * @param identity
-	 * @return
-	 */
-	ProcessInstance changePermissions(IdmIdentity identity);
 	
 	/**
 	 * Changes given identity's password
@@ -88,12 +79,4 @@ public interface IdmIdentityService extends ReadWriteEntityService<IdmIdentity, 
 	 * @return
 	 */
 	List<IdmIdentity> findAllManagers(IdmIdentity forIdentity, IdmTreeType byTreeType);
-	
-	/**
-	 * Returns identity's password
-	 * 
-	 * @param forIdentity
-	 * @return
-	 */
-	GuardedString getPassword(IdmIdentity identity);
 }

@@ -39,21 +39,6 @@ class PasswordChange extends Basic.AbstractContent {
     }
   }
 
-  _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate) {
-      this.refs[property].validate();
-      return result;
-    }
-    if (result.error) {
-      return result;
-    }
-    const opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value) {
-      return {error: {key: 'passwords_not_same'}};
-    }
-    return result;
-  }
-
   passwordChange(event) {
     if (event) {
       event.preventDefault();
@@ -66,12 +51,13 @@ class PasswordChange extends Basic.AbstractContent {
     });
     const username = this.refs.username.getValue();
     const oldPassword = this.refs.passwordOld.getValue();
-    const password = this.refs.passwords.getNewPasswordAgain();
+    const password = this.refs.passwords.getValue();
 
     identityManager.getService().passwordChange(username, {
       identity: username,
       oldPassword: btoa(oldPassword),  // base64
       newPassword: btoa(password),  // base64
+      idm: true, // TODO: all account, for now only on IDM app
       resources: []
     }, false)
     .then(response => {
@@ -164,10 +150,9 @@ class PasswordChange extends Basic.AbstractContent {
                     required
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>
-                  <Advanced.Password
+                  <Advanced.PasswordField
                     className="form-control"
                     ref="passwords"
-                    validate={this._validatePassword}
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>
                 </Basic.AbstractForm>

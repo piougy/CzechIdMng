@@ -58,15 +58,9 @@ class Profile extends Basic.AbstractContent {
     const formData = this.refs.form.getData();
 
     // add data from child component to formData
-    formData.newPassword = this.refs.passwords.getNewPassword();
-    formData.newPasswordAgain = this.refs.passwords.getNewPasswordAgain();
+    formData.password = this.refs.passwords.getValue();
 
-    if (formData.password !== formData.passwordAgain) {
-      this.addMessage({
-        key: 'form-error',
-        message: this.i18n('content.identity.profile.validation.passwordsNotMatch'),
-        level: 'warning'
-      });
+    if (!this.refs.passwords.validate()) {
       return;
     }
 
@@ -190,21 +184,6 @@ class Profile extends Basic.AbstractContent {
     return canEditMap;
   }
 
-  _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate) {
-      this.refs[property].validate();
-      return result;
-    }
-    if (result.error) {
-      return result;
-    }
-    const opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value) {
-      return {error: {key: 'passwords_not_same'}};
-    }
-    return result;
-  }
-
   render() {
     const { detail, showLoading, generatePassword, generatePasswordShowLoading, password, passwordAgain } = this.state;
 
@@ -236,12 +215,11 @@ class Profile extends Basic.AbstractContent {
                       max={255}/>
                   </div>
                   <div className="col-lg-5">
-                    <Basic.Checkbox ref="generatePassword" label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+                    <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
 
-                    <Advanced.Password
+                    <Advanced.PasswordField
                       className="form-control"
                       ref="passwords"
-                      validate={this._validatePassword}
                       type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
                       required={!generatePassword}
                       readOnly={generatePassword}

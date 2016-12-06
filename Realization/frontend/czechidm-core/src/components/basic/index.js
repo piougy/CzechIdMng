@@ -41,7 +41,7 @@ import Dropzone from './Dropzone/Dropzone';
 import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RichTextArea from './RichTextArea/RichTextArea';
-import StrengthEstimator from './StrengthEstimator/StrengthEstimator';
+import PasswordStrength from './PasswordStrength/PasswordStrength';
 
 const Components = {
   AbstractComponent,
@@ -101,7 +101,7 @@ const Components = {
   Popover,
   ScriptArea,
   RichTextArea,
-  StrengthEstimator
+  PasswordStrength
 };
 
 Components.version = '0.0.1';

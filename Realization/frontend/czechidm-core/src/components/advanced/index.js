@@ -10,7 +10,7 @@ import Tree from './Tree/Tree';
 import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
-import Password from './Password/Password';
+import PasswordField from './PasswordField/PasswordField';
 
 const Components = {
   Table,
@@ -27,7 +27,7 @@ const Components = {
   Tree,
   DetailButton,
   EavForm,
-  Password
+  PasswordField
 };
 
 Components.version = '0.0.1';

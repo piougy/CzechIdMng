@@ -454,7 +454,7 @@
         "title": "Změna hesla",
         "passwordOld": "Staré heslo",
         "password": "Nové heslo",
-        "passwordChangeTooltip": "Síla hesla",
+        "passwordChangeTooltip": "Síla hesla:",
         "passwordAgain": {
           "label": "Heslo znovu",
           "placeholder": "Nové heslo pro kontrolu"

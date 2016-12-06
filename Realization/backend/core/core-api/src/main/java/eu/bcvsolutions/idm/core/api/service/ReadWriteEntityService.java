@@ -24,6 +24,15 @@ public interface ReadWriteEntityService<E extends BaseEntity, F extends BaseFilt
 	E save(E entity);
 	
 	/**
+	 * Saves all given entities.
+	 * 
+	 * @param entities
+	 * @return the saved entities
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 */
+	Iterable<E> saveAll(Iterable<E> entities);
+	
+	/**
 	 * Deletes a given entity.
 	 * 
 	 * @param entity

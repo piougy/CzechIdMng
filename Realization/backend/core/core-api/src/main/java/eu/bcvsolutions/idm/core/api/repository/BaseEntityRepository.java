@@ -9,6 +9,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -32,6 +34,9 @@ public interface BaseEntityRepository<E extends BaseEntity, ID extends Serializa
 
 	/**
 	 * Quick filter
+	 * 
+	 * @see {@link QuickFilter}
+	 * @see {@link EmptyFilter}
 	 * 
 	 * @param filter
 	 * @param pageable

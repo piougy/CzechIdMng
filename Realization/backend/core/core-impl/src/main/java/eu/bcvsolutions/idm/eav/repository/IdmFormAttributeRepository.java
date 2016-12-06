@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.eav.dto.FormAttributeDefinitionFilter;
+import eu.bcvsolutions.idm.eav.dto.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionExcerpt;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionE
 		itemResourceRel = "formAttribute", //
 		excerptProjection = IdmFormAttributeDefinitionExcerpt.class,
 		exported = false)
-public interface IdmFormAttributeDefinitionRepository extends AbstractEntityRepository<IdmFormAttribute, FormAttributeDefinitionFilter> {
+public interface IdmFormAttributeRepository extends AbstractEntityRepository<IdmFormAttribute, FormAttributeFilter> {
 	
 	/**
 	 * Attribute definition name is unique in one form definition
@@ -43,7 +43,7 @@ public interface IdmFormAttributeDefinitionRepository extends AbstractEntityRepo
 			+ " (?#{[0].formDefinition} is null or e.formDefinition = ?#{[0].formDefinition})"
 			+ " and"
 			+ " (?#{[0].name} is null or lower(e.name) like ?#{[0].name == null ? '%' : '%'.concat([0].name.toLowerCase()).concat('%')})")
-	Page<IdmFormAttribute> find(FormAttributeDefinitionFilter filter, Pageable pageable);
+	Page<IdmFormAttribute> find(FormAttributeFilter filter, Pageable pageable);
 	
 	/**
 	 * Returns all form attributes by given definition ordered by seq

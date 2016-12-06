@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
@@ -31,19 +32,31 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 @Service
 public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
+	
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
+			.getLogger(DefaultIdmIdentityRoleService.class);
+
+	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final IdmRoleRepository roleRepository;
+	private final IdmIdentityRepository identityRepository;
+	//
+	private IdmAccountManagementService accountManagementService;
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@Autowired
-	private IdmIdentityRoleRepository identityRoleRepository;
-	@Autowired
-	private IdmRoleRepository roleRepository;
-	@Autowired
-	private IdmIdentityRepository identityRepository;
-	@Autowired(required = false)
-	private IdmAccountManagementService accountService;
-
-	@Override
-	protected AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> getRepository() {
-		return identityRoleRepository;
+	public DefaultIdmIdentityRoleService(
+			IdmIdentityRoleRepository identityRoleRepository,
+			IdmRoleRepository roleRepository,
+			IdmIdentityRepository identityRepository) {
+		super(identityRoleRepository);
+		//
+		Assert.notNull(roleRepository);
+		Assert.notNull(identityRepository);
+		//
+		this.identityRoleRepository = identityRoleRepository;
+		this.roleRepository = roleRepository;
+		this.identityRepository = identityRepository;
 	}
 
 	@Override
@@ -83,17 +96,18 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		IdmIdentityRole role = super.save(entity);
 
 		// TODO move to asynchronouse queue
-		if (accountService != null) {
-			accountService.resolveIdentityAccounts(role.getIdentity());
+		if(getAccountManagementService() != null){
+			getAccountManagementService().resolveIdentityAccounts(role.getIdentity());
 		}
+
 		return role;
 	}
-	
+
 	@Override
 	public void delete(IdmIdentityRole entity) {
 		// TODO move to asynchronouse queue
-		if (accountService != null) {
-			accountService.deleteIdentityAccount(entity);
+		if(getAccountManagementService() != null){
+			getAccountManagementService().deleteIdentityAccount(entity);
 		}
 		super.delete(entity);
 
@@ -119,5 +133,22 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
+	}
+
+	/**
+	 * TODO: remove this lazy injection after account event event will be done
+	 * 
+	 * @return
+	 */
+	private IdmAccountManagementService getAccountManagementService() {
+		if (accountManagementService == null) {
+			try {
+				this.accountManagementService = applicationContext.getBean(IdmAccountManagementService.class);
+			} catch (NoSuchBeanDefinitionException ex) {
+				// Nothing because acc module is not have to loaded.
+				log.info(ex.getLocalizedMessage());
+			}
+		}
+		return accountManagementService;
 	}
 }

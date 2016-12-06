@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -26,7 +25,6 @@ public class DefaultAccIdentityAccountService
 		extends AbstractReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter>
 		implements AccIdentityAccountService {
 
-	private AccIdentityAccountRepository identityAccountRepository;
 	private AccAccountService accountService;
 	private SysProvisioningService provisioningService;
 	
@@ -36,17 +34,11 @@ public class DefaultAccIdentityAccountService
 	@Autowired
 	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
 			AccAccountService accountService) {
-		super();
-		Assert.notNull(identityAccountRepository);
+		super(identityAccountRepository);
+		//
 		Assert.notNull(accountService);
-
-		this.identityAccountRepository = identityAccountRepository;
+		//
 		this.accountService = accountService;
-	}
-
-	@Override
-	protected AbstractEntityRepository<AccIdentityAccount, IdentityAccountFilter> getRepository() {
-		return identityAccountRepository;
 	}
 	
 	@Override

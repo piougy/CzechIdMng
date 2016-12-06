@@ -56,10 +56,11 @@ export class TypeTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: treeTypeManager.getNiceLabel(selectedEntities[0]), records: treeTypeManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: treeTypeManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(treeTypeManager.deleteEntities(selectedEntities, uiKey, (entity, error) => {
+      this.context.store.dispatch(treeTypeManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
         if (entity && error) {
-          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
-        } else {
+          this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: treeTypeManager.getNiceLabel(entity) }) }, error);
+        }
+        if (!error && successEntities) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));

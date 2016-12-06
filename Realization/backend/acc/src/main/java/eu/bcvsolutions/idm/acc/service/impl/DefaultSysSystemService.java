@@ -26,13 +26,16 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
+import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
@@ -63,14 +66,21 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 public class DefaultSysSystemService extends AbstractFormableService<SysSystem, QuickFilter>
 		implements SysSystemService {
 
-	private SysSystemRepository systemRepository;
-	private IcfConfigurationFacade icfConfiguratioFacade;
-	private SysSchemaObjectClassRepository objectClassRepository;
-	private SysSchemaAttributeRepository attributeRepository;
+	private final SysSystemRepository systemRepository;
+	private final IcfConfigurationFacade icfConfigurationFacade;
+	private final SysSchemaObjectClassService objectClassService;
+	private final SysSchemaAttributeService attributeService;
+	private final SysRoleSystemRepository roleSystemRepository;
+	private final SysSystemEntityRepository systemEntityRepository;
+	private final AccAccountRepository accountRepository;
+	private final SysSystemEntityHandlingService systemEntityHandlingService;
 	/**
 	 * Connector property type vs. eav type mapping
 	 */
 	private static final Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
+	
+	@Autowired
+	DataSource dataSource;
 
 	static {
 		// TODO: converter registration?
@@ -95,22 +105,61 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Autowired
-	DataSource dataSource;
-
-	@Autowired
-	public DefaultSysSystemService(FormService formService, SysSystemRepository systemRepository,
-			IcfConfigurationFacade icfConfigurationFacade, SysSchemaObjectClassRepository objectClassRepository,
-			SysSchemaAttributeRepository attributeRepository) {
-		super(formService);
+	public DefaultSysSystemService(
+			SysSystemRepository systemRepository,
+			FormService formService,
+			IcfConfigurationFacade icfConfigurationFacade, 
+			SysSchemaObjectClassService objectClassService,
+			SysSchemaAttributeService attributeService,
+			SysRoleSystemRepository roleSystemRepository,
+			SysSystemEntityRepository systemEntityRepository,
+			AccAccountRepository accountRepository,
+			SysSystemEntityHandlingService systemEntityHandlingService) {
+		super(systemRepository, formService);
+		//
+		Assert.notNull(icfConfigurationFacade);
+		Assert.notNull(objectClassService);
+		Assert.notNull(attributeService);
+		Assert.notNull(roleSystemRepository);
+		Assert.notNull(systemEntityRepository);
+		Assert.notNull(accountRepository);
+		Assert.notNull(systemEntityHandlingService);
+		//
 		this.systemRepository = systemRepository;
-		this.icfConfiguratioFacade = icfConfigurationFacade;
-		this.objectClassRepository = objectClassRepository;
-		this.attributeRepository = attributeRepository;
+		this.icfConfigurationFacade = icfConfigurationFacade;
+		this.objectClassService = objectClassService;
+		this.attributeService = attributeService;
+		this.roleSystemRepository = roleSystemRepository;
+		this.systemEntityRepository = systemEntityRepository;
+		this.accountRepository = accountRepository;
+		this.systemEntityHandlingService = systemEntityHandlingService;
 	}
 
 	@Override
-	protected AbstractEntityRepository<SysSystem, QuickFilter> getRepository() {
-		return systemRepository;
+	@Transactional
+	public void delete(SysSystem system) {
+		Assert.notNull(system);
+		//
+		// if exists accounts or system entities, then system could not be deleted
+		if (systemEntityRepository.countBySystem(system) > 0) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ENTITIES, ImmutableMap.of("system", system.getName()));
+		}
+		if (accountRepository.countBySystem(system) > 0) {
+			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS, ImmutableMap.of("system", system.getName()));
+		}
+		// delete all mappings
+		systemEntityHandlingService.findBySystem(system, null, null).forEach(systemEntityHandling -> {
+			systemEntityHandlingService.delete(systemEntityHandling);
+		});
+		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
+		filter.setSystemId(system.getId());	
+		objectClassService.find(filter, null).forEach(schemaObjectClass -> {
+			objectClassService.delete(schemaObjectClass);
+		});
+		// delete mapped roles
+		roleSystemRepository.deleteBySystem(system);		
+		//
+		super.delete(system);
 	}
 
 	@Override
@@ -184,7 +233,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Call ICF module and find schema for given connector key and
 		// configuration
-		IcfSchema icfSchema = icfConfiguratioFacade.getSchema(connectorKey, connectorConfig);
+		IcfSchema icfSchema = icfConfigurationFacade.getSchema(connectorKey, connectorConfig);
 		if (icfSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -194,7 +243,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		List<SysSchemaObjectClass> sysObjectClassesInSystem = null;
-		Page<SysSchemaObjectClass> page = objectClassRepository.find(objectClassFilter, null);
+		Page<SysSchemaObjectClass> page = objectClassService.find(objectClassFilter, null);
 		sysObjectClassesInSystem = page.getContent();
 
 		// Convert ICF schema to ACC entities
@@ -229,7 +278,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				attFilter.setSystemId(system.getId());
 				attFilter.setObjectClassId(sysObjectClass.getId());
 
-				Page<SysSchemaAttribute> attributesInSystemPage = attributeRepository.find(attFilter, null);
+				Page<SysSchemaAttribute> attributesInSystemPage = attributeService.find(attFilter, null);
 				attributesInSystem = attributesInSystemPage.getContent();
 			}
 			for (IcfAttributeInfo attribute : objectClass.getAttributeInfos()) {
@@ -251,8 +300,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 
 		// Persist generated schema to system
-		sysObjectClasses = (List<SysSchemaObjectClass>) objectClassRepository.save(sysObjectClasses);
-		sysAttributes = (List<SysSchemaAttribute>) attributeRepository.save(sysAttributes);
+		sysObjectClasses = (List<SysSchemaObjectClass>) objectClassService.saveAll(sysObjectClasses);
+		sysAttributes = (List<SysSchemaAttribute>) attributeService.saveAll(sysAttributes);
 	}
 
 	private SysSchemaObjectClass convertIcfObjectClassInfo(IcfObjectClassInfo objectClass,
@@ -311,7 +360,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @return
 	 */
 	private synchronized IdmFormDefinition createConnectorFormDefinition(IcfConnectorKey connectorKey) {
-		IcfConnectorConfiguration conf = icfConfiguratioFacade.getConnectorConfiguration(connectorKey);
+		IcfConnectorConfiguration conf = icfConfigurationFacade.getConnectorConfiguration(connectorKey);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
 					connectorKey.getFullName()));

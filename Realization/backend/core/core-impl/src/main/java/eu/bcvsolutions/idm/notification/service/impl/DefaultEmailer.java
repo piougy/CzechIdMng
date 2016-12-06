@@ -154,7 +154,7 @@ public class DefaultEmailer implements Emailer {
 		
 		@Override
 	    public void onFailure(Exchange exchange) {			
-			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception can not be null here
+			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception cannot be null here
 			emailService.setEmailSentLog(emailLogId, StringUtils.abbreviate(exchange.getException().toString(), DefaultFieldLengths.LOG));
 		}		
 		

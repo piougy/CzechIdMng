@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -22,7 +23,9 @@ public abstract class AbstractFormableService<E extends FormableEntity, F extend
 	private final FormService formService;
 	
 	@Autowired
-	public AbstractFormableService(FormService formService) {
+	public AbstractFormableService(AbstractEntityRepository<E, F> repository, FormService formService) {
+		super(repository);
+		//
 		Assert.notNull(formService);
 		//
 		this.formService = formService;

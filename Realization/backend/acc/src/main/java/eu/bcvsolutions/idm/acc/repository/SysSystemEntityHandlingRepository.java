@@ -26,6 +26,10 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 )
 public interface SysSystemEntityHandlingRepository extends AbstractEntityRepository<SysSystemEntityHandling, SystemEntityHandlingFilter> {
 
+	/*
+	 * (non-Javadoc)
+	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
+	 */
 	@Override
 	@Query(value = "select e from SysSystemEntityHandling e"+ 
 			" where" +

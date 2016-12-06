@@ -1,12 +1,15 @@
 package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Abstract implementation for generic CRUD operations on a repository for a
@@ -19,6 +22,10 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  */
 public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F extends BaseFilter>
 		extends AbstractReadEntityService<E, F> implements ReadWriteEntityService<E, F> {
+	
+	public AbstractReadWriteEntityService(AbstractEntityRepository<E, F> repository) {
+		super(repository);
+	}
 
 	/**
 	 * Saves a given entity. Use the returned instance for further operations as
@@ -30,7 +37,28 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	@Override
 	@Transactional
 	public E save(E entity) {
+		Assert.notNull(entity);
+		//
 		return getRepository().save(entity);
+	}
+	
+	/**
+	 * Saves all given entities.
+	 * 
+	 * @param entities
+	 * @return the saved entities
+	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
+	 */
+	@Override
+	@Transactional
+	public Iterable<E> saveAll(Iterable<E> entities) {
+		Assert.notNull(entities);
+		//
+		List<E> savedEntities = new ArrayList<>();
+		entities.forEach(entity -> {
+			savedEntities.add(save(entity));
+		});		
+		return savedEntities;
 	}
 
 	/**
@@ -43,6 +71,8 @@ public abstract class AbstractReadWriteEntityService<E extends BaseEntity, F ext
 	@Override
 	@Transactional
 	public void delete(E entity) {
+		Assert.notNull(entity);
+		//
 		getRepository().delete(entity);
 	}
 

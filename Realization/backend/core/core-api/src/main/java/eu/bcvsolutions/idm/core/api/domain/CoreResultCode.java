@@ -47,10 +47,13 @@ public enum CoreResultCode implements ResultCode {
 	TREE_NODE_BAD_PARENT(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad parent."),
 	TREE_NODE_BAD_TYPE(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad type."),
 	TREE_NODE_BAD_CHILDREN(HttpStatus.BAD_REQUEST, "Tree node: %s, have bad children."),
-	TREE_NODE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree node: %s, cannot be deleted."),
-	TREE_TYPE_CANNOT_DELETE(HttpStatus.BAD_REQUEST, "Tree type: %s, cannot be deleted."),
+	TREE_NODE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.BAD_REQUEST, "Tree node [%s] has children, cannot be deleted. Remove them at first."),
+	TREE_NODE_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.BAD_REQUEST, "Tree node [%s] has contract assigned, cannot be deleted. Remove them at first."),
+	TREE_TYPE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.BAD_REQUEST, "Tree type [%s] has children, cannot be deleted. Remove them at first."),
+	TREE_TYPE_DELETE_FAILED_HAS_CONTRACTS(HttpStatus.BAD_REQUEST, "Tree type [%s] has contract assigned, cannot be deleted. Remove them at first."),
 	// role catalogs
-	ROLE_CATALOG_BAD_PARENT(HttpStatus.BAD_REQUEST, "Role catalog: %s, have bad parent."),
+	ROLE_CATALOGUE_BAD_PARENT(HttpStatus.BAD_REQUEST, "Role catalogue [%s] has bad parent."),
+	ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.BAD_REQUEST, "Role catalogue [%s] has children, cannot be deleted. Remove them at first."),
 	//
 	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable."),
 	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled."),

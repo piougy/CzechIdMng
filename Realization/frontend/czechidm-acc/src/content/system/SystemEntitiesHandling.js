@@ -45,22 +45,6 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
     }
   }
 
-  save(entity, event) {
-    const formEntity = this.refs.form.getData();
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
-    //
-    super.save(formEntity, event);
-  }
-
-  afterSave(entity, error) {
-    if (!error) {
-      this.addMessage({ message: this.i18n('save.success', { name: entity.entityType }) });
-    } else {
-      this.addError(error);
-    }
-    super.afterSave();
-  }
-
   render() {
     const { entityId } = this.props.params;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', entityId);

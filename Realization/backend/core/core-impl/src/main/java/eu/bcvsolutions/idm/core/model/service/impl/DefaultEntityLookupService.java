@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 public class DefaultEntityLookupService implements EntityLookupService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
-	private PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
+	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<ReadEntityService<?, ?>, Class<?>> entityServices;
 	
 	@Autowired

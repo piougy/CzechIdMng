@@ -149,11 +149,13 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 ref="system"
                 manager={systemManager}
                 label={this.i18n('acc:entity.RoleSystem.system')}
+                readOnly={!isNew}
                 required/>
               <Basic.SelectBox
                 ref="systemEntityHandling"
                 manager={systemEntityHandlingManager}
                 label={this.i18n('acc:entity.RoleSystem.systemEntityHandling')}
+                readOnly={!isNew}
                 required/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>

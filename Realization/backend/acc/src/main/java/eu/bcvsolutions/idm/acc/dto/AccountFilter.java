@@ -21,6 +21,8 @@ public class AccountFilter implements BaseFilter {
 	
 	private String uid;
 	
+	private String uidId; // For search exact same uid (not like as in uid field case)
+	
 	private AccountType accountType;
 	
 	public UUID getSystemEntityId() {
@@ -62,4 +64,13 @@ public class AccountFilter implements BaseFilter {
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
 	}
+
+	public String getUidId() {
+		return uidId;
+	}
+
+	public void setUidId(String uidId) {
+		this.uidId = uidId;
+	}
+	
 }

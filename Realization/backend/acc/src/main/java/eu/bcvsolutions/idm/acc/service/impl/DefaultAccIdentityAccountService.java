@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
  * Identity accounts on target system
@@ -27,25 +30,41 @@ public class DefaultAccIdentityAccountService
 
 	private AccAccountService accountService;
 	private SysProvisioningService provisioningService;
+	private IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	@Autowired
 	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
-			AccAccountService accountService) {
+
+			AccAccountService accountService, IdmIdentityRoleService identityRoleService) {
 		super(identityAccountRepository);
-		//
 		Assert.notNull(accountService);
-		//
+		Assert.notNull(identityRoleService);
 		this.accountService = accountService;
+		this.identityRoleService = identityRoleService;
 	}
 	
 	@Override
 	public AccIdentityAccount save(AccIdentityAccount entity) {
-		AccIdentityAccount account =  super.save(entity);		
+		AccIdentityAccount account =  super.save(entity);	
+		account = this.get(account.getId());
 		getProvisioningService().doProvisioning(account);
 		return account;
+	}
+	
+	@Override
+	public AccIdentityAccount get(Serializable id) {
+		// I don't want use excerpt, so I have to do manual load account and identityRole
+		AccIdentityAccount ia =  super.get(id);
+		if(ia != null && ia.getAccount() != null){
+			ia.setAccount(accountService.get(ia.getAccount().getId()));
+		}
+		if(ia != null && ia.getIdentityRole() != null){
+			ia.setIdentityRole(identityRoleService.get(ia.getIdentityRole().getId()));
+		}
+		return ia;
 	}
 
 	@Override

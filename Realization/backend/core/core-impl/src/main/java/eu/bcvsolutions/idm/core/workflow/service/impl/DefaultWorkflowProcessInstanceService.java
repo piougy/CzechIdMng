@@ -64,7 +64,6 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	@Autowired
 	private TaskService taskService;
 
-	
 	@Override
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
 			String objectIdentifier, Map<String, Object> variables) {

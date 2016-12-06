@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
+import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
@@ -80,32 +83,48 @@ public class DefaultSysSchemaAttributeHandlingService
 	}
 
 	@Override
-	public Object transformValueToResource(Object value, SysSchemaAttributeHandling attributeHandling,
+	public Object transformValueToResource(Object value, MappingAttribute attributeHandling,
 			AbstractEntity entity) {
 		Assert.notNull(attributeHandling);
 
-		if (attributeHandling.getTransformToResourceScript() != null && !attributeHandling.getTransformToResourceScript().isEmpty()) {
+		return transformValueToResource(value, attributeHandling.getTransformToResourceScript(), entity,
+				attributeHandling.getSchemaAttribute().getObjectClass().getSystem());
+	}
+
+	@Override
+	public Object transformValueToResource(Object value, String script, AbstractEntity entity, SysSystem system) {
+		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
-			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());
+			variables.put(SYSTEM_KEY, system);
 			variables.put(ENTITY_KEY, entity);
-			return groovyScriptService.evaluate(attributeHandling.getTransformToResourceScript(), variables);
+			return groovyScriptService.evaluate(script, variables);
 		}
 
 		return value;
 	}
 
 	@Override
-	public Object transformValueFromResource(Object value, SysSchemaAttributeHandling attributeHandling,
+	public Object transformValueFromResource(Object value, MappingAttribute attributeHandling,
 			List<IcfAttribute> icfAttributes) {
 		Assert.notNull(attributeHandling);
 
-		if (attributeHandling.getTransformFromResourceScript() != null  && !attributeHandling.getTransformFromResourceScript().isEmpty()) {
+		transformValueFromResource(value, attributeHandling.getTransformFromResourceScript(), icfAttributes,
+				attributeHandling.getSchemaAttribute().getObjectClass().getSystem());
+
+		return value;
+	}
+
+	@Override
+	public Object transformValueFromResource(Object value, String script, List<IcfAttribute> icfAttributes,
+			SysSystem system) {
+
+		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
-			variables.put(SYSTEM_KEY, attributeHandling.getSystemEntityHandling().getSystem());
+			variables.put(SYSTEM_KEY, system);
 			variables.put(ICF_ATTRIBUTES_KEY, icfAttributes);
-			return groovyScriptService.evaluate(attributeHandling.getTransformFromResourceScript(), variables);
+			return groovyScriptService.evaluate(script, variables);
 		}
 
 		return value;
@@ -123,8 +142,10 @@ public class DefaultSysSchemaAttributeHandlingService
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
 		if (entity.isExtendedAttribute()) {
-			// TODO: only FormableEntity could have extended attributes - entity type should generalize FormableEntity  
-			IdmFormDefinition definition = formService.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
+			// TODO: only FormableEntity could have extended attributes - entity
+			// type should generalize FormableEntity
+			IdmFormDefinition definition = formService
+					.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
 				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
 				if (defAttribute == null) {
@@ -149,7 +170,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	 * @param definition
 	 * @return
 	 */
-	private IdmFormAttribute convertSchemaAttributeHandling(SysSchemaAttributeHandling entity,
+	private IdmFormAttribute convertSchemaAttributeHandling(MappingAttribute entity,
 			IdmFormDefinition definition) {
 
 		SysSchemaAttribute schemaAttribute = entity.getSchemaAttribute();

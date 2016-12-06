@@ -13,7 +13,7 @@ const INFO_GREAT = 'great';
 /**
  * Component for strength estimator, with string validation from zxcvbn
  */
-class StrengthEstimator extends AbstractFormComponent {
+class PasswordStrength extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
@@ -47,6 +47,7 @@ class StrengthEstimator extends AbstractFormComponent {
       } else {
         width = 0;
       }
+      width += (100 / max);
 
       let info;
       let background;
@@ -55,13 +56,13 @@ class StrengthEstimator extends AbstractFormComponent {
         background = 'green';
       } else if (width >= 50) {
         info = INFO_STRONG;
-        background = 'yellow';
+        background = 'orange';
       } else if (width >= 25) {
         info = INFO_OKAY;
-        background = 'orange';
+        background = 'red';
       } else {
         info = INFO_WEAK;
-        background = 'red';
+        background = 'darkred';
       }
 
       this.setState({
@@ -87,20 +88,19 @@ class StrengthEstimator extends AbstractFormComponent {
         trigger={triggerForTooltip}
         ref="popover"
         placement={placementForTooltip}
-        value={this.i18n(tooltip)}
+        value={this.i18n(tooltip) + ' ' + this.i18n('content.password.strength.' + info)}
         rendered={isTooltip} >
-        <span className={spanClassName} style={{ opacity }}>
+        <span className={spanClassName} style={{ opacity, paddingBottom: '2px'}}>
         <Icon icon={icon} showLoading={false} rendered={isIcon} />
             <span className="strength-estimator" style={{ width: width + '%', background }}>
             </span>
-          {this.i18n('content.password.strength.' + info)}
         </span>
       </Tooltip>
     );
   }
 }
 
-StrengthEstimator.propTypes = {
+PasswordStrength.propTypes = {
   spanClassName: PropTypes.string,
   triggerForTooltip: PropTypes.array,
   placementForTooltip: PropTypes.string,
@@ -114,7 +114,7 @@ StrengthEstimator.propTypes = {
   value: PropTypes.string
 };
 
-StrengthEstimator.defaultProps = {
+PasswordStrength.defaultProps = {
   spanClassName: 'col-sm-offset-3 col-sm-8',
   triggerForTooltip: ['hover'],
   tooltip: 'content.password.change.passwordChangeTooltip',
@@ -128,4 +128,4 @@ StrengthEstimator.defaultProps = {
 };
 
 
-export default StrengthEstimator;
+export default PasswordStrength;

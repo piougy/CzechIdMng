@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
- * Role could assign identity accont on target system.
+ * Role could assign identity account on target system.
  * 
  * @author Radek Tomiška
  *

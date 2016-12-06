@@ -48,6 +48,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
@@ -67,6 +68,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
+	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
 	private final FormService formService;
 	
@@ -80,6 +82,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
 			IdmIdentityContractService identityContractService,
 			WorkflowTaskInstanceService workflowTaskInstanceService,
+			WorkflowProcessInstanceService workflowProcessInstanceService,
 			IdmAuditService auditService) {
 		super(entityLookupService);
 		//
@@ -87,12 +90,14 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(grantedAuthoritiesFactory);
 		Assert.notNull(identityContractService);
 		Assert.notNull(workflowTaskInstanceService);
+		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(auditService);
 		//
 		this.formService = formService;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
 		this.workflowTaskInstanceService = workflowTaskInstanceService;
+		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.auditService = auditService;
 	}
 	
@@ -126,8 +131,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 */
 	@Override
 	public void deleteEntity(IdmIdentity identity) {
-		//throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
-		super.deleteEntity(identity);
+		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
 	}
 
 	/**
@@ -157,7 +161,9 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
-		ProcessInstance processInstance = getIdentityService().changePermissions(identity);
+		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(IdmIdentityService.ADD_ROLE_TO_IDENTITY_WORKFLOW,
+				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId().toString(), null);
+		//
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(processInstance.getId());
 		List<WorkflowTaskInstanceDto> tasks = (List<WorkflowTaskInstanceDto>) workflowTaskInstanceService.search(filter).getResources();

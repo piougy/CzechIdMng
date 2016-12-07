@@ -164,9 +164,7 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	public void testReadDefaultDefinition() {
-		formService.getDefinition(IdmIdentity.class);
-		
+	public void testReadDefaultDefinition() {		
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		
 		assertNotNull(formDefinition);

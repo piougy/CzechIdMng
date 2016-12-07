@@ -16,6 +16,8 @@ public class SchemaAttributeHandlingFilter implements BaseFilter {
 	
 	private UUID entityHandlingId;
 	
+	private UUID schemaAttributeId;
+	
 	private String idmPropertyName;
 
 	public UUID getEntityHandlingId() {
@@ -40,6 +42,14 @@ public class SchemaAttributeHandlingFilter implements BaseFilter {
 
 	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
+	}
+
+	public UUID getSchemaAttributeId() {
+		return schemaAttributeId;
+	}
+
+	public void setSchemaAttributeId(UUID schemaAttributeId) {
+		this.schemaAttributeId = schemaAttributeId;
 	}
 	
 }

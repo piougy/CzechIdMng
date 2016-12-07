@@ -57,13 +57,17 @@ public class DefaultSysRoleSystemAttributeService
 				identities.add(identityAccount.getIdentity());
 			}
 		});
-		identities.stream().forEach(identity -> {
-			if (accountManagementService == null) {
-				accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
-			}
-			accountManagementService.resolveIdentityAccounts(identity);
+		identities.stream().forEach(identity -> {			
+			getAccountManagementService().resolveIdentityAccounts(identity);
 		});
 
 		return roleSystemAttribute;
+	}
+	
+	private AccAccountManagementService getAccountManagementService() {
+		if (accountManagementService == null) {
+			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
+		}
+		return accountManagementService;
 	}
 }

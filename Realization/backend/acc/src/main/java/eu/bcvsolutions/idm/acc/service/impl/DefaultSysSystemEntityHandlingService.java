@@ -10,11 +10,12 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
-import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityHandlingRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
@@ -29,18 +30,18 @@ public class DefaultSysSystemEntityHandlingService extends
 		AbstractReadWriteEntityService<SysSystemEntityHandling, SystemEntityHandlingFilter> implements SysSystemEntityHandlingService {
 
 	private final SysSystemEntityHandlingRepository repository;
-	private final SysSchemaAttributeHandlingRepository schemaAttributeHandlingRepository;
+	private final SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 
 	@Autowired
 	public DefaultSysSystemEntityHandlingService(
 			SysSystemEntityHandlingRepository repository,
-			SysSchemaAttributeHandlingRepository schemaAttributeHandlingRepository) {
+			SysSchemaAttributeHandlingService schemaAttributeHandlingService) {
 		super(repository);
 		//
-		Assert.notNull(schemaAttributeHandlingRepository);
+		Assert.notNull(schemaAttributeHandlingService);
 		//
 		this.repository = repository;
-		this.schemaAttributeHandlingRepository = schemaAttributeHandlingRepository;
+		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
 	}
 	
 	public List<SysSystemEntityHandling> findBySystem(SysSystem system, SystemOperationType operation, SystemEntityType entityType){
@@ -60,7 +61,11 @@ public class DefaultSysSystemEntityHandlingService extends
 		Assert.notNull(systemEntityHandling);
 		// 
 		// remove all handled attributes
-		schemaAttributeHandlingRepository.deleteBySystemEntityHandling(systemEntityHandling);
+		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
+		filter.setEntityHandlingId(systemEntityHandling.getId());
+		schemaAttributeHandlingService.find(filter, null).forEach(schemaAttributeHandling -> {
+			schemaAttributeHandlingService.delete(schemaAttributeHandling);
+		});
 		//
 		super.delete(systemEntityHandling);
 	}

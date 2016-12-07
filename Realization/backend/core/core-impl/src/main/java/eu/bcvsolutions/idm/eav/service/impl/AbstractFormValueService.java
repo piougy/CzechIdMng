@@ -6,12 +6,15 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.eav.dto.FormValueFilter;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
@@ -118,6 +121,19 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		}
 		return getRepository().findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(owner, formDefiniton);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Page<E> find(FormValueFilter<O> filter, Pageable pageable) {
+		if (filter == null) {
+			return getRepository().findAll(pageable);
+		}
+		return getRepository().find(filter, pageable);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}

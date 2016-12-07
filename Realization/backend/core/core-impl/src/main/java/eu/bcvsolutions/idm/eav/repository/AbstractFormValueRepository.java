@@ -32,7 +32,7 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	@Query(value = "select e from #{#entityName} e " + " where"
 			+ " (?#{[0].owner} is null or e.owner = ?#{[0].owner})"
 			+ " and"
-			+ " (?#{[0].formAttribute.formDefinition} is null or e.formAttribute.formDefinition = ?#{[0].formDefinition})"
+			+ " (?#{[0].formDefinition} is null or e.formAttribute.formDefinition = ?#{[0].formDefinition})"
 			+ " and"
 			+ " (?#{[0].formAttribute} is null or e.formAttribute = ?#{[0].formAttribute})")
 	Page<E> find(FormValueFilter<O> filter, Pageable pageable);

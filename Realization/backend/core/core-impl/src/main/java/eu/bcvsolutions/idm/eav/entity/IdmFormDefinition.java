@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -57,7 +56,7 @@ public class IdmFormDefinition extends AbstractEntity {
 	
 	@Audited
 	@OrderBy("seq")
-	@OneToMany(mappedBy = "formDefinition", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "formDefinition", fetch = FetchType.EAGER)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmFormAttribute> formAttributes;

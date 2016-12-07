@@ -128,9 +128,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	
 	/**
 	 * Delete identity is not supported now
+	 * 
+	 * TODO: delete identity should depend on env configuration
 	 */
 	@Override
 	public void deleteEntity(IdmIdentity identity) {
+		// super.deleteEntity(identity);
 		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
 	}
 

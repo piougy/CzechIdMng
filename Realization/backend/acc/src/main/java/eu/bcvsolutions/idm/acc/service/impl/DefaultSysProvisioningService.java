@@ -6,8 +6,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +13,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -45,7 +43,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.IdmProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -83,7 +80,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  *
  */
 @Service
-public class DefaultSysProvisioningService implements IdmProvisioningService, SysProvisioningService {
+public class DefaultSysProvisioningService implements SysProvisioningService {
 
 	public static final String PASSWORD_IDM_PROPERTY_NAME = "password";
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
@@ -92,10 +89,7 @@ public class DefaultSysProvisioningService implements IdmProvisioningService, Sy
 	private final IcfConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private AccIdentityAccountService identityAccountService;
-	private final ConfidentialStorage confidentialStorage; // TODO: identity
-															// service (remove
-															// cycle
-															// dependencies)
+	private final ConfidentialStorage confidentialStorage;
 	private final FormService formService;
 	private final SysRoleSystemService roleSystemService;
 	private final AccAccountManagementService accountManagementService;

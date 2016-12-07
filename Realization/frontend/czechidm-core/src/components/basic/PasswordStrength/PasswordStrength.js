@@ -88,12 +88,11 @@ class PasswordStrength extends AbstractFormComponent {
         trigger={triggerForTooltip}
         ref="popover"
         placement={placementForTooltip}
-        value={this.i18n(tooltip) + ' ' + this.i18n('content.password.strength.' + info)}
+        value={`${tooltip || this.i18n('content.password.change.passwordChangeTooltip')} ${this.i18n('content.password.strength.' + info)}`}
         rendered={isTooltip} >
-        <span className={spanClassName} style={{ opacity, paddingBottom: '2px'}}>
-        <Icon icon={icon} showLoading={false} rendered={isIcon} />
-            <span className="strength-estimator" style={{ width: width + '%', background }}>
-            </span>
+        <span className={spanClassName} style={{ opacity, paddingBottom: '5px'}}>
+          <Icon icon={icon} showLoading={false} rendered={isIcon} />
+          <span className="strength-estimator" style={{ width: width + '%', background }}></span>
         </span>
       </Tooltip>
     );
@@ -117,7 +116,6 @@ PasswordStrength.propTypes = {
 PasswordStrength.defaultProps = {
   spanClassName: 'col-sm-offset-3 col-sm-8',
   triggerForTooltip: ['hover'],
-  tooltip: 'content.password.change.passwordChangeTooltip',
   placementForTooltip: 'right',
   initialStrength: 0,
   isIcon: true,

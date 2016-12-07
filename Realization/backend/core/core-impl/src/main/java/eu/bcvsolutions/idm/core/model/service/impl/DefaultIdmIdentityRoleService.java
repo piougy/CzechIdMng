@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAccountManagementService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
 /**
@@ -33,30 +33,29 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
-			.getLogger(DefaultIdmIdentityRoleService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityRoleService.class);
 
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmRoleRepository roleRepository;
 	private final IdmIdentityRepository identityRepository;
-	//
-	private IdmAccountManagementService accountManagementService;
-	@Autowired
-	private ApplicationContext applicationContext;
+	private final EntityEventProcessorService entityEventProcessorService;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmRoleRepository roleRepository,
-			IdmIdentityRepository identityRepository) {
+			IdmIdentityRepository identityRepository,
+			EntityEventProcessorService entityEventProcessorService) {
 		super(identityRoleRepository);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(identityRepository);
+		Assert.notNull(entityEventProcessorService);
 		//
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleRepository = roleRepository;
 		this.identityRepository = identityRepository;
+		this.entityEventProcessorService = entityEventProcessorService;
 	}
 
 	@Override
@@ -92,24 +91,25 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	}
 
 	@Override
+	@Transactional
 	public IdmIdentityRole save(IdmIdentityRole entity) {
-		IdmIdentityRole role = super.save(entity);
-
-		// TODO move to asynchronouse queue
-		if(getAccountManagementService() != null){
-			getAccountManagementService().resolveIdentityAccounts(role.getIdentity());
-		}
-
-		return role;
+		Assert.notNull(entity);
+		Assert.notNull(entity.getRole());
+		Assert.notNull(entity.getIdentity());
+		//
+		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
+		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleOperationType.SAVE, entity)).getContent();
 	}
 
 	@Override
+	@Transactional
 	public void delete(IdmIdentityRole entity) {
-		// TODO move to asynchronouse queue
-		if(getAccountManagementService() != null){
-			getAccountManagementService().deleteIdentityAccount(entity);
-		}
-		super.delete(entity);
+		Assert.notNull(entity);
+		Assert.notNull(entity.getRole());
+		Assert.notNull(entity.getIdentity());
+		//
+		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
+		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleOperationType.DELETE, entity));
 
 	}
 
@@ -133,22 +133,5 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());
 		identityRole.setOriginalModifier(identityRoleDto.getOriginalModifier());
 		return identityRole;
-	}
-
-	/**
-	 * TODO: remove this lazy injection after account event event will be done
-	 * 
-	 * @return
-	 */
-	private IdmAccountManagementService getAccountManagementService() {
-		if (accountManagementService == null) {
-			try {
-				this.accountManagementService = applicationContext.getBean(IdmAccountManagementService.class);
-			} catch (NoSuchBeanDefinitionException ex) {
-				// Nothing because acc module is not have to loaded.
-				log.info(ex.getLocalizedMessage());
-			}
-		}
-		return accountManagementService;
 	}
 }

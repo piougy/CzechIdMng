@@ -10,12 +10,12 @@ import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
- * Delete role - deletes all role system mappings
+ * Before role delete - deletes all role system mappings
  * 
  * @author Radek Tomiška
  *
  */
-@Order(2)
+@Order(-1)
 @Component("accRoleDeleteProcessor")
 public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	

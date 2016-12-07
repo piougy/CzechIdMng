@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.service.api.IdmProvisioningService;
+import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
@@ -19,20 +21,21 @@ import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
  * @author Radek Tomiška
  *
  */
-@Order(1000)
+@Order(ProvisioningEvent.DEFAULT_PROVISIONING_ORDER)
 @Component
 public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
-	private final IdmProvisioningService provisioningService;
+	private SysProvisioningService provisioningService;
+	private final ApplicationContext applicationContext;
 	
 	@Autowired
-	public IdentityPasswordProvisioningProcessor(IdmProvisioningService provisioningService) {
+	public IdentityPasswordProvisioningProcessor(ApplicationContext applicationContext) {
 		super(IdentityOperationType.PASSWORD);
 		//
-		Assert.notNull(provisioningService);
+		Assert.notNull(applicationContext);
 		//
-		this.provisioningService = provisioningService;
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -43,7 +46,19 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		Assert.notNull(passwordChangeDto);
 		//
 		LOG.debug("Call provisioning for idnetity password [{}]", context.getContent().getUsername());
-		provisioningService.changePassword(identity, passwordChangeDto);
+		getProvisioningService().changePassword(identity, passwordChangeDto);
 		return context;
+	}
+	
+	/**
+	 * provisioningService has dependency everywhere - so we need lazy init ...
+	 * 
+	 * @return
+	 */
+	private SysProvisioningService getProvisioningService() {
+		if (provisioningService == null) {
+			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+		}
+		return provisioningService;
 	}
 }

@@ -37,8 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmAccountManagementService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
  * Service for control account management
@@ -47,32 +46,32 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
  *
  */
 @Service
-public class DefaultAccAccountManagementService implements AccAccountManagementService, IdmAccountManagementService {
+public class DefaultAccAccountManagementService implements AccAccountManagementService {
 
 	private AccAccountService accountService;
 	private SysRoleSystemService roleSystemService;
 	private AccIdentityAccountService identityAccountService;
-	private IdmIdentityRoleService identityRoleService;
+	private IdmIdentityRoleRepository identityRoleRepository;
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
-			AccIdentityAccountService identityAccountService, IdmIdentityRoleService identityRoleService,
+			AccIdentityAccountService identityAccountService, IdmIdentityRoleRepository identityRoleRepository,
 			SysRoleSystemAttributeService roleSystemAttributeService,
 			SysSchemaAttributeHandlingService schemaAttributeHandlingService) {
 		super();
 		Assert.notNull(identityAccountService);
 		Assert.notNull(roleSystemService);
 		Assert.notNull(accountService);
-		Assert.notNull(identityRoleService);
+		Assert.notNull(identityRoleRepository);
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(schemaAttributeHandlingService);
 
 		this.roleSystemService = roleSystemService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
-		this.identityRoleService = identityRoleService;
+		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
 
@@ -89,7 +88,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
 		identityRoleFilter.setIdentityId(identity.getId());
-		List<IdmIdentityRole> identityRoles = identityRoleService.find(identityRoleFilter, null).getContent();
+		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentity(identity, null);
 
 		boolean provisioningRequired = false;
 

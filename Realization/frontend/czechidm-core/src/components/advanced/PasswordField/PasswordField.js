@@ -75,9 +75,10 @@ class PasswordField extends Basic.AbstractFormComponent {
           validate={this._validatePassword.bind(this, 'newPasswordAgain', true)} readOnly={readOnly}
           label={this.i18n('content.password.change.password')} required={required}
           labelSpan={labelSpan}
-          componentSpan={componentSpan}/>
-        <div className="form-group">
-          {
+          componentSpan={componentSpan}
+          style={{ marginBottom: 0 }}/>
+        <div className="form-group" style={{ margin: '0 -13px' }}>
+          { /* TODO: labelSpan vs offset - see public password change in small resolution - will be fixed with form-horizontal removal in the future */
             !labelSpan
             ||
             <span className={labelSpan}></span>

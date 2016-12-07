@@ -28,10 +28,10 @@ public class DefaultAccIdentityAccountService
 		extends AbstractReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter>
 		implements AccIdentityAccountService {
 
-	private AccAccountService accountService;
-	private SysProvisioningService provisioningService;
-	private IdmIdentityRoleService identityRoleService;
+	private final AccAccountService accountService;
+	private final IdmIdentityRoleService identityRoleService;
 	
+	private SysProvisioningService provisioningService;
 	@Autowired
 	private ApplicationContext applicationContext;
 

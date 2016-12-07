@@ -46,14 +46,7 @@ public class DefaultAccIdentityAccountService
 		this.identityRoleService = identityRoleService;
 	}
 	
-	@Override
-	public AccIdentityAccount save(AccIdentityAccount entity) {
-		AccIdentityAccount account =  super.save(entity);	
-		account = this.get(account.getId());
-		getProvisioningService().doProvisioning(account);
-		return account;
-	}
-	
+
 	@Override
 	public AccIdentityAccount get(Serializable id) {
 		// I don't want use excerpt, so I have to do manual load account and identityRole

@@ -6,11 +6,13 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -29,12 +31,16 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
 
 	@Autowired
-	private IdmFormDefinitionService formDefinitionService;
-	
+	private IdmFormDefinitionService formDefinitionService;	
 	@Autowired
-	private IdmFormAttributeRepository formAttributeDefinitionRepository;
+	private IdmFormAttributeRepository formAttributeRepository;
 	
 	private Random r = new Random();
+	
+	@Before
+	public void login() {
+		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
 	
 	/**
 	 * Creates definition
@@ -68,7 +74,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 			attributeDefinition.setName("name_" + i);
 			attributeDefinition.setDisplayName(attributeDefinition.getName());
 			attributeDefinition.setPersistentType(PersistentType.TEXT);			
-			formAttributeDefinitionRepository.save(attributeDefinition);
+			formAttributeRepository.save(attributeDefinition);
 		}
 		if (log) {
 			result.childrenCreateTime = (double) System.currentTimeMillis() - startTime;
@@ -77,7 +83,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 				result.childrenCreateTime = result.childrenCreateTime / attributeCount;
 			}
 			startTime = System.currentTimeMillis();
-			int realAttributeCount = formAttributeDefinitionRepository.findByFormDefinitionOrderBySeq(formDefinition).size();
+			int realAttributeCount = formAttributeRepository.findByFormDefinitionOrderBySeq(formDefinition).size();
 			assertEquals(attributeCount, realAttributeCount);
 			result.childrenLoadTime = System.currentTimeMillis() - startTime;
 			LOG.info("--- {}ms:  After definition [{}] attributes load, attributes count [{}]", result.childrenLoadTime, name, realAttributeCount);
@@ -93,7 +99,7 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 		
 		formDefinitionService.delete(formDefinition);
 		
-		assertEquals(0, formAttributeDefinitionRepository.findByFormDefinitionOrderBySeq(formDefinition).size());
+		assertEquals(0, formAttributeRepository.findByFormDefinitionOrderBySeq(formDefinition).size());
 	}
 	
 	@Test

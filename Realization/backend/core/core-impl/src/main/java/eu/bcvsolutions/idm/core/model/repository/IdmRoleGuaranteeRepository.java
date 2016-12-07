@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -34,6 +36,8 @@ public interface IdmRoleGuaranteeRepository extends AbstractEntityRepository<Idm
 	@Override
 	@Query(value = "select e from #{#entityName} e")
 	Page<IdmRoleGuarantee> find(EmptyFilter filter, Pageable pageable);
+	
+	List<IdmRoleGuarantee> findAllByRole(@Param("role") IdmRole role);
 	
 	/**
 	 * Removes guarantee by given identity

@@ -4,8 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
+import eu.bcvsolutions.idm.eav.dto.FormValueFilter;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
@@ -47,6 +50,15 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param definiton
 	 */
 	List<E> getValues(O owner, IdmFormDefinition formDefiniton);
+	
+	/**
+	 * Returns page of entities by given filter
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	Page<E> find(FormValueFilter<O> filter, Pageable pageable);
 	
 	/**
 	 * Deletes form value

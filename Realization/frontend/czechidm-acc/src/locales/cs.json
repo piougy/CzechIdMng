@@ -303,10 +303,13 @@
       "multivalued": "Obsahuje více hodnot"
     },
     "SchemaAttributeHandling": {
-      "idmPropertyName": "Název IDM atributu",
+      "name": "Název",
+      "idmPropertyName": "IDM klíč",
       "schemaAttribute": "Atribut ve schéma",
       "systemEntityHandling": "Podskupina",
       "extendedAttribute": "Rozšířený atribut",
+      "confidentialAttribute": "Tajný atribut",
+      "entityAttribute": "Atribut entity",
       "transformationFromResource": "Transfor. ze systému",
       "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
@@ -317,8 +320,14 @@
         "label": "Transformace do systému",
         "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IDM entita 'entity'."
       },
-      "uid": "Je identifikátorem",
-      "uidTooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."
+      "uid": {
+        "label": "Je identifikátorem",
+        "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."
+      },
+      "disabledAttribute": {
+        "label": "Je deaktivován",
+        "tooltip": "Pokud je atribut deaktováván nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
+      }
     },
     "RoleSystemAttribute": {
       "name": "Název atributu",

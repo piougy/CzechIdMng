@@ -183,6 +183,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
             manager={schemaAttributeHandlingManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].disabledAttribute ? 'disabled' : ''; }}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
               ?
@@ -237,12 +238,12 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
               }/>
               <Advanced.ColumnLink
                 to="schema-attributes-handling/:id/detail"
-                property="idmPropertyName"
-                header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
+                property="name"
+                header={this.i18n('acc:entity.SchemaAttributeHandling.name')}
                 sort />
-              <Advanced.Column property="schemaAttribute.name" header={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')} sort/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')} sort/>
               <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
               <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationFromResource')}/>
               <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationToResource')}/>
             </Advanced.Table>

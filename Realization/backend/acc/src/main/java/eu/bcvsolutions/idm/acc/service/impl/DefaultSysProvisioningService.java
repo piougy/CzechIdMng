@@ -137,10 +137,17 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			return;
 		}
 
+		List<AccAccount> accounts = new ArrayList<>();
 		idenityAccoutnList.stream().filter(ia -> {
 			return ia.isOwnership();
 		}).forEach((identityAccount) -> {
-			doProvisioning(identityAccount);
+			if(!accounts.contains(identityAccount.getAccount())){
+				accounts.add(identityAccount.getAccount());
+			}
+		});
+		
+		accounts.stream().forEach(account -> {
+			this.doProvisioning(account.getUid(), identity, account.getSystem());
 		});
 	}
 
@@ -165,18 +172,17 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		idenittyAccoutnList.stream().filter(identityAccount -> {
 			return identityAccount.isOwnership();
 		}).forEach((identityAccount) -> {
-			doProvisioning(identityAccount);
+			doProvisioning(identityAccount.getAccount().getUid(), identityAccount.getIdentity(), identityAccount.getAccount().getSystem());
 		});
 	}
 
 	@Override
-	public void doProvisioning(AccIdentityAccount identityAccount) {
-		Assert.notNull(identityAccount);
+	public void doProvisioning(String uid, IdmIdentity identity, SysSystem system) {
+		Assert.notNull(uid);
 
-		String uid = identityAccount.getAccount().getUid();
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identityAccount.getIdentity().getId());
+		filter.setIdentityId(identity.getId());
 		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
@@ -189,19 +195,19 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		// All role system attributes (overloading) for this uid and same system
 		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid,
-				identityAccount.getIdentity(), identityAccount.getAccount().getSystem(), idenityAccoutnList,
+				identity, system, idenityAccoutnList,
 				operationType, entityType);
 
 		// All default mapped attributes from system
 		List<? extends MappingAttribute> defaultAttributes = findAttributesHandling(operationType, entityType,
-				identityAccount.getAccount().getSystem());
+				system);
 
 		// Final list of attributes use for provisioning
-		List<MappingAttribute> finalAttributes = compileAttributes(identityAccount, defaultAttributes,
+		List<MappingAttribute> finalAttributes = compileAttributes(defaultAttributes,
 				roleSystemAttributesAll);
 
-		doOperation(identityAccount.getAccount().getUid(), identityAccount.getIdentity(), AccountOperationType.UPDATE,
-				operationType, entityType, identityAccount.getAccount().getSystem(), finalAttributes);
+		doOperation(uid, identity, AccountOperationType.UPDATE,
+				operationType, entityType, system, finalAttributes);
 
 	}
 
@@ -213,8 +219,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param overloadingAttributes
 	 * @return
 	 */
-	private List<MappingAttribute> compileAttributes(AccIdentityAccount identityAccount,
-			List<? extends MappingAttribute> defaultAttributes, List<SysRoleSystemAttribute> overloadingAttributes) {
+	private List<MappingAttribute> compileAttributes(List<? extends MappingAttribute> defaultAttributes, List<SysRoleSystemAttribute> overloadingAttributes) {
 		List<MappingAttribute> finalAttributes = new ArrayList<>();
 		if (defaultAttributes == null) {
 			return null;
@@ -227,8 +232,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 						return roleSystemAttribute.getSchemaAttributeHandling().equals(defaultAttribute);
 					}).sorted((att1, att2) -> {
 						// Sort attributes by role name
-						return att1.getRoleSystem().getRole().getName()
-								.compareTo(att2.getRoleSystem().getRole().getName());
+						return att2.getRoleSystem().getRole().getName()
+								.compareTo(att1.getRoleSystem().getRole().getName());
 					}).findFirst();
 
 			if (overloadingAttributeOptional.isPresent()) {

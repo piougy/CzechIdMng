@@ -33,7 +33,7 @@ public interface SysProvisioningService {
 	 * 
 	 * @param identityAccount
 	 */
-	void doProvisioning(AccIdentityAccount identityAccount);
+	public void doProvisioning(String uid, IdmIdentity identity, SysSystem system);
 
 	/**
 	 * Do delete provisioning for given account on connected system

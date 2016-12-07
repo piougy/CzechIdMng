@@ -39,6 +39,17 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
 	}
+	
+	@Override
+	public AccAccount save(AccAccount entity) {
+		AccAccount account =  super.save(entity);
+		if(provisioningService == null){
+			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+		}
+		this.provisioningService.doProvisioning(account);
+		
+		return account;
+	}
 
 	@Override
 	@Transactional

@@ -37,11 +37,11 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 
 	@Audited
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 
 	@Audited
-	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "idm_property_name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String idmPropertyName;
 
@@ -61,6 +61,10 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystemEntityHandling systemEntityHandling;
 
+	@Audited
+	@Column(name = "disabled_attribute", nullable = false)
+	private boolean disabledAttribute = false;
+	
 	@Audited
 	@Column(name = "extended_attribute", nullable = false)
 	private boolean extendedAttribute = false;
@@ -184,4 +188,15 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 	public void setConfidentialAttribute(boolean confidentialAttribute) {
 		this.confidentialAttribute = confidentialAttribute;
 	}
+
+	@Override
+	public boolean isDisabledAttribute() {
+		return disabledAttribute;
+	} 
+
+	@Override
+	public void setDisabledAttribute(boolean disabledAttribute) {
+		this.disabledAttribute = disabledAttribute;
+	}
+
 }

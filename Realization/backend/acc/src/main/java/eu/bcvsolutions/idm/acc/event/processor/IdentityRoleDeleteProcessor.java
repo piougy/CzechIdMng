@@ -14,12 +14,12 @@ import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
 /**
- * Identity role account management after delete
+ * Identity role account management before delete
  * 
  * @author Radek Tomiška
  *
  */
-@Order(ProvisioningEvent.DEFAULT_PROVISIONING_ORDER)
+@Order(-1)
 @Component("accIdentityRoleDeleteProcessor")
 public class IdentityRoleDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 

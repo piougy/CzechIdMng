@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -141,9 +142,7 @@ public class DefaultSysSchemaAttributeHandlingService
 		if (entity.getTransformToResourceScript() != null) {
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
-		if (entity.isExtendedAttribute()) {
-			// TODO: only FormableEntity could have extended attributes - entity
-			// type should generalize FormableEntity
+		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entity.getSystemEntityHandling().getEntityType().getEntityType())) {
 			IdmFormDefinition definition = formService
 					.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
@@ -187,13 +186,13 @@ public class DefaultSysSchemaAttributeHandlingService
 		IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 		attributeDefinition.setSeq((short) 0);
 		attributeDefinition.setName(entity.getIdmPropertyName());
-		attributeDefinition.setDisplayName(entity.getIdmPropertyName());
+		attributeDefinition.setDisplayName(entity.getName());
 		// TODO: refactor converters to stand alone service
 		attributeDefinition.setPersistentType(DefaultSysSystemService.convertPropertyType(schemaAttribute.getClassType()));
 		attributeDefinition.setRequired(schemaAttribute.isRequired());
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());
-		attributeDefinition.setConfidential(schemaAttribute.getClassType().equals(GuardedString.class.getName()));
+		attributeDefinition.setConfidential(entity.isConfidentialAttribute());
 		attributeDefinition.setFormDefinition(definition);
 		attributeDefinition.setDescription(
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",

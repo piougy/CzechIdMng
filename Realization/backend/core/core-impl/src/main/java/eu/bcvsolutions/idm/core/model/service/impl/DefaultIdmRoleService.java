@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 

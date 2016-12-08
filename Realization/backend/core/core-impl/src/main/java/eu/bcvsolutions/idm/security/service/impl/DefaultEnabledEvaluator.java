@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.security.service.impl;
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,9 +8,9 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.security.api.exception.ConfigurationDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ModuleDisabledException;
 import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
-import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
-import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
 
 /**
  * Evaluates {@link Enabled} annotation.
@@ -21,7 +18,6 @@ import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
  * @author Radek Tomiška
  *
  */
-@Aspect
 @Component
 public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	
@@ -48,7 +44,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 		Assert.notNull(enabled);
 		//
 		try {
-			checkIsEnabled(enabled);
+			checkEnabled(enabled);
 		} catch(ModuleDisabledException|ConfigurationDisabledException ex) {
 			return false;
 		}
@@ -85,32 +81,19 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 		}
 		return isEnabled(enabled);
 	}
-
-	/**
-	 * Checks enabled modules and configuration properties
-	 * 
-	 * @param jp
-	 * @param bean
-	 * @param ifEnabled
-	 * @throws ModuleDisabledException if any module is disabled
-	 * @throws ConfigurationDisabledException if any property is disabled
-	 */
-	@Before(value = "target(bean) && (@annotation(ifEnabled) || @within(ifEnabled))", argNames="bean,ifEnabled")
-	public void checkIsEnabled(JoinPoint jp, Object bean, Enabled ifEnabled) {
-		checkIsEnabled(ifEnabled);
-	}
 	
 	/**
 	 * Checks enabled modules and configuration properties
 	 * 
 	 * @param ifEnabled
 	 */
-	private void checkIsEnabled(Enabled ifEnabled) {
+	@Override
+	public void checkEnabled(Enabled enabled) {
 		// modules
-		checkEnabledModules(ifEnabled.module());
-		checkEnabledModules(ifEnabled.value());
+		checkEnabledModules(enabled.module());
+		checkEnabledModules(enabled.value());
 		// properties
-		checkEnabledProperties(ifEnabled.property());
+		checkEnabledProperties(enabled.property());
 	}
 	
 	/**

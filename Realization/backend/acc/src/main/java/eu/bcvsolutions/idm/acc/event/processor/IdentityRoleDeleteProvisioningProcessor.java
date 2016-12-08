@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -14,7 +13,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
@@ -23,9 +22,8 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  * @author Radek Tomiška
  *
  */
-@Enabled(AccModuleDescriptor.MODULE_ID)
-@Order(-ProvisioningEvent.DEFAULT_PROVISIONING_ORDER)
 @Component
+@Enabled(AccModuleDescriptor.MODULE_ID)
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
 	private AccAccountManagementService accountManagementService;
@@ -45,6 +43,11 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		getAccountManagementService().deleteIdentityAccount(event.getContent());
 		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	@Override
+	public int getOrder() {
+		return -ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
 	}
 	
 	/**

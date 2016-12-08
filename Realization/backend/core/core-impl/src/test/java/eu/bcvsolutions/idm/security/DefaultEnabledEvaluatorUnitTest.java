@@ -14,8 +14,8 @@ import org.mockito.Mock;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
-import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ConfigurationDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ModuleDisabledException;
 import eu.bcvsolutions.idm.security.service.impl.DefaultEnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
@@ -85,7 +85,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testEmptyAsTrue() {
 		// no exception occurs
 		Enabled enabled = prepareAnnotation(null, null, false);
-		evaluator.checkIsEnabled(null, null, enabled);
+		evaluator.checkEnabled(enabled);
 		assertTrue(evaluator.isEnabled(enabled));
 	}
 
@@ -93,7 +93,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testEnabledModuleOne() {
 		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(true);
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(new String[]{ MODULE_ONE}, null, false));
+			evaluator.checkEnabled(prepareAnnotation(new String[]{ MODULE_ONE}, null, false));
 		} finally {
 			verify(moduleService).isEnabled(MODULE_ONE);
 		}
@@ -103,7 +103,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testDisabledModuleOne() {
 		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(false);
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(new String[]{ MODULE_ONE}, null, false));
+			evaluator.checkEnabled(prepareAnnotation(new String[]{ MODULE_ONE}, null, false));
 		} finally {
 			verify(moduleService).isEnabled(MODULE_ONE);
 		}
@@ -113,7 +113,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testEnabledModuleOneAsValue() {
 		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(true);
 		
-		evaluator.checkIsEnabled(null, null, prepareAnnotation(new String[]{ MODULE_ONE}, null, true));
+		evaluator.checkEnabled(prepareAnnotation(new String[]{ MODULE_ONE}, null, true));
 		
 		verify(moduleService).isEnabled(MODULE_ONE);
 	}
@@ -122,7 +122,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testDisabledModuleOneAsValue() {
 		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(false);
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(new String[]{ MODULE_ONE}, null, true));
+			evaluator.checkEnabled(prepareAnnotation(new String[]{ MODULE_ONE}, null, true));
 		} finally {
 			verify(moduleService).isEnabled(MODULE_ONE);
 		}
@@ -132,7 +132,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	public void testEnabledPropertyOne() {
 		when(configurationService.getBooleanValue(PROPERTY_ONE, false)).thenReturn(true);
 		
-		evaluator.checkIsEnabled(null, null, prepareAnnotation(null, new String[]{ PROPERTY_ONE}, true));
+		evaluator.checkEnabled(prepareAnnotation(null, new String[]{ PROPERTY_ONE}, true));
 		
 		verify(configurationService).getBooleanValue(PROPERTY_ONE, false);
 	}
@@ -143,7 +143,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 		when(configurationService.getBooleanValue(PROPERTY_ONE, false)).thenReturn(false);
 		
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(null, new String[]{ PROPERTY_ONE}, true));
+			evaluator.checkEnabled(prepareAnnotation(null, new String[]{ PROPERTY_ONE}, true));
 		} finally {
 			verify(configurationService).getBooleanValue(PROPERTY_ONE, false);
 		}
@@ -154,7 +154,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(true);
 		when(moduleService.isEnabled(MODULE_TWO)).thenReturn(false);
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(new String[]{ MODULE_ONE, MODULE_TWO}, null, true));
+			evaluator.checkEnabled(prepareAnnotation(new String[]{ MODULE_ONE, MODULE_TWO}, null, true));
 		} finally {
 			verify(moduleService).isEnabled(MODULE_ONE);
 			verify(moduleService).isEnabled(MODULE_TWO);
@@ -166,7 +166,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 		when(configurationService.getBooleanValue(PROPERTY_ONE, false)).thenReturn(true);
 		when(configurationService.getBooleanValue(PROPERTY_TWO, false)).thenReturn(false);
 		try {
-			evaluator.checkIsEnabled(null, null, prepareAnnotation(null, new String[]{ PROPERTY_ONE, PROPERTY_TWO}, true));
+			evaluator.checkEnabled(prepareAnnotation(null, new String[]{ PROPERTY_ONE, PROPERTY_TWO}, true));
 		} finally {
 			verify(configurationService).getBooleanValue(PROPERTY_ONE, false);
 			verify(configurationService).getBooleanValue(PROPERTY_TWO, false);

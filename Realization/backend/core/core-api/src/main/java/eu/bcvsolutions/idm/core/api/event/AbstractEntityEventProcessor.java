@@ -8,6 +8,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 /**
  * Single entity event processor
  * 
+ * 
+ * 
  * @author Radek Tomiška
  *
  * @param <E> {@link AbstractEntity} type

@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.security.api.service;
 
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.security.api.exception.ConfigurationDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ModuleDisabledException;
 
 /**
  * Evaluates {@link Enabled} annotation.
@@ -33,5 +35,14 @@ public interface EnabledEvaluator {
 	 * @return
 	 */
 	boolean isEnabled(Class<?> clazz);
+	
+	/**
+	 * Checks enabled modules and configuration properties
+	 * 
+	 * @param enabled
+	 * @throws ModuleDisabledException if any module is disabled
+	 * @throws ConfigurationDisabledException if any property is disabled
+	 */
+	void checkEnabled(Enabled enabled);
 	
 }

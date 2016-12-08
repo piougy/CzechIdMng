@@ -13,9 +13,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
@@ -23,9 +23,9 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
-import eu.bcvsolutions.idm.core.model.event.RoleEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorManager;
 import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -114,7 +114,6 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 		verify(enabledEvaluator).isEnabled(roleEventProcessor);
 	}
 
-	@Order(1)
 	private class EventProcessorOne extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorOne() {
@@ -127,9 +126,13 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 			return new DefaultEventResult<>(event, this);
 		}
 
+		@Override
+		public int getOrder() {
+			return 1;
+		}
+
 	}
 	
-	@Order(2)
 	private class EventProcessorTwo extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorTwo() {
@@ -141,10 +144,14 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 			event.getContent().setUsername("two");
 			return new DefaultEventResult<>(event, this, true);
 		}
+		
+		@Override
+		public int getOrder() {
+			return 2;
+		}
 
 	}
 	
-	@Order(3)
 	private class EventProcessorThree extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorThree() {
@@ -157,9 +164,12 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 			return new DefaultEventResult<>(event, this, true);
 		}
 
+		@Override
+		public int getOrder() {
+			return 3;
+		}
 	}
 	
-	@Order(4)
 	private class EventProcessorFive extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorFive() {
@@ -171,11 +181,15 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 			event.getContent().setUsername("three");
 			return new DefaultEventResult<>(event, this, true);
 		}
+		
+		@Override
+		public int getOrder() {
+			return 4;
+		}
 
 	}
 	
-	@Order(0)
-	private class RoleEventProcessor extends AbstractEntityEventProcessor<IdmRole> {
+	private class RoleEventProcessor extends CoreEventProcessor<IdmRole> {
 
 		public RoleEventProcessor() {
 			super(RoleEventType.DELETE);

@@ -9,9 +9,11 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
 
 /**
  * Before identity delete - deletes all identity accounts
@@ -28,7 +30,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	
 	@Autowired
 	public IdentityDeleteProcessor(ApplicationContext applicationContext) {
-		super(IdentityOperationType.DELETE);
+		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -36,15 +38,13 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	}
 
 	@Override
-	public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		Assert.notNull(event.getContent());
-		//
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
 		getIdentityAccountService().find(filter, null).forEach(identityAccount -> {
 			getIdentityAccountService().delete(identityAccount);
 		});
-		return event;
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

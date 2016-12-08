@@ -9,10 +9,12 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.event.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 
@@ -33,7 +35,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	public RoleDeleteProcessor(
 			IdmRoleRepository repository,
 			IdmIdentityRoleRepository identityRoleRepository) {
-		super(RoleOperationType.DELETE);
+		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(identityRoleRepository);
@@ -43,8 +45,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	}
 
 	@Override
-	public EntityEvent<IdmRole> process(EntityEvent<IdmRole> event) {
-		Assert.notNull(event.getContent());
+	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
 		IdmRole role = event.getContent();
 		
 		// role assigned to identity could not be deleted
@@ -53,6 +54,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 		}
 		// guarantees and compositions are deleted by hibernate mapping
 		repository.delete(role);
-		return event;
+		//
+		return new DefaultEventResult<>(event, this);
 	}
 }

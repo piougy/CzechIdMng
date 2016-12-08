@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,6 +41,11 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	@Before
 	public void login() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
+	
+	@After 
+	public void logout() {
+		super.logout();
 	}
 	
 	/**

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEvent;
-import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -15,11 +14,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 public class RoleEvent extends AbstractEntityEvent<IdmRole> {
 
-	public RoleEvent(RoleOperationType operation, IdmRole content) {
+	public RoleEvent(RoleEventType operation, IdmRole content) {
 		super(operation, content);
 	}
 	
-	public RoleEvent(RoleOperationType operation, IdmRole content, Map<String, Serializable> properties) {
+	public RoleEvent(RoleEventType operation, IdmRole content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

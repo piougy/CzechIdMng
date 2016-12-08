@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventContext;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
+import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
 
 /**
  * Entity processing based on spring plugins
@@ -21,12 +24,12 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
  *
  */
 @Service
-public class DefaultEntityEventProcessorService implements EntityEventProcessorService {
+public class DefaultEntityEventProcessorManager implements EntityEventProcessorManager {
 
 	private final PluginRegistry<EntityEventProcessor<?>, EntityEvent<?>> entityProcessors;
 	
 	@Autowired
-	public DefaultEntityEventProcessorService(List<? extends EntityEventProcessor<?>> entityProcessors) {
+	public DefaultEntityEventProcessorManager(List<? extends EntityEventProcessor<?>> entityProcessors) {
 		Assert.notNull(entityProcessors, "Entity processors are required");
 		//
 		this.entityProcessors = OrderAwarePluginRegistry.create(entityProcessors);
@@ -36,17 +39,27 @@ public class DefaultEntityEventProcessorService implements EntityEventProcessorS
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <E extends AbstractEntity> EntityEvent<E> process(EntityEvent<E> event) {		
-		// TODO: immutable event = context - clone
-		for(EntityEventProcessor<E> processor : getProcessors(event)) {
-			event = processor.process(event);
+	public <E extends AbstractEntity> EventContext<E> process(EntityEvent<E> event) {		
+		return process(event, new DefaultEventContext<>());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <E extends AbstractEntity> EventContext<E> process(EntityEvent<E> event, EventContext<E> context) {
+		EntityEvent<E> processEvent = event;
+		for(EntityEventProcessor<E> processor : getProcessors(processEvent)) {
+			EventResult<E> eventResult = processor.process(processEvent, context);
+			// add result to history
+			context.addResult(eventResult);
 			//
 			//  no other events will be processed (break event chain)
-			if (event.isComplete()) {
+			if (eventResult.isCompleted()) {
 				break;
 			}
 		}		
-		return event;
+		return context;
 	}
 	
 	@SuppressWarnings("unchecked")

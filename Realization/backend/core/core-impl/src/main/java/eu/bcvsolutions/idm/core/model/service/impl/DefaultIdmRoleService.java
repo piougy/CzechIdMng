@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
 import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
@@ -29,12 +29,12 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository roleRepository;
-	private final EntityEventProcessorService entityEventProcessorService;
+	private final EntityEventProcessorManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository roleRepository,
-			EntityEventProcessorService entityEventProcessorService) {
+			EntityEventProcessorManager entityEventProcessorService) {
 		super(roleRepository);
 		//
 		Assert.notNull(entityEventProcessorService);
@@ -55,7 +55,7 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 		Assert.notNull(role);
 		//
 		LOG.debug("Deleting role [{}]", role.getName());
-		entityEventProcessorService.process(new RoleEvent(RoleOperationType.DELETE, role));
+		entityEventProcessorService.process(new RoleEvent(RoleEventType.DELETE, role));
 	}
 	
 	@Override

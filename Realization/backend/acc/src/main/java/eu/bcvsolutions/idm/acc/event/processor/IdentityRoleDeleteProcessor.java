@@ -9,9 +9,11 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
 
 /**
  * Identity role account management before delete
@@ -28,7 +30,7 @@ public class IdentityRoleDeleteProcessor extends AbstractEntityEventProcessor<Id
 
 	@Autowired
 	public IdentityRoleDeleteProcessor(ApplicationContext applicationContext) {
-		super(IdentityRoleOperationType.DELETE);
+		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -36,12 +38,10 @@ public class IdentityRoleDeleteProcessor extends AbstractEntityEventProcessor<Id
 	}
 
 	@Override
-	public EntityEvent<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> context) {
-		Assert.notNull(context.getContent());
+	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+		getAccountManagementService().deleteIdentityAccount(event.getContent());
 		//
-		getAccountManagementService().deleteIdentityAccount(context.getContent());
-		//
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

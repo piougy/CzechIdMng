@@ -6,9 +6,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
@@ -40,7 +42,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 			IdmRoleGuaranteeRepository roleGuaranteeRepository,
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmIdentityContractRepository identityContractRepository) {
-		super(IdentityOperationType.DELETE);
+		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(formService);
@@ -58,9 +60,8 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	}
 
 	@Override
-	public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-		Assert.notNull(context.getContent());
-		IdmIdentity identity = context.getContent();
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+		IdmIdentity identity = event.getContent();
 		//
 		// clear referenced roles
 		identityRoleRepository.deleteByIdentity(identity);
@@ -76,6 +77,7 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 		formService.deleteValues(identity);
 		// deletes identity
 		repository.delete(identity);
-		return context;
+		//
+		return new DefaultEventResult<>(event, this);
 	}
 }

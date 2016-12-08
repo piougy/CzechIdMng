@@ -9,10 +9,12 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 
 /**
@@ -31,7 +33,7 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 	
 	@Autowired
 	public IdentityPasswordProvisioningProcessor(ApplicationContext applicationContext) {
-		super(IdentityOperationType.PASSWORD);
+		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -39,15 +41,15 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 	}
 
 	@Override
-	public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-		IdmIdentity identity = context.getContent();
-		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) context.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(identity);
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+		IdmIdentity identity = event.getContent();
+		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//
-		LOG.debug("Call provisioning for idnetity password [{}]", context.getContent().getUsername());
+		LOG.debug("Call provisioning for idnetity password [{}]", event.getContent().getUsername());
 		getProvisioningService().changePassword(identity, passwordChangeDto);
-		return context;
+		//
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

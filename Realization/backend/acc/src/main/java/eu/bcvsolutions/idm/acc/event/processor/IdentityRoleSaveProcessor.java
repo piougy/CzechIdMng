@@ -10,9 +10,11 @@ import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
 
 /**
  * Identity role account management after save
@@ -24,33 +26,32 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 @Component("accIdentityRoleSaveProcessor")
 public class IdentityRoleSaveProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
-	private AccAccountManagementService accountManagementService;
-	private final ApplicationContext applicationContext;
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleSaveProcessor.class);
+	private final ApplicationContext applicationContext;
+	private AccAccountManagementService accountManagementService;
 	private SysProvisioningService provisioningService;
 
 	@Autowired
 	public IdentityRoleSaveProcessor(ApplicationContext applicationContext) {
-		super(IdentityRoleOperationType.SAVE);
+		super(IdentityRoleEventType.SAVE);
 		//
 		Assert.notNull(applicationContext);
 		//
 		this.applicationContext = applicationContext;
 	}
 
-
 	@Override
-	public EntityEvent<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> context) {
-		Assert.notNull(context.getContent());
+	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+		getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());
 		//
-		LOG.debug("Call account management for idnetity [{}]", context.getContent().getIdentity().getUsername());
-		boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(context.getContent().getIdentity());
-		if(provisioningRequired){
-			LOG.debug("Call provisioning for idnetity [{}]", context.getContent().getIdentity().getUsername());
-			getProvisioningService().doProvisioning(context.getContent().getIdentity());
+		LOG.debug("Call account management for idnetity [{}]", event.getContent().getIdentity().getUsername());
+		boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());
+		if (provisioningRequired) {
+			LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getIdentity().getUsername());
+			getProvisioningService().doProvisioning(event.getContent().getIdentity());
 		}
 		//
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

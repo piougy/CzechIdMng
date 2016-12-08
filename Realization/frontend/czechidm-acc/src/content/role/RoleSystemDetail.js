@@ -18,6 +18,11 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      ...this.state,
+      systemId: null, // dependant select box
+      systemEntityHandlingFilter: new Domain.SearchParameters().setFilter('systemId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+    };
   }
 
   getManager() {
@@ -45,9 +50,14 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { roleSystemId} = nextProps.params;
+    const { roleSystemId } = nextProps.params;
     if (roleSystemId && roleSystemId !== this.props.params.roleSystemId) {
       this._initComponent(nextProps);
+    } else {
+      // set persisted system for dependant select box
+      this.setState({
+        systemId: !this.props.roleSystem || this.props.roleSystem.system.id
+      });
     }
   }
 
@@ -63,9 +73,12 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { entityId, roleSystemId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({roleSystem: {
-        role: entityId
-      }});
+      this.setState({
+        roleSystem: {
+          role: entityId
+        },
+        systemId: null
+      });
     } else {
       this.context.store.dispatch(roleSystemManager.fetchEntity(roleSystemId));
     }
@@ -122,8 +135,26 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     return (query) ? query.new : null;
   }
 
+  /**
+   * Set filter to dependant select box
+   *
+   * @param  {System} system selected system
+   */
+  onChangeSystem(system) {
+    const systemId = system ? system.id : null;
+    this.setState({
+      systemId,
+      systemEntityHandlingFilter: this.state.systemEntityHandlingFilter.setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID)
+    }, () => {
+      // clear selected systemEntityHandling
+      this.refs.systemEntityHandling.setValue(null);
+    });
+  }
+
   render() {
-    const { _showLoading, _roleSystem} = this.props;
+    const { _showLoading, _roleSystem } = this.props;
+    const { systemEntityHandlingFilter, systemId } = this.state;
+    //
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const roleSystem = isNew ? this.state.roleSystem : _roleSystem;
@@ -133,7 +164,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('roleSystemHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 
         <form onSubmit={this.save.bind(this)}>
@@ -150,12 +181,15 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 manager={systemManager}
                 label={this.i18n('acc:entity.RoleSystem.system')}
                 readOnly={!isNew}
-                required/>
+                required
+                onChange={this.onChangeSystem.bind(this)}/>
               <Basic.SelectBox
                 ref="systemEntityHandling"
                 manager={systemEntityHandlingManager}
+                forceSearchParameters={systemEntityHandlingFilter}
                 label={this.i18n('acc:entity.RoleSystem.systemEntityHandling')}
-                readOnly={!isNew}
+                placeholder={systemId ? null : this.i18n('systemEntityHandling.systemPlaceholder')}
+                readOnly={!isNew || !systemId}
                 required/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>

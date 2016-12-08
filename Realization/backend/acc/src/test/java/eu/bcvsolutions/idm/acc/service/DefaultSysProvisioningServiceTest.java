@@ -354,6 +354,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setUid(true);
+				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
@@ -362,12 +363,14 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setIdmPropertyName("firstName");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setIdmPropertyName("lastName");
+				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
@@ -376,6 +379,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setIdmPropertyName("password");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
+				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 

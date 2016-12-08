@@ -18,6 +18,7 @@ public class MappingAttributeDto  implements MappingAttribute {
 	private boolean entityAttribute = true;
 	private boolean confidentialAttribute = true;
 	private boolean uid = false;
+	private boolean disabledAttribute = false;
 	private String transformFromResourceScript;
 	private String transformToResourceScript;
 
@@ -109,5 +110,15 @@ public class MappingAttributeDto  implements MappingAttribute {
 	@Override
 	public void setConfidentialAttribute(boolean confidentialAttribute) {
 		this.confidentialAttribute = confidentialAttribute;
+	}
+
+	@Override
+	public boolean isDisabledAttribute() {
+		return this.disabledAttribute;
+	}
+
+	@Override
+	public void setDisabledAttribute(boolean disabledAttribute) {
+		this.disabledAttribute = disabledAttribute;
 	}
 }

@@ -2,6 +2,12 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
+/**
+ * Interface for mapping attribute dto
+ * @author svandav
+ *
+ */
+
 public interface MappingAttribute {
 
 	String getIdmPropertyName();
@@ -39,5 +45,9 @@ public interface MappingAttribute {
 	boolean isConfidentialAttribute();
 
 	void setConfidentialAttribute(boolean confidentialAttribute);
+
+	boolean isDisabledAttribute();
+
+	void setDisabledAttribute(boolean disabled);
 
 }

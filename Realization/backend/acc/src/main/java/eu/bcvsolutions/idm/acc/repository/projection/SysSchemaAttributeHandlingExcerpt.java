@@ -34,6 +34,8 @@ public interface SysSchemaAttributeHandlingExcerpt extends AbstractDtoProjection
 	boolean isTransformationToResource();
 
 	public boolean isConfidentialAttribute();
+	
+	public boolean isDisabledAttribute();
 
 	public boolean isEntityAttribute();
 }

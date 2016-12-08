@@ -35,13 +35,13 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
+    const systemId = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
     if (add) {
-      // When we add new object class, then we need id of system as parametr and use "new" url
+      // When we add new object class, then we need use "new" url
       const uuidId = uuid.v1();
-      const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
-      this.context.router.push(`/system-entities-handling/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.router.push(`system/${systemId}/system-entities-handling/${uuidId}/new?new=1&systemId=${systemId}`);
     } else {
-      this.context.router.push(`/system-entities-handling/${entity.id}/detail`);
+      this.context.router.push(`system/${systemId}/system-entities-handling/${entity.id}/detail`);
     }
   }
 

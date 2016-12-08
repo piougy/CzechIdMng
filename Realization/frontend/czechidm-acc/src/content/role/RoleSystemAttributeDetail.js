@@ -88,35 +88,60 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
-  _uidChange(event) {
+  _uidChanged(event) {
     const checked = event.currentTarget.checked;
-    this.setState({isUid: checked}, () => {
+    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
+    this.refs.uid.setState({value: checked}, () => {
       if (checked) {
         this.refs.idmPropertyName.setValue(null);
+        this.refs.entityAttribute.setValue(false);
+        this.refs.confidentialAttribute.setValue(false);
+        this.refs.extendedAttribute.setValue(false);
       }
+      this.forceUpdate();
     });
   }
-  _disabledChange(event) {
+
+  _disabledChanged(key, event) {
     const checked = event.currentTarget.checked;
-    this.setState({isDefaultAttributeDisabled: checked});
+    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
+    this.refs[key].setState({value: checked}, () => {
+      this.forceUpdate();
+    });
+  }
+
+  _checkboxChanged(key, disableKey, event) {
+    const checked = event.currentTarget.checked;
+    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
+    if (checked) {
+      this.refs[disableKey].setState({value: false});
+    }
+    this.refs[key].setState({value: checked}, () => {
+      this.forceUpdate();
+    });
+  }
+
+  _schemaAttributeChange(value) {
+    if (!this.refs.name.getValue()) {
+      this.refs.name.setValue(value.name);
+    }
   }
 
   render() {
     const { _showLoading, _attribute, _systemEntityHandlingId} = this.props;
-    const { isUid, isDefaultAttributeDisabled, entityHandlingId} = this.state;
+    const { entityHandlingId} = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
     const _entityHandlingId = isNew ? entityHandlingId : _systemEntityHandlingId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandlingId ? _entityHandlingId : Domain.SearchParameters.BLANK_UUID);
 
-    let _isUid = (isUid != null ? isUid : null);
-    if (_isUid == null) {
-      _isUid = attribute ? attribute.uid : false;
-    }
-    let isDisabled = (isDefaultAttributeDisabled != null ? isDefaultAttributeDisabled : null);
-    if (isDisabled == null) {
-      isDisabled = attribute ? attribute.disabledDefaultAttribute : false;
-    }
+    const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
+    const _isUid = this.refs.uid ? this.refs.uid.getValue() : false;
+    const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
+    const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
+
+    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isUid && !_isDisabled;
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -130,6 +155,11 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel>
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+              <Basic.Checkbox
+                ref="disabledDefaultAttribute"
+                onChange={this._disabledChanged.bind('disabledDefaultAttribute', this)}
+                tooltip={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttributeTooltip')}
+                label={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}/>
               <Basic.SelectBox
                 ref="roleSystem"
                 manager={roleSystemManager}
@@ -139,6 +169,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
               <Basic.SelectBox
                 ref="schemaAttributeHandling"
                 manager={schemaAttributeHandlingManager}
+                onChange={this._schemaAttributeChange.bind(this)}
                 forceSearchParameters={forceSearchParameters}
                 label={this.i18n('acc:entity.RoleSystemAttribute.schemaAttributeHandling')}
                 required/>
@@ -148,37 +179,34 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 required
                 max={255}/>
               <Basic.Checkbox
-                ref="disabledDefaultAttribute"
-                onChange={this._disabledChange.bind(this)}
-                tooltip={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttributeTooltip')}
-                label={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}/>
-              <Basic.Checkbox
                 ref="uid"
-                readOnly = {isDisabled}
-                onChange={this._uidChange.bind(this)}
+                readOnly = {_isDisabled}
+                onChange={this._uidChanged.bind(this)}
                 tooltip={this.i18n('acc:entity.RoleSystemAttribute.uidTooltip')}
                 label={this.i18n('acc:entity.RoleSystemAttribute.uid')}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
-                readOnly = {isDisabled || _isUid}
+                onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
+                readOnly = {_isDisabled || _isUid}
                 label={this.i18n('acc:entity.RoleSystemAttribute.extendedAttribute')}/>
               <Basic.Checkbox
                 ref="entityAttribute"
-                readOnly = {isDisabled || _isUid}
+                onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
+                readOnly = {_isDisabled || _isUid}
                 label={this.i18n('acc:entity.RoleSystemAttribute.entityAttribute')}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
-                readOnly = {isDisabled || _isUid}
+                readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.RoleSystemAttribute.confidentialAttribute')}/>
               <Basic.TextField
                 ref="idmPropertyName"
-                readOnly = {isDisabled || _isUid}
+                readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.RoleSystemAttribute.idmProperty')}
-                required = {!_isUid && !isDisabled}
+                required = {_isRequiredIdmField}
                 max={255}/>
               <Basic.ScriptArea
                 ref="transformScript"
-                readOnly = {isDisabled}
+                readOnly = {_isDisabled}
                 helpBlock={this.i18n('acc:entity.RoleSystemAttribute.transformScript.help')}
                 label={this.i18n('acc:entity.RoleSystemAttribute.transformScript.label')}/>
             </Basic.AbstractForm>

@@ -3,46 +3,6 @@ module.exports = {
   component: 'div',
   childRoutes: [
     {
-      path: 'schema-object-classes/:entityId/detail',
-      component: require('./src/content/system/SchemaObjectClassDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-    },
-    {
-      path: 'schema-object-classes/:entityId/new',
-      component: require('./src/content/system/SchemaObjectClassDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
-    },
-    {
-      path: 'system-entities-handling/:entityId/detail',
-      component: require('./src/content/system/SystemEntityHandlingDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-    },
-    {
-      path: 'system-entities-handling/:entityId/new',
-      component: require('./src/content/system/SystemEntityHandlingDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
-    },
-    {
-      path: 'schema-attributes/:entityId/detail',
-      component: require('./src/content/system/SchemaAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-    },
-    {
-      path: 'schema-attributes/:entityId/new',
-      component: require('./src/content/system/SchemaAttributeDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
-    },
-    {
-      path: 'schema-attributes-handling/:entityId/detail',
-      component: require('./src/content/system/SchemaAttributeHandlingDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-    },
-    {
-      path: 'schema-attributes-handling/:entityId/new',
-      component: require('./src/content/system/SchemaAttributeHandlingDetail'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
-    },
-    {
       path: 'systems',
       component: require('./src/content/system/Systems'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
@@ -81,6 +41,46 @@ module.exports = {
           path: 'connector',
           component: require('./src/content/system/SystemConnector'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'schema-object-classes/:objectClassId/detail',
+          component: require('./src/content/system/SchemaObjectClassDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'schema-object-classes/:objectClassId/new',
+          component: require('./src/content/system/SchemaObjectClassDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'system-entities-handling/:entityHandlingId/detail',
+          component: require('./src/content/system/SystemEntityHandlingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'system-entities-handling/:entityHandlingId/new',
+          component: require('./src/content/system/SystemEntityHandlingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'schema-attributes/:attributeId/detail',
+          component: require('./src/content/system/SchemaAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'schema-attributes/:attributeId/new',
+          component: require('./src/content/system/SchemaAttributeDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'schema-attributes-handling/:attributeId/detail',
+          component: require('./src/content/system/SchemaAttributeHandlingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'schema-attributes-handling/:attributeId/new',
+          component: require('./src/content/system/SchemaAttributeHandlingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
         }
       ]
     },

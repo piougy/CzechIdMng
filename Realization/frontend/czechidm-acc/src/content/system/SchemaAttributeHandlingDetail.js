@@ -29,8 +29,8 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { entityId} = nextProps.params;
-    if (entityId && entityId !== this.props.params.entityId) {
+    const { attributeId} = nextProps.params;
+    if (attributeId && attributeId !== this.props.params.attributeId) {
       this._initComponent(nextProps);
     }
   }
@@ -45,12 +45,12 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props.params;
+    const { attributeId} = props.params;
     if (this._getIsNew(props)) {
       this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId,
         system: props.location.query.systemId}});
     } else {
-      this.context.store.dispatch(this.getManager().fetchEntity(entityId));
+      this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
     this.selectNavigationItems(['sys-systems']);
   }
@@ -72,10 +72,10 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.name }) });
-        this.context.router.goBack();
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
+      this.context.router.goBack();
     } else {
       this.addError(error);
     }
@@ -136,8 +136,8 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
 
-
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isUid && !_isDisabled;
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -240,7 +240,7 @@ SchemaAttributeHandlingDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.entityId);
+  const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.attributeId);
   if (entity) {
     const systemEntityHandling = entity._embedded && entity._embedded.systemEntityHandling ? entity._embedded.systemEntityHandling.id : null;
     const system = entity._embedded && entity._embedded.systemEntityHandling && entity._embedded.systemEntityHandling.system ? entity._embedded.systemEntityHandling.system.id : null;

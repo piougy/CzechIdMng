@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
@@ -33,12 +34,22 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-processes")
 public class WorkflowProcessInstanceController {
 
-	@Autowired
-	private WorkflowProcessInstanceService workflowProcessInstanceService;
-	@Autowired
-	private IdmIdentityRepository idmIdentityRepository;
+	private final EntityLookupService entityLookupService;
+	private final WorkflowProcessInstanceService workflowProcessInstanceService;
+	
 	@Value("${spring.data.rest.defaultPageSize}")
 	private int defaultPageSize;
+	
+	@Autowired
+	public WorkflowProcessInstanceController(
+			EntityLookupService entityLookupService,
+			WorkflowProcessInstanceService workflowProcessInstanceService) {
+		Assert.notNull(entityLookupService);
+		Assert.notNull(workflowProcessInstanceService);
+		//
+		this.entityLookupService = entityLookupService;
+		this.workflowProcessInstanceService = workflowProcessInstanceService;
+	}
 
 	/**
 	 * Search instances of processes with same variables and for logged user
@@ -85,7 +96,7 @@ public class WorkflowProcessInstanceController {
 			filter.setPageNumber(page);
 		}
 		if (identity != null) {
-			IdmIdentity idmIdentity = idmIdentityRepository.findOneByUsername(identity);
+			IdmIdentity idmIdentity = entityLookupService.lookup(IdmIdentity.class, identity);
 			filter.getEqualsVariables().put(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER, idmIdentity.getId());
 		}
 		filter.setProcessDefinitionKey(processDefinitionKey);

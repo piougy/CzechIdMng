@@ -38,6 +38,9 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		super(entityLookupService, entityService);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(method = RequestMethod.GET)
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, 
@@ -61,18 +64,27 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.find(parameters, pageable, assembler);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> update(
@@ -82,6 +94,9 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) 
@@ -89,6 +104,9 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {

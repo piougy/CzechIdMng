@@ -18,11 +18,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -54,10 +54,10 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private IdmIdentityRoleService identityRoleService;
 	
 	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
+	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private IdmTreeTypeRepository treeTypeRepository;
+	private IdmTreeTypeService treeTypeService;
 
 	@Autowired
 	private SecurityService securityService;
@@ -118,21 +118,22 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityRoleService.save(identityRole);
 			}
 			// create Node type for organization
-			IdmTreeType treeType = treeTypeRepository.findOneByCode(DEFAULT_TREE_TYPE);
+			
+			IdmTreeType treeType = treeTypeService.getByCode(DEFAULT_TREE_TYPE);
 			if (treeType == null) {
 				treeType = new IdmTreeType();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
-				this.treeTypeRepository.save(treeType);
+				this.treeTypeService.save(treeType);
 			}
 			//
 			// create organization root
-			if (treeNodeRepository.findChildren(treeType.getId(), null, new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (treeNodeService.findRoots(treeType.getId(), new PageRequest(0, 1)).getTotalElements() == 0) {
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Root organization");
 				organizationRoot.setTreeType(treeType);
-				this.treeNodeRepository.save(organizationRoot);
+				this.treeNodeService.save(organizationRoot);
 			}
 		} finally {
 			SecurityContextHolder.clearContext();

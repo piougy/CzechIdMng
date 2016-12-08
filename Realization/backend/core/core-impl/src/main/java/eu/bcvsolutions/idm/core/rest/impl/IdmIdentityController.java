@@ -73,7 +73,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final FormService formService;
 	
 	@Autowired 
-	private IdmFormDefinitionController formDefinitionController;
+	private IdmFormDefinitionController formDefinitionController; // TODO: is used for serialize to json only => should be removed
 	
 	@Autowired
 	public IdmIdentityController(
@@ -126,15 +126,13 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * Delete identity is not supported now
-	 * 
-	 * TODO: delete identity should depend on env configuration
-	 */
+
 	@Override
 	public void deleteEntity(IdmIdentity identity) {
-		// super.deleteEntity(identity);
-		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
+		super.deleteEntity(identity);
+		// TODO: operation will depend on configuration
+		//
+		//throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
 	}
 
 	/**

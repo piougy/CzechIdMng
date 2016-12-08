@@ -110,7 +110,6 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		//
 		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
 		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleOperationType.DELETE, entity));
-
 	}
 
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {

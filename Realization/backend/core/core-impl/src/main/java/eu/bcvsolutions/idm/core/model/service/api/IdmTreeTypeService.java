@@ -16,4 +16,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 @Service
 public interface IdmTreeTypeService extends ReadWriteEntityService<IdmTreeType, QuickFilter> {
 
+	/**
+	 * Returns tree type by code 
+	 * 
+	 * @param code
+	 * @return
+	 */
+	IdmTreeType getByCode(String code);
 }

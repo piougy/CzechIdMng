@@ -21,13 +21,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -65,13 +65,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
+	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private IdmTreeTypeRepository treeTypeRepository;
+	private IdmTreeTypeService treeTypeService;
 
 	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private SecurityService securityService;
@@ -98,7 +98,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityService.getByName(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1));
+			Page<IdmTreeNode> rootsList = treeNodeService.findRoots(null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);
@@ -106,8 +106,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmTreeNode organizationRoot = new IdmTreeNode();
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Organization ROOT");
-				organizationRoot.setTreeType(treeTypeRepository.findOneByCode(InitApplicationData.DEFAULT_TREE_TYPE));
-				this.treeNodeRepository.save(organizationRoot);
+				organizationRoot.setTreeType(treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE));
+				this.treeNodeService.save(organizationRoot);
 			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
@@ -171,14 +171,14 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
-				IdmTreeType treeType = treeTypeRepository.findOneByCode(InitApplicationData.DEFAULT_TREE_TYPE);
+				IdmTreeType treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
 				//
 				IdmTreeNode organization1 = new IdmTreeNode();
 				organization1.setCode("one");
 				organization1.setName("Organization One");
 				organization1.setParent(rootOrganization);
 				organization1.setTreeType(treeType);
-				this.treeNodeRepository.save(organization1);
+				this.treeNodeService.save(organization1);
 				//
 				IdmTreeNode organization2 = new IdmTreeNode();
 				organization2.setCode("two");
@@ -186,13 +186,13 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				organization2.setCreator("ja");
 				organization2.setParent(rootOrganization);
 				organization2.setTreeType(treeType);
-				this.treeNodeRepository.save(organization2);
+				this.treeNodeService.save(organization2);
 				//
 				IdmIdentityContract identityWorkingPosition = new IdmIdentityContract();
 				identityWorkingPosition.setIdentity(identityAdmin);
 				identityWorkingPosition.setGuarantee(identity2);
 				identityWorkingPosition.setWorkingPosition(organization2);
-				identityContractRepository.save(identityWorkingPosition);
+				identityContractService.save(identityWorkingPosition);
 				//
 				log.info("Demo data was created.");
 				//				

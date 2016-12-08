@@ -19,12 +19,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -63,13 +63,13 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private IdmRoleService roleService;
 
 	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
+	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private IdmTreeTypeRepository treeTypeRepository;
+	private IdmTreeTypeService treeTypeService;
 
 	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private SecurityService securityService;
@@ -91,7 +91,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
 		try {
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
-			IdmTreeNode rootOrganization = treeNodeRepository.findChildren(null, null, new PageRequest(0, 1)).getContent().get(0);
+			IdmTreeNode rootOrganization = treeNodeService.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
@@ -133,7 +133,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmTreeType type = new IdmTreeType();
 				type.setCode("ROOT_TYPE");
 				type.setName("ROOT_TYPE");
-				this.treeTypeRepository.save(type);
+				this.treeTypeService.save(type);
 				
 				
 				IdmTreeNode organization = new IdmTreeNode();
@@ -142,13 +142,13 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setCreator("ja");
 				organization.setParent(rootOrganization);
 				organization.setTreeType(type);
-				this.treeNodeRepository.save(organization);
+				this.treeNodeService.save(organization);
 				
 				IdmIdentityContract identityWorkingPosition2 = new IdmIdentityContract();
 				identityWorkingPosition2.setIdentity(testUser1);
 				identityWorkingPosition2.setGuarantee(testUser2);
 				identityWorkingPosition2.setWorkingPosition(organization);
-				identityContractRepository.save(identityWorkingPosition2);
+				identityContractService.save(identityWorkingPosition2);
 				//
 				log.info("Test data was created.");
 				//

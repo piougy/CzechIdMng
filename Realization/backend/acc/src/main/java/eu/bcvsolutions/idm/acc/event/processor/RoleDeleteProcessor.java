@@ -8,9 +8,11 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.event.RoleEventType;
 
 /**
  * Before role delete - deletes all role system mappings
@@ -26,7 +28,7 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	
 	@Autowired
 	public RoleDeleteProcessor(SysRoleSystemService roleSystemService) {
-		super(RoleOperationType.DELETE);
+		super(RoleEventType.DELETE);
 		//
 		Assert.notNull(roleSystemService);
 		//
@@ -34,16 +36,14 @@ public class RoleDeleteProcessor extends AbstractEntityEventProcessor<IdmRole> {
 	}
 
 	@Override
-	public EntityEvent<IdmRole> process(EntityEvent<IdmRole> event) {
-		Assert.notNull(event.getContent());
-		
+	public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
 		// delete mapped roles
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(event.getContent().getId());
 		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
 			roleSystemService.delete(roleSystem);
 		});
-		
-		return event;
+		//
+		return new DefaultEventResult<>(event, this);
 	}
 }

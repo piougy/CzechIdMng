@@ -26,7 +26,7 @@ public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 	private GroovyScriptService groovyScriptService;
 
 	@Before
-	public void login() {
+	public void init() {
 		groovyScriptService = new DefaultGroovyScriptService();
 	}
 

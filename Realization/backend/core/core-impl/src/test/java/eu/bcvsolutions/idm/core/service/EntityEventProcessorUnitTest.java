@@ -11,13 +11,16 @@ import org.junit.Test;
 import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEventType;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorManager;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -28,7 +31,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  */
 public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 
-	private DefaultEntityEventProcessorService entityProcessorService;
+	private DefaultEntityEventProcessorManager entityProcessorService;
 	
 	@Before
 	public void init() {
@@ -37,21 +40,21 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 		entityProcessors.add(new EventProcessorTwo());
 		entityProcessors.add(new EventProcessorOne());	
 		entityProcessors.add(new EventProcessorFour());	
-		entityProcessorService = new DefaultEntityEventProcessorService(entityProcessors);
+		entityProcessorService = new DefaultEntityEventProcessorManager(entityProcessors);
 	}
 	
 	@Test
 	public void testSupportContext() {
-		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityOperationType.SAVE, new IdmIdentity());
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());
 		
 		EntityEventProcessor<?> processor = new EventProcessorOne();
 		
-		assertTrue(processor.supports(context));
+		assertTrue(processor.supports(event));
 	}
 	
 	@Test
 	public void testOrder() {
-		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityOperationType.SAVE, new IdmIdentity());
+		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());
 		
 		List<EntityEventProcessor<IdmIdentity>> processors = entityProcessorService.getProcessors(context);
 		
@@ -71,13 +74,13 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	private class EventProcessorOne extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorOne() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("one");
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("one");
+			return new DefaultEventResult<>(event, this);
 		}
 
 	}
@@ -86,14 +89,13 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	private class EventProcessorTwo extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorTwo() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("two");
-			context.setComplete(true);
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("two");
+			return new DefaultEventResult<>(event, this, true);
 		}
 
 	}
@@ -102,13 +104,13 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	private class EventProcessorThree extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorThree() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("three");
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("three");
+			return new DefaultEventResult<>(event, this, true);
 		}
 
 	}
@@ -117,12 +119,12 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	private class EventProcessorFour extends AbstractEntityEventProcessor<IdmRole> {
 
 		public EventProcessorFour() {
-			super("SAVE");
+			super(RoleEventType.DELETE);
 		}
 
 		@Override
-		public EntityEvent<IdmRole> process(EntityEvent<IdmRole> context) {
-			return context;
+		public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
+			return new DefaultEventResult<>(event, this);
 		}
 
 	}

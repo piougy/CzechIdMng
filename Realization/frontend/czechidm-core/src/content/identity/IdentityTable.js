@@ -42,7 +42,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push('/identity/' + entity.username + '/profile');
+      this.context.router.push('/identity/' + entity.id + '/profile');
     }
   }
 
@@ -187,7 +187,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
           forceSearchParameters={forceSearchParameters}
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: true },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this) },
               { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) },
               { value: 'deactivate', niceLabel: this.i18n('content.identities.action.deactivate.action'), action: this.onActivate.bind(this) },
               { value: 'password-reset', niceLabel: this.i18n('content.identities.action.reset.action'), action: this.onReset.bind(this), disabled: true }

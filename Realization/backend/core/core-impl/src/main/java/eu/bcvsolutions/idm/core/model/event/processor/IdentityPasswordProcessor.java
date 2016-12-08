@@ -8,12 +8,14 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -37,7 +39,7 @@ public class IdentityPasswordProcessor extends AbstractEntityEventProcessor<IdmI
 	public IdentityPasswordProcessor(
 			SecurityService securityService,
 			ConfidentialStorage confidentialStorage) {
-		super(IdentityOperationType.PASSWORD);
+		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
 		Assert.notNull(confidentialStorage);
@@ -47,10 +49,9 @@ public class IdentityPasswordProcessor extends AbstractEntityEventProcessor<IdmI
 	}
 
 	@Override
-	public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-		IdmIdentity identity = context.getContent();
-		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) context.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
-		Assert.notNull(identity);
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+		IdmIdentity identity = event.getContent();
+		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//		
 		if (!securityService.isAdmin()) {
@@ -66,7 +67,7 @@ public class IdentityPasswordProcessor extends AbstractEntityEventProcessor<IdmI
 		if (passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto.getNewPassword());
 		}
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,11 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 	@Before
 	public void login() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
+	
+	@After 
+	public void logout() {
+		super.logout();
 	}
 	
 	@Test

@@ -6,9 +6,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
@@ -26,7 +28,7 @@ public class IdentityRoleSaveProcessor extends AbstractEntityEventProcessor<IdmI
 	@Autowired
 	public IdentityRoleSaveProcessor(
 			IdmIdentityRoleRepository repository) {
-		super(IdentityRoleOperationType.SAVE);
+		super(IdentityRoleEventType.SAVE);
 		//
 		Assert.notNull(repository);
 		//
@@ -34,11 +36,9 @@ public class IdentityRoleSaveProcessor extends AbstractEntityEventProcessor<IdmI
 	}
 
 	@Override
-	public EntityEvent<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> context) {
-		Assert.notNull(context.getContent());
+	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+		repository.save(event.getContent());
 		//
-		repository.save(context.getContent());
-		//
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 }

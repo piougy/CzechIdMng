@@ -13,6 +13,21 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 public interface EntityEventProcessor<E extends AbstractEntity> extends Plugin<EntityEvent<?>> {
 	
-	EntityEvent<E> process(EntityEvent<E> context);
+	/**
+	 * Process entity event without context.
+	 * 
+	 * @param event
+	 * @return
+	 */
+	EventResult<E> process(EntityEvent<E> event);
+	
+	/**
+	 * Process entity event with context.
+	 * 
+	 * @param event
+	 * @param context
+	 * @return
+	 */
+	EventResult<E> process(EntityEvent<E> event, EventContext<E> context);
 
 }

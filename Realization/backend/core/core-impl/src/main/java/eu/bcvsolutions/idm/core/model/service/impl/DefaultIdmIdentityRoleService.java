@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -38,14 +38,14 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmRoleRepository roleRepository;
 	private final IdmIdentityRepository identityRepository;
-	private final EntityEventProcessorService entityEventProcessorService;
+	private final EntityEventProcessorManager entityEventProcessorService;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmRoleRepository roleRepository,
 			IdmIdentityRepository identityRepository,
-			EntityEventProcessorService entityEventProcessorService) {
+			EntityEventProcessorManager entityEventProcessorService) {
 		super(identityRoleRepository);
 		//
 		Assert.notNull(roleRepository);
@@ -98,7 +98,7 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		Assert.notNull(entity.getIdentity());
 		//
 		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleOperationType.SAVE, entity)).getContent();
+		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.SAVE, entity)).getContent();
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		Assert.notNull(entity.getIdentity());
 		//
 		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleOperationType.DELETE, entity));
+		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
 	}
 
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {

@@ -9,9 +9,11 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
 
 /**
  * Identity role account management after save
@@ -28,7 +30,7 @@ public class IdentityRoleSaveProcessor extends AbstractEntityEventProcessor<IdmI
 
 	@Autowired
 	public IdentityRoleSaveProcessor(ApplicationContext applicationContext) {
-		super(IdentityRoleOperationType.SAVE);
+		super(IdentityRoleEventType.SAVE);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -37,12 +39,10 @@ public class IdentityRoleSaveProcessor extends AbstractEntityEventProcessor<IdmI
 
 
 	@Override
-	public EntityEvent<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> context) {
-		Assert.notNull(context.getContent());
+	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+		getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());
 		//
-		getAccountManagementService().resolveIdentityAccounts(context.getContent().getIdentity());
-		//
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**

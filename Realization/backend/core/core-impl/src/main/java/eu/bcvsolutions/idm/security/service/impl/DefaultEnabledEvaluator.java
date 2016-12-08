@@ -89,6 +89,7 @@ public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	 */
 	@Override
 	public void checkEnabled(Enabled enabled) {
+		Assert.notNull(enabled, "Enabled annotation is required for evaluating");
 		// modules
 		checkEnabledModules(enabled.module());
 		checkEnabledModules(enabled.value());

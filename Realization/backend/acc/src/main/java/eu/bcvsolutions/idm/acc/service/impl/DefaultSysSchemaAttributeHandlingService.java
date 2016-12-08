@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default schema attributes handling

@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -14,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
  * Identity provisioning
@@ -21,6 +23,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
  * @author Radek Tomiška
  *
  */
+@Enabled(AccModuleDescriptor.MODULE_ID)
 @Order(ProvisioningEvent.DEFAULT_PROVISIONING_ORDER)
 @Component
 public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {

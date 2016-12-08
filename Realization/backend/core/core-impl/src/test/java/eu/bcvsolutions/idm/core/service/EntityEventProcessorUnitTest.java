@@ -2,12 +2,17 @@ package eu.bcvsolutions.idm.core.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -19,8 +24,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEventType;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorManager;
+import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -32,6 +39,10 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 
 	private DefaultEntityEventProcessorManager entityProcessorService;
+	private RoleEventProcessor roleEventProcessor;
+	
+	@Mock
+	private EnabledEvaluator enabledEvaluator;
 	
 	@Before
 	public void init() {
@@ -39,8 +50,10 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 		entityProcessors.add(new EventProcessorThree());	
 		entityProcessors.add(new EventProcessorTwo());
 		entityProcessors.add(new EventProcessorOne());	
-		entityProcessors.add(new EventProcessorFour());	
-		entityProcessorService = new DefaultEntityEventProcessorManager(entityProcessors);
+		roleEventProcessor = new RoleEventProcessor();
+		entityProcessors.add(roleEventProcessor);	
+		entityProcessors.add(new EventProcessorFive());	
+		entityProcessorService = new DefaultEntityEventProcessorManager(entityProcessors, enabledEvaluator);
 	}
 	
 	@Test
@@ -54,20 +67,51 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testOrder() {
-		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());
+		when(enabledEvaluator.isEnabled((Object)any())).thenReturn(true);		
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());		
+		List<EntityEventProcessor<IdmIdentity>> processors = entityProcessorService.getProcessors(event);
 		
-		List<EntityEventProcessor<IdmIdentity>> processors = entityProcessorService.getProcessors(context);
+		assertEquals(4, processors.size());
 		
-		assertEquals(3, processors.size());
+		entityProcessorService.process(event);
 		
-		entityProcessorService.process(context);
+		assertEquals("two", event.getContent().getUsername());
 		
-		assertEquals("two", context.getContent().getUsername());
+		verify(enabledEvaluator, times(8)).isEnabled((Object)any());
 	}
 	
 	@Test
 	public void testSkipAfterComplete() {
+		when(enabledEvaluator.isEnabled((Object)any())).thenReturn(true);		
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());		
 		
+		entityProcessorService.process(event);
+		
+		assertEquals("two", event.getContent().getUsername());
+		
+		verify(enabledEvaluator, times(4)).isEnabled((Object)any());
+	}
+	
+	@Test
+	public void testDisabledModule() {
+		when(enabledEvaluator.isEnabled(roleEventProcessor)).thenReturn(false);
+		EntityEvent<IdmRole> event = new RoleEvent(RoleEventType.DELETE, new IdmRole());		
+		List<EntityEventProcessor<IdmRole>> processors = entityProcessorService.getProcessors(event);
+		
+		assertEquals(0, processors.size());		
+		
+		verify(enabledEvaluator).isEnabled(roleEventProcessor);
+	}
+	
+	@Test
+	public void testEnabledModule() {
+		when(enabledEvaluator.isEnabled(roleEventProcessor)).thenReturn(true);
+		EntityEvent<IdmRole> event = new RoleEvent(RoleEventType.DELETE, new IdmRole());		
+		List<EntityEventProcessor<IdmRole>> processors = entityProcessorService.getProcessors(event);
+		
+		assertEquals(1, processors.size());		
+		
+		verify(enabledEvaluator).isEnabled(roleEventProcessor);
 	}
 
 	@Order(1)
@@ -115,10 +159,25 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 
 	}
 	
-	@Order(0)
-	private class EventProcessorFour extends AbstractEntityEventProcessor<IdmRole> {
+	@Order(4)
+	private class EventProcessorFive extends AbstractEntityEventProcessor<IdmIdentity> {
 
-		public EventProcessorFour() {
+		public EventProcessorFive() {
+			super(IdentityEventType.SAVE);
+		}
+
+		@Override
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("three");
+			return new DefaultEventResult<>(event, this, true);
+		}
+
+	}
+	
+	@Order(0)
+	private class RoleEventProcessor extends AbstractEntityEventProcessor<IdmRole> {
+
+		public RoleEventProcessor() {
 			super(RoleEventType.DELETE);
 		}
 

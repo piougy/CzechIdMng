@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.security;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,16 +16,16 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
-import eu.bcvsolutions.idm.security.service.impl.EnabledEvaluator;
+import eu.bcvsolutions.idm.security.service.impl.DefaultEnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
- * Test for {@link EnabledEvaluator}
+ * Test for {@link DefaultEnabledEvaluator}
  * 
  * @author Radek Tomiška
  *
  */
-public class EnabledEvaluatorTest extends AbstractUnitTest {
+public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 
 	private static final String MODULE_ONE = "test-module-one";
 	private static final String MODULE_TWO = "test-module-two";
@@ -36,11 +38,11 @@ public class EnabledEvaluatorTest extends AbstractUnitTest {
 	@Mock
 	private ModuleService moduleService;
 
-	private EnabledEvaluator evaluator;
+	private DefaultEnabledEvaluator evaluator;
 
 	@Before
 	public void init() {
-		evaluator = new EnabledEvaluator(moduleService, configurationService);
+		evaluator = new DefaultEnabledEvaluator(moduleService, configurationService);
 	}
 
 	/**
@@ -82,7 +84,9 @@ public class EnabledEvaluatorTest extends AbstractUnitTest {
 	@Test
 	public void testEmptyAsTrue() {
 		// no exception occurs
-		evaluator.checkIsEnabled(null, null, prepareAnnotation(null, null, false));
+		Enabled enabled = prepareAnnotation(null, null, false);
+		evaluator.checkIsEnabled(null, null, enabled);
+		assertTrue(evaluator.isEnabled(enabled));
 	}
 
 	@Test
@@ -167,6 +171,50 @@ public class EnabledEvaluatorTest extends AbstractUnitTest {
 			verify(configurationService).getBooleanValue(PROPERTY_ONE, false);
 			verify(configurationService).getBooleanValue(PROPERTY_TWO, false);
 		}
+	}
+	
+	@Test
+	public void testClassEnabled() {
+		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(true);
+		//
+		@Enabled(MODULE_ONE)
+		class EnabledObject {}
+		assertTrue(evaluator.isEnabled(EnabledObject.class));
+		//
+		verify(moduleService).isEnabled(MODULE_ONE);
+	}
+	
+	@Test
+	public void testClassDisabled() {
+		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(false);
+		//
+		@Enabled(MODULE_ONE)
+		class EnabledObject {}
+		assertFalse(evaluator.isEnabled(EnabledObject.class));
+		//
+		verify(moduleService).isEnabled(MODULE_ONE);
+	}
+	
+	@Test
+	public void testObjectEnabled() {
+		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(true);
+		//
+		@Enabled(MODULE_ONE)
+		class EnabledObject {}
+		assertTrue(evaluator.isEnabled(new EnabledObject()));
+		//
+		verify(moduleService).isEnabled(MODULE_ONE);
+	}
+	
+	@Test
+	public void testObjectDisabled() {
+		when(moduleService.isEnabled(MODULE_ONE)).thenReturn(false);
+		//
+		@Enabled(MODULE_ONE)
+		class EnabledObject {}
+		assertFalse(evaluator.isEnabled(new EnabledObject()));
+		//
+		verify(moduleService).isEnabled(MODULE_ONE);
 	}
 
 }

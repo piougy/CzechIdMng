@@ -207,8 +207,12 @@
         }
       },
       "roleSystemDetail": {
+        "header": "Napojený systém",
+        "title": "Napojený systém",
         "roleSystemAttributesHeader": "Atributy mapované v rámci této role",
-        "roleSystemHeader": "Napojený systém",
+        "systemEntityHandling": {
+          "systemPlaceholder": "Nejprve vyberte system ..."
+        },
         "create": {
           "success": "Napojení systému bylo úspěšně vytvořeno"
         },

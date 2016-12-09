@@ -39,11 +39,18 @@ class PasswordChange extends Basic.AbstractContent {
     }
   }
 
+  /**
+   * Method set value to component PasswordField
+   */
+  _initPasswordFields(value) {
+    this.refs.passwords.setValue(value);
+  }
+
   passwordChange(event) {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.form.isFormValid()) {
+    if (!this.refs.form.isFormValid() || !this.refs.passwords.validate()) {
       return;
     }
     this.setState({
@@ -65,6 +72,7 @@ class PasswordChange extends Basic.AbstractContent {
         showLoading: false
       });
       if (response.status === 404) {
+        this._initPasswordFields(password);
         throw new Error('IDENTITY_NOT_FOUND');
       }
       if (response.status === 204) {
@@ -74,6 +82,7 @@ class PasswordChange extends Basic.AbstractContent {
     })
     .then(json => {
       if (Utils.Response.hasError(json)) {
+        this._initPasswordFields(password);
         throw Utils.Response.getFirstError(json);
       }
       return json;

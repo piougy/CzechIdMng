@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
 import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
@@ -119,27 +119,27 @@ public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
 
 	@Test(expected = IdmSecurityException.class)
 	public void testSecurityScriptListDeepUnvalid() {
-		String script = "return entity.contracts;";
+		String script = "return entity.authorities;";
 		groovyScriptService.validateScript(script);
-		IdmIdentity identity = new IdmIdentity();
-		List<IdmIdentityContract> contracts = new ArrayList<>();
-		contracts.add(new IdmIdentityContract(UUID.randomUUID()));
-		identity.setContracts(contracts);
-		identity.setUsername(TEST_ONE);
-		groovyScriptService.evaluate(script, ImmutableMap.of("entity", identity));
+		IdmRole role = new IdmRole();
+		List<IdmRoleAuthority> authorities = new ArrayList<>();
+		authorities.add(new IdmRoleAuthority());
+		role.setAuthorities(authorities);
+		role.setName(TEST_ONE);
+		groovyScriptService.evaluate(script, ImmutableMap.of("entity", role));
 	}
 
 	@Test
 	public void testSecurityScriptListValid() {
 		String script = "return list;";
 		groovyScriptService.validateScript(script);
-		IdmIdentity identity = new IdmIdentity();
-		List<IdmIdentityContract> contracts = new ArrayList<>();
-		contracts.add(new IdmIdentityContract(UUID.randomUUID()));
-		identity.setContracts(contracts);
-		identity.setUsername(TEST_ONE);
-		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", identity, "list", contracts));
-		assertEquals(identity.getContracts(), result);
+		IdmRole role = new IdmRole();
+		List<IdmRoleAuthority> authorities = new ArrayList<>();
+		authorities.add(new IdmRoleAuthority());
+		role.setAuthorities(authorities);
+		role.setName(TEST_ONE);
+		Object result = groovyScriptService.evaluate(script, ImmutableMap.of("entity", role, "list", authorities));
+		assertEquals(role.getAuthorities(), result);
 	}
 
 	@Test(expected = IdmSecurityException.class)

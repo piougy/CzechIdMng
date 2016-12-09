@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
-import eu.bcvsolutions.idm.core.model.event.IdentityRoleEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -57,6 +58,34 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		this.identityRepository = identityRepository;
 		this.entityEventProcessorService = entityEventProcessorService;
 	}
+	
+	@Override
+	@Transactional
+	public IdmIdentityRole save(IdmIdentityRole entity) {
+		Assert.notNull(entity);
+		Assert.notNull(entity.getRole());
+		Assert.notNull(entity.getIdentity());
+		//
+		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
+		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.SAVE, entity)).getContent();
+	}
+
+	@Override
+	@Transactional
+	public void delete(IdmIdentityRole entity) {
+		Assert.notNull(entity);
+		Assert.notNull(entity.getRole());
+		Assert.notNull(entity.getIdentity());
+		//
+		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
+		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityRole> getRoles(IdmIdentity identity) {
+		return identityRoleRepository.findAllByIdentity(identity, new Sort("role.name"));
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -88,28 +117,6 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		//
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		return this.save(toEntity(dto, identityRole));
-	}
-
-	@Override
-	@Transactional
-	public IdmIdentityRole save(IdmIdentityRole entity) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
-		//
-		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.SAVE, entity)).getContent();
-	}
-
-	@Override
-	@Transactional
-	public void delete(IdmIdentityRole entity) {
-		Assert.notNull(entity);
-		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
-		//
-		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
 	}
 
 	private IdmIdentityRole toEntity(IdmIdentityRoleDto identityRoleDto, IdmIdentityRole identityRole) {

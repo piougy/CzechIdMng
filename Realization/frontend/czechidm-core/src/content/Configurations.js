@@ -114,6 +114,8 @@ class Configurations extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.closeDetail();
+    // reload public configurations
+    this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
   }
 
   onDelete(bulkActionValue, selectedRows) {

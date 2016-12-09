@@ -24,6 +24,11 @@ class PasswordField extends Basic.AbstractFormComponent {
     return this.refs.newPassword.getValue();
   }
 
+  setValue(value) {
+    this.refs.newPassword.setValue(value);
+    this.refs.newPasswordAgain.setValue(value);
+  }
+
   _updatePasswordForValidation(value) {
     let passwordForValidation = '';
 
@@ -85,7 +90,7 @@ class PasswordField extends Basic.AbstractFormComponent {
           }
           <Basic.PasswordStrength
             max={5}
-            initialStrength={1}
+            initialStrength={0}
             opacity={1}
             value={passwordForValidation}
             isIcon={false}

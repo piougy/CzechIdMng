@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -103,13 +102,13 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityRole> roles;
+	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<IdmIdentityContract> contracts;
+	private List<IdmIdentityContract> contracts; // only for hibernate mappnig- we dont want lazy lists
 	
 	public IdmIdentity() {
 	}
@@ -202,24 +201,5 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public List<IdmIdentityRole> getRoles() {
-		if (roles == null) {
-			roles = new ArrayList<>();
-		}
-		return roles;
-	}
-
-	public void setRoles(List<IdmIdentityRole> roles) {
-		this.roles = roles;
-	}
-	
-	public List<IdmIdentityContract> getContracts() {
-		return contracts;
-	}
-	
-	public void setContracts(List<IdmIdentityContract> contracts) {
-		this.contracts = contracts;
 	}
 }

@@ -1564,7 +1564,7 @@
     },
     "CONFIGURATION_DISABLED": {
       "title": "Funkce je deaktivovaná",
-      "message": "Funkce aplikace řízená konfigurační položkou [{{module}}] je deaktivovaná."
+      "message": "Funkce aplikace řízená konfigurační položkou [{{property}}] je deaktivovaná."
     },
     "TREE_TYPE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Typ struktury nelze odebrat",

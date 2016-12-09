@@ -6,6 +6,8 @@
 import merge from 'object-assign';
 import Immutable from 'immutable';
 import _ from 'lodash';
+import moment from 'moment';
+//
 import { LOGOUT } from '../security/SecurityManager';
 import {
   REQUEST_ENTITIES,
@@ -84,7 +86,15 @@ export function data(state = INITIAL_STATE, action) {
       const ids = [];
       action.entities.map(entity => {
         ids.push(entity.id);
-        entities = entities.set(entity.id, entity);
+        // check trimmed and modified date
+        if (entity._trimmed === true && entities.has(entity.id)) {
+          // check modified date - this is little dangerous, because some detail does not check trimmed flag
+          /* if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
+            entities = entities.set(entity.id, entity);
+          }*/
+        } else {
+          entities = entities.set(entity.id, entity);
+        }
       });
       const entityTypes = merge({}, state.entity, {
         [entityType]: entities

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api;
+package eu.bcvsolutions.idm.core.api.utils;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

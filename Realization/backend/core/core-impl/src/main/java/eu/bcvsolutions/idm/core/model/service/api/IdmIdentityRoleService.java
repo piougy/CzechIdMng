@@ -5,6 +5,7 @@ import java.util.List;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
 /**
@@ -14,6 +15,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  *
  */
 public interface IdmIdentityRoleService extends ReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter> {
+	
+	/**
+	 * Returns all identity's roles
+	 * 
+	 * @param identity
+	 * @return
+	 */
+	List<IdmIdentityRole> getRoles(IdmIdentity identity);
 	
 	/**
 	 * Returns identity roles by their ids (uuid in string).

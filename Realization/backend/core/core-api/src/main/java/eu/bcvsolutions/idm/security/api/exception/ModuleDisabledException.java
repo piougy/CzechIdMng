@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.exception;
+package eu.bcvsolutions.idm.security.api.exception;
 
 import com.google.common.collect.ImmutableMap;
 

@@ -2,12 +2,11 @@ package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -15,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.event.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -26,9 +25,8 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Component
-public class IdentityPasswordProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);

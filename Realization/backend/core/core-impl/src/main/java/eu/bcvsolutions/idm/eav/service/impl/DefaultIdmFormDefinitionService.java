@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.eav.dto.FormAttributeFilter;
+import eu.bcvsolutions.idm.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormDefinitionRepository;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;

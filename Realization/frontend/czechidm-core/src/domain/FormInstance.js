@@ -3,8 +3,6 @@ import Immutable from 'immutable';
 
 /**
  * EAV form instance (definition + values)
- *
- * TODO: multi values
  */
 export default class FormInstance {
 
@@ -41,13 +39,13 @@ export default class FormInstance {
   }
 
   /**
-   * Returns hateoas link to attribute defition by given attribute name
+   * Returns attribute defition by given attribute name as object with id is filled
    *
    * @param  {string} attributeName
    * @return {string}
    */
   getAttributeLink(attributeName) {
-    return `/form-attributes/${this.attributes.get(attributeName).id}`;
+    return { id: this.attributes.get(attributeName).id };
   }
 
   /**

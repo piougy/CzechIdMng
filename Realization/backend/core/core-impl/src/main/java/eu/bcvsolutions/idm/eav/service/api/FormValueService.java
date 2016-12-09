@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.eav.dto.FormValueFilter;
+import eu.bcvsolutions.idm.eav.dto.filter.FormValueFilter;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;

@@ -157,11 +157,14 @@ public class DefaultFormService implements FormService {
 		//
 		values.forEach(value -> {
 			Assert.notNull(value.getFormAttribute(), "Form attribute is required");
+			IdmFormAttribute attribute = formDefinition.getMappedAttribute(value.getFormAttribute().getId());
+			Assert.notNull(attribute, "Form attribute is required");
 			// 
+			value.setFormAttribute(attribute);
 			value.setOwner(owner);
 			// set attribute values
-			value.setPersistentType(value.getFormAttribute().getPersistentType());
-			value.setConfidential(value.getFormAttribute().isConfidential());
+			value.setPersistentType(attribute.getPersistentType());
+			value.setConfidential(attribute.isConfidential());
 			// find values to be removed
 			if (value.getId() != null) {
 				E previousValue = previousValues.get(value.getId());

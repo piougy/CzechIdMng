@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.projection.IdmFormDefinitionExcerpt;
+import eu.bcvsolutions.idm.eav.rest.projection.IdmFormDefinitionExcerpt;
 
 /**
  * Form definition repository

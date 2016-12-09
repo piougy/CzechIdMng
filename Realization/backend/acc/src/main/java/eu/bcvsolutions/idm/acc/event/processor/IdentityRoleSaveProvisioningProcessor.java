@@ -43,7 +43,6 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 
 	@Override
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());
 		//
 		LOG.debug("Call account management for idnetity [{}]", event.getContent().getIdentity().getUsername());
 		boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());

@@ -164,8 +164,16 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	@Override
 	public void doDeleteProvisioning(AccAccount account) {
 		Assert.notNull(account);
-		doOperation(account.getUid(), null, AccountOperationType.DELETE, SystemOperationType.PROVISIONING,
-				SystemEntityType.IDENTITY, account.getSystem(), null);
+		SysSystem system = account.getSystem();
+		String uid = account.getUid();
+
+		SysSystemEntity systemEntity = account.getSystemEntity();
+		if (systemEntity != null && account.getUid() != null) {
+			uid = systemEntity.getUid();
+		}
+
+		doOperation(uid, null, AccountOperationType.DELETE, SystemOperationType.PROVISIONING,
+				SystemEntityType.IDENTITY, system, null);
 	}
 
 	@Override

@@ -1,13 +1,17 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
+import ReactDOM from 'react-dom';
 import dirtyChai from 'dirty-chai';
 chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
 import * as Advanced from '../../../../src/components/advanced';
+import RoleTypeEnum from '../../../../src/enums/RoleTypeEnum';
 
 const componentLibraries = [Basic, Advanced];
+
+const componentLibrariesBasic = [Basic];
 
 describe('Basic AbstractComponent', function abstractComponent() {
   it('- supportsRendered', function test() {
@@ -69,6 +73,35 @@ describe('Basic AbstractComponent', function abstractComponent() {
               if (renderedComponent.props.children && renderedComponentWithShowLoading.props.children) {
                 expect(renderedComponent.props.children).to.not.eql(renderedComponentWithShowLoading.props.children);
               }
+            }
+          });
+        }
+      }
+    }
+  });
+
+  describe('- component change dynamical readOnly', function test() {
+    for (const componentLibrary of componentLibrariesBasic) {
+      for (const component in componentLibrary) {
+        if (component.startsWith('AbstractFormComponent.')) {
+          continue;
+        }
+        // for now we must skip test for SelectBox and ScriptArea
+        // SelectBox want use this.context.store and
+        // ScriptArea has 'global leak detected' with react-ace
+        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea')) {
+          continue;
+        }
+        const ComponentType = componentLibrary[component];
+        if (ComponentType.propTypes && ComponentType.propTypes.readOnly) {
+          it('- ' + component, function testComponent() {
+            const node = document.createElement('div');
+            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} readOnly={false} />, node);
+            if (comp.state.readOnly) {
+              expect(comp.state.readOnly).to.be.equal(false);
+
+              ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} readOnly />, node);
+              expect(comp.state.readOnly).to.be.equal(true);
             }
           });
         }

@@ -70,7 +70,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(systemEntityHandlingManager.fetchEntity(entityHandlingId));
     }
-    this.selectNavigationItems(['sys-systems']);
+    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
   }
 
   /**
@@ -106,7 +106,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
       const { entityId } = this.props.params;
-      this.context.router.replace(`/system/${entityId}/entities-handling`, {entityHandlingId: entity.id});
+      this.context.router.replace(`/system/${entityId}/system-entities-handling/${entity.id}/detail`, {entityHandlingId: entity.id});
     } else {
       this.addError(error);
     }

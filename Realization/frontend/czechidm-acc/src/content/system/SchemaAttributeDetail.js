@@ -50,7 +50,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems']);
+    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
   }
 
   _getIsNew(nextProps) {

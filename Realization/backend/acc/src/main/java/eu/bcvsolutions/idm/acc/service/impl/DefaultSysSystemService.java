@@ -250,6 +250,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		List<SysSchemaObjectClass> sysObjectClasses = new ArrayList<SysSchemaObjectClass>();
 		List<SysSchemaAttribute> sysAttributes = new ArrayList<SysSchemaAttribute>();
 		for (IcfObjectClassInfo objectClass : icfSchema.getDeclaredObjectClasses()) {
+			
+			// We can create only ICF schemas, it means only schemas created for __ACCOUNT__ and __GROUP__
+			if(!(objectClass.getType().startsWith("__") && objectClass.getType().endsWith("__"))){
+				continue;
+			}
 			SysSchemaObjectClass sysObjectClass = null;
 			// If existed some object class in system, then we will compared
 			// every object with object class in resource

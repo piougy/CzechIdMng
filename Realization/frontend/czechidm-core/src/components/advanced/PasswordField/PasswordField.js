@@ -24,6 +24,11 @@ class PasswordField extends Basic.AbstractFormComponent {
     return this.refs.newPassword.getValue();
   }
 
+  setValue(value) {
+    this.refs.newPassword.setValue(value);
+    this.refs.newPasswordAgain.setValue(value);
+  }
+
   _updatePasswordForValidation(value) {
     let passwordForValidation = '';
 
@@ -37,8 +42,13 @@ class PasswordField extends Basic.AbstractFormComponent {
     });
   }
 
-  validate() {
-    return false;
+  validate(showValidationError) {
+    const showValidations = showValidationError != null ? showValidationError : true;
+    if (!this.refs.newPassword.validate() || !this.refs.newPasswordAgain.validate()) {
+      return false;
+    }
+
+    return showValidations;
   }
 
   _validatePassword(property, onlyValidate, value, result) {

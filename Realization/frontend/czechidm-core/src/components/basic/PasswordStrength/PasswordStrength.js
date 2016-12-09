@@ -40,14 +40,19 @@ class PasswordStrength extends AbstractFormComponent {
       } else if (response.score > 1) {
         strengthStyle = 'warning';
       }
-      const strength = response.score;
+      let strength = response.score;
+
+      // we dont want score for value = "", or null
+      if (value) {
+        strength += 1;
+      }
+
       let width;
       if (strength !== 0) {
         width = (100 / (max / strength));
       } else {
         width = 0;
       }
-      width += (100 / max);
 
       let info;
       let background;

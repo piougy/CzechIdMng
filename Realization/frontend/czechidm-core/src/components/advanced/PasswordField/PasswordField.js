@@ -37,13 +37,8 @@ class PasswordField extends Basic.AbstractFormComponent {
     });
   }
 
-  validate(showValidationError) {
-    const showValidations = showValidationError != null ? showValidationError : true;
-    if (!this.refs.newPassword.validate() || !this.refs.newPasswordAgain.validate()) {
-      return false;
-    }
-
-    return showValidations;
+  validate() {
+    return false;
   }
 
   _validatePassword(property, onlyValidate, value, result) {
@@ -85,7 +80,7 @@ class PasswordField extends Basic.AbstractFormComponent {
           }
           <Basic.PasswordStrength
             max={5}
-            initialStrength={1}
+            initialStrength={0}
             opacity={1}
             value={passwordForValidation}
             isIcon={false}

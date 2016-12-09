@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;

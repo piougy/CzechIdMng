@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 /**

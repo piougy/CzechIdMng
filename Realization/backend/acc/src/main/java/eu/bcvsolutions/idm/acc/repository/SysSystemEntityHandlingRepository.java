@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
-import eu.bcvsolutions.idm.acc.repository.projection.SysSystemEntityHandlingExcerpt;
+import eu.bcvsolutions.idm.acc.rest.projection.SysSystemEntityHandlingExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**

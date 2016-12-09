@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.AuditFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,8 +36,8 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
-import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -65,7 +66,7 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
  * @author Radek Tomiška
  *
  */
-@RestController
+@RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identities")
 public class IdmIdentityController extends DefaultReadWriteEntityController<IdmIdentity, IdentityFilter> {
 
@@ -110,6 +111,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
@@ -117,6 +119,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -124,6 +127,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -131,6 +135,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	}
 	
 	@Override
+	@ResponseBody
 	@Enabled(property = IdentityConfiguration.PROPERTY_IDENTITY_DELETE)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
@@ -143,6 +148,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @param identityId
 	 * @return list of granted authorities
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/authorities", method = RequestMethod.GET)
 	public List<? extends GrantedAuthority> getGrantedAuthotrities(@PathVariable String identityId) {
 		IdmIdentity identity = getEntity(identityId);
@@ -158,6 +164,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @param identityId
 	 * @return Instance of workflow user task, where applicant can fill his change permission request
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/change-permissions", method = RequestMethod.PUT)
 	public ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>> changePermissions(@PathVariable String identityId) {	
 		IdmIdentity identity = getEntity(identityId);
@@ -173,6 +180,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return new ResponseEntity<ResourceWrapper<WorkflowTaskInstanceDto>>(new ResourceWrapper<WorkflowTaskInstanceDto>(tasks.get(0)), HttpStatus.OK);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/roles", method = RequestMethod.GET)
 	public Resources<?> roles(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
@@ -185,6 +193,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources((Iterable<?>) identityRoleService.find(filter, null), assembler, IdmIdentityRole.class, null);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)
 	public Resources<?> workingPositions(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
 		IdmIdentity identity = getEntity(identityId);
@@ -194,6 +203,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<?> findRevision(@PathVariable("identityId") String identityId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity originalEntity = getEntity(identityId);
@@ -211,6 +221,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return new ResponseEntity<>(toResource(revisionIdentity, assembler), HttpStatus.OK);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/{identityId}/revisions", method = RequestMethod.GET)
 	public Resources<?> findRevisions(@PathVariable("identityId") String identityId, Pageable pageable,
 			PersistentEntityResourceAssembler assembler) {
@@ -250,6 +261,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
 	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmFormDefinition formDefinition = getFormDefinition(null);
@@ -263,6 +275,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity identity = getEntity(backendId);
@@ -281,6 +294,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.POST)
 	public Resources<?> saveFormValues(

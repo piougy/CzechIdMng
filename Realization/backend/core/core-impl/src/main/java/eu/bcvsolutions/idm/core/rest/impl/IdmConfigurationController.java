@@ -3,13 +3,13 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
@@ -25,8 +25,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;;
  * @author Radek Tomiška 
  *
  */
-@RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RepositoryRestController
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
 public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration, QuickFilter> {
 	
 	private final IdmConfigurationService configurationService;
@@ -42,6 +42,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * 
 	 * @return
 	 */
+	@ResponseBody
 	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
@@ -54,6 +55,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * 
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/environment", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {

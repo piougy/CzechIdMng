@@ -10,7 +10,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.repository.projection.IdmTreeTypeExcerpt;
+import eu.bcvsolutions.idm.core.rest.projection.IdmTreeTypeExcerpt;
 
 /**
  * Repository for tree types

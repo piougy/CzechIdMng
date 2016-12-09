@@ -10,18 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -30,7 +32,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -43,22 +45,29 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
  *
  */
 
-@RestController
+@RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-nodes")
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
 	
-	@Autowired
-	private IdmTreeNodeService treeNodeService;
+	private final IdmTreeNodeService treeNodeService;
+	private final IdmAuditService auditService; 
 	
 	@Autowired
-	private IdmAuditService auditService; 
-	
-	@Autowired
-	public IdmTreeNodeController(EntityLookupService entityLookupService, IdmTreeNodeService treeNodeService) {
+	public IdmTreeNodeController(
+			EntityLookupService entityLookupService, 
+			IdmTreeNodeService treeNodeService,
+			IdmAuditService auditService) {
 		super(entityLookupService, treeNodeService);
+		//
+		Assert.notNull(treeNodeService);
+		Assert.notNull(auditService);
+		//
+		this.treeNodeService = treeNodeService;
+		this.auditService = auditService;
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
@@ -66,6 +75,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -73,6 +83,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -80,11 +91,13 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.TREENODE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "{treeNodeId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<?> findRevision(@PathVariable("treeNodeId") String treeNodeId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmTreeNode treeNode = getEntity(treeNodeId);
@@ -102,6 +115,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		return new ResponseEntity<>(toResource(revision, assembler), HttpStatus.OK);
 	}
 
+	@ResponseBody
 	@RequestMapping(value = "{treeNodeId}/revisions", method = RequestMethod.GET)
 	public Resources<?> findRevisions(@PathVariable("treeNodeId") String treeNodeId, Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {
@@ -113,6 +127,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		return toResources(results, assembler, IdmRole.class, null);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(
 			@RequestParam(value = "treeType", required = false) String treeType,
@@ -123,6 +138,7 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		return toResources(roots, assembler, IdmTreeNode.class, null);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/search/children", method = RequestMethod.GET)
 	public Resources<?> findChildren(
 			@RequestParam(value = "parent") @NotNull String parent, 

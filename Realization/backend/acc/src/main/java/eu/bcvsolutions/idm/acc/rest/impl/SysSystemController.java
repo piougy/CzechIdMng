@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -50,7 +51,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
  * @author Radek Tomiška
  *
  */
-@RestController
+@RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
@@ -76,6 +77,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ IdmGroupPermission.ROLE_READ + "')")
@@ -84,6 +86,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		return super.find(parameters, pageable, assembler);
 	}
 
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
@@ -93,6 +96,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "') or hasAuthority('"
 			+ IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
@@ -101,6 +105,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
@@ -109,6 +114,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
@@ -117,6 +123,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
@@ -125,12 +132,14 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 	
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/generate-schema", method = RequestMethod.POST)
 	public ResponseEntity<?> generateSchema(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
@@ -155,6 +164,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @return
 	 */
 	@Deprecated
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/test/create-test-system", method = RequestMethod.POST)
 	public ResponseEntity<?> createTestSystem() {
@@ -170,6 +180,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-definition", method = RequestMethod.GET)
 	public ResponseEntity<?> getConnectorFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
@@ -189,6 +200,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.GET)
 	public Resources<?> getConnectorFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
@@ -208,6 +220,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param assembler
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.POST)
 	public Resources<?> saveConnectorFormValues(

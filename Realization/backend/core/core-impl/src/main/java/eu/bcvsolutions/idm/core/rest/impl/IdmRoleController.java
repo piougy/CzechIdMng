@@ -10,16 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -29,12 +31,11 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
-import eu.bcvsolutions.idm.core.model.dto.RoleFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 
 /**
  * IdmRole endpoint
@@ -43,19 +44,25 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
  * @author Radek Tomiška
  *
  */
-@RestController
+@RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/roles")
 public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole, RoleFilter> {
 	
-	@Autowired
-	private IdmAuditService auditService; 
+	private final IdmAuditService auditService; 
 	
 	@Autowired
-	public IdmRoleController(EntityLookupService entityLookupService, IdmRoleService roleService) {
-		super(entityLookupService, roleService);
+	public IdmRoleController(
+			EntityLookupService entityLookupService, 
+			IdmAuditService auditService) {
+		super(entityLookupService);
+		//
+		Assert.notNull(auditService);
+		//
+		this.auditService = auditService;
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
@@ -63,6 +70,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -70,6 +78,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
@@ -77,11 +86,13 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 	}
 	
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 
+	@ResponseBody
 	@RequestMapping(value = "{roleId}/revisions/{revId}", method = RequestMethod.GET)
 	public ResponseEntity<?> findRevision(@PathVariable("roleId") String roleId, @PathVariable("revId") Long revId, PersistentEntityResourceAssembler assembler) {
 		IdmRole originalEntity = getEntity(roleId);
@@ -99,6 +110,7 @@ public class IdmRoleController extends DefaultReadWriteEntityController<IdmRole,
 		return new ResponseEntity<>(toResource(revisionRole, assembler), HttpStatus.OK);
 	}
 
+	@ResponseBody
 	@RequestMapping(value = "{roleId}/revisions", method = RequestMethod.GET)
 	public Resources<?> findRevisions(@PathVariable("roleId") String roleId, Pageable pageable, 
 			PersistentEntityResourceAssembler assembler) {

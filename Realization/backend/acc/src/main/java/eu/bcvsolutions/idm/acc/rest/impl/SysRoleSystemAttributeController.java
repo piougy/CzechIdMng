@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
@@ -34,7 +35,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
  * @author svandav
  *
  */
-@RestController
+@RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/role-system-attributes")
 public class SysRoleSystemAttributeController
@@ -47,6 +48,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	public Resources<?> find(@RequestParam MultiValueMap<String, Object> parameters, @PageableDefault Pageable pageable,
@@ -54,6 +56,7 @@ public class SysRoleSystemAttributeController
 		return super.find(parameters, pageable, assembler);
 	}
 
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/search/quick", method = RequestMethod.GET)
 	public Resources<?> findQuick(@RequestParam MultiValueMap<String, Object> parameters,
@@ -62,6 +65,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_READ + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
@@ -69,6 +73,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
@@ -77,6 +82,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
@@ -85,6 +91,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
@@ -93,6 +100,7 @@ public class SysRoleSystemAttributeController
 	}
 
 	@Override
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {

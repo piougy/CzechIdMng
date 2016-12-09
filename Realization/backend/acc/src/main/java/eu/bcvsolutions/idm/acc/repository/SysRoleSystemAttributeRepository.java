@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
-import eu.bcvsolutions.idm.acc.repository.projection.SysRoleSystemAttributeExcerpt;
+import eu.bcvsolutions.idm.acc.rest.projection.SysRoleSystemAttributeExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**

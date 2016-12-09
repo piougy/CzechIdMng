@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
-import eu.bcvsolutions.idm.core.model.dto.RoleCatalogueFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;

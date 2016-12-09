@@ -12,8 +12,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
-import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;

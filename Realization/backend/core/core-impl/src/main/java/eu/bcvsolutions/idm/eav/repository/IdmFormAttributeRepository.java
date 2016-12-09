@@ -9,10 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.eav.dto.FormAttributeFilter;
+import eu.bcvsolutions.idm.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionExcerpt;
+import eu.bcvsolutions.idm.eav.rest.projection.IdmFormAttributeExcerpt;
 
 /**
  * Form attribute definition repository
@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.eav.repository.projection.IdmFormAttributeDefinitionE
 		collectionResourceRel = "formAttributes", // 
 		path = "form-attributes", //
 		itemResourceRel = "formAttribute", //
-		excerptProjection = IdmFormAttributeDefinitionExcerpt.class,
+		excerptProjection = IdmFormAttributeExcerpt.class,
 		exported = false)
 public interface IdmFormAttributeRepository extends AbstractEntityRepository<IdmFormAttribute, FormAttributeFilter> {
 	

@@ -64,7 +64,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
-    this.selectNavigationItems(['sys-systems']);
+    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
   }
 
   /**

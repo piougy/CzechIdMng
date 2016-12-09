@@ -52,7 +52,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems']);
+    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
   }
 
   _getIsNew(nextProps) {

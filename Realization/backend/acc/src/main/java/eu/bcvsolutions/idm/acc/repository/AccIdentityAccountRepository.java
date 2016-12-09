@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -9,6 +10,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
@@ -64,4 +67,14 @@ public interface AccIdentityAccountRepository extends AbstractEntityRepository<A
 	 * @return
 	 */
 	int deleteByIdentity(@Param("identity") IdmIdentity identity);
+	
+	/**
+	 * Clears roleSystem
+	 * 
+	 * @param roleSystem
+	 * @return
+	 */
+	@Modifying
+	@Query("update AccIdentityAccount e set e.roleSystem = null where e.roleSystem = :roleSystem")
+	int clearRoleSystem(@Param("roleSystem") SysRoleSystem roleSystem);
 }

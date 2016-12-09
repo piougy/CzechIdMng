@@ -29,11 +29,13 @@ public interface SysProvisioningService {
 	void doProvisioning(AccAccount account);
 	
 	/**
-	 * Do provisioning for given identity account
-	 * 
-	 * @param identityAccount
+	 * Do provisioning for given account and identity
+	 * @param account
+	 * @param identity
+	 * @param system
+	 * @return
 	 */
-	public void doProvisioning(String uid, IdmIdentity identity, SysSystem system);
+	void doProvisioning(AccAccount account, IdmIdentity identity);
 
 	/**
 	 * Do delete provisioning for given account on connected system

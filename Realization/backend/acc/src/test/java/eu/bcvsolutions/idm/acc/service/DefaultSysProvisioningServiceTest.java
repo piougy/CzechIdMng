@@ -354,6 +354,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setUid(true);
+				attributeHandlingName.setEntityAttribute(false);
+				attributeHandlingName.setTransformToResourceScript("return \""+"x" + IDENTITY_USERNAME+"\";");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);

@@ -209,7 +209,7 @@ public class ConnIdIcfConvertUtil {
 		if (!icfAttribute.isMultiValue() && icfAttribute.getValue() != null) {
 			return AttributeBuilder.build(icfAttribute.getName(), icfAttribute.getValue());
 		}
-		if (icfAttribute.isMultiValue() && icfAttribute.getValue() != null) {
+		if (icfAttribute.isMultiValue() && icfAttribute.getValues() != null) {
 			return AttributeBuilder.build(icfAttribute.getName(), icfAttribute.getValues());
 		}
 

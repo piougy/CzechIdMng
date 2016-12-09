@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,21 +158,30 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				String uid = generateUID(identity, roleSystem);
 				
 				// We try find account for same uid on same system
-				AccountFilter accountFilter = new AccountFilter();
-				accountFilter.setUidId(uid);
-				accountFilter.setSystemId(roleSystem.getSystem().getId());
-				List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
+				// First we try search same accoutn in list for create new accounts
+				Optional<AccIdentityAccount> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
+					return ia.getAccount().getUid().equals(uid);
+				}).findFirst();
+				
 				AccAccount account = null;
-				if (CollectionUtils.isEmpty(sameAccounts)) {
-					account = new AccAccount();
-					account.setUid(uid);
-					account.setAccountType(AccountType.PERSONAL);
-					account.setSystem(roleSystem.getSystem());
-				} else {
-					// We use existed account
-					account = sameAccounts.get(0);
+				if(sameAccountOptional.isPresent()){
+					account = sameAccountOptional.get().getAccount();
+				}else{
+					// If account is not in list accounts to create, then we will search in database
+					AccountFilter accountFilter = new AccountFilter();
+					accountFilter.setUidId(uid);
+					accountFilter.setSystemId(roleSystem.getSystem().getId());
+					List<AccAccount> sameAccounts = accountService.find(accountFilter, null).getContent();
+					if (CollectionUtils.isEmpty(sameAccounts)) {
+						account = new AccAccount();
+						account.setUid(uid);
+						account.setAccountType(AccountType.PERSONAL);
+						account.setSystem(roleSystem.getSystem());
+					} else {
+						// We use existed account
+						account = sameAccounts.get(0);
 				}
-
+				}
 				AccIdentityAccount identityAccount = new AccIdentityAccount();
 				identityAccount.setAccount(account);
 				identityAccount.setIdentity(identity);

@@ -12,28 +12,31 @@ import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import eu.bcvsolutions.idm.core.api.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
+/**
+ * Creates records to global idm audit (searching through all entities, etc.)
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Configurable
 public class IdmAuditListener implements EntityTrackingRevisionListener {
 	
 	@Autowired
 	private IdmAuditService auditService;
-	
 	@Autowired
 	private SecurityService securityService;
-	
 	@PersistenceContext
 	private EntityManager entityManger;
 	
-	
 	@Override
 	public void newRevision(Object revisionEntity) {
-		// nothing ...
+		// nothing ... entityChanged is called instead this method
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -82,15 +85,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	 * 
 	 */
 	private void autowireServices() {
-		if (this.auditService == null) {
-			AutowireHelper.autowire(this, this.auditService);
-		}
-		if (this.entityManger == null) {
-			AutowireHelper.autowire(this, this.auditService);
-		}
-		if (this.securityService == null) {
-			AutowireHelper.autowire(this, this.securityService);
-		}
+		AutowireHelper.autowire(this, this.auditService, this.entityManger, this.securityService);
 	}
 
 }

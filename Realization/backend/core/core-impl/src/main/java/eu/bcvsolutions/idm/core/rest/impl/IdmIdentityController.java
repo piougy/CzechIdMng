@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
+import eu.bcvsolutions.idm.core.model.dto.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -46,6 +47,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -69,6 +71,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 
 	private final GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	private final IdmIdentityContractService identityContractService;
+	private final IdmIdentityRoleService identityRoleService;
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
@@ -83,6 +86,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			FormService formService,
 			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
 			IdmIdentityContractService identityContractService,
+			IdmIdentityRoleService identityRoleService,
 			WorkflowTaskInstanceService workflowTaskInstanceService,
 			WorkflowProcessInstanceService workflowProcessInstanceService,
 			IdmAuditService auditService) {
@@ -91,6 +95,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(formService);
 		Assert.notNull(grantedAuthoritiesFactory);
 		Assert.notNull(identityContractService);
+		Assert.notNull(identityRoleService);
 		Assert.notNull(workflowTaskInstanceService);
 		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(auditService);
@@ -98,13 +103,10 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		this.formService = formService;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
+		this.identityRoleService = identityRoleService;
 		this.workflowTaskInstanceService = workflowTaskInstanceService;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.auditService = auditService;
-	}
-	
-	IdmIdentityService getIdentityService() {
-		return (IdmIdentityService)getEntityService();
 	}
 	
 	@Override
@@ -177,8 +179,10 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
-		// TODO: IdmIdentityRoleService and pagination support?
-		return toResources((Iterable<?>) identity.getRoles(), assembler, IdmIdentityRole.class, null);
+		// TODO: pageable support 
+		IdentityRoleFilter filter = new IdentityRoleFilter();
+		filter.setIdentityId(identity.getId());
+		return toResources((Iterable<?>) identityRoleService.find(filter, null), assembler, IdmIdentityRole.class, null);
 	}
 	
 	@RequestMapping(value = "/{identityId}/identity-contracts", method = RequestMethod.GET)

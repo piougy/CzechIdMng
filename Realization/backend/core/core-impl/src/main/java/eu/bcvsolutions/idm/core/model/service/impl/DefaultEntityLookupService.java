@@ -64,6 +64,15 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
+	public <E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass) {
+		return (S)entityServices.getPluginFor(entityClass);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<E> entityClass) {
 		EntityLookup<E> lookup = (EntityLookup<E>)entityLookups.getPluginFor(entityClass);
 		if(lookup == null) {

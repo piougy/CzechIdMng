@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
@@ -84,8 +82,7 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 				return;
 			}
 
-			Authentication newAuthentication = authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
-			SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+			authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
 		} catch (ResultCodeException ex) {			
 			sendErrorModel(httpRequest, httpResponse, ex.getError().getError(), ex);
 			return;

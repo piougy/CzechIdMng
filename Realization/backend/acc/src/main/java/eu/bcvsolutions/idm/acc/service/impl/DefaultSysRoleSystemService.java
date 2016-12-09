@@ -7,8 +7,11 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
@@ -22,16 +25,20 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 public class DefaultSysRoleSystemService extends AbstractReadWriteEntityService<SysRoleSystem, RoleSystemFilter> implements SysRoleSystemService {
 
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
+	private final AccIdentityAccountRepository identityAccountRepository;
 	
 	@Autowired
 	public DefaultSysRoleSystemService(
 			SysRoleSystemRepository repository,
-			SysRoleSystemAttributeRepository roleSystemAttributeRepository) {
+			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
+			AccIdentityAccountRepository identityAccountRepository) {
 		super(repository);
 		//
 		Assert.notNull(roleSystemAttributeRepository);
+		Assert.notNull(identityAccountRepository);
 		//
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
+		this.identityAccountRepository = identityAccountRepository;
 	}
 	
 	
@@ -41,6 +48,9 @@ public class DefaultSysRoleSystemService extends AbstractReadWriteEntityService<
 		Assert.notNull(roleSystem);
 		// delete attributes
 		roleSystemAttributeRepository.deleteByRoleSystem(roleSystem);
+		//
+		// clear identityAccounts - only link on roleSystem
+		identityAccountRepository.clearRoleSystem(roleSystem);
 		//
 		super.delete(roleSystem);
 	}

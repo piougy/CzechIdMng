@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.security.service;
 
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 
 /**
@@ -10,6 +11,13 @@ import eu.bcvsolutions.idm.security.dto.LoginDto;
  */
 public interface LoginService {
 
-	public LoginDto login(String username, String password);
+	/**
+	 * Login identity and returns assigned token
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public LoginDto login(String username, GuardedString password);
 
 }

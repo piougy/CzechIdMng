@@ -89,9 +89,9 @@ export function data(state = INITIAL_STATE, action) {
         // check trimmed and modified date
         if (entity._trimmed === true && entities.has(entity.id)) {
           // check modified date - this is little dangerous, because some detail does not check trimmed flag
-          if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
+          /* if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
             entities = entities.set(entity.id, entity);
-          }
+          }*/
         } else {
           entities = entities.set(entity.id, entity);
         }

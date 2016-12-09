@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
@@ -18,7 +19,8 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -34,22 +36,34 @@ import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 @Component
 public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFactory {
 
-	@Autowired
-	private IdmIdentityRepository idmIdentityRepository;
+	private final IdmIdentityService identityService;
+	private final IdmIdentityRoleService identityRoleService;
+	private final SecurityService securityService;
 	
 	@Autowired
-	private SecurityService securityService;
+	public DefaultGrantedAuthoritiesFactory(
+			IdmIdentityService identityService,
+			IdmIdentityRoleService identityRoleService,
+			SecurityService securityService) {
+		Assert.notNull(identityService);
+		Assert.notNull(identityRoleService);
+		Assert.notNull(securityService);
+		//
+		this.identityService = identityService;
+		this.identityRoleService = identityRoleService;
+		this.securityService = securityService;
+	}
 
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(String username) {
-		IdmIdentity identity = idmIdentityRepository.findOneByUsername(username);
+		IdmIdentity identity = identityService.getByUsername(username);
 		if (identity == null) {
 			throw new IdmAuthenticationException("Identity " + username + " not found!");
 		}
 
 		// unique set of authorities from all active identity roles and subroles
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		identity.getRoles().stream() //
+		identityRoleService.getRoles(identity).stream() //
 				.filter(EntityUtils::isValid) //
 				.forEach(identityRole -> {
 					grantedAuthorities.addAll(getActiveRoleAuthorities(identityRole.getRole(), new HashSet<>()));

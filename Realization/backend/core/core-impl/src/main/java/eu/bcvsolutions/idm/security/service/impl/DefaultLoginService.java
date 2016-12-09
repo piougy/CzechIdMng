@@ -54,22 +54,26 @@ public class DefaultLoginService implements LoginService {
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
+	
+	@Autowired
+	private OAuthAuthenticationManager authenticationManager;
 
 	@Override
-	public LoginDto login(String username, String password) {
+	public LoginDto login(String username, GuardedString password) {
 		LOG.info("Identity with username [{}] authenticating", username);
 
 		if (!validate(username, password)) {
 			LOG.debug("Username or password for identity [{}] is not correct!", username);			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity password: Failed for identity {0} because the password digests differ.", username));
 		}
-
-		LOG.info("Identity with username [{}] is authenticated", username);
-
 		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
 		IdmJwtAuthentication authentication = new IdmJwtAuthentication(username, expiration,
 				grantedAuthoritiesFactory.getGrantedAuthorities(username));
+		
+		authenticationManager.authenticate(authentication);
+
+		LOG.info("Identity with username [{}] is authenticated", username);
 
 		IdmJwtAuthenticationDto authenticationDto = grantedAuthoritiesFactory
 				.getIdmJwtAuthenticationDto(authentication);
@@ -87,7 +91,7 @@ public class DefaultLoginService implements LoginService {
 		return loginDto;
 	}
 
-	private boolean validate(String username, String password) {
+	private boolean validate(String username, GuardedString password) {
 		IdmIdentity identity = identityService.getByUsername(username);
 		if (identity == null) {			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
@@ -100,7 +104,7 @@ public class DefaultLoginService implements LoginService {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;
 		}
-		if (password.equals(idmPassword.asString())) {
+		if (password.asString().equals(idmPassword.asString())) {
 			return true;
 		}
 		return false;

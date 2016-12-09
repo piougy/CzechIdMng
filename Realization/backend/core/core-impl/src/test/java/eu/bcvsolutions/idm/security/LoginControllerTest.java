@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.rest.LoginController;
@@ -29,10 +30,9 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	@Test
 	@Transactional
 	public void testSuccesfulLogIn() throws Exception {
-		// TODO: prepare test data - through flyway? Test db initializer with rollback only?
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(InitTestData.TEST_ADMIN_USERNAME);
-		loginDto.setPassword(InitTestData.TEST_ADMIN_PASSWORD);
+		loginDto.setPassword(new GuardedString(InitTestData.TEST_ADMIN_PASSWORD));
 		ResourceWrapper<LoginDto> response = loginController.login(loginDto);
 		
 		IdmJwtAuthenticationDto authentication = response.getResource().getAuthentication();
@@ -46,7 +46,7 @@ public class LoginControllerTest extends AbstractIntegrationTest {
 	public void testBadCredentialsLogIn() {
 		LoginDto loginDto = new LoginDto();
 		loginDto.setUsername(InitTestData.TEST_ADMIN_USERNAME);
-		loginDto.setPassword("wrong_pass");
+		loginDto.setPassword(new GuardedString("wrong_pass"));
 		loginController.login(loginDto);
 	}
 }

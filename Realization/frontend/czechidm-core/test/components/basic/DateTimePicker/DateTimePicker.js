@@ -1,8 +1,7 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import chai, { expect, fail } from 'chai';
+import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
-import _ from 'lodash';
 import ReactDOM from 'react-dom';
 // import Joi from 'joi';
 //

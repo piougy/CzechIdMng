@@ -159,6 +159,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	}
 	
 	/**
+	 * Quick search - parameters will be transformed to filter object
+	 * 
+	 * @see #toFilter(MultiValueMap)
 	 * 
 	 * @param parameters
 	 * @param pageable
@@ -172,6 +175,13 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return toResources(findEntities(toFilter(parameters), pageable), assembler, getEntityClass(), null);
 	}
 	
+	/**
+	 * Quick search - finds entities by given filter and pageable
+	 * 
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
 	public Page<E> findEntities(F filter, Pageable pageable) {
 		// TODO: read event
 		return getEntityService().find(filter, pageable);

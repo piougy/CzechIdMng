@@ -5,10 +5,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
@@ -20,7 +23,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  */
 @Order(0)
 @Component
-public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 
 	private final IdmIdentityRepository repository;
 	private final IdentityPasswordProcessor passwordProcessor;
@@ -29,7 +32,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	public IdentitySaveProcessor(
 			IdmIdentityRepository repository,
 			IdentityPasswordProcessor passwordProcessor) {
-		super(IdentityOperationType.SAVE);
+		super(IdentityEventType.SAVE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(passwordProcessor);
@@ -39,10 +42,8 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	}
 
 	@Override
-	public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-		Assert.notNull(context.getContent());
-		//
-		IdmIdentity identity = context.getContent();
+	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+		IdmIdentity identity = event.getContent();
 		GuardedString password = identity.getPassword();
 
 		identity = repository.save(identity);
@@ -50,7 +51,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 		if (password != null) {
 			passwordProcessor.savePassword(identity, password);
 		}
-		context.setContent(identity);
-		return context;
+		// TODO: clone identity - mutable previous event content :/
+		return new DefaultEventResult<>(new IdentityEvent(IdentityEventType.SAVE, identity, event.getProperties()), this);
 	}
 }

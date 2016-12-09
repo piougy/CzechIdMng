@@ -5,10 +5,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
@@ -19,14 +21,14 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
  */
 @Order(0)
 @Component
-public class IdentityRoleDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
+public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityRole> {
 
 	private final IdmIdentityRoleRepository repository;
 	
 	@Autowired
 	public IdentityRoleDeleteProcessor(
 			IdmIdentityRoleRepository repository) {
-		super(IdentityRoleOperationType.DELETE);
+		super(IdentityRoleEventType.DELETE);
 		//
 		Assert.notNull(repository);
 		//
@@ -34,11 +36,9 @@ public class IdentityRoleDeleteProcessor extends AbstractEntityEventProcessor<Id
 	}
 
 	@Override
-	public EntityEvent<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> context) {
-		Assert.notNull(context.getContent());
+	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
+		repository.delete(event.getContent());
 		//
-		repository.delete(context.getContent());
-		//
-		return context;
+		return new DefaultEventResult<>(event, this);
 	}
 }

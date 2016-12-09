@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
@@ -27,9 +26,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
-import eu.bcvsolutions.idm.acc.repository.SysRoleSystemRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
@@ -70,7 +69,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final IcfConfigurationFacade icfConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSchemaAttributeService attributeService;
-	private final SysRoleSystemRepository roleSystemRepository;
+	private final SysRoleSystemService roleSystemService;
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
 	private final SysSystemEntityHandlingService systemEntityHandlingService;
@@ -78,9 +77,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * Connector property type vs. eav type mapping
 	 */
 	private static final Map<String, ConnectorPropertyMapping> supportedConnectorPropertyMapping;
-	
-	@Autowired
-	DataSource dataSource;
 
 	static {
 		// TODO: converter registration?
@@ -111,7 +107,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			IcfConfigurationFacade icfConfigurationFacade, 
 			SysSchemaObjectClassService objectClassService,
 			SysSchemaAttributeService attributeService,
-			SysRoleSystemRepository roleSystemRepository,
+			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
 			SysSystemEntityHandlingService systemEntityHandlingService) {
@@ -120,7 +116,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(icfConfigurationFacade);
 		Assert.notNull(objectClassService);
 		Assert.notNull(attributeService);
-		Assert.notNull(roleSystemRepository);
+		Assert.notNull(roleSystemService);
 		Assert.notNull(systemEntityRepository);
 		Assert.notNull(accountRepository);
 		Assert.notNull(systemEntityHandlingService);
@@ -129,7 +125,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.icfConfigurationFacade = icfConfigurationFacade;
 		this.objectClassService = objectClassService;
 		this.attributeService = attributeService;
-		this.roleSystemRepository = roleSystemRepository;
+		this.roleSystemService = roleSystemService;
 		this.systemEntityRepository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.systemEntityHandlingService = systemEntityHandlingService;
@@ -157,7 +153,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			objectClassService.delete(schemaObjectClass);
 		});
 		// delete mapped roles
-		roleSystemRepository.deleteBySystem(system);		
+		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		roleSystemFilter.setSystemId(system.getId());
+		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
+			roleSystemService.delete(roleSystem);
+		});
 		//
 		super.delete(system);
 	}
@@ -462,11 +462,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	/**
 	 * Returns persistent type for given connector property type
 	 * 
+	 * TODO: Move to convert utils
+	 * 
 	 * @param type
 	 * @return
 	 */
-	@Override
-	public PersistentType convertPropertyType(String connectorPropertyType) {
+	public static PersistentType convertPropertyType(String connectorPropertyType) {
 		if (!supportedConnectorPropertyMapping.containsKey(connectorPropertyType)) {
 			throw new UnsupportedOperationException(
 					MessageFormat.format("Unsupported connector property data type [{0}]", connectorPropertyType));

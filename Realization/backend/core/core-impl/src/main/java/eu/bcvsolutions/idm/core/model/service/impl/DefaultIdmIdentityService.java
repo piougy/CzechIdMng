@@ -16,14 +16,14 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
 import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
@@ -44,14 +44,14 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 
 	private final IdmIdentityRepository identityRepository;
 	private final IdmRoleRepository roleRepository;
-	private final EntityEventProcessorService entityEventProcessorService;
+	private final EntityEventProcessorManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository identityRepository,
 			FormService formService,
 			IdmRoleRepository roleRepository,
-			EntityEventProcessorService entityEventProcessorService) {
+			EntityEventProcessorManager entityEventProcessorService) {
 		super(identityRepository, formService);
 		//
 		Assert.notNull(roleRepository);
@@ -68,7 +68,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(identity);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
-		return entityEventProcessorService.process(new IdentityEvent(IdentityOperationType.SAVE, identity)).getContent();
+		return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.SAVE, identity)).getContent();
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(identity);
 		//
 		LOG.debug("Deleting identity [{}]", identity.getUsername());
-		entityEventProcessorService.process(new IdentityEvent(IdentityOperationType.DELETE, identity));
+		entityEventProcessorService.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		LOG.debug("Changing password for identity [{}]", identity.getUsername());
 		entityEventProcessorService.process(
 				new IdentityEvent(
-						IdentityOperationType.PASSWORD, 
+						IdentityEventType.PASSWORD, 
 						identity, 
 						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));	
 	}

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -14,6 +16,8 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
+import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -43,6 +47,19 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 	
 	@Autowired
 	private FormService formService;
+	
+	@Autowired
+	private IdmFormDefinitionService formDefinitionService;	
+	
+	@Before
+	public void login() {
+		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
+	
+	@After 
+	public void logout() {
+		super.logout();
+	}
 	
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -153,9 +170,7 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 	}
 	
 	@Test
-	public void testReadDefaultDefinition() {
-		formService.getDefinition(IdmIdentity.class);
-		
+	public void testReadDefaultDefinition() {		
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
 		
 		assertNotNull(formDefinition);
@@ -225,6 +240,24 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 		List<AbstractFormValue<FormableEntity>> savedValues = formService.getValues(owner);
 		assertEquals(1, savedValues.size());
 		assertEquals(GuardedString.SECRED_PROXY_STRING, formService.toSinglePersistentValue(savedValues));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testDeleteDefinitionWithFormValues() {
+		FormableEntity owner = createTestOwner("test7");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		
+		// save password
+		AbstractFormValue value1 = new IdmIdentityFormValue(formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PASSWORD));
+		value1.setValue(FORM_VALUE_ONE);
+		
+		formService.saveValues(owner, formDefinition, Lists.newArrayList(value1));
+		
+		List<AbstractFormValue<FormableEntity>> savedValues = formService.getValues(owner);
+		assertEquals(1, savedValues.size());
+		
+		formDefinitionService.delete(formDefinition);
 	}
 	
 	private FormableEntity createTestOwner(String name) {

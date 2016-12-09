@@ -83,7 +83,7 @@ public class DefaultModuleService implements ModuleService {
 			return true;
 		}
 		return configurationService.getBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), false, ENABLED_PROPERTY), false);
+				getModuleConfigurationProperty(moduleDescriptor.getId(), ENABLED_PROPERTY), false);
 	}
 
 	public void enable(String moduleId) {
@@ -103,7 +103,7 @@ public class DefaultModuleService implements ModuleService {
 		//
 		// TODO: license check if module is enabling
 		configurationService.setBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), false, ENABLED_PROPERTY), enabled);
+				getModuleConfigurationProperty(moduleDescriptor.getId(), ENABLED_PROPERTY), enabled);
 	}
 	
 	public List<GroupPermission> getAvailablePermissions() {
@@ -122,11 +122,9 @@ public class DefaultModuleService implements ModuleService {
 	 * @param property
 	 * @return
 	 */
-	private static String getModuleConfigurationProperty(String moduleId, boolean secured, String property) {
-		return secured //
-				? IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX //
-				: IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
-				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property; //
+	private static String getModuleConfigurationProperty(String moduleId, String property) {
+		return IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
+				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property;
 	}
 
 }

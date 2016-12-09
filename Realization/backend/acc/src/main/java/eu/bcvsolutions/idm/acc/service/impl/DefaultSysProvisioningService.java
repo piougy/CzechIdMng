@@ -257,7 +257,10 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				}
 			} else {
 				// We don't have overloading attribute, we will use default
-				finalAttributes.add(defaultAttribute);
+				// If is default attribute disabled, then we don't use him
+				if(!defaultAttribute.isDisabledAttribute()){
+					finalAttributes.add(defaultAttribute);
+				}
 			}
 
 		});
@@ -332,6 +335,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
 		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
 		overloadedAttribute.setUid(overloadingAttribute.isUid());
+		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
 	}
 
 	@Override
@@ -782,7 +786,6 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			return uid;
 		}
 		if (attributeHandling.isExtendedAttribute()) {
-			// TODO: prototype of form service calling
 			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
 					.getMappedAttributeByName(attributeHandling.getIdmPropertyName());
 			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity,
@@ -798,13 +801,19 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			return formValue.getValue();
 		}
 		// Find value from entity
-		if (attributeHandling.getSchemaAttribute().getClassType().equals(GuardedString.class.getName())) {
-			// If is attribute type GuardedString, then we will find value in
-			// secured storage
-			return confidentialStorage.getGuardedString(entity, attributeHandling.getIdmPropertyName());
+		if(attributeHandling.isEntityAttribute()){
+			if (attributeHandling.isConfidentialAttribute()) {
+				// If is attribute isConfidential, then we will find value in
+				// secured storage
+				return confidentialStorage.getGuardedString(entity, attributeHandling.getIdmPropertyName());
+			}
+			// We will search value directly in entity by property name
+			return getEntityValue(entity, attributeHandling.getIdmPropertyName());
 		}
-		// We will search value directly in entity by property name
-		return getEntityValue(entity, attributeHandling.getIdmPropertyName());
+		
+		// Attribute value is not in entity nor in extended attribute.
+		// It means attribute is static ... we will call transformation to resource in createIcfAttribute.
+		return null;
 	}
 
 	/**

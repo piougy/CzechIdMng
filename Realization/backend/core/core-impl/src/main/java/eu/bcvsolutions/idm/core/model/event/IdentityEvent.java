@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 /**
@@ -13,13 +13,21 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  * @author Radek Tomiška
  *
  */
-public class IdentityEvent extends AbstractEntityEvent<IdmIdentity> {
+public class IdentityEvent extends CoreEvent<IdmIdentity> {
 
-	public IdentityEvent(IdentityOperationType operation, IdmIdentity content) {
+	/**
+	 * Supported identity events
+	 *
+	 */
+	public enum IdentityEventType implements EventType<IdmIdentity> {
+		SAVE, DELETE, PASSWORD // TODO: split SAVE to UPDATE / CREATE?
+	}
+	
+	public IdentityEvent(IdentityEventType operation, IdmIdentity content) {
 		super(operation, content);
 	}
 	
-	public IdentityEvent(IdentityOperationType operation, IdmIdentity content, Map<String, Serializable> properties) {
+	public IdentityEvent(IdentityEventType operation, IdmIdentity content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

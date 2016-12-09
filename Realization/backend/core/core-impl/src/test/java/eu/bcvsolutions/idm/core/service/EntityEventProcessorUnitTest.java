@@ -2,22 +2,32 @@ package eu.bcvsolutions.idm.core.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.annotation.Order;
+import org.mockito.Mock;
 
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
-import eu.bcvsolutions.idm.core.api.event.IdentityOperationType;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorService;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent;
+import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultEntityEventProcessorManager;
+import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -28,7 +38,11 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  */
 public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 
-	private DefaultEntityEventProcessorService entityProcessorService;
+	private DefaultEntityEventProcessorManager entityProcessorService;
+	private RoleEventProcessor roleEventProcessor;
+	
+	@Mock
+	private EnabledEvaluator enabledEvaluator;
 	
 	@Before
 	public void init() {
@@ -36,93 +50,154 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 		entityProcessors.add(new EventProcessorThree());	
 		entityProcessors.add(new EventProcessorTwo());
 		entityProcessors.add(new EventProcessorOne());	
-		entityProcessors.add(new EventProcessorFour());	
-		entityProcessorService = new DefaultEntityEventProcessorService(entityProcessors);
+		roleEventProcessor = new RoleEventProcessor();
+		entityProcessors.add(roleEventProcessor);	
+		entityProcessors.add(new EventProcessorFive());	
+		entityProcessorService = new DefaultEntityEventProcessorManager(entityProcessors, enabledEvaluator);
 	}
 	
 	@Test
 	public void testSupportContext() {
-		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityOperationType.SAVE, new IdmIdentity());
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());
 		
 		EntityEventProcessor<?> processor = new EventProcessorOne();
 		
-		assertTrue(processor.supports(context));
+		assertTrue(processor.supports(event));
 	}
 	
 	@Test
 	public void testOrder() {
-		EntityEvent<IdmIdentity> context = new IdentityEvent(IdentityOperationType.SAVE, new IdmIdentity());
+		when(enabledEvaluator.isEnabled((Object)any())).thenReturn(true);		
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());		
+		List<EntityEventProcessor<IdmIdentity>> processors = entityProcessorService.getProcessors(event);
 		
-		List<EntityEventProcessor<IdmIdentity>> processors = entityProcessorService.getProcessors(context);
+		assertEquals(4, processors.size());
 		
-		assertEquals(3, processors.size());
+		entityProcessorService.process(event);
 		
-		entityProcessorService.process(context);
+		assertEquals("two", event.getContent().getUsername());
 		
-		assertEquals("two", context.getContent().getUsername());
+		verify(enabledEvaluator, times(8)).isEnabled((Object)any());
 	}
 	
 	@Test
 	public void testSkipAfterComplete() {
+		when(enabledEvaluator.isEnabled((Object)any())).thenReturn(true);		
+		EntityEvent<IdmIdentity> event = new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity());		
 		
+		entityProcessorService.process(event);
+		
+		assertEquals("two", event.getContent().getUsername());
+		
+		verify(enabledEvaluator, times(4)).isEnabled((Object)any());
+	}
+	
+	@Test
+	public void testDisabledModule() {
+		when(enabledEvaluator.isEnabled(roleEventProcessor)).thenReturn(false);
+		EntityEvent<IdmRole> event = new RoleEvent(RoleEventType.DELETE, new IdmRole());		
+		List<EntityEventProcessor<IdmRole>> processors = entityProcessorService.getProcessors(event);
+		
+		assertEquals(0, processors.size());		
+		
+		verify(enabledEvaluator).isEnabled(roleEventProcessor);
+	}
+	
+	@Test
+	public void testEnabledModule() {
+		when(enabledEvaluator.isEnabled(roleEventProcessor)).thenReturn(true);
+		EntityEvent<IdmRole> event = new RoleEvent(RoleEventType.DELETE, new IdmRole());		
+		List<EntityEventProcessor<IdmRole>> processors = entityProcessorService.getProcessors(event);
+		
+		assertEquals(1, processors.size());		
+		
+		verify(enabledEvaluator).isEnabled(roleEventProcessor);
 	}
 
-	@Order(1)
 	private class EventProcessorOne extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorOne() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("one");
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("one");
+			return new DefaultEventResult<>(event, this);
+		}
+
+		@Override
+		public int getOrder() {
+			return 1;
 		}
 
 	}
 	
-	@Order(2)
 	private class EventProcessorTwo extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorTwo() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("two");
-			context.setComplete(true);
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("two");
+			return new DefaultEventResult<>(event, this, true);
+		}
+		
+		@Override
+		public int getOrder() {
+			return 2;
 		}
 
 	}
 	
-	@Order(3)
 	private class EventProcessorThree extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorThree() {
-			super(IdentityOperationType.SAVE);
+			super(IdentityEventType.SAVE);
 		}
 
 		@Override
-		public EntityEvent<IdmIdentity> process(EntityEvent<IdmIdentity> context) {
-			context.getContent().setUsername("three");
-			return context;
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("three");
+			return new DefaultEventResult<>(event, this, true);
+		}
+
+		@Override
+		public int getOrder() {
+			return 3;
+		}
+	}
+	
+	private class EventProcessorFive extends AbstractEntityEventProcessor<IdmIdentity> {
+
+		public EventProcessorFive() {
+			super(IdentityEventType.SAVE);
+		}
+
+		@Override
+		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
+			event.getContent().setUsername("three");
+			return new DefaultEventResult<>(event, this, true);
+		}
+		
+		@Override
+		public int getOrder() {
+			return 4;
 		}
 
 	}
 	
-	@Order(0)
-	private class EventProcessorFour extends AbstractEntityEventProcessor<IdmRole> {
+	private class RoleEventProcessor extends CoreEventProcessor<IdmRole> {
 
-		public EventProcessorFour() {
-			super("SAVE");
+		public RoleEventProcessor() {
+			super(RoleEventType.DELETE);
 		}
 
 		@Override
-		public EntityEvent<IdmRole> process(EntityEvent<IdmRole> context) {
-			return context;
+		public EventResult<IdmRole> process(EntityEvent<IdmRole> event) {
+			return new DefaultEventResult<>(event, this);
 		}
 
 	}

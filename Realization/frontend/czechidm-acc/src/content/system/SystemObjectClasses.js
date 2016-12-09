@@ -33,13 +33,12 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
+    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
     if (add) {
-      // When we add new object class, then we need id of system as parametr and use "new" url
       const uuidId = uuid.v1();
-      const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
-      this.context.router.push(`/schema-object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.router.push(`/system/${system}/schema-object-classes/${uuidId}/new?new=1&systemId=${system}`);
     } else {
-      this.context.router.push(`/schema-object-classes/${entity.id}/detail`);
+      this.context.router.push(`/system/${system}/schema-object-classes/${entity.id}/detail`);
     }
   }
 

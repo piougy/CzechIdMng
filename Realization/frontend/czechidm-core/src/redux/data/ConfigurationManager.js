@@ -115,6 +115,17 @@ export default class ConfigurationManager extends EntityManager {
   }
 
   /**
+   * Returns setting value as boolean. Return false, when setting is null.
+   *
+   * @param  {redux state} state
+   * @param  {string} key
+   * @return {boolean}
+   */
+  static getPublicValueAsBoolean(state, key) {
+    return ConfigurationManager.getPublicValue(state, key) === 'true';
+  }
+
+  /**
    * Returns true, when module is enabled, false when disabled, null when configuration is not found.
    */
   static isModuleEnabled(state, moduleId) {

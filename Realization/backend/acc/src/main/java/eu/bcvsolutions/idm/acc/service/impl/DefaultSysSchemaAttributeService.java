@@ -6,9 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
@@ -22,17 +23,17 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntityService<SysSchemaAttribute, SchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
-	private final SysSchemaAttributeHandlingRepository schemaAttributeHandlingRepository;
+	private final SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 
 	@Autowired
 	public DefaultSysSchemaAttributeService(
 			SysSchemaAttributeRepository repository,
-			SysSchemaAttributeHandlingRepository schemaAttributeHandlingRepository) {
+			SysSchemaAttributeHandlingService schemaAttributeHandlingService) {
 		super(repository);
 		//
-		Assert.notNull(schemaAttributeHandlingRepository);
+		Assert.notNull(schemaAttributeHandlingService);
 		//
-		this.schemaAttributeHandlingRepository = schemaAttributeHandlingRepository;
+		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
 	}
 	
 	@Override
@@ -41,7 +42,11 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntitySer
 		Assert.notNull(schemaAttribute);
 		// 
 		// remove all handled attributes
-		schemaAttributeHandlingRepository.deleteBySchemaAttribute(schemaAttribute);
+		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
+		filter.setSchemaAttributeId(schemaAttribute.getId());
+		schemaAttributeHandlingService.find(filter, null).forEach(schemaAttributeHandling -> {
+			schemaAttributeHandlingService.delete(schemaAttributeHandling);
+		});
 		//
 		super.delete(schemaAttribute);
 	}

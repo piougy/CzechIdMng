@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.acc.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +12,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
@@ -37,23 +66,151 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private static final String SYSTEM_NAME_TWO = "test_system_two_" + System.currentTimeMillis();
 	
 	@Autowired
-	private SysSystemService sysSystemService;
-	
+	private SysSystemService systemService;	
 	@Autowired
-	private IdmFormDefinitionService formDefinitionService;
-	
+	private IdmFormDefinitionService formDefinitionService;	
 	@Autowired
-	private IdmFormAttributeRepository formAttributeDefinitionRepository;
-	
+	private IdmFormAttributeRepository formAttributeDefinitionRepository;	
 	@Autowired
-	private FormService formService;
-	
+	private FormService formService;	
 	@Autowired
 	private IcfConfigurationFacade icfConfigurationAggregatorService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
+	@Autowired
+	private SysSchemaAttributeService schemaAttributeService;
+	@Autowired
+	private IdmRoleService roleService;
+	@Autowired
+	private SysRoleSystemService roleSystemService;
+	@Autowired
+	private SysSystemEntityHandlingService systemEntityHandlingService;
+	@Autowired
+	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	@Autowired
+	private SysRoleSystemAttributeService roleSystemAttributeService;
+	@Autowired
+	private AccAccountService accountService;
+	@Autowired
+	private SysSystemEntityService systemEntityService;
 	
 	@Before
 	public void login() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
+	}
+	
+	@After 
+	public void logout() {
+		super.logout();
+	}
+	
+	@Test
+	public void testReferentialIntegrity() {
+		SysSystem system = new SysSystem();
+		String systemName = "t_s_" + System.currentTimeMillis();
+		system.setName(systemName);
+		system = systemService.save(system);
+		// object class
+		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
+		objectClass.setSystem(system);
+		objectClass.setObjectClassName("obj_class");
+		schemaObjectClassService.save(objectClass);	
+		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
+		objectClassFilter.setSystemId(system.getId());
+		// schema attribute
+		SysSchemaAttribute schemaAttribute = new SysSchemaAttribute();
+		schemaAttribute.setObjectClass(objectClass);
+		schemaAttribute.setName("name");
+		schemaAttribute.setClassType("class");
+		schemaAttributeService.save(schemaAttribute);
+		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
+		schemaAttributeFilter.setSystemId(system.getId());	
+		// system entity handling
+		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
+		entityHandling.setSystem(system);
+		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
+		entityHandling.setEntityType(SystemEntityType.IDENTITY);
+		entityHandling = systemEntityHandlingService.save(entityHandling);
+		SystemEntityHandlingFilter entityHandlingFilter = new SystemEntityHandlingFilter();
+		entityHandlingFilter.setSystemId(system.getId());
+		// schema attribute handling
+		SysSchemaAttributeHandling schemaAttributeHandling = new SysSchemaAttributeHandling();
+		schemaAttributeHandling.setSchemaAttribute(schemaAttribute);
+		schemaAttributeHandling.setSystemEntityHandling(entityHandling);
+		schemaAttributeHandling.setName("name");
+		schemaAttributeHandling.setIdmPropertyName("name");
+		schemaAttributeHandlingService.save(schemaAttributeHandling);
+		SchemaAttributeHandlingFilter schemaAttributeHandlingFilter = new SchemaAttributeHandlingFilter(); 
+		schemaAttributeHandlingFilter.setSystemId(system.getId());		
+		// role system
+		IdmRole role = new IdmRole();
+		String roleName = "test_r_" + System.currentTimeMillis();
+		role.setName(roleName);
+		role = roleService.save(role);
+		SysRoleSystem roleSystem = new SysRoleSystem();
+		roleSystem.setSystem(system);
+		roleSystem.setRole(role);
+		roleSystem.setSystemEntityHandling(entityHandling);
+		roleSystemService.save(roleSystem);
+		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		roleSystemFilter.setRoleId(role.getId());
+		// role system attributes
+		SysRoleSystemAttribute roleSystemAttribute = new SysRoleSystemAttribute();
+		roleSystemAttribute.setRoleSystem(roleSystem);
+		roleSystemAttribute.setSchemaAttributeHandling(schemaAttributeHandling);
+		roleSystemAttribute.setName("name");
+		roleSystemAttribute.setIdmPropertyName("name");
+		roleSystemAttribute = roleSystemAttributeService.save(roleSystemAttribute);
+		
+		assertEquals(systemName, systemService.getByName(systemName).getName());
+		assertEquals(1, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
+		assertEquals(1, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
+		assertEquals(1, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
+		assertEquals(1, schemaAttributeHandlingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
+		assertEquals(1, roleSystemService.find(roleSystemFilter, null).getTotalElements());
+		assertNotNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
+		
+		systemService.delete(system);
+		
+		assertNull(systemService.getByName(systemName));
+		assertEquals(0, schemaObjectClassService.find(objectClassFilter, null).getTotalElements());
+		assertEquals(0, schemaAttributeService.find(schemaAttributeFilter, null).getTotalElements());
+		assertEquals(0, systemEntityHandlingService.find(entityHandlingFilter, null).getTotalElements());
+		assertEquals(0, schemaAttributeHandlingService.find(schemaAttributeHandlingFilter, null).getTotalElements());
+		assertEquals(0, roleSystemService.find(roleSystemFilter, null).getTotalElements());
+		assertNull(roleSystemAttributeService.get(roleSystemAttribute.getId()));
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testReferentialIntegrityAccountExists() {
+		SysSystem system = new SysSystem();
+		String systemName = "t_s_" + System.currentTimeMillis();
+		system.setName(systemName);
+		system = systemService.save(system);
+		// account
+		AccAccount account = new AccAccount();
+		account.setSystem(system);
+		account.setUid("test_uid_" + System.currentTimeMillis());
+		account.setAccountType(AccountType.PERSONAL);
+		account = accountService.save(account);
+		
+		systemService.delete(system);
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testReferentialIntegritySystemEntityExists() {
+		SysSystem system = new SysSystem();
+		String systemName = "t_s_" + System.currentTimeMillis();
+		system.setName(systemName);
+		system = systemService.save(system);
+		// system entity
+		SysSystemEntity systemEntity = new SysSystemEntity();
+		systemEntity.setSystem(system);
+		systemEntity.setEntityType(SystemEntityType.IDENTITY);
+		systemEntity.setUid("se_uid_" + System.currentTimeMillis());
+		systemEntityService.save(systemEntity);
+		
+		systemService.delete(system);
 	}
 	
 	/**
@@ -64,8 +221,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create owner
 		SysSystem system = new SysSystem();
 		system.setName(SYSTEM_NAME_ONE);
-		sysSystemService.save(system);	
-		SysSystem systemOne = sysSystemService.getByName(SYSTEM_NAME_ONE);		
+		systemService.save(system);	
+		SysSystem systemOne = systemService.getByName(SYSTEM_NAME_ONE);		
 		assertEquals(SYSTEM_NAME_ONE, systemOne.getName());
 		//
 		// create definition one
@@ -110,14 +267,14 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create second owner
 		SysSystem systemTwo = new SysSystem();
 		systemTwo.setName(SYSTEM_NAME_TWO);		
-		systemTwo = sysSystemService.save(systemTwo);
+		systemTwo = systemService.save(systemTwo);
 		
 		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
 		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
 		assertEquals(1, formService.getValues(systemOne, formDefinitionOne).size());
 		assertEquals(1, formService.getValues(systemOne, formDefinitionTwo).size());
 		
-		sysSystemService.delete(systemTwo);
+		systemService.delete(systemTwo);
 		
 		assertEquals(0, formService.getValues(systemTwo, formDefinitionOne).size());
 		assertEquals(0, formService.getValues(systemTwo, formDefinitionTwo).size());
@@ -128,7 +285,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
 		assertEquals("test2", formService.getValues(systemOne, formDefinitionTwo).get(0).getStringValue());
 		
-		sysSystemService.delete(systemOne);
+		systemService.delete(systemOne);
 		
 		assertEquals(0, formService.getValues(systemOne, formDefinitionOne).size());
 		assertEquals(0, formService.getValues(systemOne, formDefinitionTwo).size());
@@ -137,11 +294,11 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testCreateConnectorConfiguration() {
 		// TODO: test system will be moved here, after UI eav form implementation
-		IcfConnectorKey connectorKey = sysSystemService.getTestConnectorKey();
+		IcfConnectorKey connectorKey = systemService.getTestConnectorKey();
 		
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
 		
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(connectorKey);
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorKey);
 		
 		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
 		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getDisplayName());
@@ -150,8 +307,8 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testFillConnectorConfiguration() {
 		// create owner
-		SysSystem system =  sysSystemService.createTestSystem();		
-		IcfConnectorConfiguration connectorConfiguration = sysSystemService.getConnectorConfiguration(system);		
+		SysSystem system =  systemService.createTestSystem();		
+		IcfConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);		
 		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
 		//
 		// check all supported data types
@@ -188,7 +345,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void testReadValuesFromDefaultFormDefinitionNotExists() {
 		SysSystem system = new SysSystem();
 		system.setName(SYSTEM_NAME_ONE + "_" + System.currentTimeMillis());
-		sysSystemService.save(system);
+		systemService.save(system);
 		formService.getValues(system);
 	}
 	

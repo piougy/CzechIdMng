@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEvent;
-import eu.bcvsolutions.idm.core.api.event.IdentityRoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 
 /**
@@ -13,13 +13,21 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  * @author Radek Tomiška
  *
  */
-public class IdentityRoleEvent extends AbstractEntityEvent<IdmIdentityRole> {
+public class IdentityRoleEvent extends CoreEvent<IdmIdentityRole> {
 
-	public IdentityRoleEvent(IdentityRoleOperationType operation, IdmIdentityRole content) {
+	/**
+	 * Supported identity events
+	 *
+	 */
+	public enum IdentityRoleEventType implements EventType<IdmIdentityRole> {
+		SAVE, DELETE // TODO: split SAVE to UPDATE / CREATE?
+	}
+	
+	public IdentityRoleEvent(IdentityRoleEventType operation, IdmIdentityRole content) {
 		super(operation, content);
 	}
 	
-	public IdentityRoleEvent(IdentityRoleOperationType operation, IdmIdentityRole content, Map<String, Serializable> properties) {
+	public IdentityRoleEvent(IdentityRoleEventType operation, IdmIdentityRole content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

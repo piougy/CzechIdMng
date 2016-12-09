@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -53,6 +54,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 
 /**
@@ -73,7 +75,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final FormService formService;
 	
 	@Autowired 
-	private IdmFormDefinitionController formDefinitionController;
+	private IdmFormDefinitionController formDefinitionController; // TODO: is used for serialize to json only => should be removed
 	
 	@Autowired
 	public IdmIdentityController(
@@ -126,15 +128,11 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * Delete identity is not supported now
-	 * 
-	 * TODO: delete identity should depend on env configuration
-	 */
 	@Override
-	public void deleteEntity(IdmIdentity identity) {
-		// super.deleteEntity(identity);
-		throw new ResultCodeException(CoreResultCode.METHOD_NOT_ALLOWED);
+	@Enabled(property = IdentityConfiguration.PROPERTY_IDENTITY_DELETE)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.IDENTITY_DELETE + "')")
+	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
+		return super.delete(backendId);
 	}
 
 	/**

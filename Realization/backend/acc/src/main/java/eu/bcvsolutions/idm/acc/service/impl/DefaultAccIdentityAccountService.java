@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.io.Serializable;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
@@ -13,7 +13,6 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 
@@ -24,43 +23,41 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
  *
  */
 @Service
-public class DefaultAccIdentityAccountService
-		extends AbstractReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter>
-		implements AccIdentityAccountService {
+public class DefaultAccIdentityAccountService extends
+		AbstractReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter> implements AccIdentityAccountService {
 
 	private final AccAccountService accountService;
 	private final IdmIdentityRoleService identityRoleService;
-	
-	private SysProvisioningService provisioningService;
-	@Autowired
-	private ApplicationContext applicationContext;
 
 	@Autowired
-	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
-
-			AccAccountService accountService, IdmIdentityRoleService identityRoleService) {
+	public DefaultAccIdentityAccountService(
+			AccIdentityAccountRepository identityAccountRepository,
+			AccAccountService accountService, 
+			IdmIdentityRoleService identityRoleService) {
 		super(identityAccountRepository);
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleService);
 		this.accountService = accountService;
 		this.identityRoleService = identityRoleService;
 	}
-	
 
 	@Override
+	@Transactional(readOnly = true)
 	public AccIdentityAccount get(Serializable id) {
-		// I don't want use excerpt, so I have to do manual load account and identityRole
-		AccIdentityAccount ia =  super.get(id);
-		if(ia != null && ia.getAccount() != null){
+		// I don't want use excerpt, so I have to do manual load account and
+		// identityRole
+		AccIdentityAccount ia = super.get(id);
+		if (ia != null && ia.getAccount() != null) {
 			ia.setAccount(accountService.get(ia.getAccount().getId()));
 		}
-		if(ia != null && ia.getIdentityRole() != null){
+		if (ia != null && ia.getIdentityRole() != null) {
 			ia.setIdentityRole(identityRoleService.get(ia.getIdentityRole().getId()));
 		}
 		return ia;
 	}
 
 	@Override
+	@Transactional
 	public void delete(AccIdentityAccount entity) {
 		Assert.notNull(entity);
 
@@ -82,15 +79,5 @@ public class DefaultAccIdentityAccountService
 			super.delete(entity);
 		}
 	}
-	
-	/**
-	 * TODO: remove this lazy injection after provisioning event event will be done
-	 * @return
-	 */
-	public SysProvisioningService getProvisioningService() {
-		if(provisioningService == null){
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
-		}
-		return provisioningService;
-	}
+
 }

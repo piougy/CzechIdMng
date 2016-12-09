@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.security.service.impl;
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -10,8 +8,9 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.security.exception.ConfigurationDisabledException;
-import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ConfigurationDisabledException;
+import eu.bcvsolutions.idm.security.api.exception.ModuleDisabledException;
+import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 
 /**
  * Evaluates {@link Enabled} annotation.
@@ -19,38 +18,83 @@ import eu.bcvsolutions.idm.security.exception.ModuleDisabledException;
  * @author Radek Tomiška
  *
  */
-@Aspect
 @Component
-public class EnabledEvaluator {
+public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	
 	private final ModuleService moduleService;
 	private final IdmConfigurationService configurationService;
 	
 	@Autowired
-	public EnabledEvaluator(ModuleService moduleService, IdmConfigurationService configurationService) {
+	public DefaultEnabledEvaluator(ModuleService moduleService, IdmConfigurationService configurationService) {
 		Assert.notNull(moduleService, "ModuleService is required");
 		Assert.notNull(configurationService, "IdmConfigurationService is configurationService");
 		//
 		this.moduleService = moduleService;
 		this.configurationService = configurationService;
 	}
-
+	
 	/**
-	 * Checks enabled modules and configuration propertise
+	 * Returns true, if all of modules and configuration properties are enabled
 	 * 
-	 * @param jp
-	 * @param bean
 	 * @param ifEnabled
-	 * @throws ModuleDisabledException if any module is disabled
-	 * @throws ConfigurationDisabledException if any property is disabled
+	 * @return
 	 */
-	@Before(value = "target(bean) && (@annotation(ifEnabled) || @within(ifEnabled))", argNames="bean,ifEnabled")
-	public void checkIsEnabled(JoinPoint jp, Object bean, Enabled ifEnabled) {
+	@Override
+	public boolean isEnabled(Enabled enabled) {
+		Assert.notNull(enabled);
+		//
+		try {
+			checkEnabled(enabled);
+		} catch(ModuleDisabledException|ConfigurationDisabledException ex) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns true, if given bean is enabled (or does not have enabled annotation defined).
+	 * 
+	 * @param bean service, manager etc.
+	 * @return
+	 */
+	@Override
+	public boolean isEnabled(Object bean) {
+		Assert.notNull(bean);
+		//		
+		return isEnabled(AopProxyUtils.ultimateTargetClass(bean));
+	}
+	
+	/**
+	 * Returns true, if given class is enabled (or does not have enabled annotation defined).
+	 * 
+	 * @param bean service, manager etc.
+	 * @return
+	 */
+	@Override
+	public boolean isEnabled(Class<?> clazz) {
+		Assert.notNull(clazz);
+		//
+		Enabled enabled = clazz.getAnnotation(Enabled.class);
+		if (enabled == null) {
+			// bean is enabled
+			return true;
+		}
+		return isEnabled(enabled);
+	}
+	
+	/**
+	 * Checks enabled modules and configuration properties
+	 * 
+	 * @param ifEnabled
+	 */
+	@Override
+	public void checkEnabled(Enabled enabled) {
+		Assert.notNull(enabled, "Enabled annotation is required for evaluating");
 		// modules
-		checkEnabledModules(ifEnabled.module());
-		checkEnabledModules(ifEnabled.value());
+		checkEnabledModules(enabled.module());
+		checkEnabledModules(enabled.value());
 		// properties
-		checkEnabledProperties(ifEnabled.property());
+		checkEnabledProperties(enabled.property());
 	}
 	
 	/**

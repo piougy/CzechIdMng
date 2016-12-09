@@ -4,7 +4,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
 import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
@@ -40,14 +39,6 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	 * @return
 	 */
 	IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey);
-
-	/**
-	 * Returns persistent type for given connector property type
-	 * 
-	 * @param type
-	 * @return
-	 */
-	PersistentType convertPropertyType(String connectorPropertyType);
 	
 	//
 	// TODO: move to test after FE form implementation

@@ -6,7 +6,7 @@ import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
-import { DataManager, TreeNodeManager, SecurityManager } from '../../redux';
+import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager } from '../../redux';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
@@ -42,7 +42,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
       const uuidId = uuid.v1();
       this.context.router.push(`/identity/new?id=${uuidId}`);
     } else {
-      this.context.router.push('/identity/' + entity.username + '/profile');
+      this.context.router.push('/identity/' + entity.id + '/profile');
     }
   }
 
@@ -127,7 +127,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton } = this.props;
+    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton, deleteEnabled } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -187,7 +187,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
           forceSearchParameters={forceSearchParameters}
           actions={
             [
-              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: true },
+              { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: !deleteEnabled },
               { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) },
               { value: 'deactivate', niceLabel: this.i18n('content.identities.action.deactivate.action'), action: this.onActivate.bind(this) },
               { value: 'password-reset', niceLabel: this.i18n('content.identities.action.reset.action'), action: this.onReset.bind(this), disabled: true }
@@ -248,18 +248,24 @@ IdentityTable.propTypes = {
   /**
    * Button for create user is rendered
    */
-  showAddButton: PropTypes.bool
+  showAddButton: PropTypes.bool,
+  /**
+   * Table supports delete identities
+   */
+  deleteEnabled: PropTypes.bool
 };
 
 IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
   filterOpened: false,
-  showAddButton: true
+  showAddButton: true,
+  deleteEnabled: false
 };
 
 function select(state, component) {
   return {
-    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {}
+    _searchParameters: state.data.ui[component.uiKey] ? state.data.ui[component.uiKey].searchParameters : {},
+    deleteEnabled: ConfigurationManager.getPublicValueAsBoolean(state, 'idm.pub.core.identity.delete')
   };
 }
 

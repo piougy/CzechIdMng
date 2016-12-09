@@ -31,18 +31,19 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
+    const systemId = this.props.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
       const objectClassId = this.props._schemaObjectClass.id;
-      this.context.router.push(`/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
+      this.context.router.push(`system/${systemId}/schema-attributes/${uuidId}/new?new=1&objectClassId=${objectClassId}`);
     } else {
-      this.context.router.push(`/schema-attributes/${entity.id}/detail`);
+      this.context.router.push(`/system/${systemId}/schema-attributes/${entity.id}/detail`);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { entityId} = nextProps.params;
-    if (entityId && entityId !== this.props.params.entityId) {
+    const {objectClassId} = nextProps.params;
+    if (objectClassId && objectClassId !== this.props.params.objectClassId) {
       this._initComponent(nextProps);
     }
   }
@@ -57,11 +58,11 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props.params;
+    const { objectClassId} = props.params;
     if (this._getIsNew(props)) {
       this.setState({schemaObjectClass: {system: props.location.query.systemId}});
     } else {
-      this.context.store.dispatch(schemaObjectClassManager.fetchEntity(entityId));
+      this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
     this.selectNavigationItems(['sys-systems']);
   }
@@ -94,16 +95,16 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
 
   afterSave(entity, error) {
     if (!error) {
+      const systemId = this.props.params.entityId;
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.objectClassName }) });
-        this.context.router.replace(`/schema-object-classes/${entity.id}/detail`, {entityId: entity.id});
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       }
+      this.context.router.replace(`/system/${systemId}/schema-object-classes/${entity.id}/detail`, {objectClassId: entity.id});
     } else {
       this.addError(error);
     }
-    super.afterSave();
   }
 
   closeDetail() {
@@ -120,6 +121,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', _schemaObjectClass ? _schemaObjectClass.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const schemaObjectClass = isNew ? this.state.schemaObjectClass : _schemaObjectClass;
+    const systemId = this.props.params.entityId;
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
@@ -231,7 +233,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to="schema-attributes/:id/detail"
+                to={`system/${systemId}/schema-attributes/:id/detail`}
                 property="name"
                 header={this.i18n('acc:entity.SchemaAttribute.name')}
                 sort />
@@ -255,7 +257,7 @@ SchemaObjectClassDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.params.entityId);
+  const entity = Utils.Entity.getEntity(state, schemaObjectClassManager.getEntityType(), component.params.objectClassId);
   if (entity) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
     entity.system = system;

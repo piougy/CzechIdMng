@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -17,18 +18,18 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default schema attributes handling
@@ -44,27 +45,31 @@ public class DefaultSysSchemaAttributeHandlingService
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory
 			.getLogger(DefaultSysSchemaAttributeHandlingService.class);
 
-	private SysSchemaAttributeHandlingRepository repository;
-	private GroovyScriptService groovyScriptService;
-	private FormService formService;
-	private IdmFormAttributeService formAttributeService;
-	private SysSystemService systemService;
+	private final SysSchemaAttributeHandlingRepository repository;
+	private final GroovyScriptService groovyScriptService;
+	private final FormService formService;
+	private final IdmFormAttributeService formAttributeService;
+	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 
 	@Autowired
-	public DefaultSysSchemaAttributeHandlingService(SysSchemaAttributeHandlingRepository repository,
-			GroovyScriptService groovyScriptService, FormService formService,
-			IdmFormAttributeService formAttributeService, SysSystemService systemService) {
+	public DefaultSysSchemaAttributeHandlingService(
+			SysSchemaAttributeHandlingRepository repository,
+			GroovyScriptService groovyScriptService, 
+			FormService formService,
+			IdmFormAttributeService formAttributeService, 
+			SysRoleSystemAttributeRepository roleSystemAttributeRepository) {
 		super(repository);
+		//
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(formService);
 		Assert.notNull(formAttributeService);
-		Assert.notNull(systemService);
-
+		Assert.notNull(roleSystemAttributeRepository);
+		//
 		this.formService = formService;
 		this.repository = repository;
 		this.groovyScriptService = groovyScriptService;
 		this.formAttributeService = formAttributeService;
-		this.systemService = systemService;
+		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 	}
 
 	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling) {
@@ -125,6 +130,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	}
 
 	@Override
+	@Transactional
 	public SysSchemaAttributeHandling save(SysSchemaAttributeHandling entity) {
 		// We will do script validation (on compilation errors), before save
 		// attribute handling
@@ -135,9 +141,7 @@ public class DefaultSysSchemaAttributeHandlingService
 		if (entity.getTransformToResourceScript() != null) {
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
-		if (entity.isExtendedAttribute()) {
-			// TODO: only FormableEntity could have extended attributes - entity
-			// type should generalize FormableEntity
+		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entity.getSystemEntityHandling().getEntityType().getEntityType())) {
 			IdmFormDefinition definition = formService
 					.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
 			if (definition != null) {
@@ -156,6 +160,16 @@ public class DefaultSysSchemaAttributeHandlingService
 		}
 		return super.save(entity);
 	}
+	
+	@Override
+	@Transactional
+	public void delete(SysSchemaAttributeHandling entity) {
+		Assert.notNull(entity);
+		// delete attributes
+		roleSystemAttributeRepository.deleteBySchemaAttributeHandling(entity);
+		//
+		super.delete(entity);
+	}
 
 	/**
 	 * Convert schema attribute handling to Form attribute
@@ -171,12 +185,13 @@ public class DefaultSysSchemaAttributeHandlingService
 		IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 		attributeDefinition.setSeq((short) 0);
 		attributeDefinition.setName(entity.getIdmPropertyName());
-		attributeDefinition.setDisplayName(entity.getIdmPropertyName());
-		attributeDefinition.setPersistentType(systemService.convertPropertyType(schemaAttribute.getClassType()));
+		attributeDefinition.setDisplayName(entity.getName());
+		// TODO: refactor converters to stand alone service
+		attributeDefinition.setPersistentType(DefaultSysSystemService.convertPropertyType(schemaAttribute.getClassType()));
 		attributeDefinition.setRequired(schemaAttribute.isRequired());
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());
-		attributeDefinition.setConfidential(schemaAttribute.getClassType().equals(GuardedString.class.getName()));
+		attributeDefinition.setConfidential(entity.isConfidentialAttribute());
 		attributeDefinition.setFormDefinition(definition);
 		attributeDefinition.setDescription(
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",

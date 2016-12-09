@@ -8,9 +8,10 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.eav.dto.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.repository.IdmFormDefinitionRepository;
+import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 
 /**
@@ -23,16 +24,17 @@ import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
 public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityService<IdmFormDefinition, EmptyFilter> implements IdmFormDefinitionService {
 
 	private final IdmFormDefinitionRepository formDefinitionRepository;
-	private final IdmFormAttributeRepository formAttributeRepository;
+	private final IdmFormAttributeService formAttributeService;
 
 	@Autowired
 	public DefaultIdmFormDefinitionService(IdmFormDefinitionRepository formDefinitionRepository,
-			IdmFormAttributeRepository formAttributeDefinitionRepository) {
+			IdmFormAttributeService formAttributeService) {
 		super(formDefinitionRepository);
-		Assert.notNull(formAttributeDefinitionRepository);
+		//
+		Assert.notNull(formAttributeService);
 		//
 		this.formDefinitionRepository = formDefinitionRepository;
-		this.formAttributeRepository = formAttributeDefinitionRepository;
+		this.formAttributeService = formAttributeService;
 	}
 	
 	/**
@@ -55,11 +57,12 @@ public class DefaultIdmFormDefinitionService extends AbstractReadWriteEntityServ
 	@Transactional
 	public void delete(IdmFormDefinition entity) {
 		// delete all attributes in definition
-		formAttributeRepository.deleteByFormDefinition(entity);
-		//
-		// TODO: disable definition remove with filled form instances (values)
-		// ... or remove relation to deleted definition? Requires get all
-		// formable object classes / tables ...
+		FormAttributeFilter filter = new FormAttributeFilter();
+		filter.setFormDefinition(entity);
+		formAttributeService.find(filter, null).forEach(formAttribute -> {
+			formAttributeService.delete(formAttribute);
+		});
+		entity.setFormAttributes(null); // prevent cascade - duplicit removal
 		//
 		super.delete(entity);
 	}

@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.model.event;
 import java.io.Serializable;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.core.api.event.AbstractEntityEvent;
-import eu.bcvsolutions.idm.core.api.event.RoleOperationType;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
 /**
@@ -13,13 +13,20 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  * @author Radek Tomiška
  *
  */
-public class RoleEvent extends AbstractEntityEvent<IdmRole> {
+public class RoleEvent extends CoreEvent<IdmRole> {
+	
+	/**
+	 * Supported event types
+	 */
+	public enum RoleEventType implements EventType<IdmRole> {
+		DELETE
+	}
 
-	public RoleEvent(RoleOperationType operation, IdmRole content) {
+	public RoleEvent(RoleEventType operation, IdmRole content) {
 		super(operation, content);
 	}
 	
-	public RoleEvent(RoleOperationType operation, IdmRole content, Map<String, Serializable> properties) {
+	public RoleEvent(RoleEventType operation, IdmRole content, Map<String, Serializable> properties) {
 		super(operation, content, properties);
 	}
 

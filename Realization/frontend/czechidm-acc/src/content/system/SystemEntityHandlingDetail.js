@@ -33,19 +33,19 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
+    const entityHandlingId = this.props._entityHandling.id;
+    const systemId = this.props._entityHandling.system;
     if (add) {
       const uuidId = uuid.v1();
-      const entityHandlingId = this.props._entityHandling.id;
-      const systemId = this.props._entityHandling.system;
-      this.context.router.push(`/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}&systemId=${systemId}`);
+      this.context.router.push(`/system/${systemId}/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}&systemId=${systemId}`);
     } else {
-      this.context.router.push(`/schema-attributes-handling/${entity.id}/detail`);
+      this.context.router.push(`/system/${systemId}/schema-attributes-handling/${entity.id}/detail`);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { entityId} = nextProps.params;
-    if (entityId && entityId !== this.props.params.entityId) {
+    const { entityHandlingId} = nextProps.params;
+    if (entityHandlingId && entityHandlingId !== this.props.params.entityHandlingId) {
       this._initComponent(nextProps);
     }
   }
@@ -60,7 +60,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityId} = props.params;
+    const { entityHandlingId} = props.params;
     if (this._getIsNew(props)) {
       this.setState({entityHandling: {
         system: props.location.query.systemId,
@@ -68,7 +68,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
         operationType: SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING)
       }});
     } else {
-      this.context.store.dispatch(systemEntityHandlingManager.fetchEntity(entityId));
+      this.context.store.dispatch(systemEntityHandlingManager.fetchEntity(entityHandlingId));
     }
     this.selectNavigationItems(['sys-systems']);
   }
@@ -102,18 +102,15 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { entityType: entity.entityType, operationType: entity.operationType}) });
-        this.context.router.replace(`/system-entities-handling/${entity.id}/detail`, {entityId: entity.id});
       } else {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
+      const { entityId } = this.props.params;
+      this.context.router.replace(`/system/${entityId}/entities-handling`, {entityHandlingId: entity.id});
     } else {
       this.addError(error);
     }
     super.afterSave();
-  }
-
-  closeDetail() {
-    this.refs.form.processEnded();
   }
 
   _getIsNew(nextProps) {
@@ -126,6 +123,8 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandling ? _entityHandling.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const entityHandling = isNew ? this.state.entityHandling : _entityHandling;
+    const systemId = this.props.params.entityId;
+
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -183,6 +182,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
             manager={schemaAttributeHandlingManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+            rowClass={({rowIndex, data}) => { return data[rowIndex].disabledAttribute ? 'disabled' : ''; }}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
               ?
@@ -236,13 +236,13 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to="schema-attributes-handling/:id/detail"
-                property="idmPropertyName"
-                header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
+                to={`system/${systemId}/schema-attributes-handling/:id/detail`}
+                property="name"
+                header={this.i18n('acc:entity.SchemaAttributeHandling.name')}
                 sort />
-              <Advanced.Column property="schemaAttribute.name" header={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')} sort/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')} sort/>
               <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
               <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationFromResource')}/>
               <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationToResource')}/>
             </Advanced.Table>
@@ -260,7 +260,7 @@ SystemEntityHandlingDetail.defaultProps = {
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, systemEntityHandlingManager.getEntityType(), component.params.entityId);
+  const entity = Utils.Entity.getEntity(state, systemEntityHandlingManager.getEntityType(), component.params.entityHandlingId);
   if (entity) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
     entity.system = system;

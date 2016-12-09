@@ -15,46 +15,20 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  * @param <E> {@link AbstractEntity} type
  */
 public interface EntityEvent<E extends AbstractEntity> {
-	
-	/**
-	 * {@link AbstractEntity} type
-	 * 
-	 * @return
-	 */
-	Class<E> getEntityClass();
 
 	/**
 	 * Operation type
 	 * 
 	 * @return
 	 */
-	String getOperation();
+	EventType<E> getType();
 	
 	/**
-	 * Event content - entity affected by action
+	 * Event content - entity. Could not be null. Events with empty content could not be processed.
 	 *  
 	 * @return
 	 */
 	E getContent();
-	
-	/**
-	 * Event content - entity affected by action
-	 * 
-	 * @param content
-	 */
-	void setContent(E content);
-
-	/**
-	 * Event is completed = no other events will be processed (break event chain)
-	 * 
-	 * @return
-	 */
-	boolean isComplete();
-
-	/**
-	 * Event is completed = no other events will be processed (break event chain)
-	 */
-	void setComplete(boolean complete);
 	
 	/**
 	 * Event properties (metadata)

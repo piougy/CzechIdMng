@@ -52,12 +52,4 @@ public interface IdmFormAttributeRepository extends AbstractEntityRepository<Idm
 	 * @return
 	 */
 	List<IdmFormAttribute> findByFormDefinitionOrderBySeq(@Param("formDefinition") IdmFormDefinition formDefinition);
-	
-	/**
-	 * Removes all attribute definition by given fom definition
-	 * 
-	 * @param formDefinition
-	 * @return
-	 */
-	int deleteByFormDefinition(@Param("formDefinition") IdmFormDefinition formDefinition);
 }

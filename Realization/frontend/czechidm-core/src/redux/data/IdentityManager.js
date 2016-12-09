@@ -178,4 +178,12 @@ export default class IdentityManager extends EntityManager {
       });
     };
   }
+
+  static canChangePassword(userContext, entityId, passwordChangeType) {
+    return (passwordChangeType && passwordChangeType !== IdentityManager.PASSWORD_DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+  }
 }
+
+IdentityManager.PASSWORD_DISABLED = 'DISABLED';
+IdentityManager.PASSWORD_ALL_ONLY = 'ALL_ONLY';
+IdentityManager.PASSWORD_CUSTOM = 'CUSTOM';

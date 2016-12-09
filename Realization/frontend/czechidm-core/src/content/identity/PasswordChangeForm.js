@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import classnames from 'classnames';
 import _ from 'lodash';
 //
@@ -7,18 +8,14 @@ import * as Advanced from '../../components/advanced';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
-import { SecurityManager } from '../../redux';
-
-const DISABLED = 'DISABLED';
-const ALL_ONLY = 'ALL_ONLY';
-const CUSTOM = 'CUSTOM';
+import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
 
 const RESOURCE_IDM = '0:czechidm';
 
 const identityService = new IdentityService();
 const securityManager = new SecurityManager();
 
-export default class PasswordChangeForm extends Basic.AbstractContent {
+class PasswordChangeForm extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -39,9 +36,8 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
    * @return {[type]} [description]
    */
   _canPasswordChange() {
-    const { passwordChangeType, userContext } = this.props;
-    const { entityId } = this.props;
-    return (passwordChangeType && passwordChangeType !== DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+    const { userContext, entityId, passwordChangeType } = this.props;
+    return IdentityManager.canChangePassword(userContext, entityId, passwordChangeType);
   }
 
   _initForm() {
@@ -158,7 +154,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
     const { preload } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
-      { 'hidden': passwordChangeType !== ALL_ONLY || SecurityManager.isAdmin(userContext) }
+      { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
     );
     // TODO: All accounts in enumSelectBox, selectBox isn't ideal component for this.
     return (
@@ -174,12 +170,12 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                 level="warning"
                 icon="exclamation-sign"
                 text={this.i18n('changeType.DISABLED')}
-                rendered={!this._canPasswordChange() && passwordChangeType === DISABLED}/>
+                rendered={!this._canPasswordChange() && passwordChangeType === IdentityManager.PASSWORD_DISABLED}/>
               <Basic.Alert
                 level="warning"
                 icon="exclamation-sign"
                 text={this.i18n('message.wrongUser')}
-                rendered={!this._canPasswordChange() && passwordChangeType !== DISABLED}/>
+                rendered={!this._canPasswordChange() && passwordChangeType !== IdentityManager.PASSWORD_DISABLED}/>
               {
                 (!this._canPasswordChange() || preload)
                 ||
@@ -202,7 +198,7 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
                       multiSelect
                       options={accountOptions}
                       required
-                      disabled={passwordChangeType === ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
+                      disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
 
                       <div className={allOnlyWarningClassNames}>
                         <div className="col-sm-offset-3 col-sm-8">
@@ -228,7 +224,6 @@ export default class PasswordChangeForm extends Basic.AbstractContent {
 }
 
 PasswordChangeForm.propTypes = {
-  passwordChangeType: PropTypes.oneOf([DISABLED, ALL_ONLY, CUSTOM]),
   requireOldPassword: PropTypes.bool,
   userContext: PropTypes.object,
   accountOptions: PropTypes.object,
@@ -236,7 +231,14 @@ PasswordChangeForm.propTypes = {
   entityId: PropTypes.string
 };
 PasswordChangeForm.defaultProps = {
-  passwordChangeType: ALL_ONLY,
   requireOldPassword: true,
   userContext: null
 };
+
+function select(state) {
+  return {
+    passwordChangeType: ConfigurationManager.getPublicValue(state, 'idm.pub.core.identity.passwordChange')
+  };
+}
+
+export default connect(select)(PasswordChangeForm);

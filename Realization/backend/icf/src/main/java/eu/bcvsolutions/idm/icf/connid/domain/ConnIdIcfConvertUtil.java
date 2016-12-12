@@ -237,7 +237,7 @@ public class ConnIdIcfConvertUtil {
 			return new IcfPasswordAttributeImpl(password);
 		}
 		if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
-			Boolean enabled = null;
+			Boolean enabled = Boolean.FALSE;
 			if (value != null && value.size() == 1 && value.get(0) instanceof Boolean) {
 				enabled = (Boolean) value.get(0);
 			}

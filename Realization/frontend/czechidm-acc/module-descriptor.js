@@ -6,6 +6,7 @@ module.exports = {
   'description': 'Module for account managment',
   // 'mainStyleFile': 'src/css/main.less',
   'mainRouteFile': 'routes.js',
+  'mainComponentDescriptorFile': 'component-descriptor.js',
   'mainLocalePath': 'src/locales/',
   'navigation': {
     'items': [

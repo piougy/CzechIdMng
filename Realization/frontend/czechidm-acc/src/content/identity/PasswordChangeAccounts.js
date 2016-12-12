@@ -11,11 +11,9 @@ const RESOURCE_IDM = '0:czechidm';
 const identityAccountManager = new IdentityAccountManager();
 
 /**
- * TODO: one component for password change with czechidm-core?
- * TODO: In this component include password change and send props with account options
+ * In this component include password change and send props with account options
  */
-
-class PasswordAccounts extends Basic.AbstractContent {
+class PasswordChangeAccounts extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -75,12 +73,12 @@ class PasswordAccounts extends Basic.AbstractContent {
 
 }
 
-PasswordAccounts.propTypes = {
+PasswordChangeAccounts.propTypes = {
   showLoading: PropTypes.bool,
   userContext: PropTypes.object,
   accounts: PropTypes.object
 };
-PasswordAccounts.defaultProps = {
+PasswordChangeAccounts.defaultProps = {
   userContext: null,
   showLoading: true,
   accounts: null
@@ -95,4 +93,4 @@ function select(state, component) {
     showLoading: identityAccountManager.isShowLoading(state, `${entityId}-accounts`)
   };
 }
-export default connect(select)(PasswordAccounts);
+export default connect(select)(PasswordChangeAccounts);

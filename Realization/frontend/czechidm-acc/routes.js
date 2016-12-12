@@ -96,11 +96,6 @@ module.exports = {
         {
           path: 'accounts',
           component: require('./src/content/identity/IdentityAccounts')
-        },
-        {
-          path: 'password',
-          priority: 10,
-          component: require('./src/content/identity/PasswordAccounts')
         }
       ]
     },

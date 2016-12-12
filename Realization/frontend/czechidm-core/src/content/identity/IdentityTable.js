@@ -127,7 +127,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton, deleteEnabled } = this.props;
+    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton, deleteEnabled, showRowSelection } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -140,7 +140,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
           ref="table"
           uiKey={uiKey}
           manager={identityManager}
-          showRowSelection={SecurityManager.hasAuthority('IDENTITY_WRITE')}
+          showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_WRITE')}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -252,14 +252,19 @@ IdentityTable.propTypes = {
   /**
    * Table supports delete identities
    */
-  deleteEnabled: PropTypes.bool
+  deleteEnabled: PropTypes.bool,
+  /**
+   * Enable row selection - checkbox in first cell
+   */
+  showRowSelection: PropTypes.bool
 };
 
 IdentityTable.defaultProps = {
   columns: ['username', 'lastName', 'firstName', 'email', 'disabled', 'description'],
   filterOpened: false,
   showAddButton: true,
-  deleteEnabled: false
+  deleteEnabled: false,
+  showRowSelection: false
 };
 
 function select(state, component) {

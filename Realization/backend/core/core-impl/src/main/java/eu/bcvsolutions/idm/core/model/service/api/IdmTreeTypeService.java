@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 

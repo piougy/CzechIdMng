@@ -353,8 +353,8 @@
     "group": {
       "APP": "Správa aplikace",
       "AUDIT": "Audit",
-      "CONFIGURATION": "Konfigurace aplikace",
-      "CONFIGURATIONSECURED": "Bezpečnostní konfigurace",
+      "CONFIGURATION": "Konfigurace aplikace (veřejná)",
+      "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
       "IDENTITY": "Uživatelé",
       "MODULE": "Moduly",
       "NOTIFICATION": "Notifikace",
@@ -508,10 +508,14 @@
       },
       "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
       "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
-      "secured": {
-        "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace"
+      "guarded": "Hodnoty položky konfigurace obsahující klíč [<strong>{{guarded}}</strong>] budou automaticky nastaveny tajnými a neveřejnými. Hodnoty začínající prefixem [<strong>idm.sec.</strong>] nemohou býti veřejnými.",
+      "confidential": {
+        "help": "Nastavení bude uložené v šifrovaném úložišti"
       },
-      "guarded": "Hodnoty položky konfigurace obsahující klíč [{{guarded}}] nejsou zobrazeny."
+      "secured": {
+        "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
+        "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
+      }
     },
     "tasks-summary": {
       "summary": "Přehled úkolů",
@@ -1457,7 +1461,9 @@
     "Configuration": {
       "name": "Klíč",
       "value": "Hodnota",
-      "secured": "Systémové nastavení"
+      "secured": "Systémové",
+      "public": "Veřejné",
+      "confidential": "Tajné"
     },
     "Audit": {
       "label": "Audit",
@@ -1633,7 +1639,8 @@
     "date" : {
      "unvalid" : "Datum není validní!"
     },
-    "passwords_not_same": "Hesla musí být shodná!"
+    "passwords_not_same": "Hesla musí být shodná!",
+    "configurationSecured": "Nemáte oprávnění pro editaci systémové konfigurace"
   },
   "security": {
     "access": {

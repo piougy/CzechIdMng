@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.api.service;
 
 import java.io.Serializable;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**

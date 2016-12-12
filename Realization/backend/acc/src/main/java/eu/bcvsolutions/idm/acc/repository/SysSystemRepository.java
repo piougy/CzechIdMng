@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSystemExcerpt;
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**

@@ -93,7 +93,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		// check, if value has to be persisted in confidentional storage 
 		Serializable formValue = entity.getValue();
 		if (entity.isConfidential()) {
-			entity.clear();
+			entity.clearValues();
 			if (formValue != null) {
 				// we need only to know, if value was filled
 				entity.setStringValue(GuardedString.SECRED_PROXY_STRING);
@@ -103,8 +103,8 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		
 		// save values to confidential storage
 		if (entity.isConfidential()) {
-			LOG.debug("FormValue [{}] is persisted id confidential storage", entity.getId());
 			confidentialStorage.save(entity, getConfidentialStorageKey(entity.getFormAttribute()), formValue);
+			LOG.debug("FormValue [{}] is persisted in confidential storage", entity.getId());
 		}
 		return entity;
 	}

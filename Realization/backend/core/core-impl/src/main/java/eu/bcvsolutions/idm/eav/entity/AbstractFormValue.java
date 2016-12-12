@@ -267,7 +267,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	/**
 	 * Clears all values
 	 */
-	public void clear() {
+	public void clearValues() {
 		this.booleanValue = null;
 		this.stringValue = null;
 		this.dateValue = null;

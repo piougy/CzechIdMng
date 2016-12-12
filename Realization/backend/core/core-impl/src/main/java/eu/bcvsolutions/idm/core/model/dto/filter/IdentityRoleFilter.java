@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.model.dto.filter;
 
 import java.util.UUID;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
  * Filter for identity role

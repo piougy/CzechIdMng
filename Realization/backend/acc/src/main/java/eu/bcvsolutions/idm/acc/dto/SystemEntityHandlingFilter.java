@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for system entity handling

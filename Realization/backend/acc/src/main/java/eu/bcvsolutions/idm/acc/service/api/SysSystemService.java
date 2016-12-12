@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;

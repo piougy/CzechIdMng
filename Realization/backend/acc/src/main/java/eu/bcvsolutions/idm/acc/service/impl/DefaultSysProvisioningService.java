@@ -453,7 +453,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	@Override
 	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
 		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(),
-				IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
+				IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 		if (password == null) {
 			password = new GuardedString(); // TODO: empty password or null?
 		}

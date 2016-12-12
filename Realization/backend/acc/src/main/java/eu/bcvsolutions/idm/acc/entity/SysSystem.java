@@ -18,6 +18,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 @Entity
 @Table(name = "sys_system", indexes = {
 		@Index(name = "ux_system_name", columnList = "name", unique = true) })
-public class SysSystem extends AbstractEntity implements FormableEntity {
+public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
 	
@@ -68,6 +69,7 @@ public class SysSystem extends AbstractEntity implements FormableEntity {
 	@Embedded
 	private SysConnectorKey connectorKey;
 
+	@Override
 	public String getName() {
 		return name;
 	}

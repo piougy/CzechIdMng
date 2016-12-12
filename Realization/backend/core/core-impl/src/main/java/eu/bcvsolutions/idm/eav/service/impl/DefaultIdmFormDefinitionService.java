@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.dto.filter.FormAttributeFilter;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;

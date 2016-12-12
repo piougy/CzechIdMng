@@ -13,7 +13,7 @@ public interface IcfConfigurationService {
 	 * Return key defined ICF implementation
 	 * @return
 	 */
-	String getIcfType();
+	String getImplementationType();
 
 	/**
 	 * Return available local connectors for this ICF implementation

@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.dto;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for accounts

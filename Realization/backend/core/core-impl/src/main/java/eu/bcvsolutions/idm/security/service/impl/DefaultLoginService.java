@@ -99,7 +99,7 @@ public class DefaultLoginService implements LoginService {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.",  username ));
 		}
-		GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
+		GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 		if (idmPassword == null) {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;

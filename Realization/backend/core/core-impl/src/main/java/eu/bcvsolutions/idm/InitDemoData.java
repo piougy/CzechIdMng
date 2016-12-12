@@ -46,7 +46,7 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
 @DependsOn("initApplicationData")
 public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InitDemoData.class);
 	private static final String PARAMETER_DEMO_DATA_CREATED = "idm.sec.core.demo.data";
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
@@ -111,12 +111,12 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			}
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_DEMO_DATA_CREATED, false)) {
-				log.info("Creating demo data ...");				
+				LOG.info("Creating demo data ...");				
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName("userRole");
 				role1 = this.roleService.save(role1);
-				log.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
+				LOG.info(MessageFormat.format("Role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();
 				role2.setName("customRole");
@@ -125,12 +125,12 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				role2.setSubRoles(subRoles);
 				role2 = this.roleService.save(role2);
 				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
-				log.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
+				LOG.info(MessageFormat.format("Role created [id: {0}]", role2.getId()));
 				//
 				IdmRole roleManager = new IdmRole();
 				roleManager.setName("manager");
 				roleManager = this.roleService.save(roleManager);
-				log.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
+				LOG.info(MessageFormat.format("Role created [id: {0}]", roleManager.getId()));
 				//
 				//
 				IdmIdentity identity = new IdmIdentity();
@@ -140,7 +140,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity.setLastName("Tomiška");
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
 				identity = this.identityService.save(identity);
-				log.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
+				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
 				//
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
 				identityRole1.setIdentity(identity);
@@ -159,7 +159,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity2.setLastName("Švanda");
 				identity2.setEmail("vit.svanda@bcvsolutions.eu");
 				identity2 = this.identityService.save(identity2);
-				log.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
+				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity2.getId()));
 				//
 				IdmIdentity identity3 = new IdmIdentity();
 				identity3.setUsername("kopr");
@@ -168,7 +168,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity3.setLastName("Kopr");
 				identity3.setEmail("ondrej.kopr@bcvsolutions.eu");
 				identity3 = this.identityService.save(identity3);
-				log.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
+				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity3.getId()));
 				//
 				// get tree type for organization
 				IdmTreeType treeType = treeTypeService.getByCode(InitApplicationData.DEFAULT_TREE_TYPE);
@@ -194,7 +194,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identityWorkingPosition.setWorkingPosition(organization2);
 				identityContractService.save(identityWorkingPosition);
 				//
-				log.info("Demo data was created.");
+				LOG.info("Demo data was created.");
 				//				
 				configurationService.setBooleanValue(PARAMETER_DEMO_DATA_CREATED, true);
 				//
@@ -301,6 +301,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				
 				formService.saveValues(identity, formDefinition, values);
 			}
+		} catch(Exception ex) {
+			LOG.warn("Demo data was not created", ex);
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

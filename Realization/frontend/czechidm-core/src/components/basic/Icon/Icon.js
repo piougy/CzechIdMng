@@ -45,7 +45,7 @@ class Icon extends AbstractComponent {
   }
 
   render() {
-    const { type, icon, value, className, rendered, showLoading, color, style, ...others } = this.props;
+    const { type, icon, value, className, rendered, showLoading, color, style, disabled } = this.props;
     if (!rendered) {
       return null;
     }
@@ -62,7 +62,7 @@ class Icon extends AbstractComponent {
         'fa',
         'fa-refresh',
         'fa-spin',
-        className,
+        className
       );
     } else {
       classNames = classnames(
@@ -70,6 +70,7 @@ class Icon extends AbstractComponent {
         { ['glyphicon-' + _icon]: _type === TYPE_GLYPHICON},
         { 'fa': _type === TYPE_FONT_AWESOME},
         { ['fa-' + _icon]: _type === TYPE_FONT_AWESOME},
+        { 'disabled': disabled === true },
         className,
       );
     }
@@ -78,7 +79,7 @@ class Icon extends AbstractComponent {
       _style.color = color;
     }
     return (
-      <span className={classNames} aria-hidden="true" style={_style} {...others}></span>
+      <span className={classNames} aria-hidden="true" style={_style}></span>
     );
   }
 }
@@ -95,14 +96,18 @@ Icon.propTypes = {
   icon: PropTypes.string,
   /**
    * glyphicon or font-awesome (by type) suffix name - alias to icon property, has lower priority
-   * @type {string}
    */
-  value: PropTypes.string
+  value: PropTypes.string,
+  /**
+   * css only
+   */
+  disabled: PropTypes.bool
 };
 
 Icon.defaultProps = {
   ...AbstractComponent.defaultProps,
-  type: TYPE_GLYPHICON
+  type: TYPE_GLYPHICON,
+  dibaled: false
 };
 
 export default Icon;

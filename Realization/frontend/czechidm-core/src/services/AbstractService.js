@@ -121,7 +121,7 @@ export default class AbstractService {
         if (Utils.Response.hasError(jsonResponse)) {
           throw Utils.Response.getFirstError(jsonResponse);
         }
-        return json;
+        return jsonResponse;
       });
   }
 

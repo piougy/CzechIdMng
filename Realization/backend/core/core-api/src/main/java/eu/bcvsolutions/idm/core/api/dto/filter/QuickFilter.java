@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api.dto;
+package eu.bcvsolutions.idm.core.api.dto.filter;
 
 /**
  * Quick filter - "fulltext" search

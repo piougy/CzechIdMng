@@ -2,7 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;

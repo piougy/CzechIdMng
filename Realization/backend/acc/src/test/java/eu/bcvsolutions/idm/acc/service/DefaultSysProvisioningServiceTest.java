@@ -177,7 +177,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		// Check incorrect password
 		try {
-			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY, IDENTITY_PASSWORD_TWO);
+			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD, IDENTITY_PASSWORD_TWO);
 			provisioningService.authenticate(accountIdentityOne, system);
 			fail("Bad credentials exception is expected here!");
 		} catch (ResultCodeException ex) {

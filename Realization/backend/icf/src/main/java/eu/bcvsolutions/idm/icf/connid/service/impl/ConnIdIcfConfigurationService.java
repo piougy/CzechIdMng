@@ -48,7 +48,7 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		}
 		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
 			throw new IcfException(
-					MessageFormat.format("ICF implementation duplicity for key: {0}", this.getImplementationType()));
+					MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
 		icfConfigurationAggregator.getIcfConfigs().put(IMPLEMENTATION_TYPE, this);
 	}

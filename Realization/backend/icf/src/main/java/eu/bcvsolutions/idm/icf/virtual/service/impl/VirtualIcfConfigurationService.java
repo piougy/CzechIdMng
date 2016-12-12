@@ -35,7 +35,7 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
 		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcfException(MessageFormat.format("ICF implementation duplicity for key: {0}", this.getImplementationType()));
+			throw new IcfException(MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
 	    // Disable for now
 		// icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);

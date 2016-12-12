@@ -134,13 +134,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	@SuppressWarnings("unchecked")
 	public E getEntity(String backendId) {
-		// TODO: read events
 		if(getEntityLookup() == null) {
-			try {
-				return getEntityService().get(backendId);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId), ex);
-			}
+			return getEntityService().get(backendId);
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}

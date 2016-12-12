@@ -47,14 +47,15 @@ public class ConnIdIcfConnectorService implements IcfConnectorService {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
 		if (icfConnectorAggregator.getIcfConnectors().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcfException(MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
+			throw new IcfException(
+					MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
 		icfConnectorAggregator.getIcfConnectors().put(IMPLEMENTATION_TYPE, this);
 		this.configurationServiceConnId = configurationServiceConnId;
 	}
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
-	
+
 	@Override
 	public String getImplementationType() {
 		return IMPLEMENTATION_TYPE;
@@ -95,10 +96,8 @@ public class ConnIdIcfConnectorService implements IcfConnectorService {
 
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>();
-		if (replaceAttributes != null) {
-			for (IcfAttribute icfAttribute : replaceAttributes) {
-				connIdAttributes.add(ConnIdIcfConvertUtil.convertIcfAttribute(icfAttribute));
-			}
+		for (IcfAttribute icfAttribute : replaceAttributes) {
+			connIdAttributes.add(ConnIdIcfConvertUtil.convertIcfAttribute(icfAttribute));
 		}
 		ObjectClass objectClassConnId = ConnIdIcfConvertUtil.convertIcfObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -107,8 +106,7 @@ public class ConnIdIcfConnectorService implements IcfConnectorService {
 
 		Uid updatedUid = conn.update(objectClassConnId, ConnIdIcfConvertUtil.convertIcfUid(uid), connIdAttributes,
 				null);
-		log.debug("Updated object - ConnId ({} {}) Uid= {})", key.toString(), replaceAttributes.toString(),
-				updatedUid);
+		log.debug("Updated object - ConnId ({} {}) Uid= {})", key.toString(), replaceAttributes.toString(), updatedUid);
 		return ConnIdIcfConvertUtil.convertConnIdUid(updatedUid);
 	}
 

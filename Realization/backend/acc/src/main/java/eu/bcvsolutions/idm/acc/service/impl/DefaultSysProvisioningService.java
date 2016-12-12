@@ -174,6 +174,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		doOperation(uid, null, AccountOperationType.DELETE, SystemOperationType.PROVISIONING,
 				SystemEntityType.IDENTITY, system, null);
+		
+		// We successfully deleted account on target system.
+		// If SysSystemEntity exist, we delete him.
+		if(systemEntity != null){
+			systemEntityService.delete(systemEntity);
+		}
 	}
 
 	@Override
@@ -903,10 +909,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			AbstractEntity entity) {
 		Object idmValueTransformed = null;
 
-		// If is attribute UID, then we don't want do transformation
-		if (attributeHandling.isUid()) {
-			idmValueTransformed = idmValue;
-		}else if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
+		if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
 			// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
 			idmValueTransformed = idmValue;
 		} else {

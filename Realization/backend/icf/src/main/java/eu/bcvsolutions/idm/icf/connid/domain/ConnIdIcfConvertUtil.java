@@ -198,7 +198,8 @@ public class ConnIdIcfConvertUtil {
 		}
 		if (icfAttribute instanceof IcfPasswordAttribute) {
 			return AttributeBuilder.buildPassword(((IcfPasswordAttribute) icfAttribute).getPasswordValue() != null
-					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray() : "".toCharArray());
+					? ((IcfPasswordAttribute) icfAttribute).getPasswordValue().asString().toCharArray()
+					: "".toCharArray());
 		}
 		if (icfAttribute instanceof IcfLoginAttribute) {
 			return new Name((String) icfAttribute.getValue());
@@ -220,37 +221,35 @@ public class ConnIdIcfConvertUtil {
 		if (attribute == null) {
 			return null;
 		}
+		List<Object> value = attribute.getValue();
 		if (attribute.is(Name.NAME)) {
-			if (attribute.getValue() == null || attribute.getValue().size() != 1
-					|| !(attribute.getValue().get(0) instanceof String)) {
+			if (value == null || value.size() != 1 || !(value.get(0) instanceof String)) {
 				throw new IllegalArgumentException("Login attribute must be fill and a single String value.");
 			}
 			return new IcfLoginAttributeImpl(Name.NAME, (String) attribute.getValue().get(0));
 		}
 		if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
 			eu.bcvsolutions.idm.security.api.domain.GuardedString password = null;
-			if (attribute.getValue() != null && attribute.getValue().size() == 1
-					&& attribute.getValue().get(0) instanceof GuardedString) {
+			if (value != null && value.size() == 1 && value.get(0) instanceof GuardedString) {
 				password = new eu.bcvsolutions.idm.security.api.domain.GuardedString(
-						((GuardedString) attribute.getValue().get(0)).toString());
+						((GuardedString) value.get(0)).toString());
 			}
 			return new IcfPasswordAttributeImpl(password);
 		}
 		if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
-			Boolean enabled = null;
-			if (attribute.getValue() != null && attribute.getValue().size() == 1
-					&& attribute.getValue().get(0) instanceof Boolean) {
-				enabled =  (Boolean) attribute.getValue().get(0);
+			Boolean enabled = Boolean.FALSE;
+			if (value != null && value.size() == 1 && value.get(0) instanceof Boolean) {
+				enabled = (Boolean) value.get(0);
 			}
 			return new IcfEnabledAttributeImpl(enabled, OperationalAttributes.ENABLE_NAME);
 		}
-		if (attribute.getValue() == null || attribute.getValue().isEmpty()) {
+		if (value == null || value.isEmpty()) {
 			return new IcfAttributeImpl(attribute.getName(), null);
 		}
-		if (attribute.getValue().size() == 1) {
-			return new IcfAttributeImpl(attribute.getName(), attribute.getValue().get(0));
+		if (value.size() == 1) {
+			return new IcfAttributeImpl(attribute.getName(), value.get(0));
 		} else {
-			return new IcfAttributeImpl(attribute.getName(), attribute.getValue());
+			return new IcfAttributeImpl(attribute.getName(), value);
 		}
 	}
 
@@ -258,16 +257,14 @@ public class ConnIdIcfConvertUtil {
 		if (uid == null) {
 			return null;
 		}
-		IcfUidAttributeImpl icfUid = new IcfUidAttributeImpl(uid.getName(), uid.getUidValue(), uid.getRevision());
-		return icfUid;
+		return new IcfUidAttributeImpl(uid.getName(), uid.getUidValue(), uid.getRevision());
 	}
 
 	public static ObjectClass convertIcfObjectClass(IcfObjectClass objectClass) {
 		if (objectClass == null) {
 			return null;
 		}
-		ObjectClass objectClassConnId = new ObjectClass(objectClass.getType());
-		return objectClassConnId;
+		return new ObjectClass(objectClass.getType());
 	}
 
 	public static IcfObjectClass convertConnIdObjectClass(ObjectClass objectClass) {
@@ -304,8 +301,7 @@ public class ConnIdIcfConvertUtil {
 				icfAttributes.add(ConnIdIcfConvertUtil.convertConnIdAttribute(a));
 			}
 		}
-		IcfConnectorObject icfObject = new IcfConnectorObjectImpl(icfClass, icfAttributes);
-		return icfObject;
+		return new IcfConnectorObjectImpl(icfClass, icfAttributes);
 	}
 
 	public static IcfSchema convertConnIdSchema(Schema schema) {

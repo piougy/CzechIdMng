@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.icf.virtual.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +34,14 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
-		if (icfConfigurationAggregator.getIcfConfigs().containsKey(this.getIcfType())) {
-			throw new IcfException("ICF implementation duplicity for key: " + this.getIcfType());
+		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
+			throw new IcfException(MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
-		icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
+	    // Disable for now
+		// icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
 	}
+	
+	final private static String IMPLEMENTATION_TYPE = "virtual";
 
 	/**
 	 * Return key defined ICF implementation
@@ -45,8 +49,8 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	 * @return
 	 */
 	@Override
-	public String getIcfType() {
-		return "virtual";
+	public String getImplementationType() {
+		return IMPLEMENTATION_TYPE;
 	}
 
 	/**
@@ -57,7 +61,7 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	@Override
 	public List<IcfConnectorInfo> getAvailableLocalConnectors() {
 		List<IcfConnectorInfo> localConnectorInfos = new ArrayList<>();
-		IcfConnectorInfoImpl dto = new IcfConnectorInfoImpl("Testovací konektor", "categori test", new IcfConnectorKeyImpl(getIcfType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
+		IcfConnectorInfoImpl dto = new IcfConnectorInfoImpl("Testovací konektor", "categori test", new IcfConnectorKeyImpl(getImplementationType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
 		localConnectorInfos.add(dto);
 		return localConnectorInfos;
 	}

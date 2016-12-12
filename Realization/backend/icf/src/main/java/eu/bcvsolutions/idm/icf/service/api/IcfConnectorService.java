@@ -17,7 +17,7 @@ public interface IcfConnectorService {
 	 * 
 	 * @return
 	 */
-	String getIcfType();
+	String getImplementationType();
 
 	/**
 	 * Create new object in resource

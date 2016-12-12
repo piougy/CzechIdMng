@@ -36,7 +36,8 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 		if (icfConfigurationAggregator.getIcfConfigs().containsKey(this.getIcfType())) {
 			throw new IcfException("ICF implementation duplicity for key: " + this.getIcfType());
 		}
-		icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
+	    // Disable for now
+		// icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
 	}
 
 	/**

@@ -584,7 +584,7 @@ export default class EntityManager {
    * @param {bool} trimmed - trimmed or full entity is needed
    * @return {array[object]}
    */
-  getEntitiesByIds(state, ids = [], trimmed = false) {
+  getEntitiesByIds(state, ids = [], trimmed = null) {
     return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids, trimmed);
   }
 

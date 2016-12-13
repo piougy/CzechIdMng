@@ -4,7 +4,6 @@ import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
 import FormInstance from '../../domain/FormInstance';
-import * as Utils from '../../utils';
 
 /**
  * Manager for identity fetching

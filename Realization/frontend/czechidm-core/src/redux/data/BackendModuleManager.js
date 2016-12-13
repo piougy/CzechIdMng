@@ -46,23 +46,35 @@ export default class BackendModuleManager extends EntityManager {
     };
   }
 
+  /**
+   * Set module endabled / disabled.
+   * Supports BE and FE modules
+   *
+   * @param {string} moduleId
+   * @param {boolean} enable
+   * @param {func} cb
+   */
   setEnabled(moduleId, enable = true, cb = null) {
     if (!moduleId) {
       return null;
     }
     const uiKey = BackendModuleManager.UI_KEY_MODULES;
-    const entity = { id: moduleId, disabled: !enable };
     return (dispatch, getState) => {
       dispatch(this.requestEntity(moduleId, uiKey));
-      this.getService().patchById(moduleId, entity)
+      this.getService().setEnabled(moduleId, enable)
       .then(json => {
-        let installedModules = DataManager.getData(getState(), BackendModuleManager.UI_KEY_MODULES);
-        installedModules = installedModules.set(json.id, json);
+        const installedModules = DataManager.getData(getState(), BackendModuleManager.UI_KEY_MODULES);
+        if (installedModules.has(json.id)) {
+          installedModules.get(json.id).disabled = json.disabled;
+        }
         dispatch(this.dataManager.receiveData(uiKey, installedModules));
         dispatch(backendConfigurationInit());
+        if (cb) {
+          cb(json, null);
+        }
       })
       .catch(error => {
-        dispatch(this.receiveError(entity, uiKey, error, cb));
+        dispatch(this.receiveError({ id: moduleId, disabled: !enable }, uiKey, error, cb));
       });
     };
   }

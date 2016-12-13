@@ -2,6 +2,7 @@ module.exports = {
   'id': 'core',
   'npmName': 'czechidm-core',
   'name': 'Core',
+  'disableable': false,
   'description': 'Core functionallity. Defines basic navigation structure, routes etc. Has lowest priority, could be overriden.',
   'mainStyleFile': 'src/css/main.less',
   'mainRouteFile': 'routes.js',

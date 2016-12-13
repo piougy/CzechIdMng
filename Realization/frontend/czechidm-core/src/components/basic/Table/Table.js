@@ -229,7 +229,7 @@ class Table extends AbstractComponent {
   }
 
   render() {
-    const { data, noData, rendered, showLoading, hover } = this.props;
+    const { data, noData, rendered, showLoading, hover, className } = this.props;
     if (!rendered) {
       return null;
     }
@@ -255,8 +255,10 @@ class Table extends AbstractComponent {
     const body = this.renderBody(columns);
     const footer = this.renderFooter();
     const classNamesTable = classNames(
+      className,
       { 'table': true },
-      { 'table-hover': hover});
+      { 'table-hover': hover}
+    );
 
     return (
       <div className="basic-table">

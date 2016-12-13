@@ -18,6 +18,11 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
  * @see PluginRegistry
  */
 public interface ModuleService {
+
+	/**
+	 *  Configuration property - module is enabled
+	 */
+    static final String PROPERTY_ENABLED = "enabled";
 	
 	/**
 	 * Returns all registered modules in this application (enabled and disabled too).
@@ -72,7 +77,7 @@ public interface ModuleService {
 	void disable(String moduleId);
 
 	/**
-	 * Enable / disable given module. Throws {@link IllegalArgumentException} when moduleId is not installed.
+	 * Enable / disable given module (BE and FE). FE modules could be disabled (BE module could not be installed for every FE modules).
 	 * 
 	 * @param moduleId
 	 * @param enabled
@@ -85,5 +90,14 @@ public interface ModuleService {
 	 * @return
 	 */
 	List<GroupPermission> getAvailablePermissions();
+	
+	/**
+	 * Returns module property by {@link ConfigurationService} conventions.
+	 * 
+	 * @param moduleId
+	 * @param property see constants in ModuleService
+	 * @return
+	 */
+	String getModuleConfigurationProperty(String moduleId, String property);
 
 }

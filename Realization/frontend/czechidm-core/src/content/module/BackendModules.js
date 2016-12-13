@@ -33,7 +33,7 @@ class BackendModules extends Basic.AbstractContent {
     ).then(() => {
       this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
         if (!error) {
-          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: patchedEntity.name }) });
+          this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: entity.name }) });
         } else {
           this.addError(error);
         }
@@ -42,7 +42,6 @@ class BackendModules extends Basic.AbstractContent {
       // Rejected
     });
   }
-
 
   render() {
     const { installedModules, showLoading } = this.props;
@@ -98,7 +97,7 @@ class BackendModules extends Basic.AbstractContent {
                           className="btn-xs"
                           title={this.i18n('button.deactivate')}
                           titlePlacement="bottom"
-                          disabled={!data[rowIndex].disableable}>
+                          rendered={data[rowIndex].disableable}>
                           {this.i18n('button.deactivate')}
                         </Basic.Button>
                       );
@@ -125,12 +124,12 @@ class BackendModules extends Basic.AbstractContent {
 
 BackendModules.propTypes = {
   userContext: PropTypes.object,
-  installedModules: PropTypes.arrayOf(PropTypes.object),
+  installedModules: PropTypes.object,
   showLoading: PropTypes.bool
 };
 BackendModules.defaultProps = {
   userContext: null,
-  installedModules: [],
+  installedModules: null,
   showLoading: true
 };
 

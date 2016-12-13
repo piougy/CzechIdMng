@@ -86,10 +86,6 @@ export function backendConfigurationInit() {
     const configurationManager = new ConfigurationManager();
     dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
       if (!error) {
-        dispatch({
-          type: CONFIGURATION_READY,
-          ready: true
-        });
         // disable modules by configuration
         ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
@@ -102,6 +98,10 @@ export function backendConfigurationInit() {
         });
         ComponentLoader.reloadComponents();
         //
+        dispatch({
+          type: CONFIGURATION_READY,
+          ready: true
+        });
         dispatch(navigationInit());
       } else {
         const flashMessagesManager = new FlashMessagesManager();

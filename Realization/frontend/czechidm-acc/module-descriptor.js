@@ -2,6 +2,7 @@ module.exports = {
   'id': 'acc',
   'npmName': 'czechidm-acc',
   'backendId': 'acc',
+  'disableable': true,
   'name': 'Account managment',
   'description': 'Module for account managment',
   // 'mainStyleFile': 'src/css/main.less',

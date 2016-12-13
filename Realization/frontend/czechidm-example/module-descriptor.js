@@ -1,7 +1,6 @@
 module.exports = {
   'id': 'example',
   'npmName': 'czechidm-example',
-  'backendId': 'example',
   'name': 'Example module for CzechIdM 2.0 devstack.',
   'description': 'Example module for CzechIdM 2.0 devstack. This module can be duplicated and renamed for create new optional czechidm module.',
   // 'mainStyleFile': 'src/css/main.less',

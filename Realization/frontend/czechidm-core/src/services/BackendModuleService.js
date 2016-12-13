@@ -33,4 +33,32 @@ export default class BackendModuleService extends AbstractService {
       return json;
     });
   }
+
+  /**
+   * Set module endabled / disabled.
+   * Supports BE and FE modules
+   *
+   * @param {string} moduleId
+   * @param {boolean} enable
+   */
+  setEnabled(moduleId, enable = true) {
+    return RestApiService
+    .patch(this.getApiPath() + `/${moduleId}/${enable ? 'enable' : 'disable'}`)
+    .then(response => {
+      if (response.status === 204) {
+        // construct basic information about de/activated module
+        return {
+          id: moduleId,
+          disabled: !enable
+        };
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }

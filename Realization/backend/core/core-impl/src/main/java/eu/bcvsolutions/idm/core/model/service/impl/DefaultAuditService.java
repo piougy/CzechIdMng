@@ -139,7 +139,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 					Method readMethod = PropertyUtils.getPropertyDescriptor(currentEntity, field.getName()).getReadMethod();
 					
 					// check if exists readMethod
-					Assert.notNull(readMethod, "DefaultAuditService: read method for audited field " + field.getName() + ", can't be null.");
+					Assert.notNull(readMethod, MessageFormat.format("DefaultAuditService: read method for audited field {0}, can't be null.", field.getName()));
 					
 					previousValue = readMethod.invoke(previousEntity);
 					currentValue = readMethod.invoke(currentEntity);

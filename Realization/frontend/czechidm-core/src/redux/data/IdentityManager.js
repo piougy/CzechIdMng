@@ -4,6 +4,7 @@ import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
 import FormInstance from '../../domain/FormInstance';
+import * as Utils from '../../utils';
 
 /**
  * Manager for identity fetching
@@ -82,7 +83,8 @@ export default class IdentityManager extends EntityManager {
         }).then(json => {
           dispatch(this.updateBulkAction());
           successUsernames.push(this.getEntity(getState(), username).username);
-          // new entity to redux store
+          // new entity to redux trimmed store
+          json._trimmed = true;
           dispatch(this.receiveEntity(username, json));
         }).catch(error => {
           dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username }) }, error));

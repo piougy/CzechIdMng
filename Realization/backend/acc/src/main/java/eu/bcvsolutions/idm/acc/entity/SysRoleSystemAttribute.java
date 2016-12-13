@@ -70,11 +70,11 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	
 	@Audited
 	@Column(name = "confidential_attribute", nullable = false)
-	private boolean confidentialAttribute = true;
+	private boolean confidentialAttribute = false;
 	
 	@Audited
 	@Column(name = "disabled_default_attribute", nullable = false)
-	private boolean disabledDefaultAttribute = true;
+	private boolean disabledDefaultAttribute = false;
 	
 	@Audited
 	@Column(name = "uid", nullable = false)

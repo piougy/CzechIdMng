@@ -237,6 +237,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		attributeDefinitionOne.setDisplayName(attributeDefinitionOne.getName());
 		attributeDefinitionOne.setPersistentType(PersistentType.TEXT);			
 		attributeDefinitionOne = formAttributeDefinitionRepository.save(attributeDefinitionOne);
+		formDefinitionOne = formDefinitionService.get(formDefinitionOne.getId());
 		//
 		// create definition two
 		IdmFormDefinition formDefinitionTwo = new IdmFormDefinition();
@@ -250,6 +251,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		attributeDefinitionTwo.setDisplayName(attributeDefinitionTwo.getName());
 		attributeDefinitionTwo.setPersistentType(PersistentType.TEXT);			
 		attributeDefinitionTwo = formAttributeDefinitionRepository.save(attributeDefinitionTwo);
+		formDefinitionTwo = formDefinitionService.get(formDefinitionTwo.getId());
 		//		
 		SysSystemFormValue value1 = new SysSystemFormValue(attributeDefinitionOne);
 		value1.setValue("test1");

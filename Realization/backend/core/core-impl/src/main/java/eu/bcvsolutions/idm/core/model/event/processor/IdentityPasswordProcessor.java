@@ -57,7 +57,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 			// previous password check
-			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
+			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 			if(!StringUtils.equals(String.valueOf(idmPassword.asString()), passwordChangeDto.getOldPassword().asString())) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
@@ -75,8 +75,8 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 * @param newPassword
 	 */
 	protected void savePassword(IdmIdentity identity, GuardedString newPassword) {
-		LOG.debug("Saving password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
-		confidentialStorage.save(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY, newPassword.asString());
+		LOG.debug("Saving password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
+		confidentialStorage.save(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD, newPassword.asString());
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 * @param identity
 	 */
 	protected void deletePassword(IdmIdentity identity) {
-		LOG.debug("Deleting password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
-		confidentialStorage.delete(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY);
+		LOG.debug("Deleting password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
+		confidentialStorage.delete(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 	}
 }

@@ -12,6 +12,7 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -99,6 +101,16 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 	}
 	
 	@Override
+	public AccIdentityAccount patchEntity(AccIdentityAccount entity) {
+		Assert.notNull(entity);
+		Assert.notNull(entity.getAccount());
+		Assert.notNull(entity.getAccount().getId());
+		// we don't have excerpt projection - we need to fill account manually (id only from  FE) 
+		entity.setAccount(entityLookupService.lookup(AccAccount.class, entity.getAccount().getId()));
+		return super.patchEntity(entity);
+	}
+	
+	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.ACCOUNT_DELETE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
@@ -110,7 +122,10 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 	protected IdentityAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(convertUuidParameter(parameters, "accountId"));
-		filter.setIdentityId(convertEntityParameter(parameters, "identity", IdmIdentity.class).getId());
+		IdmIdentity identity = convertEntityParameter(parameters, "identity", IdmIdentity.class);
+		if (identity != null) {
+			filter.setIdentityId(identity.getId());
+		}
 		filter.setRoleId(convertUuidParameter(parameters, "roleId"));
 		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
 		filter.setOwnership(convertBooleanParameter(parameters, "ownership"));

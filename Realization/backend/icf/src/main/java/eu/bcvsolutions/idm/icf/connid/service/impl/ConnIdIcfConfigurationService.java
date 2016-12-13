@@ -46,11 +46,14 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		if (icfConfigurationAggregator.getIcfConfigs() == null) {
 			throw new IcfException("Map of ICF implementations is not defined!");
 		}
-		if (icfConfigurationAggregator.getIcfConfigs().containsKey(this.getIcfType())) {
-			throw new IcfException("ICF implementation duplicity for key: " + this.getIcfType());
+		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
+			throw new IcfException(
+					MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
-		icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
+		icfConfigurationAggregator.getIcfConfigs().put(IMPLEMENTATION_TYPE, this);
 	}
+
+	final private static String IMPLEMENTATION_TYPE = "connId";
 
 	/**
 	 * Return key defined ICF implementation
@@ -58,8 +61,8 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	 * @return
 	 */
 	@Override
-	public String getIcfType() {
-		return "connId";
+	public String getImplementationType() {
+		return IMPLEMENTATION_TYPE;
 	}
 
 	/**
@@ -83,7 +86,7 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 				if (key == null) {
 					continue;
 				}
-				IcfConnectorKeyImpl keyDto = new IcfConnectorKeyImpl(getIcfType(), key.getBundleName(),
+				IcfConnectorKeyImpl keyDto = new IcfConnectorKeyImpl(getImplementationType(), key.getBundleName(),
 						key.getBundleVersion(), key.getConnectorName());
 				IcfConnectorInfoImpl infoDto = new IcfConnectorInfoImpl(info.getConnectorDisplayName(),
 						info.getConnectorCategory(), keyDto);
@@ -106,8 +109,7 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		ConnectorInfo i = getConnIdConnectorInfo(key);
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
-			IcfConnectorConfiguration configDto = ConnIdIcfConvertUtil.convertConnIdConnectorConfiguration(apiConf);
-			return configDto;
+			return ConnIdIcfConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 		}
 		return null;
 	}
@@ -116,8 +118,8 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		Assert.notNull(key);
 
 		for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
-			ConnectorInfo i = manager
-					.findConnectorInfo(ConnIdIcfConvertUtil.convertConnectorKeyFromDto(key, this.getIcfType()));
+			ConnectorInfo i = manager.findConnectorInfo(
+					ConnIdIcfConvertUtil.convertConnectorKeyFromDto(key, this.getImplementationType()));
 			if (i != null) {
 				return i;
 			}
@@ -129,23 +131,23 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(key);
 		Assert.notNull(connectorConfiguration);
-		log.info("Get Schema - ConnId (" + key.toString() + ")");
+		log.info(MessageFormat.format("Get Schema - ConnId ({0})", key.toString()));
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 		Schema schema = conn.schema();
-		IcfSchema icfSchema = ConnIdIcfConvertUtil.convertConnIdSchema(schema);
-		return icfSchema;
+		return ConnIdIcfConvertUtil.convertConnIdSchema(schema);
 	}
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
 		if (managers == null) {
 			managers = new ArrayList<>();
 			List<Class<?>> annotated = new ArrayList<>();
-			// Find all class with annotation ConnectorClass under specific packages
+			// Find all class with annotation ConnectorClass under specific
+			// packages
 			localConnectorsPackages.forEach(packageWithConnectors -> {
 				Reflections reflections = new Reflections(packageWithConnectors);
 				annotated.addAll(reflections.getTypesAnnotatedWith(ConnectorClass.class));
 			});
-			
+
 			log.info(MessageFormat.format("Found annotated classes with ConnectorClass [{0}]", annotated));
 
 			for (Class<?> clazz : annotated) {

@@ -48,7 +48,7 @@ public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
 		if (icfLocalConnectorInfos == null) {
 			icfLocalConnectorInfos = new HashMap<>();
 			for (IcfConfigurationService config : icfConfigs.values()) {
-				icfLocalConnectorInfos.put(config.getIcfType(), config.getAvailableLocalConnectors());
+				icfLocalConnectorInfos.put(config.getImplementationType(), config.getAvailableLocalConnectors());
 			}
 		}
 		return icfLocalConnectorInfos;

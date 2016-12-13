@@ -27,12 +27,10 @@ import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -81,7 +79,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private AccIdentityAccountService identityAccoutnService;
 
 	@Autowired
-	private AccAccountService accoutnService;
+	private AccAccountService accountService;
 
 	@Autowired
 	private SysProvisioningService provisioningService;
@@ -103,6 +101,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
+	
+	// Only for call method createTestSystem
+	@Autowired
+	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 
 	@Before
 	public void init() {
@@ -175,7 +177,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		// Check incorrect password
 		try {
-			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY, IDENTITY_PASSWORD_TWO);
+			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD, IDENTITY_PASSWORD_TWO);
 			provisioningService.authenticate(accountIdentityOne, system);
 			fail("Bad credentials exception is expected here!");
 		} catch (ResultCodeException ex) {
@@ -191,14 +193,14 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	}
 
 	@Test
-	public void doIdentityProvisioningDeleteAccount() {
+	public void doIdentityProvisioningRemoveAccount() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 
 		// Delete account
-		provisioningService.doDeleteProvisioning(accountIdentityOne.getAccount());
+		accountService.delete(accountIdentityOne.getAccount());
 		TestResource removedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNull(removedAccount);
 	}
@@ -211,14 +213,17 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		
+		// We will use firstName attribute (password attribute is not returned by default)
 		SchemaAttributeHandlingFilter filterSchemaAttr = new SchemaAttributeHandlingFilter();
-		filterSchemaAttr.setIdmPropertyName("password");
+		filterSchemaAttr.setIdmPropertyName("firstName");
 		filterSchemaAttr.setSystemId(accountIdentityOne.getAccount().getSystem().getId());
 		SysSchemaAttributeHandling attributeHandling = schemaAttributeHandlingService.find(filterSchemaAttr, null).getContent().get(0);
 		// Set attribute to extended attribute and modify idmPropety to extPassword
 		attributeHandling.setIdmPropertyName(IDENTITY_EXT_PASSWORD);
 		attributeHandling.setExtendedAttribute(true);
-		attributeHandling.setTransformToResourceScript("return new eu.bcvsolutions.idm.security.api.domain.GuardedString(attributeValue)");
+		attributeHandling.setConfidentialAttribute(true);
+		attributeHandling.setEntityAttribute(false);
+		attributeHandling.setTransformToResourceScript("return attributeValue");
 		// Form attribute definition will be created during save attribute handling
 		schemaAttributeHandlingService.save(attributeHandling);
 		
@@ -234,78 +239,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		// save account
 		provisioningService.doProvisioning(identity);
 		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
-		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getPassword());;
-	}
-
-
-	/**
-	 * Create test system connected to same database (using configuration from
-	 * dataSource)
-	 * 
-	 * @return
-	 */
-	private SysSystem createTestSystem() {
-		// create owner
-		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
-		SysSystem system = new SysSystem();
-		system.setName("testResource_" + System.currentTimeMillis());
-		system.setConnectorKey(new SysConnectorKey(sysSystemService.getTestConnectorKey()));
-		sysSystemService.save(system);
-
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorKey());
-
-		List<SysSystemFormValue> values = new ArrayList<>();
-
-		SysSystemFormValue jdbcUrlTemplate = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcUrlTemplate"));
-		jdbcUrlTemplate.setValue(tomcatDataSource.getUrl());
-		values.add(jdbcUrlTemplate);
-		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
-		jdbcDriver.setValue(tomcatDataSource.getDriverClassName());
-		values.add(jdbcDriver);
-
-		SysSystemFormValue user = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("user"));
-		user.setValue(tomcatDataSource.getUsername());
-		values.add(user);
-		SysSystemFormValue password = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("password"));
-		password.setValue(tomcatDataSource.getPoolProperties().getPassword());
-		values.add(password);
-		SysSystemFormValue table = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("table"));
-		table.setValue("test_resource");
-		values.add(table);
-		SysSystemFormValue keyColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("keyColumn"));
-		keyColumn.setValue("name");
-		values.add(keyColumn);
-		SysSystemFormValue passwordColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("passwordColumn"));
-		passwordColumn.setValue("password");
-		values.add(passwordColumn);
-		SysSystemFormValue allNative = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("allNative"));
-		allNative.setValue(true);
-		values.add(allNative);
-		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
-		rethrowAllSQLExceptions.setValue(true);
-		values.add(rethrowAllSQLExceptions);
-		SysSystemFormValue statusColumn = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("statusColumn"));
-		statusColumn.setValue("status");
-		values.add(statusColumn);
-		SysSystemFormValue disabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("disabledStatusValue"));
-		disabledStatusValue.setValue("disabled");
-		values.add(disabledStatusValue);
-		SysSystemFormValue enabledStatusValue = new SysSystemFormValue(
-				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
-		enabledStatusValue.setValue("enabled");
-		values.add(enabledStatusValue);
-
-		formService.saveValues(system, savedFormDefinition, values);
-
-		return system;
+		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getFirstname());;
 	}
 
 	private void initData() {
@@ -315,7 +249,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSystem system;
 
 		// create test system
-		system = createTestSystem();
+		system = defaultSysAccountManagementServiceTest.createTestSystem();
 
 		// generate schema for system
 		sysSystemService.generateSchema(system);
@@ -331,7 +265,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountOne.setSystem(system);
 		accountOne.setUid("x" + IDENTITY_USERNAME);
 		accountOne.setAccountType(AccountType.PERSONAL);
-		accountOne = accoutnService.save(accountOne);
+		accountOne = accountService.save(accountOne);
 
 		accountIdentityOne = new AccIdentityAccount();
 		accountIdentityOne.setIdentity(identity);

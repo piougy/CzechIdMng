@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api.dto;
+package eu.bcvsolutions.idm.core.api.dto.filter;
 
 /**
  * Void filter = findAll with pagination and sort support.

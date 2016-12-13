@@ -60,13 +60,17 @@ class FrontendModules extends Basic.AbstractContent {
 
                   <Basic.Table
                     data={componentDescriptor ? componentDescriptor.components : null}
-                    rowClass={({rowIndex, data}) => { return data[rowIndex].module !== this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''; }}>
+                    rowClass={({rowIndex, data}) => {
+                      const componentDefinition = this.componentService.getComponentDefinition(data[rowIndex].id);
+                      return (!componentDefinition || data[rowIndex].module !== componentDefinition.module) ? 'disabled' : '';
+                    }}>
                     <Basic.Column
                       property="id"
                       header={this.i18n('label.id')}
                       cell={({rowIndex, data}) => {
-                        const overridedInModule = this.componentService.getComponentDefinition(data[rowIndex].id).module;
-                        const overrided = data[rowIndex].module !== overridedInModule;
+                        const componentDefinition = this.componentService.getComponentDefinition(data[rowIndex].id);
+                        const overridedInModule = componentDefinition ? componentDefinition.module : null;
+                        const overrided = overridedInModule && data[rowIndex].module !== overridedInModule;
                         const textStyle = {};
                         if (overrided) {
                           textStyle.textDecoration = 'line-through';

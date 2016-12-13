@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.api.dto;
+package eu.bcvsolutions.idm.core.api.dto.filter;
 
 /**
  * Filter could be given to services.

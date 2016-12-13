@@ -110,7 +110,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		contractGuarantee = identityContractService.save(contractGuarantee);
 		
 		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(confidentialStorage.get(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY));
+		assertNotNull(confidentialStorage.get(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD));
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
@@ -120,7 +120,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityService.delete(identity);
 		
 		assertNull(identityService.getByUsername(username));
-		assertNull(confidentialStorage.get(identity, IdmIdentityService.PASSWORD_CONFIDENTIAL_PROPERTY));
+		assertNull(confidentialStorage.get(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD));
 		assertEquals(0, formService.getValues(identity).size());
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());

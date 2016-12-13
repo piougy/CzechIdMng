@@ -50,6 +50,7 @@ export class App extends Basic.AbstractContent {
         username: userContext.username,
         password: this.refs.password.getValue() // preserve filled password
       });
+      this.refs.password.focus();
     }
 
     // onEnter makes this redirection now

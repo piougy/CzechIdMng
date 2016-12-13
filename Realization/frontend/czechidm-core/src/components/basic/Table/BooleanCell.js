@@ -1,10 +1,14 @@
 import React from 'react';
 //
 import DefaultCell from './DefaultCell';
+import Icon from '../Icon/Icon';
 
 /**
  * Renders cell with boolean content as disabled checkbox
  * Parametrs are automatically propagated from table / row / column
+ *
+ * TODO: fix key issue - when input is used, then property walue is mixed through sorting, editing etc.
+ *
  * @param number rowIndex
  * @param array[json] input data
  * @param property column key
@@ -15,7 +19,13 @@ const BooleanCell = ({rowIndex, data, property, ...props}) => {
   //
   return (
     <DefaultCell {...props}>
-      <input type="checkbox" disabled checked={propertyValue} />
+      {
+        propertyValue
+        ?
+        <Icon value="fa:check-square-o" disabled/>
+        :
+        <Icon value="fa:square-o" disabled/>
+      }
     </DefaultCell>
   );
 };

@@ -12,6 +12,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfigurationService;
@@ -29,11 +30,13 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	private ConfigurableEnvironment env;
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;
+	@Autowired
+	private ConfidentialStorage configurationStorage;
 	
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_USER_1);
-		configurationService = new DefaultIdmConfigurationService(env, configurationRepository);
+		configurationService = new DefaultIdmConfigurationService(configurationRepository, configurationStorage, env);
 	}
 	
 	@After
@@ -85,7 +88,7 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	}
 	
 	@Test
-	public void testReadGuardedPropertyFromDB() {
+	public void testReadConfidentialPropertyFromDB() {
 		configurationService.saveConfiguration(new ConfigurationDto(TEST_GUARDED_PROPERTY_KEY, "secured_change"));
 		assertEquals("secured_change", configurationService.getValue(TEST_GUARDED_PROPERTY_KEY));
 	}

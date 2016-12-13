@@ -100,6 +100,8 @@ export function backendConfigurationInit() {
             ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
           }
         });
+        ComponentLoader.reloadComponents();
+        //
         dispatch(navigationInit());
       } else {
         const flashMessagesManager = new FlashMessagesManager();

@@ -36,7 +36,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
@@ -134,13 +134,8 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 */
 	@SuppressWarnings("unchecked")
 	public E getEntity(String backendId) {
-		// TODO: read events
 		if(getEntityLookup() == null) {
-			try {
-				return getEntityService().get(backendId);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId), ex);
-			}
+			return getEntityService().get(backendId);
 		}		
 		return (E) getEntityLookup().lookupEntity(backendId);
 	}

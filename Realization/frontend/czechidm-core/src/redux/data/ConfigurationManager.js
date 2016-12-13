@@ -101,6 +101,19 @@ export default class ConfigurationManager extends EntityManager {
   }
 
   /**
+   * Returns true, if configurationName should be secured (contains idm.sec. prefix)
+   *
+   * @param  {string} configurationName
+   * @return {bool}
+   */
+  shouldBeSecured(configurationName) {
+    if (!configurationName) {
+      return false;
+    }
+    return configurationName.lastIndexOf('idm.sec.', 0) === 0;
+  }
+
+  /**
    * Returns setting value
    */
   static getPublicValue(state, key) {

@@ -28,7 +28,11 @@ class Identities extends Basic.AbstractContent {
         {this.renderPageHeader()}
 
         <Basic.Panel>
-          <IdentityTable uiKey="identity-table" identityManager={this.identityManager} filterOpened />
+          <IdentityTable
+            uiKey="identity-table"
+            identityManager={this.identityManager}
+            filterOpened
+            showRowSelection />
         </Basic.Panel>
 
       </div>

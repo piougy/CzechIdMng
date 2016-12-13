@@ -59,6 +59,11 @@ class TextField extends AbstractFormComponent {
   onChange(event) {
     super.onChange(event);
     this.refs.popover.show();
+    this.setState( {
+      confidentialState: {
+        showInput: true
+      }
+    });
   }
 
   /**
@@ -93,9 +98,12 @@ class TextField extends AbstractFormComponent {
     const { confidential } = this.props;
     const { confidentialState } = this.state;
     //
-    if (confidential && !confidentialState.showInput) {
+    if (confidential) {
       // preserve previous value
-      return undefined;
+      if (!confidentialState.showInput) {
+        return undefined;
+      }
+      return super.getValue() || ''; // we need to know, when clear confidential value in BE
     }
     // return filled value
     return super.getValue();
@@ -142,7 +150,7 @@ class TextField extends AbstractFormComponent {
       if (value) {
         _value = '*****'; // asterix will be shown, when value is filled
       } else {
-        _value = null;
+        _value = '';
       }
       _readOnly = true;
     }

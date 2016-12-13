@@ -35,13 +35,13 @@ class RoleSystems extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    const role = entity && entity.role ? entity.role.id : this.props.params.entityId;
+    const roleId = this.props.params.entityId;
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`/role/${role}/systems/${uuidId}/new?new=1`);
+      this.context.router.push(`/role/${roleId}/systems/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`role/${role}/systems/${entity.id}/detail`);
+      this.context.router.push(`role/${roleId}/systems/${entity.id}/detail`);
     }
   }
 

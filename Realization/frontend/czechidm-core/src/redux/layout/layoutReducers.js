@@ -85,7 +85,8 @@ export function layout(state = INITIAL_STATE, action) {
     }
     case CONFIGURATION_READY: {
       LOGGER.debug('configuration ready [' + action.ready + ']');
-      return state.set('configurationReady', action.ready);
+      const newState = state.set('configurationReady', action.ready);
+      return newState;
     }
     case APP_INIT: {
       let newState = state.set('appReady', false);

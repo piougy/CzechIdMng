@@ -3,13 +3,15 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import PasswordChangeForm from './PasswordChangeForm';
+import ComponentService from '../../services/ComponentService';
 
 const RESOURCE_IDM = '0:czechidm';
 
-class PasswordChange extends Basic.AbstractContent {
+class PasswordChangeContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.componentService = new ComponentService();
   }
 
   componentDidMount() {
@@ -35,10 +37,10 @@ class PasswordChange extends Basic.AbstractContent {
   }
 }
 
-PasswordChange.propTypes = {
+PasswordChangeContent.propTypes = {
   userContext: PropTypes.object
 };
-PasswordChange.defaultProps = {
+PasswordChangeContent.defaultProps = {
   userContext: null
 };
 
@@ -47,4 +49,4 @@ function select(state) {
     userContext: state.security.userContext
   };
 }
-export default connect(select)(PasswordChange);
+export default connect(select)(PasswordChangeContent);

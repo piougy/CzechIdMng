@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
 import ConfigLoader from '../../utils/ConfigLoader';
-import ComponentService from '../../services/ComponentService';
+import ComponentLoader from '../../utils/ComponentLoader';
+import { BackendModuleManager } from '../../redux';
+import * as Utils from '../../utils';
 
 class FrontendModules extends Basic.AbstractContent {
 
@@ -12,9 +14,10 @@ class FrontendModules extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       moduleDescriptors: [],
-      components: []
+      components: [],
+      _showLoading: false
     };
-    this.componentService = new ComponentService();
+    this.backendModuleManager = new BackendModuleManager();
   }
 
   getContentKey() {
@@ -23,30 +26,90 @@ class FrontendModules extends Basic.AbstractContent {
 
   componentDidMount() {
     this.selectNavigationItem('fe-modules');
+    this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
   }
 
+  onEnable(entity, enable, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-${enable ? '' : 'de'}activate`].show(
+      this.i18n(`action.${enable ? '' : 'de'}activate.message`, { count: 1, record: entity.name }),
+      this.i18n(`action.${enable ? '' : 'de'}activate.header`, { count: 1 })
+    ).then(() => {
+      this.context.store.dispatch(this.backendModuleManager.setEnabled(entity.id, enable, (patchedEntity, error) => {
+        if (!error) {
+          // this.addMessage({ message: this.i18n(`action.${enable ? '' : 'de'}activate.success`, { count: 1, record: patchedEntity.name }) });
+          window.location.reload();
+        } else {
+          this.addError(error);
+        }
+        this.setState({
+          _showLoading: false
+        });
+      }));
+    }, () => {
+      // Rejected
+    });
+  }
 
   render() {
+    const { showLoading } = this.props;
+    const { _showLoading } = this.state;
+    //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
+        <Basic.Confirm ref="confirm-deactivate" level="warning"/>
+        <Basic.Confirm ref="confirm-activate" level="success"/>
 
         <Basic.PageHeader text={this.i18n('header')}/>
 
         {
+          showLoading || _showLoading
+          ?
+          <Basic.Loading isStatic showLoading/>
+          :
           ConfigLoader.getModuleDescriptors()
             .sort((one, two) => {
               return one.id > two.id;
             }).map(moduleDescriptor => {
-              const componentDescriptor = this.componentService.getComponentDescriptor(moduleDescriptor.id);
+              const componentDescriptor = ComponentLoader.getComponentDescriptor(moduleDescriptor.id);
               //
               return (
-                <Basic.Panel className={ConfigLoader.isEnabledModule(moduleDescriptor.id) ? '' : 'disabled'}>
+                <Basic.Panel>
                   <Basic.PanelHeader>
-                    <h2 className="pull-left">
-                      <span>{moduleDescriptor.name} <small>{moduleDescriptor.id}</small></span>
-                    </h2>
-                    <Basic.Label text={this.i18n('label.disabled')} level="default" rendered={!ConfigLoader.isEnabledModule(moduleDescriptor.id)} className="pull-right" style={{ marginTop: 4}}/>
+                    <div className="pull-left">
+                      <h2 className={ConfigLoader.isEnabledModule(moduleDescriptor.id) ? '' : 'disabled'} style={{ display: 'inline-block' }}>
+                        <span>{moduleDescriptor.name} <small>{moduleDescriptor.id}</small></span>
+                      </h2>
+                      <Basic.Label text={this.i18n('label.disabled')} level="default" rendered={!ConfigLoader.isEnabledModule(moduleDescriptor.id)} style={{ marginLeft: 5 }}/>
+                    </div>
+
+                    <div className="pull-right" style={{ marginTop: 4}}>
+                      {
+                        ConfigLoader.isEnabledModule(moduleDescriptor.id)
+                        ?
+                        <Basic.Button
+                          level="warning"
+                          onClick={this.onEnable.bind(this, moduleDescriptor, false)}
+                          className="btn-xs"
+                          title={this.i18n('button.deactivate')}
+                          titlePlacement="bottom"
+                          rendered={moduleDescriptor.disableable !== false}>
+                          {this.i18n('button.deactivate')}
+                        </Basic.Button>
+                        :
+                        <Basic.Button
+                          level="success"
+                          onClick={this.onEnable.bind(this, moduleDescriptor, true)}
+                          className="btn-xs"
+                          title={this.i18n('button.activate')}
+                          titlePlacement="bottom">
+                          {this.i18n('button.activate')}
+                        </Basic.Button>
+                      }
+                    </div>
                     <div className="clearfix"></div>
                   </Basic.PanelHeader>
 
@@ -60,13 +123,17 @@ class FrontendModules extends Basic.AbstractContent {
 
                   <Basic.Table
                     data={componentDescriptor ? componentDescriptor.components : null}
-                    rowClass={({rowIndex, data}) => { return data[rowIndex].module !== this.componentService.getComponentDefinition(data[rowIndex].id).module ? 'disabled' : ''; }}>
+                    rowClass={({rowIndex, data}) => {
+                      const componentDefinition = ComponentLoader.getComponentDefinition(data[rowIndex].id);
+                      return (!componentDefinition || data[rowIndex].module !== componentDefinition.module) ? 'disabled' : '';
+                    }}>
                     <Basic.Column
                       property="id"
                       header={this.i18n('label.id')}
                       cell={({rowIndex, data}) => {
-                        const overridedInModule = this.componentService.getComponentDefinition(data[rowIndex].id).module;
-                        const overrided = data[rowIndex].module !== overridedInModule;
+                        const componentDefinition = ComponentLoader.getComponentDefinition(data[rowIndex].id);
+                        const overridedInModule = componentDefinition ? componentDefinition.module : null;
+                        const overrided = overridedInModule && data[rowIndex].module !== overridedInModule;
                         const textStyle = {};
                         if (overrided) {
                           textStyle.textDecoration = 'line-through';
@@ -99,15 +166,18 @@ class FrontendModules extends Basic.AbstractContent {
 }
 
 FrontendModules.propTypes = {
-  userContext: PropTypes.object
+  userContext: PropTypes.object,
+  showLoading: PropTypes.bool
 };
 FrontendModules.defaultProps = {
-  userContext: null
+  userContext: null,
+  showLoading: true
 };
 
 function select(state) {
   return {
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    showLoading: Utils.Ui.isShowLoading(state, BackendModuleManager.UI_KEY_MODULES)
   };
 }
 

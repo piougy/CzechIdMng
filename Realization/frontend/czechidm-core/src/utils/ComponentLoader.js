@@ -9,6 +9,14 @@ export default class ComponentLoader {
 
   static initComponents(componentDescriptors) {
     _componentDescriptors = componentDescriptors;
+    this.reloadComponents();
+  }
+
+  /**
+   * Reloads registered components - module could be disabled / enabled
+   */
+  static reloadComponents() {
+    _components = _components.clear();
     _componentDescriptors.toArray().map(descriptor => {
       this._fillComponents(descriptor);
     });
@@ -35,7 +43,7 @@ export default class ComponentLoader {
   static getComponentDefinitions(type) {
     return _components
       .filter(component => {
-        return !component.disabled && (!type || component.type === type) && ConfigLoader.isEnabledModule(component.module);
+        return !component.disabled && (!type || component.type === type);
       })
       .sortBy(item => item.order);
   }
@@ -44,7 +52,9 @@ export default class ComponentLoader {
     for (const component of componentDescriptor.components) {
       if (!_components.has(component.id) || (_components.get(component.id).priority || 0) < (component.priority || 0)) {
         component.module = componentDescriptor.id;
-        _components = _components.set(component.id, component);
+        if (ConfigLoader.isEnabledModule(componentDescriptor.id)) {
+          _components = _components.set(component.id, component);
+        }
       }
     }
   }

@@ -86,10 +86,6 @@ export function backendConfigurationInit() {
     const configurationManager = new ConfigurationManager();
     dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
       if (!error) {
-        dispatch({
-          type: CONFIGURATION_READY,
-          ready: true
-        });
         // disable modules by configuration
         ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
@@ -99,6 +95,12 @@ export function backendConfigurationInit() {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
             ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
           }
+        });
+        ComponentLoader.reloadComponents();
+        //
+        dispatch({
+          type: CONFIGURATION_READY,
+          ready: true
         });
         dispatch(navigationInit());
       } else {

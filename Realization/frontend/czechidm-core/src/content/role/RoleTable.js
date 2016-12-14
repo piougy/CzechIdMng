@@ -115,12 +115,12 @@ export class RoleTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
 
-/**
- * Decorator for Role cataloue tree. Custom icons
- */
+  /**
+   * Decorator for Role cataloue tree. Custom icons
+   */
   _roleTreeHeaderDecorator(props) {
     const style = props.style;
-    const icon = props.node.isLeaf ? 'group' : 'building';
+    const icon = props.node.isLeaf ? 'file-text' : 'folder';
     return (
       <div style={style.base}>
         <div style={style.title}>
@@ -144,17 +144,17 @@ export class RoleTable extends Basic.AbstractContent {
     const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
     return (
       <Basic.Row>
-        <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
-          <div className="basic-toolbar">
-            <div className="pull-left">
-              <h3 style={{ margin: 0 }}>{this.i18n('content.roles.roleCataloguePick')}</h3>
+        {
+          !showTree
+          ||
+          <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
+            <div className="basic-toolbar">
+              <div className="pull-left">
+                <h3 style={{ margin: 0 }}>{this.i18n('content.roles.roleCataloguePick')}</h3>
+              </div>
+              <div className="clearfix"></div>
             </div>
-            <div className="clearfix"></div>
-          </div>
-          <div style={{ paddingLeft: 15, paddingRight: 15 }}>
-            {
-              !showTree
-              ||
+            <div style={{ paddingLeft: 15, paddingRight: 15 }}>
               <Basic.Panel style={{ marginTop: 15 }}>
                 <Advanced.Tree
                   ref="roleCatalogueTree"
@@ -164,11 +164,11 @@ export class RoleTable extends Basic.AbstractContent {
                   manager={this.roleCatalogueManager}
                   />
               </Basic.Panel>
-            }
+            </div>
           </div>
-        </div>
+        }
 
-        <div className="col-lg-9">
+        <div className={!showTree ? 'col-lg-12' : 'col-lg-9'}>
           <Basic.Confirm ref="confirm-delete" level="danger"/>
 
           <Advanced.Table
@@ -178,7 +178,7 @@ export class RoleTable extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
             filterOpened={filterOpened}
             showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
-            style={{ borderLeft: '1px solid #ddd' }}
+            style={!showTree ? {} : { borderLeft: '1px solid #ddd' }}
             showLoading={showLoading}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>

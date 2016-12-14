@@ -25,5 +25,5 @@ public interface IdmTreeNodeExcerpt extends AbstractDtoProjection {
 	
 	IdmTreeType getTreeType();
 	
-	Integer getChildrenCount();
+	int getChildrenCount();
 }

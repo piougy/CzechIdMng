@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
@@ -45,7 +49,21 @@ public class DefaultSysRoleSystemAttributeService
 
 	@Override
 	public SysRoleSystemAttribute save(SysRoleSystemAttribute entity) {
-
+		
+		// Check if exist some else attribute which is defined like unique identifier
+		if (entity.isUid()) {
+			RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
+			filter.setIsUid(true);
+			filter.setRoleSystemId(entity.getRoleSystem().getId());
+			
+			List<SysRoleSystemAttribute> list = this.find(filter, null).getContent();
+			
+			if (list.size() > 0 && !list.get(0).getId().equals(entity.getId())) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
+						entity.getRoleSystem().getRole().getName(), "system", entity.getRoleSystem().getSystem().getName()));
+			}
+		}
+		
 		SysRoleSystemAttribute roleSystemAttribute = super.save(entity);
 
 		// RoleSystemAttribute was changed. We need do ACC management for all

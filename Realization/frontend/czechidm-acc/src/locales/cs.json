@@ -183,6 +183,7 @@
       "attributeHandlingDetail": {
         "title" : "Atribut v IDM",
         "header" : "Detail mapování atributu ",
+        "alertNoRepository": "Atribut není mapován na žádné IDM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
         "save": {
           "success": "Atribut [{{name}}] IDM byl úspěšně uložen"
         },

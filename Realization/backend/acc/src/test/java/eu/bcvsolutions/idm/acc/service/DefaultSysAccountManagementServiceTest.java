@@ -368,11 +368,13 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public SysSystem createTestSystem() {
 		// create owner
 		org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = ((org.apache.tomcat.jdbc.pool.DataSource) dataSource);
 		SysSystem system = new SysSystem();
 		system.setName("testResource_" + System.currentTimeMillis());
+		
 		system.setConnectorKey(new SysConnectorKey(sysSystemService.getTestConnectorKey()));
 		sysSystemService.save(system);
 

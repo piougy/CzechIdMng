@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 public abstract class CoreEvent<E extends AbstractEntity> extends AbstractEntityEvent<E> {
 
+	private static final long serialVersionUID = 8862117134483307569L;
 	public static final int DEFAULT_ORDER = 0;
 	
 	public CoreEvent(EventType<E> type, E content) {

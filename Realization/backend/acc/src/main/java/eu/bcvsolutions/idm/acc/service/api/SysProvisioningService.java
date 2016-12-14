@@ -12,6 +12,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
+/**
+ * Service for do provisioning or synchronisation or reconciliation
+ * 
+ * @author svandav
+ *
+ */
 public interface SysProvisioningService {
 
 	/**

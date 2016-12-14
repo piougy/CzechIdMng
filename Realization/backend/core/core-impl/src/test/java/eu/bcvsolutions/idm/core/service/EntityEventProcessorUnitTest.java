@@ -116,10 +116,6 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 
 	private class EventProcessorOne extends AbstractEntityEventProcessor<IdmIdentity> {
 
-		public EventProcessorOne() {
-			super(IdentityEventType.SAVE);
-		}
-
 		@Override
 		public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 			event.getContent().setUsername("one");
@@ -136,7 +132,7 @@ public class EntityEventProcessorUnitTest extends AbstractUnitTest {
 	private class EventProcessorTwo extends AbstractEntityEventProcessor<IdmIdentity> {
 
 		public EventProcessorTwo() {
-			super(IdentityEventType.SAVE);
+			super(IdentityEventType.SAVE, IdentityEventType.DELETE);
 		}
 
 		@Override

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
@@ -8,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 /**
  * Single entity event processor
  * 
- * 
+ * Types could be {@literal null}, then processor supports all event types
  * 
  * @author Radek Tomiška
  *
@@ -17,14 +18,12 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E> {
 
 	private final Class<E> entityClass;
-	private final EventType<E> type; // TODO: array - support more operations, enum?
+	private final EventType<E>[] types;
 	
-	@SuppressWarnings("unchecked")
-	public AbstractEntityEventProcessor(EventType<E> type) {
-		Assert.notNull(type, "Operation is required!");
-		//
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public AbstractEntityEventProcessor(EventType... type) {
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
-		this.type = type;
+		this.types = type;
 	}
 	
 	/* 
@@ -36,10 +35,8 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
 		
-		// TODO: Equals or assignable? Maybe assignable will be better ...
-		// TODO: support for more operation types
-		return entityEvent.getContent().getClass().equals(entityClass) 
-				&& type.equals(entityEvent.getType());
+		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
+				&& (ArrayUtils.isEmpty(types) || ArrayUtils.contains(types, entityEvent.getType()));
 	}
 
 	/**

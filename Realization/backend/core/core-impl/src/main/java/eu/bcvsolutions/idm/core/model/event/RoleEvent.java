@@ -15,6 +15,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
  */
 public class RoleEvent extends CoreEvent<IdmRole> {
 	
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Supported event types
 	 */

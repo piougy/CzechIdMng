@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -86,12 +85,12 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 public class DefaultSysProvisioningService implements SysProvisioningService {
 
 	public static final String PASSWORD_IDM_PROPERTY_NAME = "password";
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
 	private final SysSystemEntityHandlingService entityHandlingService;
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
 	private final IcfConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private AccIdentityAccountService identityAccountService;
+	private final AccIdentityAccountService identityAccountService;
 	private final ConfidentialStorage confidentialStorage;
 	private final FormService formService;
 	private final SysRoleSystemService roleSystemService;
@@ -101,15 +100,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	private final AccAccountService accountService;
 
 	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
 	public DefaultSysProvisioningService(SysSystemEntityHandlingService entityHandlingService,
 			SysSchemaAttributeHandlingService attributeHandlingService, IcfConnectorFacade connectorFacade,
 			SysSystemService systemService, ConfidentialStorage confidentialStorage, FormService formService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService) {
+			AccAccountService accountService, AccIdentityAccountService identityAccountService) {
 
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
@@ -122,6 +118,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		Assert.notNull(roleSystemAttributeService);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
+		Assert.notNull(identityAccountService);
 		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
@@ -134,6 +131,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.systemEntityService = systemEntityService;
 		this.accountService = accountService;
+		this.identityAccountService = identityAccountService;
 	}
 
 	@Override
@@ -141,7 +139,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		Assert.notNull(identity);
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
 			return;
@@ -188,7 +186,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccount> idenittyAccoutnList = identityAccounts.getContent();
 		if (idenittyAccoutnList == null) {
 			return;
@@ -218,7 +216,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		filter.setSystemId(system.getId());
 		filter.setOwnership(Boolean.TRUE);
 		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
 		if (idenityAccoutnList == null) {
 			return;
@@ -390,7 +388,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = getIdentityAccountService().find(filter, null);
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 		if (identityAccountList == null) {
 			return;
@@ -668,7 +666,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		final List<String> uids = new ArrayList<>();
 		// call create on ICF module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
-			log.debug("Provisioning - create object with uid " + uid + " and connector object "
+			LOG.debug("Provisioning - create object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
 			IcfUidAttribute icfUid = connectorFacade.createObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), connectorObject.getAttributes());
@@ -679,7 +677,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		// call update on ICF module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
-			log.debug("Provisioning - update object with uid " + uid + " and connector object "
+			LOG.debug("Provisioning - update object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
 			IcfUidAttribute icfUid = connectorFacade.updateObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
@@ -689,7 +687,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		});
 		// call delete on ICF module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
-			log.debug("Provisioning - delete object with uid " + uid + " and connector object "
+			LOG.debug("Provisioning - delete object with uid " + uid + " and connector object "
 					+ connectorObject.getObjectClass().getType());
 			connectorFacade.deleteObject(connectorKey, connectorConfig, connectorObject.getObjectClass(), uidAttribute);
 		});
@@ -861,7 +859,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 					.getMappedAttributeByName(attributeHandling.getIdmPropertyName());
 			if (defAttribute == null) {
 				// eav definition could be changed
-				log.warn("Form attribute defininion [{}] was not found, returning null", attributeHandling.getIdmPropertyName());
+				LOG.warn("Form attribute defininion [{}] was not found, returning null", attributeHandling.getIdmPropertyName());
 				return null;
 			}
 			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity,
@@ -991,18 +989,5 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
 
 		return propertyDescriptor.getReadMethod().invoke(entity);
-	}
-
-	/**
-	 * TODO: remove this lazy injection after provisioning event event will be
-	 * done
-	 * 
-	 * @return
-	 */
-	private AccIdentityAccountService getIdentityAccountService() {
-		if (identityAccountService == null) {
-			this.identityAccountService = applicationContext.getBean(AccIdentityAccountService.class);
-		}
-		return identityAccountService;
 	}
 }

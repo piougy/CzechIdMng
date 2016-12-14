@@ -49,12 +49,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 @Service
 public class DefaultAccAccountManagementService implements AccAccountManagementService {
 
-	private AccAccountService accountService;
-	private SysRoleSystemService roleSystemService;
-	private AccIdentityAccountService identityAccountService;
-	private IdmIdentityRoleRepository identityRoleRepository;
-	private SysRoleSystemAttributeService roleSystemAttributeService;
-	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private final AccAccountService accountService;
+	private final SysRoleSystemService roleSystemService;
+	private final AccIdentityAccountService identityAccountService;
+	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final SysRoleSystemAttributeService roleSystemAttributeService;
+	private final SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
@@ -75,7 +75,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
-
 	}
 
 	@Override

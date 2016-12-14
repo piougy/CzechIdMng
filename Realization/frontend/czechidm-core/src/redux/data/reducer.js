@@ -4,6 +4,7 @@
 import merge from 'object-assign';
 import Immutable from 'immutable';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import { LOGOUT } from '../security/SecurityManager';
 import {
@@ -30,11 +31,16 @@ const INITIAL_STATE = {
     // entities are stored as map <id, entity>
     // Identity: Immutable.Map({})
   },
+  trimmed: {
+    // trimmed entities are stored as map <id, entity>
+    // Identity: Immutable.Map({})
+  },
   ui: {
     // uiKeys are stored as object with structure:
     /*
     {
       items: [], // reference to identities
+      trimmed: true, // is entities for this key is trimmed
       showLoading: true,
       total: null
       searchParameters: merge({}, DEFAULT_SEARCH_PARAMETERS, {
@@ -80,21 +86,25 @@ export function data(state = INITIAL_STATE, action) {
     case RECEIVE_ENTITIES: {
       const entityType = action.entityType;
       let entities = state.entity[entityType] || new Immutable.Map({});
+      let trimmed = state.trimmed[entityType] || new Immutable.Map({});
       const ids = [];
+      let isTrimmed = false;
       action.entities.map(entity => {
         ids.push(entity.id);
         // check trimmed and modified date
-        if (entity._trimmed === true && entities.has(entity.id)) {
-          // check modified date - this is little dangerous, because some detail does not check trimmed flag
-          /* if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
-            entities = entities.set(entity.id, entity);
-          }*/
+        if (entity._trimmed === true) {
+          isTrimmed = true;
+          trimmed = trimmed.set(entity.id, entity);
         } else {
-          entities = entities.set(entity.id, entity);
+          // check modified date ... only newer
+          if (entities.has(entity.id)) {
+            if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
+              entities = entities.set(entity.id, entity);
+            }
+          } else {
+            entities = entities.set(entity.id, entity);
+          }
         }
-      });
-      const entityTypes = merge({}, state.entity, {
-        [entityType]: entities
       });
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
@@ -102,12 +112,18 @@ export function data(state = INITIAL_STATE, action) {
           searchParameters: action.searchParameters,
           entityType,
           items: ids,
+          trimmed: isTrimmed,
           total: action.total,
           error: null
         })
       });
       return merge({}, state, {
-        entity: entityTypes,
+        entity: merge({}, state.entity, {
+          [entityType]: entities
+        }),
+        trimmed: merge({}, state.trimmed, {
+          [entityType]: trimmed
+        }),
         ui: merge({}, state.ui, ui)
       });
     }
@@ -127,10 +143,14 @@ export function data(state = INITIAL_STATE, action) {
     case RECEIVE_ENTITY: {
       const entityType = action.entityType;
       let entities = state.entity[entityType] || new Immutable.Map({});
-      entities = entities.set(action.id, action.entity);
-      const entityTypes = merge({}, state.entity, {
-        [entityType]: entities
-      });
+      let trimmed = state.trimmed[entityType] || new Immutable.Map({});
+      const isTrimmed = action.entity._trimmed === true;
+      if (isTrimmed) {
+        trimmed = trimmed.set(action.id, action.entity);
+      } else {
+        entities = entities.set(action.id, action.entity);
+      }
+      // TODO: trimmed items ...
       let items = [];
       if (state.ui[uiKey] && state.ui[uiKey].items) {
         items = state.ui[uiKey].items;
@@ -149,19 +169,25 @@ export function data(state = INITIAL_STATE, action) {
         })
       });
       return merge({}, state, {
-        entity: entityTypes,
+        entity: merge({}, state.entity, {
+          [entityType]: entities
+        }),
+        trimmed: merge({}, state.trimmed, {
+          [entityType]: trimmed
+        }),
         ui: merge({}, state.ui, ui)
       });
     }
     case DELETED_ENTITY: {
       const entityType = action.entityType;
       let entities = state.entity[entityType] || new Immutable.Map({});
+      let trimmed = state.trimmed[entityType] || new Immutable.Map({});
       if (entities.has(action.id)) {
         entities = entities.delete(action.id);
       }
-      const entityTypes = merge({}, state.entity, {
-        [entityType]: entities
-      });
+      if (trimmed.has(action.id)) {
+        trimmed = trimmed.delete(action.id);
+      }
       // clear entity.id from all uiKeys items
       let ui = merge({}, state.ui);
       for (const processUiKey in state.ui) {
@@ -178,7 +204,12 @@ export function data(state = INITIAL_STATE, action) {
         }
       }
       return merge({}, state, {
-        entity: entityTypes,
+        entity: merge({}, state.entity, {
+          [entityType]: entities
+        }),
+        trimmed: merge({}, state.trimmed, {
+          [entityType]: trimmed
+        }),
         ui
       });
     }
@@ -195,9 +226,6 @@ export function data(state = INITIAL_STATE, action) {
     }
     case CLEAR_ENTITIES: {
       const entityType = action.entityType;
-      const entityTypes = merge({}, state.entity, {
-        [entityType]: new Immutable.Map({})
-      });
       const ui = merge({}, state.ui, {
         [uiKey]: merge({}, state.ui[uiKey], {
           showLoading: false,
@@ -208,7 +236,12 @@ export function data(state = INITIAL_STATE, action) {
         })
       });
       return merge({}, state, {
-        entity: entityTypes,
+        entity: merge({}, state.entity, {
+          [entityType]: new Immutable.Map({})
+        }),
+        trimmed: merge({}, state.trimmed, {
+          [entityType]: new Immutable.Map({})
+        }),
         ui: merge({}, state.ui, ui)
       });
     }

@@ -12,16 +12,40 @@ export default class EntityUtils {
    * @param  {state} state - application state
    * @param  {string} entityType - entity type (e.g. Identity)
    * @param  {string|number} id - entity identifier
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {object} - entity
    */
-  static getEntity(state, entityType, id) {
+  static getEntity(state, entityType, id, trimmed = false) {
+    if (trimmed !== null) {
+      return this._getEntity(state, entityType, id, trimmed);
+    }
+    // not trimmed entity has higher priority
+    const entity = this._getEntity(state, entityType, id, false);
+    if (!entity) {
+      return this._getEntity(state, entityType, id, true);
+    }
+    return entity;
+  }
+
+  /**
+   * Returns entity, if entity is contained in application state.
+   * Can be used in select state.
+   *
+   * @param  {state} state - application state
+   * @param  {string} entityType - entity type (e.g. Identity)
+   * @param  {string|number} id - entity identifier
+   * @param {bool} trimmed - trimmed or full entity is needed
+   * @return {object} - entity
+   */
+  static _getEntity(state, entityType, id, trimmed = false) {
     if (!state || !entityType || !id) {
       return null;
     }
-    if (!state.data.entity || !state.data.entity[entityType]) {
+    const store = trimmed ? state.data.trimmed : state.data.entity;
+    if (!store || !store[entityType]) {
       return null;
     }
-    const stateEntities = state.data.entity[entityType];
+    const stateEntities = store[entityType];
     if (!stateEntities.has(id)) {
       return null;
     }
@@ -34,15 +58,16 @@ export default class EntityUtils {
    * @param  {state} state [description]
    * @param  {string} entityType - entity type (e.g. Identity)
    * @param  {array[string|number]} ids  entity ids
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {array[object]}
    */
-  static getEntitiesByIds(state, entityType, ids = []) {
+  static getEntitiesByIds(state, entityType, ids = [], trimmed = null) {
     if (!state || !entityType || !ids || ids.length === 0) {
       return [];
     }
     return ids
       .map(id => {
-        return EntityUtils.getEntity(state, entityType, id);
+        return this.getEntity(state, entityType, id, trimmed);
       })
       .filter(entity => {
         return entity !== null;

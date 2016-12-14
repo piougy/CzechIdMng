@@ -567,12 +567,13 @@ export default class EntityManager {
    * Returns entity, if entity is contained in applicateion state.
    * Can be used in select state.
    *
-   * @param  {state} state - application state
-   * @param  {string|number} id - entity identifier
+   * @param {state} state - application state
+   * @param {string|number} id - entity identifier
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {object} - entity
    */
-  getEntity(state, id) {
-    return Utils.Entity.getEntity(state, this.getEntityType(), id);
+  getEntity(state, id, trimmed = null) {
+    return Utils.Entity.getEntity(state, this.getEntityType(), id, trimmed);
   }
 
   /**
@@ -580,10 +581,11 @@ export default class EntityManager {
    *
    * @param  {state} state [description]
    * @param  {array[string|number]} ids  entity ids
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {array[object]}
    */
-  getEntitiesByIds(state, ids = []) {
-    return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids);
+  getEntitiesByIds(state, ids = [], trimmed = null) {
+    return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids, trimmed);
   }
 
   /**

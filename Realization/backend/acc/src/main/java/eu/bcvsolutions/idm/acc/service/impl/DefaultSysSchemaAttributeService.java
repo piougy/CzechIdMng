@@ -50,4 +50,11 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntitySer
 		//
 		super.delete(schemaAttribute);
 	}
+	
+	@Override
+	@Transactional
+	public SysSchemaAttribute save(SysSchemaAttribute entity) {
+		// TODO Auto-generated method stub
+		return super.save(entity);
+	}
 }

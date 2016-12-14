@@ -19,6 +19,16 @@ public class SchemaAttributeHandlingFilter implements BaseFilter {
 	private UUID schemaAttributeId;
 	
 	private String idmPropertyName;
+	
+	private Boolean isUid;
+
+	public Boolean getIsUid() {
+		return isUid;
+	}
+
+	public void setIsUid(Boolean isUid) {
+		this.isUid = isUid;
+	}
 
 	public UUID getEntityHandlingId() {
 		return entityHandlingId;

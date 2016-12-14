@@ -135,7 +135,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     const _entityHandlingId = isNew ? entityHandlingId : _systemEntityHandlingId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandlingId ? _entityHandlingId : Domain.SearchParameters.BLANK_UUID);
 
-    const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
+    const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
     const _isUid = this.refs.uid ? this.refs.uid.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
@@ -157,7 +157,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"
-                onChange={this._disabledChanged.bind('disabledDefaultAttribute', this)}
+                onChange={this._disabledChanged.bind(this, 'disabledDefaultAttribute')}
                 tooltip={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttributeTooltip')}
                 label={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}/>
               <Basic.SelectBox
@@ -175,33 +175,35 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 required/>
               <Basic.TextField
                 ref="name"
-                label={this.i18n('acc:entity.RoleSystemAttribute.name')}
+                label={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
+                helpBlock={this.i18n('acc:entity.RoleSystemAttribute.name.help')}
                 required
                 max={255}/>
               <Basic.Checkbox
                 ref="uid"
                 readOnly = {_isDisabled}
                 onChange={this._uidChanged.bind(this)}
-                tooltip={this.i18n('acc:entity.RoleSystemAttribute.uidTooltip')}
-                label={this.i18n('acc:entity.RoleSystemAttribute.uid')}/>
+                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uid.tooltip')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 readOnly = {_isDisabled || _isUid}
-                label={this.i18n('acc:entity.RoleSystemAttribute.extendedAttribute')}/>
+                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
               <Basic.Checkbox
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
                 readOnly = {_isDisabled || _isUid}
-                label={this.i18n('acc:entity.RoleSystemAttribute.entityAttribute')}/>
+                label={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
                 readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.RoleSystemAttribute.confidentialAttribute')}/>
+                label={this.i18n('acc:entity.SchemaAttributeHandling.confidentialAttribute')}/>
               <Basic.TextField
                 ref="idmPropertyName"
                 readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.RoleSystemAttribute.idmProperty')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
+                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
               <Basic.ScriptArea

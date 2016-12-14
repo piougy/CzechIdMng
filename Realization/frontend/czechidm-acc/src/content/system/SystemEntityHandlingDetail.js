@@ -238,11 +238,12 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
               <Advanced.ColumnLink
                 to={`system/${systemId}/schema-attributes-handling/:id/detail`}
                 property="name"
-                header={this.i18n('acc:entity.SchemaAttributeHandling.name')}
+                header={this.i18n('acc:entity.SchemaAttributeHandling.name.label')}
                 sort />
-              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')} sort/>
               <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
+              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
               <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationFromResource')}/>
               <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationToResource')}/>
             </Advanced.Table>

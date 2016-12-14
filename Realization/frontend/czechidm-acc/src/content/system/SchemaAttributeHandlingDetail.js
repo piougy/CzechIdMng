@@ -171,7 +171,8 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
                 required/>
               <Basic.TextField
                 ref="name"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.name')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.name.label')}
+                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.name.help')}
                 required
                 max={255}/>
               <Basic.Checkbox
@@ -197,7 +198,8 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
               <Basic.TextField
                 ref="idmPropertyName"
                 readOnly = {_isUid || _isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName')}
+                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
+                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
               <Basic.ScriptArea

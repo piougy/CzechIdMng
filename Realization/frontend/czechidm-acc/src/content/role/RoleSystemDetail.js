@@ -257,10 +257,12 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
               <Advanced.ColumnLink
                 to={`role/${roleSystem ? roleSystem.role : null }/systems/${roleSystem ? roleSystem.id : null}/attributes/:id/detail`}
                 property="name"
-                header={this.i18n('acc:entity.RoleSystemAttribute.name')}
+                header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
                 sort />
-              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.RoleSystemAttribute.idmProperty')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.uid')} sort/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
+              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
               <Advanced.Column property="disabledDefaultAttribute" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')} sort/>
               <Advanced.Column property="transformScript" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
             </Advanced.Table>

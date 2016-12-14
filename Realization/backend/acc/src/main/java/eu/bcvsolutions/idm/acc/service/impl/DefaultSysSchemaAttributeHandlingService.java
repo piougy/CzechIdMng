@@ -12,12 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
@@ -50,7 +54,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	private final FormService formService;
 	private final IdmFormAttributeService formAttributeService;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
-
+	
 	@Autowired
 	public DefaultSysSchemaAttributeHandlingService(
 			SysSchemaAttributeHandlingRepository repository,
@@ -70,6 +74,7 @@ public class DefaultSysSchemaAttributeHandlingService
 		this.groovyScriptService = groovyScriptService;
 		this.formAttributeService = formAttributeService;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
+		
 	}
 
 	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling) {
@@ -132,6 +137,18 @@ public class DefaultSysSchemaAttributeHandlingService
 	@Override
 	@Transactional
 	public SysSchemaAttributeHandling save(SysSchemaAttributeHandling entity) {
+		// Check if exist some else attribute which is defined like unique identifier
+		if (entity.isUid()) {			
+			SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
+			filter.setEntityHandlingId(entity.getSystemEntityHandling().getId());
+			filter.setIsUid(true);
+			List<SysSchemaAttributeHandling> list = this.find(filter, null).getContent();
+			
+			if (list.size() > 0 && !list.get(0).getId().equals(entity.getId())) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID, ImmutableMap.of("system", entity.getSystemEntityHandling().getSystem().getName()));
+			}
+		}
+		
 		// We will do script validation (on compilation errors), before save
 		// attribute handling
 

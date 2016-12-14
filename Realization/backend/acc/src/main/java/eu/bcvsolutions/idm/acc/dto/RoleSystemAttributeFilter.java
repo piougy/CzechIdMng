@@ -13,6 +13,16 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class RoleSystemAttributeFilter implements BaseFilter {
 
 	private UUID roleSystemId;
+	
+	private Boolean isUid;
+
+	public Boolean getIsUid() {
+		return isUid;
+	}
+
+	public void setIsUid(Boolean isUid) {
+		this.isUid = isUid;
+	}
 
 	public UUID getRoleSystemId() {
 		return roleSystemId;

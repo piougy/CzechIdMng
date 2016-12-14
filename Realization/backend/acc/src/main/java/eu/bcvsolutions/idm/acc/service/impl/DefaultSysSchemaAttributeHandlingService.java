@@ -113,10 +113,8 @@ public class DefaultSysSchemaAttributeHandlingService
 			List<IcfAttribute> icfAttributes) {
 		Assert.notNull(attributeHandling);
 
-		transformValueFromResource(value, attributeHandling.getTransformFromResourceScript(), icfAttributes,
+		return transformValueFromResource(value, attributeHandling.getTransformFromResourceScript(), icfAttributes,
 				attributeHandling.getSchemaAttribute().getObjectClass().getSystem());
-
-		return value;
 	}
 
 	@Override

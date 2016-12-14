@@ -133,6 +133,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
+    const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
 
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
 
@@ -200,6 +201,14 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
+              <Basic.LabelWrapper label=" ">
+                <Basic.Alert
+                   rendered={_showNoRepositoryAlert}
+                   key="no-repository-alert"
+                   icon="exclamation-sign"
+                   className="no-margin"
+                   text={this.i18n('acc:content.system.attributeHandlingDetail.alertNoRepository')}/>
+              </Basic.LabelWrapper>
               <Basic.ScriptArea
                 ref="transformScript"
                 readOnly = {_isDisabled}

@@ -20,11 +20,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    let forceTask = new SearchParameters();
-    forceTask = forceTask.setFilter('processInstanceId', props.params.historicProcessInstanceId);
-    this.state = {
-      forceTask
-    };
+    this.state = {};
   }
 
   getContentKey() {
@@ -59,11 +55,6 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     this.context.store.dispatch(workflowHistoricProcessInstanceManager.fetchEntityIfNeeded(historicProcessInstanceId));
     this.selectNavigationItem('workflow-historic-processes');
     workflowHistoricProcessInstanceManager.getService().downloadDiagram(historicProcessInstanceId, this.reciveDiagram.bind(this));
-    let forceTask = new SearchParameters();
-    forceTask = forceTask.setFilter('processInstanceId', historicProcessInstanceId);
-    this.setState({
-      forceTask
-    });
   }
 
   reciveDiagram(blob) {
@@ -80,11 +71,13 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading, diagramUrl, showModalDiagram, forceTask } = this.state;
+    const {showLoading, diagramUrl, showModalDiagram} = this.state;
     const {_historicProcess} = this.props;
     const { historicProcessInstanceId } = this.props.params;
 
     const showLoadingInternal = showLoading || !_historicProcess;
+    let force = new SearchParameters();
+    force = force.setFilter('processInstanceId', historicProcessInstanceId);
     let forceSubprocess = new SearchParameters();
     forceSubprocess = forceSubprocess.setFilter('superProcessInstanceId', historicProcessInstanceId);
     return (
@@ -117,7 +110,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             ref="tableTasks"
             uiKey="table-tasks"
             pagination={false}
-            forceSearchParameters={forceTask}
+            forceSearchParameters={force}
             manager={workflowHistoricTaskInstanceManager}>
             <Advanced.Column property="name" sort={false} face="text"/>
             <Advanced.Column property="assignee" sort={false} face="text"/>

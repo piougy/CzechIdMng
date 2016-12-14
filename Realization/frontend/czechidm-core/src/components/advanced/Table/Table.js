@@ -32,6 +32,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.reload();
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.forceSearchParameters !== this.props.forceSearchParameters) {
+      this.reload();
+    }
+    if (newProps.defaultSearchParameters !== this.props.defaultSearchParameters) {
+      this.reload();
+    }
+  }
+
   reload() {
     const { rendered, _searchParameters } = this.props;
     if (!rendered) {

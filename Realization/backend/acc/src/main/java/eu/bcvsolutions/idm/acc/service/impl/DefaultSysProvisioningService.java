@@ -395,7 +395,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
 		identityAccountList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && passwordChange.getAccounts().contains(identityAccount.getId().toString());
+			return identityAccount.isOwnership() && (passwordChange.isAll() || passwordChange.getAccounts().contains(identityAccount.getId().toString()));
 		}).forEach(identityAccount -> {
 			doProvisioningForAttribute(identityAccount.getAccount().getUid(), PASSWORD_IDM_PROPERTY_NAME,
 					passwordChange.getNewPassword(), identityAccount.getAccount().getSystem(),

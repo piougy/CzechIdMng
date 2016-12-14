@@ -62,7 +62,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 		}
-		if (passwordChangeDto.isIdm()) { // change identity's password
+		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto.getNewPassword());
 		}
 		return new DefaultEventResult<>(event, this);

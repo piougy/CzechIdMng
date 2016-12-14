@@ -26,6 +26,7 @@ public class PasswordChangeDto implements Serializable {
 	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
 	private GuardedString newPassword;
 	private boolean idm = false; // change in idm
+	private boolean all = false; // all - idm and all accounts - has higher priority
 	private List<String> accounts; // selected accounts
 
 	public String getIdentity() {
@@ -69,5 +70,13 @@ public class PasswordChangeDto implements Serializable {
 
 	public void setAccounts(List<String> accounts) {
 		this.accounts = accounts;
+	}
+	
+	public void setAll(boolean all) {
+		this.all = all;
+	}
+	
+	public boolean isAll() {
+		return all;
 	}
 }

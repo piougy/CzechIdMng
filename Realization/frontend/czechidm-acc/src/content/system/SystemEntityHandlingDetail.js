@@ -135,7 +135,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
 
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel>
+          <Basic.Panel className="no-border">
             <Basic.AbstractForm ref="form" data={entityHandling} showLoading={_showLoading} className="form-horizontal">
               <Basic.SelectBox
                 ref="system"
@@ -170,12 +170,12 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.ContentHeader rendered={entityHandling && !isNew}>
+        <Basic.ContentHeader rendered={entityHandling && !isNew} style={{ marginBottom: 0 }}>
           <Basic.Icon value="list-alt"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHandlingHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={entityHandling && !isNew}>
+        <Basic.Panel rendered={entityHandling && !isNew} className="no-border">
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}

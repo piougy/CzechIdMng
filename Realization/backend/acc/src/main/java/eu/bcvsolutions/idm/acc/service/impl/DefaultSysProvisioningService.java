@@ -856,8 +856,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	private Object getAttributeValue(String uid, AbstractEntity entity, MappingAttribute attributeHandling)
 			throws IntrospectionException, IllegalAccessException, InvocationTargetException {
 		if (attributeHandling.isExtendedAttribute()) {
+			// TODO: new method to form service to read concrete attribute definition
 			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
 					.getMappedAttributeByName(attributeHandling.getIdmPropertyName());
+			if (defAttribute == null) {
+				// eav definition could be changed
+				log.warn("Form attribute defininion [{}] was not found, returning null", attributeHandling.getIdmPropertyName());
+				return null;
+			}
 			List<AbstractFormValue<FormableEntity>> formValues = formService.getValues((FormableEntity) entity,
 					defAttribute.getFormDefinition(), defAttribute.getName());
 			if (formValues.isEmpty()) {

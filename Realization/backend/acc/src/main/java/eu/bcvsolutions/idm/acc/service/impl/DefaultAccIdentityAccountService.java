@@ -68,7 +68,7 @@ public class DefaultAccIdentityAccountService extends
 			return identityAccount.isOwnership() && !identityAccount.equals(entity);
 		}).findAny().isPresent();
 
-		if (!moreIdentityAccounts) {
+		if (!moreIdentityAccounts && entity.isOwnership()) {
 			// We delete all identity accounts first
 			account.getIdentityAccounts().forEach(identityAccount -> {
 				super.delete(identityAccount);

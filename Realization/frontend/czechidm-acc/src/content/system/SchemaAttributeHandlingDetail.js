@@ -90,12 +90,6 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     const checked = event.currentTarget.checked;
     // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
     this.refs.uid.setState({value: checked}, () => {
-      if (checked) {
-        this.refs.idmPropertyName.setValue(null);
-        this.refs.entityAttribute.setValue(false);
-        this.refs.confidentialAttribute.setValue(false);
-        this.refs.extendedAttribute.setValue(false);
-      }
       this.forceUpdate();
     });
   }
@@ -132,11 +126,11 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
 
     const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
-    const _isUid = this.refs.uid ? this.refs.uid.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
+    const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
 
-    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isUid && !_isDisabled;
+    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
 
     return (
       <div>
@@ -149,7 +143,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: attribute.idmPropertyName} : {})}}/>
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel>
+          <Basic.Panel className="no-border last">
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
               <Basic.Checkbox
                 ref="disabledAttribute"
@@ -185,23 +179,31 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')}
-                readOnly = {_isDisabled || _isUid}/>
+                readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}
-                readOnly = {_isDisabled || _isUid}/>
+                readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
                 label={this.i18n('acc:entity.SchemaAttributeHandling.confidentialAttribute')}
-                readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}/>
+                readOnly = {_isDisabled || !_isRequiredIdmField}/>
               <Basic.TextField
                 ref="idmPropertyName"
-                readOnly = {_isUid || _isDisabled || !_isRequiredIdmField}
+                readOnly = {_isDisabled || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
+              <Basic.LabelWrapper label=" ">
+                <Basic.Alert
+                   rendered={_showNoRepositoryAlert}
+                   key="no-repository-alert"
+                   icon="exclamation-sign"
+                   className="no-margin"
+                   text={this.i18n('alertNoRepository')}/>
+              </Basic.LabelWrapper>
               <Basic.ScriptArea
                 ref="transformFromResourceScript"
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.help')}

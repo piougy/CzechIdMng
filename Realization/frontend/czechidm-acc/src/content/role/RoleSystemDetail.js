@@ -164,11 +164,13 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
+          <Basic.Icon value="link"/>
+          {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel>
+          <Basic.Panel className="no-border">
             <Basic.AbstractForm ref="form" data={roleSystem} showLoading={_showLoading} className="form-horizontal">
               <Basic.SelectBox
                 ref="role"
@@ -192,7 +194,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 readOnly={!isNew || !systemId}
                 required/>
             </Basic.AbstractForm>
-            <Basic.PanelFooter>
+            <Basic.PanelFooter rendered={Utils.Entity.isNew(roleSystem)}>
               <Basic.Button type="button" level="link"
                 onClick={this.context.router.goBack}
                 showLoading={_showLoading}>
@@ -208,12 +210,12 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.ContentHeader rendered={roleSystem && !isNew}>
+        <Basic.ContentHeader rendered={roleSystem && !isNew} style={{ marginBottom: 0 }}>
           <Basic.Icon value="list-alt"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('roleSystemAttributesHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={roleSystem && !isNew}>
+        <Basic.Panel rendered={roleSystem && !isNew} className="no-border last">
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}

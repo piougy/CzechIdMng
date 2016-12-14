@@ -33,7 +33,7 @@ class PasswordStrength extends AbstractFormComponent {
   _getStrength(value) {
     if (value !== null) {
       const { max } = this.props;
-      const response = zxcvbn(value);
+      const response = zxcvbn(value, ['heslo', 'heslo1', 'heslo123']); // TODO: move to dictionary configuration
       let strengthStyle = 'danger';
       if (response.score > 3) {
         strengthStyle = 'success';

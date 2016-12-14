@@ -135,7 +135,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     const _entityHandlingId = isNew ? entityHandlingId : _systemEntityHandlingId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandlingId ? _entityHandlingId : Domain.SearchParameters.BLANK_UUID);
 
-    const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
+    const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
     const _isUid = this.refs.uid ? this.refs.uid.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
@@ -157,7 +157,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"
-                onChange={this._disabledChanged.bind('disabledDefaultAttribute', this)}
+                onChange={this._disabledChanged.bind(this, 'disabledDefaultAttribute')}
                 tooltip={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttributeTooltip')}
                 label={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')}/>
               <Basic.SelectBox

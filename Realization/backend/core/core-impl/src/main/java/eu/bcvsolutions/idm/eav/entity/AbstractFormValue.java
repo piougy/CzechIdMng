@@ -155,6 +155,8 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		case DOUBLE:
 		case CURRENCY:
 			return doubleValue;
+		case CHAR: 
+			return stringValue == null ? null : stringValue.charAt(0);
 		default:
 			return stringValue;
 		}

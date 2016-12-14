@@ -206,8 +206,7 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový",
-        "isExterne": "Externista"
+        "disabledInfo": "Uživatel je deaktivový"
       },
       "Filter": {
         "option": {
@@ -1367,6 +1366,7 @@
       "validFrom": "Platnost od",
       "validTill": "Platnost do",
       "guarantee": "Garant",
+      "externe": "Externista",
       "managers": {
         "label": "Garant / Vedoucí",
         "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"

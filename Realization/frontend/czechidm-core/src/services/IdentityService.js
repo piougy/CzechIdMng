@@ -121,17 +121,6 @@ class IdentityService extends AbstractService {
   }
 
   /**
-   * Return true, if given identity is externe
-   *
-   * @param identity {Identity}
-   * @return {boolean}
-   */
-  isExterne(/* identity */) {
-    return false;
-    // throw new Error('not implemented');
-  }
-
-  /**
    * Returns default searchParameters for current entity type
    *
    * @return {object} searchParameters

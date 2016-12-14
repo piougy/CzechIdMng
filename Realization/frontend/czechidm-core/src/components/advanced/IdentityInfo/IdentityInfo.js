@@ -67,32 +67,13 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
                 ?
                 <Basic.Icon type="fa" icon="user-times" className="fa-4x"/>
                 :
-                <span>
-                  {
-                    identityManager.isExterne(_identity)
-                    ?
-                    <Basic.Icon type="fa" icon="user-secret" className="fa-4x"/>
-                    :
-                    <Basic.Icon type="fa" icon="user" className="fa-4x"/>
-                  }
-                </span>
+                <Basic.Icon type="fa" icon="user" className="fa-4x"/>
               }
             </div>
             <div className="col-lg-10">
               <div><strong>{identityManager.getNiceLabel(_identity)}</strong></div>
               <div>{_identity.email}</div>
               <div>{_identity.phone}</div>
-              {
-                identityManager.isExterne(_identity)
-                ?
-                <div>
-                  <i>
-                    {this.i18n('component.advanced.IdentityInfo.isExterne')}
-                  </i>
-                </div>
-                :
-                null
-              }
               <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
             </div>
           </Basic.Row>

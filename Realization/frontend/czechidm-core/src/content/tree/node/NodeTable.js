@@ -98,6 +98,7 @@ export class NodeTable extends Basic.AbstractContent {
 
   onDelete(bulkActionValue, selectedRows) {
     const { treeNodeManager } = this.props;
+    const { type } = this.state;
     const selectedEntities = treeNodeManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
     this.refs['confirm-' + bulkActionValue].show(
@@ -109,7 +110,9 @@ export class NodeTable extends Basic.AbstractContent {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: treeNodeManager.getNiceLabel(entity) }) }, error);
         }
         if (!error && successEntities) {
+          this.context.store.dispatch(treeNodeManager.clearEntities());
           this.refs.table.getWrappedInstance().reload();
+          this._changeTree(type);
         }
       }));
     }, () => {
@@ -159,7 +162,7 @@ export class NodeTable extends Basic.AbstractContent {
             showLoading: false
           });
         }
-        this.useFilter();
+        this.cancelFilter();
       }));
       this.context.router.push('/tree/nodes/?type=' + entity.id);
     });

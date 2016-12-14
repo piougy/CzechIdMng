@@ -392,6 +392,14 @@
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
       "title": "Nenalezen konektor pro systém",
       "message": "Konektor pro systém [{{system}}] není definovaný. Vyplňte prosím definici konektoru v základních údajích systému."
+    },
+    "PROVISIONING_ATTRIBUTE_MORE_UID": {
+      "title": "Již existuje jiný unikátní identifikátor",
+      "message": "Pro system: {{system}} byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
+      "title": "Již existuje jiný unikátní identifikátor",
+      "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
     }
   }
 }

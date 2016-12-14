@@ -78,6 +78,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
+      this.context.router.goBack();
     } else {
       this.addError(error);
     }
@@ -92,12 +93,6 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     const checked = event.currentTarget.checked;
     // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
     this.refs.uid.setState({value: checked}, () => {
-      if (checked) {
-        this.refs.idmPropertyName.setValue(null);
-        this.refs.entityAttribute.setValue(false);
-        this.refs.confidentialAttribute.setValue(false);
-        this.refs.extendedAttribute.setValue(false);
-      }
       this.forceUpdate();
     });
   }
@@ -136,11 +131,10 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandlingId ? _entityHandlingId : Domain.SearchParameters.BLANK_UUID);
 
     const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
-    const _isUid = this.refs.uid ? this.refs.uid.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
     const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
 
-    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isUid && !_isDisabled;
+    const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
 
     return (
       <div>
@@ -188,20 +182,20 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
-                readOnly = {_isDisabled || _isUid}
+                readOnly = {_isDisabled}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
               <Basic.Checkbox
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
-                readOnly = {_isDisabled || _isUid}
+                readOnly = {_isDisabled}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
-                readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
+                readOnly = {_isDisabled || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.confidentialAttribute')}/>
               <Basic.TextField
                 ref="idmPropertyName"
-                readOnly = {_isDisabled || _isUid || !_isRequiredIdmField}
+                readOnly = {_isDisabled || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
                 helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
                 required = {_isRequiredIdmField}

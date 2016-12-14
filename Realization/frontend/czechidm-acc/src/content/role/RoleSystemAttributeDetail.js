@@ -153,7 +153,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header', attribute ? { name: attribute.name} : {})}}/>
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.Panel>
+          <Basic.Panel className="no-border last">
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"

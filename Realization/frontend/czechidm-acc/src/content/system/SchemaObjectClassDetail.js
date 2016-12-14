@@ -132,7 +132,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
             {' '}
             <span dangerouslySetInnerHTML={{ __html: this.i18n('objectClassHeader') }}/>
           </Basic.ContentHeader>
-          <Basic.Panel>
+          <Basic.Panel className="no-border">
             <Basic.AbstractForm ref="form" data={schemaObjectClass} showLoading={_showLoading} className="form-horizontal">
               <Basic.SelectBox
                 ref="system"
@@ -168,12 +168,12 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.ContentHeader rendered={schemaObjectClass && !isNew}>
+        <Basic.ContentHeader rendered={schemaObjectClass && !isNew} style={{ marginBottom: 0 }}>
           <Basic.Icon value="list"/>
           {' '}
           <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={schemaObjectClass && !isNew}>
+        <Basic.Panel rendered={schemaObjectClass && !isNew} className="no-border last">
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}

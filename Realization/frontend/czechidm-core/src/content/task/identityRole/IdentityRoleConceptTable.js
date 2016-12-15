@@ -410,7 +410,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                 return (
                   <Advanced.DetailButton
                     title={this.i18n('button.detail')}
-                    onClick={this._showDetail.bind(this, data[rowIndex], false, false)}/>
+                    onClick={this._showDetail.bind(this, data[rowIndex], !data[rowIndex]._removed, false)}/>
                 );
               }
             }
@@ -418,6 +418,11 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
           <Basic.Column
             header={this.i18n('entity.IdentityRole.role')}
             property="_embedded.role.name"
+            />
+          <Basic.Column
+            header={this.i18n('entity.Role.description')}
+            property="_embedded.role.description"
+            rendered={false}
             />
           <Basic.Column
             property="validFrom"
@@ -475,7 +480,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                   level="success"
                   showLoading={_showLoading}
                   showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}>
+                  showLoadingText={this.i18n('button.saving')}
+                  rendered={detail.edit}>
                   {this.i18n('button.set')}
                 </Basic.Button>
               </Basic.Modal.Footer>

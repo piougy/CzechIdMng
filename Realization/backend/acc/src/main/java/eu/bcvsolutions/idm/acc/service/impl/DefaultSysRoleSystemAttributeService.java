@@ -18,12 +18,14 @@ import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 
@@ -43,6 +45,8 @@ public class DefaultSysRoleSystemAttributeService
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
 	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	@Autowired
+	private GroovyScriptService groovyScriptService;
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
@@ -77,6 +81,11 @@ public class DefaultSysRoleSystemAttributeService
 			mappingAttributeDto.setSchemaAttribute(entity.getSchemaAttributeHandling().getSchemaAttribute());
 			getProvisioningService().fillOverloadedAttribute(entity, mappingAttributeDto);
 			schemaAttributeHandlingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
+		}
+		
+		// We will do script validation (on compilation errors), before save
+		if (entity.getTransformScript() != null) {
+			groovyScriptService.validateScript(entity.getTransformScript());
 		}
 		
 		SysRoleSystemAttribute roleSystemAttribute = super.save(entity);

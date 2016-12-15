@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 public abstract class CoreEventProcessor<E extends AbstractEntity> extends AbstractEntityEventProcessor<E> {
 
-	public CoreEventProcessor(EventType<?>... type) {
+	public CoreEventProcessor(EventType... type) {
 		super(type);
 	}
 	

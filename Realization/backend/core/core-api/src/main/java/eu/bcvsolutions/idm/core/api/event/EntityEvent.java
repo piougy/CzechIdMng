@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Event state holder (content + metadata)
@@ -14,14 +15,14 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  * @param <E> {@link AbstractEntity} type
  */
-public interface EntityEvent<E extends AbstractEntity> {
+public interface EntityEvent<E extends BaseEntity> {
 
 	/**
 	 * Operation type
 	 * 
 	 * @return
 	 */
-	EventType<E> getType();
+	EventType getType();
 	
 	/**
 	 * Event content - entity. Could not be null. Events with empty content could not be processed.

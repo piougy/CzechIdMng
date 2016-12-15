@@ -21,7 +21,7 @@ public class IdentityEvent extends CoreEvent<IdmIdentity> {
 	 * Supported identity events
 	 *
 	 */
-	public enum IdentityEventType implements EventType<IdmIdentity> {
+	public enum IdentityEventType implements EventType {
 		SAVE, DELETE, PASSWORD // TODO: split SAVE to UPDATE / CREATE?
 	}
 	

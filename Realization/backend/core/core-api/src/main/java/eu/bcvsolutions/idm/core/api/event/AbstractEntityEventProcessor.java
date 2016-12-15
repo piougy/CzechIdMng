@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.event;
 
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
@@ -18,12 +20,16 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E> {
 
 	private final Class<E> entityClass;
-	private final EventType<E>[] types;
+	private final Set<String> types = new HashSet<>();
 	
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public AbstractEntityEventProcessor(EventType... type) {
+	@SuppressWarnings({"unchecked"})
+	public AbstractEntityEventProcessor(EventType... types) {
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
-		this.types = type;
+		if (types != null) {
+			for(EventType type : types) {
+				this.types.add(type.toString());
+			}
+		}
 	}
 	
 	/* 
@@ -36,7 +42,7 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
 		
 		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
-				&& (ArrayUtils.isEmpty(types) || ArrayUtils.contains(types, entityEvent.getType()));
+				&& (types.isEmpty() || types.contains(entityEvent.getType().toString()));
 	}
 
 	/**

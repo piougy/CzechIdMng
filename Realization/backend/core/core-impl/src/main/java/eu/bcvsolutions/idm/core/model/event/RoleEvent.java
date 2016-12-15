@@ -20,7 +20,7 @@ public class RoleEvent extends CoreEvent<IdmRole> {
 	/**
 	 * Supported event types
 	 */
-	public enum RoleEventType implements EventType<IdmRole> {
+	public enum RoleEventType implements EventType {
 		DELETE
 	}
 

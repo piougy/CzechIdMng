@@ -10,6 +10,7 @@ import org.springframework.core.ResolvableTypeProvider;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Event state holder (content + metadata)
@@ -18,13 +19,13 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  * @param <E> {@link AbstractEntity} type
  */
-public abstract class AbstractEntityEvent<E extends AbstractEntity> extends ApplicationEvent implements EntityEvent<E>, ResolvableTypeProvider {
+public abstract class AbstractEntityEvent<E extends BaseEntity> extends ApplicationEvent implements EntityEvent<E>, ResolvableTypeProvider {
 
 	private static final long serialVersionUID = 2309175762418747517L;
-	private final EventType<E> type;
+	private final EventType type;
 	private final Map<String, Serializable> properties = new LinkedHashMap<>();
 	
-	public AbstractEntityEvent(EventType<E> type, E content) {
+	public AbstractEntityEvent(EventType type, E content) {
 		super(content);
 		//
 		Assert.notNull(type, "Operation is required!");
@@ -32,13 +33,13 @@ public abstract class AbstractEntityEvent<E extends AbstractEntity> extends Appl
 		this.type = type;
 	}
 	
-	public AbstractEntityEvent(EventType<E> type, E content, Map<String, Serializable> properties) {
+	public AbstractEntityEvent(EventType type, E content, Map<String, Serializable> properties) {
 		this(type, content);
 		this.properties.putAll(properties);
 	}
 
 	@Override
-	public EventType<E> getType() {
+	public EventType getType() {
 		return type;
 	}
 

@@ -9,6 +9,6 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  * @param <E> {@link AbstractEntity} type
  */
-public interface EventType<E extends AbstractEntity> {
+public interface EventType {
 
 }

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -28,27 +27,30 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
-	private final ApplicationContext applicationContext;
-	private AccAccountManagementService accountManagementService;
-	private SysProvisioningService provisioningService;
+	private final AccAccountManagementService accountManagementService;
+	private final SysProvisioningService provisioningService;
 
 	@Autowired
-	public IdentityRoleSaveProvisioningProcessor(ApplicationContext applicationContext) {
+	public IdentityRoleSaveProvisioningProcessor(
+			AccAccountManagementService accountManagementService,
+			SysProvisioningService provisioningService) {
 		super(IdentityRoleEventType.SAVE);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(accountManagementService);
+		Assert.notNull(provisioningService);
 		//
-		this.applicationContext = applicationContext;
+		this.accountManagementService = accountManagementService;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
 		//
 		LOG.debug("Call account management for idnetity [{}]", event.getContent().getIdentity().getUsername());
-		boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(event.getContent().getIdentity());
+		boolean provisioningRequired = accountManagementService.resolveIdentityAccounts(event.getContent().getIdentity());
 		if (provisioningRequired) {
 			LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getIdentity().getUsername());
-			getProvisioningService().doProvisioning(event.getContent().getIdentity());
+			provisioningService.doProvisioning(event.getContent().getIdentity());
 		}
 		//
 		return new DefaultEventResult<>(event, this);
@@ -57,29 +59,5 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	@Override
 	public int getOrder() {
 		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
-	}
-	
-	/**
-	 * accountManagementService has dependency everywhere - so we need lazy init ...
-	 * 
-	 * @return
-	 */
-	private AccAccountManagementService getAccountManagementService() {
-		if (accountManagementService == null) {
-			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
-		}
-		return accountManagementService;
-	}
-	
-	/**
-	 * provisioningService has dependency everywhere - so we need lazy init ...
-	 * 
-	 * @return
-	 */
-	private SysProvisioningService getProvisioningService() {
-		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
-		}
-		return provisioningService;
 	}
 }

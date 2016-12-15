@@ -13,12 +13,12 @@ public class DefaultEventResult<E extends AbstractEntity> implements EventResult
 	
 	private final EntityEvent<E> event;
 	private final EntityEventProcessor<E> processor;
-	private final boolean completed;
+	private final boolean closed;
 	
-	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor, boolean completed) {
+	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor, boolean closed) {
 		this.event = event;
 		this.processor = processor;
-		this.completed = completed;
+		this.closed = closed;
 	}
 	
 	public DefaultEventResult(EntityEvent<E> event, EntityEventProcessor<E> processor) {
@@ -36,7 +36,7 @@ public class DefaultEventResult<E extends AbstractEntity> implements EventResult
 	}
 	
 	@Override
-	public boolean isCompleted() {
-		return completed;
+	public boolean isClosed() {
+		return closed;
 	}
 }

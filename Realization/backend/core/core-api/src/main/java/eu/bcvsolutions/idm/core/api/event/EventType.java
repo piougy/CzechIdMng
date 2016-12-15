@@ -1,13 +1,14 @@
 package eu.bcvsolutions.idm.core.api.event;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-
 /**
  * Event type (save, delete, etc.)
  * 
+ * Its not strongly checked and coupled with entity type - only constant representation.
+ * 
+ * @see EntityEvent
+ * @see AbstractEntityEvent
  * @author Radek Tomiška
- *
- * @param <E> {@link AbstractEntity} type
+ * 
  */
 public interface EventType {
 

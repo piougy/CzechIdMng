@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,7 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
@@ -45,23 +45,23 @@ public class DefaultFormService implements FormService {
 	private final IdmFormDefinitionService formDefinitionService;
 	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
-	private final ApplicationEventPublisher publisher;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultFormService(
 			IdmFormDefinitionService formDefinitionService,
 			IdmFormAttributeService formAttributeService,
 			List<? extends FormValueService<?, ?>> formValueServices,
-			ApplicationEventPublisher publisher) {
+			EntityEventManager entityEventManager) {
 		Assert.notNull(formDefinitionService);
 		Assert.notNull(formAttributeService);
 		Assert.notNull(formValueServices);
-		Assert.notNull(publisher);
+		Assert.notNull(entityEventManager);
 		//
 		this.formDefinitionService = formDefinitionService;
 		this.formAttributeService = formAttributeService;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
-		this.publisher = publisher;
+		this.entityEventManager = entityEventManager;
 	}
 	
 	/**
@@ -198,7 +198,7 @@ public class DefaultFormService implements FormService {
 			});
 		//
 		// publish event identity saved
-		this.publisher.publishEvent(new CoreEvent<O>(CoreEventType.SAVE, owner)); 
+		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
 	}
 
 	/**

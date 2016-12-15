@@ -14,7 +14,6 @@ import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;

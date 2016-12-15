@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,24 +23,23 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 @Component("accIdentityDeleteProcessor")
 public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 	
-	private AccIdentityAccountService identityAccountService;
-	private final ApplicationContext applicationContext;
+	private final AccIdentityAccountService identityAccountService;
 	
 	@Autowired
-	public IdentityDeleteProcessor(ApplicationContext applicationContext) {
+	public IdentityDeleteProcessor(AccIdentityAccountService identityAccountService) {
 		super(IdentityEventType.DELETE);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(identityAccountService);
 		//
-		this.applicationContext = applicationContext;
+		this.identityAccountService = identityAccountService;
 	}
 
 	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(event.getContent().getId());
-		getIdentityAccountService().find(filter, null).forEach(identityAccount -> {
-			getIdentityAccountService().delete(identityAccount);
+		identityAccountService.find(filter, null).forEach(identityAccount -> {
+			identityAccountService.delete(identityAccount);
 		});
 		return new DefaultEventResult<>(event, this);
 	}
@@ -50,17 +48,5 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	public int getOrder() {
 		// right now before identity delete
 		return CoreEvent.DEFAULT_ORDER - 1;
-	}
-	
-	/**
-	 * identityAccountService has dependency everywhere - so we need lazy init ...
-	 * 
-	 * @return
-	 */
-	private AccIdentityAccountService getIdentityAccountService() {
-		if (identityAccountService == null) {
-			identityAccountService = applicationContext.getBean(AccIdentityAccountService.class);
-		}
-		return identityAccountService;
 	}
 }

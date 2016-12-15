@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.event;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  * @param <E> {@link AbstractEntity} type
  */
-public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E> {
+public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 
 	private final Class<E> entityClass;
 	private final Set<String> types = new HashSet<>();
@@ -51,5 +52,30 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	@Override
 	public EventResult<E> process(EntityEvent<E> event, EventContext<E> context) {
 		return process(event);
+	}
+	
+	/* 
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(java.lang.Object)
+	 */
+	@Override
+	public void onApplicationEvent(AbstractEntityEvent<E> event) {
+		if (!supports(event)) {
+			// event is not supported with this processor
+			return;
+		}
+		if (event.isClosed()) {	
+			// event is completely processed 
+			return;
+		}
+		// process event
+		EventResult<E> eventResult = process(event, event.getContext());
+		// add result to history
+		event.getContext().addResult(eventResult);
+	}
+	
+	@Override
+	public boolean isClosable() {
+		return false;
 	}
 }

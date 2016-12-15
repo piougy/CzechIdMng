@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -39,14 +39,14 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmRoleRepository roleRepository;
 	private final IdmIdentityRepository identityRepository;
-	private final EntityEventProcessorManager entityEventProcessorService;
+	private final EntityEventManager entityEventProcessorService;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmRoleRepository roleRepository,
 			IdmIdentityRepository identityRepository,
-			EntityEventProcessorManager entityEventProcessorService) {
+			EntityEventManager entityEventProcessorService) {
 		super(identityRoleRepository);
 		//
 		Assert.notNull(roleRepository);

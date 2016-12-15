@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -29,16 +28,15 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
-	private SysProvisioningService provisioningService;
-	private final ApplicationContext applicationContext;
+	private final SysProvisioningService provisioningService;
 	
 	@Autowired
-	public IdentityPasswordProvisioningProcessor(ApplicationContext applicationContext) {
+	public IdentityPasswordProvisioningProcessor(SysProvisioningService provisioningService) {
 		super(IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(provisioningService);
 		//
-		this.applicationContext = applicationContext;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
@@ -48,21 +46,9 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		Assert.notNull(passwordChangeDto);
 		//
 		LOG.debug("Call provisioning for idnetity password [{}]", event.getContent().getUsername());
-		getProvisioningService().changePassword(identity, passwordChangeDto);
+		provisioningService.changePassword(identity, passwordChangeDto);
 		//
 		return new DefaultEventResult<>(event, this);
-	}
-	
-	/**
-	 * provisioningService has dependency everywhere - so we need lazy init ...
-	 * 
-	 * @return
-	 */
-	private SysProvisioningService getProvisioningService() {
-		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
-		}
-		return provisioningService;
 	}
 
 	@Override

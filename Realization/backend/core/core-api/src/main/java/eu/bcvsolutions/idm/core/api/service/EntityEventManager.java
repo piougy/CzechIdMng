@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.service;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.event.EventContext;
  * @author Radek Tomiška
  *
  */
-public interface EntityEventProcessorManager {
+public interface EntityEventManager {
 	
 	/**
 	 * Process event through all registered entity processor in configured order with default context (newly created context).
@@ -23,15 +23,7 @@ public interface EntityEventProcessorManager {
 	 * @param event
 	 * @return
 	 */
-	 <E extends AbstractEntity> EventContext<E> process(EntityEvent<E> event);
+	<E extends BaseEntity> EventContext<E> process(EntityEvent<E> event);
 	
-	/**
-	 * Process event through all registered entity processor in configured order with given context.
-	 * 
-	 * @param event
-	 * @param context
-	 * @return
-	 */
-	 <E extends AbstractEntity> EventContext<E> process(EntityEvent<E> event, EventContext<E> context);
-
+	// TODO: get listeners
 }

@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -28,6 +29,8 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 
 	private AccAccountManagementService accountManagementService;
 	private final ApplicationContext applicationContext;
+	private SysProvisioningService provisioningService;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 
 	@Autowired
 	public IdentityRoleDeleteProvisioningProcessor(ApplicationContext applicationContext) {
@@ -42,6 +45,8 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
 		getAccountManagementService().deleteIdentityAccount(event.getContent());
 		//
+		LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getIdentity().getUsername());
+		getProvisioningService().doProvisioning(event.getContent().getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
 	
@@ -60,5 +65,17 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
 		}
 		return accountManagementService;
+	}
+	
+	/**
+	 * provisioningService has dependency everywhere - so we need lazy init ...
+	 * 
+	 * @return
+	 */
+	private SysProvisioningService getProvisioningService() {
+		if (provisioningService == null) {
+			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+		}
+		return provisioningService;
 	}
 }

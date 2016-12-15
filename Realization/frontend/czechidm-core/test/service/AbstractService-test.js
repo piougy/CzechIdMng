@@ -15,6 +15,13 @@ class DefaultAbstractService extends AbstractService {
   }
 }
 
+function createTestSearchParameters() {
+  let searchParameters = new SearchParameters('name', 0, 100);
+  searchParameters = searchParameters.setFilter('id', 1);
+  searchParameters = searchParameters.setSort('name');
+  return searchParameters;
+}
+
 describe('AbstractService', function abstractServiceTest() {
   it('- constructor should throw TypeError exception', function test() {
     /* eslint no-new: 0 */
@@ -68,6 +75,67 @@ describe('AbstractService', function abstractServiceTest() {
       expect(mergedSearchParameters.getSorts()).to.eql(userSearchParameters.getSorts());
       expect(mergedSearchParameters.getSize()).to.equal(userSearchParameters.getSize());
       expect(mergedSearchParameters.getPage()).to.equal(userSearchParameters.getPage());
+    });
+  });
+
+  describe('[#SearchParameters.isEquals]', function testSearchParametersIsEquals() {
+    it('- null is equal', function test() {
+      expect(SearchParameters.is(null, null)).to.be.true();
+    });
+
+    it('- null and not null is not equal', function test() {
+      expect(SearchParameters.is(null, {})).to.be.false();
+    });
+
+    it('- the same sorts and filters should be equals', function test() {
+      const one = createTestSearchParameters();
+      const two = createTestSearchParameters();
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+    });
+
+    it('- the same sorts and different filters should be not equals', function test() {
+      const one = createTestSearchParameters();
+      let two = createTestSearchParameters();
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+
+      two = two.setFilter('name', 'two');
+
+      expect(SearchParameters.is(one, two)).to.be.false();
+
+      two = two.clearFilter('name');
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+    });
+
+    it('- the different sorts and same filters should be not equals', function test() {
+      let one = createTestSearchParameters();
+      let two = createTestSearchParameters();
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+
+      two = two.setSort('two');
+
+      expect(SearchParameters.is(one, two)).to.be.false();
+
+      two = two.clearSort('two');
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+
+      one = one.clearSort();
+      two = two.clearSort();
+
+      expect(SearchParameters.is(one, two)).to.be.true();
+    });
+
+    it('- different name, the same sorts and filters should be not equals', function test() {
+      const one = createTestSearchParameters();
+      let two = createTestSearchParameters();
+
+      two = two.setName('new');
+
+      expect(SearchParameters.is(one, two)).to.be.false();
     });
   });
 });

@@ -236,6 +236,37 @@ export default class SearchParameters {
     });
     return url;
   }
+
+  /**
+   * Returs true, if searchparameters are equals
+   *
+   * @param  {SearchParameters} other
+   * @return {bool}
+   */
+  equals(other) {
+    return this.name === other.getName()
+      && this.page === other.getPage()
+      && this.size === other.getSize()
+      && Immutable.is(this.filters, other.getFilters())
+      && Immutable.is(this.sorts, other.getSorts());
+  }
+
+  /**
+   * Returs true, if searchparameters are equals
+   *
+   * @param  {SearchParameters} one
+   * @param  {SearchParameters} two
+   * @return {bool}
+   */
+  static is(one, two) {
+    if (!one && !two) {
+      return true;
+    }
+    if ((one && !two) || (!one && two)) {
+      return false;
+    }
+    return one.equals(two);
+  }
 }
 
 /**

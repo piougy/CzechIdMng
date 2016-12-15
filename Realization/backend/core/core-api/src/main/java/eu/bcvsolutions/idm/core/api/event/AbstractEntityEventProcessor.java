@@ -3,11 +3,13 @@ package eu.bcvsolutions.idm.core.api.event;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 
 /**
  * Single entity event processor
@@ -22,6 +24,9 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 
 	private final Class<E> entityClass;
 	private final Set<String> types = new HashSet<>();
+	
+	@Autowired(required = false)
+	private EnabledEvaluator enabledEvaluator; // optional internal dependency - checks for module is enabled
 	
 	@SuppressWarnings({"unchecked"})
 	public AbstractEntityEventProcessor(EventType... types) {
@@ -60,6 +65,11 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	 */
 	@Override
 	public void onApplicationEvent(AbstractEntityEvent<E> event) {
+		// check for module is enabled, if evaluator is given
+		if (enabledEvaluator != null && !enabledEvaluator.isEnabled(this.getClass())) {
+			return;
+		}
+		//
 		if (!supports(event)) {
 			// event is not supported with this processor
 			return;

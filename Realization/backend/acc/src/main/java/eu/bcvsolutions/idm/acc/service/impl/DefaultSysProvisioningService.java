@@ -368,8 +368,9 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		return roleSystemAttributesAll;
 	}
-
-	private void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
+	
+	@Override
+	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
 			MappingAttribute overloadedAttribute) {
 		overloadedAttribute.setName(overloadingAttribute.getName());
 		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
@@ -654,7 +655,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 								objectClassName, connectorObject);
 					}
 				}
-			} else if (AccountOperationType.DELETE == operationType && connectorObject != null) {
+			} else if (AccountOperationType.DELETE == operationType) {
 				/**
 				 * Delete connector object for this object class
 				 */
@@ -666,8 +667,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		final List<String> uids = new ArrayList<>();
 		// call create on ICF module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - create object with uid " + uid + " and connector object "
-					+ connectorObject.getObjectClass().getType());
+			LOG.debug("Provisioning - create object with uid {} and connector object {}", uid,
+					connectorObject.getObjectClass().getType());
 			IcfUidAttribute icfUid = connectorFacade.createObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), connectorObject.getAttributes());
 			if (icfUid != null && icfUid.getUidValue() != null) {
@@ -677,8 +678,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		// call update on ICF module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - update object with uid " + uid + " and connector object "
-					+ connectorObject.getObjectClass().getType());
+			LOG.debug("Provisioning - update object with uid {} and connector object {}", uid,
+					connectorObject.getObjectClass().getType());
 			IcfUidAttribute icfUid = connectorFacade.updateObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
 			if (icfUid != null && icfUid.getUidValue() != null) {
@@ -687,8 +688,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		});
 		// call delete on ICF module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - delete object with uid " + uid + " and connector object "
-					+ connectorObject.getObjectClass().getType());
+			LOG.debug("Provisioning - delete object with uid {} and connector object {}", uid,
+					connectorObject.getObjectClass().getType());
 			connectorFacade.deleteObject(connectorKey, connectorConfig, connectorObject.getObjectClass(), uidAttribute);
 		});
 

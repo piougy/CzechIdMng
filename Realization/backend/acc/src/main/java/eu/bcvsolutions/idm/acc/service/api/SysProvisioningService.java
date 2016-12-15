@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
+import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
@@ -90,6 +92,13 @@ public interface SysProvisioningService {
 	 */
 	IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
 			SystemOperationType operationType, SystemEntityType entityType);
+
+	/**
+	 * Convert method for SysRoleSystemAttribute to mapping attribute dto
+	 * @param overloadingAttribute
+	 * @param overloadedAttribute
+	 */
+	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, MappingAttribute overloadedAttribute);
 
 	
 }

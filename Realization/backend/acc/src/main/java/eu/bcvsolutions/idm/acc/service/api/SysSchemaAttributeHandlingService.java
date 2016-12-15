@@ -46,4 +46,12 @@ public interface SysSchemaAttributeHandlingService extends ReadWriteEntityServic
 	Object transformValueToResource(Object value, String script, AbstractEntity entity, SysSystem system);
 
 	Object transformValueFromResource(Object value, String script, List<IcfAttribute> icfAttributes, SysSystem system);
+
+	/**
+	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.
+	 * Update exist attribute definition is not supported.
+	 * @param entity
+	 * @param entityType
+	 */
+	void createExtendedAttributeDefinition(MappingAttribute entity, Class<?> entityType);
 }

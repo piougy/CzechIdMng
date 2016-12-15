@@ -203,6 +203,9 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		Assert.notNull(account);
 		Assert.notNull(identity);
 		
+		// TODO: remove this after remove list form account. List not contains current data (can contains deleted items)
+		account.setIdentityAccounts(null);
+		
 		SysSystem system = account.getSystem();
 		String uid = account.getUid();
 

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemEntityHandlingManager } from '../../redux';
 import uuid from 'uuid';
+import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
 const uiKey = 'role-system';
 const uiKeyAttributes = 'role-system-attributes';
@@ -21,7 +22,9 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     this.state = {
       ...this.state,
       systemId: null, // dependant select box
-      systemEntityHandlingFilter: new Domain.SearchParameters().setFilter('systemId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+      systemEntityHandlingFilter: new Domain.SearchParameters()
+        .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
+        .setFilter('systemId', Domain.SearchParameters.BLANK_UUID) // dependant select box
     };
   }
 

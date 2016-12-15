@@ -42,7 +42,6 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
     const { historicProcessInstanceId } = nextProps.params;
     if (historicProcessInstanceId && historicProcessInstanceId !== this.props.params.historicProcessInstanceId) {
       this._initComponent(nextProps);
-      this.refs.tableTasks.getWrappedInstance().reload();
     }
   }
 
@@ -128,9 +127,9 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
             {this.i18n('subprocesses')}
           </Basic.PanelHeader>
           <HistoricProcessInstanceTable uiKey="historic_subprocess_instance_table" ref="subprocessTable"
-             workflowHistoricProcessInstanceManager={workflowHistoricProcessInstanceManager}
-             forceSearchParameters={forceSubprocess}
-             filterOpened={false}/>
+            workflowHistoricProcessInstanceManager={workflowHistoricProcessInstanceManager}
+            forceSearchParameters={forceSubprocess}
+            filterOpened={false}/>
         </Basic.Panel>
         <Basic.Panel showLoading={!diagramUrl}>
           <Basic.PanelHeader>

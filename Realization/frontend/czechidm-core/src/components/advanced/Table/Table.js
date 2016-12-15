@@ -5,6 +5,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import Filter from '../Filter/Filter';
+import SearchParameters from '../../../domain/SearchParameters';
 
 /**
  * Table component with header and columns.
@@ -33,16 +34,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   componentWillReceiveProps(newProps) {
-    /* if (newProps.forceSearchParameters !== this.props.forceSearchParameters) {
-      this.reload();
+    if (!SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
+      this.reload(newProps);
+    } else if (!SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
+      this.reload(newProps);
     }
-    if (newProps.defaultSearchParameters !== this.props.defaultSearchParameters) {
-      this.reload();
-    }*/
   }
 
-  reload() {
-    const { rendered, _searchParameters } = this.props;
+  reload(props = null) {
+    const _props = props || this.props;
+    const { rendered, _searchParameters } = _props;
     if (!rendered) {
       return;
     }
@@ -52,14 +53,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (_sp) {
       _sp = _sp.setPage(0);
     }
-    this.fetchEntities(_sp);
+    this.fetchEntities(_sp, _props);
   }
 
   /**
    * Merge hard, default and user deffined search parameters
    */
-  _mergeSearchParameters(searchParameters) {
-    const { defaultSearchParameters, forceSearchParameters, manager } = this.props;
+  _mergeSearchParameters(searchParameters, props = null) {
+    const _props = props || this.props;
+    const { defaultSearchParameters, forceSearchParameters, manager } = _props;
+    //
     let _forceSearchParameters = null;
     if (forceSearchParameters) {
       _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
@@ -67,9 +70,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return manager.mergeSearchParameters(searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters);
   }
 
-  fetchEntities(searchParameters) {
-    const { uiKey, manager } = this.props;
-    searchParameters = this._mergeSearchParameters(searchParameters);
+  fetchEntities(searchParameters, props = null) {
+    const _props = props || this.props;
+    const { uiKey, manager } = _props;
+    searchParameters = this._mergeSearchParameters(searchParameters, _props);
     this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error) => {
       if (error) {
         this.addErrorMessage({

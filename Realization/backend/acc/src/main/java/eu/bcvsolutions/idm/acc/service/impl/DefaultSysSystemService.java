@@ -214,6 +214,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	@Override
+	@Transactional
 	public void generateSchema(SysSystem system) {
 		Assert.notNull(system);
 

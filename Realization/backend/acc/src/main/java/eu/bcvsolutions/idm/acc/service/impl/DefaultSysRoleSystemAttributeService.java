@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -20,8 +23,10 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 
 /**
  * Mapping attribute to system for role
@@ -37,6 +42,8 @@ public class DefaultSysRoleSystemAttributeService
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysRoleSystemAttributeService.class);
 	@Autowired(required = false)
 	private AccIdentityAccountService identityAccountService;
+	@Autowired
+	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 	@Autowired
 	private ApplicationContext applicationContext;
 	private AccAccountManagementService accountManagementService;
@@ -62,6 +69,15 @@ public class DefaultSysRoleSystemAttributeService
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ROLE_ATTRIBUTE_MORE_UID, ImmutableMap.of("role",
 						entity.getRoleSystem().getRole().getName(), "system", entity.getRoleSystem().getSystem().getName()));
 			}
+		}
+		
+		// We will check exists definition for extended attribute
+		Class<?> entityType = entity.getSchemaAttributeHandling().getSystemEntityHandling().getEntityType().getEntityType();
+		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
+			MappingAttribute mappingAttributeDto = new MappingAttributeDto();
+			mappingAttributeDto.setSchemaAttribute(entity.getSchemaAttributeHandling().getSchemaAttribute());
+			getProvisioningService().fillOverloadedAttribute(entity, mappingAttributeDto);
+			schemaAttributeHandlingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
 		}
 		
 		SysRoleSystemAttribute roleSystemAttribute = super.save(entity);

@@ -171,11 +171,6 @@ class PasswordChangeForm extends Basic.AbstractContent {
                 icon="exclamation-sign"
                 text={this.i18n('changeType.DISABLED')}
                 rendered={!this._canPasswordChange() && passwordChangeType === IdentityManager.PASSWORD_DISABLED}/>
-              <Basic.Alert
-                level="warning"
-                icon="exclamation-sign"
-                text={this.i18n('message.wrongUser')}
-                rendered={!this._canPasswordChange() && passwordChangeType !== IdentityManager.PASSWORD_DISABLED}/>
               {
                 (!this._canPasswordChange() || preload)
                 ||

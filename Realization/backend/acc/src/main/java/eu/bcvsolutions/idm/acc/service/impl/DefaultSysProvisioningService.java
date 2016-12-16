@@ -207,13 +207,10 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		account.setIdentityAccounts(null);
 		
 		SysSystem system = account.getSystem();
-		String uid = account.getUid();
-
 		SysSystemEntity systemEntity = account.getSystemEntity();
-		if (systemEntity != null && account.getUid() != null) {
-			uid = systemEntity.getUid();
-		}
-
+		// find uid from system entity or form account
+		String uid = getRealUid(account);
+		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setIdentityId(identity.getId());
 		filter.setSystemId(system.getId());
@@ -253,6 +250,151 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		systemEntityService.save(systemEntity);
 		accountService.save(account);
 
+	}
+	
+	@Override
+	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
+			MappingAttribute overloadedAttribute) {
+		overloadedAttribute.setName(overloadingAttribute.getName());
+		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
+		overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
+		overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
+		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
+		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
+		overloadedAttribute.setUid(overloadingAttribute.isUid());
+		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
+	}
+
+	@Override
+	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange) {
+		Assert.notNull(identity);
+		Assert.notNull(passwordChange);
+
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
+		if (identityAccountList == null) {
+			return;
+		}
+		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
+		identityAccountList.stream().filter(identityAccount -> {
+			return identityAccount.isOwnership() && (passwordChange.isAll() || passwordChange.getAccounts().contains(identityAccount.getId().toString()));
+		}).forEach(identityAccount -> {
+			// find uid from system entity or form account
+			String uid = getRealUid(identityAccount.getAccount());
+			doProvisioningForAttribute(uid, PASSWORD_IDM_PROPERTY_NAME,
+					passwordChange.getNewPassword(), identityAccount.getAccount().getSystem(),
+					AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
+		});
+	}
+
+	@Override
+	public void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system,
+			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity) {
+
+		Assert.notNull(uid);
+		Assert.notNull(system);
+		Assert.notNull(entityType);
+
+		List<? extends MappingAttribute> attributes = findAttributesHandling(SystemOperationType.PROVISIONING,
+				entityType, system);
+		if (attributes == null || attributes.isEmpty()) {
+			return;
+		}
+
+		// Find connector identification persisted in system
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
+
+		Optional<? extends MappingAttribute> attriubuteHandlingOptional = attributes.stream().filter((attribute) -> {
+			return idmPropertyName.equals(attribute.getIdmPropertyName());
+		}).findFirst();
+		if (!attriubuteHandlingOptional.isPresent()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+					ImmutableMap.of("property", idmPropertyName, "uid", uid));
+		}
+		MappingAttribute attributeHandling = attriubuteHandlingOptional.get();
+		if (!attributeHandling.getSchemaAttribute().isUpdateable()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
+					ImmutableMap.of("property", idmPropertyName, "uid", uid));
+		}
+
+		String objectClassName = attributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
+		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value, entity);
+		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
+		// Call icf modul for update single attribute
+		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
+				ImmutableList.of(icfAttributeForCreate));
+
+	}
+
+	@Override
+	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
+		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(),
+				IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
+		if (password == null) {
+			password = new GuardedString(); // TODO: empty password or null?
+		}
+		return authenticate(identityAccount.getAccount().getUid(), password, system, SystemOperationType.PROVISIONING,
+				SystemEntityType.IDENTITY);
+	}
+
+	@Override
+	public IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+			SystemOperationType operationType, SystemEntityType entityType) {
+
+		Assert.notNull(username);
+		Assert.notNull(system);
+		Assert.notNull(entityType);
+		Assert.notNull(operationType);
+
+		List<? extends MappingAttribute> attributes = findAttributesHandling(operationType, entityType, system);
+		if (attributes == null || attributes.isEmpty()) {
+			return null;
+		}
+
+		// Find connector identification persisted in system
+		IcfConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+		// Find attribute handling mapped on schema password attribute
+		Optional<? extends MappingAttribute> passwordAttributeHandlingOptional = attributes.stream()
+				.filter((attribute) -> {
+					return IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
+				}).findFirst();
+		if (!passwordAttributeHandlingOptional.isPresent()) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+					ImmutableMap.of("property", IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
+		}
+
+		MappingAttribute passwordAttributeHandling = passwordAttributeHandlingOptional.get();
+
+		String objectClassName = passwordAttributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
+		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
+
+		// Call ICF module for check authenticate
+		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icfObjectClass, username, password);
 	}
 
 	/**
@@ -372,148 +514,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		return roleSystemAttributesAll;
 	}
 	
-	@Override
-	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
-			MappingAttribute overloadedAttribute) {
-		overloadedAttribute.setName(overloadingAttribute.getName());
-		overloadedAttribute.setEntityAttribute(overloadingAttribute.isEntityAttribute());
-		overloadedAttribute.setConfidentialAttribute(overloadingAttribute.isConfidentialAttribute());
-		overloadedAttribute.setExtendedAttribute(overloadingAttribute.isExtendedAttribute());
-		overloadedAttribute.setIdmPropertyName(overloadingAttribute.getIdmPropertyName());
-		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
-		overloadedAttribute.setUid(overloadingAttribute.isUid());
-		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
-	}
-
-	@Override
-	public void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange) {
-		Assert.notNull(identity);
-		Assert.notNull(passwordChange);
-
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
-		if (identityAccountList == null) {
-			return;
-		}
-		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
-		identityAccountList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && (passwordChange.isAll() || passwordChange.getAccounts().contains(identityAccount.getId().toString()));
-		}).forEach(identityAccount -> {
-			doProvisioningForAttribute(identityAccount.getAccount().getUid(), PASSWORD_IDM_PROPERTY_NAME,
-					passwordChange.getNewPassword(), identityAccount.getAccount().getSystem(),
-					AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
-		});
-	}
-
-	@Override
-	public void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system,
-			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity) {
-
-		Assert.notNull(uid);
-		Assert.notNull(system);
-		Assert.notNull(entityType);
-
-		List<? extends MappingAttribute> attributes = findAttributesHandling(SystemOperationType.PROVISIONING,
-				entityType, system);
-		if (attributes == null || attributes.isEmpty()) {
-			return;
-		}
-
-		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
-		if (connectorKey == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-
-		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
-		if (connectorConfig == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
-
-		Optional<? extends MappingAttribute> attriubuteHandlingOptional = attributes.stream().filter((attribute) -> {
-			return idmPropertyName.equals(attribute.getIdmPropertyName());
-		}).findFirst();
-		if (!attriubuteHandlingOptional.isPresent()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-					ImmutableMap.of("property", idmPropertyName, "uid", uid));
-		}
-		MappingAttribute attributeHandling = attriubuteHandlingOptional.get();
-		if (!attributeHandling.getSchemaAttribute().isUpdateable()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
-					ImmutableMap.of("property", idmPropertyName, "uid", uid));
-		}
-
-		String objectClassName = attributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value, entity);
-		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
-		// Call icf modul for update single attribute
-		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
-				ImmutableList.of(icfAttributeForCreate));
-
-	}
-
-	@Override
-	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
-		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(),
-				IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
-		if (password == null) {
-			password = new GuardedString(); // TODO: empty password or null?
-		}
-		return authenticate(identityAccount.getAccount().getUid(), password, system, SystemOperationType.PROVISIONING,
-				SystemEntityType.IDENTITY);
-	}
-
-	@Override
-	public IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
-			SystemOperationType operationType, SystemEntityType entityType) {
-
-		Assert.notNull(username);
-		Assert.notNull(system);
-		Assert.notNull(entityType);
-		Assert.notNull(operationType);
-
-		List<? extends MappingAttribute> attributes = findAttributesHandling(operationType, entityType, system);
-		if (attributes == null || attributes.isEmpty()) {
-			return null;
-		}
-
-		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
-		if (connectorKey == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-
-		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
-		if (connectorConfig == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-		// Find attribute handling mapped on schema password attribute
-		Optional<? extends MappingAttribute> passwordAttributeHandlingOptional = attributes.stream()
-				.filter((attribute) -> {
-					return IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
-				}).findFirst();
-		if (!passwordAttributeHandlingOptional.isPresent()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-					ImmutableMap.of("property", IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
-		}
-
-		MappingAttribute passwordAttributeHandling = passwordAttributeHandlingOptional.get();
-
-		String objectClassName = passwordAttributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
-
-		// Call ICF module for check authenticate
-		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icfObjectClass, username, password);
-	}
+	
 
 	/**
 	 * Do provisioning/synchronisation/reconciliation on given system for given
@@ -993,5 +994,22 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
 
 		return propertyDescriptor.getReadMethod().invoke(entity);
+	}
+	
+	/**
+	 * Return real uid from system entity.
+	 * If system entity do not exist, then return uid from account.
+	 * @param account
+	 * @return
+	 */
+	private String getRealUid(AccAccount account){
+		Assert.notNull(account);
+		String uid = account.getUid();
+
+		SysSystemEntity systemEntity = account.getSystemEntity();
+		if (systemEntity != null && account.getUid() != null) {
+			uid = systemEntity.getUid();
+		}
+		return uid;
 	}
 }

@@ -80,7 +80,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
     }
   });
 
-  describe('- component change dynamical readOnly', function test() {
+  describe('- component change dynamicaly readOnly', function test() {
     for (const componentLibrary of componentLibrariesBasic) {
       for (const component in componentLibrary) {
         if (component.startsWith('AbstractFormComponent.')) {
@@ -102,6 +102,36 @@ describe('Basic AbstractComponent', function abstractComponent() {
 
               ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} readOnly />, node);
               expect(comp.state.readOnly).to.be.equal(true);
+            }
+          });
+        }
+      }
+    }
+  });
+
+  describe('- component change dynamicaly required', function test() {
+    for (const componentLibrary of componentLibrariesBasic) {
+      for (const component in componentLibrary) {
+        if (component.startsWith('AbstractFormComponent.')) {
+          continue;
+        }
+        // for now we must skip test for SelectBox, ScriptArea and EnumLabel
+        // SelectBox want use this.context.store and
+        // ScriptArea has 'global leak detected' with react-ace
+        // EnumLabel hasn't use for required
+        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('EnumLabel')) {
+          continue;
+        }
+        const ComponentType = componentLibrary[component];
+        if (ComponentType.propTypes && ComponentType.propTypes.readOnly) {
+          it('- ' + component, function testComponent() {
+            const node = document.createElement('div');
+            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label"required={false} />, node);
+            if (comp.state.readOnly) {
+              expect(comp.state.required).to.be.equal(false);
+
+              ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} required />, node);
+              expect(comp.state.required).to.be.equal(true);
             }
           });
         }

@@ -72,7 +72,7 @@ public class PasswordChangeController {
 		IdmIdentity identity = (IdmIdentity) entityLookupService.lookup(IdmIdentity.class, identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("identity", identityId));
-		}		
+		}
 		getIdentityService().passwordChange(identity, passwordChangeDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

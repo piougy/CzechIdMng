@@ -19,6 +19,9 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.eav.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.FormableEntity;
@@ -42,19 +45,23 @@ public class DefaultFormService implements FormService {
 	private final IdmFormDefinitionService formDefinitionService;
 	private final IdmFormAttributeService formAttributeService;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultFormService(
 			IdmFormDefinitionService formDefinitionService,
 			IdmFormAttributeService formAttributeService,
-			List<? extends FormValueService<?, ?>> formValueServices) {
+			List<? extends FormValueService<?, ?>> formValueServices,
+			EntityEventManager entityEventManager) {
 		Assert.notNull(formDefinitionService);
 		Assert.notNull(formAttributeService);
 		Assert.notNull(formValueServices);
+		Assert.notNull(entityEventManager);
 		//
 		this.formDefinitionService = formDefinitionService;
 		this.formAttributeService = formAttributeService;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
+		this.entityEventManager = entityEventManager;
 	}
 	
 	/**
@@ -189,6 +196,9 @@ public class DefaultFormService implements FormService {
 			.forEach(formValue -> {
 				formValueService.deleteValue(formValue);
 			});
+		//
+		// publish event identity saved
+		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
 	}
 
 	/**

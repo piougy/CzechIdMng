@@ -296,6 +296,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testCreateConnectorConfiguration() {
 		// TODO: test system will be moved here, after UI eav form implementation
+		@SuppressWarnings("deprecation")
 		IcfConnectorKey connectorKey = systemService.getTestConnectorKey();
 		
 		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
@@ -309,6 +310,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Test
 	public void testFillConnectorConfiguration() {
 		// create owner
+		@SuppressWarnings("deprecation")
 		SysSystem system =  systemService.createTestSystem();		
 		IcfConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);		
 		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());

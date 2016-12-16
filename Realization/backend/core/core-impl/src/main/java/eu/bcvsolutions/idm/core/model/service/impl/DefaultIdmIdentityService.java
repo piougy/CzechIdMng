@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -44,14 +44,14 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 
 	private final IdmIdentityRepository identityRepository;
 	private final IdmRoleRepository roleRepository;
-	private final EntityEventProcessorManager entityEventProcessorService;
+	private final EntityEventManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository identityRepository,
 			FormService formService,
 			IdmRoleRepository roleRepository,
-			EntityEventProcessorManager entityEventProcessorService) {
+			EntityEventManager entityEventProcessorService) {
 		super(identityRepository, formService);
 		//
 		Assert.notNull(roleRepository);

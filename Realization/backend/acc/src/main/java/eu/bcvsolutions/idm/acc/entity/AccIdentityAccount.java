@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  */
 @Entity
 @Table(name = "acc_identity_account", indexes = {
-		@Index(name = "ux_identity_account", columnList = "identity_id,account_id,role_system_id", unique = true),
+		@Index(name = "ux_identity_account", columnList = "identity_id,account_id,role_system_id, identity_role_id", unique = true),
 		@Index(name = "idx_acc_identity_account_acc", columnList = "account_id"),
 		@Index(name = "idx_acc_identity_account_ident", columnList = "identity_id"),
 		@Index(name = "idx_acc_identity_identity_role", columnList = "identity_role_id")

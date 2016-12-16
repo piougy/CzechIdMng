@@ -200,8 +200,8 @@ class DateTimePicker extends AbstractFormComponent {
           {
             (disabled || readOnly)
             ?
-            <div style={{marginTop: '7px', marginLeft: '13px'}}>
-              {value && value._isAMomentObject ? this._format(value) : value}
+            <div className="basic-date-time-picker">
+              <input type="text" value={value && value._isAMomentObject ? this._format(value) : value} readOnly className="form-control" style={style}/>
             </div>
             :
             <div className="btn-group input-group basic-date-time-picker">

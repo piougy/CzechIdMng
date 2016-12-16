@@ -1,30 +1,41 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 
 /**
  * Single entity event processor
  * 
- * 
+ * Types could be {@literal null}, then processor supports all event types
  * 
  * @author Radek Tomiška
  *
  * @param <E> {@link AbstractEntity} type
  */
-public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E> {
+public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 
 	private final Class<E> entityClass;
-	private final EventType<E> type; // TODO: array - support more operations, enum?
+	private final Set<String> types = new HashSet<>();
 	
-	@SuppressWarnings("unchecked")
-	public AbstractEntityEventProcessor(EventType<E> type) {
-		Assert.notNull(type, "Operation is required!");
-		//
+	@Autowired(required = false)
+	private EnabledEvaluator enabledEvaluator; // optional internal dependency - checks for module is enabled
+	
+	@SuppressWarnings({"unchecked"})
+	public AbstractEntityEventProcessor(EventType... types) {
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
-		this.type = type;
+		if (types != null) {
+			for(EventType type : types) {
+				this.types.add(type.toString());
+			}
+		}
 	}
 	
 	/* 
@@ -36,10 +47,8 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
 		
-		// TODO: Equals or assignable? Maybe assignable will be better ...
-		// TODO: support for more operation types
-		return entityEvent.getContent().getClass().equals(entityClass) 
-				&& type.equals(entityEvent.getType());
+		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
+				&& (types.isEmpty() || types.contains(entityEvent.getType().toString()));
 	}
 
 	/**
@@ -48,5 +57,35 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	@Override
 	public EventResult<E> process(EntityEvent<E> event, EventContext<E> context) {
 		return process(event);
+	}
+	
+	/* 
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(java.lang.Object)
+	 */
+	@Override
+	public void onApplicationEvent(AbstractEntityEvent<E> event) {
+		// check for module is enabled, if evaluator is given
+		if (enabledEvaluator != null && !enabledEvaluator.isEnabled(this.getClass())) {
+			return;
+		}
+		//
+		if (!supports(event)) {
+			// event is not supported with this processor
+			return;
+		}
+		if (event.isClosed()) {	
+			// event is completely processed 
+			return;
+		}
+		// process event
+		EventResult<E> eventResult = process(event, event.getContext());
+		// add result to history
+		event.getContext().addResult(eventResult);
+	}
+	
+	@Override
+	public boolean isClosable() {
+		return false;
 	}
 }

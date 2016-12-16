@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.security.service.impl;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -39,12 +41,17 @@ public class EnabledAcpect {
 	 * @param joinPoint
 	 * @param bean
 	 * @param ifEnabled
+	 * @return 
+	 * @throws Throwable 
 	 * @throws ModuleDisabledException if any module is disabled
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
-	@Before(value = "target(bean) && @within(enabled)", argNames="bean,enabled")
-	public void checkBeanEnabled(JoinPoint joinPoint, Object bean, Enabled enabled) {
-		checkEnabled(joinPoint, bean, enabled);
+	@Around(value = "target(bean) && @within(enabled)", argNames="bean,enabled")
+	public Object checkBeanEnabled(ProceedingJoinPoint joinPoint, Object bean, Enabled enabled) throws Throwable {
+		if (checkEnabled(joinPoint, bean, enabled)) {
+			return joinPoint.proceed();
+		}
+		return null;
 	}
 	
 	/**
@@ -53,12 +60,16 @@ public class EnabledAcpect {
 	 * @param joinPoint
 	 * @param bean
 	 * @param ifEnabled
+	 * @return 
 	 * @throws ModuleDisabledException if any module is disabled
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
-	@Before(value = "target(bean) && @annotation(enabled)", argNames="bean,enabled")
-	public void checkMethodEnabled(JoinPoint joinPoint, Object bean, Enabled enabled) {
-		checkEnabled(joinPoint, bean, enabled);
+	@Around(value = "target(bean) && @annotation(enabled)", argNames="bean,enabled")
+	public Object checkMethodEnabled(ProceedingJoinPoint joinPoint, Object bean, Enabled enabled) throws Throwable {
+		if (checkEnabled(joinPoint, bean, enabled)) {
+			return joinPoint.proceed();
+		}
+		return null;
 	}
 	
 	/**
@@ -67,19 +78,30 @@ public class EnabledAcpect {
 	 * @param joinPoint
 	 * @param bean
 	 * @param enabled
+	 * @return Returns true, when method can be execuded. Return false, when method should be skipped silently, throw exception otherwise
 	 * @throws ModuleDisabledException if any module is disabled
 	 * @throws ConfigurationDisabledException if any property is disabled
 	 */
-	private void checkEnabled(JoinPoint joinPoint, Object bean, Enabled enabled) {
+	private boolean checkEnabled(JoinPoint joinPoint, Object bean, Enabled enabled) {
 		if (isOrderMethod(joinPoint)) {
-			return;
+			// we are ignoring order method from check
+			return true;
 		}
-		//
-		enabledEvaluator.checkEnabled(enabled);
+		try {
+			enabledEvaluator.checkEnabled(enabled);
+			return true;
+		} catch(ModuleDisabledException|ConfigurationDisabledException ex) {
+			if (isEventMethod(joinPoint)) {
+				// we are ignoring event method from throw exception - skip insted
+				return false;
+			}
+			throw ex;
+		}		
+		
 	}
 	
 	/**
-	 * order method is executable always, even when module is disabled (we need ordered components etc.)
+	 * Order method is executable always, even when module is disabled (we need ordered components etc.)
 	 * 
 	 * @param joinPoint
 	 * @return
@@ -89,6 +111,24 @@ public class EnabledAcpect {
 		if (signature instanceof MethodSignature) {
 			MethodSignature methodSignature = (MethodSignature) signature;
 			if (methodSignature.getMethod().getParameters().length == 0 && methodSignature.getMethod().getName().equals("getOrder")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Event method is skipped only, when module is disabled
+	 * 
+	 * @param joinPoint
+	 * @return
+	 */
+	private boolean isEventMethod(JoinPoint joinPoint) {
+		Signature signature = joinPoint.getSignature();
+		if (signature instanceof MethodSignature) {
+			MethodSignature methodSignature = (MethodSignature) signature;
+			if (methodSignature.getMethod().getParameters().length == 1 
+					&& ApplicationEvent.class.isAssignableFrom(methodSignature.getMethod().getParameters()[0].getType())) {
 				return true;
 			}
 		}

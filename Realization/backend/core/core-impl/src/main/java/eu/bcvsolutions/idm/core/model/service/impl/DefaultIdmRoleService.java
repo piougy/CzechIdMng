@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.api.service.EntityEventProcessorManager;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
@@ -29,12 +29,12 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
 	private final IdmRoleRepository roleRepository;
-	private final EntityEventProcessorManager entityEventProcessorService;
+	private final EntityEventManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
 			IdmRoleRepository roleRepository,
-			EntityEventProcessorManager entityEventProcessorService) {
+			EntityEventManager entityEventProcessorService) {
 		super(roleRepository);
 		//
 		Assert.notNull(entityEventProcessorService);

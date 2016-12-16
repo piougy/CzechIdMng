@@ -20,4 +20,6 @@ public interface IdmRoleCatalogueExcerpt extends AbstractDtoProjection {
 	IdmRoleCatalogue getParent();
 	
 	String getDescription();
+	
+	int getChildrenCount();
 }

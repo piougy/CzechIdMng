@@ -10,8 +10,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
@@ -49,6 +53,11 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	@Audited
 	@Column(name = "description")
 	private String description;
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@Column(insertable = false, updatable = false)
+	@Formula("(select coalesce(count(1),0) from idm_role_catalogue e where e.parent_id = id)")
+	private int childrenCount;
 
 	public String getName() {
 		return name;
@@ -75,5 +84,13 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void setChildrenCount(int childrenCount) {
+		this.childrenCount = childrenCount;
+	}
+
+	public int getChildrenCount() {
+		return childrenCount;
 	}
 }

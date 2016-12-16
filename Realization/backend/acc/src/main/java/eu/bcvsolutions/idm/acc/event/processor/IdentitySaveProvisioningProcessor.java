@@ -9,15 +9,15 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
- * Identity provisioning
+ * Run provisioning after identity was saved.
  * 
  * @author Radek Tomiška
  *
@@ -32,7 +32,7 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 	
 	@Autowired
 	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext) {
-		super(IdentityEventType.SAVE);
+		super(CoreEventType.SAVE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
 		//
@@ -41,9 +41,13 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 
 	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getUsername());
-		getProvisioningService().doProvisioning(event.getContent());
+		doProvisioning(event.getContent());
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	private void doProvisioning(IdmIdentity identity) {
+		LOG.debug("Call provisioning for idnetity [{}]", identity.getUsername());
+		getProvisioningService().doProvisioning(identity);
 	}
 	
 	@Override

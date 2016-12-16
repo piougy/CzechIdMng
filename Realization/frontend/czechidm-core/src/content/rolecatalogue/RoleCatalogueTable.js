@@ -67,7 +67,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
   */
   _orgTreeHeaderDecorator(props) {
     const style = props.style;
-    const icon = props.node.isLeaf ? 'group' : 'building';
+    const icon = props.node.isLeaf ? 'file-text' : 'folder';
     return (
       <div style={style.base}>
       <div style={style.title}>
@@ -120,6 +120,18 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
         }
         if (!error && successEntities) {
           this.refs.table.getWrappedInstance().reload();
+          this.setState({
+            rootNodes: undefined
+          }, () => {
+            this.context.store.dispatch(roleCatalogueManager.clearEntities());
+            const searchParametersRoots = roleCatalogueManager.getRootSearchParameters();
+            this.context.store.dispatch(roleCatalogueManager.fetchEntities(searchParametersRoots, rootRoleCatalogueKey, (loadedRoots) => {
+              const rootNodes = loadedRoots._embedded[roleCatalogueManager.getCollectionType()];
+              this.setState({
+                rootNodes
+              });
+            }));
+          });
         }
       }));
     }, () => {

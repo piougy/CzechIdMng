@@ -1,13 +1,13 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -26,39 +26,34 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 @Enabled(AccModuleDescriptor.MODULE_ID)
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
-	private AccAccountManagementService accountManagementService;
-	private final ApplicationContext applicationContext;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
+	private final AccAccountManagementService accountManagementService;
+	private final SysProvisioningService provisioningService;
 
 	@Autowired
-	public IdentityRoleDeleteProvisioningProcessor(ApplicationContext applicationContext) {
+	public IdentityRoleDeleteProvisioningProcessor(
+			AccAccountManagementService accountManagementService,
+			SysProvisioningService provisioningService) {
 		super(IdentityRoleEventType.DELETE);
 		//
-		Assert.notNull(applicationContext);
+		Assert.notNull(accountManagementService);
+		Assert.notNull(provisioningService);
 		//
-		this.applicationContext = applicationContext;
+		this.accountManagementService = accountManagementService;
+		this.provisioningService = provisioningService;
 	}
 
 	@Override
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
-		getAccountManagementService().deleteIdentityAccount(event.getContent());
+		accountManagementService.deleteIdentityAccount(event.getContent());
 		//
+		LOG.debug("Call provisioning for idnetity [{}]", event.getContent().getIdentity().getUsername());
+		provisioningService.doProvisioning(event.getContent().getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
 	
 	@Override
 	public int getOrder() {
 		return -ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
-	}
-	
-	/**
-	 * accountManagementService has dependency everywhere - so we need lazy init ...
-	 * 
-	 * @return
-	 */
-	private AccAccountManagementService getAccountManagementService() {
-		if (accountManagementService == null) {
-			accountManagementService = applicationContext.getBean(AccAccountManagementService.class);
-		}
-		return accountManagementService;
 	}
 }

@@ -207,7 +207,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="name"
+                        ref="text"
                         label={this.i18n('filter.name.label')}
                         placeholder={this.i18n('filter.name.placeholder')}/>
                     </div>

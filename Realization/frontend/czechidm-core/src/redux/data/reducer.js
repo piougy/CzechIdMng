@@ -91,13 +91,13 @@ export function data(state = INITIAL_STATE, action) {
       let isTrimmed = false;
       action.entities.map(entity => {
         ids.push(entity.id);
-        // check trimmed and modified date
         if (entity._trimmed === true) {
           isTrimmed = true;
           trimmed = trimmed.set(entity.id, entity);
         } else {
           // check modified date ... only newer
           if (entities.has(entity.id)) {
+            // check trimmed and modified date
             if (moment(entity.modified).isAfter(entities.get(entity.id).modified)) {
               entities = entities.set(entity.id, entity);
             }

@@ -313,7 +313,7 @@ class AdvancedTree extends Basic.AbstractContextComponent {
     }
     if (showLoading) {
       return (
-        <Basic.Well showLoading/>
+        <Basic.Loading isStatic showLoading/>
       );
     }
     return (

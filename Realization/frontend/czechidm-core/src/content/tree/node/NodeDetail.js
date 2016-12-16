@@ -36,7 +36,7 @@ export default class NodeDetail extends Basic.AbstractContent {
         loadedNode.treeType = type;
       }
       this.refs.form.setData(loadedNode);
-      this.refs.parent.focus();
+      this.refs.code.focus();
     }
   }
 
@@ -81,6 +81,7 @@ export default class NodeDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+    this.context.store.dispatch(this.treeNodeManager.clearEntities());
     this.context.router.replace(`tree/nodes/?type=${entity._embedded.treeType.id}`);
   }
 
@@ -101,11 +102,6 @@ export default class NodeDetail extends Basic.AbstractContent {
               manager={this.treeTypeManager}
               required
               readOnly/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.TreeNode.parent.name')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
-              manager={this.treeNodeManager}/>
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.TreeType.code')}
@@ -117,6 +113,11 @@ export default class NodeDetail extends Basic.AbstractContent {
               required
               min={0}
               max={255}/>
+            <Basic.SelectBox
+              ref="parent"
+              label={this.i18n('entity.TreeNode.parent.name')}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              manager={this.treeNodeManager}/>
             <Basic.Checkbox
               ref="disabled"
               label={this.i18n('entity.TreeNode.disabled')}/>

@@ -2,16 +2,16 @@ package eu.bcvsolutions.idm.core.api.event;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
  * Event context state holder (event results + metadata)
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link AbstractEntity} type
+ * @param <E> {@link BaseEntity} type
  */
-public interface EventContext<E extends AbstractEntity> {
+public interface EventContext<E extends BaseEntity> {
 	
 	/**
 	 * Already processed events
@@ -33,4 +33,11 @@ public interface EventContext<E extends AbstractEntity> {
 	 * @return
 	 */
 	E getContent();
+	
+	/**
+	 * Event is closed = no other events will be processed (break event chain)
+	 * 
+	 * @return
+	 */
+	boolean isClosed();
 }

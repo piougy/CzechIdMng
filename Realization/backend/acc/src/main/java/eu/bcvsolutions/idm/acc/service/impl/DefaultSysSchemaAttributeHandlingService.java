@@ -156,24 +156,36 @@ public class DefaultSysSchemaAttributeHandlingService
 		if (entity.getTransformToResourceScript() != null) {
 			groovyScriptService.validateScript(entity.getTransformToResourceScript());
 		}
-		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entity.getSystemEntityHandling().getEntityType().getEntityType())) {
-			IdmFormDefinition definition = formService
-					.getDefinition(entity.getSystemEntityHandling().getEntityType().getEntityType().getCanonicalName());
-			if (definition != null) {
-				IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
-				if (defAttribute == null) {
-					log.info(MessageFormat.format(
-							"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
-							entity.getIdmPropertyName()));
-
-					IdmFormAttribute attributeDefinition = convertSchemaAttributeHandling(entity, definition);
-
-					definition.getFormAttributes().add(attributeDefinition);
-					formAttributeService.save(attributeDefinition);
-				}
-			}
+		Class<?> entityType = entity.getSystemEntityHandling().getEntityType().getEntityType();
+		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
+			createExtendedAttributeDefinition(entity, entityType);
 		}
 		return super.save(entity);
+	}
+
+	/**
+	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.
+	 * @param entity
+	 * @param entityType
+	 */
+	@Override
+	@Transactional
+	public void createExtendedAttributeDefinition(MappingAttribute entity, Class<?> entityType) {
+		IdmFormDefinition definition = formService
+				.getDefinition(entityType.getCanonicalName());
+		if (definition != null) {
+			IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
+			if (defAttribute == null) {
+				log.info(MessageFormat.format(
+						"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
+						entity.getIdmPropertyName()));
+
+				IdmFormAttribute attributeDefinition = convertMappingAttribute(entity, definition);
+
+				definition.getFormAttributes().add(attributeDefinition);
+				formAttributeService.save(attributeDefinition);
+			}
+		}
 	}
 	
 	@Override
@@ -193,7 +205,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	 * @param definition
 	 * @return
 	 */
-	private IdmFormAttribute convertSchemaAttributeHandling(MappingAttribute entity,
+	private IdmFormAttribute convertMappingAttribute(MappingAttribute entity,
 			IdmFormDefinition definition) {
 
 		SysSchemaAttribute schemaAttribute = entity.getSchemaAttribute();

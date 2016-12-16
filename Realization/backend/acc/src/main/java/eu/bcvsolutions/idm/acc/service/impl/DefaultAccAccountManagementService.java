@@ -38,6 +38,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
+import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 
 /**
@@ -49,12 +50,12 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 @Service
 public class DefaultAccAccountManagementService implements AccAccountManagementService {
 
-	private AccAccountService accountService;
-	private SysRoleSystemService roleSystemService;
-	private AccIdentityAccountService identityAccountService;
-	private IdmIdentityRoleRepository identityRoleRepository;
-	private SysRoleSystemAttributeService roleSystemAttributeService;
-	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private final AccAccountService accountService;
+	private final SysRoleSystemService roleSystemService;
+	private final AccIdentityAccountService identityAccountService;
+	private final IdmIdentityRoleRepository identityRoleRepository;
+	private final SysRoleSystemAttributeService roleSystemAttributeService;
+	private final SysSchemaAttributeHandlingService schemaAttributeHandlingService;
 
 	@Autowired
 	public DefaultAccAccountManagementService(SysRoleSystemService roleSystemService, AccAccountService accountService,
@@ -75,7 +76,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleSystemAttributeService = roleSystemAttributeService;
 		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
-
 	}
 
 	@Override
@@ -102,6 +102,86 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		List<AccIdentityAccount> identityAccountsToDelete = new ArrayList<>();
 
 		// Is role valid in this moment
+		resolveIdentityAccountForCreate(identity, identityAccountList, identityRoles, identityAccountsToCreate,
+				identityAccountsToDelete);
+
+		// Is role invalid in this moment
+		resolveIdentityAccountForDelete(identityAccountList, identityRoles, identityAccountsToDelete);
+
+		// Delete invalid identity accounts
+		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
+		identityAccountsToDelete.stream().forEach(identityAccount -> {
+			identityAccountService.delete(identityAccount);
+		});
+
+		// Create new identity accounts
+		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
+		identityAccountsToCreate.stream().forEach(identityAccount -> {
+			identityAccount.setAccount(accountService.save(identityAccount.getAccount()));
+			identityAccountService.save(identityAccount);
+
+		});
+
+		return provisioningRequired;
+	}
+
+	/**
+	 * Resolve identity account to delete
+	 * @param identityAccountList
+	 * @param identityRoles
+	 * @param identityAccountsToDelete
+	 */
+	private void resolveIdentityAccountForDelete(List<AccIdentityAccount> identityAccountList,
+			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToDelete) {
+
+		identityRoles.stream().filter(identityRole -> {
+			LocalDate fromDate = LocalDate.MIN;
+			if (identityRole.getValidFrom() != null) {
+				if (identityRole.getValidFrom() instanceof Date) {
+					fromDate = ((Date) identityRole.getValidFrom()).toLocalDate();
+				} else {
+					fromDate = identityRole.getValidFrom().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				}
+			}
+
+			LocalDate tillDate = LocalDate.MAX;
+			if (identityRole.getValidTill() != null) {
+				if (identityRole.getValidTill() instanceof Date) {
+					tillDate = ((Date) identityRole.getValidTill()).toLocalDate();
+				} else {
+					tillDate = identityRole.getValidTill().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				}
+
+			}
+			LocalDate now = LocalDate.now();
+			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
+				return false;
+			}
+			return true;
+		}).forEach(identityRole -> {
+			// Search IdentityAccounts to delete
+			identityAccountList.stream().filter(identityAccount -> {
+				return identityRole.equals(identityAccount.getIdentityRole());
+			}).forEach(identityAccount -> {
+				identityAccountsToDelete.add(identityAccount);
+			});
+		});
+	}
+
+	/**
+	 * Resolve Identity account - to create
+	 * @param identity
+	 * @param identityAccountList
+	 * @param identityRoles
+	 * @param identityAccountsToCreate
+	 * @param identityAccountsToDelete
+	 * @param resolvedRolesForCreate
+	 */
+	private void resolveIdentityAccountForCreate(IdmIdentity identity, List<AccIdentityAccount> identityAccountList,
+			List<IdmIdentityRole> identityRoles, List<AccIdentityAccount> identityAccountsToCreate,
+			List<AccIdentityAccount> identityAccountsToDelete) {
+		
+		// Is role valid in this moment
 		identityRoles.stream().filter(identityRole -> {
 
 			LocalDate fromDate = LocalDate.MIN;
@@ -123,13 +203,15 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 			}
 			LocalDate now = LocalDate.now();
-			if (now.isAfter(fromDate) && now.isBefore(tillDate)) {
+			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
 				return true;
 			}
 			return false;
 		}).forEach(identityRole -> {
+			
+			IdmRole role = identityRole.getRole();
 			RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
-			roleSystemFilter.setRoleId(identityRole.getRole().getId());
+			roleSystemFilter.setRoleId(role.getId());
 			List<SysRoleSystem> roleSystems = roleSystemService.find(roleSystemFilter, null).getContent();
 
 			roleSystems.stream().filter(roleSystem -> {
@@ -158,7 +240,7 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				String uid = generateUID(identity, roleSystem);
 				
 				// We try find account for same uid on same system
-				// First we try search same accoutn in list for create new accounts
+				// First we try search same account in list for create new accounts
 				Optional<AccIdentityAccount> sameAccountOptional = identityAccountsToCreate.stream().filter(ia -> {
 					return ia.getAccount().getUid().equals(uid);
 				}).findFirst();
@@ -193,56 +275,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 				identityAccountsToCreate.add(identityAccount);
 			});
 		});
-
-		// Is role invalid in this moment
-		identityRoles.stream().filter(identityRole -> {
-			LocalDate fromDate = LocalDate.MIN;
-			if (identityRole.getValidFrom() != null) {
-				if (identityRole.getValidFrom() instanceof Date) {
-					fromDate = ((Date) identityRole.getValidFrom()).toLocalDate();
-				} else {
-					fromDate = identityRole.getValidFrom().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
-			}
-
-			LocalDate tillDate = LocalDate.MAX;
-			if (identityRole.getValidTill() != null) {
-				if (identityRole.getValidTill() instanceof Date) {
-					tillDate = ((Date) identityRole.getValidTill()).toLocalDate();
-				} else {
-					tillDate = identityRole.getValidTill().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
-
-			}
-			LocalDate now = LocalDate.now();
-			if (now.isAfter(fromDate) && now.isBefore(tillDate)) {
-				return false;
-			}
-			return true;
-		}).forEach(identityRole -> {
-			// Search IdentityAccounts to delete
-			identityAccountList.stream().filter(identityAccount -> {
-				return identityRole.equals(identityAccount.getIdentityRole());
-			}).forEach(identityAccount -> {
-				identityAccountsToDelete.add(identityAccount);
-			});
-		});
-
-		// Delete invalid identity accounts
-		provisioningRequired = !identityAccountsToDelete.isEmpty() ? true : provisioningRequired;
-		identityAccountsToDelete.stream().forEach(identityAccount -> {
-			identityAccountService.delete(identityAccount);
-		});
-
-		// Create new identity accounts
-		provisioningRequired = !identityAccountsToCreate.isEmpty() ? true : provisioningRequired;
-		identityAccountsToCreate.stream().forEach(identityAccount -> {
-			identityAccount.setAccount(accountService.save(identityAccount.getAccount()));
-			identityAccountService.save(identityAccount);
-
-		});
-
-		return provisioningRequired;
 	}
 
 	/**

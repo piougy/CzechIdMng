@@ -76,6 +76,7 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
+    this.context.store.dispatch(this.roleCatalogueManager.clearEntities());
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.context.router.replace(`role-catalogues`);
   }

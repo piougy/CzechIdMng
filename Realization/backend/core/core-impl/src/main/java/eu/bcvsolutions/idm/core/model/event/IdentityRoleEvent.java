@@ -15,11 +15,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
  */
 public class IdentityRoleEvent extends CoreEvent<IdmIdentityRole> {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Supported identity events
 	 *
 	 */
-	public enum IdentityRoleEventType implements EventType<IdmIdentityRole> {
+	public enum IdentityRoleEventType implements EventType {
 		SAVE, DELETE // TODO: split SAVE to UPDATE / CREATE?
 	}
 	

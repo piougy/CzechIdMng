@@ -236,15 +236,6 @@ class IdentityContracts extends Basic.AbstractContent {
                 }
               />
               <Basic.Column
-                property="validFrom"
-                header={this.i18n('entity.IdentityContract.validFrom')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-              />
-              <Basic.Column
-                property="validTill"
-                header={this.i18n('entity.IdentityContract.validTill')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-              <Basic.Column
                 property="guarantee"
                 header={<span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span>}
                 cell={
@@ -255,6 +246,20 @@ class IdentityContracts extends Basic.AbstractContent {
                   }
                 }
               />
+              <Basic.Column
+                property="validFrom"
+                header={this.i18n('entity.IdentityContract.validFrom')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
+              />
+              <Basic.Column
+                property="validTill"
+                header={this.i18n('entity.IdentityContract.validTill')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+              <Basic.Column
+                property="externe"
+                header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityContract.externe')}</Basic.Cell>}
+                cell={<Basic.BooleanCell className="column-face-bool"/>}
+                width="100px"/>
               <Basic.Column
                 header={this.i18n('label.action')}
                 className="action"
@@ -315,6 +320,9 @@ class IdentityContracts extends Basic.AbstractContent {
                   mode="date"
                   ref="validTill"
                   label={this.i18n('label.validTill')}/>
+                <Basic.Checkbox
+                  ref="externe"
+                  label={this.i18n('entity.IdentityContract.externe')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

@@ -64,7 +64,7 @@ class PasswordChange extends Basic.AbstractContent {
       identity: username,
       oldPassword: btoa(oldPassword),  // base64
       newPassword: btoa(password),  // base64
-      idm: true, // TODO: all account, for now only on IDM app
+      all: true, // change in idm and in all accounts
       resources: []
     }, false)
     .then(response => {

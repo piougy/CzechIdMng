@@ -73,7 +73,7 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	@JsonProperty(access = Access.READ_ONLY)
 	@Column(insertable = false, updatable = false)
 	@Formula("(select coalesce(count(1),0) from idm_tree_node e where e.parent_id = id)")
-	private Integer childrenCount;
+	private int childrenCount;
 
 	public String getName() {
 		return name;
@@ -117,11 +117,11 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 		return code;
 	}
 
-	public void setChildrenCount(Integer childrenCount) {
+	public void setChildrenCount(int childrenCount) {
 		this.childrenCount = childrenCount;
 	}
 
-	public Integer getChildrenCount() {
+	public int getChildrenCount() {
 		return childrenCount;
 	}
 }

@@ -28,13 +28,6 @@ export default class IdentityManager extends EntityManager {
     return 'identities';
   }
 
-  /**
-   * Return true, if given identity is exterine
-   */
-  isExterne(identity) {
-    return this.getService().isExterne(identity);
-  }
-
   getFullName(identity) {
     return this.getService().getFullName(identity);
   }

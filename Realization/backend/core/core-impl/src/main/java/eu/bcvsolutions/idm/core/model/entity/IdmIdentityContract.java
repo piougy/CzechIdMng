@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
@@ -72,6 +73,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "position", length = DefaultFieldLengths.NAME)
 	private String position; // string position - if working position tree is not configured, then this string could be used
 	
+	@Audited
+	@NotNull
+	@Column(name = "externe", nullable = false)
+	private boolean externe;
+	
 	public IdmIdentityContract() {
 	}
 	
@@ -111,6 +117,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.workingPosition = workingPosition;
 	}
 
+	/**
+	 * Manually defined  manager (if no tree structure is defined etc.)
+	 * 
+	 * @return
+	 */
 	public IdmIdentity getGuarantee() {
 		return guarantee;
 	}
@@ -119,11 +130,29 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.guarantee = guarantee;
 	}
 	
+	/**
+	 * Working position (if no tree structure is defined etc.)
+	 * 
+	 * @return
+	 */
+	public String getPosition() {
+		return position;
+	}
+	
 	public void setPosition(String position) {
 		this.position = position;
 	}
 	
-	public String getPosition() {
-		return position;
+	/**
+	 * Externe working position
+	 * 
+	 * @return
+	 */
+	public boolean isExterne() {
+		return externe;
+	}
+	
+	public void setExterne(boolean externe) {
+		this.externe = externe;
 	}
 }

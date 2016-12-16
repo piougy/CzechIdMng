@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,13 +65,18 @@ public class DefaultAccIdentityAccountService extends
 		AccAccount account = entity.getAccount();
 		// We check if exists another (ownership) identityAccounts, if not then
 		// we will delete account
-		boolean moreIdentityAccounts = account.getIdentityAccounts().stream().filter(identityAccount -> {
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setAccountId(account.getId());
+		filter.setOwnership(true);
+		
+		List<AccIdentityAccount> identityAccounts = this.find(filter, null).getContent();
+		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
 			return identityAccount.isOwnership() && !identityAccount.equals(entity);
 		}).findAny().isPresent();
 
 		if (!moreIdentityAccounts && entity.isOwnership()) {
 			// We delete all identity accounts first
-			account.getIdentityAccounts().forEach(identityAccount -> {
+			identityAccounts.forEach(identityAccount -> {
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account

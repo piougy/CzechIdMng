@@ -710,8 +710,12 @@ key: password<y:LabelModel>
           <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="158.93359375" x="30.326944759266325" y="4.0">SchemaAttributeHandling</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="73.84375" modelName="custom" textColor="#000000" visible="true" width="183.291015625" x="2.0" y="29.96875">+ idmPropertyName
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="129.71875" modelName="custom" textColor="#000000" visible="true" width="196.931640625" x="2.0" y="29.96875">- name
+- entityAttribute
+- disabledAttribute (boolean)
+- confidentialAttribute (boolean)
 - extendedAttribute (boolean)
++ idmPropertyName
 + transformFromSystem
 + transformToSystem
 - isUid(boolean)<y:LabelModel>
@@ -799,11 +803,17 @@ key: password<y:LabelModel>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
           <y:Geometry height="171.12006881720424" width="219.58748326853288" x="1381.1467562944024" y="-347.95264352852786"/>
-          <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
+          <y:Fill color="#99CC00" color2="#99CC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#3399FF" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="17.96875" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="128.341796875" x="45.622843196766325" y="4.0">RoleSystemAttribute</y:NodeLabel>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="custom" textColor="#000000" visible="true" width="4.0" x="2.0" y="29.96875">
-            <y:LabelModel>
+          <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="115.75" modelName="custom" textColor="#000000" visible="true" width="196.931640625" x="2.0" y="29.96875">- name
+- entityAttribute
+- disabledAttribute (boolean)
+- confidentialAttribute (boolean)
+- extendedAttribute (boolean)
++ idmPropertyName
++ transformScript
+- isUid(boolean)<y:LabelModel>
               <y:ErdAttributesNodeLabelModel/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -1882,7 +1892,6 @@ pro typ objektu a provisioning (P)<y:LabelModel>
       </data>
     </edge>
     <edge id="e55" source="n12" target="n24">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>

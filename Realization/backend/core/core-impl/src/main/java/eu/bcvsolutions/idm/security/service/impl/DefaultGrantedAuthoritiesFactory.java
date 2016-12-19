@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
@@ -121,8 +122,11 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
 			}
 		}
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(dto.getCurrentUsername(),
-				dto.getOriginalUsername(), dto.getExpiration(), grantedAuthorities);
+		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
+				new IdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
+				new IdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
+				dto.getExpiration(), 
+				grantedAuthorities);
 		return authentication;
 	}
 
@@ -131,7 +135,9 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 	public IdmJwtAuthenticationDto getIdmJwtAuthenticationDto(IdmJwtAuthentication authentication) {
 		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
 		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
+		authenticationDto.setCurrentIdentityId(authentication.getCurrentIdentity() == null ? null : authentication.getCurrentIdentity().getId());
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
+		authenticationDto.setOriginaIdentityId(authentication.getOriginalIdentity() == null ? null : authentication.getOriginalIdentity().getId());
 		authenticationDto.setExpiration(authentication.getExpiration());
 		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
 				.getAuthorities();

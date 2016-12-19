@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -29,7 +27,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import eu.bcvsolutions.idm.core.api.repository.handler.UsernameAuditor;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
@@ -44,7 +41,6 @@ import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
  *
  */
 @Configuration
-@EnableJpaAuditing
 @AutoConfigureAfter({ FlywayConfigCore.class })
 public class WebConfig extends RepositoryRestMvcConfiguration {
 	
@@ -104,16 +100,6 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	@Primary
 	Validator validator() {
 		return new LocalValidatorFactoryBean();
-	}
-
-	/**
-	 * Fills auditor for auditable entities
-	 * 
-	 * @return
-	 */
-	@Bean
-	public AuditorAware<String> auditorProvider() {
-		return new UsernameAuditor();
 	}
 
 	/*

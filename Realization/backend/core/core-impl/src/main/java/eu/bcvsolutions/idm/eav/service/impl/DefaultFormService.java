@@ -174,13 +174,7 @@ public class DefaultFormService implements FormService {
 			value.setConfidential(attribute.isConfidential());
 			// find values to be removed
 			if (value.getId() != null) {
-				E previousValue = previousValues.get(value.getId());
-				if (previousValue != null) {
-					// TODO: fix created and creator audit handler
-					value.setCreator(previousValue.getCreator());
-					value.setCreated(previousValue.getCreated());
-					previousValues.remove(value.getId());
-				}
+				previousValues.remove(value.getId());
 			}
 			//
 			formValueService.save(value);

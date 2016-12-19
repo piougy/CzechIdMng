@@ -7,10 +7,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.ModifiedEntityNames;
@@ -20,7 +29,7 @@ import org.hibernate.envers.RevisionTimestamp;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.config.domain.IdmAuditListener;
+import eu.bcvsolutions.idm.core.model.repository.listener.IdmAuditListener;
 
 /**
  * Default audit entity.
@@ -28,7 +37,6 @@ import eu.bcvsolutions.idm.core.config.domain.IdmAuditListener;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Entity
 @RevisionEntity(IdmAuditListener.class)
 @Table(name = "idm_audit", indexes = {
@@ -46,10 +54,12 @@ public class IdmAudit implements BaseEntity {
 	
 	@Id
 	@GeneratedValue
-    @JsonProperty(value = "id")
     @Column(name = "id")
 	@RevisionNumber
 	private Long id;
+	
+	@Column(name = "entity_id")
+	private UUID entityId;
 	
 	@RevisionTimestamp
 	private long timestamp;
@@ -78,8 +88,29 @@ public class IdmAudit implements BaseEntity {
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	
-	@Column(name = "entity_id")
-	private UUID entityId;
+	@Column(name = "modifier_id")
+	private UUID modifierId;
+	
+	@Column(name = "original_modifier_id")
+	private UUID originalModifierId;
+	
+	@Override
+	public Serializable getId() {
+		return this.id;
+	}
+
+	@Override
+	public void setId(Serializable id) {
+		this.id = (Long) id;
+	}
+	
+	public UUID getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(UUID entityId) {
+		this.entityId = entityId;
+	}
 
 	public String getOriginalModifier() {
 		return originalModifier;
@@ -89,20 +120,28 @@ public class IdmAudit implements BaseEntity {
 		this.originalModifier = originalModifier;
 	}
 
-	public UUID getEntityId() {
-		return entityId;
-	}
-
-	public void setEntityId(UUID entityId) {
-		this.entityId = entityId;
-	}
-
 	public String getModifier() {
 		return modifier;
 	}
 
 	public void setModifier(String modifier) {
 		this.modifier = modifier;
+	}
+	
+	public UUID getModifierId() {
+		return modifierId;
+	}
+
+	public void setModifierId(UUID modifierId) {
+		this.modifierId = modifierId;
+	}
+
+	public UUID getOriginalModifierId() {
+		return originalModifierId;
+	}
+
+	public void setOriginalModifierId(UUID originalModifierId) {
+		this.originalModifierId = originalModifierId;
 	}
 
 	public String getChangedAttributes() {
@@ -201,15 +240,4 @@ public class IdmAudit implements BaseEntity {
 				+ ", revisionDate = " + DateFormat.getDateTimeInstance().format( getRevisionDate() )
 				+ ", modifiedEntityNames = " + modifiedEntityNames + ")";
 	}
-
-	@Override
-	public Serializable getId() {
-		return this.id;
-	}
-
-	@Override
-	public void setId(Serializable id) {
-		this.id = (Long) id;
-	}
-
 }

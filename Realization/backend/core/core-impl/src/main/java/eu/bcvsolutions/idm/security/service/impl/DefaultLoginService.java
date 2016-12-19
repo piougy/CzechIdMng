@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -61,14 +62,23 @@ public class DefaultLoginService implements LoginService {
 	@Override
 	public LoginDto login(String username, GuardedString password) {
 		LOG.info("Identity with username [{}] authenticating", username);
-
-		if (!validate(username, password)) {
+		
+		IdmIdentity identity = identityService.getByUsername(username);
+		// identity exists
+		if (identity == null) {			
+			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
+		}
+		// validate identity
+		if (!validate(identity, password)) {
 			LOG.debug("Username or password for identity [{}] is not correct!", username);			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity password: Failed for identity {0} because the password digests differ.", username));
 		}
+		// new expiration date
 		Date expiration = new Date(System.currentTimeMillis() + configurationService.getIntegerValue(PROPERTY_EXPIRATION_TIMEOUT, DEFAULT_EXPIRATION_TIMEOUT));
 
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(username, expiration,
+		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
+				new IdentityDto(identity, identity.getUsername()),
+				expiration,
 				grantedAuthoritiesFactory.getGrantedAuthorities(username));
 		
 		authenticationManager.authenticate(authentication);
@@ -91,13 +101,16 @@ public class DefaultLoginService implements LoginService {
 		return loginDto;
 	}
 
-	private boolean validate(String username, GuardedString password) {
-		IdmIdentity identity = identityService.getByUsername(username);
-		if (identity == null) {			
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
-		}
+	/**
+	 * Validates given identity can log in
+	 * 
+	 * @param identity
+	 * @param password
+	 * @return
+	 */
+	private boolean validate(IdmIdentity identity, GuardedString password) {
 		if (identity.isDisabled()) {
-			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.",  username ));
+			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
 		}
 		GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 		if (idmPassword == null) {

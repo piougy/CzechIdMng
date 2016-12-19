@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -25,17 +24,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
  * Common entity
  * 
+ * @see {@link AuditingEntityListener}
  * @author Radek Tomiška 
  *
  */
 @MappedSuperclass
-@EntityListeners({AuditingEntityListener.class})
-public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
+public abstract class AbstractEntity implements BaseEntity, Auditable {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
@@ -55,7 +55,7 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 
 	@Audited
 	@LastModifiedDate
-	@Column(name = "modified", nullable = false)
+	@Column(name = "modified")
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	@JsonProperty(access = Access.READ_ONLY)
 	private Date modified;
@@ -68,10 +68,20 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	private String creator;
 	
 	@Audited
+	@Column(name = "creator_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID creatorId;
+	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_creator", length = DefaultFieldLengths.NAME)
 	@JsonProperty(access = Access.READ_ONLY)
 	private String originalCreator;
+	
+	@Audited
+	@Column(name = "original_creator_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID originalCreatorId;
 
 	@Audited
 	@LastModifiedBy
@@ -81,10 +91,20 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 	private String modifier;
 	
 	@Audited
+	@Column(name = "modifier_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID modifierId;
+	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
 	@JsonProperty(access = Access.READ_ONLY)
 	private String originalModifier;
+	
+	@Audited
+	@Column(name = "original_modifier_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID originalModifierId;
 
 	public AbstractEntity() {
 	}
@@ -122,9 +142,6 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.created = created;
 	}
 
-	/**
-	 * Last modified date
-	 */
 	@Override
 	public Date getModified() {
 		return modified;
@@ -135,9 +152,6 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.modified = modified;
 	}
 	
-	/**
-	 * Currently logged user, when record was created
-	 */
 	@Override
 	public String getCreator() {
 		return creator;
@@ -148,9 +162,6 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.creator = creator;
 	}
 
-	/**
-	 * Currently logged user, when record was modified
-	 */
 	@Override
 	public String getModifier() {
 		return modifier;
@@ -161,23 +172,64 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity {
 		this.modifier = modifier;
 	}
 
-	/**
-	 * Currently logged user, when record was modified
-	 */
+	@Override
 	public String getOriginalCreator() {
 		return originalCreator;
 	}
 
+	@Override
 	public void setOriginalCreator(String originalCreator) {
 		this.originalCreator = originalCreator;
 	}
 
+	@Override
 	public String getOriginalModifier() {
 		return originalModifier;
 	}
 
+	@Override
 	public void setOriginalModifier(String originalModifier) {
 		this.originalModifier = originalModifier;
+	}
+	
+	@Override
+	public UUID getCreatorId() {
+		return creatorId;
+	}
+
+	@Override
+	public void setCreatorId(UUID creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	@Override
+	public UUID getOriginalCreatorId() {
+		return originalCreatorId;
+	}
+
+	@Override
+	public void setOriginalCreatorId(UUID originalCreatorId) {
+		this.originalCreatorId = originalCreatorId;
+	}
+
+	@Override
+	public UUID getModifierId() {
+		return modifierId;
+	}
+
+	@Override
+	public void setModifierId(UUID modifierId) {
+		this.modifierId = modifierId;
+	}
+
+	@Override
+	public UUID getOriginalModifierId() {
+		return originalModifierId;
+	}
+
+	@Override
+	public void setOriginalModifierId(UUID originalModifierId) {
+		this.originalModifierId = originalModifierId;
 	}
 	
 	/**

@@ -35,7 +35,7 @@ class AuditDetail extends Basic.AbstractContent {
 
   render() {
     const { auditIdentity, showLoading } = this.props;
-    const { entityId } = this.props.params;
+    const { entityId, revID } = this.props.params;
     return (
       <div>
           <Helmet title={this.i18n('navigation.menu.audit.profile')} />
@@ -51,8 +51,9 @@ class AuditDetail extends Basic.AbstractContent {
                     {
                       this.i18n('content.audit.profile.userDetail',
                         {
-                          name: auditIdentity.username,
-                          date: moment(auditIdentity.modified).format(this.i18n('format.datetime'))
+                          revision: revID,
+                          name: auditIdentity.modifier ? auditIdentity.modifier : auditIdentity.creator,
+                          date: moment(!auditIdentity.modified ? auditIdentity.created : auditIdentity.modified).format(this.i18n('format.datetime'))
                         })
                     }
                   </small>

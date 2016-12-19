@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.workflow.permissions;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.text.SimpleDateFormat;
@@ -127,8 +128,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		//User test 1 must have superAdminRole
 		IdmIdentityRole idmIdentityRole2 = idmIdentityRoleList2.stream().filter(s -> {return s.getRole().getName().equals(InitTestData.TEST_ADMIN_ROLE);}).findFirst().get();
 		// Original creator must be equal with applicant
-		Assert.assertTrue("Original creator must be equal with applicant", InitTestData.TEST_USER_1.equals(idmIdentityRole2.getOriginalCreator()));
-		
+		assertEquals("Original creator must be equal with applicant", InitTestData.TEST_USER_1, idmIdentityRole2.getOriginalCreator());	
 	}
 	
 	@Test

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -70,7 +71,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	protected void init() {
 		// TODO: runAs
 		securityService.setAuthentication(
-				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
+				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
 		// TODO: could be moved to flyway install dump
 		try {
 			//

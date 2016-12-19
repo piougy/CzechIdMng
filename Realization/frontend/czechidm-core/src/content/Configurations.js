@@ -126,6 +126,8 @@ class Configurations extends Basic.AbstractContent {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: this.getManager().getNiceLabel(entity) }) }, error);
         } else {
           this.refs.table.getWrappedInstance().reload();
+          // reload public configurations
+          this.context.store.dispatch(this.getManager().fetchPublicConfigurations());
         }
       }));
     }, () => {

@@ -16,6 +16,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.idm.IdmApplication;
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -51,7 +52,7 @@ public abstract class AbstractIntegrationTest {
 	 * @param username
 	 */
 	public void loginAsAdmin(String username) {
-		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(username, null, securityService.getAllAvailableAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication(new IdentityDto(username), null, securityService.getAllAvailableAuthorities()));
 	}
 	
 	/**

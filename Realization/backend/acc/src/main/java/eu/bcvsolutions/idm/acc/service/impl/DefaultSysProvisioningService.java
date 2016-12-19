@@ -84,7 +84,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 @Service
 public class DefaultSysProvisioningService implements SysProvisioningService {
 
-	public static final String PASSWORD_IDM_PROPERTY_NAME = "password";
+	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
 	private final SysSystemEntityHandlingService entityHandlingService;
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
@@ -209,34 +209,17 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		SysSystem system = account.getSystem();
 		SysSystemEntity systemEntity = account.getSystemEntity();
 		// find uid from system entity or form account
-		String uid = getRealUid(account);
+		String uid = account.getUid();
+		String systemUid = getRealUid(account);
+		SystemOperationType operationType = SystemOperationType.PROVISIONING;
+		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		
-		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setIdentityId(identity.getId());
-		filter.setSystemId(system.getId());
-		filter.setOwnership(Boolean.TRUE);
-		filter.setAccountId(account.getId());
-		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
-		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
-		if (idenityAccoutnList == null) {
+		List<MappingAttribute> finalAttributes = resolveMappedAttributes(account, identity, system, uid, operationType, entityType);
+		if(CollectionUtils.isEmpty(finalAttributes)){
 			return;
 		}
 
-		SystemOperationType operationType = SystemOperationType.PROVISIONING;
-		SystemEntityType entityType = SystemEntityType.IDENTITY;
-		// All identity account with flag ownership on true
-
-		// All role system attributes (overloading) for this uid and same system
-		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, identity, system,
-				idenityAccoutnList, operationType, entityType);
-
-		// All default mapped attributes from system
-		List<? extends MappingAttribute> defaultAttributes = findAttributesHandling(operationType, entityType, system);
-
-		// Final list of attributes use for provisioning
-		List<MappingAttribute> finalAttributes = compileAttributes(defaultAttributes, roleSystemAttributesAll);
-
-		String uidFromOperation = doOperation(uid, identity, AccountOperationType.UPDATE, operationType, entityType, system,
+		String uidFromOperation = doOperation(systemUid, identity, AccountOperationType.UPDATE, operationType, entityType, system,
 				finalAttributes);
 		
 
@@ -251,6 +234,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		accountService.save(account);
 
 	}
+
+	
 	
 	@Override
 	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
@@ -277,31 +262,58 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		if (identityAccountList == null) {
 			return;
 		}
-		// TODO: ? add into IdentityAccountFilter: accountId IN (..., ...);
+		
+		// Distinct by accounts
+		List<AccAccount> accounts = new ArrayList<>();
 		identityAccountList.stream().filter(identityAccount -> {
-			return identityAccount.isOwnership() && (passwordChange.isAll() || passwordChange.getAccounts().contains(identityAccount.getId().toString()));
+			return identityAccount.isOwnership() && (passwordChange.isAll()
+					|| passwordChange.getAccounts().contains(identityAccount.getId().toString()));
 		}).forEach(identityAccount -> {
-			// find uid from system entity or form account
-			String uid = getRealUid(identityAccount.getAccount());
-			doProvisioningForAttribute(uid, PASSWORD_IDM_PROPERTY_NAME,
-					passwordChange.getNewPassword(), identityAccount.getAccount().getSystem(),
+			if (!accounts.contains(identityAccount.getAccount())) {
+				accounts.add(identityAccount.getAccount());
+			}
+		});
+
+		accounts.forEach(account -> {
+			// find uid from system entity or from account
+			String uid = account.getUid();
+			String systemUid = getRealUid(account);
+			SysSystem system = account.getSystem();
+			SystemOperationType operationType = SystemOperationType.PROVISIONING;
+			SystemEntityType entityType = SystemEntityType.IDENTITY;
+
+			// Find mapped attributes (include overloaded attributes)
+			List<MappingAttribute> finalAttributes = resolveMappedAttributes(account, identity, system, uid,
+					operationType, entityType);
+			if (CollectionUtils.isEmpty(finalAttributes)) {
+				return;
+			}
+
+			// We try find __PASSWORD__ attribute in mapped attributes
+			Optional<? extends MappingAttribute> attriubuteHandlingOptional = finalAttributes.stream()
+					.filter((attribute) -> {
+						return PASSWORD_SCHEMA_PROPERTY_NAME.equals(attribute.getSchemaAttribute().getName());
+					}).findFirst();
+			if (!attriubuteHandlingOptional.isPresent()) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_PASSWORD_FIELD_NOT_FOUND,
+						ImmutableMap.of("uid", uid));
+			}
+			MappingAttribute mappedAttribute = attriubuteHandlingOptional.get();
+
+			doProvisioningForAttribute(systemUid, mappedAttribute, passwordChange.getNewPassword(), account.getSystem(),
 					AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
 		});
 	}
 
 	@Override
-	public void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system,
+	public void doProvisioningForAttribute(String uid, MappingAttribute mappedAttribute, Object value, SysSystem system,
 			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity) {
 
 		Assert.notNull(uid);
 		Assert.notNull(system);
 		Assert.notNull(entityType);
+		Assert.notNull(mappedAttribute);
 
-		List<? extends MappingAttribute> attributes = findAttributesHandling(SystemOperationType.PROVISIONING,
-				entityType, system);
-		if (attributes == null || attributes.isEmpty()) {
-			return;
-		}
 
 		// Find connector identification persisted in system
 		IcfConnectorKey connectorKey = system.getConnectorKey();
@@ -318,21 +330,20 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
 
-		Optional<? extends MappingAttribute> attriubuteHandlingOptional = attributes.stream().filter((attribute) -> {
-			return idmPropertyName.equals(attribute.getIdmPropertyName());
-		}).findFirst();
-		if (!attriubuteHandlingOptional.isPresent()) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-					ImmutableMap.of("property", idmPropertyName, "uid", uid));
-		}
-		MappingAttribute attributeHandling = attriubuteHandlingOptional.get();
-		if (!attributeHandling.getSchemaAttribute().isUpdateable()) {
+
+		if (!mappedAttribute.getSchemaAttribute().isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
-					ImmutableMap.of("property", idmPropertyName, "uid", uid));
+					ImmutableMap.of("property", mappedAttribute.getIdmPropertyName(), "uid", uid));
 		}
 
-		String objectClassName = attributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, value, entity);
+		String objectClassName = mappedAttribute.getSchemaAttribute().getObjectClass().getObjectClassName();
+		Object valueTransformed = value;
+		// We do transformation to system if is attribute only constant
+		if(!mappedAttribute.isEntityAttribute() && !mappedAttribute.isExtendedAttribute()){
+		  valueTransformed = attributeHandlingService.transformValueToResource(value, mappedAttribute,
+				entity);
+		}
+		IcfAttribute icfAttributeForCreate = createIcfAttribute(mappedAttribute, valueTransformed, entity);
 		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
 		// Call icf modul for update single attribute
 		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
@@ -397,6 +408,42 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icfObjectClass, username, password);
 	}
 
+	/**
+	 * Return all mapped attributes for this account (include overloaded attributes)
+	 * @param account
+	 * @param identity
+	 * @param system
+	 * @param uid
+	 * @param operationType
+	 * @param entityType
+	 * @return
+	 */
+	private List<MappingAttribute> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
+			String uid, SystemOperationType operationType, SystemEntityType entityType) {
+		
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		filter.setSystemId(system.getId());
+		filter.setOwnership(Boolean.TRUE);
+		filter.setAccountId(account.getId());
+		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
+		List<AccIdentityAccount> idenityAccoutnList = identityAccounts.getContent();
+		if (idenityAccoutnList == null) {
+			return null;
+		}
+		// All identity account with flag ownership on true
+
+		// All role system attributes (overloading) for this uid and same system
+		List<SysRoleSystemAttribute> roleSystemAttributesAll = findOverloadingAttributes(uid, identity, system,
+				idenityAccoutnList, operationType, entityType);
+
+		// All default mapped attributes from system
+		List<? extends MappingAttribute> defaultAttributes = findAttributesHandling(operationType, entityType, system);
+
+		// Final list of attributes use for provisioning
+		return compileAttributes(defaultAttributes, roleSystemAttributesAll);
+	}
+	
 	/**
 	 * Create final list of attributes for provisioning.
 	 * 
@@ -943,12 +990,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			// Check single value on correct type
 			}else if (idmValueTransformed != null && !(classType.isAssignableFrom(idmValueTransformed.getClass()))) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
-						ImmutableMap.of("attribute", attributeHandling.getIdmPropertyName(), "schemaAttributeType",
+						ImmutableMap.of("attribute", attributeHandling.getName(), "schemaAttributeType",
 								schemaAttribute.getClassType(), "valueType", idmValueTransformed.getClass().getName()));
 			}
 		} catch (ClassNotFoundException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
-					ImmutableMap.of("attribute", attributeHandling.getIdmPropertyName(), "schemaAttributeType",
+					ImmutableMap.of("attribute", attributeHandling.getName(), "schemaAttributeType",
 							schemaAttribute.getClassType()),
 					e);
 		}

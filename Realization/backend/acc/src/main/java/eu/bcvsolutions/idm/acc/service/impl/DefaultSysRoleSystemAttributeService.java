@@ -62,7 +62,7 @@ public class DefaultSysRoleSystemAttributeService
 		// Check if exist some else attribute which is defined like unique identifier
 		if (entity.isUid()) {
 			RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
-			filter.setIsUid(true);
+			filter.setIsUid(Boolean.TRUE);
 			filter.setRoleSystemId(entity.getRoleSystem().getId());
 			
 			List<SysRoleSystemAttribute> list = this.find(filter, null).getContent();

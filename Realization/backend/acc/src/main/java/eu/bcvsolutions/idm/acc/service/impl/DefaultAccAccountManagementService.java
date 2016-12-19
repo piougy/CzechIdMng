@@ -289,7 +289,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 	@Override
 	public String generateUID(IdmIdentity identity, SysRoleSystem roleSystem) {
 		// Find attributes for this roleSystem
-
 		RoleSystemAttributeFilter roleSystemAttrFilter = new RoleSystemAttributeFilter();
 		roleSystemAttrFilter.setRoleSystemId(roleSystem.getId());
 		List<SysRoleSystemAttribute> attributes = roleSystemAttributeService.find(roleSystemAttrFilter, null)

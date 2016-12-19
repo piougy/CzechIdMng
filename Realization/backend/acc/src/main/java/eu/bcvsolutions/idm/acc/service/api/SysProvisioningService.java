@@ -61,17 +61,18 @@ public interface SysProvisioningService {
 	void changePassword(IdmIdentity identity, PasswordChangeDto passwordChange);
 	
 	/**
-	 * Do provisioning only for single attribute. For example, it is needed to change password 
+	 * Do provisioning only for single attribute. For example, it is needed to change password
 	 * @param uid
-	 * @param idmPropertyName
+	 * @param mappedAttribute
 	 * @param value
 	 * @param system
 	 * @param operationType
 	 * @param entityType
+	 * @param entity
 	 */
-	void doProvisioningForAttribute(String uid, String idmPropertyName, Object value, SysSystem system, 
-			AccountOperationType operationType, SystemEntityType entityType,  AbstractEntity entity);
-
+	void doProvisioningForAttribute(String uid, MappingAttribute mappedAttribute, Object value, SysSystem system,
+			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity);
+	
 	
 	/**
 	 * Do authenticate check for given identityAccount on target resource. Username for check is get from account (attribute UID) linked in identityAccount.

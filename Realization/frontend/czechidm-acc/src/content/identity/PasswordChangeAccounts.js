@@ -6,7 +6,7 @@ import { IdentityAccountManager } from '../../redux';
 import PasswordChangeForm from 'czechidm-core/src/content/identity/PasswordChangeForm';
 //
 
-const RESOURCE_IDM = '0:czechidm';
+const RESOURCE_IDM = '0:CzechIdM';
 
 const identityAccountManager = new IdentityAccountManager();
 
@@ -39,7 +39,7 @@ class PasswordChangeAccounts extends Basic.AbstractContent {
     }
 
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'czechidm (' + entityId + ')'}
+      { value: RESOURCE_IDM, niceLabel: 'CzechIdM (' + entityId + ')'}
     ];
 
     accounts.forEach(acc => {

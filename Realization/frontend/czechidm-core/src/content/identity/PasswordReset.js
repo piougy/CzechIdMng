@@ -7,7 +7,7 @@ import Immutable from 'immutable';
 import * as Basic from '../../components/basic';
 import { DataManager, IdentityManager } from '../../redux';
 
-const RESOURCE_IDM = 'czechidm';
+const RESOURCE_IDM = 'CzechIdM';
 
 class PasswordReset extends Basic.AbstractContent {
 

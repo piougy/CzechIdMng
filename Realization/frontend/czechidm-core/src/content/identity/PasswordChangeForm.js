@@ -10,7 +10,7 @@ import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
 
-const RESOURCE_IDM = '0:czechidm';
+const RESOURCE_IDM = '0:CzechIdM';
 
 const identityService = new IdentityService();
 const securityManager = new SecurityManager();
@@ -114,7 +114,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
       return json;
     })
     .then(() => {
-      let accounts = (requestData.idm) ? 'czechidm' : '';
+      let accounts = (requestData.idm) ? 'CzechIdM' : '';
       if (requestData.accounts.length > 0 && accounts) {
         accounts += ', ';
       }

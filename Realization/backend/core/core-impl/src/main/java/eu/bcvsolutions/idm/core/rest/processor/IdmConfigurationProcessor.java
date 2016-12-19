@@ -16,14 +16,16 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 @Component
 public class IdmConfigurationProcessor implements ResourceProcessor<Resource<IdmConfiguration>> {
 	
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdmConfigurationProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmConfigurationProcessor.class);
 	
 	@Override
 	public Resource<IdmConfiguration> process(Resource<IdmConfiguration> resource) {
+		IdmConfiguration configuration = resource.getContent();
+		//
 		// password etc. has to be guarded - can be used just in BE
-		if(GuardedString.shouldBeGuarded(resource.getContent().getName())) {
-			log.debug("Configuration value for property [{}] is guarded.", resource.getContent().getName());
-			resource.getContent().setValue(GuardedString.SECRED_PROXY_STRING);
+		if(GuardedString.shouldBeGuarded(configuration.getName())) {
+			LOG.debug("Configuration value for property [{}] is guarded.", configuration.getName());
+			configuration.setValue(GuardedString.SECRED_PROXY_STRING);
 		}
 		return resource;
 	}

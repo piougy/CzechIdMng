@@ -2,9 +2,11 @@ package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.ActivitiException;
@@ -97,8 +99,8 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			query.variableValueLike(WorkflowHistoricProcessInstanceService.PROCESS_INSTANCE_NAME, "%" + filter.getName() + "%");
 		}
 		if (equalsVariables != null) {
-			for (String key : equalsVariables.keySet()) {
-				query.variableValueEquals(key, equalsVariables.get(key));
+			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
 		// check security ... only involved user or applicant can work with
@@ -147,16 +149,15 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setProcessInstanceId(historicProcessInstanceId);
 		filter.setSortAsc(true);
-		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> resource = this.search(filter);
-		return resource.getResources() != null && !resource.getResources().isEmpty()
-				? resource.getResources().iterator().next() : null;
+		Collection<WorkflowHistoricProcessInstanceDto> resources = this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
 
-	@Override
 	/**
 	 * Generate diagram for process instance. Highlight historic path (activity
 	 * and flows)
 	 */
+	@Override
 	public InputStream getDiagram(String processInstanceId) {
 		if (processInstanceId == null) {
 			throw new ActivitiIllegalArgumentException("No process instance id provided");
@@ -252,6 +253,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			for (ActivityImpl activity : activityList) {
 				if (activityId.equals(activity.getId())) {
 					currentActivity = activity;
+					break;
 				}
 			}
 			/**

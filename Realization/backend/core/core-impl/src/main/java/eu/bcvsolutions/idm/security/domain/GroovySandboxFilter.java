@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.kohsuke.groovy.sandbox.GroovyValueFilter;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import groovy.lang.Closure;
@@ -23,10 +23,11 @@ import groovy.lang.Script;
  * @author Svanda
  */
 public class GroovySandboxFilter extends GroovyValueFilter {
-	private static final List<Class<?>> ALLOWED_TYPES = ImmutableList.of(String.class, Integer.class, Double.class,
+	
+	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(String.class, Integer.class, Double.class,
 			Long.class, Date.class, Enum.class, Boolean.class, BigDecimal.class, UUID.class, Character.class, GuardedString.class);
 
-	final Set<Class<?>> allowedCustomTypes = new HashSet<>();
+	private final Set<Class<?>> allowedCustomTypes = new HashSet<>();
 	
 	public GroovySandboxFilter() {
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.activiti.engine.FormService;
 import org.activiti.engine.TaskService;
@@ -74,8 +75,8 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 			query.taskId(filter.getId());
 		}
 		if (equalsVariables != null) {
-			for (String key : equalsVariables.keySet()) {
-				query.processVariableValueEquals(key, equalsVariables.get(key));
+			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+				query.processVariableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
 
@@ -212,8 +213,9 @@ public class DefaultWorkflowTaskInstanceService implements WorkflowTaskInstanceS
 
 	private void convertToDtoVariables(WorkflowTaskInstanceDto dto, Map<String, Object> taksVariables) {
 		if (taksVariables != null) {
-			for (String key : taksVariables.keySet()) {
-				dto.getVariables().put(key, taksVariables.get(key) == null ? null : taksVariables.get(key).toString());
+			for (Entry<String, Object> entry : taksVariables.entrySet()) {
+				Object value = entry.getValue();
+				dto.getVariables().put(entry.getKey(), value == null ? null : value.toString());
 			}
 		}
 	}

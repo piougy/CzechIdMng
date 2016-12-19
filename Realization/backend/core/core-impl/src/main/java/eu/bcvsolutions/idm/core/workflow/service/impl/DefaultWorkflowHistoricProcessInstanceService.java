@@ -256,6 +256,9 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 					break;
 				}
 			}
+			if (currentActivity == null) {
+				continue;
+			}
 			/**
 			 * Get incoming transitions from current activity 
 			 */

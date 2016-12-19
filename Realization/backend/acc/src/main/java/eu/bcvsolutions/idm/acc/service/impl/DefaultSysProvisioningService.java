@@ -337,11 +337,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		String objectClassName = mappedAttribute.getSchemaAttribute().getObjectClass().getObjectClassName();
-		Object valueTransformed = value;
 		// We do transformation to system if is attribute only constant
+		Object valueTransformed = null;
 		if(!mappedAttribute.isEntityAttribute() && !mappedAttribute.isExtendedAttribute()){
-		  valueTransformed = attributeHandlingService.transformValueToResource(value, mappedAttribute,
-				entity);
+			// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
+			valueTransformed = value;
+		} else {
+			valueTransformed = attributeHandlingService.transformValueToResource(value, mappedAttribute,
+					entity);
 		}
 		IcfAttribute icfAttributeForCreate = createIcfAttribute(mappedAttribute, valueTransformed, entity);
 		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
@@ -804,7 +807,15 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		if (schemaAttribute.isCreateable()) {
 			try {
 				Object idmValue = getAttributeValue(uid, entity, attributeHandling);
-				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValue, entity);
+				Object idmValueTransformed = null;
+				if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
+					// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
+					idmValueTransformed = idmValue;
+				} else {
+					idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling,
+							entity);
+				}
+				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValueTransformed, entity);
 				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
@@ -875,10 +886,18 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		try {
 			Object idmValue = getAttributeValue(uid, entity, attributeHandling);
+			Object idmValueTransformed = null;
+			if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
+				// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
+				idmValueTransformed = idmValue;
+			} else {
+				idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling,
+						entity);
+			}
 
-			if (!Objects.equals(idmValue, icfValueTransformed)) {
+			if (!Objects.equals(idmValueTransformed, icfValueTransformed)) {
 				// values is not equals
-				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValue, entity);
+				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValueTransformed, entity);
 				IcfConnectorObject connectorObjectForUpdate = initConnectorObject(objectByClassMapForUpdate,
 						objectClassName);
 				connectorObjectForUpdate.getAttributes().add(icfAttributeForUpdate);
@@ -963,23 +982,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 */
 	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue,
 			AbstractEntity entity) {
-		Object idmValueTransformed = null;
-
-		if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
-			// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
-			idmValueTransformed = idmValue;
-		} else {
-			idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling,
-					entity);
-		}
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {
 			Class<?> classType = Class.forName(schemaAttribute.getClassType());
 			
 			// If is multivalue and value is list, then we will iterate list and check every item on correct type
-			if (schemaAttribute.isMultivalued() && idmValueTransformed instanceof List){
-				((List<?>)idmValueTransformed).stream().forEachOrdered(value ->{
+			if (schemaAttribute.isMultivalued() && idmValue instanceof List){
+				((List<?>)idmValue).stream().forEachOrdered(value ->{
 					if (value != null && !(classType.isAssignableFrom(value.getClass()))) {
 						throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 								ImmutableMap.of("attribute", attributeHandling.getIdmPropertyName(), "schemaAttributeType",
@@ -988,10 +998,10 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				});
 				
 			// Check single value on correct type
-			}else if (idmValueTransformed != null && !(classType.isAssignableFrom(idmValueTransformed.getClass()))) {
+			}else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
 						ImmutableMap.of("attribute", attributeHandling.getName(), "schemaAttributeType",
-								schemaAttribute.getClassType(), "valueType", idmValueTransformed.getClass().getName()));
+								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
 			}
 		} catch (ClassNotFoundException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
@@ -1003,15 +1013,15 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		IcfAttribute icfAttributeForUpdate = null;
 		if (IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
 			// Attribute is password type
-			icfAttributeForUpdate = new IcfPasswordAttributeImpl((GuardedString) idmValueTransformed);
+			icfAttributeForUpdate = new IcfPasswordAttributeImpl((GuardedString) idmValue);
 
 		} else {
-			if(idmValueTransformed instanceof List){
+			if(idmValue instanceof List){
 				@SuppressWarnings("unchecked")
-				List<Object> values = (List<Object>)idmValueTransformed;
+				List<Object> values = (List<Object>)idmValue;
 				icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(), values, true);
 			}else{
-				icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(), idmValueTransformed);
+				icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(), idmValue);
 			}
 		}
 		return icfAttributeForUpdate;

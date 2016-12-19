@@ -5,7 +5,7 @@ import * as Basic from '../../components/basic';
 import PasswordChangeForm from './PasswordChangeForm';
 import ComponentService from '../../services/ComponentService';
 
-const RESOURCE_IDM = '0:czechidm';
+const RESOURCE_IDM = '0:CzechIdM';
 
 class PasswordChangeContent extends Basic.AbstractContent {
 
@@ -23,7 +23,7 @@ class PasswordChangeContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     const options = [
-      { value: RESOURCE_IDM, niceLabel: 'czechidm (' + entityId + ')'}
+      { value: RESOURCE_IDM, niceLabel: 'CzechIdM (' + entityId + ')'}
     ];
 
     return (

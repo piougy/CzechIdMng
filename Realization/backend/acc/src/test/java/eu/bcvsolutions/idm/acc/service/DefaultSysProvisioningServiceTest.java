@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableList;
 
+import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -65,6 +66,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_PASSWORD_THREE = "password_three";
 	private static final String IDENTITY_USERNAME = "provisioningTestUser";
 	private static final String IDENTITY_EXT_PASSWORD = "passwordExt";
+	private static final String IDENTITY_CHANGED_FIRST_NAME = "changed first name";
 
 	@Autowired
 	private SysSystemService sysSystemService;
@@ -141,7 +143,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		TestResource createdAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 
-		identity.setFirstName("changedFirstName");
+		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
 		identity = idmIdentityService.save(identity);
 		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
 
@@ -149,6 +151,35 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource changedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
+	}
+	
+	
+	@Test
+	public void doIdentityProvisioningChangeSingleAttribute() {
+		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		Assert.assertEquals("Identity must have this first name!", IDENTITY_CHANGED_FIRST_NAME,
+				identity.getFirstName());
+		
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		SysSystem system = accountIdentityOne.getAccount().getSystem();
+		
+		SchemaAttributeHandlingFilter attributeFilter = new SchemaAttributeHandlingFilter();
+		attributeFilter.setSystemId(system.getId());
+		attributeFilter.setIdmPropertyName("firstName");
+		
+		TestResource resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
+		Assert.assertEquals("Account on target system, must have same firsta name as Identity", IDENTITY_CHANGED_FIRST_NAME,
+				resourceAccount.getFirstname());
+		
+		provisioningService.doProvisioningForAttribute("x" + IDENTITY_USERNAME, schemaAttributeHandlingService.find(attributeFilter, null).getContent().get(0), IDENTITY_USERNAME, system, AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
+
+		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
+		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);
+		Assert.assertEquals("Account on target system, must have changed first name!", IDENTITY_USERNAME,
+				resourceAccount.getFirstname());
 	}
 
 	@Test
@@ -191,7 +222,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		provisioningService.authenticate(accountIdentityOne, system);
 
 	}
-
+	
 	@Test
 	public void doIdentityProvisioningRemoveAccount() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);

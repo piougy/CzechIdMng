@@ -801,7 +801,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectClassName
 	 */
 	private void createAttribute(String uid, AbstractEntity entity, IcfConnectorObject connectorObjectForCreate,
-			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute) {
+			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute) throws ProvisioningException {
 		if (schemaAttribute.isCreateable()) {
 			try {
 				Object idmValue = getAttributeValue(entity, attributeHandling);
@@ -902,7 +902,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			}
 
 		} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+				| InvocationTargetException | ProvisioningException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
 					ImmutableMap.of("uid", uid, "property", attributeHandling.getIdmPropertyName()), e);
 		}

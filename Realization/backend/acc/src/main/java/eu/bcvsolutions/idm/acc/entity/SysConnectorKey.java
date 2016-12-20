@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Size;
@@ -17,7 +19,9 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  */
 @Audited
 @Embeddable
-public class SysConnectorKey implements IcfConnectorKey {
+public class SysConnectorKey implements IcfConnectorKey, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "connector_framework", length = DefaultFieldLengths.NAME)

@@ -116,20 +116,24 @@ describe('Basic AbstractComponent', function abstractComponent() {
         if (component.endsWith('AbstractFormComponent')) {
           continue;
         }
-        // for now we must skip test for SelectBox, ScriptArea and EnumLabel
-        // SelectBox want use this.context.store and
+        // for now we must skip test for SelectBox, ScriptArea, RichTextArea, EnumLabel
+        // SelectBox want manager
         // ScriptArea has 'global leak detected' with react-ace
         // EnumLabel hasn't use for required
         // RichTextArea try to create state with EditorState, this can't be tested now.
-        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('EnumLabel') ||
-              component.endsWith('DateTimePicker') || component.endsWith('Checkbox') || component.endsWith('RichTextArea')) {
+        if (component.endsWith('ScriptArea') || component.endsWith('EnumLabel')
+              || component.endsWith('RichTextArea') || component.endsWith('SelectBox')) {
           continue;
         }
         const ComponentType = componentLibrary[component];
         if (ComponentType.propTypes && ComponentType.propTypes.required) {
           it('- ' + component, function testComponent() {
             const node = document.createElement('div');
-            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" required />, node);
+            const comp = ReactDOM.render(<ComponentType
+                                  title="Title" icon="user"
+                                  label="label" enum={RoleTypeEnum}
+                                  dateFormat="DD.MM.YYYY" mode="date"
+                                  required />, node);
 
             // state must be set to true
             expect(comp.props.required).to.be.equal(true);
@@ -142,12 +146,26 @@ describe('Basic AbstractComponent', function abstractComponent() {
             comp.setValue('');
             expect(comp.isValid()).to.be.equal(false);
 
-            // test with string
-            comp.setValue('test');
+            if (component.endsWith('DateTimePicker')) {
+              // test with string
+              comp.setValue('11.11. 2000');
+            } else if (component.endsWith('EnumSelecBox')) {
+              comp.setValue('SYSTEM');
+            } else if (component.endsWith('Checkbox')) {
+              comp.setValue(true);
+            } else {
+              // test with string
+              comp.setValue('test');
+            }
             expect(comp.isValid()).to.be.equal(true);
 
             // now test with required set to false
-            ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} required={false} />, node);
+            ReactDOM.render(<ComponentType
+                                  title="Title" icon="user"
+                                  label="label" enum={RoleTypeEnum}
+                                  dateFormat="DD.MM.YYYY" mode="date"
+                                  required={false} />, node);
+
             // required must be set to false
             expect(comp.props.required).to.be.equal(false);
 
@@ -162,8 +180,17 @@ describe('Basic AbstractComponent', function abstractComponent() {
             comp.setValue('');
             expect(comp.isValid()).to.be.equal(true);
 
-            // test with string
-            comp.setValue('test');
+            if (component.endsWith('DateTimePicker')) {
+              // test with string
+              comp.setValue('11.11. 2000');
+            } else if (component.endsWith('EnumSelecBox')) {
+              comp.setValue('SYSTEM');
+            } else if (component.endsWith('Checkbox')) {
+              comp.setValue(true);
+            } else {
+              // test with string
+              comp.setValue('test');
+            }
             expect(comp.isValid()).to.be.equal(true);
           });
         }

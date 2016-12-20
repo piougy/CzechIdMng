@@ -399,6 +399,12 @@
 			<properties>
 				<spring.profiles.active>release</spring.profiles.active>
 			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
 			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy' -->
 			<distributionManagement>
 				<repository>

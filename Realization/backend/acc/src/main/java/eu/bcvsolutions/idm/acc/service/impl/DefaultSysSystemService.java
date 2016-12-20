@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,20 +181,21 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		IcfConnectorConfigurationImpl icfConf = new IcfConnectorConfigurationImpl();
 		IcfConfigurationProperties properties = new IcfConfigurationPropertiesImpl();
 		icfConf.setConfigurationProperties(properties);
-		for (String attributeName : attributeValues.keySet()) {
+		for (Entry<String, List<AbstractFormValue<SysSystem>>> attribute : attributeValues.entrySet()) {
+			String attributeName = attribute.getKey();
 			IdmFormAttribute formAttribute = formDefinition.getMappedAttributeByName(attributeName);
 			IcfConfigurationPropertyImpl property = new IcfConfigurationPropertyImpl();
 			property.setName(attributeName);
 			// convert form attribute values to connector properties
 			Object value = null;
-			if (!attributeValues.get(attributeName).isEmpty()) {
+			if (!attribute.getValue().isEmpty()) {
 				if (formAttribute.isMultiple()) {
 					List valueList = formAttribute.getEmptyList();
-					for (AbstractFormValue<SysSystem> formValue : attributeValues.get(attributeName)) {
+					for (AbstractFormValue<SysSystem> formValue : attribute.getValue()) {
 						valueList.add(toPropertyValue(formValue));
 					}
 					if (!valueList.isEmpty()) {
-						if (PersistentType.TEXT.equals(formAttribute.getPersistentType())) {
+						if (PersistentType.TEXT == formAttribute.getPersistentType()) {
 							value = valueList.toArray(new String[]{});
 						} else {
 							value = valueList.toArray();
@@ -201,7 +203,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 					}
 				} else {
 					// single value
-					value = toPropertyValue(attributeValues.get(attributeName).get(0));
+					value = toPropertyValue(attribute.getValue().get(0));
 				}
 			}
 			if (value != null) {
@@ -415,7 +417,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 		StringBuilder result = new StringBuilder();
 		if (!isMultipleProperty(property.getType())) {
-			result.append(property.getValue().toString());
+			result.append(property.getValue());
 		} else {
 			// arrays only - see supportedConnectorPropertyMapping
 			Object[] values = (Object[]) property.getValue();
@@ -423,7 +425,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 				if (result.length() > 0) {
 					result.append(System.getProperty("line.separator"));
 				}
-				result.append(singleValue.toString());
+				result.append(singleValue);
 			}
 		}
 		return result.toString();

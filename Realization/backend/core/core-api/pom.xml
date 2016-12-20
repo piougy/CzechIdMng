@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-core</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>7.0.0</version>
 	</parent>
 
 	<artifactId>idm-core-api</artifactId>

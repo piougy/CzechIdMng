@@ -243,7 +243,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 * @param system
 	 * @return
 	 */
-	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystem system) throws ResultCodeException {
+	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
 		Assert.notNull(system);
 		//
 		try {

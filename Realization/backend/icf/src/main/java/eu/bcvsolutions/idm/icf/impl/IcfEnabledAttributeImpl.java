@@ -18,8 +18,8 @@ public class IcfEnabledAttributeImpl extends IcfAttributeImpl implements IcfEnab
 	public IcfEnabledAttributeImpl(Boolean enabled, Date enabledDate, Date disabledDate) {
 		super();
 		this.enabled = enabled;
-		this.enabledDate = enabledDate;
-		this.disabledDate = disabledDate;
+		this.enabledDate = enabledDate != null ? (Date) enabledDate.clone() : null;
+		this.disabledDate = disabledDate != null ? (Date) disabledDate.clone() : null;
 	}
 
 	@Override
@@ -33,20 +33,20 @@ public class IcfEnabledAttributeImpl extends IcfAttributeImpl implements IcfEnab
 
 	@Override
 	public Date getEnabledDate() {
-		return enabledDate;
+		return enabledDate != null ? (Date) enabledDate.clone() : null;
 	}
 
 	public void setEnabledDate(Date enabledDate) {
-		this.enabledDate = enabledDate;
+		this.enabledDate = enabledDate != null ? (Date) enabledDate.clone() : null;
 	}
 
 	@Override
 	public Date getDisabledDate() {
-		return disabledDate;
+		return  disabledDate != null ? (Date) disabledDate.clone() : null;
 	}
 
 	public void setDisabledDate(Date disabledDate) {
-		this.disabledDate = disabledDate;
+		this.disabledDate = disabledDate != null ? (Date) disabledDate.clone() : null;
 	}
 
 }

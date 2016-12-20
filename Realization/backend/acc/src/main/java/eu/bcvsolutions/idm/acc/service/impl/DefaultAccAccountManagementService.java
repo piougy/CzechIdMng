@@ -87,8 +87,6 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		Page<AccIdentityAccount> identityAccounts = identityAccountService.find(filter, null);
 		List<AccIdentityAccount> identityAccountList = identityAccounts.getContent();
 
-		IdentityRoleFilter identityRoleFilter = new IdentityRoleFilter();
-		identityRoleFilter.setIdentityId(identity.getId());
 		List<IdmIdentityRole> identityRoles = identityRoleRepository.findAllByIdentity(identity, null);
 
 		boolean provisioningRequired = false;

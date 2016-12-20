@@ -42,8 +42,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	
 	@Override
 	public AccAccount save(AccAccount entity) {
-		AccAccount account =  super.save(entity);
-		return account;
+		return  super.save(entity);
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public class DefaultAccIdentityAccountService extends
 		// we will delete account
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
-		filter.setOwnership(true);
+		filter.setOwnership(Boolean.TRUE);
 		
 		List<AccIdentityAccount> identityAccounts = this.find(filter, null).getContent();
 		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {

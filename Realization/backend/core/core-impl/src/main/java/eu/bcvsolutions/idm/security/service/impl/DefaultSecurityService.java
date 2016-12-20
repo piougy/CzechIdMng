@@ -69,7 +69,7 @@ public class DefaultSecurityService implements SecurityService {
 	public String getUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (!isAuthenticated()) {
-			return null;
+			return "[GUEST]"; // TODO: configure guest access
 		}
 		return authentication.getName();
 	}

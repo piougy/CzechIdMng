@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.config.domain;
+package eu.bcvsolutions.idm.core.model.repository.listener;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,10 +12,12 @@ import org.hibernate.envers.RevisionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
@@ -59,11 +61,10 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId, IdmAudit revisionEntity, RevisionType revisionType) {
 		List<String> changedColumns;
-		AbstractEntity currentEntity = null;
 		
 		// if revision type is MOD - modification, get and set changed columns
 		if (revisionType == RevisionType.MOD) {
-			currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+			AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
 			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, (Long)revisionEntity.getId(), currentEntity);
 			revisionEntity.addChanged(changedColumns);
 		}
@@ -72,10 +73,16 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
         revisionEntity.setType(entityName);
         // revision type - MOD, DEL, ADD
         revisionEntity.setModification(revisionType.name());
-        // actual modifier
+        // action executer identity
+        AbstractAuthentication authentication = securityService.getAuthentication();
+        IdentityDto currentIdentity = authentication == null ? null : authentication.getCurrentIdentity();
+		IdentityDto originalIdentity = authentication == null ? null : authentication.getOriginalIdentity();
+		//
      	revisionEntity.setModifier(securityService.getUsername());
-     	// original modifier before switch
+     	revisionEntity.setModifierId(currentIdentity == null ? null : currentIdentity.getId());
+     	// original action executer identity (before switch)
      	revisionEntity.setOriginalModifier(securityService.getOriginalUsername());
+     	revisionEntity.setOriginalModifierId(originalIdentity == null ? null : originalIdentity.getId());
      	// entity id
      	revisionEntity.setEntityId((UUID)entityId);
 	}

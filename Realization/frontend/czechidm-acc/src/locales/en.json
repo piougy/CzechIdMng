@@ -150,22 +150,22 @@
       },
       "entityHandlingDetail": {
         "title" :"Skupina atributů",
-        "systemEntityHandlingHeader": "Skupina atributů <small>pro IDM entitu a typ operace</small>",
+        "systemEntityHandlingHeader": "Skupina atributů <small>pro IdM entitu a typ operace</small>",
         "schemaAttributesHandlingHeader": "Namapované atributy",
         "edit": {
-          "header": "Detail typu IDM entity a operace"
+          "header": "Detail typu IdM entity a operace"
         },
         "create": {
-          "header": "Nový typ IDM entity a operace",
-          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
+          "header": "Nový typ IdM entity a operace",
+          "success": "Typ IdM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně vytvořen"
         },
         "save": {
-          "success": "Typ IDM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
+          "success": "Typ IdM entity [{{entityType}}] pro operaci [{{operationType}}] byl úspěšně uložen"
         },
         "filter": {
           "idmPropertyName": {
-            "label": "Název IDM atributu",
-            "placeholder": "Název atributu v IDM"
+            "label": "Název IdM atributu",
+            "placeholder": "Název atributu v IdM"
           }
         }
       },
@@ -181,14 +181,15 @@
         }
       },
       "attributeHandlingDetail": {
-        "title" : "Atribut v IDM",
+        "title" : "Atribut v IdM",
         "header" : "Detail mapování atributu ",
+        "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
         "save": {
-          "success": "Atribut [{{name}}] IDM byl úspěšně uložen"
+          "success": "Atribut [{{name}}] IdM byl úspěšně uložen"
         },
         "create": {
-          "success": "Atribut [{{name}}] IDM byl úspěšně vytvořen",
-          "header": "Nový atribut IDM"
+          "success": "Atribut [{{name}}] IdM byl úspěšně vytvořen",
+          "header": "Nový atribut IdM"
         }
       }
     },
@@ -289,7 +290,7 @@
       "system": "Napojený systém"
     },
     "SystemEntityHandling": {
-      "entityType": "Typ IDM entity",
+      "entityType": "Typ IdM entity",
       "operationType": "Typ operace",
       "system": "Napojený systém"
     },
@@ -312,7 +313,7 @@
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
       },
       "idmPropertyName": {
-        "label": "IDM klíč",
+        "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
       "schemaAttribute": "Atribut ve schéma",
@@ -324,15 +325,15 @@
       "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
         "label": "Transformace ze systému",
-        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IDM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."
+        "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icfAttributes'."
       },
       "transformToResourceScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IDM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
       },
       "uid": {
         "label": "Je identifikátorem",
-        "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu. V takovém případě, je jako hodnota atributu zvolen UID z navázaného účtu."
+        "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -351,7 +352,7 @@
       "transformScriptTable": "Transformace",
       "transformScript": {
         "label": "Transformace do systému",
-        "help": "Umožňuje transformovat hodnotu z IDM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IDM entita 'entity'."
+        "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."
       }
     },
     "Account": {
@@ -392,6 +393,14 @@
     "CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND": {
       "title": "Nenalezen konektor pro systém",
       "message": "Konektor pro systém [{{system}}] není definovaný. Vyplňte prosím definici konektoru v základních údajích systému."
+    },
+    "PROVISIONING_ATTRIBUTE_MORE_UID": {
+      "title": "Již existuje jiný unikátní identifikátor",
+      "message": "Pro system: {{system}} byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
+      "title": "Již existuje jiný unikátní identifikátor",
+      "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
     }
   }
 }

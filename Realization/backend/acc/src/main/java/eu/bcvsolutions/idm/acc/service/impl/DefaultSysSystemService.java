@@ -538,7 +538,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		values.add(passwordColumn);
 		SysSystemFormValue allNative = new SysSystemFormValue(
 				savedFormDefinition.getMappedAttributeByName("allNative"));
-		allNative.setValue(true);
+		allNative.setValue(Boolean.TRUE);
 		values.add(allNative);
 		SysSystemFormValue jdbcDriver = new SysSystemFormValue(
 				savedFormDefinition.getMappedAttributeByName("jdbcDriver"));
@@ -550,7 +550,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		values.add(jdbcUrlTemplate);
 		SysSystemFormValue rethrowAllSQLExceptions = new SysSystemFormValue(
 				savedFormDefinition.getMappedAttributeByName("rethrowAllSQLExceptions"));
-		rethrowAllSQLExceptions.setValue(true);
+		rethrowAllSQLExceptions.setValue(Boolean.TRUE);
 		values.add(rethrowAllSQLExceptions);
 		SysSystemFormValue statusColumn = new SysSystemFormValue(
 				savedFormDefinition.getMappedAttributeByName("statusColumn"));

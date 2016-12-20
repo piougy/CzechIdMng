@@ -22,6 +22,7 @@ import org.springframework.hateoas.TemplateVariables;
 import org.springframework.hateoas.UriTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,13 +51,16 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 public class IdmQuickSearchDocController implements BaseController {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmQuickSearchDocController.class);
+	private static final String QUICK_SEARCH = "/search/quick";	
+	private static final String RESOURCE_NAME = "resourceName";
+	private final ApplicationContext context;
 	
 	@Autowired
-	private ApplicationContext context;
-	
-	private final String QUICK_SEARCH = "/search/quick";
-	
-	private final String RESOURCE_NAME = "resourceName";
+	public IdmQuickSearchDocController(ApplicationContext context) {
+		Assert.notNull(context);
+		//
+		this.context = context;
+	}
 	
 	/**
 	 * Returns quick search documentation
@@ -67,12 +71,12 @@ public class IdmQuickSearchDocController implements BaseController {
 	@RequestMapping(value = "/{" + RESOURCE_NAME + "}/search", method = RequestMethod.GET)
 	public ResponseEntity<?> quickSeachDocumentation(HttpServletRequest request) {
 		 @SuppressWarnings("rawtypes")
-		 Map<String, AbstractReadEntityController> controllers = context.getBeansOfType(AbstractReadEntityController.class);
+		Map<String, AbstractReadEntityController> controllers = context.getBeansOfType(AbstractReadEntityController.class);
 
-		 String resourceName = ((Map<?, ?>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).get(this.RESOURCE_NAME).toString();
+		 String resourceName = ((Map<?, ?>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).get(RESOURCE_NAME).toString();
 
-		 for (String key : controllers.keySet()) {
-			 Class<?> controller = AopProxyUtils.ultimateTargetClass(controllers.get(key));
+		 for (AbstractReadEntityController<?, ?> controllerProxy : controllers.values()) {
+			 Class<?> controller = AopProxyUtils.ultimateTargetClass(controllerProxy);
 			 String[] annotations = controller.getAnnotation(RequestMapping.class).value();
 
 			 
@@ -125,8 +129,8 @@ public class IdmQuickSearchDocController implements BaseController {
 		LOG.debug("Found [{}] read entity controllers", controllers.size());
 		
 		ResourceSupport links = new ResourceSupport();
-		for (String key : controllers.keySet()) {
-			 Class<?> controller = AopProxyUtils.ultimateTargetClass(controllers.get(key));
+		for (AbstractReadEntityController<?, ?> controllerProxy : controllers.values()) {
+			 Class<?> controller = AopProxyUtils.ultimateTargetClass(controllerProxy);
 			 String[] annotations = controller.getAnnotation(RequestMapping.class).value();
 			 
 			 if	(annotations.length > 0) {

@@ -190,8 +190,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected ResourceSupport toResource(E entity, PersistentEntityResourceAssembler assembler) {
-		if(getAssembler() != null) {
-			return getAssembler().toResource(entity);
+		ResourceAssemblerSupport<Object, ?> configuredAssembler = getAssembler();
+		if(configuredAssembler != null) {
+			return configuredAssembler.toResource(entity);
 		}
 		return assembler.toFullResource(entity);
 	}

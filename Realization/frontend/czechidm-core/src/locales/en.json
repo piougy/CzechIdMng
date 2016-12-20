@@ -1258,12 +1258,12 @@
       "header": "Audit",
       "title": "Audit",
       "title-entities": "Audit pro entity",
-      "modifier": "Změnu provedl",
+      "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
       "id": "ID",
       "profile": {
-        "userDetail": "Auditní záznám identity: {{name}} z {{date}}"
+        "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
       "filter": {
         "dateFrom": {
@@ -1469,7 +1469,7 @@
       "label": "Audit",
       "id": "Id revize",
       "modification": "Typ modifikace",
-      "modifier": "Změnu provedl",
+      "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
       "changedAttributes": "Změněné atributy",
       "type": "Typ entity"

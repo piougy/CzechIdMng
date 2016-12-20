@@ -139,7 +139,7 @@ public class DefaultSysSchemaAttributeHandlingService
 		if (entity.isUid()) {			
 			SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
 			filter.setEntityHandlingId(entity.getSystemEntityHandling().getId());
-			filter.setIsUid(true);
+			filter.setIsUid(Boolean.TRUE);
 			List<SysSchemaAttributeHandling> list = this.find(filter, null).getContent();
 			
 			if (list.size() > 0 && !list.get(0).getId().equals(entity.getId())) {

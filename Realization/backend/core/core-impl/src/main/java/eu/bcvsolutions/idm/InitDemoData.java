@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -93,7 +94,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 		//
 		// TODO: runAs
 		securityService.setAuthentication(
-				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
+				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
 		try {
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityService.getByName(InitApplicationData.ADMIN_USERNAME);

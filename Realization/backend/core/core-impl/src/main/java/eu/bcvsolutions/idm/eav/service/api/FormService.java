@@ -20,6 +20,10 @@ import eu.bcvsolutions.idm.eav.service.impl.AbstractFormValueService;
  * TODO: EAV entities dto and move to api
  * 
  * @see {@link ConfidentialStorage}
+ * @see {@link IdmFormDefinition}
+ * @see {@link IdmFormAttribute}
+ * @see {@link AbstractFormValue}
+ * @see {@link FormableEntity}
  * 
  * @author Radek Tomiška
  *
@@ -131,10 +135,10 @@ public interface FormService {
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName);
 	
 	/**
-	 * Returns form values as map, where key is attribute name
+	 * Returns form values as map, key is attribute name
 	 * 
 	 * @param values
-	 * @param <O> values owner
+	 * @param <E> values owner
 	 * @param <E> values entity
 	 * @return
 	 */
@@ -144,7 +148,7 @@ public interface FormService {
 	 * Returns FormValue values by persistent type as map, where key is attribute name
 	 * 
 	 * @see {@link PersistentType}
-	 * @param values
+	 * @param values form values
 	 * @return
 	 */
 	Map<String, List<Object>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values);
@@ -153,7 +157,7 @@ public interface FormService {
 	 * Returns FormValue values by persistent type - usable for single multi attribute values
 	 * 
 	 * @see {@link PersistentType}
-	 * @param values
+	 * @param values form values
 	 * @return
 	 */
 	List<Object> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values);
@@ -162,7 +166,7 @@ public interface FormService {
 	 * Returns single FormValue by persistent type - usable for single attribute value
 	 * 
 	 * @see {@link PersistentType}
-	 * @param values
+	 * @param values form values
 	 * @return
 	 * @throws IllegalArgumentException if attributte has multi values
 	 */
@@ -171,7 +175,7 @@ public interface FormService {
 	/**
 	 * Deletes form values by given owner
 	 * 
-	 * @param owner
+	 * @param owner values owner
 	 * @param <O> values owner
 	 * @return
 	 */
@@ -206,7 +210,7 @@ public interface FormService {
 	 * 
 	 * @param guardedValue
 	 * @param <O> values owner
-	 * @param <E> values entity
+	 * @param <E> value entity
 	 * @return
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue);

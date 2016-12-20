@@ -176,8 +176,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Override
 	public Serializable getConfidentialPersistentValue(E guardedValue) {
 		Assert.notNull(guardedValue);
-		Assert.notNull(guardedValue.getFormAttribute());
+		IdmFormAttribute attribute = guardedValue.getFormAttribute();
+		Assert.notNull(attribute);
 		//
-		return confidentialStorage.get(guardedValue, getConfidentialStorageKey(guardedValue.getFormAttribute()));
+		return confidentialStorage.get(guardedValue, getConfidentialStorageKey(attribute));
 	}
 }

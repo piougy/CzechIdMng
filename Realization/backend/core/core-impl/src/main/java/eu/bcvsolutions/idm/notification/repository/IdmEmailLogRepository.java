@@ -1,15 +1,12 @@
 package eu.bcvsolutions.idm.notification.repository;
 
-import java.util.Date;
 import java.util.UUID;
 
-import javax.persistence.TemporalType;
-
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -76,8 +73,8 @@ public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmail
 			@Param(value = "sender") String sender,
 			@Param(value = "recipient") String recipient,
 			@Param(value = "sent") Boolean sent,
-			@Param(value = "createdFrom") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdFrom,
-			@Param(value = "createdTill") @Temporal(TemporalType.TIMESTAMP) @DateTimeFormat(iso = ISO.DATE) Date createdTill,
+			@Param(value = "createdFrom") @DateTimeFormat(iso = ISO.DATE) DateTime createdFrom,
+			@Param(value = "createdTill") @DateTimeFormat(iso = ISO.DATE) DateTime createdTill,
 			Pageable pageable);
 	
 	@Override

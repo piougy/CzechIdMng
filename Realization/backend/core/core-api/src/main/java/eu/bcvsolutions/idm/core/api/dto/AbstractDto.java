@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
@@ -22,8 +22,8 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
 	private UUID id;
-	private Date created;
-	private Date modified;
+	private DateTime created;
+	private DateTime modified;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String creator;
 	private UUID creatorId;
@@ -71,22 +71,22 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 
 	@Override
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
 	@Override
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 	
 	@Override
-	public Date getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
 	@Override
-	public void setModified(Date modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 

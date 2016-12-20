@@ -346,7 +346,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			valueTransformed = attributeHandlingService.transformValueToResource(value, mappedAttribute,
 					entity);
 		}
-		IcfAttribute icfAttributeForCreate = createIcfAttribute(mappedAttribute, valueTransformed, entity);
+		IcfAttribute icfAttributeForCreate = createIcfAttribute(mappedAttribute, valueTransformed);
 		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
 		// Call icf modul for update single attribute
 		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
@@ -650,9 +650,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		SysSystemEntityHandling entityHandling = entityHandlingList.get(0);
-		List<SysSchemaAttributeHandling> attributes = attributeHandlingService.findByEntityHandling(entityHandling);
 
-		return attributes;
+		return attributeHandlingService.findByEntityHandling(entityHandling);
 	}
 
 	/**
@@ -691,8 +690,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				 */
 				IcfConnectorObject connectorObjectForCreate = initConnectorObject(objectByClassMapForCreate,
 						objectClassName);
-				createAttribute(uid, entity, connectorObjectForCreate, attributeHandling, schemaAttribute,
-						objectClassName);
+				createAttribute(uid, entity, connectorObjectForCreate, attributeHandling, schemaAttribute);
 
 			} else if (AccountOperationType.UPDATE == operationType && connectorObject != null) {
 				/**
@@ -803,10 +801,10 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectClassName
 	 */
 	private void createAttribute(String uid, AbstractEntity entity, IcfConnectorObject connectorObjectForCreate,
-			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute, String objectClassName) {
+			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute) {
 		if (schemaAttribute.isCreateable()) {
 			try {
-				Object idmValue = getAttributeValue(uid, entity, attributeHandling);
+				Object idmValue = getAttributeValue(entity, attributeHandling);
 				Object idmValueTransformed = null;
 				if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
 					// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
@@ -815,7 +813,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 					idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling,
 							entity);
 				}
-				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValueTransformed, entity);
+				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValueTransformed);
 				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
@@ -869,7 +867,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 */
 	private void updateAttributeValue(String uid, AbstractEntity entity,
 			Map<String, IcfConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
-			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes) {
+			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes) throws ProvisioningException {
 
 		Object icfValueTransformed = null;
 		if (attributeHandling.getSchemaAttribute().isMultivalued()) {
@@ -885,7 +883,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		try {
-			Object idmValue = getAttributeValue(uid, entity, attributeHandling);
+			Object idmValue = getAttributeValue(entity, attributeHandling);
 			Object idmValueTransformed = null;
 			if(!attributeHandling.isEntityAttribute() && !attributeHandling.isExtendedAttribute()){
 				// If is attribute handling resolve as constant, then we don't want do transformation again (was did in getAttributeValue)
@@ -897,7 +895,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 			if (!Objects.equals(idmValueTransformed, icfValueTransformed)) {
 				// values is not equals
-				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValueTransformed, entity);
+				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValueTransformed);
 				IcfConnectorObject connectorObjectForUpdate = initConnectorObject(objectByClassMapForUpdate,
 						objectClassName);
 				connectorObjectForUpdate.getAttributes().add(icfAttributeForUpdate);
@@ -922,7 +920,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	private Object getAttributeValue(String uid, AbstractEntity entity, MappingAttribute attributeHandling)
+	private Object getAttributeValue(AbstractEntity entity, MappingAttribute attributeHandling)
 			throws IntrospectionException, IllegalAccessException, InvocationTargetException {
 		if (attributeHandling.isExtendedAttribute()) {
 			// TODO: new method to form service to read concrete attribute definition
@@ -977,11 +975,9 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param attributeHandling
 	 * @param icfAttribute
 	 * @param idmValue
-	 * @param entity
 	 * @return
 	 */
-	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue,
-			AbstractEntity entity) {
+	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue) throws ProvisioningException {
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {

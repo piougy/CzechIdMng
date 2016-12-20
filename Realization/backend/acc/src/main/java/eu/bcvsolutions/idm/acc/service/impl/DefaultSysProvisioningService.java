@@ -801,7 +801,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectClassName
 	 */
 	private void createAttribute(String uid, AbstractEntity entity, IcfConnectorObject connectorObjectForCreate,
-			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute) throws ProvisioningException {
+			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute){
 		if (schemaAttribute.isCreateable()) {
 			try {
 				Object idmValue = getAttributeValue(entity, attributeHandling);
@@ -817,7 +817,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
+					| InvocationTargetException | ProvisioningException e) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
 						ImmutableMap.of("uid", uid, "property", attributeHandling.getIdmPropertyName()), e);
 			}
@@ -867,7 +867,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 */
 	private void updateAttributeValue(String uid, AbstractEntity entity,
 			Map<String, IcfConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
-			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes) throws ProvisioningException {
+			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes){
 
 		Object icfValueTransformed = null;
 		if (attributeHandling.getSchemaAttribute().isMultivalued()) {
@@ -977,7 +977,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param idmValue
 	 * @return
 	 */
-	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue) throws ProvisioningException {
+	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue){
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {
@@ -999,7 +999,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 						ImmutableMap.of("attribute", attributeHandling.getName(), "schemaAttributeType",
 								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
 			}
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException | ProvisioningException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
 					ImmutableMap.of("attribute", attributeHandling.getName(), "schemaAttributeType",
 							schemaAttribute.getClassType()),
@@ -1034,8 +1034,9 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	private Object getEntityValue(AbstractEntity entity, String propertyName)
-			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private Object getEntityValue(AbstractEntity entity, String propertyName) throws 
+	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
+			 {
 		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
 				.asList(Introspector.getBeanInfo(entity.getClass(), AbstractEntity.class).getPropertyDescriptors())
 				.stream().filter(propertyDescriptor -> {

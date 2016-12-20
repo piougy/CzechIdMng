@@ -173,6 +173,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	@Transactional
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public IcfConnectorConfiguration getConnectorConfiguration(SysSystem system) {
+		Assert.notNull(system);
+		
+		if(system.getConnectorKey() == null){
+			return null;
+		}
 		// load filled form values
 		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorKey());
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
@@ -308,8 +313,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 
 		// Persist generated schema to system
-		sysObjectClasses = (List<SysSchemaObjectClass>) objectClassService.saveAll(sysObjectClasses);
-		sysAttributes = (List<SysSchemaAttribute>) attributeService.saveAll(sysAttributes);
+		objectClassService.saveAll(sysObjectClasses);
+		attributeService.saveAll(sysAttributes);
 	}
 
 	private SysSchemaObjectClass convertIcfObjectClassInfo(IcfObjectClassInfo objectClass,

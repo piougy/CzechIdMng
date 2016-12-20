@@ -8,12 +8,15 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -31,7 +34,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
  * 
  * @author Radek Tomiška
  */
-@RestController
+@RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/modules")
 public class ModuleController {
 
@@ -53,6 +56,7 @@ public class ModuleController {
 	 * 
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
 	public List<ModuleDescriptorDto> getInstalledModules() {
@@ -70,6 +74,7 @@ public class ModuleController {
 	 * @param moduleId
 	 * @return
 	 */	
+	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
 	public ModuleDescriptorDto get(@PathVariable @NotNull String moduleId) {
@@ -88,6 +93,7 @@ public class ModuleController {
 	 * @param nativeRequest
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PUT)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
 	public ModuleDescriptorDto put(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
@@ -107,6 +113,7 @@ public class ModuleController {
 	 * @param nativeRequest
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/{moduleId}", method = RequestMethod.PATCH)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
 	public ModuleDescriptorDto patch(@PathVariable @NotNull String moduleId, HttpServletRequest nativeRequest) {	
@@ -119,7 +126,30 @@ public class ModuleController {
 		moduleService.setEnabled(moduleId, !md.isDisabled());		
 		return get(moduleId);	
 	}
-
+	
+	/**
+	 * Enable module (supports FE and BE  module)
+	 * 
+	 * @param moduleId
+	 */
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/{moduleId}/enable", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	public void enable(@PathVariable @NotNull String moduleId) {		
+		moduleService.setEnabled(moduleId, true);
+	}
+	
+	/**
+	 * Disable module (supports FE and BE  module)
+	 * 
+	 * @param moduleId
+	 */
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/{moduleId}/disable", method = RequestMethod.PATCH)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_WRITE + "')")
+	public void disable(@PathVariable @NotNull String moduleId) {		
+		moduleService.setEnabled(moduleId, false);
+	}
 	
 	/**
 	 * TODO: move to assembler + resource support + self link

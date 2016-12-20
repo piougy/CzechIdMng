@@ -14,17 +14,16 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.bcvsolutions.idm.core.AbstractIntegrationTest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Test for identity service find managers and role.
@@ -78,13 +77,13 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 	public void findGuarantee() {
 		IdmIdentity user = createAndSaveIdentity("test_find_managers_user");
 		
-		IdmIdentity manager1 = createAndSaveIdentity("test_find_managers_manager");
+		IdmIdentity quarantee1 = createAndSaveIdentity("test_find_managers_manager");
 		
-		IdmIdentity manager2 = createAndSaveIdentity("test_find_managers_manager2");
+		IdmIdentity quarantee2 = createAndSaveIdentity("test_find_managers_manager2");
 		
-		createIdentityContract(user, manager1, null);
+		createIdentityContract(user, quarantee1, null);
 		
-		createIdentityContract(user, manager2, null);
+		createIdentityContract(user, quarantee2, null);
 		
 		List<IdmIdentity> result = identityService.findAllManagers(user, null);
 		
@@ -92,38 +91,83 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 
 		String resutlString = identityService.findAllManagersAsString(user.getId());
 		
-		assertEquals(true, resutlString.contains(manager1.getUsername()));
-		assertEquals(true, resutlString.contains(manager2.getUsername()));
+		assertEquals(true, resutlString.contains(quarantee1.getUsername()));
+		assertEquals(true, resutlString.contains(quarantee2.getUsername()));
 	}
 	
 	@Test
 	public void findManagers() {
-		IdmIdentity user = createAndSaveIdentity("test_type_01");
-		IdmIdentity manager = createAndSaveIdentity("test_type_manager_01");
-		IdmIdentity manager2 = createAndSaveIdentity("test_type_manager_02");
-		IdmIdentity manager3 = createAndSaveIdentity("test_type_manager_03");
+		IdmIdentity user = createAndSaveIdentity("test_position_01");
+		IdmIdentity user2 = createAndSaveIdentity("test_position_02");
+		IdmIdentity user3 = createAndSaveIdentity("test_position_03");
+		IdmIdentity user4 = createAndSaveIdentity("test_position_04");
 		
-		IdmTreeType treeType = new IdmTreeType();
-		treeType.setCode("TEST_TYPE_CODE");
-		treeType.setName("TEST_TYPE_NAME");
-		treeTypeService.save(treeType);
+		IdmTreeType treeTypeFirst = new IdmTreeType();
+		treeTypeFirst.setCode("TEST_TYPE_CODE_FIRST");
+		treeTypeFirst.setName("TEST_TYPE_NAME_FIRST");
+		treeTypeService.save(treeTypeFirst);
 		
-		IdmTreeNode node = new IdmTreeNode();
-		node.setName("TEST_NODE_NAME");
-		node.setCode("TEST_NODE_CODE");
-		node.setTreeType(treeType);
-		treeNodeService.save(node);
+		IdmTreeType treeTypeSecond = new IdmTreeType();
+		treeTypeSecond.setCode("TEST_TYPE_CODE_SECOND");
+		treeTypeSecond.setName("TEST_TYPE_NAME_SECOND");
+		treeTypeService.save(treeTypeSecond);
 		
-		createIdentityContract(user, manager, node);
-		createIdentityContract(user, manager2, node);
-		createIdentityContract(user, manager3, node);
-		createIdentityContract(user, manager3, null);
+		// create root for second type
+		IdmTreeNode nodeRootSec = new IdmTreeNode();
+		nodeRootSec.setName("TEST_NODE_NAME_ROOT_SEC");
+		nodeRootSec.setCode("TEST_NODE_CODE_ROOT_SEC");
+		nodeRootSec.setTreeType(treeTypeSecond);
+		treeNodeService.save(nodeRootSec);
 		
-		List<IdmIdentity> managersList = identityService.findAllManagers(user, null);
-
-		assertEquals(3, managersList.size());
+		// create root for first type
+		IdmTreeNode nodeRoot = new IdmTreeNode();
+		nodeRoot.setName("TEST_NODE_NAME_ROOT");
+		nodeRoot.setCode("TEST_NODE_CODE_ROOT");
+		nodeRoot.setTreeType(treeTypeFirst);
+		treeNodeService.save(nodeRoot);
 		
-		// TODO: findAllmanagers by tree structure.
+		// create one for first type
+		IdmTreeNode nodeOne = new IdmTreeNode();
+		nodeOne.setName("TEST_NODE_NAME_ONE");
+		nodeOne.setCode("TEST_NODE_CODE_ONE");
+		nodeOne.setParent(nodeRoot);
+		nodeOne.setTreeType(treeTypeFirst);
+		treeNodeService.save(nodeOne);
+		
+		// create two for first type
+		IdmTreeNode nodeTwo = new IdmTreeNode();
+		nodeTwo.setName("TEST_NODE_NAME_TWO");
+		nodeTwo.setCode("TEST_NODE_CODE_TWO");
+		nodeTwo.setParent(nodeOne);
+		nodeTwo.setTreeType(treeTypeFirst);
+		treeNodeService.save(nodeTwo);
+		
+		createIdentityContract(user, null, nodeRoot);
+		createIdentityContract(user2, null, nodeOne);
+		createIdentityContract(user3, null, nodeOne);
+		createIdentityContract(user4, null, nodeTwo);
+		// createIdentityContract(user, manager3, null);
+		
+		List<IdmIdentity> managersList = identityService.findAllManagers(user3, treeTypeFirst);
+		assertEquals(1, managersList.size());
+		
+		IdmIdentity manager = managersList.get(0);
+		assertEquals(user.getId(), manager.getId());
+		
+		managersList = identityService.findAllManagers(user4, treeTypeFirst);
+		assertEquals(2, managersList.size());
+		
+		managersList = identityService.findAllManagers(user, treeTypeFirst);
+		assertEquals(1, managersList.size());
+		
+		createIdentityContract(user, null, nodeTwo);
+		managersList = identityService.findAllManagers(user, treeTypeFirst);
+		assertEquals(2, managersList.size());
+		
+		List<IdmIdentity> managersListSec = identityService.findAllManagers(user, treeTypeSecond);
+		
+		// user with superAdminRole
+		assertEquals(1, managersListSec.size());
 	}
 	
 	@Test
@@ -146,10 +190,10 @@ public class IdentityFindPositionsTest extends AbstractIntegrationTest{
 		}
 	}
 	
-	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity manager, IdmTreeNode node) {
+	private IdmIdentityContract createIdentityContract(IdmIdentity user, IdmIdentity quarantee, IdmTreeNode node) {
 		IdmIdentityContract position = new IdmIdentityContract();
 		position.setIdentity(user);
-		position.setGuarantee(manager);
+		position.setGuarantee(quarantee);
 		position.setWorkingPosition(node);
 		
 		return identityContractRepository.save(position);

@@ -13,7 +13,16 @@ class EnumSelectBox extends SelectBox {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     // nothing - just override parent behaviour
+  }
+
+  _initComponent() {
+    // initialize value
+  }
+
+  setValue(value) {
+    super.setValue(this.normalizeValue(value));
   }
 
   getOptions(input, callback) {
@@ -67,7 +76,13 @@ class EnumSelectBox extends SelectBox {
       item = _.merge({}, enumItem);
       let niceLabel;
       if (this.props.enum) {
-        niceLabel = this.props.enum.getNiceLabel(key);
+        if (enumItem.niceLabel) {
+          // enum item has nice label, then use this niceLabel
+          niceLabel = enumItem.niceLabel;
+        } else {
+          // niceLabel dont exist, then get new by key
+          niceLabel = this.props.enum.getNiceLabel(key);
+        }
       }
       const itemFullKey = niceLabel;
       _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey, value: key });
@@ -145,6 +160,12 @@ class EnumSelectBox extends SelectBox {
           }
         }
         return valueArray;
+      } else if (value instanceof Array && this.props.multiSelect === true && typeof value[0] === 'object') {
+        const valueArray = [];
+        for (const item of value) {
+          valueArray.push(this.itemRenderer(item, this._findKeyBySymbol(item)));
+        }
+        return valueArray;
       }
     }
     return value;
@@ -215,7 +236,7 @@ class EnumSelectBox extends SelectBox {
         ignoreAccents={false}
         multi={multiSelect}
         onValueClick={this.gotoContributor}
-        valueKey={SelectBox.ITEM_FULL_KEY}
+        valueKey={SelectBox.ITEM_VALUE}
         labelKey={fieldLabel}
         noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
         placeholder={this.getPlaceholder(placeholder)}

@@ -1,52 +1,62 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
-import eu.bcvsolutions.idm.core.model.dto.TreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.exception.TreeTypeException;
+import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 @Service
 public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<IdmTreeNode, TreeNodeFilter> implements IdmTreeNodeService {
 	
-	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
-	
-	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
-	
-	@Autowired
-	private DefaultBaseTreeService<IdmTreeNode> baseTreeSevice;
+	private final IdmTreeNodeRepository treeNodeRepository;
+	private final IdmIdentityContractRepository identityContractRepository;
+	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 
-	@Override
-	protected BaseRepository<IdmTreeNode, TreeNodeFilter> getRepository() {
-		return this.treeNodeRepository;
+	@Autowired
+	public DefaultIdmTreeNodeService(
+			IdmTreeNodeRepository treeNodeRepository,
+			IdmIdentityContractRepository identityContractRepository,
+			DefaultBaseTreeService<IdmTreeNode> baseTreeService) {
+		super(treeNodeRepository);
+		//
+		Assert.notNull(identityContractRepository);
+		Assert.notNull(baseTreeService);
+		//
+		this.treeNodeRepository = treeNodeRepository;
+		this.identityContractRepository = identityContractRepository;
+		this.baseTreeService = baseTreeService;
 	}
 	
 	@Override
-	public void delete(IdmTreeNode entity) {
-		List<IdmIdentityContract> listWorkingPosition = this.identityContractRepository.findAllByTreeNode(entity);
-		
-		if (!listWorkingPosition.isEmpty()) {
-			throw new TreeNodeException(CoreResultCode.TREE_NODE_CANNOT_DELETE,  ImmutableMap.of("node", entity.getName()));
+	public void delete(IdmTreeNode treeNode) {
+		Assert.notNull(treeNode);
+		//
+		Page<IdmTreeNode> nodes = treeNodeRepository.findChildren(null, treeNode.getId(), new PageRequest(0, 1));
+		if (nodes.getTotalElements() > 0) {
+			throw new TreeTypeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CHILDREN,  ImmutableMap.of("treeNode", treeNode.getName()));
+		}		
+		if (this.identityContractRepository.countByWorkingPosition(treeNode) > 0) {
+			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
 		
-		super.delete(entity);
+		super.delete(treeNode);
 	}
 	
 	@Override
@@ -57,18 +67,18 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findRoots(Long treeType, Pageable pageable) {
-		return this.treeNodeRepository.findRoots(treeType, pageable);
+	public Page<IdmTreeNode> findRoots(UUID treeTypeId, Pageable pageable) {
+		return this.treeNodeRepository.findChildren(treeTypeId, null, pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<IdmTreeNode> findChildrenByParent(Long parent, Pageable pageable) {
-		return this.treeNodeRepository.findChildrenByParent(parent, pageable);
+	public Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable) {
+		return this.treeNodeRepository.findChildren(null, parentId, pageable);
 	}
 	
 	private void validate(IdmTreeNode node) {		
-		if (this.baseTreeSevice.validateTreeNodeParents(node)){
+		if (this.baseTreeService.validateTreeNodeParents(node)){
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_BAD_PARENT,  "TreeNode ["+node.getName() +"] have bad parent.");
 		}
 		

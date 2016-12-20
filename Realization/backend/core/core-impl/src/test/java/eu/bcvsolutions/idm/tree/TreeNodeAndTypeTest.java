@@ -20,14 +20,15 @@ import org.springframework.security.core.Authentication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.core.AbstractRestTest;
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 public class TreeNodeAndTypeTest extends AbstractRestTest {
 	
@@ -105,7 +106,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treeNodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -166,7 +167,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treeNodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -203,7 +204,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		Exception ex = null;
 		// test save without privileges
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treeNodes")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -217,7 +218,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treeNodes").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -229,21 +230,21 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		assertNull(ex);
 		assertEquals(201, status);
 		
-		Page<IdmTreeNode> nodes = this.treeNodeRepository.findRoots(type.getId(), new PageRequest(0, 1));
+		Page<IdmTreeNode> nodes = this.treeNodeRepository.findChildren(type.getId(), null, new PageRequest(0, 1));
 		assertFalse(nodes.getContent().isEmpty());
 		IdmTreeNode node = nodes.getContent().get(0);
 		
 		// change treeType
 		body.put("id", node.getId().toString());
 		body.put("name", node.getName() + "_update");
-		body.put("treeType", "treeTypes/" + type2.getId().toString());
+		body.put("treeType", "tree-types/" + type2.getId().toString());
 		
 		jsonContent = toJson(body);
 		
 		status = 0;
 		ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/treeNodes/").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -268,6 +269,6 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities());
+		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities());
 	}
 }

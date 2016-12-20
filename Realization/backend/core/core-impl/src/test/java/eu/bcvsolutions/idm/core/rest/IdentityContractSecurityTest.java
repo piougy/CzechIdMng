@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +24,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.bcvsolutions.idm.core.AbstractRestTest;
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 /**
  * Test for get working positions for signed and unsigned user
@@ -58,7 +60,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		Exception ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/")).andReturn().getResponse().getStatus();
+			status = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identity-contracts")).andReturn().getResponse().getStatus();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -70,7 +72,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identityContracts/").with(authentication(getAuthentication()))).andReturn();
+			mvcResult = mockMvc.perform(get(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))).andReturn();
 		} catch (Exception e) {
 			ex = e;
 		}
@@ -102,7 +104,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/identityContracts/")
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH +  "/identity-contracts")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -118,7 +120,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/identityContracts").with(authentication(getAuthentication()))
+			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/identity-contracts").with(authentication(getAuthentication()))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonContent))
 						.andReturn()
@@ -141,7 +143,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		IdmIdentity user = identityRepository.findOneByUsername("kopr");
 		List<IdmIdentityContract> pages = identityContractRepository.findAllByIdentity(user, null);
 		
-		long positionId = 0;
+		Serializable positionId = null;
 		for	(IdmIdentityContract position : pages) {
 			positionId = position.getId();
 			break;
@@ -150,7 +152,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
 					.getResponse()
 					.getStatus();
@@ -165,7 +167,7 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 		ex = null;
 		status = 0;
 		try {
-			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identityContracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
+			status = mockMvc.perform(delete(BaseEntityController.BASE_PATH + "/identity-contracts/" + positionId).contentType(MediaType.APPLICATION_JSON)
 						.with(authentication(getAuthentication())))
 						.andReturn()
 						.getResponse()
@@ -181,6 +183,6 @@ public class IdentityContractSecurityTest extends AbstractRestTest {
 	}
 	
 	private Authentication getAuthentication() {
-		return new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities());
+		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities());
 	}
 }

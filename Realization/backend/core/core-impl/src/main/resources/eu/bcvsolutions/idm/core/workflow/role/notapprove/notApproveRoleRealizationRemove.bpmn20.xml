@@ -3,7 +3,7 @@
   <process id="notApproveRoleRealizationRemove" name="Realizace odebrání role (bez schvalování)" isExecutable="true">
     <documentation>Workflow pro realizaci odebrání existujícího přiřazení role identitě. Workflow provádí pouze samotnou realizaci, neprovádí schvalování.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <serviceTask id="servicetask1" name="Odebrání role identitě" activiti:expression="#{defaultIdmIdentityRoleService.delete(identityRoleIdentifier)}"></serviceTask>
+    <serviceTask id="servicetask1" name="Odebrání role identitě" activiti:expression="#{defaultIdmIdentityRoleService.deleteById(identityRoleIdentifier)}"></serviceTask>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="endevent2"></sequenceFlow>
     <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Realizace odebrání role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; (bez schvalování) pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>

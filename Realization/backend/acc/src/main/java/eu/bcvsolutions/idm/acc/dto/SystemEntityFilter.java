@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.acc.dto;
 
+import java.util.UUID;
+
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for entity on target system
@@ -11,17 +13,17 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
  */
 public class SystemEntityFilter implements BaseFilter {
 	
-	private Long systemId;
+	private UUID systemId;
 	
 	private String uid;
 	
 	private SystemEntityType entityType; 
 
-	public Long getSystemId() {
+	public UUID getSystemId() {
 		return systemId;
 	}
 
-	public void setSystemId(Long systemId) {
+	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
 

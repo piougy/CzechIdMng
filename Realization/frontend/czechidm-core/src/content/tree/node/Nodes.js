@@ -45,15 +45,15 @@ class Nodes extends Basic.AbstractContent {
     } else {
       const searchParameters = this.getTypeManager().getDefaultSearchParameters();
       this.context.store.dispatch(this.getTypeManager().fetchEntities(searchParameters, uiKey, (types) => {
-        const isNoType = types._embedded.treetypes.length === 0 ? true : false;
+        const isNoType = types._embedded.treeTypes.length === 0 ? true : false;
 
         if (!isNoType) {
-          this.props.history.push('/tree/nodes/', {type: types._embedded.treetypes[0].id});
+          this.props.history.push('/tree/nodes/', {type: types._embedded.treeTypes[0].id});
         }
 
         this.setState({
           showLoading: false,
-          type: types._embedded.treetypes[0],
+          type: types._embedded.treeTypes[0],
           isNoType
         });
       }));

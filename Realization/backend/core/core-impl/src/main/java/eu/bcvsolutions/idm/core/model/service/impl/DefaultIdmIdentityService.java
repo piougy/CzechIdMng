@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,50 +14,70 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
-import eu.bcvsolutions.idm.core.model.dto.IdentityFilter;
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 
+/**
+ * Operations with IdmIdentity
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Service
-public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
+public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
-	public static final String ADD_ROLE_TO_IDENTITY_WORKFLOW = "changeIdentityRoles";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
-	@Autowired
-	private IdmIdentityRepository identityRepository;
-
-	@Autowired
-	private WorkflowProcessInstanceService workflowProcessInstanceService;
+	private final IdmIdentityRepository identityRepository;
+	private final IdmRoleRepository roleRepository;
+	private final EntityEventManager entityEventProcessorService;
 	
 	@Autowired
-	private IdmRoleRepository roleRepository;
-
-	@Autowired
-	private SecurityService securityService;
-	
-	@Override
-	protected BaseRepository<IdmIdentity, IdentityFilter> getRepository() {
-		return identityRepository;
+	public DefaultIdmIdentityService(
+			IdmIdentityRepository identityRepository,
+			FormService formService,
+			IdmRoleRepository roleRepository,
+			EntityEventManager entityEventProcessorService) {
+		super(identityRepository, formService);
+		//
+		Assert.notNull(roleRepository);
+		Assert.notNull(entityEventProcessorService);
+		//
+		this.identityRepository = identityRepository;
+		this.roleRepository = roleRepository;
+		this.entityEventProcessorService = entityEventProcessorService;
 	}
-
-	/**
-	 * Start workflow for change permissions
-	 */
+	
 	@Override
-	public ProcessInstance changePermissions(IdmIdentity identity) {
-		return workflowProcessInstanceService.startProcess(ADD_ROLE_TO_IDENTITY_WORKFLOW,
-				IdmIdentity.class.getSimpleName(), identity.getUsername(), identity.getId(), null);
+	@Transactional
+	public IdmIdentity save(IdmIdentity identity) {
+		Assert.notNull(identity);
+		//
+		LOG.debug("Saving identity [{}]", identity.getUsername());
+		return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.SAVE, identity)).getContent();
+	}
+	
+	@Override
+	@Transactional
+	public void delete(IdmIdentity identity) {
+		Assert.notNull(identity);
+		//
+		LOG.debug("Deleting identity [{}]", identity.getUsername());
+		entityEventProcessorService.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 
 	@Override
@@ -72,6 +92,25 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		return this.getByUsername(username);
 	}
 	
+	/**
+	 * Changes given identity's password
+	 * 
+	 * @param identity
+	 * @param passwordChangeDto
+	 */
+	@Override
+	@Transactional
+	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
+		Assert.notNull(identity);
+		//
+		LOG.debug("Changing password for identity [{}]", identity.getUsername());
+		entityEventProcessorService.process(
+				new IdentityEvent(
+						IdentityEventType.PASSWORD, 
+						identity, 
+						ImmutableMap.of(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO, passwordChangeDto)));	
+	}
+	
 	@Override
 	public String getNiceLabel(IdmIdentity identity) {
 		if (identity == null) {
@@ -79,16 +118,16 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		}
 		StringBuilder sb = new StringBuilder();
 		if (identity.getTitleBefore() != null) {
-			sb.append(identity.getTitleBefore()).append(" ");
+			sb.append(identity.getTitleBefore()).append(' ');
 		}
 		if (identity.getFirstName() != null) {
-			sb.append(identity.getFirstName()).append(" ");
+			sb.append(identity.getFirstName()).append(' ');
 		}
 		if (identity.getLastName() != null) {
-			sb.append(identity.getLastName()).append(" ");
+			sb.append(identity.getLastName()).append(' ');
 		}
 		if (identity.getTitleAfter() != null) {
-			sb.append(identity.getTitleAfter()).append(" ");
+			sb.append(identity.getTitleAfter()).append(' ');
 		}
 		return sb.toString().trim();
 	}
@@ -101,7 +140,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllByRoleAsString(Long roleId) {
+	public String findAllByRoleAsString(UUID roleId) {
 		IdmRole role = roleRepository.findOne(roleId);
 		Assert.notNull(role, "Role is required. Role by id [" + roleId + "] not foud.");
 		
@@ -109,7 +148,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		StringBuilder sb = new StringBuilder();
 		for (IdmIdentity i : identities) {
 			sb.append(i.getUsername());
-			sb.append(",");
+			sb.append(',');
 		}
 		return sb.toString();
 	}
@@ -137,7 +176,7 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public String findAllManagersAsString(Long identityId) {
+	public String findAllManagersAsString(UUID identityId) {
 		IdmIdentity identity = this.get(identityId);
 		Assert.notNull(identity, "Identity is required. Identity by id [" + identityId + "] not found.");
 		
@@ -177,25 +216,6 @@ public class DefaultIdmIdentityService extends AbstractReadWriteEntityService<Id
 		}
 		// return all identities with admin role
 		return this.findAllByRole(this.getAdminRole());
-	}
-
-	/**
-	 * Changes given identity's password
-	 * 
-	 * TODO: propagate password change to other systems
-	 * 
-	 * @param identity
-	 * @param passwordChangeDto
-	 */
-	@Override
-	@Transactional
-	public void passwordChange(IdmIdentity identity, PasswordChangeDto passwordChangeDto) {
-		if (!securityService.isAdmin() && !StringUtils
-				.equals(new String(identity.getPassword()), new String(passwordChangeDto.getOldPassword()))) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-		}
-		identity.setPassword(passwordChangeDto.getNewPassword());
-		identityRepository.save(identity);
 	}
 	
 	/**

@@ -6,6 +6,7 @@ import Joi from 'joi';
 import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { AuthenticateService } from '../../services';
 import { IdentityManager } from '../../redux';
 
@@ -29,9 +30,7 @@ class Profile extends Basic.AbstractContent {
    // TODO: load data from redux store
    const { generatePassword } = this.state;
    this.transformData({
-     generatePassword,
-     password: '',
-     passwordAgain: ''
+     generatePassword
    });
    this.refs.username.focus();
    if (generatePassword) {
@@ -57,12 +56,11 @@ class Profile extends Basic.AbstractContent {
       return;
     }
     const formData = this.refs.form.getData();
-    if (formData.password !== formData.passwordAgain) {
-      this.addMessage({
-        key: 'form-error',
-        message: this.i18n('content.identity.profile.validation.passwordsNotMatch'),
-        level: 'warning'
-      });
+
+    // add data from child component to formData
+    formData.password = this.refs.passwords.getValue();
+
+    if (!this.refs.passwords.validate()) {
       return;
     }
 
@@ -126,14 +124,14 @@ class Profile extends Basic.AbstractContent {
   setNewPassword(password) {
     const formData = this.refs.form.getData();
     _.merge(formData, {
-      password,
-      passwordAgain: password,
       generatePassword: true
     });
     this.setState({
       detail: {
-        entity: formData
-      }
+        entity: formData,
+      },
+      password,
+      passwordAgain: password
     });
   }
 
@@ -186,23 +184,8 @@ class Profile extends Basic.AbstractContent {
     return canEditMap;
   }
 
-  _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate) {
-      this.refs[property].validate();
-      return result;
-    }
-    if (result.error) {
-      return result;
-    }
-    const opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value) {
-      return {error: {key: 'passwords_not_same'}};
-    }
-    return result;
-  }
-
   render() {
-    const { detail, showLoading, generatePassword, generatePasswordShowLoading } = this.state;
+    const { detail, showLoading, generatePassword, generatePasswordShowLoading, password, passwordAgain } = this.state;
 
     return (
       <Basic.Row>
@@ -232,21 +215,17 @@ class Profile extends Basic.AbstractContent {
                       max={255}/>
                   </div>
                   <div className="col-lg-5">
-                    <Basic.Checkbox ref="generatePassword" label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
-                    <Basic.TextField
+                    <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+
+                    <Advanced.PasswordField
+                      className="form-control"
+                      ref="passwords"
                       type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                      ref="password"
-                      label={this.i18n('entity.Identity.password')}
                       required={!generatePassword}
-                      readOnly={generatePassword || generatePasswordShowLoading}
-                      validate={this._validatePassword.bind(this, 'passwordAgain', true)}/>
-                    <Basic.TextField
-                      type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                      ref="passwordAgain"
-                      label={this.i18n('entity.Identity.passwordAgain')}
-                      required={!generatePassword}
-                      readOnly={generatePassword || generatePasswordShowLoading}
-                      validate={this._validatePassword.bind(this, 'password', false)}/>
+                      readOnly={generatePassword}
+                      newPassword={password}
+                      newPasswordAgain={passwordAgain}/>
+
                   </div>
                 </Basic.AbstractForm>
               </Basic.PanelBody>

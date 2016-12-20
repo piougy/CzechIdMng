@@ -24,11 +24,10 @@ We use Redmine issues to track bugs. Please ensure your description is clear and
 * Use JSDoc for documentation https://developers.google.com/closure/compiler/docs/js-for-compiler
 * Make tests (mocha, chai)
 * Při porovnání hodnot používat typové porovnání (`!==`, `===`)
-* DB tabulky jádra idm mají vždy prefix `idm_`
-* DB tabulky modulu mají vždy prefix dle modulu (e.g. `ca_`)
-* DB tabulky nazýváme v jednotmém čísle s podtržítky, vše malými písmeny (e.g. `wf_identity`)
+* Konvence [návrhu databáze](https://proj.bcvsolutions.eu/ngidm/doku.php?id=navrh:identifikatory)
 * Entity musí obsahovat validační annotace dle DB tabulky (jsr303)
 * Restové endpointy nazýváme vždy v množném čísle s pomlčkami (e.g. `wf-identities`)
+* objekty v jsonu pojmenováváme jako v javě - camelCase, "pomocné" atributy s podtržítkem na začátku (_links, _trimmed ...)
 * `constructor` metoda musí býti na začátku třídy
 * `componentDidMount` a další react metody by měly být v pořadí dle životního cyklu
 * `render` metoda musí býti na konci react komponenty

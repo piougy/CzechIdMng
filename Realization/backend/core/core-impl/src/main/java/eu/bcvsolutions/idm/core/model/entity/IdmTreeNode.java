@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -55,19 +57,23 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 
 	@Audited
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "parent_id", referencedColumnName = "id")
+	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode parent;
 
 	@NotNull
 	@Audited
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "tree_type_id", referencedColumnName = "id")
+	@JoinColumn(name = "tree_type_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeType treeType;
 
 	@JsonProperty(access = Access.READ_ONLY)
 	@Column(insertable = false, updatable = false)
 	@Formula("(select coalesce(count(1),0) from idm_tree_node e where e.parent_id = id)")
-	private Integer childrenCount;
+	private int childrenCount;
 
 	public String getName() {
 		return name;
@@ -111,11 +117,11 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 		return code;
 	}
 
-	public void setChildrenCount(Integer childrenCount) {
+	public void setChildrenCount(int childrenCount) {
 		this.childrenCount = childrenCount;
 	}
 
-	public Integer getChildrenCount() {
+	public int getChildrenCount() {
 		return childrenCount;
 	}
 }

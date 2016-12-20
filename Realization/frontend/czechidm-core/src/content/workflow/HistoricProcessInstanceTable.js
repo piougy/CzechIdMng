@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+import SearchParameters from '../../domain/SearchParameters';
 import {WorkflowProcessDefinitionManager} from '../../redux';
 
 
@@ -18,7 +19,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
       filterOpened: this.props.filterOpened,
       detail: {
         show: false,
-        entity: {}
+        entity: {},
+        forceSearchParameters: new SearchParameters()
       }
     };
   }
@@ -28,9 +30,25 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    this._initComponent(this.props);
   }
 
-  componentDidUpdate() {
+  /**
+   * In component will recive props compare forceSearchParameters. If are different
+   * call again _initComponent with nextProps.
+   */
+  componentWillReceiveProps(nextProps) {
+    const { forceSearchParameters } = nextProps;
+    if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
+      this._initComponent(nextProps);
+    }
+  }
+
+  _initComponent(props) {
+    this.setState({
+      forceSearchParameters: props.forceSearchParameters
+    });
+    this.refs.table.getWrappedInstance().reload();
   }
 
   useFilter(event) {
@@ -102,8 +120,8 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, workflowHistoricProcessInstanceManager, columns, forceSearchParameters } = this.props;
-    const { filterOpened } = this.state;
+    const { uiKey, workflowHistoricProcessInstanceManager, columns } = this.props;
+    const { filterOpened, forceSearchParameters } = this.state;
 
     return (
       <div>

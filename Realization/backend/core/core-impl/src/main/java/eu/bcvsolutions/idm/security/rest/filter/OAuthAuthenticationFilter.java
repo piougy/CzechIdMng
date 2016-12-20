@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.security.rest.filter;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,15 +9,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
@@ -50,9 +45,6 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 
 	@Value("${security.jwt.secretPhrase:idmSecret}")
 	private String secret;
-	
-	@Value("#{'${allowed-origins:http://localhost:3000}'.replaceAll(\"\\s*\",\"\").split(',')}")
-	private List<String> allowedOrigins;
 
 	@Autowired
 	private OAuthAuthenticationManager authenticationManager;
@@ -90,8 +82,7 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 				return;
 			}
 
-			Authentication newAuthentication = authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
-			SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+			authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
 		} catch (ResultCodeException ex) {			
 			sendErrorModel(httpRequest, httpResponse, ex.getError().getError(), ex);
 			return;
@@ -113,12 +104,9 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 	 * @param httpResponse
 	 * @param errorModel
 	 * @param ex
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private void sendErrorModel(HttpServletRequest httpRequest, HttpServletResponse httpResponse, ErrorModel errorModel, Exception ex) 
-			throws JsonGenerationException, JsonMappingException, IOException {
+	private void sendErrorModel(HttpServletRequest httpRequest, HttpServletResponse httpResponse, ErrorModel errorModel, Exception ex) throws IOException {
 		if (errorModel.getStatus().is5xxServerError()) {
 			log.error("[" + errorModel.getId() + "] ", ex);
 		} else {

@@ -9,29 +9,27 @@ class TextArea extends AbstractFormComponent {
 
   constructor(props) {
     super(props);
-    this._setMinAndMaxValidation();
   }
 
-  _setMinAndMaxValidation() {
+  getValidationDefinition(required) {
     const { min, max } = this.props;
-    // minimal one must be set or nothing..
-    if (min || max) {
-      let validation = Joi.string();
-      if (min && max) {
-        validation = validation.concat(Joi.string().min(min).max(max));
-      } else if (min) {
-        validation = validation.concat(Joi.string().min(min));
-      } else if (max) {
-        if (!this.props.required) {
-          // if set only max is necessary to set allow null and empty string
-          validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
-        } else {
-          // if set prop required it must not be set allow null or empty string
-          validation = validation.concat(Joi.string().max(max));
-        }
+    let validation = super.getValidationDefinition(min ? true : required);
+
+    if (min && max) {
+      validation = validation.concat(Joi.string().min(min).max(max).disallow(null).disallow(''));
+    } else if (min) {
+      validation = validation.concat(Joi.string().min(min));
+    } else if (max) {
+      if (!required) {
+        // if set only max is necessary to set allow null and empty string
+        validation = validation.concat(Joi.string().max(max).allow(null).allow(''));
+      } else {
+        // if set prop required it must not be set allow null or empty string
+        validation = validation.concat(Joi.string().max(max));
       }
-      this.state = { validation };
     }
+
+    return validation;
   }
 
   getRequiredValidationSchema() {
@@ -46,12 +44,12 @@ class TextArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
+    const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
     let showAsterix = false;
-    if (required && !this.state.value) {
+    if (required && !feedback) {
       showAsterix = true;
     }
     const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
@@ -90,6 +88,11 @@ class TextArea extends AbstractFormComponent {
               }
             </span>
           </Tooltip>
+          {
+            !helpBlock
+            ||
+            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+          }
         </div>
       </div>
     );

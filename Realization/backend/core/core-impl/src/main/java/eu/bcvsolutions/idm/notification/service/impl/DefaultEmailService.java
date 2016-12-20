@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
-import eu.bcvsolutions.idm.notification.service.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
 
 @Component("emailService")
 public class DefaultEmailService extends AbstractNotificationService implements EmailService {
@@ -85,7 +86,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sent
 	 */
 	@Override
-	public void setEmailSent(Long emailLogId, Date sent) {
+	public void setEmailSent(UUID emailLogId, Date sent) {
 		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
@@ -101,7 +102,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sentLog
 	 */
 	@Override
-	public void setEmailSentLog(Long emailLogId, String sentLog) {
+	public void setEmailSentLog(UUID emailLogId, String sentLog) {
 		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//

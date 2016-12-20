@@ -9,6 +9,8 @@ import DateValue from './DateValue/DateValue';
 import Tree from './Tree/Tree';
 import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
+import EavForm from './Form/EavForm';
+import PasswordField from './PasswordField/PasswordField';
 
 const Components = {
   Table,
@@ -23,7 +25,9 @@ const Components = {
   DateValue,
   ModalProgressBar,
   Tree,
-  DetailButton
+  DetailButton,
+  EavForm,
+  PasswordField
 };
 
 Components.version = '0.0.1';

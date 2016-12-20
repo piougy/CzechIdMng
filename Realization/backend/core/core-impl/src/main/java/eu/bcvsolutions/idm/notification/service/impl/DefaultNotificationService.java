@@ -10,12 +10,12 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
 @Component("notificationService")
 public class DefaultNotificationService extends AbstractNotificationService implements NotificationLogService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractNotificationService.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultNotificationService.class);
 	
 	@Autowired
 	private IdmNotificationLogRepository idmNotificationRepository;

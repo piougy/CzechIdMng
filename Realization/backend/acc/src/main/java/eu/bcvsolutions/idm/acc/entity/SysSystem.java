@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
@@ -11,15 +12,15 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 
 /**
  * Target system setting - is used for accont management and provisioning
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_system", indexes = {
 		@Index(name = "ux_system_name", columnList = "name", unique = true) })
-public class SysSystem extends AbstractEntity {
+public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
 	
@@ -58,12 +59,17 @@ public class SysSystem extends AbstractEntity {
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "system")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<SysRoleSystem> roleSystems; // only for auditing
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<SysRoleSystem> roleSystems; // only for auditing - is not used (without getter and setter)
+	
+	@Audited
+	@Embedded
+	private SysConnectorKey connectorKey;
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -94,5 +100,18 @@ public class SysSystem extends AbstractEntity {
 	
 	public boolean isVirtual() {
 		return virtual;
+	}
+	
+	/**
+	 * Configured connector
+	 * 
+	 * @return
+	 */
+	public SysConnectorKey getConnectorKey() {
+		return connectorKey;
+	}
+	
+	public void setConnectorKey(SysConnectorKey connectorKey) {
+		this.connectorKey = connectorKey;
 	}
 }

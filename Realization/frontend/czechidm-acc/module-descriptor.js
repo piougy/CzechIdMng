@@ -2,10 +2,12 @@ module.exports = {
   'id': 'acc',
   'npmName': 'czechidm-acc',
   'backendId': 'acc',
+  'disableable': true,
   'name': 'Account managment',
   'description': 'Module for account managment',
   // 'mainStyleFile': 'src/css/main.less',
   'mainRouteFile': 'routes.js',
+  'mainComponentDescriptorFile': 'component-descriptor.js',
   'mainLocalePath': 'src/locales/',
   'navigation': {
     'items': [
@@ -29,6 +31,14 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
+            'id': 'system-connector',
+            'type': 'TAB',
+            'labelKey': 'acc:content.system.connector.title',
+            'order': 2,
+            'path': '/system/:entityId/connector',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
             'id': 'system-accounts',
             'type': 'TAB',
             'labelKey': 'acc:content.system.accounts.title',
@@ -41,8 +51,26 @@ module.exports = {
             'id': 'system-entities',
             'type': 'TAB',
             'labelKey': 'acc:content.system.entities.title',
-            'order': 20,
+            'order': 30,
             'path': '/system/:entityId/entities',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-object-classes',
+            'type': 'TAB',
+            'icon': 'fa:object-group',
+            'labelKey': 'acc:content.system.systemObjectClasses.title',
+            'order': 40,
+            'path': '/system/:entityId/object-classes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-entities-handling',
+            'type': 'TAB',
+            'icon': 'list-alt',
+            'labelKey': 'acc:content.system.systemEntitiesHandling.title',
+            'order': 50,
+            'path': '/system/:entityId/entities-handling',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]

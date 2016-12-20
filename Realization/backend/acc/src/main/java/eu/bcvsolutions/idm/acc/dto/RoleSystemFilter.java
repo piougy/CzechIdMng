@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import java.util.UUID;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for role system mapping
@@ -10,25 +12,24 @@ import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
  */
 public class RoleSystemFilter implements BaseFilter {
 	
-	private Long roleId;
+	private UUID roleId;
 	
-	private Long systemId;
+	private UUID systemId;
 
-	public Long getRoleId() {
+	public UUID getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Long roleId) {
+	public void setRoleId(UUID roleId) {
 		this.roleId = roleId;
 	}
 
-	public Long getSystemId() {
+	public UUID getSystemId() {
 		return systemId;
 	}
 
-	public void setSystemId(Long systemId) {
+	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
-
 	
 }

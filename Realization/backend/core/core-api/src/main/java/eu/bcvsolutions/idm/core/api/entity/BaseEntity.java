@@ -15,12 +15,12 @@ public interface BaseEntity extends Serializable {
 	 *
 	 * @return
 	 */
-	Long getId();
+	Serializable getId();
 	
 	/**
 	 * Set indentifier
 	 *
 	 * @param id
 	 */
-	void setId(Long id);
+	void setId(Serializable id);
 }

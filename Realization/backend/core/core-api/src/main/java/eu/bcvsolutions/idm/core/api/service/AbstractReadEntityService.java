@@ -1,14 +1,20 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.UUID;
+
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
  * Provide additional methods to retrieve entities using the pagination and
@@ -22,10 +28,15 @@ import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
 public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;
+	private final AbstractEntityRepository<E, F> repository;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractReadEntityService() {
+	public AbstractReadEntityService(AbstractEntityRepository<E, F> repository) {
 		entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityService.class);
+		//
+		Assert.notNull(repository, MessageFormat.format("Repository for class [{0}] is required!", entityClass));
+		//
+		this.repository = repository;
 	}
 	
 	/**
@@ -33,7 +44,9 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	 * 
 	 * @return
 	 */
-	protected abstract BaseRepository<E, F> getRepository();
+	protected AbstractEntityRepository<E, F> getRepository() {
+		return repository;
+	}
 
 	/**
 	 * Returns {@link BaseEntity} type class, which is controlled by this service
@@ -45,10 +58,23 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 		return entityClass;
 	}
 
+	/**
+	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.
+	 */
 	@Override
 	@Transactional(readOnly = true)
-	public E get(Long id) {
-		return getRepository().findOne(id);
+	public E get(Serializable id) {
+		if (AbstractEntity.class.isAssignableFrom(getEntityClass()) && (id instanceof String)) {
+			// workflow / rest usage with string uuid variant
+			// EL does not recognize two methods with the same name and different argument type
+			try {
+				return getRepository().findOne(UUID.fromString((String)id));
+			} catch(IllegalArgumentException ex) {
+				// simply not found
+				return null;
+			}
+		}
+		return getRepository().findOne((UUID)id);
 	}
 
 	@Override

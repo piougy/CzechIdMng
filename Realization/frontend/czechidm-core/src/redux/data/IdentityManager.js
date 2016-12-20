@@ -3,6 +3,7 @@ import EntityManager from './EntityManager';
 import SecurityManager from '../security/SecurityManager';
 import { IdentityService } from '../../services';
 import DataManager from './DataManager';
+import FormInstance from '../../domain/FormInstance';
 
 /**
  * Manager for identity fetching
@@ -25,13 +26,6 @@ export default class IdentityManager extends EntityManager {
 
   getCollectionType() {
     return 'identities';
-  }
-
-  /**
-   * Return true, if given identity is exterine
-   */
-  isExterne(identity) {
-    return this.getService().isExterne(identity);
   }
 
   getFullName(identity) {
@@ -81,7 +75,8 @@ export default class IdentityManager extends EntityManager {
         }).then(json => {
           dispatch(this.updateBulkAction());
           successUsernames.push(this.getEntity(getState(), username).username);
-          // new entity to redux store
+          // new entity to redux trimmed store
+          json._trimmed = true;
           dispatch(this.receiveEntity(username, json));
         }).catch(error => {
           dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`content.identities.action.${bulkActionName}.error`, { username }) }, error));
@@ -121,4 +116,68 @@ export default class IdentityManager extends EntityManager {
         });
     };
   }
+
+  /**
+   * Load form instance (definition + values) by given identity
+   *
+   * @param  {string} id identity identifier
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  fetchFormInstance(id, uiKey, cb = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+
+      const formDefinitionPromise = this.getService().getFormDefinition(id);
+      const formValuesPromise = this.getService().getFormValues(id);
+
+      Promise.all([formDefinitionPromise, formValuesPromise])
+        .then((jsons) => {
+          const formDefinition = jsons[0];
+          const formValues = jsons[1]._embedded.idmIdentityFormValues;
+
+          const formInstance = new FormInstance(formDefinition, formValues);
+
+          dispatch(this.dataManager.receiveData(uiKey, formInstance));
+          if (cb) {
+            cb(formInstance);
+          }
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.receiveError(null, uiKey, error, cb));
+        });
+    };
+  }
+
+  /**
+   * Saves form values
+   *
+   * @param  {string} id identity identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @param {string} uiKey
+   * @param {func} cb callback
+   * @returns {action}
+   */
+  saveFormValues(id, values, uiKey, cb = null) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().saveFormValues(id, values)
+      .then(() => {
+        dispatch(this.fetchFormInstance(id, uiKey, cb));
+      })
+      .catch(error => {
+        dispatch(this.receiveError(null, uiKey, error, cb));
+      });
+    };
+  }
+
+  static canChangePassword(userContext, entityId, passwordChangeType) {
+    return (passwordChangeType && passwordChangeType !== IdentityManager.PASSWORD_DISABLED && entityId === userContext.username) || SecurityManager.isAdmin(userContext);
+  }
 }
+
+IdentityManager.PASSWORD_DISABLED = 'DISABLED';
+IdentityManager.PASSWORD_ALL_ONLY = 'ALL_ONLY';
+IdentityManager.PASSWORD_CUSTOM = 'CUSTOM';

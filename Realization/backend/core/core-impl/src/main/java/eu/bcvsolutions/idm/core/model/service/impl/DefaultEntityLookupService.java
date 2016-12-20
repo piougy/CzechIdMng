@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
- * Support for loading {@link BaseEntity} by identifier
+ * Provide entity services through whole application. 
+ * Support for loading {@link BaseEntity} by identifier.
  * 
  * @author Radek Tomiška
  *
@@ -25,8 +26,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 @Service
 public class DefaultEntityLookupService implements EntityLookupService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
-	private PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
+	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<ReadEntityService<?, ?>, Class<?>> entityServices;
 	
 	@Autowired
@@ -49,12 +50,28 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		this.entityLookups = OrderAwarePluginRegistry.create(entityLookupsWithDefault);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
 		return (ReadEntityService<E, ?>)entityServices.getPluginFor(entityClass);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <E extends BaseEntity, S extends ReadEntityService<E, ?>> S getEntityService(Class<E> entityClass, Class<S> entityServiceClass) {
+		return (S)entityServices.getPluginFor(entityClass);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> EntityLookup<E> getEntityLookup(Class<E> entityClass) {
 		EntityLookup<E> lookup = (EntityLookup<E>)entityLookups.getPluginFor(entityClass);
@@ -69,12 +86,15 @@ public class DefaultEntityLookupService implements EntityLookupService {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> E lookup(Class<E> entityClass, Serializable entityId) {
 		EntityLookup<E> lookup = getEntityLookup(entityClass);
 		if (lookup == null) {
-			log.warn("Lookup for type [{}] does not found. Entity class is not loadable", entityClass);
+			LOG.warn("Lookup for type [{}] does not found. Entity class is not loadable", entityClass);
 			return null;
 		}
 		return (E)lookup.lookupEntity(entityId);

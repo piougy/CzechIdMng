@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,8 +11,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 
@@ -21,7 +23,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
  *
  */
 @RepositoryRestResource(exported = false)
-public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, EmptyFilter> {
+public interface IdmConsoleLogRepository extends AbstractEntityRepository<IdmConsoleLog, EmptyFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmConsoleLog e")
@@ -41,7 +43,7 @@ public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, E
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmConsoleLog findOne(@Param("id") Long id);
+	IdmConsoleLog findOne(@Param("id") UUID id);
 	
 	@Override
 	@RestResource(exported = false)
@@ -49,7 +51,7 @@ public interface IdmConsoleLogRepository extends BaseRepository<IdmConsoleLog, E
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import classNames from 'classnames';
+
 //
 import Footer from './Footer';
 import { Basic, Advanced, Managers, LayoutActions } from 'czechidm-core';
@@ -46,8 +48,9 @@ export class App extends Basic.AbstractContent {
     if (this.refs.form) { // when modal is closed, form is not defined
       this.refs.form.setData({
         username: userContext.username,
-        password: this.refs.password.getValue() // prevent filled password
+        password: this.refs.password.getValue() // preserve filled password
       });
+      this.refs.password.focus();
     }
 
     // onEnter makes this redirection now
@@ -67,7 +70,7 @@ export class App extends Basic.AbstractContent {
     }
   }
 
-  handleSubmit(event) {
+  login(event) {
     if (event) {
       event.preventDefault();
     }
@@ -79,9 +82,22 @@ export class App extends Basic.AbstractContent {
     this.context.store.dispatch(this.securityManager.login(formData.username, formData.password));
   }
 
+  logout(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.store.dispatch(this.securityManager.logout(() => {
+      this.context.router.replace('/login');
+    }));
+  }
+
   render() {
-    const { location, userContext, bulk, appReady } = this.props;
+    const { location, userContext, bulk, appReady, navigationCollapsed } = this.props;
     const titleTemplate = '%s | ' + this.i18n('app.name');
+    const classnames = classNames(
+      { 'with-sidebar': !userContext.isExpired && Managers.SecurityManager.isAuthenticated(userContext) },
+      { 'collapsed': navigationCollapsed }
+    );
     //
     return (
       <div id="content-wrapper">
@@ -93,12 +109,17 @@ export class App extends Basic.AbstractContent {
           :
           <div>
             <Helmet title={this.i18n('navigation.menu.home')} titleTemplate={titleTemplate}/>
-            <Advanced.Navigation />
-            <div id="content-container" className={Managers.SecurityManager.isAuthenticated(userContext) ? 'with-sidebar' : ''}>
-              {this.props.children}
+            <Advanced.Navigation/>
+            <div id="content-container" className={classnames}>
+              {
+                userContext.isExpired
+                ||
+                this.props.children
+              }
+
               {
                 /* TODO: move to redux and hide it, when is needed */
-                location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
+                !userContext.isExpired && location.pathname !== '/login' && location.pathname !== '/password/reset' && location.pathname !== '/password/change'
                 ?
                 <Footer />
                 :
@@ -112,7 +133,7 @@ export class App extends Basic.AbstractContent {
                 counter={bulk.counter}/>
 
               <Basic.Modal dialogClassName="login-container" show={userContext.isExpired}>
-                <form onSubmit={this.handleSubmit.bind(this)}>
+                <form onSubmit={this.login.bind(this)}>
                   <Basic.Modal.Header text={this.i18n('error.LOG_IN.title')} />
                   <Basic.Modal.Body>
                     <Basic.Loading showLoading={userContext.showLoading}>
@@ -141,7 +162,7 @@ export class App extends Basic.AbstractContent {
                   <Basic.Modal.Footer>
                     <Basic.Button
                       level="link"
-                      onClick={() => this.context.router.push('/logout')}
+                      onClick={this.logout.bind(this)}
                       showLoading={userContext.showLoading}
                       title={this.i18n('content.login.button.logout.title')}
                       titlePlacement="bottom">
@@ -170,13 +191,15 @@ App.propTypes = {
    * Globally bulk action
    */
   bulk: PropTypes.object,
-  appReady: PropTypes.bool
+  appReady: PropTypes.bool,
+  navigationCollapsed: PropTypes.bool
 };
 
 App.defaultProps = {
   userContext: null,
   bulk: { action: {} },
-  appReady: false
+  appReady: false,
+  navigationCollapsed: false
 };
 
 App.childContextTypes = {
@@ -188,7 +211,8 @@ function select(state) {
   return {
     userContext: state.security.userContext,
     bulk: state.data.bulk,
-    appReady: state.layout.get('appReady')
+    appReady: state.layout.get('appReady'),
+    navigationCollapsed: state.layout.get('navigationCollapsed')
   };
 }
 

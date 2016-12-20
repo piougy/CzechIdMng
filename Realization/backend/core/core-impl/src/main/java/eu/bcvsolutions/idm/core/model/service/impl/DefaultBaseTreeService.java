@@ -13,12 +13,12 @@ public class DefaultBaseTreeService<E extends BaseTreeEntity<E>> implements Base
 
 	@Override
 	public boolean validateTreeNodeParents(BaseTreeEntity<E> treeNode) {
-		// TODO: future implementation of all tree was by right
-		// TODO: left connection. This is temporary solutions
+		// TODO: future implementation of all tree was by right left connection.
+		// This is temporary solutions
 		BaseTreeEntity<E> tmp = treeNode;
-		List<BaseTreeEntity<E>> listIds = new ArrayList<BaseTreeEntity<E>>(); 
+		List<BaseTreeEntity<E>> listIds = new ArrayList<BaseTreeEntity<E>>();
 		while (tmp.getParent() != null) {
-			if	(listIds.contains(tmp)) {
+			if (listIds.contains(tmp)) {
 				return true;
 			}
 			listIds.add(tmp);
@@ -26,7 +26,4 @@ public class DefaultBaseTreeService<E extends BaseTreeEntity<E>> implements Base
 		}
 		return false;
 	}
-
-
-
 }

@@ -37,7 +37,7 @@ module.exports = {
         },
         {
           path: 'password',
-          component: require('./src/content/identity/PasswordChange')
+          component: require('./src/content/identity/PasswordChangeRoute')
         },
         {
           path: 'roles',
@@ -55,6 +55,10 @@ module.exports = {
         {
           path: 'subordinates',
           component: require('./src/content/identity/IdentitySubordinates')
+        },
+        {
+          path: 'eav',
+          component: require('./src/content/identity/IdentityEav')
         }
       ]
     },
@@ -216,6 +220,11 @@ module.exports = {
           path: 'emails/:entityId',
           component: require('./src/content/audit/email/EmailContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'entities',
+          component: require('./src/content/audit/AuditContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         },
       ]
     },

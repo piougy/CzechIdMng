@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.TemporalType;
 
@@ -16,8 +17,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 	path = "emails", //
 	itemResourceRel = "email"
 )
-public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, EmptyFilter> {
+public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmailLog, EmptyFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmEmailLog e")
@@ -93,7 +94,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmEmailLog findOne(@Param("id") Long id);
+	IdmEmailLog findOne(@Param("id") UUID id);
 	
 	/**
 	 * Returns email log by given id - for internal purpose.
@@ -105,7 +106,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	@Query(value = "select e from #{#entityName} e" +
 	        " where "
 	        + "e.id = :id")
-	IdmEmailLog get(@Param("id") Long id);
+	IdmEmailLog get(@Param("id") UUID id);
 	
 	@Override
 	@RestResource(exported = false)
@@ -113,7 +114,7 @@ public interface IdmEmailLogRepository extends BaseRepository<IdmEmailLog, Empty
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

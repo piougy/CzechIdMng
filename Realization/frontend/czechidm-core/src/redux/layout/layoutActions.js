@@ -24,6 +24,7 @@ export const MODULES_INIT = 'MODULES_INIT';
 export const MODULES_READY = 'MODULES_READY';
 export const CONFIGURATION_INIT = 'CONFIGURATION_INIT';
 export const CONFIGURATION_READY = 'CONFIGURATION_READY';
+export const COLLAPSE_NAVIGATION = 'COLLAPSE_NAVIGATION';
 
 /**
  * Select navigation items
@@ -37,13 +38,26 @@ export function selectNavigationItems(selectedNavigationItems) {
   };
 }
 /**
- * Select navigation item bz id
- * @return {[type]} [description]
+ * Select navigation item by id
+ * @return {action}
  */
 export function selectNavigationItem(selectedNavigationItemId) {
   return {
     type: SELECT_NAVIGATION_ITEM,
     selectedNavigationItemId
+  };
+}
+
+/**
+ * Collapse navigation
+ *
+ * @param  {bool} collapse
+ * @return {action}
+ */
+export function collapseNavigation(collapsed = false) {
+  return {
+    type: COLLAPSE_NAVIGATION,
+    collapsed
   };
 }
 
@@ -72,10 +86,6 @@ export function backendConfigurationInit() {
     const configurationManager = new ConfigurationManager();
     dispatch(configurationManager.fetchPublicConfigurations((data, error) => {
       if (!error) {
-        dispatch({
-          type: CONFIGURATION_READY,
-          ready: true
-        });
         // disable modules by configuration
         ConfigLoader.getModuleDescriptors().forEach(moduleDescriptor => {
           if (moduleDescriptor.backendId) { // FE module depends on be module
@@ -85,6 +95,12 @@ export function backendConfigurationInit() {
             const isEnabled = ConfigurationManager.isModuleEnabled(getState(), moduleDescriptor.id);
             ConfigLoader.enable(moduleDescriptor.id, isEnabled === null || isEnabled);
           }
+        });
+        ComponentLoader.reloadComponents();
+        //
+        dispatch({
+          type: CONFIGURATION_READY,
+          ready: true
         });
         dispatch(navigationInit());
       } else {

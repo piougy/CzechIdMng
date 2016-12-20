@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class JsonPatchHandler {
 
 	private final ObjectMapper mapper;
-	private final ObjectMapper sourceMapper;
 	private final DomainObjectReader reader;
 
 	/**
@@ -45,8 +44,8 @@ public class JsonPatchHandler {
 		this.mapper = mapper;
 		this.reader = reader;
 
-		this.sourceMapper = mapper.copy();
-		this.sourceMapper.setSerializationInclusion(Include.NON_NULL);
+		ObjectMapper sourceMapper = mapper.copy();
+		sourceMapper.setSerializationInclusion(Include.NON_NULL);
 	}
 
 	/**

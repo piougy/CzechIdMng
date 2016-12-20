@@ -1,19 +1,18 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -21,10 +20,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.eav.entity.FormableEntity;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 
 /**
  * Identity
@@ -35,20 +38,20 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "idm_identity", indexes = {
 		@Index(name = "ux_idm_identity_username", columnList = "username", unique = true) })
-public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
+public class IdmIdentity extends AbstractEntity implements IdentifiableByName, FormableEntity {
 
 	private static final long serialVersionUID = -3387957881104260630L;
 	//
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "username", length = DefaultFieldLengths.NAME, nullable = false)
 	private String username;
 
+	@Transient // passwords are saved to confidental storage
 	@JsonProperty(access = Access.WRITE_ONLY)
-	@Size(max = DefaultFieldLengths.PASSWORD)
-	@Column(name = "password", length = DefaultFieldLengths.PASSWORD)
-	private byte[] password;
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString password;
 
 	@Audited
 	@NotNull
@@ -95,17 +98,24 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 	@Column(name = "description")
 	private String description;
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<IdmIdentityRole> roles;
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
 	
-	@Audited
 	@JsonIgnore
 	@OneToMany(mappedBy = "identity")
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	private List<IdmIdentityContract> contracts;
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private List<IdmIdentityContract> contracts; // only for hibernate mappnig- we dont want lazy lists
+	
+	public IdmIdentity() {
+	}
+	
+	public IdmIdentity(UUID id) {
+		super(id);
+	}
 
 	public String getUsername() {
 		return username;
@@ -121,11 +131,11 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 		this.username = username;
 	}
 
-	public byte[] getPassword() {
+	public GuardedString getPassword() {
 		return password;
 	}
 
-	public void setPassword(byte[] password) {
+	public void setPassword(GuardedString password) {
 		this.password = password;
 	}
 
@@ -191,24 +201,5 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public List<IdmIdentityRole> getRoles() {
-		if (roles == null) {
-			roles = new ArrayList<>();
-		}
-		return roles;
-	}
-
-	public void setRoles(List<IdmIdentityRole> roles) {
-		this.roles = roles;
-	}
-	
-	public List<IdmIdentityContract> getContracts() {
-		return contracts;
-	}
-	
-	public void setContracts(List<IdmIdentityContract> contracts) {
-		this.contracts = contracts;
 	}
 }

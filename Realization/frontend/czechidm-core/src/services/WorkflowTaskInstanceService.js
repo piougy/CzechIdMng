@@ -7,7 +7,7 @@ import RestApiService from './RestApiService';
 class WorkflowTaskInstanceService extends AbstractService {
 
   getApiPath() {
-    return '/workflow/tasks';
+    return '/workflow-tasks';
   }
 
   getNiceLabel(task) {

@@ -93,7 +93,7 @@ const reducersApp = combineReducers({
   security: Reducers.security,
   routing: routeReducer,
   logger: (state = logger) => {
-    // TODO: can be moved to separate redecuer and
+    // TODO: can be moved to separate redecuer - now is inline
     return state;
   }
 });
@@ -128,8 +128,26 @@ const createPersistentStore = compose(
 // Sync dispatched route actions to the history
 const reduxRouterMiddleware = syncHistory(hashHistory);
 //
+// before dispatch handler
+function dispatchTrace({ getState }) {
+  return (next) => (action) => {
+    logger.trace('will dispatch', action);
+    // Call the next dispatch method in the middleware chain.
+    const returnValue = next(action);
+    logger.trace('state after dispatch', getState());
+    // This will likely be the action itself, unless
+    // a middleware further in chain changed it.
+    return returnValue;
+  };
+}
+//
 // apply middleware
-const createStoreWithMiddleware = applyMiddleware(thunkMiddleware, promiseMiddleware, reduxRouterMiddleware)(createPersistentStore);
+let midlewares = [];
+if (logger.isTraceEnabled()) {
+  midlewares.push(dispatchTrace);
+}
+midlewares = [...midlewares, thunkMiddleware, promiseMiddleware, reduxRouterMiddleware];
+const createStoreWithMiddleware = applyMiddleware(...midlewares)(createPersistentStore);
 // redux store
 const store = createStoreWithMiddleware(reducer);
 // Required for replaying actions from devtools to work
@@ -158,8 +176,7 @@ const routes = {
 };
 
 // fills default onEnter on all routes
-// TODO: implement route overriding with priority
-function appendCheckAccess(route, moduleId) {
+function fillCheckAccess(route, moduleId) {
   if (!route.onEnter) {
     route.onEnter = Managers.SecurityManager.checkAccess;
   }
@@ -174,13 +191,11 @@ function appendCheckAccess(route, moduleId) {
   }
   if (route.childRoutes) {
     route.childRoutes.forEach(childRoute => {
-      appendCheckAccess(childRoute, moduleId);
+      fillCheckAccess(childRoute, moduleId);
     });
   }
 }
-appendCheckAccess(routes, null);
-
-
+fillCheckAccess(routes, null);
 //
 // app entry point
 ReactDOM.render(

@@ -1,5 +1,3 @@
-
-
 import EntityUtils from './EntityUtils';
 
 /**
@@ -63,7 +61,7 @@ export default class UiUtils {
     if (!uiState) {
       return [];
     }
-    return EntityUtils.getEntitiesByIds(state, uiState.entityType, uiState.items);
+    return EntityUtils.getEntitiesByIds(state, uiState.entityType, uiState.items, uiState.trimmed);
   }
 
   /**

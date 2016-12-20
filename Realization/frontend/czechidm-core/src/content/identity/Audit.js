@@ -1,13 +1,11 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import * as Basic from '../../components//basic';
 import AuditTable from '../audit/AuditTable';
-import { IdentityManager, DataManager } from '../../redux/data';
+import { IdentityManager } from '../../redux/data';
 
 const identityManager = new IdentityManager();
-
-const uiKey = 'audit-';
 
 class Audit extends Basic.AbstractContent {
 
@@ -19,18 +17,21 @@ class Audit extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  showDetail(revId, username) {
-    this.context.router.push('/identity/' + username + '/revision/' + revId);
+  showDetail(revId, entityIde) {
+    // TODO: this.context.router.push set only rev id, fetchEntity isn't necessary. this.props.params not working.
+    this.context.store.dispatch(identityManager.fetchEntity(entityIde, null, (identity) => {
+      this.context.router.push('/identity/' + identity.username + '/revision/' + revId);
+    }));
   }
 
   componentDidMount() {
     const { entityId } = this.props.params;
     this.selectSidebarItem('profile-audit');
-    this.context.store.dispatch(identityManager.fetchRevisions(entityId, uiKey + entityId));
+    this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 
   render() {
-    const { _showLoading, auditEntities } = this.props;
+    const { identity } = this.props;
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -41,11 +42,15 @@ class Audit extends Basic.AbstractContent {
         </Basic.ContentHeader>
 
         <Basic.Panel className="no-border last">
-          <Basic.Loading isStatic showLoading={_showLoading} />
           {
-            !auditEntities
+            !identity
             ||
-            <AuditTable auditEntities={auditEntities} clickTarget={this.showDetail} />
+            <AuditTable
+              entityId={identity.id}
+              tableUiKey="identity-audit-table"
+              entityClass="IdmIdentity"
+              clickTarget={this.showDetail}
+              columns={['id', 'modification', 'modifier', 'revisionDate', 'changedAttributes']}/>
           }
         </Basic.Panel>
       </div>
@@ -54,18 +59,15 @@ class Audit extends Basic.AbstractContent {
 }
 
 Audit.propTypes = {
-  auditEntities: PropTypes.arrayOf(React.PropTypes.object),
-  _showLoading: PropTypes.bool,
 };
+
 Audit.defaultProps = {
-  auditEntities: []
 };
 
 function select(state, component) {
   const { entityId } = component.params;
   return {
-    auditEntities: DataManager.getData(state, uiKey + entityId),
-    _showLoading: identityManager.isShowLoading(state, null, uiKey + entityId)
+    identity: identityManager.getEntity(state, entityId)
   };
 }
 

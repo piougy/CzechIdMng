@@ -28,6 +28,9 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       case this.IDENTITY: {
         return 'success';
       }
+      case this.GROUP: {
+        return 'primary';
+      }
       default: {
         return 'default';
       }
@@ -36,4 +39,4 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
 }
 
 SystemEntityTypeEnum.IDENTITY = Symbol('IDENTITY');
-SystemEntityTypeEnum.GROUP = Symbol('GROUP');
+// SystemEntityTypeEnum.GROUP = Symbol('GROUP');

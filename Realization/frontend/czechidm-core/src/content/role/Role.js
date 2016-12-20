@@ -26,7 +26,7 @@ class Role extends Basic.AbstractContent {
       <div>
         <Helmet title={this.i18n('navigation.menu.profile')} />
 
-        <Basic.PageHeader showLoading={showLoading}>
+        <Basic.PageHeader showLoading={!entity && showLoading}>
           {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
         </Basic.PageHeader>
 

@@ -14,14 +14,30 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
  * @author svandav
  */
 public interface SecurityService {
+	
+	/**
+	 * Changes the currently authenticated principal, or removes the authentication
+	 * information.
+	 *
+	 * @param authentication the new <code>Authentication</code> token, or
+	 * <code>null</code> if no further authentication information should be stored
+	 */
+	void setAuthentication(AbstractAuthentication authentication);
 
 	/**
-	 * Obtains the currently authentication request token.
+	 * Obtains the currently authenticated principal, or an authentication request token.
 	 *
-	 * @return the <code>Authentication</code> or <code>null</code> if no authentication
+	 * @return the <code>AbstractAuthentication</code> or <code>null</code> if no authentication of type AbstractAuthentication
 	 * information is available
 	 */
 	AbstractAuthentication getAuthentication();
+	
+	/**
+	 * Returns true, if identity is logged
+	 * 
+	 * @return
+	 */
+	boolean isAuthenticated();
 	
 	/**
 	 * Returns currently logged identity's username

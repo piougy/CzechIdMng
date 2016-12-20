@@ -10,14 +10,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.notification.service.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
 @Entity
 @Table(name = "idm_notification_log")
@@ -31,7 +28,8 @@ public class IdmNotificationLog extends IdmNotification {
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@OneToMany(mappedBy = "parent")
-	@OnDelete(action = OnDeleteAction.CASCADE) // TODO: set null will be better
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmNotification> relatedNotifications;
 	
 	@Override

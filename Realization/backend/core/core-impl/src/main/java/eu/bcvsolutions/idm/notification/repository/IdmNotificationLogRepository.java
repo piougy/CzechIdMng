@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.notification.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.TemporalType;
 
@@ -16,8 +17,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.core.api.dto.EmptyFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 	path = "notifications", //
 	itemResourceRel = "notification"
 )
-public interface IdmNotificationLogRepository extends BaseRepository<IdmNotificationLog, EmptyFilter> {
+public interface IdmNotificationLogRepository extends AbstractEntityRepository<IdmNotificationLog, EmptyFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmNotificationLog e")
@@ -94,7 +95,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")
-	IdmNotificationLog findOne(@Param("id") Long id);
+	IdmNotificationLog findOne(@Param("id") UUID id);
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public interface IdmNotificationLogRepository extends BaseRepository<IdmNotifica
 	
 	@Override
 	@RestResource(exported = false)
-	void delete(Long id);
+	void delete(UUID id);
 
 	@Override
 	@RestResource(exported = false)

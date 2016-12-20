@@ -37,7 +37,7 @@ export class SystemTable extends Basic.AbstractContent {
   }
 
   showDetail(entity) {
-    if (entity.id === undefined) {
+    if (Utils.Entity.isNew(entity)) {
       const uuidId = uuid.v1();
       this.context.router.push(`/system/${uuidId}/new?new=1`);
     } else {

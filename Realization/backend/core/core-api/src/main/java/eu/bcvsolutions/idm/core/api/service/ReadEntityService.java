@@ -1,10 +1,12 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.io.Serializable;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -19,12 +21,12 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> extends BaseEntityService<E> {
 
 	/**
-	 * Returns entity by given id. Returns null, if entity is not exists
+	 * Returns entity by given id. Returns null, if entity is not exists.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	E get(Long id);
+	E get(Serializable id);
 	
 	/**
 	 * Returns page of entities

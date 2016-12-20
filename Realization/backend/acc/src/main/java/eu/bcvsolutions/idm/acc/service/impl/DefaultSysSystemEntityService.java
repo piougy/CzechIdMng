@@ -2,12 +2,14 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
+import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
-import eu.bcvsolutions.idm.acc.service.SysSystemEntityService;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -19,11 +21,27 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 @Service
 public class DefaultSysSystemEntityService extends AbstractReadWriteEntityService<SysSystemEntity, SystemEntityFilter> implements SysSystemEntityService {
 
+	private final AccAccountRepository accountRepository;
+	
 	@Autowired
-	private SysSystemEntityRepository systemEntityRepository;
+	public DefaultSysSystemEntityService(
+			SysSystemEntityRepository systemEntityRepository,
+			AccAccountRepository accountRepository) {
+		super(systemEntityRepository);
+		//
+		Assert.notNull(accountRepository);
+		//
+		this.accountRepository = accountRepository;
+	}
 	
 	@Override
-	protected BaseRepository<SysSystemEntity, SystemEntityFilter> getRepository() {
-		return systemEntityRepository;
+	@Transactional
+	public void delete(SysSystemEntity systemEntity) {
+		Assert.notNull(systemEntity);
+		//
+		// clear accounts - only link, can be rebuild
+		accountRepository.clearSystemEntity(systemEntity);
+		//
+		super.delete(systemEntity);
 	}
 }

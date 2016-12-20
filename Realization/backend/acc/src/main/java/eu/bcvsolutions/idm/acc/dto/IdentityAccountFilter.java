@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import eu.bcvsolutions.idm.core.api.dto.BaseFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import java.util.UUID;
+
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
  * Filter for accounts
@@ -11,40 +12,68 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
  */
 public class IdentityAccountFilter implements BaseFilter {
 
-	private Long accountId;
-	private IdmIdentity identity;
-	private Long roleId;
-	private Long systemId;
+	private UUID accountId;
+	private UUID identityId;
+	private UUID roleId;
+	private UUID systemId;
+	private UUID identityRoleId;
+	private UUID roleSystemId;
+	private Boolean ownership;
 
-	public Long getAccountId() {
+	public Boolean isOwnership() {
+		return ownership;
+	}
+
+	public void setOwnership(Boolean ownership) {
+		this.ownership = ownership;
+	}
+
+	public UUID getAccountId() {
 		return accountId;
 	}
 
-	public void setAccountId(Long accountId) {
+	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
 	}
 
-	public void setIdentity(IdmIdentity identity) {
-		this.identity = identity;
-	}
-	
-	public IdmIdentity getIdentity() {
-		return identity;
+	public UUID getIdentityId() {
+		return identityId;
 	}
 
-	public Long getRoleId() {
+	public void setIdentityId(UUID identityId) {
+		this.identityId = identityId;
+	}
+
+	public UUID getRoleId() {
 		return roleId;
 	}
 
-	public void setRoleId(Long roleId) {
+	public void setRoleId(UUID roleId) {
 		this.roleId = roleId;
 	}
 	
-	public void setSystemId(Long systemId) {
+	public void setSystemId(UUID systemId) {
 		this.systemId = systemId;
 	}
 	
-	public Long getSystemId() {
+	public UUID getSystemId() {
 		return systemId;
 	}
+
+	public UUID getIdentityRoleId() {
+		return identityRoleId;
+	}
+
+	public void setIdentityRoleId(UUID identityRoleId) {
+		this.identityRoleId = identityRoleId;
+	}
+
+	public UUID getRoleSystemId() {
+		return roleSystemId;
+	}
+
+	public void setRoleSystemId(UUID roleSystemId) {
+		this.roleSystemId = roleSystemId;
+	}
+
 }

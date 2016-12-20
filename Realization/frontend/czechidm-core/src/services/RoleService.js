@@ -29,7 +29,7 @@ class RoleService extends AbstractService {
 
   getAvailableAuthorities() {
     return RestApiService
-    .get(RestApiService.getUrl('/authorities/available'))
+    .get(RestApiService.getUrl('/authorities/search/available'))
     .then(response => {
       return response.json();
     })

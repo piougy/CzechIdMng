@@ -39,7 +39,7 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentWillReceiveProps(nextProps) {
     const { entity } = this.props;
-    if (nextProps.entity && nextProps.entity !== entity) {
+    if (nextProps.entity && nextProps.entity !== entity && nextProps.entity.subRoles) {
       this._setSelectedEntity(this._prepareEntity(nextProps.entity));
     }
   }
@@ -47,14 +47,12 @@ class RoleDetail extends Basic.AbstractContent {
   _prepareEntity(entity) {
     const copyOfEntity = _.merge({}, entity); // we can not modify given entity
     // we dont need to load entities again - we have them in embedded objects
-    copyOfEntity.subRoles = entity.subRoles.map(subRole => { return subRole._embedded.sub; });
-    copyOfEntity.superiorRoles = entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
-    copyOfEntity.guarantees = entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
-
+    copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
+    copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
+    copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
     if (copyOfEntity._embedded !== undefined && copyOfEntity._embedded.roleCatalogue !== undefined) {
       copyOfEntity.roleCatalogue = copyOfEntity._embedded.roleCatalogue.id;
     }
-
     return copyOfEntity;
   }
 
@@ -67,7 +65,7 @@ class RoleDetail extends Basic.AbstractContent {
     });
   }
 
-  save(event) {
+  save(afterAction, event) {
     if (event) {
       event.preventDefault();
     }
@@ -76,53 +74,57 @@ class RoleDetail extends Basic.AbstractContent {
     }
     this.setState({
       _showLoading: true
+    }, () => {
+      const entity = this.refs.form.getData();
+      // append selected authorities
+      entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
+      // append subroles
+      if (entity.subRoles) {
+        entity.subRoles = entity.subRoles.map(subRoleId => {
+          return {
+            sub: roleManager.getSelfLink(subRoleId)
+          };
+        });
+      }
+      if (entity.guarantees) {
+        entity.guarantees = entity.guarantees.map(guaranteeId => {
+          return {
+            guarantee: identityManger.getSelfLink(guaranteeId)
+          };
+        });
+      }
+      // transform object roleCatalogue to self link
+      if (entity.roleCatalogue) {
+        entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
+      }
+      // delete superior roles - we dont want to save them (they are ignored on BE anyway)
+      delete entity.superiorRoles;
+      //
+      this.getLogger().debug('[RoleDetail] save entity', entity);
+      if (Utils.Entity.isNew(entity)) {
+        this.context.store.dispatch(roleManager.createEntity(entity, null, (createdEntity, error) => {
+          this._afterSave(createdEntity, error, afterAction);
+        }));
+      } else {
+        this.context.store.dispatch(roleManager.patchEntity(entity, null, (patchedEntity, error) => {
+          this._afterSave(patchedEntity, error, afterAction);
+        }));
+      }
     });
-    const entity = this.refs.form.getData();
-    // append selected authorities
-    entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
-    // append subroles
-    if (entity.subRoles) {
-      entity.subRoles = entity.subRoles.map(subRoleId => {
-        return {
-          sub: roleManager.getSelfLink(subRoleId)
-        };
-      });
-    }
-    if (entity.guarantees) {
-      entity.guarantees = entity.guarantees.map(guaranteeId => {
-        return {
-          guarantee: identityManger.getSelfLink(guaranteeId)
-        };
-      });
-    }
-    // transform object roleCatalogue to self link
-    if (entity.roleCatalogue) {
-      entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
-    }
-    // delete superior roles - we dont want to save them (they are ignored on BE anyway)
-    delete entity.superiorRoles;
-    //
-    this.getLogger().debug('[RoleDetail] save entity', entity);
-    if (Utils.Entity.isNew(entity)) {
-      this.context.store.dispatch(roleManager.createEntity(entity, null, (createdEntity, error) => {
-        this._afterSave(createdEntity, error, true);
-      }));
-    } else {
-      this.context.store.dispatch(roleManager.patchEntity(entity, null, this._afterSave.bind(this)));
-    }
   }
 
-  _afterSave(entity, error, isNew = false) {
+  _afterSave(entity, error, afterAction = 'CLOSE') {
     if (error) {
       this.refs.form.processEnded();
       this.addError(error);
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (isNew) {
-      this.context.router.push('/roles');
+    if (afterAction === 'CLOSE') {
+      this.context.router.replace(`roles`);
+    } else {
+      this.context.router.replace(`role/${entity.id}/detail`);
     }
-    this._setSelectedEntity(this._prepareEntity(entity));
   }
 
   render() {
@@ -155,9 +157,9 @@ class RoleDetail extends Basic.AbstractContent {
                         required
                         readOnly={!Utils.Entity.isNew(entity)}/>
                       <Basic.SelectBox
-                          ref="roleCatalogue"
-                          label={this.i18n('entity.Role.roleCatalogue.name')}
-                          manager={roleCatalogueManager}/>
+                        ref="roleCatalogue"
+                        label={this.i18n('entity.Role.roleCatalogue.name')}
+                        manager={roleCatalogueManager}/>
                       <Basic.SelectBox
                         ref="superiorRoles"
                         label={this.i18n('entity.Role.superiorRoles')}
@@ -171,10 +173,10 @@ class RoleDetail extends Basic.AbstractContent {
                         manager={roleManager}
                         multiSelect/>
                       <Basic.SelectBox
-                          ref="guarantees"
-                          label={this.i18n('entity.Role.guarantees')}
-                          multiSelect
-                          manager={identityManger}/>
+                        ref="guarantees"
+                        label={this.i18n('entity.Role.guarantees')}
+                        multiSelect
+                        manager={identityManger}/>
                       <Basic.TextArea
                         ref="description"
                         label={this.i18n('entity.Role.description')}
@@ -223,19 +225,23 @@ class RoleDetail extends Basic.AbstractContent {
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={_showLoading}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button
-                type="submit"
+
+              <Basic.SplitButton
                 level="success"
+                title={this.i18n('button.saveAndContinue')}
+                onClick={this.save.bind(this, 'CONTINUE')}
                 showLoading={_showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
+                rendered={SecurityManager.hasAuthority('ROLE_WRITE')}
+                pullRight
+                dropup>
+                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'CLOSE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              </Basic.SplitButton>
             </Basic.PanelFooter>
-
-
           </Basic.Panel>
+          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

@@ -26,7 +26,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: {}
       },
       treeTypeId: null,
-      forceSearchParameters: new SearchParameters().setFilter('treeType', -1)
+      forceSearchParameters: new SearchParameters().setFilter('treeType', SearchParameters.BLANK_UUID)
     };
   }
 
@@ -59,7 +59,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: entityFormData
       },
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
       if (this.refs.treeTypeId) {
         this.refs.treeTypeId.focus();
@@ -74,7 +74,7 @@ class IdentityContracts extends Basic.AbstractContent {
         show: false
       },
       treeTypeId: null,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', SearchParameters.BLANK_UUID)
     });
   }
 
@@ -147,12 +147,11 @@ class IdentityContracts extends Basic.AbstractContent {
     const treeTypeId = treeType ? treeType.id : null;
     this.setState({
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || -1)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
       // focus automatically - maybe will be usefull?
       // this.refs.workingPosition.focus();
     });
-    this.refs.workingPosition.reload();
   }
 
   render() {
@@ -237,15 +236,6 @@ class IdentityContracts extends Basic.AbstractContent {
                 }
               />
               <Basic.Column
-                property="validFrom"
-                header={this.i18n('entity.IdentityContract.validFrom')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-              />
-              <Basic.Column
-                property="validTill"
-                header={this.i18n('entity.IdentityContract.validTill')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-              <Basic.Column
                 property="guarantee"
                 header={<span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span>}
                 cell={
@@ -256,6 +246,20 @@ class IdentityContracts extends Basic.AbstractContent {
                   }
                 }
               />
+              <Basic.Column
+                property="validFrom"
+                header={this.i18n('entity.IdentityContract.validFrom')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
+              />
+              <Basic.Column
+                property="validTill"
+                header={this.i18n('entity.IdentityContract.validTill')}
+                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
+              <Basic.Column
+                property="externe"
+                header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityContract.externe')}</Basic.Cell>}
+                cell={<Basic.BooleanCell className="column-face-bool"/>}
+                width="100px"/>
               <Basic.Column
                 header={this.i18n('label.action')}
                 className="action"
@@ -316,6 +320,9 @@ class IdentityContracts extends Basic.AbstractContent {
                   mode="date"
                   ref="validTill"
                   label={this.i18n('label.validTill')}/>
+                <Basic.Checkbox
+                  ref="externe"
+                  label={this.i18n('entity.IdentityContract.externe')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

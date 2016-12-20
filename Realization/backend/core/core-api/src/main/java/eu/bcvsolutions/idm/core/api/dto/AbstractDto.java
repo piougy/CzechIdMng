@@ -2,9 +2,13 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
+import org.springframework.util.Assert;
+
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
@@ -13,55 +17,159 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * @author Radek Tomiška 
  *
  */
-public abstract class AbstractDto implements Serializable, BaseDto {
+public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
-	private Long id;
+	private UUID id;
 	private Date created;
 	private Date modified;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String creator;
+	private UUID creatorId;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String modifier;
+	private UUID modifierId;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalCreator;
+	private UUID originalCreatorId;
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
+	private UUID originalModifierId;
 
 	public AbstractDto() {
 	}
 
-	public AbstractDto(Long id) {
+	public AbstractDto(UUID id) {
 		this.id = id;
+	}
+	
+	public AbstractDto(Auditable auditable) {
+		Assert.notNull(auditable, "Auditable (dto or entity) is required");
+		//
+		this.id = auditable.getId();
+		this.created = auditable.getCreated();
+		this.modified = auditable.getModified();
+		this.creator = auditable.getCreator();
+		this.creatorId = auditable.getCreatorId();
+		this.modifier = auditable.getModifier();
+		this.modifierId = auditable.getModifierId();
+		this.originalCreator = auditable.getOriginalCreator();
+		this.originalCreatorId = auditable.getOriginalCreatorId();
+		this.originalModifier = auditable.getOriginalModifier();
+		this.originalModifierId = auditable.getOriginalModifierId();
 	}
 
 	@Override
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
 	@Override
-	public void setId(Long id) {
+	public void setId(UUID	 id) {
 		this.id = id;
 	}
 
+	@Override
 	public Date getCreated() {
 		return created;
 	}
 
+	@Override
 	public void setCreated(Date created) {
 		this.created = created;
 	}
-
+	
+	@Override
 	public Date getModified() {
 		return modified;
 	}
 
+	@Override
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
 
+	@Override
+	public String getCreator() {
+		return creator;
+	}
+
+	@Override
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+
+	@Override
+	public String getModifier() {
+		return modifier;
+	}
+
+	@Override
+	public void setModifier(String modifier) {
+		this.modifier = modifier;
+	}
+
+	@Override
+	public String getOriginalCreator() {
+		return originalCreator;
+	}
+
+	@Override
+	public void setOriginalCreator(String originalCreator) {
+		this.originalCreator = originalCreator;
+	}
+
+	@Override
+	public String getOriginalModifier() {
+		return originalModifier;
+	}
+
+	@Override
+	public void setOriginalModifier(String originalModifier) {
+		this.originalModifier = originalModifier;
+	}
+	
+	@Override
+	public UUID getCreatorId() {
+		return creatorId;
+	}
+
+	@Override
+	public void setCreatorId(UUID creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	@Override
+	public UUID getOriginalCreatorId() {
+		return originalCreatorId;
+	}
+
+	@Override
+	public void setOriginalCreatorId(UUID originalCreatorId) {
+		this.originalCreatorId = originalCreatorId;
+	}
+
+	@Override
+	public UUID getModifierId() {
+		return modifierId;
+	}
+
+	@Override
+	public void setModifierId(UUID modifierId) {
+		this.modifierId = modifierId;
+	}
+
+	@Override
+	public UUID getOriginalModifierId() {
+		return originalModifierId;
+	}
+
+	@Override
+	public void setOriginalModifierId(UUID originalModifierId) {
+		this.originalModifierId = originalModifierId;
+	}
+	
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
@@ -84,38 +192,6 @@ public abstract class AbstractDto implements Serializable, BaseDto {
 		return !((this.getId() == null && other.getId() != null)
 				|| (this.getId() != null && !this.getId().equals(other.getId()))
 				|| (this.getId() == null && other.getId() == null && this != other));
-	}
-
-	public String getCreator() {
-		return creator;
-	}
-
-	public void setCreator(String creator) {
-		this.creator = creator;
-	}
-
-	public String getModifier() {
-		return modifier;
-	}
-
-	public void setModifier(String modifier) {
-		this.modifier = modifier;
-	}
-
-	public String getOriginalCreator() {
-		return originalCreator;
-	}
-
-	public void setOriginalCreator(String originalCreator) {
-		this.originalCreator = originalCreator;
-	}
-
-	public String getOriginalModifier() {
-		return originalModifier;
-	}
-
-	public void setOriginalModifier(String originalModifier) {
-		this.originalModifier = originalModifier;
 	}
 
 }

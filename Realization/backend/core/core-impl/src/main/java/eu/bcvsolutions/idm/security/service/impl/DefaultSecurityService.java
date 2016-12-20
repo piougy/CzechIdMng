@@ -40,20 +40,46 @@ public class DefaultSecurityService implements SecurityService {
 		
 		this.moduleService = moduleService;
 	}
+	
+	@Override
+	public void setAuthentication(AbstractAuthentication authentication) {
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+	
+	@Override
+	public AbstractAuthentication getAuthentication() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// TODO: support different authentications?
+		if (!(authentication instanceof AbstractAuthentication)) {
+			return null;
+		}
+		return (AbstractAuthentication) authentication;
+	}
+	
+	@Override
+	public boolean isAuthenticated() {
+		Authentication authentication = getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public String getUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication instanceof AbstractAuthentication) {
-			return ((AbstractAuthentication) authentication).getCurrentUsername();
+		if (!isAuthenticated()) {
+			return "[GUEST]"; // TODO: configure guest access
 		}
-		return null;
+		return authentication.getName();
 	}
 	
 	@Override
 	public String getOriginalUsername() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
+		if (!isAuthenticated()) {
+			return null;
+		}	
+		Authentication authentication = getAuthentication();
 		if (authentication instanceof AbstractAuthentication) {
 			return ((AbstractAuthentication) authentication).getOriginalUsername();
 		}
@@ -61,21 +87,12 @@ public class DefaultSecurityService implements SecurityService {
 	}
 
 	@Override
-	public AbstractAuthentication getAuthentication() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (!(authentication instanceof AbstractAuthentication)) {
-			return null;
-		}
-		return (AbstractAuthentication) authentication;
-	}
-
-	@Override
 	public Set<String> getAllAuthorities() {
-		Set<String> authorities = new HashSet<>();
-		Authentication authentication = getAuthentication();		
-		if (authentication == null || !authentication.isAuthenticated()) {
+		Set<String> authorities = new HashSet<>();	
+		if (!isAuthenticated()) {
 			return authorities;
 		}
+		Authentication authentication = getAuthentication();
 		for (GrantedAuthority authority : authentication.getAuthorities()) {
 			authorities.add(authority.getAuthority());
 		}

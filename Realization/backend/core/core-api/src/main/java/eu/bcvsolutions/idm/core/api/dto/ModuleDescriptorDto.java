@@ -19,6 +19,7 @@ public class ModuleDescriptorDto implements Identifiable<String> {
 	private boolean disableable;
 	private boolean disabled;
 
+	@Override
 	public String getId() {
 		return id;
 	}

@@ -3,20 +3,21 @@ package eu.bcvsolutions.idm.core.rest.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
+import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -24,7 +25,7 @@ import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;;
  * @author Radek Tomiška 
  *
  */
-@RestController
+@RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
 public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration, QuickFilter> {
 	
@@ -32,7 +33,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	
 	@Autowired
 	public IdmConfigurationController(EntityLookupService entityLookupService, IdmConfigurationService configurationService) {
-		super(entityLookupService, configurationService);
+		super(entityLookupService);
 		this.configurationService = configurationService;
 	}
 	
@@ -41,6 +42,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * 
 	 * @return
 	 */
+	@ResponseBody
 	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
@@ -53,6 +55,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 * 
 	 * @return
 	 */
+	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
 	@RequestMapping(path = "/environment", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {

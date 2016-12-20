@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,13 +13,15 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.core.api.dto.QuickFilter;
-import eu.bcvsolutions.idm.core.api.repository.BaseRepository;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 
 /**
  * Application configuration
+ * 
+ * TODO: move security to rest endpoint
  * 
  * @author Radek Tomiška 
  *
@@ -28,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 		path = "configurations", //
 		itemResourceRel = "configuration",
 		exported = false)
-public interface IdmConfigurationRepository extends BaseRepository<IdmConfiguration, QuickFilter> {
+public interface IdmConfigurationRepository extends AbstractEntityRepository<IdmConfiguration, QuickFilter> {
 
 	/**
 	 * Public configurations only
@@ -109,7 +112,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	 */
 	@Override
 	@PostAuthorize("returnObject == null or returnObject.secured == false or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	IdmConfiguration findOne(@Param("id") Long id);
+	IdmConfiguration findOne(@Param("id") UUID id);
 	
 	
 	@Override
@@ -119,7 +122,7 @@ public interface IdmConfigurationRepository extends BaseRepository<IdmConfigurat
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and @idmConfigurationRepository.findOne(#id)?.secured == false)")
-	void delete(@Param("id") Long id);
+	void delete(@Param("id") UUID id);
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_DELETE + "') or (hasAuthority('" + IdmGroupPermission.CONFIGURATION_DELETE + "') and #entity?.secured == false)")

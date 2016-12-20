@@ -9,7 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
  * Cors configuration extension - allowed origins could be configured dynamically through {@link IdmConfigurationService}.

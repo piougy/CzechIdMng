@@ -11,7 +11,7 @@ class IdentityContractService extends AbstractService {
   }
 
   getApiPath() {
-    return '/identityContracts';
+    return '/identity-contracts';
   }
 
   getNiceLabel(entity) {

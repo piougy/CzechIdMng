@@ -23,8 +23,8 @@ class IdentityContent extends Basic.AbstractContent {
 
   _selectNavigationItem() {
     const { entityId } = this.props.params;
-    const { userContext, selectedSidebarItem } = this.props;
-    if (entityId === userContext.username && selectedSidebarItem !== 'profile-subordinates') {
+    const { userContext } = this.props;
+    if (entityId === userContext.username) {
       this.selectNavigationItems(['identity-profile', null]);
     } else {
       this.selectNavigationItems(['identities', null]);

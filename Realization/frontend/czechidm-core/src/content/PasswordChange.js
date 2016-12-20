@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../components/basic';
+import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
 import { SecurityManager, IdentityManager } from '../redux';
 import help from './PasswordChange_cs.md';
@@ -38,26 +39,18 @@ class PasswordChange extends Basic.AbstractContent {
     }
   }
 
-  _validatePassword(property, onlyValidate, value, result) {
-    if (onlyValidate) {
-      this.refs[property].validate();
-      return result;
-    }
-    if (result.error) {
-      return result;
-    }
-    const opositeValue = this.refs[property].getValue();
-    if (opositeValue !== value) {
-      return {error: {key: 'passwords_not_same'}};
-    }
-    return result;
+  /**
+   * Method set value to component PasswordField
+   */
+  _initPasswordFields(value) {
+    this.refs.passwords.setValue(value);
   }
 
   passwordChange(event) {
     if (event) {
       event.preventDefault();
     }
-    if (!this.refs.form.isFormValid()) {
+    if (!this.refs.form.isFormValid() || !this.refs.passwords.validate()) {
       return;
     }
     this.setState({
@@ -65,12 +58,13 @@ class PasswordChange extends Basic.AbstractContent {
     });
     const username = this.refs.username.getValue();
     const oldPassword = this.refs.passwordOld.getValue();
-    const password = this.refs.password.getValue();
+    const password = this.refs.passwords.getValue();
 
     identityManager.getService().passwordChange(username, {
       identity: username,
       oldPassword: btoa(oldPassword),  // base64
       newPassword: btoa(password),  // base64
+      all: true, // change in idm and in all accounts
       resources: []
     }, false)
     .then(response => {
@@ -78,6 +72,7 @@ class PasswordChange extends Basic.AbstractContent {
         showLoading: false
       });
       if (response.status === 404) {
+        this._initPasswordFields(password);
         throw new Error('IDENTITY_NOT_FOUND');
       }
       if (response.status === 204) {
@@ -87,6 +82,7 @@ class PasswordChange extends Basic.AbstractContent {
     })
     .then(json => {
       if (Utils.Response.hasError(json)) {
+        this._initPasswordFields(password);
         throw Utils.Response.getFirstError(json);
       }
       return json;
@@ -163,25 +159,11 @@ class PasswordChange extends Basic.AbstractContent {
                     required
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>
-                  <Basic.TextField
-                    type={'password'}
-                    ref="password"
-                    label={this.i18n('password')}
-                    placeholder={this.i18n('password')}
-                    required
+                  <Advanced.PasswordField
+                    className="form-control"
+                    ref="passwords"
                     labelSpan="col-md-4"
-                    componentSpan="col-md-8"
-                    validate={this._validatePassword.bind(this, 'passwordAgain', true)}/>
-                  <Basic.TextField
-                    type={'password'}
-                    ref="passwordAgain"
-                    label={this.i18n('passwordAgain.label')}
-                    placeholder={this.i18n('passwordAgain.placeholder')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"
-                    validate={this._validatePassword.bind(this, 'password', false)}
-                    className="last"/>
+                    componentSpan="col-md-8"/>
                 </Basic.AbstractForm>
 
                 <Basic.PanelFooter>

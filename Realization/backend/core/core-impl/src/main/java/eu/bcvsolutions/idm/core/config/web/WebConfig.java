@@ -1,66 +1,51 @@
 package eu.bcvsolutions.idm.core.config.web;
 
-import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
-import org.springframework.data.mapping.context.PersistentEntities;
-import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
+import org.springframework.data.repository.query.spi.EvaluationContextExtension;
+import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.core.support.SelfLinkProvider;
-import org.springframework.data.rest.webmvc.config.PersistentEntityResourceAssemblerArgumentResolver;
-import org.springframework.data.rest.webmvc.config.PersistentEntityResourceHandlerMethodArgumentResolver;
+import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
+import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
+import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.rest.webmvc.json.DomainObjectReader;
 import org.springframework.data.rest.webmvc.mapping.Associations;
-import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
 import eu.bcvsolutions.idm.core.config.flyway.FlywayConfigCore;
 import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 
 /**
- * Web configurations
+ * Web configurations - we are reusing spring data rest web configuration
  * 
  * @author Radek Tomiška 
  *
  */
 @Configuration
 @AutoConfigureAfter({ FlywayConfigCore.class })
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig extends RepositoryRestMvcConfiguration {
 	
-	@Autowired
-	private ApplicationContext applicationContext;
-	
-	@Autowired
-	private SelfLinkProvider linkProvider;
-	
-	@Autowired
-	private PersistentEntities persistentEntities; 
-	
-	@Autowired
-	private PersistentEntityResourceHandlerMethodArgumentResolver persistentEntityResourceHandlerMethodArgumentResolver;
-	
-	@Autowired
-	private List<HttpMessageConverter<?>> messageConverters;
-	
-	@Autowired
-	private RepositoryRestConfiguration config;
-	
-	@Autowired
-	private Associations associationLinks;
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Bean
     public FilterRegistrationBean corsFilter() {
@@ -68,7 +53,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         CorsConfiguration config = corsConfiguration();
         // TODO: depends on FlywayConfigCore 
         // log.info("Starting with configurted allowed origins [{}]. Allowed origins could be changed through application setting.", config.getAllowedOrigins());
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(Boolean.TRUE);
         config.addAllowedHeader("*");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("PUT");
@@ -102,28 +87,83 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	    return new RestErrorAttributes();
 	}
 	
-	@Override
-	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		argumentResolvers.add(persistentEntityResourceHandlerMethodArgumentResolver);
-		
-		SpelAwareProxyProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
-		projectionFactory.setBeanFactory(applicationContext);
-		projectionFactory.setResourceLoader(applicationContext);
-		
-		PersistentEntityResourceAssemblerArgumentResolver peraResolver = new PersistentEntityResourceAssemblerArgumentResolver(
-				persistentEntities, linkProvider, config.getProjectionConfiguration(), projectionFactory,
-				associationLinks);
-		
-		argumentResolvers.add(peraResolver);
-	}
-	
-	@Override
-	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-		converters.addAll(messageConverters);
-	}
-	
 	@Bean
 	public RequestResourceResolver requestResourceResolver() {
-		return new RequestResourceResolver(messageConverters, new DomainObjectReader(persistentEntities, associationLinks));
+		return new RequestResourceResolver(defaultMessageConverters(), new DomainObjectReader(persistentEntities(), associationLinks()));
+	}
+
+	/**
+	 * Create a validator to use in bean validation - primary to be able to
+	 * autowire without qualifier
+	 */
+	@Bean
+	@Primary
+	Validator validator() {
+		return new LocalValidatorFactoryBean();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.data.rest.webmvc.config.
+	 * RepositoryRestMvcConfiguration
+	 * #configureRepositoryRestConfiguration(org.springframework.data.rest.core.
+	 * config.RepositoryRestConfiguration)
+	 */
+	@Override
+	protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
+		// we like ids ...
+		entityManager.getMetamodel().getEntities().forEach(entityType -> {
+			config.exposeIdsFor(entityType.getJavaType());
+		});
+		// conventional base api endpoint. TODO: define version here?
+		config.setBasePath(BaseEntityController.BASE_PATH);
+		// it will be usefull for some clients (e.g. for putting new / updated
+		// resource to client storage - redux etc.)
+		config.setReturnBodyForPutAndPost(Boolean.TRUE);
+		// Only repositories annotated with @(Repository)RestResource are
+		// exposed, unless their exported flag is set to false.
+		config.setRepositoryDetectionStrategy(RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED);
+	}
+
+	/**
+	 * JSR-303 only for now
+	 */
+	@Override
+	protected void configureValidatingRepositoryEventListener(ValidatingRepositoryEventListener validatingListener) {
+		Validator validator = validator();
+		validatingListener.addValidator("beforeCreate", validator);
+		validatingListener.addValidator("beforeSave", validator);
+	}
+
+	/**
+	 * Support hasAuthority etc. in search queries
+	 * 
+	 * @return
+	 */
+	@Bean
+	public EvaluationContextExtension securityExtension() {
+		return new EvaluationContextExtensionSupport() {
+			@Override
+			public String getExtensionId() {
+				return "security";
+			}
+
+			@Override
+			public SecurityExpressionRoot getRootObject() {
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				return new SecurityExpressionRoot(authentication) {
+				};
+			}
+		};
+	}
+	
+	/**
+	 * We want to assemble embedded object to not exported repositories too.
+	 */
+	@Bean
+	@Override
+	public Associations associationLinks() {
+		return new NotExportedAssociations(resourceMappings(), config());
 	}
 }

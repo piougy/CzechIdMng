@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.activiti.bpmn.model.BpmnModel;
@@ -30,7 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.service.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
@@ -64,10 +65,9 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 	@Autowired
 	private TaskService taskService;
 
-	
 	@Override
 	public ProcessInstance startProcess(String definitionKey, String objectType, String applicant,
-			Long objectIdentifier, Map<String, Object> variables) {
+			String objectIdentifier, Map<String, Object> variables) {
 		Assert.hasText(definitionKey, "Definition key cannot be null!");
 
 		IdmIdentity applicantIdentity = null;
@@ -84,8 +84,8 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
 		if (variables != null) {
-			for (String key : variables.keySet()) {
-				builder.addVariable(key, variables.get(key));
+			for (Entry<String, Object> entry : variables.entrySet()) {
+				builder.addVariable(entry.getKey(), entry.getValue());
 			}
 		}
 
@@ -132,8 +132,8 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			query.processDefinitionKeys(processDefinitionKeys);
 		}
 		if (equalsVariables != null) {
-			for (String key : equalsVariables.keySet()) {
-				query.variableValueEquals(key, equalsVariables.get(key));
+			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
 		// check security ... only involved user or applicant can work with

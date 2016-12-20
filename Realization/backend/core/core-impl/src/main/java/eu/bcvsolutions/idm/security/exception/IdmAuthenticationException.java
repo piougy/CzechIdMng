@@ -2,6 +2,12 @@ package eu.bcvsolutions.idm.security.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
+/**
+ * Authentication exception
+ * 
+ * @author svandav
+ *
+ */
 public class IdmAuthenticationException extends AuthenticationException {
 
 	/**
@@ -11,6 +17,10 @@ public class IdmAuthenticationException extends AuthenticationException {
 
 	public IdmAuthenticationException(String msg) {
 		super(msg);
+	}
+	
+	public IdmAuthenticationException(String msg, Throwable ex) {
+		super(msg, ex);
 	}
 
 }

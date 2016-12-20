@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
@@ -19,10 +20,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.config.domain.EmailerConfiguration;
+import eu.bcvsolutions.idm.core.config.domain.DefaultEmailerConfiguration;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.service.EmailService;
-import eu.bcvsolutions.idm.notification.service.Emailer;
+import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.Emailer;
 
 /**
  * Default email sender implementation
@@ -45,7 +46,7 @@ public class DefaultEmailer implements Emailer {
     private ProducerTemplate producerTemplate;
 	
 	@Autowired
-	private EmailerConfiguration configuration;
+	private DefaultEmailerConfiguration configuration;
 	
 	public boolean send(IdmEmailLog emailLog) {
 		log.debug("Sending email [{}]", emailLog);
@@ -143,17 +144,17 @@ public class DefaultEmailer implements Emailer {
 	 */
 	private static class EmailCallback extends SynchronizationAdapter {
 		
-		private final Long emailLogId;
+		private final UUID emailLogId;
 		private final EmailService emailService;
 		
-		public EmailCallback(Long emailLogId, EmailService emailService) {
+		public EmailCallback(UUID emailLogId, EmailService emailService) {
 			this.emailLogId = emailLogId;
 			this.emailService = emailService;
 		}
 		
 		@Override
 	    public void onFailure(Exchange exchange) {			
-			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception can not be null here
+			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception cannot be null here
 			emailService.setEmailSentLog(emailLogId, StringUtils.abbreviate(exchange.getException().toString(), DefaultFieldLengths.LOG));
 		}		
 		

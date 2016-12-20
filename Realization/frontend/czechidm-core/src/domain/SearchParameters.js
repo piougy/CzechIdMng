@@ -230,9 +230,42 @@ export default class SearchParameters {
     });
     // filterable
     this.filters.forEach((filter, property) => {
-      url += `&${property}=${encodeURIComponent(filter)}`;
+      if (filter !== null && filter !== undefined) {
+        url += `&${property}=${encodeURIComponent(filter)}`;
+      }
     });
     return url;
+  }
+
+  /**
+   * Returs true, if searchparameters are equals
+   *
+   * @param  {SearchParameters} other
+   * @return {bool}
+   */
+  equals(other) {
+    return this.name === other.getName()
+      && this.page === other.getPage()
+      && this.size === other.getSize()
+      && Immutable.is(this.filters, other.getFilters())
+      && Immutable.is(this.sorts, other.getSorts());
+  }
+
+  /**
+   * Returs true, if searchparameters are equals
+   *
+   * @param  {SearchParameters} one
+   * @param  {SearchParameters} two
+   * @return {bool}
+   */
+  static is(one, two) {
+    if (!one && !two) {
+      return true;
+    }
+    if ((one && !two) || (!one && two)) {
+      return false;
+    }
+    return one.equals(two);
   }
 }
 
@@ -246,3 +279,8 @@ SearchParameters.NAME_QUICK = 'quick';
  * @type {Number}
  */
 SearchParameters.DEFAUT_SIZE = 10;
+/**
+ * Blank UUID. Can be use for sitiuations when we don't have ID for some entity, but we need use some "default" value.
+ * @type {String}
+ */
+SearchParameters.BLANK_UUID = '00000000-0000-0000-0000-000000000000';

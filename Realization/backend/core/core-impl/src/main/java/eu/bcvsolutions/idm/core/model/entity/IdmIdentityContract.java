@@ -1,19 +1,21 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -28,17 +30,18 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  */
 @Entity
 @Table(name = "idm_identity_contract", indexes = {
-		@Index(name = "idx_idm_identity_contract_guarantee", columnList = "guarantee_id"),
-		@Index(name = "idx_idm_identity_contract_identity", columnList = "identity_id"),
-		@Index(name = "idx_idm_identity_contract_working_position", columnList = "working_position_id")})
+		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
+		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
+		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
 public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 
 	@Audited
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity identity;
 	
 	@Audited
@@ -53,12 +56,16 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "guarantee_id", referencedColumnName = "id")
+	@JoinColumn(name = "guarantee_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmIdentity guarantee;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "working_position_id", referencedColumnName = "id")
+	@JoinColumn(name = "working_position_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmTreeNode workingPosition;
 	
 	@Audited
@@ -66,10 +73,15 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "position", length = DefaultFieldLengths.NAME)
 	private String position; // string position - if working position tree is not configured, then this string could be used
 	
+	@Audited
+	@NotNull
+	@Column(name = "externe", nullable = false)
+	private boolean externe;
+	
 	public IdmIdentityContract() {
 	}
 	
-	public IdmIdentityContract(Long id) {
+	public IdmIdentityContract(UUID id) {
 		super(id);
 	}
 
@@ -105,6 +117,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.workingPosition = workingPosition;
 	}
 
+	/**
+	 * Manually defined  manager (if no tree structure is defined etc.)
+	 * 
+	 * @return
+	 */
 	public IdmIdentity getGuarantee() {
 		return guarantee;
 	}
@@ -113,11 +130,29 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		this.guarantee = guarantee;
 	}
 	
+	/**
+	 * Working position (if no tree structure is defined etc.)
+	 * 
+	 * @return
+	 */
+	public String getPosition() {
+		return position;
+	}
+	
 	public void setPosition(String position) {
 		this.position = position;
 	}
 	
-	public String getPosition() {
-		return position;
+	/**
+	 * Externe working position
+	 * 
+	 * @return
+	 */
+	public boolean isExterne() {
+		return externe;
+	}
+	
+	public void setExterne(boolean externe) {
+		this.externe = externe;
 	}
 }

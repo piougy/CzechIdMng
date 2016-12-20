@@ -2,6 +2,7 @@ module.exports = {
   'id': 'core',
   'npmName': 'czechidm-core',
   'name': 'Core',
+  'disableable': false,
   'description': 'Core functionallity. Defines basic navigation structure, routes etc. Has lowest priority, could be overriden.',
   'mainStyleFile': 'src/css/main.less',
   'mainRouteFile': 'routes.js',
@@ -32,6 +33,14 @@ module.exports = {
             'priority': 0,
             'path': '/identity/:entityId/profile',
             'icon': 'user'
+          },
+          {
+            'id': 'profile-eav',
+            'type': 'TAB',
+            'labelKey': 'content.identity.eav.title',
+            'order': 11,
+            'priority': 0,
+            'path': '/identity/:entityId/eav',
           },
           {
             'id': 'profile-password',
@@ -121,6 +130,7 @@ module.exports = {
         'icon': 'tree-deciduous',
         'order': 1050,
         'iconColor': '#419641',
+        'path': '/tree/nodes',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
         'items': [
           {
@@ -182,6 +192,7 @@ module.exports = {
         'labelKey': 'content.audit.title',
         'icon': 'stats',
         'order': 1900,
+        'path': '/workflow/history/processes',
         'items': [
           {
             'id': 'workflow-historic-processes',
@@ -214,6 +225,19 @@ module.exports = {
               {
                 'type': 'HAS_ANY_AUTHORITY',
                 'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
+            'id': 'audit-entities',
+            'labelKey': 'content.audit.title-entities',
+            'order': 40,
+            'path': '/audit/entities',
+            'icon': 'eye-open',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['AUDIT_READ']
               }
             ]
           }

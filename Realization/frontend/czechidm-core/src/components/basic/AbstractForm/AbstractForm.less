@@ -10,6 +10,11 @@
   }
 }
 
+input[readonly].confidential {
+  // confidential field could be edited on input click
+  cursor: text;
+}
+
 .form-horizontal {
   .form-group {
     margin-bottom: 7px;
@@ -35,7 +40,8 @@
 }
 
 .abstract-form {
-  background-color: #FDFDFD;
+  // maybe will be useful in future ...
+  // background-color: #FDFDFD;
 }
 
 .panel {

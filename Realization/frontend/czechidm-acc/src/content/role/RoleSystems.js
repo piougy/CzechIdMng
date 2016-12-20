@@ -1,15 +1,16 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { RoleSystemManager, SystemManager } from '../../redux';
+import { RoleSystemManager} from '../../redux';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import uuid from 'uuid';
 
 const uiKey = 'role-systems-table';
 const manager = new RoleSystemManager();
-const systemManager = new SystemManager();
 const roleManager = new Managers.RoleManager();
+
 
 class RoleSystems extends Basic.AbstractTableContent {
 
@@ -33,40 +34,20 @@ class RoleSystems extends Basic.AbstractTableContent {
     this.selectNavigationItems(['roles', 'role-systems']);
   }
 
-  showDetail(entity) {
-    const entityFormData = _.merge({}, entity, {
-      role: entity.id && entity._embedded.role ? entity._embedded.role.id : this.props.params.entityId,
-      system: entity.id && entity._embedded.system ? entity._embedded.system.id : null
-    });
-
-    super.showDetail(entityFormData, () => {
-      this.refs.system.focus();
-    });
-  }
-
-  save(entity, event) {
-    const formEntity = this.refs.form.getData();
-    formEntity.role = roleManager.getSelfLink(formEntity.role);
-    formEntity.system = systemManager.getSelfLink(formEntity.system);
-    //
-    super.save(formEntity, event);
-  }
-
-  afterSave(entity, error) {
-    if (!error) {
-      this.addMessage({ message: this.i18n('save.success', { system: entity._embedded.system.name, role: entity._embedded.role.name }) });
+  showDetail(entity, add) {
+    const roleId = this.props.params.entityId;
+    if (add) {
+      // When we add new object class, then we need id of role as parametr and use "new" url
+      const uuidId = uuid.v1();
+      this.context.router.push(`/role/${roleId}/systems/${uuidId}/new?new=1`);
+    } else {
+      this.context.router.push(`role/${roleId}/systems/${entity.id}/detail`);
     }
-    super.afterSave(entity, error);
   }
 
   render() {
     const { entityId } = this.props.params;
-    const { _showLoading, role } = this.props;
-    const { detail } = this.state;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleId', entityId);
-
-    const _role = role || {};
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -92,7 +73,7 @@ class RoleSystems extends Basic.AbstractTableContent {
             }
             buttons={
               [
-                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
+                <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, null, true)} rendered={Managers.SecurityManager.hasAnyAuthority(['ROLE_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}
@@ -108,70 +89,20 @@ class RoleSystems extends Basic.AbstractTableContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
-                      onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                      onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
                   );
                 }
               }/>
+            <Advanced.Column property="systemEntityHandling.entityType" header={this.i18n('acc:entity.RoleSystem.systemEntityHandling')} sort face="enum" enumClass={SystemEntityTypeEnum} />
             <Advanced.ColumnLink
               to="/system/:_target/detail"
-              target="_embedded.system.id"
+              target="system.id"
               access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-              property="_embedded.system.name"
+              property="system.name"
               header={this.i18n('acc:entity.RoleSystem.system')}
               sort/>
-            <Advanced.Column property="type" header={this.i18n('acc:entity.RoleSystem.type')} sort face="text" />
           </Advanced.Table>
         </Basic.Panel>
-
-        <Basic.Modal
-          bsSize="default"
-          show={detail.show}
-          onHide={this.closeDetail.bind(this)}
-          backdrop="static"
-          keyboard={!_showLoading}>
-
-          <form onSubmit={this.save.bind(this, {})}>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header', { role: _role.name })} rendered={detail.entity.id === undefined}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name, role: _role.name })} rendered={detail.entity.id !== undefined}/>
-            <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
-                <Basic.SelectBox
-                  ref="role"
-                  manager={roleManager}
-                  label={this.i18n('acc:entity.RoleSystem.role')}
-                  readOnly
-                  required/>
-                <Basic.SelectBox
-                  ref="system"
-                  manager={systemManager}
-                  label={this.i18n('acc:entity.RoleSystem.system')}
-                  required/>
-                <Basic.TextField
-                  ref="type"
-                  label={this.i18n('acc:entity.RoleSystem.type')}
-                  required
-                  max={255}/>
-              </Basic.AbstractForm>
-            </Basic.Modal.Body>
-
-            <Basic.Modal.Footer>
-              <Basic.Button
-                level="link"
-                onClick={this.closeDetail.bind(this)}
-                showLoading={_showLoading}>
-                {this.i18n('button.close')}
-              </Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoading={_showLoading}
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.Modal.Footer>
-          </form>
-        </Basic.Modal>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Domain, Utils} from 'czechidm-core';
 
 class SystemService extends Services.AbstractService {
 
@@ -21,6 +21,125 @@ class SystemService extends Services.AbstractService {
    */
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('name');
+  }
+
+  generateSchema(id) {
+    return Services.RestApiService.post(this.getApiPath() + `/${id}/generate-schema`, null).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Returns connector form definition to given system
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getConnectorFormDefinition(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${id}/connector-form-definition`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns filled connector configuration
+	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
+	 *
+   * @param  {string} id system identifier
+   * @return {promise}
+   */
+  getConnectorFormValues(id) {
+    return Services.RestApiService
+      .get(this.getApiPath() + `/${id}/connector-form-values`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Saves connector configuration form values
+   *
+   * @param  {string} id system identifier
+   * @param  {arrayOf(entity)} values filled form values
+   * @return {promise}
+   */
+  saveConnectorFormValues(id, values) {
+    return Services.RestApiService
+      .post(this.getApiPath() + `/${id}/connector-form-values`, values)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Returns all available connectors
+   *
+   * @return {promise}
+   */
+  getAvailableConnectors() {
+    // TODO: remote connectors, filter etc.
+    return Services.RestApiService
+      .get(Services.RestApiService.getUrl(`/connectors/search/local`))
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }
 

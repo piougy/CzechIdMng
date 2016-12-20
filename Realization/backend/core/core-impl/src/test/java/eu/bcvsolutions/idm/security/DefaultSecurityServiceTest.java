@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,12 +18,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import eu.bcvsolutions.idm.core.AbstractUnitTest;
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
+import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
  * Test for {@link DefaultSecurityService}
@@ -36,7 +38,11 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 	private static final String ORIGINAL_USERNAME = "original_username";
 	private static final String TEST_AUTHORITY = "TEST_AUTHORITY";
 	private static final Collection<GrantedAuthority> AUTHORITIES = Arrays.asList(new DefaultGrantedAuthority(TEST_AUTHORITY));	
-	private static final IdmJwtAuthentication AUTHENTICATION = new IdmJwtAuthentication(CURRENT_USERNAME, ORIGINAL_USERNAME, new Date(), AUTHORITIES);
+	private static final IdmJwtAuthentication AUTHENTICATION = new IdmJwtAuthentication(
+			new IdentityDto(CURRENT_USERNAME), 
+			new IdentityDto(ORIGINAL_USERNAME), 
+			new Date(), 
+			AUTHORITIES);
 	
 	@Mock
 	private SecurityContext securityContext;
@@ -81,6 +87,6 @@ public class DefaultSecurityServiceTest extends AbstractUnitTest {
 		//
 		assertTrue(result);
 		//
-		verify(securityContext).getAuthentication();
+		verify(securityContext, times(2)).getAuthentication();
 	}	
 }

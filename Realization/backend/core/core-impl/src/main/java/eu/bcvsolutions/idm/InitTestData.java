@@ -13,20 +13,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
-import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
-import eu.bcvsolutions.idm.security.domain.IdmJwtAuthentication;
 
 /**
  * Initialize demo data for application
@@ -56,19 +58,19 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 	private InitApplicationData initApplicationData;
 	
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private IdmIdentityService identityService;
 
 	@Autowired
-	private IdmRoleRepository roleRepository;
+	private IdmRoleService roleService;
 
 	@Autowired
-	private IdmTreeNodeRepository treeNodeRepository;
+	private IdmTreeNodeService treeNodeService;
 	
 	@Autowired
-	private IdmTreeTypeRepository treeTypeRepository;
+	private IdmTreeTypeService treeTypeService;
 
 	@Autowired
-	private IdmIdentityContractRepository identityContractRepository;
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private SecurityService securityService;
@@ -86,18 +88,18 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		initApplicationData.init();
 		//
 		// TODO: runAs
-		SecurityContextHolder.getContext().setAuthentication(
-				new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
+		securityService.setAuthentication(
+				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
 		try {
-			IdmRole superAdminRole = this.roleRepository.findOneByName(InitApplicationData.ADMIN_ROLE);
-			IdmTreeNode rootOrganization = treeNodeRepository.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
+			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
+			IdmTreeNode rootOrganization = treeNodeService.findRoots(null, new PageRequest(0, 1)).getContent().get(0);
 			//
 			if (!configurationService.getBooleanValue(PARAMETER_TEST_DATA_CREATED, false)) {
 				log.info("Creating test data ...");		
 				//
 				IdmRole role1 = new IdmRole();
 				role1.setName(TEST_USER_ROLE);
-				role1 = this.roleRepository.save(role1);
+				role1 = this.roleService.save(role1);
 				log.info(MessageFormat.format("Test role created [id: {0}]", role1.getId()));
 				//
 				IdmRole role2 = new IdmRole();
@@ -105,7 +107,7 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				List<IdmRoleComposition> subRoles = new ArrayList<>();
 				subRoles.add(new IdmRoleComposition(role2, superAdminRole));
 				role2.setSubRoles(subRoles);
-				role2 = this.roleRepository.save(role2);
+				role2 = this.roleService.save(role2);
 				role2.setApproveAddWorkflow("approveRoleByUserTomiska");
 				log.info(MessageFormat.format("Test role created [id: {0}]", role2.getId()));
 				//
@@ -113,29 +115,26 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				// Users for JUnit testing
 				IdmIdentity testUser1 = new IdmIdentity();
 				testUser1.setUsername(TEST_USER_1);
-				testUser1.setPassword("heslo".getBytes());
+				testUser1.setPassword(new GuardedString("heslo"));
 				testUser1.setFirstName("Test");
 				testUser1.setLastName("First User");
 				testUser1.setEmail("test1@bscsolutions.eu");
-				testUser1 = this.identityRepository.save(testUser1);
-				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));
-				this.identityRepository.save(testUser1);
-				
+				testUser1 = this.identityService.save(testUser1);
+				log.info(MessageFormat.format("Identity created [id: {0}]", testUser1.getId()));				
 
 				IdmIdentity testUser2 = new IdmIdentity();
 				testUser2.setUsername(TEST_USER_2);
-				testUser2.setPassword("heslo".getBytes());
+				testUser2.setPassword(new GuardedString("heslo"));
 				testUser2.setFirstName("Test");
 				testUser2.setLastName("Second User");
 				testUser2.setEmail("test2@bscsolutions.eu");
-				testUser2 = this.identityRepository.save(testUser2);
+				testUser2 = this.identityService.save(testUser2);
 				log.info(MessageFormat.format("Identity created [id: {0}]", testUser2.getId()));
-				this.identityRepository.save(testUser2);
 			
 				IdmTreeType type = new IdmTreeType();
 				type.setCode("ROOT_TYPE");
 				type.setName("ROOT_TYPE");
-				this.treeTypeRepository.save(type);
+				this.treeTypeService.save(type);
 				
 				
 				IdmTreeNode organization = new IdmTreeNode();
@@ -144,13 +143,13 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 				organization.setCreator("ja");
 				organization.setParent(rootOrganization);
 				organization.setTreeType(type);
-				this.treeNodeRepository.save(organization);
+				this.treeNodeService.save(organization);
 				
 				IdmIdentityContract identityWorkingPosition2 = new IdmIdentityContract();
 				identityWorkingPosition2.setIdentity(testUser1);
 				identityWorkingPosition2.setGuarantee(testUser2);
 				identityWorkingPosition2.setWorkingPosition(organization);
-				identityContractRepository.save(identityWorkingPosition2);
+				identityContractService.save(identityWorkingPosition2);
 				//
 				log.info("Test data was created.");
 				//

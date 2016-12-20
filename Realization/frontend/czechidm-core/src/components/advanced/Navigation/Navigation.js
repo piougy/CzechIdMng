@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import * as Basic from '../../basic';
 import {ConfigurationManager} from '../../../redux/data';
 import {SecurityManager} from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters } from '../../../redux/layout/layoutActions';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation } from '../../../redux/layout/layoutActions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
@@ -108,7 +108,7 @@ export class Navigation extends Basic.AbstractContextComponent {
     );
   }
 
-  renderNavigationItem(item, userContext, activeItem, titlePlacement = 'bottom') {
+  renderNavigationItem(item, userContext, activeItem, titlePlacement = 'bottom', navigationCollapsed = false) {
     switch (item.type) {
       case 'DYNAMIC': {
         return (
@@ -121,7 +121,8 @@ export class Navigation extends Basic.AbstractContextComponent {
             icon={item.icon}
             iconColor={item.iconColor}
             active={activeItem === item.id}
-            text={this._resolveNavigationItemText(item, userContext)}/>
+            text={this._resolveNavigationItemText(item, userContext)}
+            collapsed={navigationCollapsed}/>
         );
       }
       case 'TAB': {
@@ -138,9 +139,16 @@ export class Navigation extends Basic.AbstractContextComponent {
     }
   }
 
+  toogleNavigationCollapse(navigationCollapsed, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.context.store.dispatch(collapseNavigation(!navigationCollapsed));
+  }
+
   // TODO: refator all sibedars (react component, drop original sibebar = detailTabs)
   renderSidebarItems(parentId = null, level = 0) {
-    const { navigation, userContext, selectedNavigationItems } = this.props;
+    const { navigation, navigationCollapsed, userContext, selectedNavigationItems } = this.props;
     level = level + 1;
     const levelItems = getNavigationItems(navigation, parentId, 'main', userContext);
     if (!levelItems || levelItems.length === 0) {
@@ -154,19 +162,27 @@ export class Navigation extends Basic.AbstractContextComponent {
       }
       const children = this.renderSidebarItems(levelItem.id, level);
       const isActive = selectedNavigationItems.length >= level && selectedNavigationItems[level - 1] === levelItem.id;
-      if (children) {
+      if (children && !navigationCollapsed) {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
             <a href="#">
               <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
-              {this._resolveNavigationItemText(levelItem, userContext)}
-              <span className="fa arrow"></span>
+              {
+                navigationCollapsed
+                ?
+                null
+                :
+                <span>
+                  { this._resolveNavigationItemText(levelItem, userContext) }
+                  <span className="fa arrow"></span>
+                </span>
+              }
             </a>
-            {children}
+            { children }
           </li>
         );
       } else {
-        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right');
+        const item = this.renderNavigationItem(levelItem, userContext, selectedNavigationItems.length >= level ? selectedNavigationItems[level - 1] : null, 'right', navigationCollapsed);
         if (item) {
           items.push(item);
         }
@@ -177,12 +193,31 @@ export class Navigation extends Basic.AbstractContextComponent {
       return null;
     }
 
+    if (level === 100) { // collapse menu prepare
+      items.push(
+        <li>
+          <a href="#" onClick={this.toogleNavigationCollapse.bind(this, navigationCollapsed)}>
+            <Basic.Icon value={`arrow-${navigationCollapsed ? 'right' : 'left'}`}/>
+              {
+                navigationCollapsed
+                ?
+                null
+                :
+                <span style={{ color: '#bbb' }}>
+                  Zmenšit menu
+                </span>
+              }
+          </a>
+        </li>
+      );
+    }
+
     const classNames = classnames(
       'nav',
       { 'metismenu': level === 1 },
       { 'nav-second-level': level === 2 },
       { 'nav-third-level': level === 3 },
-      { 'hidden': level > 3 }, // only three levels are supported
+      { 'hidden': (level > 3 || (navigationCollapsed && level > 1)) }, // only three levels are supported
       { 'in': (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) === parentId },
       { 'collapse': parentId && !this._isSelected(selectedNavigationItems, parentId) && (selectedNavigationItems.length > level - 1 && selectedNavigationItems[level - 2]) !== parentId }
     );
@@ -208,7 +243,11 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { environment, userContext } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered } = this.props;
+    //
+    if (!rendered) {
+      return false;
+    }
 
     let environmentLabel = null;
     if (environment) {
@@ -232,6 +271,12 @@ export class Navigation extends Basic.AbstractContextComponent {
     const systemItems = this.renderNavigationItems('system');
     const sidebarItems = this.renderSidebarItems();
 
+    const sidebarClassName = classnames(
+      'navbar-default',
+      'sidebar',
+      { collapsed: navigationCollapsed }
+    );
+
     return (
       <div>
         <header>
@@ -249,7 +294,7 @@ export class Navigation extends Basic.AbstractContextComponent {
             </div>
             <div id="navbar" className="navbar-collapse">
               {
-                !SecurityManager.isAuthenticated(userContext)
+                !userContext.isExpired && !SecurityManager.isAuthenticated(userContext)
                 ?
                 <ul className="nav navbar-nav">
                   {mainItems}
@@ -259,13 +304,17 @@ export class Navigation extends Basic.AbstractContextComponent {
               }
               <ul className="nav navbar-nav navbar-right">
                 {environmentLabel}
-                {systemItems}
+                {
+                  userContext.isExpired
+                  ||
+                  systemItems
+                }
               </ul>
             </div>
             {
-              SecurityManager.isAuthenticated(userContext)
+              !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
               ?
-              <div className="navbar-default sidebar" role="navigation">
+              <div className={sidebarClassName} role="navigation">
                 <div className="sidebar-nav navbar-collapse">
                   {sidebarItems}
                 </div>
@@ -281,14 +330,18 @@ export class Navigation extends Basic.AbstractContextComponent {
 }
 
 Navigation.propTypes = {
+  rendered: PropTypes.bool,
   navigation: PropTypes.object,
+  navigationCollapsed: PropTypes.bool,
   selectedNavigationItems: PropTypes.array,
   environment: PropTypes.string,
   userContext: PropTypes.object
 };
 
 Navigation.defaultProps = {
+  rendered: true,
   navigation: null,
+  navigationCollapsed: false,
   selectedNavigationItems: null,
   environment: null,
   userContext: null
@@ -306,6 +359,7 @@ function select(state) {
   }
   return {
     navigation: state.layout.get('navigation'),
+    navigationCollapsed: state.layout.get('navigationCollapsed'),
     selectedNavigationItems: state.layout.get('selectedNavigationItems'),
     environment,
     userContext: state.security.userContext

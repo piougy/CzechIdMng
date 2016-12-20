@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager, TreeTypeManager, SecurityManager } from '../../../redux';
 import _ from 'lodash';
-import * as Utils from '../../../utils';
 
 /**
  * Node detail content
@@ -23,13 +22,13 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    const { node, type, isRoot } = this.props;
+    const { node, type } = this.props;
     this.selectNavigationItem('tree-nodes');
     if (node !== undefined) {
       const loadedNode = _.merge({ }, node);
       // if exist _embedded - edit node, if not exist create new
       if (node._embedded) {
-        if (!isRoot) {
+        if (node._embedded.parent) {
           loadedNode.parent = node._embedded.parent.id;
         }
         loadedNode.treeType = node._embedded.treeType.id;
@@ -37,7 +36,7 @@ export default class NodeDetail extends Basic.AbstractContent {
         loadedNode.treeType = type;
       }
       this.refs.form.setData(loadedNode);
-      this.refs.parent.focus();
+      this.refs.code.focus();
     }
   }
 
@@ -82,6 +81,7 @@ export default class NodeDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+    this.context.store.dispatch(this.treeNodeManager.clearEntities());
     this.context.router.replace(`tree/nodes/?type=${entity._embedded.treeType.id}`);
   }
 
@@ -89,13 +89,8 @@ export default class NodeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, isRoot, type, node } = this.props;
+    const { uiKey, type } = this.props;
     const { showLoading } = this.state;
-
-    let parentRequired = true;
-    if (Utils.Entity.isNew(node) || isRoot) {
-      parentRequired = false;
-    }
 
     return (
       <div>
@@ -107,12 +102,6 @@ export default class NodeDetail extends Basic.AbstractContent {
               manager={this.treeTypeManager}
               required
               readOnly/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.TreeNode.parent.name')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
-              manager={this.treeNodeManager}
-              required={parentRequired}/>
             <Basic.TextField
               ref="code"
               label={this.i18n('entity.TreeType.code')}
@@ -124,6 +113,11 @@ export default class NodeDetail extends Basic.AbstractContent {
               required
               min={0}
               max={255}/>
+            <Basic.SelectBox
+              ref="parent"
+              label={this.i18n('entity.TreeNode.parent.name')}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              manager={this.treeNodeManager}/>
             <Basic.Checkbox
               ref="disabled"
               label={this.i18n('entity.TreeNode.disabled')}/>
@@ -148,7 +142,6 @@ export default class NodeDetail extends Basic.AbstractContent {
 
 NodeDetail.propTypes = {
   node: PropTypes.object,
-  type: PropTypes.number,
-  isRoot: PropTypes.bool,
+  type: PropTypes.string,
   uiKey: PropTypes.string.isRequired,
 };

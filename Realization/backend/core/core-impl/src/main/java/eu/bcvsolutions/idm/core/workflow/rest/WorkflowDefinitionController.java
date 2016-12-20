@@ -26,11 +26,11 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.workflow.domain.WorkflowDefinitionAssembler;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessDefinitionDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionService;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
 
 /**
  * Rest controller for workflow task instance
@@ -39,7 +39,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessDefinitionServic
  *
  */
 @RestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow/definitions")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/workflow-definitions")
 public class WorkflowDefinitionController {
 
 	@Autowired

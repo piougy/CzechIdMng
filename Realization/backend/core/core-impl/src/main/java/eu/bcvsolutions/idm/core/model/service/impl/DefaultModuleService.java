@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
-import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
 /**
@@ -28,9 +28,9 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
  */
 @Service
 public class DefaultModuleService implements ModuleService {
-
-	private static final String ENABLED_PROPERTY = "enabled";
-
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultModuleService.class);
+	
 	private final PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
 	private final IdmConfigurationService configurationService;
 
@@ -83,29 +83,37 @@ public class DefaultModuleService implements ModuleService {
 			return true;
 		}
 		return configurationService.getBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), false, ENABLED_PROPERTY), false);
+				getModuleConfigurationProperty(moduleDescriptor.getId(), PROPERTY_ENABLED), false);
 	}
 
+	@Override
 	public void enable(String moduleId) {
 		setEnabled(moduleId, true);
 	}
 
+	@Override
 	public void disable(String moduleId) {
 		setEnabled(moduleId, false);
 	}
 
+	@Override
 	public void setEnabled(String moduleId, boolean enabled) {
 		ModuleDescriptor moduleDescriptor = moduleDescriptorRegistry.getPluginFor(moduleId);
-		Assert.notNull(moduleDescriptor, "Module [" + moduleId + "] does not exist");
-		if (!enabled && !moduleDescriptor.isDisableable()) {
-			throw new ModuleNotDisableableException(moduleId);
+		if (moduleDescriptor == null) {
+			LOG.info("Frontend module [{}] will be enabled [{}].", moduleId, enabled);
+		} else {
+			if (!enabled && !moduleDescriptor.isDisableable()) {
+				throw new ModuleNotDisableableException(moduleId);
+			}
+			LOG.info("Backend module [{}] will be enabled [{}].", moduleId, enabled);
+			//
+			// TODO: license check if module is enabling
 		}		
-		//
-		// TODO: license check if module is enabling
 		configurationService.setBooleanValue(
-				getModuleConfigurationProperty(moduleDescriptor.getId(), false, ENABLED_PROPERTY), enabled);
+				getModuleConfigurationProperty(moduleId, PROPERTY_ENABLED), enabled);
 	}
 	
+	@Override
 	public List<GroupPermission> getAvailablePermissions() {
 		List<GroupPermission> perrmissions = new ArrayList<>();
 		getEnabledModules().forEach(moduleDescriptor -> {
@@ -118,15 +126,13 @@ public class DefaultModuleService implements ModuleService {
 	 * Returns module property by {@link IdmConfiguratioService} conventions.
 	 * 
 	 * @param moduleId
-	 * @param secured
 	 * @param property
 	 * @return
 	 */
-	private static String getModuleConfigurationProperty(String moduleId, boolean secured, String property) {
-		return secured //
-				? IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX //
-				: IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
-				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property; //
+	@Override
+	public String getModuleConfigurationProperty(String moduleId, String property) {
+		return IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
+				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property;
 	}
 
 }

@@ -1,45 +1,50 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.hateoas.Identifiable;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
  * Common entity
  * 
+ * @see {@link AuditingEntityListener}
  * @author Radek Tomiška 
  *
  */
 @MappedSuperclass
-@EntityListeners({AuditingEntityListener.class})
-public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Identifiable<Long> {
+public abstract class AbstractEntity implements BaseEntity, Auditable {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
-	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	@JsonDeserialize(as = UUID.class)
+	@GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@Column(name = "id")
+	private UUID id;
 
 	@Audited
 	@CreatedDate
@@ -50,7 +55,7 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 
 	@Audited
 	@LastModifiedDate
-	@Column(name = "modified", nullable = false)
+	@Column(name = "modified")
 	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	@JsonProperty(access = Access.READ_ONLY)
 	private Date modified;
@@ -63,10 +68,20 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	private String creator;
 	
 	@Audited
+	@Column(name = "creator_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID creatorId;
+	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_creator", length = DefaultFieldLengths.NAME)
 	@JsonProperty(access = Access.READ_ONLY)
 	private String originalCreator;
+	
+	@Audited
+	@Column(name = "original_creator_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID originalCreatorId;
 
 	@Audited
 	@LastModifiedBy
@@ -76,28 +91,47 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	private String modifier;
 	
 	@Audited
+	@Column(name = "modifier_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID modifierId;
+	
+	@Audited
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "original_modifier", length = DefaultFieldLengths.NAME)
 	@JsonProperty(access = Access.READ_ONLY)
 	private String originalModifier;
+	
+	@Audited
+	@Column(name = "original_modifier_id")
+	@JsonProperty(access = Access.READ_ONLY)
+	private UUID originalModifierId;
 
 	public AbstractEntity() {
 	}
 
-	public AbstractEntity(Long id) {
-		this.id = id;
+	public AbstractEntity(UUID uuid) {
+		this.id = uuid;
 	}
 
+	/**
+	 * Entity identifier
+	 */
 	@Override
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
-
+	
 	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "AbstractEntity supports only UUID identifier. For different identifier generalize BaseEntity.");
+		}
+		this.id = (UUID) id;
 	}
 
+	/**
+	 * Created date
+	 */
 	@Override
 	public Date getCreated() {
 		return created;
@@ -117,6 +151,11 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
+	
+	@Override
+	public String getCreator() {
+		return creator;
+	}
 
 	@Override
 	public void setCreator(String creator) {
@@ -124,41 +163,86 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 	}
 
 	@Override
-	public String getCreator() {
-		return creator;
+	public String getModifier() {
+		return modifier;
 	}
-
+	
 	@Override
 	public void setModifier(String modifier) {
 		this.modifier = modifier;
 	}
 
 	@Override
-	public String getModifier() {
-		return modifier;
-	}
-
 	public String getOriginalCreator() {
 		return originalCreator;
 	}
 
+	@Override
 	public void setOriginalCreator(String originalCreator) {
 		this.originalCreator = originalCreator;
 	}
 
+	@Override
 	public String getOriginalModifier() {
 		return originalModifier;
 	}
 
+	@Override
 	public void setOriginalModifier(String originalModifier) {
 		this.originalModifier = originalModifier;
 	}
 	
 	@Override
+	public UUID getCreatorId() {
+		return creatorId;
+	}
+
+	@Override
+	public void setCreatorId(UUID creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	@Override
+	public UUID getOriginalCreatorId() {
+		return originalCreatorId;
+	}
+
+	@Override
+	public void setOriginalCreatorId(UUID originalCreatorId) {
+		this.originalCreatorId = originalCreatorId;
+	}
+
+	@Override
+	public UUID getModifierId() {
+		return modifierId;
+	}
+
+	@Override
+	public void setModifierId(UUID modifierId) {
+		this.modifierId = modifierId;
+	}
+
+	@Override
+	public UUID getOriginalModifierId() {
+		return originalModifierId;
+	}
+
+	@Override
+	public void setOriginalModifierId(UUID originalModifierId) {
+		this.originalModifierId = originalModifierId;
+	}
+	
+	/**
+	 * Class + entity identifier
+	 */
+	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -166,6 +250,9 @@ public abstract class AbstractEntity implements BaseEntity, AuditableEntity, Ide
 		return hash;
 	}
 
+	/**
+	 * Based on entity identifier
+	 */
 	@Override
 	public boolean equals(Object object) {
 		if (object == null || !object.getClass().equals(getClass())) {

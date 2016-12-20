@@ -1,6 +1,6 @@
 {
   "name": "czechidm-core",
-  "version": "0.1.0",
+  "version": "7.0.0",
   "description": "Core module for CzechIdM 2.0",
   "main": "index.js",
   "scripts": {
@@ -46,12 +46,14 @@
     "babel-runtime": "5.8.38",
     "bootstrap-less": "3.3.8",
     "classnames": "2.2.0",
+    "draft-js": "0.9.1",
+    "draft-js-export-html": "0.5.2",
     "es6-promise": "3.1.2",
     "font-awesome": "^4.6.1",
-    "i18next": "2.0.26",
-    "i18next-browser-languagedetector": "0.0.14",
-    "i18next-localstorage-cache": "0.0.4",
-    "i18next-xhr-backend": "0.3.0",
+    "i18next": "3.4.4",
+    "i18next-browser-languagedetector": "1.0.1",
+    "i18next-localstorage-cache": "0.3.0",
+    "i18next-xhr-backend": "1.2.1",
     "immutable": "3.7.6",
     "invariant": "2.2.0",
     "isomorphic-fetch": "2.2.1",
@@ -63,9 +65,10 @@
     "moment": "2.13.0",
     "normalize.less": "1.0.0",
     "object-assign": "4.0.1",
-    "react": "^15.1.0",
+    "react": "15.4.1",
+    "react-ace": "3.7.0",
     "react-bootstrap": "0.29.0",
-    "react-dom": "15.0.1",
+    "react-dom": "15.4.1",
     "react-dropzone": "3.5.0",
     "react-helmet": "2.3.1",
     "react-notification-system": "0.2.7",
@@ -111,7 +114,7 @@
     "nock": "^8.0.0",
     "path": "0.12.7",
     "pathmodify": "^0.5.0",
-    "react-addons-test-utils": "15.1.0",
+    "react-addons-test-utils": "15.4.1",
     "react-shallow-renderer-helpers": "2.0.2",
     "react-tools": "0.13.3",
     "redux-devtools": "2.1.5",
@@ -121,6 +124,7 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.7.0",
-    "yargs": "4.6.0"
+    "yargs": "4.6.0",
+    "zxcvbn": "4.4.1"
   }
 }

@@ -5,7 +5,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>7.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -23,6 +23,7 @@
 			<roles>
 				<role>Analyst</role>
 				<role>Product Owner</role>
+				<role>Architect</role>
 			</roles>
 		</developer>
 		<developer>
@@ -68,7 +69,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>io.spring.platform</groupId>
 				<artifactId>platform-bom</artifactId>
-				<version>2.0.5.RELEASE</version>
+				<version>2.0.8.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -76,12 +77,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-spring-boot-starter-basic</artifactId>
@@ -152,10 +147,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<dependency>
@@ -198,6 +189,11 @@
 			<artifactId>groovy-all</artifactId>
 		</dependency>
 		<dependency>
+		    <groupId>org.kohsuke</groupId>
+		    <artifactId>groovy-sandbox</artifactId>
+		    <version>1.11</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
 		</dependency>
@@ -230,58 +226,32 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
+		<!--ICF dependency -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<groupId>net.tirasa.connid</groupId>
+			<artifactId>connector-framework</artifactId>
+			<version>1.4.2.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
+			<groupId>net.tirasa.connid.bundles.db</groupId>
+			<artifactId>net.tirasa.connid.bundles.db.table</artifactId>
+			<version>2.2.4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+		  	<groupId>net.tirasa.connid.bundles</groupId>
+		  	<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
+		  	<version>1.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.restdocs</groupId>
-			<artifactId>spring-restdocs-mockmvc</artifactId>
-			<scope>test</scope>
+			<groupId>net.tirasa.connid.bundles</groupId>
+		  	<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
+		  	<version>0.8.5</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
+		<dependency>		
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9-RC1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.jayway.jsonpath</groupId>
-			<artifactId>json-path</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>

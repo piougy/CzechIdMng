@@ -5,6 +5,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../basic';
 import Filter from '../Filter/Filter';
+import SearchParameters from '../../../domain/SearchParameters';
 
 /**
  * Table component with header and columns.
@@ -19,12 +20,30 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     };
   }
 
+  /**
+   * Return component identifier, with can be used in localization etc.
+   *
+   * @return {string} component identifier
+   */
+  getComponentKey() {
+    return 'component.advanced.Table';
+  }
+
   componentDidMount() {
     this.reload();
   }
 
-  reload() {
-    const { rendered, _searchParameters } = this.props;
+  componentWillReceiveProps(newProps) {
+    if (!SearchParameters.is(newProps.forceSearchParameters, this.props.forceSearchParameters)) {
+      this.reload(newProps);
+    } else if (!SearchParameters.is(newProps.defaultSearchParameters, this.props.defaultSearchParameters)) {
+      this.reload(newProps);
+    }
+  }
+
+  reload(props = null) {
+    const _props = props || this.props;
+    const { rendered, _searchParameters } = _props;
     if (!rendered) {
       return;
     }
@@ -34,14 +53,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (_sp) {
       _sp = _sp.setPage(0);
     }
-    this.fetchEntities(_sp);
+    this.fetchEntities(_sp, _props);
   }
 
   /**
    * Merge hard, default and user deffined search parameters
    */
-  _mergeSearchParameters(searchParameters) {
-    const { defaultSearchParameters, forceSearchParameters, manager } = this.props;
+  _mergeSearchParameters(searchParameters, props = null) {
+    const _props = props || this.props;
+    const { defaultSearchParameters, forceSearchParameters, manager } = _props;
+    //
     let _forceSearchParameters = null;
     if (forceSearchParameters) {
       _forceSearchParameters = forceSearchParameters.setSize(null).setPage(null); // we dont want override setted pagination
@@ -49,9 +70,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return manager.mergeSearchParameters(searchParameters || defaultSearchParameters || manager.getDefaultSearchParameters(), _forceSearchParameters);
   }
 
-  fetchEntities(searchParameters) {
-    const { uiKey, manager } = this.props;
-    searchParameters = this._mergeSearchParameters(searchParameters);
+  fetchEntities(searchParameters, props = null) {
+    const _props = props || this.props;
+    const { uiKey, manager } = _props;
+    searchParameters = this._mergeSearchParameters(searchParameters, _props);
     this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error) => {
       if (error) {
         this.addErrorMessage({
@@ -183,7 +205,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     if (actionItem.action) {
       actionItem.action(actionItem.value, this.state.selectedRows);
     } else {
-      this.addMessage({ level: 'info', message: 'Omlouváme se, tato operace nebyla prozatím naimplementována.' });
+      this.addMessage({ level: 'info', message: this.i18n('bulk-action.notImplemented') });
     }
     return false;
   }
@@ -193,7 +215,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       return noData;
     }
     // default noData
-    return this.i18n('component.advanced.Table.noData', { defaultValue: 'No record found' });
+    return this.i18n('noData', { defaultValue: 'No record found' });
   }
 
   render() {
@@ -216,7 +238,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
       actions,
       buttons,
       noData,
-      ...others
+      style
     } = this.props;
     const {
       filterOpened,
@@ -320,7 +342,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     }
 
     return (
-      <div className="advanced-table" {...others}>
+      <div className="advanced-table" style={style}>
         {
           !filter && (actions === null || actions.length === 0 || !showRowSelection)
           ||
@@ -331,11 +353,10 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                   onChange={this.onBulkAction.bind(this)}
                   ref="bulkActionSelect"
                   componentSpan=""
-                  className={selectedRows <= 0 ? 'hidden' : 'bulk-action'}
+                  className={selectedRows.length <= 0 ? 'hidden' : 'bulk-action'}
                   multiSelect={false}
                   options={actions}
-                  placeholder={this.i18n('component.advanced.Table.bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
-                  readOnly={selectedRows <= 0}
+                  placeholder={this.i18n('bulk-action.selection' + (selectedRows.length === 0 ? '_empty' : ''), { count: selectedRows.length })}
                   rendered={actions !== null && actions.length > 0 && showRowSelection}
                   searchable={false}/>
               </div>
@@ -360,13 +381,13 @@ class AdvancedTable extends Basic.AbstractContextComponent {
             <div style={{ textAlign: 'center', display: 'none'}}>
               <Basic.Icon value="fa:warning"/>
               {' '}
-              { this.i18n('component.advanced.Table.error.load') }
+              { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
               <Basic.Button onClick={this.reload.bind(this)}>
                 <Basic.Icon value="fa:refresh"/>
                 {' '}
-                { this.i18n('component.advanced.Table.button.refresh') }
+                { this.i18n('button.refresh') }
               </Basic.Button>
             </div>
           </Basic.Alert>

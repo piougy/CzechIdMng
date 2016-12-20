@@ -4,7 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 
 /**
  * Dto for password change
@@ -15,11 +20,14 @@ public class PasswordChangeDto implements Serializable {
 
 	private static final long serialVersionUID = 8418885222359043739L;
 	private String identity;
-	private byte[] oldPassword;
-	@NotEmpty
-	private byte[] newPassword;
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString oldPassword;
+	@NotNull
+	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	private GuardedString newPassword;
 	private boolean idm = false; // change in idm
-	private List<String> resources; // selected resources
+	private boolean all = false; // all - idm and all accounts - has higher priority
+	private List<String> accounts; // selected accounts
 
 	public String getIdentity() {
 		return identity;
@@ -29,19 +37,19 @@ public class PasswordChangeDto implements Serializable {
 		this.identity = identity;
 	}
 
-	public byte[] getOldPassword() {
+	public GuardedString getOldPassword() {
 		return oldPassword;
 	}
 
-	public void setOldPassword(byte[] oldPassword) {
+	public void setOldPassword(GuardedString oldPassword) {
 		this.oldPassword = oldPassword;
 	}
 
-	public byte[] getNewPassword() {
+	public GuardedString getNewPassword() {
 		return newPassword;
 	}
 
-	public void setNewPassword(byte[] newPassword) {
+	public void setNewPassword(GuardedString newPassword) {
 		this.newPassword = newPassword;
 	}
 
@@ -53,14 +61,22 @@ public class PasswordChangeDto implements Serializable {
 		this.idm = idm;
 	}
 
-	public List<String> getResources() {
-		if(resources == null) {
-			resources = new ArrayList<>();
+	public List<String> getAccounts() {
+		if(accounts == null) {
+			accounts = new ArrayList<>();
 		}
-		return resources;
+		return accounts;
 	}
 
-	public void setResources(List<String> resources) {
-		this.resources = resources;
+	public void setAccounts(List<String> accounts) {
+		this.accounts = accounts;
+	}
+	
+	public void setAll(boolean all) {
+		this.all = all;
+	}
+	
+	public boolean isAll() {
+		return all;
 	}
 }

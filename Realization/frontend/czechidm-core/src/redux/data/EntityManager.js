@@ -7,6 +7,7 @@ import * as Utils from '../../utils';
 
 /**
  * action types
+ * TODO: move to action constant (prevent manager import only because action type usage)
  */
 export const REQUEST_ENTITIES = 'REQUEST_ENTITIES';
 export const RECEIVE_ENTITIES = 'RECEIVE_ENTITIES';
@@ -163,9 +164,12 @@ export default class EntityManager {
    * Load data from server
    */
   fetchEntities(searchParameters = null, uiKey = null, cb = null) {
-    searchParameters = this.getSearchParameters(searchParameters);
-    uiKey = this.resolveUiKey(uiKey);
-    return (dispatch) => {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      searchParameters = this.getSearchParameters(searchParameters);
+      uiKey = this.resolveUiKey(uiKey);
       dispatch(this.requestEntities(searchParameters, uiKey));
       this.getService().search(searchParameters)
       .then(json => {
@@ -219,8 +223,12 @@ export default class EntityManager {
    * @return {object} - action
    */
   fetchEntity(id, uiKey = null, cb = null) {
-    uiKey = this.resolveUiKey(uiKey, id);
-    return (dispatch) => {
+    return (dispatch, getState) => {
+      if (getState().security.userContext.isExpired) {
+        return;
+      }
+      //
+      uiKey = this.resolveUiKey(uiKey, id);
       dispatch(this.requestEntity(id, uiKey));
       this.getService().getById(id)
       .then(json => {
@@ -559,12 +567,13 @@ export default class EntityManager {
    * Returns entity, if entity is contained in applicateion state.
    * Can be used in select state.
    *
-   * @param  {state} state - application state
-   * @param  {string|number} id - entity identifier
+   * @param {state} state - application state
+   * @param {string|number} id - entity identifier
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {object} - entity
    */
-  getEntity(state, id) {
-    return Utils.Entity.getEntity(state, this.getEntityType(), id);
+  getEntity(state, id, trimmed = null) {
+    return Utils.Entity.getEntity(state, this.getEntityType(), id, trimmed);
   }
 
   /**
@@ -572,10 +581,11 @@ export default class EntityManager {
    *
    * @param  {state} state [description]
    * @param  {array[string|number]} ids  entity ids
+   * @param {bool} trimmed - trimmed or full entity is needed
    * @return {array[object]}
    */
-  getEntitiesByIds(state, ids = []) {
-    return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids);
+  getEntitiesByIds(state, ids = [], trimmed = null) {
+    return Utils.Entity.getEntitiesByIds(state, this.getEntityType(), ids, trimmed);
   }
 
   /**

@@ -14,19 +14,19 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.AbstractWorkflowTest;
+import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
-import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowHistoricTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowDeploymentService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
+import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
 
 /**
  * Test history of process and tasks
@@ -34,7 +34,7 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
  * @author svandav
  *
  */
-public class HistoryProcessAndTaskTest extends AbstractWorkflowTest {
+public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 
 	private static final String PROCESS_KEY = "testHistoryProcessAndTask";
 

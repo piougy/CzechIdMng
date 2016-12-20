@@ -2,8 +2,7 @@ package eu.bcvsolutions.idm.notification;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
-
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +80,7 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
-		Date start = new Date();
+		DateTime start = new DateTime();
 		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
 		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);		
 		

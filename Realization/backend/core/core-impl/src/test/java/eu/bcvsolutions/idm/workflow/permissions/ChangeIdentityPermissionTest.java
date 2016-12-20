@@ -3,16 +3,16 @@ package eu.bcvsolutions.idm.workflow.permissions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,7 +65,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	private IdmIdentityRoleRepository idmIdentityRoleRepository;
 	@Autowired
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	private DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
 
 	@Before
 	public void login() {
@@ -137,12 +137,9 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, true);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		Calendar c = Calendar.getInstance();
-		c.setTime(new Date());
-		c.add(Calendar.MONTH, -1);
-		Date validFrom = c.getTime();
-		c.add(Calendar.MONTH, 2);
-		Date validTill = c.getTime();
+		LocalDate localDate = new LocalDate();
+		LocalDate validFrom = localDate.minusMonths(1);
+		LocalDate validTill = localDate.plusMonths(1);
 		IdmIdentityRole superAdminPermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE);
 		
 		//Validity date form and till must be null 
@@ -191,8 +188,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		assertNotNull(superAdminPermission.getValidFrom());
 		assertNotNull(superAdminPermission.getValidTill());
 		// Validity date must be same as required validity on start of this test 
-		Assert.assertTrue(sdf.format(superAdminPermission.getValidFrom()).equals(sdf.format(validFrom)));
-		Assert.assertTrue(sdf.format(superAdminPermission.getValidTill()).equals(sdf.format(validTill)));
+		Assert.assertTrue(sdf.print(superAdminPermission.getValidFrom()).equals(sdf.print(validFrom)));
+		Assert.assertTrue(sdf.print(superAdminPermission.getValidTill()).equals(sdf.print(validTill)));
 		//Original modifier must be equal with applicant
 		Assert.assertTrue( "Original modifier must be equal with applicant", InitTestData.TEST_USER_1.equals(superAdminPermission.getOriginalModifier()));
 		
@@ -204,12 +201,9 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, true);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		Calendar c = Calendar.getInstance();
-		c.setTime(new Date());
-		c.add(Calendar.MONTH, -1);
-		Date validFrom = c.getTime();
-		c.add(Calendar.MONTH, 2);
-		Date validTill = c.getTime();
+		LocalDate localDate = new LocalDate();
+		LocalDate validFrom = localDate.minusMonths(1);
+		LocalDate validTill = localDate.plusMonths(1);
 		IdmIdentityRole userRolePermission = getPermission(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE);
 		
 		//Validity date form and till must be null 
@@ -246,8 +240,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		assertNotNull(userRolePermission.getValidFrom());
 		assertNotNull(userRolePermission.getValidTill());
 		// Validity date must be same as required validity on start of this test 
-		Assert.assertTrue(sdf.format(userRolePermission.getValidFrom()).equals(sdf.format(validFrom)));
-		Assert.assertTrue(sdf.format(userRolePermission.getValidTill()).equals(sdf.format(validTill)));
+		Assert.assertTrue(sdf.print(userRolePermission.getValidFrom()).equals(sdf.print(validFrom)));
+		Assert.assertTrue(sdf.print(userRolePermission.getValidTill()).equals(sdf.print(validTill)));
 		//Original modifier must be equal with applicant
 		Assert.assertTrue( "Original modifier must be equal with applicant", InitTestData.TEST_USER_1.equals(userRolePermission.getOriginalModifier()));
 		
@@ -425,24 +419,24 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		return createChangeRequest;
 	}
 
-	private Map<String, Object> createNewPermission(String roleName, Date validFrom, Date validTill) {
+	private Map<String, Object> createNewPermission(String roleName, LocalDate validFrom, LocalDate validTill) {
 		Map<String, Object> role = new HashMap<>();
 		Map<String, Object> roleEmbedded = new HashMap<>();
 		Map<String, Object> roleIdEmbedded = new HashMap<>();
 		roleEmbedded.put("role", roleIdEmbedded);
 		roleIdEmbedded.put("id", idmRoleRepository.findOneByName(roleName).getId());
-		role.put("validTill", validTill == null ? "" : sdf.format(validTill));
-		role.put("validFrom", validFrom == null ? "" : sdf.format(validFrom));
+		role.put("validTill", validTill == null ? "" : sdf.print(validTill));
+		role.put("validFrom", validFrom == null ? "" : sdf.print(validFrom));
 		role.put("_embedded", roleEmbedded);
 	
 		return role;
 	}
 	
-	private Map<String, Object> createChangePermission(UUID identityRoleId, Date validFrom, Date validTill) {
+	private Map<String, Object> createChangePermission(UUID identityRoleId, LocalDate validFrom, LocalDate validTill) {
 		Map<String, Object> role = new HashMap<>();
 		
-		role.put("validTill", validTill == null ? "" : sdf.format(validTill));
-		role.put("validFrom", validFrom == null ? "" : sdf.format(validFrom));
+		role.put("validTill", validTill == null ? "" : sdf.print(validTill));
+		role.put("validFrom", validFrom == null ? "" : sdf.print(validFrom));
 		role.put("id", identityRoleId);
 	
 		return role;

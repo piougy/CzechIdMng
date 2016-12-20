@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.repository.listener;
 
-import java.util.Date;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -15,6 +14,7 @@ import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.event.spi.PreUpdateEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +44,7 @@ public class AuditableListener implements PreInsertEventListener, PreUpdateEvent
 	@Override
 	public boolean onPreInsert(PreInsertEvent event) {
 		if (event.getEntity() instanceof Auditable) {
-			Date date = new Date();
+			DateTime date = new DateTime();
 			Auditable entity = (Auditable) event.getEntity();
 			//
 			setValue(event.getState(), event, Auditable.PROPERTY_CREATED, date);
@@ -79,7 +79,7 @@ public class AuditableListener implements PreInsertEventListener, PreUpdateEvent
 	@Override
 	public boolean onPreUpdate(PreUpdateEvent event) {
 		if (event.getEntity() instanceof Auditable) {
-			Date date = new Date();
+			DateTime date = new DateTime();
 			Auditable entity = (Auditable) event.getEntity();
 			//
 			setValue(event.getState(), event,  Auditable.PROPERTY_MODIFIED, date);

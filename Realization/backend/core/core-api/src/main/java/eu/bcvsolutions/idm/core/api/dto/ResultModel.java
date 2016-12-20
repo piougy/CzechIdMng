@@ -1,8 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.Date;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -25,7 +25,7 @@ public interface ResultModel {
 	 * 
 	 * @return
 	 */
-	Date getCreation();
+	DateTime getCreation();
 
 	/**
 	 * Internal message

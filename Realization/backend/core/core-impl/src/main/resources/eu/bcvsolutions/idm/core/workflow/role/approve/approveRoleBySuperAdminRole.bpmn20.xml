@@ -12,8 +12,8 @@
         <activiti:formProperty id="description" name="Poznámka" type="textArea" writable="false">
           <activiti:value id="placeholder" name="Poznámka"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost role od" type="date"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost role do" type="date">
+        <activiti:formProperty id="validFrom" name="Platnost role od" type="localDate"></activiti:formProperty>
+        <activiti:formProperty id="validTill" name="Platnost role do" type="localDate">
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
       </extensionElements>
@@ -79,10 +79,10 @@ execution.setVariable("validTill", validTillDateNew);
         <activiti:formProperty id="description" name="Poznámka" type="textArea" writable="false">
           <activiti:value id="placeholder" name="Poznámka"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="validFromDateOld" name="Původní platnost role od" type="date" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validFromDateNew" name="Nová platnost role od" type="date"></activiti:formProperty>
-        <activiti:formProperty id="validTillDateOld" name="Původní platnost role do" type="date" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTillDateNew" name="Nová platnost role do" type="date">
+        <activiti:formProperty id="validFromDateOld" name="Původní platnost role od" type="localDate" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validFromDateNew" name="Nová platnost role od" type="localDate"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateOld" name="Původní platnost role do" type="localDate" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validTillDateNew" name="Nová platnost role do" type="localDate">
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
       </extensionElements>

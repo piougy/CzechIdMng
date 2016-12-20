@@ -2,13 +2,13 @@ package eu.bcvsolutions.idm.core.api.dto;
 
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.IllegalFormatException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 public class DefaultResultModel implements ResultModel {
 	
 	private String id;
-	private Date creation;	
+	private DateTime creation;	
 	/**
 	 * Idm error / message code
 	 */
@@ -53,7 +53,7 @@ public class DefaultResultModel implements ResultModel {
 	
 	public DefaultResultModel() {
 		this.id = UUID.randomUUID().toString();
-		this.creation = new Date();
+		this.creation = new DateTime();
 	}
 	
 	public DefaultResultModel(ResultCode resultCode, Map<String, Object> parameters) {
@@ -96,7 +96,7 @@ public class DefaultResultModel implements ResultModel {
 		return message;
 	}
 
-	public Date getCreation() {
+	public DateTime getCreation() {
 		return creation;
 	}
 	

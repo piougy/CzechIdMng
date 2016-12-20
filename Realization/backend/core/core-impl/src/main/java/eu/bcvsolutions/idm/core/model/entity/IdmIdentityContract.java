@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.entity;
 
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -11,13 +10,12 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -46,13 +44,11 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	@Audited
 	@Column(name = "valid_from")
-	@Temporal(TemporalType.DATE)
-	private Date validFrom;
+	private LocalDate validFrom;
 	
 	@Audited
 	@Column(name = "valid_till")
-	@Temporal(TemporalType.DATE)
-	private Date validTill;
+	private LocalDate validTill;
 	
 	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 	@ManyToOne(optional = true)
@@ -85,19 +81,19 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 		super(id);
 	}
 
-	public Date getValidFrom() {
+	public LocalDate getValidFrom() {
 		return validFrom;
 	}
 
-	public void setValidFrom(Date validFrom) {
+	public void setValidFrom(LocalDate validFrom) {
 		this.validFrom = validFrom;
 	}
 
-	public Date getValidTill() {
+	public LocalDate getValidTill() {
 		return validTill;
 	}
 
-	public void setValidTill(Date validTo) {
+	public void setValidTill(LocalDate validTo) {
 		this.validTill = validTo;
 	}
 

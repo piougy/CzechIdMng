@@ -1,18 +1,17 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
+import org.joda.time.DateTime;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -49,16 +48,14 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@Audited
 	@CreatedDate
 	@Column(name = "created", nullable = false)
-	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	@JsonProperty(access = Access.READ_ONLY)
-	private Date created;
+	private DateTime created;
 
 	@Audited
 	@LastModifiedDate
 	@Column(name = "modified")
-	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	@JsonProperty(access = Access.READ_ONLY)
-	private Date modified;
+	private DateTime modified;
 
 	@Audited
 	@CreatedBy
@@ -133,22 +130,22 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	 * Created date
 	 */
 	@Override
-	public Date getCreated() {
+	public DateTime getCreated() {
 		return created;
 	}
 
 	@Override
-	public void setCreated(Date created) {
+	public void setCreated(DateTime created) {
 		this.created = created;
 	}
 
 	@Override
-	public Date getModified() {
+	public DateTime getModified() {
 		return modified;
 	}
 
 	@Override
-	public void setModified(Date modified) {
+	public void setModified(DateTime modified) {
 		this.modified = modified;
 	}
 	

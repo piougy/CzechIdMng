@@ -12,8 +12,8 @@
         <activiti:formProperty id="description" name="Poznámka" type="textArea" writable="false">
           <activiti:value id="placeholder" name="Poznámka"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="validFrom" name="Platnost role od" type="date" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="validTill" name="Platnost role do" type="date" writable="false">
+        <activiti:formProperty id="validFrom" name="Platnost role od" type="localDate" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="validTill" name="Platnost role do" type="localDate" writable="false">
           <activiti:value id="tooltip" name="Platnost přiřazení role"></activiti:value>
         </activiti:formProperty>
       </extensionElements>

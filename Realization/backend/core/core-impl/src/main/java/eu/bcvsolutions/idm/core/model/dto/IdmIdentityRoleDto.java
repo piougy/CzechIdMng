@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
-import java.util.Date;
 import java.util.UUID;
+
+import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
@@ -11,8 +12,8 @@ public class IdmIdentityRoleDto extends AbstractDto {
 	private static final long serialVersionUID = 1L;
 	private UUID identity;
 	private UUID role;
-	private Date validFrom;
-	private Date validTill;
+	private LocalDate validFrom;
+	private LocalDate validTill;
 
 	public IdmIdentityRoleDto() {
 	}
@@ -21,19 +22,19 @@ public class IdmIdentityRoleDto extends AbstractDto {
 		super(id);
 	}
 
-	public Date getValidFrom() {
+	public LocalDate getValidFrom() {
 		return validFrom;
 	}
 
-	public void setValidFrom(Date validFrom) {
+	public void setValidFrom(LocalDate validFrom) {
 		this.validFrom = validFrom;
 	}
 
-	public Date getValidTill() {
+	public LocalDate getValidTill() {
 		return validTill;
 	}
 
-	public void setValidTill(Date validTo) {
+	public void setValidTill(LocalDate validTo) {
 		this.validTill = validTo;
 	}
 

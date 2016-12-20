@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.workflow.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.activiti.engine.HistoryService;
@@ -105,8 +106,8 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		WorkflowFilterDto filter = new WorkflowFilterDto();
 		filter.setId(historicTaskInstanceId);
 		filter.setSortAsc(true);
-		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> resource = this.search(filter);
-		return resource.getResources() != null && !resource.getResources().isEmpty() ? resource.getResources().iterator().next() : null;
+		Collection<WorkflowHistoricTaskInstanceDto> resources = this.search(filter).getResources();
+		return !resources.isEmpty() ? resources.iterator().next() : null;
 	}
 
 	private WorkflowHistoricTaskInstanceDto toResource(HistoricTaskInstance instance) {

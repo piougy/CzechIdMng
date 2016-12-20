@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.activiti.bpmn.model.BpmnModel;
@@ -83,8 +84,8 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 				.addVariable(WorkflowProcessInstanceService.APPLICANT_IDENTIFIER,
 						applicantIdentity != null ? applicantIdentity.getId() : null);
 		if (variables != null) {
-			for (String key : variables.keySet()) {
-				builder.addVariable(key, variables.get(key));
+			for (Entry<String, Object> entry : variables.entrySet()) {
+				builder.addVariable(entry.getKey(), entry.getValue());
 			}
 		}
 
@@ -131,8 +132,8 @@ public class DefaultWorkflowProcessInstanceService implements WorkflowProcessIns
 			query.processDefinitionKeys(processDefinitionKeys);
 		}
 		if (equalsVariables != null) {
-			for (String key : equalsVariables.keySet()) {
-				query.variableValueEquals(key, equalsVariables.get(key));
+			for (Entry<String, Object> entry : equalsVariables.entrySet()) {
+				query.variableValueEquals(entry.getKey(), entry.getValue());
 			}
 		}
 		// check security ... only involved user or applicant can work with

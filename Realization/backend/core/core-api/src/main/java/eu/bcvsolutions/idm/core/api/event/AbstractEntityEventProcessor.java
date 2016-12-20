@@ -78,8 +78,11 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 			// event is completely processed 
 			return;
 		}
-		// process event and add result to history
-		event.getContext().addResult(process(event, event.getContext()));
+		EventContext<E> context = event.getContext();
+		// process event
+		EventResult<E> result = process(event, context);
+		// add result to history
+		context.addResult(result);
 	}
 	
 	@Override

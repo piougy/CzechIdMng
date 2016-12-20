@@ -163,8 +163,10 @@ public class DefaultFormService implements FormService {
 		});
 		//
 		values.forEach(value -> {
-			Assert.notNull(value.getFormAttribute(), "Form attribute is required");
-			IdmFormAttribute attribute = formDefinition.getMappedAttribute(value.getFormAttribute().getId());
+			// value could contant attribute id only
+			IdmFormAttribute attributeId = value.getFormAttribute();
+			Assert.notNull(attributeId, "Form attribute is required");
+			IdmFormAttribute attribute = formDefinition.getMappedAttribute(attributeId.getId());
 			Assert.notNull(attribute, "Form attribute is required");
 			// 
 			value.setFormAttribute(attribute);
@@ -264,10 +266,7 @@ public class DefaultFormService implements FormService {
 	}
 	
 	/**
-	 * Returns form values as map, where key is attribute name
-	 * 
-	 * @param values
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> Map<String, List<E>> toValueMap(final List<E> values) {

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Arrays;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -41,7 +42,7 @@ public class IdmFlywayMigrationStrategy implements FlywayMigrationStrategy {
 	 * @param flyway
 	 * @return
 	 */
-	public String resolveDbName(Flyway flyway) {
+	public String resolveDbName(FlywayConfiguration flyway) {
 		Connection connection = JdbcUtils.openConnection(flyway.getDataSource());
 		DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
 		return dbSupport.getDbName();

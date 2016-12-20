@@ -3,6 +3,7 @@ import TestUtils from 'react-addons-test-utils';
 import chai, { expect } from 'chai';
 import ReactDOM from 'react-dom';
 import dirtyChai from 'dirty-chai';
+
 chai.use(dirtyChai);
 //
 import * as Basic from '../../../../src/components/basic';
@@ -112,27 +113,58 @@ describe('Basic AbstractComponent', function abstractComponent() {
   describe('- component change dynamicaly required', function test() {
     for (const componentLibrary of componentLibrariesBasic) {
       for (const component in componentLibrary) {
-        if (component.startsWith('AbstractFormComponent.')) {
+        if (component.endsWith('AbstractFormComponent')) {
           continue;
         }
         // for now we must skip test for SelectBox, ScriptArea and EnumLabel
         // SelectBox want use this.context.store and
         // ScriptArea has 'global leak detected' with react-ace
         // EnumLabel hasn't use for required
-        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('EnumLabel')) {
+        // RichTextArea try to create state with EditorState, this can't be tested now.
+        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('EnumLabel') ||
+              component.endsWith('DateTimePicker') || component.endsWith('Checkbox') || component.endsWith('RichTextArea')) {
           continue;
         }
         const ComponentType = componentLibrary[component];
-        if (ComponentType.propTypes && ComponentType.propTypes.readOnly) {
+        if (ComponentType.propTypes && ComponentType.propTypes.required) {
           it('- ' + component, function testComponent() {
             const node = document.createElement('div');
-            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label"required={false} />, node);
-            if (comp.state.readOnly) {
-              expect(comp.state.required).to.be.equal(false);
+            const comp = ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" required />, node);
 
-              ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} required />, node);
-              expect(comp.state.required).to.be.equal(true);
-            }
+            // state must be set to true
+            expect(comp.props.required).to.be.equal(true);
+
+            // test with null data
+            comp.setValue(null);
+            expect(comp.isValid()).to.be.equal(false);
+
+            // test with empty string
+            comp.setValue('');
+            expect(comp.isValid()).to.be.equal(false);
+
+            // test with string
+            comp.setValue('test');
+            expect(comp.isValid()).to.be.equal(true);
+
+            // now test with required set to false
+            ReactDOM.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" enum={RoleTypeEnum} required={false} />, node);
+            // required must be set to false
+            expect(comp.props.required).to.be.equal(false);
+
+            // first test to valid must be true
+            expect(comp.isValid()).to.be.equal(true);
+
+            // test with null data
+            comp.setValue(null);
+            expect(comp.isValid()).to.be.equal(true);
+
+            // test with empty string
+            comp.setValue('');
+            expect(comp.isValid()).to.be.equal(true);
+
+            // test with string
+            comp.setValue('test');
+            expect(comp.isValid()).to.be.equal(true);
           });
         }
       }

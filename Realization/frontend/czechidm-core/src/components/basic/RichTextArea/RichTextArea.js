@@ -111,7 +111,7 @@ class RichTextArea extends AbstractFormComponent {
   }
 
   setValue(value) {
-    const editorState = this._normalizeValue(value);
+    const editorState = this._createEditorState(value);
     this.setState({
       editorState,
       value: editorState.getCurrentContent().getPlainText()

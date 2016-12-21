@@ -51,7 +51,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@Transient // passwords are saved to confidental storage
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
-	private GuardedString password;
+	private transient GuardedString password;
 
 	@Audited
 	@NotNull

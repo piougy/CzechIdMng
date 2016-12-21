@@ -264,7 +264,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
 	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmFormDefinition formDefinition = getFormDefinition(null);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		return formDefinitionController.get(formDefinition.getId().toString(), assembler);
 	}
 	
@@ -282,7 +282,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		return toResources(formService.getValues(identity, formDefinition), assembler, getEntityClass(), null);
 	}
 	
@@ -305,18 +305,19 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		formService.saveValues(identity, formDefinition, formValues);
 		return getFormValues(backendId, assembler);
 	}
 	
 	/**
 	 * Returns form definition for given identity
+	 *
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	private IdmFormDefinition getFormDefinition(IdmIdentity identity) {
+	private IdmFormDefinition getFormDefinition() {
 		// find default definition only (maybe we will need to customize form definition to custom entity instance)
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName(), null);
 		if (formDefinition == null) {			

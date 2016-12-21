@@ -116,7 +116,8 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           );
           break;
         }
-        case 'date': {
+        case 'date':
+        case 'localDate': {
           formDataComponents.push(
             <Basic.DateTimePicker
               key={formData.id}

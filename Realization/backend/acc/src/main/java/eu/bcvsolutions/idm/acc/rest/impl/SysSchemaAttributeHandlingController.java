@@ -107,9 +107,9 @@ public class SysSchemaAttributeHandlingController extends AbstractReadWriteEntit
 	@Override
 	protected SchemaAttributeHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
-		filter.setEntityHandlingId(convertUuidParameter(parameters, "entityHandlingId"));
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setIdmPropertyName(convertStringParameter(parameters, "idmPropertyName"));
+		filter.setEntityHandlingId(getParameterConverter().toUuid(parameters, "entityHandlingId"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setIdmPropertyName(getParameterConverter().toString(parameters, "idmPropertyName"));
 		return filter;
 	}
 }

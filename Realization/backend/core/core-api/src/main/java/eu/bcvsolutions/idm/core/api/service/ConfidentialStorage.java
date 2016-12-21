@@ -48,7 +48,7 @@ public interface ConfidentialStorage {
 	 * @return
 	 * @throws IllegalArgumentException Throws {@link ClassCastException}, when persisted type is different from given valueType
 	 */
-	<O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType) throws IllegalArgumentException;
+	<O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType);
 	
 	/**
 	 * Get value by owner and key casted to valueType, or default value if storage value by given key is not found. 

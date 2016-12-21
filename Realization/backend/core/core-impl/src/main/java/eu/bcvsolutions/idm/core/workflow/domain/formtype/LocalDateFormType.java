@@ -46,8 +46,8 @@ public class LocalDateFormType extends AbstractComponentFormType {
 		}
 		try {
 			return localDateFormat.parseLocalDate(propertyValue);
-		} catch (IllegalArgumentException e) {
-			throw new ActivitiIllegalArgumentException("invalid local date value " + propertyValue);
+		} catch (IllegalArgumentException ex) {
+			throw new ActivitiIllegalArgumentException("invalid local date value " + propertyValue, ex);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class LocalDateFormType extends AbstractComponentFormType {
 		if (modelValue instanceof LocalDate) {
 			return localDateFormat.print((LocalDate) modelValue);
 		}
-		// other dates (java.util, sql etc.)
+		// other dates (java.util, sql date etc.)
 		return dateFormat.format(modelValue);
 	}
 

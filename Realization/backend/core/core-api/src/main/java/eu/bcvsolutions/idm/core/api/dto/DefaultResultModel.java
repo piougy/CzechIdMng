@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 @JsonInclude(Include.NON_NULL)
 public class DefaultResultModel implements ResultModel {
 	
-	private String id;
+	private UUID id; // TODO: orchestrate with transaction id
 	private DateTime creation;	
 	/**
 	 * Idm error / message code
@@ -52,7 +52,7 @@ public class DefaultResultModel implements ResultModel {
 	private HttpStatus status;
 	
 	public DefaultResultModel() {
-		this.id = UUID.randomUUID().toString();
+		this.id = UUID.randomUUID();
 		this.creation = new DateTime();
 	}
 	
@@ -104,22 +104,27 @@ public class DefaultResultModel implements ResultModel {
 		return Collections.unmodifiableMap(this.parameters);
 	}
 
-	public String getId() {
+	@Override
+	public UUID getId() {
 		return id;
 	}
 
+	@Override
 	public String getStatusEnum() {
 		return statusEnum;
 	}
 	
+	@Override
 	public String getModule() {
 		return module;
 	}
 	
+	@Override
 	public HttpStatus getStatus() {
 		return status;
 	}
 	
+	@Override
 	public int getStatusCode() {
 		return statusCode;
 	}

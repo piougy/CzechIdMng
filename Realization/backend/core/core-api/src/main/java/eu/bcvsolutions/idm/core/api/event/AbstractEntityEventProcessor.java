@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.event;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 
 	private final Class<E> entityClass;
-	private final Set<String> types = new HashSet<>();
+	private final Set<EventType> types = new HashSet<>();
 	
 	@Autowired(required = false)
 	private EnabledEvaluator enabledEvaluator; // optional internal dependency - checks for module is enabled
@@ -32,9 +33,7 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	public AbstractEntityEventProcessor(EventType... types) {
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
 		if (types != null) {
-			for(EventType type : types) {
-				this.types.add(type.toString());
-			}
+			this.types.addAll(Arrays.asList(types));
 		}
 	}
 	
@@ -48,7 +47,7 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
 		
 		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
-				&& (types.isEmpty() || types.contains(entityEvent.getType().toString()));
+				&& (types.isEmpty() || types.contains(entityEvent.getType()));
 	}
 
 	/**

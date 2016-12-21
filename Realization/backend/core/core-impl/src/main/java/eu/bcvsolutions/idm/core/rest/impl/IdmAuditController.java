@@ -60,13 +60,13 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	
 	public AuditFilter toFilter(MultiValueMap<String, Object> parameters) {
 		AuditFilter filter = new AuditFilter();
-		filter.setModification(convertStringParameter(parameters, "modification"));
-		filter.setModifier(convertStringParameter(parameters, "modifier"));
-		filter.setText(convertStringParameter(parameters, "attributes"));
-		filter.setFrom(convertDateTimeParameter(parameters, "from"));
-		filter.setTo(convertDateTimeParameter(parameters, "to"));
-		filter.setEntityId(convertUuidParameter(parameters, "entityId"));
-		filter.setType(convertStringParameter(parameters, "type"));
+		filter.setModification(getParameterConverter().toString(parameters, "modification"));
+		filter.setModifier(getParameterConverter().toString(parameters, "modifier"));
+		filter.setText(getParameterConverter().toString(parameters, "attributes"));
+		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
+		filter.setTo(getParameterConverter().toDateTime(parameters, "to"));
+		filter.setEntityId(getParameterConverter().toUuid(parameters, "entityId"));
+		filter.setType(getParameterConverter().toString(parameters, "type"));
 		return filter;
 	}
 }

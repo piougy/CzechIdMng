@@ -96,7 +96,7 @@ public class DefaultIdmConfidentialStorage implements ConfidentialStorage {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public <O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType) throws IllegalArgumentException {
+	public <O extends AbstractEntity, T extends Serializable> T get(O owner, String key, Class<T> valueType) {
 		Serializable storageValue = get(owner, key);
 		if (storageValue == null) {
 			return null;

@@ -23,10 +23,6 @@ class IdentityEav extends Basic.AbstractContent {
     };
   }
 
-  getManager() {
-    return this.identityManager;
-  }
-
   getContentKey() {
     return 'content.identity.eav';
   }
@@ -69,8 +65,9 @@ class IdentityEav extends Basic.AbstractContent {
   }
 
   render() {
-    const { formInstance, _showLoading } = this.props;
+    const { formInstance, _showLoading, userContext } = this.props;
     const { error } = this.state;
+    const canEditMap = manager.canEditMap(userContext);
 
     let content;
     if (error) {
@@ -88,9 +85,9 @@ class IdentityEav extends Basic.AbstractContent {
       content = (
         <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this)}>
           <Basic.PanelBody>
-            <Advanced.EavForm ref="eav" formInstance={formInstance}/>
+            <Advanced.EavForm ref="eav" formInstance={formInstance} readOnly={!canEditMap.get('isSaveEnabled')}/>
           </Basic.PanelBody>
-          <Basic.PanelFooter>
+          <Basic.PanelFooter rendered={canEditMap.get('isSaveEnabled')}>
             <Basic.Button
               type="submit"
               level="success"
@@ -121,18 +118,21 @@ class IdentityEav extends Basic.AbstractContent {
 
 IdentityEav.propTypes = {
   formInstance: PropTypes.oject,
-  _showLoading: PropTypes.bool
+  _showLoading: PropTypes.bool,
+  userContext: PropTypes.object
 };
 IdentityEav.defaultProps = {
   formInstance: null,
-  _showLoading: false
+  _showLoading: false,
+  userContext: null
 };
 
 function select(state, component) {
   const { entityId } = component.params;
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
-    formInstance: DataManager.getData(state, `${uiKey}-${entityId}`)
+    formInstance: DataManager.getData(state, `${uiKey}-${entityId}`),
+    userContext: state.security.userContext
   };
 }
 

@@ -273,7 +273,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
 
 
   render() {
-    const { formInstance, rendered, showLoading } = this.props;
+    const { formInstance, rendered, showLoading, readOnly } = this.props;
     //
     if (!rendered || !formInstance) {
       return null;
@@ -325,7 +325,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   }
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description ? attribute.description : this.i18n('multiple.title')}
-                  readOnly={attribute.readonly}/>
+                  readOnly={readOnly || attribute.readonly}/>
               );
             }
             //
@@ -343,7 +343,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   validation={this._getInputValidation(attribute)}
                   required={attribute.required}
                   confidential={attribute.confidential}/>
@@ -367,7 +367,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}/>
+                  readOnly={readOnly || attribute.readonly}/>
               );
             }
             // textarea field
@@ -378,7 +378,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   validation={this._getInputValidation(attribute)}
                   required={attribute.required}/>
               );
@@ -391,7 +391,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   required={attribute.required}/>
               );
             }
@@ -403,7 +403,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   label={attribute.displayName}
                   value={formValues ? this._toInputValue(attribute, formValues) : (attribute.defaultValue === 'true')}
                   helpBlock={attribute.description}
-                  readOnly={attribute.readonly}
+                  readOnly={readOnly || attribute.readonly}
                   required={attribute.required}/>
               );
             }
@@ -424,9 +424,11 @@ EavForm.propTypes = {
   /**
    * FormInstance (definition + values)
    */
-  formInstance: PropTypes.object
+  formInstance: PropTypes.object,
+  readOnly: PropTypes.bool
 };
 EavForm.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-  formInstance: null
+  formInstance: null,
+  readOnly: false
 };

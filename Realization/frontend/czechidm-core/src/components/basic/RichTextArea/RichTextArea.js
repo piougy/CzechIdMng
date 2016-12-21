@@ -143,7 +143,14 @@ class RichTextArea extends AbstractFormComponent {
   getBody(feedback) {
     const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
     const { editorState, disabled, readOnly } = this.state;
-    const labelClassName = classNames(labelSpan, 'control-label');
+    const labelClassName = classNames(
+      labelSpan,
+      'control-label'
+    );
+    const containerClassName = classNames(
+      'basic-richtextarea',
+      { 'readOnly': readOnly === true}
+    );
     let showAsterix = false;
     if (required && !feedback) {
       showAsterix = true;
@@ -162,7 +169,7 @@ class RichTextArea extends AbstractFormComponent {
         }
         <div className={componentSpan}>
           <Tooltip ref="popover" placement="right" value={title}>
-            <div className="basic-richtextarea">
+            <div className={containerClassName}>
               <Editor
                 ref="input"
                 editorState={editorState}

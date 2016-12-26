@@ -14,8 +14,6 @@ import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
@@ -23,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +34,7 @@ import eu.bcvsolutions.idm.eav.domain.PersistentType;
  * Super class for "extended" attribute values, which can be added to custom
  * abstract entity
  * 
- * TODO: byte[] persistent type?
+ * TODO: byte[] persistent type - integrate with ic connectors
  * 
  * @author Radek Tomiška
  *
@@ -86,8 +85,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	@Audited
 	@Column(name = "date_value")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateValue;
+	private DateTime dateValue;
 
 	@Audited
 	@Max(99999)
@@ -226,8 +224,10 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			case DATETIME:
 				if (value == null) {
 					setDateValue(null);
+				} else if (value instanceof DateTime) {
+					setDateValue((DateTime) value);
 				} else if (value instanceof Date) {
-					setDateValue((Date) value);
+					setDateValue(new DateTime((Date) value));
 				} else {
 					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
 							formAttribute.getName(), persistentType, value));
@@ -338,11 +338,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.doubleValue = doubleValue;
 	}
 
-	public Date getDateValue() {
+	public DateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(Date dateValue) {
+	public void setDateValue(DateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 	

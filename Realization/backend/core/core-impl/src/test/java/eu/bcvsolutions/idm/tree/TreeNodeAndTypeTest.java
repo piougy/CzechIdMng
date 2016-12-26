@@ -106,7 +106,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		ex = null;
 		int status = 0;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -167,7 +167,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		int status = 0;
 		Exception ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -204,7 +204,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		Exception ex = null;
 		// test save without privileges
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes")
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -218,7 +218,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		
 		// test with privileges
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()
@@ -244,7 +244,7 @@ public class TreeNodeAndTypeTest extends AbstractRestTest {
 		status = 0;
 		ex = null;
 		try {
-			status = mockMvc.perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/").with(authentication(getAuthentication()))
+			status = getMockMvc().perform(post(BaseEntityController.BASE_PATH + "/tree-nodes/").with(authentication(getAuthentication()))
 					.content(jsonContent)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andReturn()

@@ -12,4 +12,10 @@ package eu.bcvsolutions.idm.core.api.event;
  */
 public interface EventType {
 
+	/**
+	 * Returns constant event name
+	 * 
+	 * @return
+	 */
+	String name();
 }

@@ -9,25 +9,17 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
-
+/**
+ * Configuration controller tests
+ * 
+ * @author Radek Tomiška
+ *
+ */
 public class ConfigurationControllerRestTest extends AbstractRestTest {
-	
-//	@Autowired
-//	private SecurityService securityService;
-
-//	public RequestPostProcessor adminSecurity() {
-//		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, securityService.getAllAvailableAuthorities()));
-//        return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
-//	}
-//	
-//	public RequestPostProcessor userSecurity() {
-//		SecurityContextHolder.getContext().setAuthentication(new IdmJwtAuthentication("[SYSTEM]", null, Lists.newArrayList()));
-//        return SecurityMockMvcRequestPostProcessors.securityContext(SecurityContextHolder.getContext());
-//	}
 	
 	@Test
     public void readAllPublic() throws Exception {
-        mockMvc.perform(get(BaseEntityController.BASE_PATH + "/public/configurations")
+        getMockMvc().perform(get(BaseEntityController.BASE_PATH + "/public/configurations")
                 .contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(status().isOk());
     }

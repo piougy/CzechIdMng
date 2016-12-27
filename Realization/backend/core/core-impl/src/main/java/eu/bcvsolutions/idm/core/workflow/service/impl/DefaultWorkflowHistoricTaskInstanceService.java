@@ -96,9 +96,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowHistoricTaskInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
-				filter.getPageNumber(), filter.getPageSize());
-		return result;
+		return new ResourcesWrapper<>(dtos, count, totalPage, filter.getPageNumber(), filter.getPageSize());
 	}
 
 	@Override
@@ -137,7 +135,7 @@ public class DefaultWorkflowHistoricTaskInstanceService implements WorkflowHisto
 		if (identityLinks != null && !identityLinks.isEmpty()) {
 			List<String> candicateUsers = new ArrayList<>();
 			for	(HistoricIdentityLink identity : identityLinks) {
-				if (identity.getType().equals(IdentityLinkType.CANDIDATE)) {
+				if (IdentityLinkType.CANDIDATE.equals(identity.getType())) {
 					candicateUsers.add(identity.getUserId());
 				}
 			}

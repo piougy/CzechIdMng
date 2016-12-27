@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.eav.entity;
+package eu.bcvsolutions.idm.eav.api.entity;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 

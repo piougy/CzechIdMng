@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -181,8 +181,7 @@ public class DefaultFormService implements FormService {
 				previousValues.remove(value.getId());
 				// the same value should not be updated 
 				// confidential value is always updated - only new values are sent from client
-				// TODO: implement isEquals method in FormValue (dates are now working now - date from FE vs DB has different chronology - use isEquals method)
-				if (value.isConfidential() || !java.util.Objects.equals(previousValue.getValue(), value.getValue())) {
+				if (value.isConfidential() || !value.isEquals(previousValue)) {
 					// update value
 					formValueService.save(value);
 					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getName(), value.getId(), owner);

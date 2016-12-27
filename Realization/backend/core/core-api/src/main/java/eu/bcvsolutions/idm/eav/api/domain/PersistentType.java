@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.eav.domain;
+package eu.bcvsolutions.idm.eav.api.domain;
 
 /**
  * Supported attribute values data type

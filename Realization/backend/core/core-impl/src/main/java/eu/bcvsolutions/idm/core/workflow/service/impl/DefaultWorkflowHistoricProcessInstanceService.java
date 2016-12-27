@@ -139,9 +139,8 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 			totalPage = (long) (totlaPageFlorred + 1);
 		}
 
-		ResourcesWrapper<WorkflowHistoricProcessInstanceDto> result = new ResourcesWrapper<>(dtos, count, totalPage,
+		return new ResourcesWrapper<>(dtos, count, totalPage,
 				filter.getPageNumber(), filter.getPageSize());
-		return result;
 	}
 
 	@Override
@@ -183,9 +182,7 @@ public class DefaultWorkflowHistoricProcessInstanceService implements WorkflowHi
 
 			ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
 
-			InputStream resource = diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList,
-					highLightedFlows);
-			return resource;
+			return diagramGenerator.generateDiagram(bpmnModel, "png", historicActivityInstanceList, highLightedFlows);
 
 		} else {
 			throw new ActivitiException(

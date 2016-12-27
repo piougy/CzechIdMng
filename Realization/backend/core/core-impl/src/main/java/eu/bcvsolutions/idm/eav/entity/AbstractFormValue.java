@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -28,7 +29,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 
 /**
  * Super class for "extended" attribute values, which can be added to custom
@@ -183,6 +185,39 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				return doubleValue == null;
 			default:
 				return StringUtils.isEmpty(stringValue);
+		}
+	}
+	
+	/**
+	 * Returns {@code true}, when value by persistent type is equal. 
+	 * Returns {@code false}, when other is null.
+	 * Returns {@code false}, when persistent types differs.
+	 * 
+	 * @param other
+	 * @return
+	 */
+	public boolean isEquals(AbstractFormValue<?> other) {
+		if (other == null) {
+			return false;
+		}
+		if (!Objects.equals(persistentType, other.getPersistentType())) {
+			return false;
+		}
+		if (isEmpty() && other.isEmpty()) {
+			return true;
+		}
+		if((isEmpty() && !other.isEmpty()) || (!isEmpty() && other.isEmpty())) {
+			return false;
+		}
+		//
+		Assert.notNull(persistentType);
+		switch (persistentType) {
+			case DATE:
+			case DATETIME:
+				// date from FE vs DB has different chronology - we are using isEquals method
+				return dateValue.isEqual(other.getDateValue());
+			default:
+				return Objects.equals(getValue(), other.getValue());
 		}
 	}
 

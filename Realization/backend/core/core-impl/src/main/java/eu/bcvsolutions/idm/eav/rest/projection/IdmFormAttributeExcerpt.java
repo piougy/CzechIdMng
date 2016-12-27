@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.eav.rest.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 

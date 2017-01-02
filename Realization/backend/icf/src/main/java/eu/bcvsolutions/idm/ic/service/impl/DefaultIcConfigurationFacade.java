@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.service.impl;
+package eu.bcvsolutions.idm.ic.service.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,13 +10,13 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.domain.IcResultCode;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 /**
  * Facade for get available connectors configuration
@@ -25,56 +25,56 @@ import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
  *
  */
 @Service
-public class DefaultIcfConfigurationFacade implements IcfConfigurationFacade {
+public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 
-	private Map<String, IcfConfigurationService> icfConfigs = new HashMap<>();
+	private Map<String, IcConfigurationService> icConfigs = new HashMap<>();
 	// Connector infos are cached
-	private Map<String, List<IcfConnectorInfo>> icfLocalConnectorInfos;
+	private Map<String, List<IcConnectorInfo>> icLocalConnectorInfos;
 
 	/**
-	 * @return Configuration services for all ICFs
+	 * @return Configuration services for all ICs
 	 */
 	@Override
-	public Map<String, IcfConfigurationService> getIcfConfigs() {
-		return icfConfigs;
+	public Map<String, IcConfigurationService> getIcConfigs() {
+		return icConfigs;
 	}
 
 	/**
-	 * Return available local connectors for all ICF implementations
+	 * Return available local connectors for all IC implementations
 	 *
 	 */
 	@Override
-	public Map<String, List<IcfConnectorInfo>> getAvailableLocalConnectors() {
-		if (icfLocalConnectorInfos == null) {
-			icfLocalConnectorInfos = new HashMap<>();
-			for (IcfConfigurationService config : icfConfigs.values()) {
-				icfLocalConnectorInfos.put(config.getImplementationType(), config.getAvailableLocalConnectors());
+	public Map<String, List<IcConnectorInfo>> getAvailableLocalConnectors() {
+		if (icLocalConnectorInfos == null) {
+			icLocalConnectorInfos = new HashMap<>();
+			for (IcConfigurationService config : icConfigs.values()) {
+				icLocalConnectorInfos.put(config.getImplementationType(), config.getAvailableLocalConnectors());
 			}
 		}
-		return icfLocalConnectorInfos;
+		return icLocalConnectorInfos;
 	}
 
 	@Override
-	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		return icfConfigs.get(key.getFramework()).getSchema(key, connectorConfiguration);
+		checkIcType(key);
+		return icConfigs.get(key.getFramework()).getSchema(key, connectorConfiguration);
 	}
 
-	private boolean checkIcfType(IcfConnectorKey key) {
-		if (!icfConfigs.containsKey(key.getFramework())) {
-			throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
-					ImmutableMap.of("icf", key.getFramework()));
+	private boolean checkIcType(IcConnectorKey key) {
+		if (!icConfigs.containsKey(key.getFramework())) {
+			throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
+					ImmutableMap.of("ic", key.getFramework()));
 		}
 		return true;
 	}
 
 	@Override
-	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
 		Assert.notNull(key);
 		Assert.notNull(key.getFramework());
-		checkIcfType(key); 
-		return this.getIcfConfigs()
+		checkIcType(key); 
+		return this.getIcConfigs()
 			.get(key.getFramework()).getConnectorConfiguration(key);
 	}
 

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.service.impl;
+package eu.bcvsolutions.idm.ic.service.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,86 +10,86 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
-import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
-import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
-import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
-import eu.bcvsolutions.idm.icf.service.api.IcfConnectorService;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.domain.IcResultCode;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 @Service
 /**
- * Service for do active operations on all ICF implementations
+ * Service for do active operations on all IC implementations
  * 
  * @author svandav
  *
  */
-public class DefaultIcfConnectorFacade implements IcfConnectorFacade {
+public class DefaultIcConnectorFacade implements IcConnectorFacade {
 
-	private Map<String, IcfConnectorService> icfConnectors = new HashMap<>();
+	private Map<String, IcConnectorService> icConnectors = new HashMap<>();
 
 	/**
-	 * @return Connector services for all ICFs
+	 * @return Connector services for all ICs
 	 */
 	@Override
-	public Map<String, IcfConnectorService> getIcfConnectors() {
-		return icfConnectors;
+	public Map<String, IcConnectorService> getIcConnectors() {
+		return icConnectors;
 	}
 
 	@Override
-	public IcfUidAttribute createObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, List<IcfAttribute> attributes) {
+	public IcUidAttribute createObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, List<IcAttribute> attributes) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		return icfConnectors.get(key.getFramework()).createObject(key, connectorConfiguration, objectClass, attributes);
+		checkIcType(key);
+		return icConnectors.get(key.getFramework()).createObject(key, connectorConfiguration, objectClass, attributes);
 
 	}
 
 	@Override
-	public IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes) {
+	public IcUidAttribute updateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		return icfConnectors.get(key.getFramework()).updateObject(key, connectorConfiguration, objectClass, uid,
+		checkIcType(key);
+		return icConnectors.get(key.getFramework()).updateObject(key, connectorConfiguration, objectClass, uid,
 				replaceAttributes);
 
 	}
 
 	@Override
-	public void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid) {
+	public void deleteObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		icfConnectors.get(key.getFramework()).deleteObject(key, connectorConfiguration, objectClass, uid);
+		checkIcType(key);
+		icConnectors.get(key.getFramework()).deleteObject(key, connectorConfiguration, objectClass, uid);
 
 	}
 	
 	@Override
-	public IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid) {
+	public IcConnectorObject readObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		return icfConnectors.get(key.getFramework()).readObject(key, connectorConfiguration, objectClass, uid);
+		checkIcType(key);
+		return icConnectors.get(key.getFramework()).readObject(key, connectorConfiguration, objectClass, uid);
 
 	}
 
 	@Override
-	public IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, String username, GuardedString password) {
+	public IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, String username, GuardedString password) {
 		Assert.notNull(key);
-		checkIcfType(key);
-		return icfConnectors.get(key.getFramework()).authenticateObject(key, connectorConfiguration, objectClass,
+		checkIcType(key);
+		return icConnectors.get(key.getFramework()).authenticateObject(key, connectorConfiguration, objectClass,
 				username, password);
 	}
 
-	private boolean checkIcfType(IcfConnectorKey key) {
-		if (!icfConnectors.containsKey(key.getFramework())) {
-			throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
-					ImmutableMap.of("icf", key.getFramework()));
+	private boolean checkIcType(IcConnectorKey key) {
+		if (!icConnectors.containsKey(key.getFramework())) {
+			throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
+					ImmutableMap.of("ic", key.getFramework()));
 		}
 		return true;
 	}

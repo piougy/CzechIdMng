@@ -10,11 +10,11 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>idm-icf</artifactId>
+	<artifactId>idm-ic</artifactId>
 	<packaging>jar</packaging>
 
-	<name>CzechIdM ICF</name>
-	<description>CzechIdM Module ICF - Identity Connector Framework. Ensure load, configration, call all available connectors. Supproted more ICF (first is ConnectId).</description>
+	<name>CzechIdM IC</name>
+	<description>CzechIdM Module IC - Identity Connector Framework. Ensure load, configration, call all available connectors. Supproted more IC (first is ConnectId).</description>
 
 	<build>
 		<plugins>

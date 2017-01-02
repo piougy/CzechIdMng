@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.virtual.service.impl;
+package eu.bcvsolutions.idm.ic.virtual.service.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -8,18 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.exception.IcfException;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertiesImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConfigurationPropertyImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorConfigurationImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorConfigurationImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 /**
  * Connector framework for virtual account implementation
@@ -27,24 +27,24 @@ import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
  *
  */
 @Service
-public class VirtualIcfConfigurationService implements IcfConfigurationService {
+public class VirtualIcConfigurationService implements IcConfigurationService {
 
 	@Autowired
-	public VirtualIcfConfigurationService(IcfConfigurationFacade icfConfigurationAggregator) {
-		if (icfConfigurationAggregator.getIcfConfigs() == null) {
-			throw new IcfException("Map of ICF implementations is not defined!");
+	public VirtualIcConfigurationService(IcConfigurationFacade icConfigurationAggregator) {
+		if (icConfigurationAggregator.getIcConfigs() == null) {
+			throw new IcException("Map of IC implementations is not defined!");
 		}
-		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcfException(MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
+		if (icConfigurationAggregator.getIcConfigs().containsKey(IMPLEMENTATION_TYPE)) {
+			throw new IcException(MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
 	    // Disable for now
-		// icfConfigurationAggregator.getIcfConfigs().put(this.getIcfType(), this);
+		// icConfigurationAggregator.getIcConfigs().put(this.getIcType(), this);
 	}
 	
 	final private static String IMPLEMENTATION_TYPE = "virtual";
 
 	/**
-	 * Return key defined ICF implementation
+	 * Return key defined IC implementation
 	 * 
 	 * @return
 	 */
@@ -54,14 +54,14 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	}
 
 	/**
-	 * Return available local connectors for this ICF implementation
+	 * Return available local connectors for this IC implementation
 	 * 
 	 * @return
 	 */
 	@Override
-	public List<IcfConnectorInfo> getAvailableLocalConnectors() {
-		List<IcfConnectorInfo> localConnectorInfos = new ArrayList<>();
-		IcfConnectorInfoImpl dto = new IcfConnectorInfoImpl("Testovací konektor", "categori test", new IcfConnectorKeyImpl(getImplementationType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
+	public List<IcConnectorInfo> getAvailableLocalConnectors() {
+		List<IcConnectorInfo> localConnectorInfos = new ArrayList<>();
+		IcConnectorInfoImpl dto = new IcConnectorInfoImpl("Testovací konektor", "categori test", new IcConnectorKeyImpl(getImplementationType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
 		localConnectorInfos.add(dto);
 		return localConnectorInfos;
 	}
@@ -73,11 +73,11 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	 * @return
 	 */
 	@Override
-	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
 		Assert.notNull(key);
-		IcfConnectorConfigurationImpl dto = new IcfConnectorConfigurationImpl();
-		IcfConfigurationPropertiesImpl propertiesDto = new IcfConfigurationPropertiesImpl();
-		IcfConfigurationPropertyImpl propertyDto = new IcfConfigurationPropertyImpl();
+		IcConnectorConfigurationImpl dto = new IcConnectorConfigurationImpl();
+		IcConfigurationPropertiesImpl propertiesDto = new IcConfigurationPropertiesImpl();
+		IcConfigurationPropertyImpl propertyDto = new IcConfigurationPropertyImpl();
 		propertyDto.setConfidential(true);
 		propertyDto.setDisplayName("First property");
 		propertyDto.setGroup("test");
@@ -92,7 +92,7 @@ public class VirtualIcfConfigurationService implements IcfConfigurationService {
 	}
 
 	@Override
-	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
 		return null;
 	}
 

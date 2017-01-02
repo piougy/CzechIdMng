@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
  * Schema attribute handling service
@@ -20,7 +20,7 @@ public interface SysSchemaAttributeHandlingService extends ReadWriteEntityServic
 	
 	public static final String ATTRIBUTE_VALUE_KEY = "attributeValue";
 	public static final String SYSTEM_KEY = "system";
-	public static final String ICF_ATTRIBUTES_KEY = "icfAttributes";
+	public static final String IC_ATTRIBUTES_KEY = "icAttributes";
 	public static final String ENTITY_KEY = "entity";
 	
 	public List<SysSchemaAttributeHandling> findByEntityHandling(SysSystemEntityHandling entityHandling);
@@ -38,14 +38,14 @@ public interface SysSchemaAttributeHandlingService extends ReadWriteEntityServic
 	 * @param value
 	 * @param attributeHandling
 	 * @param entity 
-	 * @param icfAttributes 
+	 * @param icAttributes 
 	 * @return transformed value
 	 */
-	public Object transformValueFromResource(Object value, MappingAttribute attributeHandling,  List<IcfAttribute> icfAttributes );
+	public Object transformValueFromResource(Object value, MappingAttribute attributeHandling,  List<IcAttribute> icAttributes );
 
 	Object transformValueToResource(Object value, String script, AbstractEntity entity, SysSystem system);
 
-	Object transformValueFromResource(Object value, String script, List<IcfAttribute> icfAttributes, SysSystem system);
+	Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes, SysSystem system);
 
 	/**
 	 * Check on exists EAV definition for given attribute. If the definition not exist, then we try create it.

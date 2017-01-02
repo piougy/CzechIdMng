@@ -1,17 +1,17 @@
-package eu.bcvsolutions.idm.icf.service.api;
+package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.List;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
-import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
-public interface IcfConnectorFacade {
+public interface IcConnectorFacade {
 	
 	public static final String PASSWORD_ATTRIBUTE_NAME = "__PASSWORD__";
 
@@ -23,8 +23,8 @@ public interface IcfConnectorFacade {
 	 * @param attributes - Attributes for new object
 	 * @return
 	 */
-	IcfUidAttribute createObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, List<IcfAttribute> attributes);
+	IcUidAttribute createObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, List<IcAttribute> attributes);
 	
 	/**
 	 * Replace attributes in exist object in resource
@@ -35,8 +35,8 @@ public interface IcfConnectorFacade {
 	 * @param replaceAttributes - Attributes to replace in resource object
 	 * @return
 	 */
-	IcfUidAttribute updateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid, List<IcfAttribute> replaceAttributes);
+	IcUidAttribute updateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes);
 	
 	/**
 	 * Delete object with same uid from resource
@@ -45,8 +45,8 @@ public interface IcfConnectorFacade {
 	 * @param objectClass - Type or category of connector object
 	 * @param uid - Identification of object in resource
 	 */
-	void deleteObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid);
+	void deleteObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid);
 	
 	/**
 	 * Read object with same uid from resource
@@ -56,8 +56,8 @@ public interface IcfConnectorFacade {
 	 * @param uid - Identification of object in resource
 	 * @return
 	 */
-	IcfConnectorObject readObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, IcfUidAttribute uid);
+	IcConnectorObject readObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcUidAttribute uid);
 	
 	/**
 	 * Authenticate user
@@ -68,12 +68,12 @@ public interface IcfConnectorFacade {
 	 * @param password
 	 * @return
 	 */
-	IcfUidAttribute authenticateObject(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration,
-			IcfObjectClass objectClass, String username, GuardedString password);
+	IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, String username, GuardedString password);
 	
 	/**
-	 * @return Connector services for all ICFs
+	 * @return Connector services for all ICs
 	 */
-	Map<String, IcfConnectorService> getIcfConnectors();
+	Map<String, IcConnectorService> getIcConnectors();
 
 }

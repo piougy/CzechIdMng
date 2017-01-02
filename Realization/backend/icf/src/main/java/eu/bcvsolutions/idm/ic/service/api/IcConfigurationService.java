@@ -1,32 +1,32 @@
-package eu.bcvsolutions.idm.icf.service.api;
+package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
 
-public interface IcfConfigurationService {
+public interface IcConfigurationService {
 
 	/**
-	 * Return key defined ICF implementation
+	 * Return key defined IC implementation
 	 * @return
 	 */
 	String getImplementationType();
 
 	/**
-	 * Return available local connectors for this ICF implementation
+	 * Return available local connectors for this IC implementation
 	 * @return
 	 */
-	List<IcfConnectorInfo> getAvailableLocalConnectors();
+	List<IcConnectorInfo> getAvailableLocalConnectors();
 
 	/**
 	 * Return find connector default configuration by connector key
 	 * @param info
 	 * @return
 	 */
-	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key);
+	IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key);
 	
 
 	/**
@@ -35,6 +35,6 @@ public interface IcfConfigurationService {
 	 * @param connectorConfiguration - Connector configuration
 	 * @return
 	 */
-	IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration);
+	IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
 
 }

@@ -1,31 +1,31 @@
-package eu.bcvsolutions.idm.icf.service.api;
+package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.List;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 /**
  * Facade for get available connectors configuration
  * @author svandav
  *
  */
-public interface IcfConfigurationFacade {
+public interface IcConfigurationFacade {
 
 	/**
-	 * Return available local connectors for all ICF implementations
+	 * Return available local connectors for all IC implementations
 	 *
 	 */
-	Map<String, List<IcfConnectorInfo>> getAvailableLocalConnectors();
+	Map<String, List<IcConnectorInfo>> getAvailableLocalConnectors();
 
 	/**
-	 * Return all registered ICF configuration service implementations
+	 * Return all registered IC configuration service implementations
 	 * @return
 	 */
-	Map<String, IcfConfigurationService> getIcfConfigs();
+	Map<String, IcConfigurationService> getIcConfigs();
 	
 	/**
 	 * Return find connector default configuration by connector key
@@ -34,7 +34,7 @@ public interface IcfConfigurationFacade {
 	 * @return
 	 */
 	
-	IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key);
+	IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key);
 
 	/**
 	 * Return schema for connector and given configuration. Schema contains list of attribute definitions in object classes.
@@ -42,6 +42,6 @@ public interface IcfConfigurationFacade {
 	 * @param connectorConfiguration - Connector configuration
 	 * @return
 	 */
-	IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration);
+	IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
 
 }

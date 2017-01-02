@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.connid.service.impl;
+package eu.bcvsolutions.idm.ic.connid.service.impl;
 
 import java.net.URL;
 import java.text.MessageFormat;
@@ -20,43 +20,43 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
-import eu.bcvsolutions.idm.icf.connid.domain.ConnIdIcfConvertUtil;
-import eu.bcvsolutions.idm.icf.exception.IcfException;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorInfoImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorKeyImpl;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationService;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
+import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;
 
 @Service
-public class ConnIdIcfConfigurationService implements IcfConfigurationService {
+public class ConnIdIcConfigurationService implements IcConfigurationService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcfConfigurationService.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConnIdIcConfigurationService.class);
 
 	// Cached local connid managers
 	private List<ConnectorInfoManager> managers;
-	@Value("#{'${icf.localconnector.packages}'.split(',')}")
+	@Value("#{'${ic.localconnector.packages}'.split(',')}")
 	private List<String> localConnectorsPackages;
 
 	@Autowired
-	public ConnIdIcfConfigurationService(IcfConfigurationFacade icfConfigurationAggregator) {
-		if (icfConfigurationAggregator.getIcfConfigs() == null) {
-			throw new IcfException("Map of ICF implementations is not defined!");
+	public ConnIdIcConfigurationService(IcConfigurationFacade icConfigurationAggregator) {
+		if (icConfigurationAggregator.getIcConfigs() == null) {
+			throw new IcException("Map of IC implementations is not defined!");
 		}
-		if (icfConfigurationAggregator.getIcfConfigs().containsKey(IMPLEMENTATION_TYPE)) {
-			throw new IcfException(
-					MessageFormat.format("ICF implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
+		if (icConfigurationAggregator.getIcConfigs().containsKey(IMPLEMENTATION_TYPE)) {
+			throw new IcException(
+					MessageFormat.format("IC implementation duplicity for key: {0}", IMPLEMENTATION_TYPE));
 		}
-		icfConfigurationAggregator.getIcfConfigs().put(IMPLEMENTATION_TYPE, this);
+		icConfigurationAggregator.getIcConfigs().put(IMPLEMENTATION_TYPE, this);
 	}
 
 	final private static String IMPLEMENTATION_TYPE = "connId";
 
 	/**
-	 * Return key defined ICF implementation
+	 * Return key defined IC implementation
 	 * 
 	 * @return
 	 */
@@ -66,14 +66,14 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	}
 
 	/**
-	 * Return available local connectors for this ICF implementation
+	 * Return available local connectors for this IC implementation
 	 * 
 	 * @return
 	 */
 	@Override
-	public List<IcfConnectorInfo> getAvailableLocalConnectors() {
+	public List<IcConnectorInfo> getAvailableLocalConnectors() {
 		log.info("Get Available local connectors - ConnId");
-		List<IcfConnectorInfo> localConnectorInfos = new ArrayList<>();
+		List<IcConnectorInfo> localConnectorInfos = new ArrayList<>();
 		List<ConnectorInfoManager> managers = findAllLocalConnectorManagers();
 
 		for (ConnectorInfoManager manager : managers) {
@@ -86,9 +86,9 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 				if (key == null) {
 					continue;
 				}
-				IcfConnectorKeyImpl keyDto = new IcfConnectorKeyImpl(getImplementationType(), key.getBundleName(),
+				IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getImplementationType(), key.getBundleName(),
 						key.getBundleVersion(), key.getConnectorName());
-				IcfConnectorInfoImpl infoDto = new IcfConnectorInfoImpl(info.getConnectorDisplayName(),
+				IcConnectorInfoImpl infoDto = new IcConnectorInfoImpl(info.getConnectorDisplayName(),
 						info.getConnectorCategory(), keyDto);
 				localConnectorInfos.add(infoDto);
 			}
@@ -103,23 +103,23 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	 * @return
 	 */
 	@Override
-	public IcfConnectorConfiguration getConnectorConfiguration(IcfConnectorKey key) {
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
 		Assert.notNull(key);
 
 		ConnectorInfo i = getConnIdConnectorInfo(key);
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
-			return ConnIdIcfConvertUtil.convertConnIdConnectorConfiguration(apiConf);
+			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 		}
 		return null;
 	}
 
-	public ConnectorInfo getConnIdConnectorInfo(IcfConnectorKey key) {
+	public ConnectorInfo getConnIdConnectorInfo(IcConnectorKey key) {
 		Assert.notNull(key);
 
 		for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
 			ConnectorInfo i = manager.findConnectorInfo(
-					ConnIdIcfConvertUtil.convertConnectorKeyFromDto(key, this.getImplementationType()));
+					ConnIdIcConvertUtil.convertConnectorKeyFromDto(key, this.getImplementationType()));
 			if (i != null) {
 				return i;
 			}
@@ -128,13 +128,13 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 	}
 
 	@Override
-	public IcfSchema getSchema(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(key);
 		Assert.notNull(connectorConfiguration);
 		log.info(MessageFormat.format("Get Schema - ConnId ({0})", key.toString()));
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 		Schema schema = conn.schema();
-		return ConnIdIcfConvertUtil.convertConnIdSchema(schema);
+		return ConnIdIcConvertUtil.convertConnIdSchema(schema);
 	}
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
@@ -161,14 +161,14 @@ public class ConnIdIcfConfigurationService implements IcfConfigurationService {
 		return managers;
 	}
 
-	private ConnectorFacade getConnectorFacade(IcfConnectorKey key, IcfConnectorConfiguration connectorConfiguration) {
+	private ConnectorFacade getConnectorFacade(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(key);
 		Assert.notNull(connectorConfiguration);
 		ConnectorInfo connIdInfo = this.getConnIdConnectorInfo(key);
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");
 		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
 		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");
-		config = ConnIdIcfConvertUtil.convertIcfConnectorConfiguration(connectorConfiguration, config);
+		config = ConnIdIcConvertUtil.convertIcConnectorConfiguration(connectorConfiguration, config);
 		// Use the ConnectorFacadeFactory's newInstance() method to get a new
 		// connector.
 		ConnectorFacade conn = ConnectorFacadeFactory.getManagedInstance().newInstance(config);

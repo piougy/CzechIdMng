@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
  * Default schema attributes handling
@@ -110,22 +110,22 @@ public class DefaultSysSchemaAttributeHandlingService
 
 	@Override
 	public Object transformValueFromResource(Object value, MappingAttribute attributeHandling,
-			List<IcfAttribute> icfAttributes) {
+			List<IcAttribute> icAttributes) {
 		Assert.notNull(attributeHandling);
 
-		return transformValueFromResource(value, attributeHandling.getTransformFromResourceScript(), icfAttributes,
+		return transformValueFromResource(value, attributeHandling.getTransformFromResourceScript(), icAttributes,
 				attributeHandling.getSchemaAttribute().getObjectClass().getSystem());
 	}
 
 	@Override
-	public Object transformValueFromResource(Object value, String script, List<IcfAttribute> icfAttributes,
+	public Object transformValueFromResource(Object value, String script, List<IcAttribute> icAttributes,
 			SysSystem system) {
 
 		if (!StringUtils.isEmpty(script)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put(ATTRIBUTE_VALUE_KEY, value);
 			variables.put(SYSTEM_KEY, system);
-			variables.put(ICF_ATTRIBUTES_KEY, icfAttributes);
+			variables.put(IC_ATTRIBUTES_KEY, icAttributes);
 			return groovyScriptService.evaluate(script, variables);
 		}
 

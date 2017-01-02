@@ -5,8 +5,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**
  * Target system configuration service 
@@ -30,7 +30,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	 * @param system
 	 * @return
 	 */
-	IcfConnectorConfiguration getConnectorConfiguration(SysSystem system);
+	IcConnectorConfiguration getConnectorConfiguration(SysSystem system);
 	
 	/**
 	 * Returns form definition to given connector key. If no definition for connector type is found, then new definition is created by connector properties.
@@ -38,12 +38,12 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	 * @param connectorKey
 	 * @return
 	 */
-	IdmFormDefinition getConnectorFormDefinition(IcfConnectorKey connectorKey);
+	IdmFormDefinition getConnectorFormDefinition(IcConnectorKey connectorKey);
 	
 	//
 	// TODO: move to test after FE form implementation
 	@Deprecated
-	IcfConnectorKey getTestConnectorKey();
+	IcConnectorKey getTestConnectorKey();
 	@Deprecated
 	SysSystem createTestSystem();
 }

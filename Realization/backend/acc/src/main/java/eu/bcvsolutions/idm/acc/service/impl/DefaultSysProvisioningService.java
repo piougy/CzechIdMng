@@ -61,18 +61,18 @@ import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
-import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
-import eu.bcvsolutions.idm.icf.impl.IcfAttributeImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfConnectorObjectImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfObjectClassImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfPasswordAttributeImpl;
-import eu.bcvsolutions.idm.icf.impl.IcfUidAttributeImpl;
-import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
+import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
+import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
@@ -88,7 +88,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
 	private final SysSystemEntityHandlingService entityHandlingService;
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
-	private final IcfConnectorFacade connectorFacade;
+	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private final AccIdentityAccountService identityAccountService;
 	private final ConfidentialStorage confidentialStorage;
@@ -101,7 +101,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 	@Autowired
 	public DefaultSysProvisioningService(SysSystemEntityHandlingService entityHandlingService,
-			SysSchemaAttributeHandlingService attributeHandlingService, IcfConnectorFacade connectorFacade,
+			SysSchemaAttributeHandlingService attributeHandlingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, ConfidentialStorage confidentialStorage, FormService formService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
@@ -316,19 +316,19 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 
 		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
+		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
 		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
-		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 
 
 		if (!mappedAttribute.getSchemaAttribute().isUpdateable()) {
@@ -346,16 +346,16 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			valueTransformed = attributeHandlingService.transformValueToResource(value, mappedAttribute,
 					entity);
 		}
-		IcfAttribute icfAttributeForCreate = createIcfAttribute(mappedAttribute, valueTransformed);
-		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
-		// Call icf modul for update single attribute
-		connectorFacade.updateObject(connectorKey, connectorConfig, icfObjectClass, uidAttribute,
-				ImmutableList.of(icfAttributeForCreate));
+		IcAttribute icAttributeForCreate = createIcAttribute(mappedAttribute, valueTransformed);
+		IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
+		// Call ic modul for update single attribute
+		connectorFacade.updateObject(connectorKey, connectorConfig, icObjectClass, uidAttribute,
+				ImmutableList.of(icAttributeForCreate));
 
 	}
 
 	@Override
-	public IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
+	public IcUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
 		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(),
 				IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 		if (password == null) {
@@ -366,7 +366,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	}
 
 	@Override
-	public IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+	public IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
 			SystemOperationType operationType, SystemEntityType entityType) {
 
 		Assert.notNull(username);
@@ -380,14 +380,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
+		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
 		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -395,20 +395,20 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		// Find attribute handling mapped on schema password attribute
 		Optional<? extends MappingAttribute> passwordAttributeHandlingOptional = attributes.stream()
 				.filter((attribute) -> {
-					return IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
+					return IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(attribute.getSchemaAttribute().getName());
 				}).findFirst();
 		if (!passwordAttributeHandlingOptional.isPresent()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-					ImmutableMap.of("property", IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
+					ImmutableMap.of("property", IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME, "uid", username));
 		}
 
 		MappingAttribute passwordAttributeHandling = passwordAttributeHandlingOptional.get();
 
 		String objectClassName = passwordAttributeHandling.getSchemaAttribute().getObjectClass().getObjectClassName();
-		IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
+		IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
 
-		// Call ICF module for check authenticate
-		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icfObjectClass, username, password);
+		// Call IC module for check authenticate
+		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icObjectClass, username, password);
 	}
 
 	/**
@@ -593,28 +593,28 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		}
 
 		// Find connector identification persisted in system
-		IcfConnectorKey connectorKey = system.getConnectorKey();
+		IcConnectorKey connectorKey = system.getConnectorKey();
 		if (connectorKey == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
 
 		// Find connector configuration persisted in system
-		IcfConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
+		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
 		if (connectorConfig == null) {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
-		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 
-		Map<String, IcfConnectorObject> objectByClassMap = new HashMap<>();
+		Map<String, IcConnectorObject> objectByClassMap = new HashMap<>();
 
 		for (MappingAttribute ah : attributes) {
 			String objectClassName = ah.getSchemaAttribute().getObjectClass().getObjectClassName();
 			if (!objectByClassMap.containsKey(objectClassName)) {
-				IcfObjectClass icfObjectClass = new IcfObjectClassImpl(objectClassName);
-				IcfConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig,
-						icfObjectClass, uidAttribute);
+				IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
+				IcConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig,
+						icObjectClass, uidAttribute);
 				objectByClassMap.put(objectClassName, connectorObject);
 			}
 		}
@@ -666,14 +666,14 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectByClassMap
 	 */
 	private String doProvisioning(String uid, AbstractEntity entity, AccountOperationType operationType,
-			List<? extends MappingAttribute> attributes, IcfConnectorKey connectorKey,
-			IcfConnectorConfiguration connectorConfig, Map<String, IcfConnectorObject> objectByClassMap) {
+			List<? extends MappingAttribute> attributes, IcConnectorKey connectorKey,
+			IcConnectorConfiguration connectorConfig, Map<String, IcConnectorObject> objectByClassMap) {
 
-		Map<String, IcfConnectorObject> objectByClassMapForUpdate = new HashMap<>();
-		Map<String, IcfConnectorObject> objectByClassMapForCreate = new HashMap<>();
-		Map<String, IcfConnectorObject> objectByClassMapForDelete = new HashMap<>();
+		Map<String, IcConnectorObject> objectByClassMapForUpdate = new HashMap<>();
+		Map<String, IcConnectorObject> objectByClassMapForCreate = new HashMap<>();
+		Map<String, IcConnectorObject> objectByClassMapForDelete = new HashMap<>();
 
-		IcfUidAttribute uidAttribute = new IcfUidAttributeImpl(null, uid, null);
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 
 		// One IDM account can be mapped to more then one connector object (on
 		// more connector class).
@@ -683,12 +683,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		for (MappingAttribute attributeHandling : attributes) {
 			SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 			String objectClassName = schemaAttribute.getObjectClass().getObjectClassName();
-			IcfConnectorObject connectorObject = objectByClassMap.get(objectClassName);
+			IcConnectorObject connectorObject = objectByClassMap.get(objectClassName);
 			if (AccountOperationType.UPDATE == operationType && connectorObject == null) {
 				/**
 				 * Create new connector object for this object class
 				 */
-				IcfConnectorObject connectorObjectForCreate = initConnectorObject(objectByClassMapForCreate,
+				IcConnectorObject connectorObjectForCreate = initConnectorObject(objectByClassMapForCreate,
 						objectClassName);
 				createAttribute(uid, entity, connectorObjectForCreate, attributeHandling, schemaAttribute);
 
@@ -717,28 +717,28 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			}
 		}
 		final List<String> uids = new ArrayList<>();
-		// call create on ICF module
+		// call create on IC module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
 			LOG.debug("Provisioning - create object with uid {} and connector object {}", uid,
 					connectorObject.getObjectClass().getType());
-			IcfUidAttribute icfUid = connectorFacade.createObject(connectorKey, connectorConfig,
+			IcUidAttribute icUid = connectorFacade.createObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), connectorObject.getAttributes());
-			if (icfUid != null && icfUid.getUidValue() != null) {
-				uids.add(icfUid.getUidValue());
+			if (icUid != null && icUid.getUidValue() != null) {
+				uids.add(icUid.getUidValue());
 			}
 		});
 
-		// call update on ICF module
+		// call update on IC module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
 			LOG.debug("Provisioning - update object with uid {} and connector object {}", uid,
 					connectorObject.getObjectClass().getType());
-			IcfUidAttribute icfUid = connectorFacade.updateObject(connectorKey, connectorConfig,
+			IcUidAttribute icUid = connectorFacade.updateObject(connectorKey, connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
-			if (icfUid != null && icfUid.getUidValue() != null) {
-				uids.add(icfUid.getUidValue());
+			if (icUid != null && icUid.getUidValue() != null) {
+				uids.add(icUid.getUidValue());
 			}
 		});
-		// call delete on ICF module
+		// call delete on IC module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
 			LOG.debug("Provisioning - delete object with uid {} and connector object {}", uid,
 					connectorObject.getObjectClass().getType());
@@ -771,16 +771,16 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectClassName
 	 * @return
 	 */
-	private IcfConnectorObject initConnectorObject(Map<String, IcfConnectorObject> objectByClassMap,
+	private IcConnectorObject initConnectorObject(Map<String, IcConnectorObject> objectByClassMap,
 			String objectClassName) {
-		IcfConnectorObject connectorObject = null;
+		IcConnectorObject connectorObject = null;
 
 		if (objectByClassMap != null) {
 			connectorObject = objectByClassMap.get(objectClassName);
 		}
 		if (connectorObject == null) {
-			IcfObjectClass ioc = new IcfObjectClassImpl(objectClassName);
-			connectorObject = new IcfConnectorObjectImpl(ioc, null);
+			IcObjectClass ioc = new IcObjectClassImpl(objectClassName);
+			connectorObject = new IcConnectorObjectImpl(ioc, null);
 			if (objectByClassMap != null) {
 				objectByClassMap.put(objectClassName, connectorObject);
 			}
@@ -789,7 +789,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	}
 
 	/**
-	 * Create ICF attribute by schema attribute. ICF attribute will be set with
+	 * Create IC attribute by schema attribute. IC attribute will be set with
 	 * value obtained form given entity. This value will be transformed to
 	 * system value first.
 	 * 
@@ -800,7 +800,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param schemaAttribute
 	 * @param objectClassName
 	 */
-	private void createAttribute(String uid, AbstractEntity entity, IcfConnectorObject connectorObjectForCreate,
+	private void createAttribute(String uid, AbstractEntity entity, IcConnectorObject connectorObjectForCreate,
 			MappingAttribute attributeHandling, SysSchemaAttribute schemaAttribute){
 		if (schemaAttribute.isCreateable()) {
 			try {
@@ -813,8 +813,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 					idmValueTransformed = attributeHandlingService.transformValueToResource(idmValue, attributeHandling,
 							entity);
 				}
-				IcfAttribute icfAttributeForCreate = createIcfAttribute(attributeHandling, idmValueTransformed);
-				connectorObjectForCreate.getAttributes().add(icfAttributeForCreate);
+				IcAttribute icAttributeForCreate = createIcAttribute(attributeHandling, idmValueTransformed);
+				connectorObjectForCreate.getAttributes().add(icAttributeForCreate);
 
 			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | ProvisioningException e) {
@@ -837,20 +837,20 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param connectorObject
 	 */
 	private void updateAttribute(String uid, AbstractEntity entity,
-			Map<String, IcfConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
-			SysSchemaAttribute schemaAttribute, String objectClassName, IcfConnectorObject connectorObject) {
-		List<IcfAttribute> icfAttributes = connectorObject.getAttributes();
+			Map<String, IcConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
+			SysSchemaAttribute schemaAttribute, String objectClassName, IcConnectorObject connectorObject) {
+		List<IcAttribute> icAttributes = connectorObject.getAttributes();
 
-		Optional<IcfAttribute> icfAttributeOptional = icfAttributes.stream().filter(icfa -> {
-			return schemaAttribute.getName().equals(icfa.getName());
+		Optional<IcAttribute> icAttributeOptional = icAttributes.stream().filter(ica -> {
+			return schemaAttribute.getName().equals(ica.getName());
 		}).findFirst();
-		IcfAttribute icfAttribute = null;
-		if (icfAttributeOptional.isPresent()) {
-			icfAttribute = icfAttributeOptional.get();
+		IcAttribute icAttribute = null;
+		if (icAttributeOptional.isPresent()) {
+			icAttribute = icAttributeOptional.get();
 		}
 	
 		updateAttributeValue(uid, entity, objectByClassMapForUpdate, attributeHandling, objectClassName,
-				icfAttribute, icfAttributes);
+				icAttribute, icAttributes);
 	}
 
 	/**
@@ -863,23 +863,23 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param objectByClassMapForUpdate
 	 * @param attributeHandling
 	 * @param objectClassName
-	 * @param icfAttribute
+	 * @param icAttribute
 	 */
 	private void updateAttributeValue(String uid, AbstractEntity entity,
-			Map<String, IcfConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
-			String objectClassName, IcfAttribute icfAttribute, List<IcfAttribute> icfAttributes){
+			Map<String, IcConnectorObject> objectByClassMapForUpdate, MappingAttribute attributeHandling,
+			String objectClassName, IcAttribute icAttribute, List<IcAttribute> icAttributes){
 
-		Object icfValueTransformed = null;
+		Object icValueTransformed = null;
 		if (attributeHandling.getSchemaAttribute().isMultivalued()) {
 			// Multi value
-			List<Object> icfValues = icfAttribute != null ? icfAttribute.getValues() : null;
-			icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValues, attributeHandling,
-					icfAttributes);
+			List<Object> icValues = icAttribute != null ? icAttribute.getValues() : null;
+			icValueTransformed = attributeHandlingService.transformValueFromResource(icValues, attributeHandling,
+					icAttributes);
 		} else {
 			// Single value
-			Object icfValue = icfAttribute != null ? icfAttribute.getValue() : null;
-			icfValueTransformed = attributeHandlingService.transformValueFromResource(icfValue, attributeHandling,
-					icfAttributes);
+			Object icValue = icAttribute != null ? icAttribute.getValue() : null;
+			icValueTransformed = attributeHandlingService.transformValueFromResource(icValue, attributeHandling,
+					icAttributes);
 		}
 
 		try {
@@ -893,12 +893,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 						entity);
 			}
 
-			if (!Objects.equals(idmValueTransformed, icfValueTransformed)) {
+			if (!Objects.equals(idmValueTransformed, icValueTransformed)) {
 				// values is not equals
-				IcfAttribute icfAttributeForUpdate = createIcfAttribute(attributeHandling, idmValueTransformed);
-				IcfConnectorObject connectorObjectForUpdate = initConnectorObject(objectByClassMapForUpdate,
+				IcAttribute icAttributeForUpdate = createIcAttribute(attributeHandling, idmValueTransformed);
+				IcConnectorObject connectorObjectForUpdate = initConnectorObject(objectByClassMapForUpdate,
 						objectClassName);
-				connectorObjectForUpdate.getAttributes().add(icfAttributeForUpdate);
+				connectorObjectForUpdate.getAttributes().add(icAttributeForUpdate);
 			}
 
 		} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
@@ -969,15 +969,15 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	}
 
 	/**
-	 * Create instance of ICF attribute for given name. Given idm value will be
+	 * Create instance of IC attribute for given name. Given idm value will be
 	 * transformed to resource.
 	 * 
 	 * @param attributeHandling
-	 * @param icfAttribute
+	 * @param icAttribute
 	 * @param idmValue
 	 * @return
 	 */
-	private IcfAttribute createIcfAttribute(MappingAttribute attributeHandling, Object idmValue){
+	private IcAttribute createIcAttribute(MappingAttribute attributeHandling, Object idmValue){
 		SysSchemaAttribute schemaAttribute = attributeHandling.getSchemaAttribute();
 		// Check type of value
 		try {
@@ -1006,21 +1006,21 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 					e);
 		}
 
-		IcfAttribute icfAttributeForUpdate = null;
-		if (IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
+		IcAttribute icAttributeForUpdate = null;
+		if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
 			// Attribute is password type
-			icfAttributeForUpdate = new IcfPasswordAttributeImpl((GuardedString) idmValue);
+			icAttributeForUpdate = new IcPasswordAttributeImpl((GuardedString) idmValue);
 
 		} else {
 			if(idmValue instanceof List){
 				@SuppressWarnings("unchecked")
 				List<Object> values = (List<Object>)idmValue;
-				icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(), values, true);
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), values, true);
 			}else{
-				icfAttributeForUpdate = new IcfAttributeImpl(schemaAttribute.getName(), idmValue);
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), idmValue);
 			}
 		}
-		return icfAttributeForUpdate;
+		return icAttributeForUpdate;
 	}
 
 	/**

@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
@@ -80,7 +80,7 @@ public interface SysProvisioningService {
 	 * @param system
 	 * @return
 	 */
-	IcfUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system);
+	IcUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system);
 	
 	/**
 	 * Do authenticate check for given username and password on target resource
@@ -91,7 +91,7 @@ public interface SysProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	IcfUidAttribute authenticate(String username, GuardedString password, SysSystem system,
+	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
 			SystemOperationType operationType, SystemEntityType entityType);
 
 	/**

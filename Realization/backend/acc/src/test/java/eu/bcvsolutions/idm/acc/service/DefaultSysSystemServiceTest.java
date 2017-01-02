@@ -48,10 +48,10 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormDefinitionService;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -74,7 +74,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private FormService formService;	
 	@Autowired
-	private IcfConfigurationFacade icfConfigurationAggregatorService;
+	private IcConfigurationFacade icConfigurationAggregatorService;
 	@Autowired
 	private SysSchemaObjectClassService schemaObjectClassService;
 	@Autowired
@@ -297,9 +297,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	public void testCreateConnectorConfiguration() {
 		// TODO: test system will be moved here, after UI eav form implementation
 		@SuppressWarnings("deprecation")
-		IcfConnectorKey connectorKey = systemService.getTestConnectorKey();
+		IcConnectorKey connectorKey = systemService.getTestConnectorKey();
 		
-		IcfConnectorConfiguration conf = icfConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
+		IcConnectorConfiguration conf = icConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
 		
 		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorKey);
 		
@@ -312,13 +312,13 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create owner
 		@SuppressWarnings("deprecation")
 		SysSystem system =  systemService.createTestSystem();		
-		IcfConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);		
+		IcConnectorConfiguration connectorConfiguration = systemService.getConnectorConfiguration(system);		
 		assertEquals(15, connectorConfiguration.getConfigurationProperties().getProperties().size());
 		//
 		// check all supported data types
 		// TODO: add all supported types
 		Integer checked = 0;
-		for(IcfConfigurationProperty property : connectorConfiguration.getConfigurationProperties().getProperties()) {
+		for(IcConfigurationProperty property : connectorConfiguration.getConfigurationProperties().getProperties()) {
 			switch(property.getName()) {
 				case "host": {
 					assertEquals("localhost", property.getValue());

@@ -62,6 +62,15 @@ export default class EntityManager {
   }
 
   /**
+   * Return resource identifier on FE (see BE - IdentifiableByName)
+   *
+   * @return {string} secondary identifier (unique property)
+   */
+  getIdentifierAlias() {
+    return null;
+  }
+
+  /**
    * Textual entity reprezentation (~entity.toString())
    *
    * @param  {entity} entity
@@ -450,12 +459,25 @@ export default class EntityManager {
     if (cb) {
       cb(entity, null);
     }
-    return {
-      type: RECEIVE_ENTITY,
-      id,
-      entityType: this.getEntityType(),
-      entity,
-      uiKey
+    return (dispatch) => {
+      dispatch({
+        type: RECEIVE_ENTITY,
+        id,
+        entityType: this.getEntityType(),
+        entity,
+        uiKey
+      });
+      // push entity to store with secondary identifier
+      const idAlias = !this.getIdentifierAlias() ? null : entity[this.getIdentifierAlias()];
+      if (idAlias) {
+        dispatch({
+          type: RECEIVE_ENTITY,
+          id: idAlias,
+          entityType: this.getEntityType(),
+          entity,
+          uiKey
+        });
+      }
     };
   }
 

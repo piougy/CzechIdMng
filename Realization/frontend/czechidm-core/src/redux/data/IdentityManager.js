@@ -28,6 +28,15 @@ export default class IdentityManager extends EntityManager {
     return 'identities';
   }
 
+  /**
+   * Return resource identifier on FE (see BE - IdentifiableByName)
+   *
+   * @return {string} secondary identifier (unique property)
+   */
+  getIdentifierAlias() {
+    return 'username';
+  }
+
   getFullName(identity) {
     return this.getService().getFullName(identity);
   }

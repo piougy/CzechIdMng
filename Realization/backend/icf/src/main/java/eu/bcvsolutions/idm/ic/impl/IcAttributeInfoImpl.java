@@ -1,16 +1,16 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 
 /**
- * <i>IcfAttributeInfo</i> is meta data responsible for describing an
- * {@link IcfAttribute}.
+ * <i>IcAttributeInfo</i> is meta data responsible for describing an
+ * {@link IcAttribute}.
  * 
  * @author svandav
  *
  */
-public class IcfAttributeInfoImpl implements IcfAttributeInfo {
+public class IcAttributeInfoImpl implements IcAttributeInfo {
 
 	private String name;
 	private String classType;
@@ -165,7 +165,7 @@ public class IcfAttributeInfoImpl implements IcfAttributeInfo {
 
 	@Override
 	public String toString() {
-		return "IcfSchemaAttributeInfo [name=" + name + ", classType=" + classType + "]";
+		return "IcSchemaAttributeInfo [name=" + name + ", classType=" + classType + "]";
 	}
 
 }

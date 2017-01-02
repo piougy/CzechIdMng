@@ -1,54 +1,54 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorObject;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
  * Instance of connector object
  * @author svandav
  *
  */
-public class IcfConnectorObjectImpl implements IcfConnectorObject {
-	private IcfObjectClass objectClass;
-	private List<IcfAttribute> attributes;
+public class IcConnectorObjectImpl implements IcConnectorObject {
+	private IcObjectClass objectClass;
+	private List<IcAttribute> attributes;
 
 	
-	public IcfConnectorObjectImpl() {
+	public IcConnectorObjectImpl() {
 	}
 
-	public IcfConnectorObjectImpl(IcfObjectClass objectClass, List<IcfAttribute> attributes) {
+	public IcConnectorObjectImpl(IcObjectClass objectClass, List<IcAttribute> attributes) {
 		super();
 		this.objectClass = objectClass;
 		this.attributes = attributes;
 	}
 
-	public List<IcfAttribute> getAttributes() {
+	public List<IcAttribute> getAttributes() {
 		if(attributes == null){
 			this.attributes = new ArrayList<>();
 		}
 		return attributes;
 	}
 
-	public void setAttributes(List<IcfAttribute> attributes) {
+	public void setAttributes(List<IcAttribute> attributes) {
 		this.attributes = attributes;
 	}
 
 	@Override
-	public IcfObjectClass getObjectClass() {
+	public IcObjectClass getObjectClass() {
 		return objectClass;
 	}
 
-	public void setObjectClass(IcfObjectClass objectClass) {
+	public void setObjectClass(IcObjectClass objectClass) {
 		this.objectClass = objectClass;
 	}
 
 	@Override
 	public String toString() {
-		return "IcfConnectorObjectImpl [objectClass=" + objectClass + ", attributes=" + attributes + "]";
+		return "IcConnectorObjectImpl [objectClass=" + objectClass + ", attributes=" + attributes + "]";
 	}
 
 }

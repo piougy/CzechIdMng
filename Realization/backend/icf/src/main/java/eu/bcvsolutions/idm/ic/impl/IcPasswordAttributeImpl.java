@@ -1,16 +1,16 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 
-import eu.bcvsolutions.idm.icf.api.IcfPasswordAttribute;
+import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 
-public class IcfPasswordAttributeImpl extends IcfAttributeImpl implements IcfPasswordAttribute {
+public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswordAttribute {
 
 	private boolean password = false;
 
-	public IcfPasswordAttributeImpl(GuardedString value) {
+	public IcPasswordAttributeImpl(GuardedString value) {
 		super();
 		this.values = new ArrayList<>();
 		if (value != null) {

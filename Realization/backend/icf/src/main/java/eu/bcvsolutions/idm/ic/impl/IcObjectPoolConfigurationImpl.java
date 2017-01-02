@@ -1,8 +1,8 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 
-public class IcfObjectPoolConfigurationImpl implements IcfObjectPoolConfiguration {
+public class IcObjectPoolConfigurationImpl implements IcObjectPoolConfiguration {
 	
 	/**
      * Max objects (idle+active).

@@ -1,23 +1,23 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**
  * Uniquely identifies a connector within an installation. Consists of the
- * quadruple (icfType, bundleName, bundleVersion, connectorName)
+ * quadruple (icType, bundleName, bundleVersion, connectorName)
  */
-public class IcfConnectorKeyImpl implements IcfConnectorKey {
+public class IcConnectorKeyImpl implements IcConnectorKey {
 
 	private String framework;
 	private String bundleName;
 	private String bundleVersion;
 	private String connectorName;
 
-	public IcfConnectorKeyImpl() {
+	public IcConnectorKeyImpl() {
 		super();
 	}
 
-	public IcfConnectorKeyImpl(String framework, String bundleName, String bundleVersion, String connectorName) {
+	public IcConnectorKeyImpl(String framework, String bundleName, String bundleVersion, String connectorName) {
 		super();
 		this.framework = framework;
 		this.bundleName = bundleName;
@@ -78,7 +78,7 @@ public class IcfConnectorKeyImpl implements IcfConnectorKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		IcfConnectorKeyImpl other = (IcfConnectorKeyImpl) obj;
+		IcConnectorKeyImpl other = (IcConnectorKeyImpl) obj;
 		if (bundleName == null) {
 			if (other.bundleName != null)
 				return false;
@@ -104,7 +104,7 @@ public class IcfConnectorKeyImpl implements IcfConnectorKey {
 
 	@Override
 	public String toString() {
-		return "IcfConnectorKeyImpl [framework=" + framework + ", bundleName=" + bundleName + ", bundleVersion="
+		return "IcConnectorKeyImpl [framework=" + framework + ", bundleName=" + bundleName + ", bundleVersion="
 				+ bundleVersion + ", connectorName=" + connectorName + "]";
 	}
 

@@ -1,19 +1,19 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorConfiguration;
-import eu.bcvsolutions.idm.icf.api.IcfObjectPoolConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
+import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 
 /**
- * Configuration for ICF connector
+ * Configuration for IC connector
  * @author svandav
  *
  */
-public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration {
+public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
 	/**
 	 * Instance of the configuration properties.
 	 */
-	private IcfConfigurationProperties configurationProperties;
+	private IcConfigurationProperties configurationProperties;
 
 	/**
 	 * Determines if this connector uses the framework's connector pooling.
@@ -23,7 +23,7 @@ public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration 
 	/**
 	 * Connector pooling configuration.
 	 */
-	private IcfObjectPoolConfiguration connectorPoolConfiguration;
+	private IcObjectPoolConfiguration connectorPoolConfiguration;
 
 	/**
 	 * The size of the buffer for Connector the support. Default is 100, if size
@@ -36,7 +36,7 @@ public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration 
 	 * @return the configurationProperties
 	 */
 	@Override
-	public IcfConfigurationProperties getConfigurationProperties() {
+	public IcConfigurationProperties getConfigurationProperties() {
 		return configurationProperties;
 	}
 
@@ -44,7 +44,7 @@ public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration 
 	 * @param configurationProperties
 	 *            the configurationProperties to set
 	 */
-	public void setConfigurationProperties(IcfConfigurationProperties configurationProperties) {
+	public void setConfigurationProperties(IcConfigurationProperties configurationProperties) {
 		this.configurationProperties = configurationProperties;
 	}
 
@@ -68,7 +68,7 @@ public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration 
 	 * @return the connectorPoolConfiguration
 	 */
 	@Override
-	public IcfObjectPoolConfiguration getConnectorPoolConfiguration() {
+	public IcObjectPoolConfiguration getConnectorPoolConfiguration() {
 		return connectorPoolConfiguration;
 	}
 
@@ -76,7 +76,7 @@ public class IcfConnectorConfigurationImpl implements IcfConnectorConfiguration 
 	 * @param connectorPoolConfiguration
 	 *            the connectorPoolConfiguration to set
 	 */
-	public void setConnectorPoolConfiguration(IcfObjectPoolConfiguration connectorPoolConfiguration) {
+	public void setConnectorPoolConfiguration(IcObjectPoolConfiguration connectorPoolConfiguration) {
 		this.connectorPoolConfiguration = connectorPoolConfiguration;
 	}
 

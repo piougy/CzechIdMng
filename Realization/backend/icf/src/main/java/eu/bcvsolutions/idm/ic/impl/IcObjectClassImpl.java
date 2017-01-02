@@ -1,18 +1,18 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 
 /**
  * Implementation of object class. Object class defined type or category of connector object.
  * @author svandav
  *
  */
-public class IcfObjectClassImpl implements IcfObjectClass {
+public class IcObjectClassImpl implements IcObjectClass {
 	
 	private String type;
 	private String displayName;
 	
-	public IcfObjectClassImpl(String type) {
+	public IcObjectClassImpl(String type) {
 		super();
 		this.type = type;
 		this.displayName = type;
@@ -61,7 +61,7 @@ public class IcfObjectClassImpl implements IcfObjectClass {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		IcfObjectClassImpl other = (IcfObjectClassImpl) obj;
+		IcObjectClassImpl other = (IcObjectClassImpl) obj;
 		if (type == null) {
 			if (other.type != null)
 				return false;

@@ -1,33 +1,33 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperties;
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**
- * Keep configuration properties for ICF connector
+ * Keep configuration properties for IC connector
  * @author svandav
  *
  */
-public class IcfConfigurationPropertiesImpl implements IcfConfigurationProperties {
+public class IcConfigurationPropertiesImpl implements IcConfigurationProperties {
 
     
-    List<IcfConfigurationProperty> properties;
+    List<IcConfigurationProperty> properties;
 
     /**
-     * The list of properties {@link IcfConfigurationProperty}.
+     * The list of properties {@link IcConfigurationProperty}.
      */
 	@Override
-	public List<IcfConfigurationProperty> getProperties() {
+	public List<IcConfigurationProperty> getProperties() {
 		if(properties == null){
 			properties = new ArrayList<>();
 		}
 		return properties;
 	}
 
-	public void setProperties(List<IcfConfigurationProperty> properties) {
+	public void setProperties(List<IcConfigurationProperty> properties) {
 		this.properties = properties;
 	}
 }

@@ -1,23 +1,23 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.bcvsolutions.idm.icf.api.IcfAttributeInfo;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClass;
-import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
+import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 
 /**
- * Defines type or category of connector object. Unlike {@link IcfObjectClass}
+ * Defines type or category of connector object. Unlike {@link IcObjectClass}
  * describing definitions of attributes.
  * 
  * @author svandav
  *
  */
-public class IcfObjectClassInfoImpl implements IcfObjectClassInfo {
+public class IcObjectClassInfoImpl implements IcObjectClassInfo {
 
 	private String type;
-	private List<IcfAttributeInfo> attributeInfos;
+	private List<IcAttributeInfo> attributeInfos;
 	private boolean isContainer;
 	private boolean isAuxiliary;
 
@@ -31,14 +31,14 @@ public class IcfObjectClassInfoImpl implements IcfObjectClassInfo {
 	}
 
 	@Override
-	public List<IcfAttributeInfo> getAttributeInfos() {
+	public List<IcAttributeInfo> getAttributeInfos() {
 		if(attributeInfos == null){
 			attributeInfos = new ArrayList<>();
 		}
 		return attributeInfos;
 	}
 
-	public void setAttributeInfos(List<IcfAttributeInfo> attributeInfos) {
+	public void setAttributeInfos(List<IcAttributeInfo> attributeInfos) {
 		this.attributeInfos = attributeInfos;
 	}
 

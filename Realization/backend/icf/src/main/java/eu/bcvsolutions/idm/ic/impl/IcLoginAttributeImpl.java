@@ -1,8 +1,8 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 
-import eu.bcvsolutions.idm.icf.api.IcfLoginAttribute;
+import eu.bcvsolutions.idm.ic.api.IcLoginAttribute;
 
 /**
  * Is <i>user-friendly identifier</i> of an object on a target resource. For
@@ -12,12 +12,12 @@ import eu.bcvsolutions.idm.icf.api.IcfLoginAttribute;
  * @author svandav
  *
  */
-public class IcfLoginAttributeImpl extends IcfAttributeImpl implements IcfLoginAttribute {
+public class IcLoginAttributeImpl extends IcAttributeImpl implements IcLoginAttribute {
 
 	private final static String NAME = "__UID__";
 	protected boolean login = false;
 
-	public IcfLoginAttributeImpl(String login) {
+	public IcLoginAttributeImpl(String login) {
 		super();
 		this.name = NAME;
 		this.login = true;
@@ -28,7 +28,7 @@ public class IcfLoginAttributeImpl extends IcfAttributeImpl implements IcfLoginA
 		multiValue = false;
 	}
 
-	public IcfLoginAttributeImpl(String name, String login) {
+	public IcLoginAttributeImpl(String name, String login) {
 		super();
 		this.name = name;
 		this.login = true;

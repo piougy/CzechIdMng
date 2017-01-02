@@ -1,34 +1,34 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import eu.bcvsolutions.idm.icf.api.IcfAttribute;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
- * Basic implementation of ICF attribute
+ * Basic implementation of IC attribute
  * @author svandav
  *
  */
-public class IcfAttributeImpl implements IcfAttribute {
+public class IcAttributeImpl implements IcAttribute {
 	protected String name;
 	protected List<Object> values;
 	protected boolean multiValue = false;
 
-	public IcfAttributeImpl() {
+	public IcAttributeImpl() {
 		super();
 	}
 	
-	public IcfAttributeImpl(String name, List<Object> values, boolean multiValue) {
+	public IcAttributeImpl(String name, List<Object> values, boolean multiValue) {
 		super();
 		this.name = name;
 		this.values = values;
 		this.multiValue = multiValue;
 	}
 
-	public IcfAttributeImpl(String name, List<Object> values) {
+	public IcAttributeImpl(String name, List<Object> values) {
 		super();
 		this.name = name;
 		this.values = values;
@@ -37,7 +37,7 @@ public class IcfAttributeImpl implements IcfAttribute {
 		}
 	}
 
-	public IcfAttributeImpl(String name, Object value) {
+	public IcAttributeImpl(String name, Object value) {
 		super();
 		this.name = name;
 		this.values = new ArrayList<>();
@@ -102,7 +102,7 @@ public class IcfAttributeImpl implements IcfAttribute {
 
 	@Override
 	public String toString() {
-		return "IcfAttributeImpl [name=" + name + ", values=" + values + "]";
+		return "IcAttributeImpl [name=" + name + ", values=" + values + "]";
 	}
 
 }

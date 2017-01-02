@@ -1,21 +1,21 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
-import eu.bcvsolutions.idm.icf.api.IcfConfigurationProperty;
+import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**
  * Elementary configuration property for connector
  * @author svandav
  *
  */
-public class IcfConfigurationPropertyImpl implements IcfConfigurationProperty {
+public class IcConfigurationPropertyImpl implements IcConfigurationProperty {
 
 	
 	
-	public IcfConfigurationPropertyImpl() {
+	public IcConfigurationPropertyImpl() {
 		super();
 	}
 
-	public IcfConfigurationPropertyImpl(String name, Object value) {
+	public IcConfigurationPropertyImpl(String name, Object value) {
 		super();
 		this.name = name;
 		this.value = value;

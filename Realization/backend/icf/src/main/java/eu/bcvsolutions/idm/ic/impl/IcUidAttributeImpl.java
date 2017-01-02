@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.impl;
+package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.Uid;
 
-import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
+import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 
 /**
  * A single-valued attribute that represents the <i>unique identifier</i> of an
@@ -53,11 +53,11 @@ import eu.bcvsolutions.idm.icf.api.IcfUidAttribute;
  * that object. Uid extends {@link Attribute} only so that Uid can be searchable
  * and compatible with the filter translators.
  */
-public class IcfUidAttributeImpl extends IcfAttributeImpl implements IcfUidAttribute {
+public class IcUidAttributeImpl extends IcAttributeImpl implements IcUidAttribute {
 
 	private final String revision;
 
-	public IcfUidAttributeImpl(String name, String uid, String revision) {
+	public IcUidAttributeImpl(String name, String uid, String revision) {
 		super();
 		this.name = name;
 		this.values = new ArrayList<>();

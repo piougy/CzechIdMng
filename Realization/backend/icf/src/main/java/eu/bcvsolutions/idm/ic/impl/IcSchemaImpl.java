@@ -1,29 +1,29 @@
-    package eu.bcvsolutions.idm.icf.impl;
+    package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.bcvsolutions.idm.icf.api.IcfObjectClassInfo;
-import eu.bcvsolutions.idm.icf.api.IcfSchema;
+import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
+import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 /**
  * Schema for connector
  * @author svandav
  *
  */
-public class IcfSchemaImpl implements IcfSchema {
+public class IcSchemaImpl implements IcSchema {
 
-	private List<IcfObjectClassInfo> declaredObjectClasses = new ArrayList<>();
+	private List<IcObjectClassInfo> declaredObjectClasses = new ArrayList<>();
 	private Map<String, List<String>> supportedObjectClassesByOperation = new HashMap<>();
 
 	@Override
-	public List<IcfObjectClassInfo> getDeclaredObjectClasses() {
+	public List<IcObjectClassInfo> getDeclaredObjectClasses() {
 		return declaredObjectClasses;
 	}
 
-	public void setDeclaredObjectClasses(List<IcfObjectClassInfo> declaredObjectClasses) {
+	public void setDeclaredObjectClasses(List<IcObjectClassInfo> declaredObjectClasses) {
 		this.declaredObjectClasses = declaredObjectClasses;
 	}
 

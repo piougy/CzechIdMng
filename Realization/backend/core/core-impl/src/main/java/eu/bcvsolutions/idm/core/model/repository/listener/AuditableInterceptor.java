@@ -36,6 +36,7 @@ public class AuditableInterceptor extends EmptyInterceptor {
 			return false;
 		}
 		//
+		boolean result = false;
 		for (int i = 0; i < propertyNames.length; i++) {
 			String propertyName = propertyNames[i];
 			if (unmodifiablePropertyNames.contains(propertyName)) {
@@ -45,10 +46,10 @@ public class AuditableInterceptor extends EmptyInterceptor {
 				}
 				if (!previousState[i].equals(currentState[i])) {
 					currentState[i] = previousState[i];
-					return true;
+					result = true;
 				}
 			}
 		}
-		return false;
+		return result;
 	}
 }

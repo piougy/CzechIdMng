@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.icf.rest.impl;
+package eu.bcvsolutions.idm.ic.rest.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +17,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.icf.IcfModuleDescriptor;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorInfo;
-import eu.bcvsolutions.idm.icf.domain.IcfResultCode;
-import eu.bcvsolutions.idm.icf.service.api.IcfConfigurationFacade;
-import eu.bcvsolutions.idm.icf.service.impl.DefaultIcfConfigurationFacade;
+import eu.bcvsolutions.idm.ic.IcModuleDescriptor;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.domain.IcResultCode;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.impl.DefaultIcConfigurationFacade;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 
 /**
@@ -31,15 +31,15 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
  *
  */
 @RestController
-@Enabled(IcfModuleDescriptor.MODULE_ID)
+@Enabled(IcModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/connectors")
-public class IcfConnectorController implements BaseController {
+public class IcConnectorController implements BaseController {
 
-	private IcfConfigurationFacade icfConfiguration;
+	private IcConfigurationFacade icConfiguration;
 
 	@Autowired
-	public IcfConnectorController(DefaultIcfConfigurationFacade icfConfiguration) {
-		this.icfConfiguration = icfConfiguration;
+	public IcConnectorController(DefaultIcConfigurationFacade icConfiguration) {
+		this.icConfiguration = icConfiguration;
 	}
 
 	/**
@@ -47,24 +47,24 @@ public class IcfConnectorController implements BaseController {
 	 * 
 	 * TODO: search quick?
 	 * 
-	 * @param framework - icf framework
+	 * @param framework - ic framework
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/search/local")
-	public ResponseEntity<Map<String, List<IcfConnectorInfo>>> getAvailableLocalConnectors(
+	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableLocalConnectors(
 			@RequestParam(required = false) String framework) {
-		Map<String, List<IcfConnectorInfo>> infos = new HashMap<>();
+		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
 		if (framework != null) {
-			if (!icfConfiguration.getIcfConfigs().containsKey(framework)) {
-				throw new ResultCodeException(IcfResultCode.ICF_FRAMEWORK_NOT_FOUND,
+			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
+				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
 						ImmutableMap.of("framework", framework));
 			}
-			infos.put(framework, icfConfiguration.getIcfConfigs().get(framework)
+			infos.put(framework, icConfiguration.getIcConfigs().get(framework)
 					.getAvailableLocalConnectors());
 
 		} else {
-			infos = icfConfiguration.getAvailableLocalConnectors();
+			infos = icConfiguration.getAvailableLocalConnectors();
 		}
-		return new ResponseEntity<Map<String, List<IcfConnectorInfo>>>(infos, HttpStatus.OK);
+		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 }

@@ -65,6 +65,8 @@ public class RootController implements BaseController {
 
 	/**
 	 * List of all root endpoints
+	 *
+	 * TODO: authentication endpoint
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> rootApi() {

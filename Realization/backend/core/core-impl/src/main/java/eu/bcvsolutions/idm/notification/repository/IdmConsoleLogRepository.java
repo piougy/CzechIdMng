@@ -11,9 +11,9 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
 
 /**
@@ -23,11 +23,11 @@ import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
  *
  */
 @RepositoryRestResource(exported = false)
-public interface IdmConsoleLogRepository extends AbstractEntityRepository<IdmConsoleLog, EmptyFilter> {
+public interface IdmConsoleLogRepository extends AbstractEntityRepository<IdmConsoleLog, NotificationFilter> {
 	
 	@Override
 	@Query(value = "select e from IdmConsoleLog e")
-	Page<IdmConsoleLog> find(EmptyFilter filter, Pageable pageable);
+	Page<IdmConsoleLog> find(NotificationFilter filter, Pageable pageable);
 	
 	@Override
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_READ + "')")

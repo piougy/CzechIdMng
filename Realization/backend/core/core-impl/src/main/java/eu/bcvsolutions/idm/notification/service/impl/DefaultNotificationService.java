@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.notification.service.impl;
 
-import java.util.Date;
-
 import org.apache.camel.ProducerTemplate;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
@@ -12,18 +12,32 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
 import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 
+/**
+ * Sends notifications
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Component("notificationService")
-public class DefaultNotificationService extends AbstractNotificationService implements NotificationLogService {
+public class DefaultNotificationService extends AbstractNotificationService<IdmNotificationLog> implements NotificationLogService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultNotificationService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultNotificationService.class);
+    private final ProducerTemplate producerTemplate;
 	
-	@Autowired
-	private IdmNotificationLogRepository idmNotificationRepository;
-	
-	@Autowired
-    private ProducerTemplate producerTemplate;
+    @Autowired
+	public DefaultNotificationService(
+			IdmNotificationLogRepository repository,
+			ProducerTemplate producerTemplate
+			) {
+    	super(repository);
+    	//
+    	Assert.notNull(producerTemplate);
+    	//
+    	this.producerTemplate = producerTemplate;
+	}
 	
 	@Override
+	@Transactional
 	public boolean send(IdmNotification notification) {
 		Assert.notNull(notification, "Noticition is required!");
 		//
@@ -39,7 +53,7 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 	 */
 	@Override
 	public boolean sendNotificationLog(IdmNotificationLog notificationLog) {
-		log.info("Sending notification [{}]", notificationLog);
+		LOG.info("Sending notification [{}]", notificationLog);
 		// send notification to routing
 		producerTemplate.sendBody("direct:notifications", notificationLog);
 		return true;
@@ -56,12 +70,12 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 		Assert.notNull(notification.getMessage());
 		// we can only create log, if notification is instance of IdmNotificationLog
 		if (notification instanceof IdmNotificationLog) {
-			notification.setSent(new Date());
-			return idmNotificationRepository.save((IdmNotificationLog) notification);
+			notification.setSent(new DateTime());
+			return save((IdmNotificationLog) notification);
 		}
 		// we need to clone notification
 		IdmNotificationLog notificationLog = new IdmNotificationLog();
-		notificationLog.setSent(new Date());
+		notificationLog.setSent(new DateTime());
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
 		// clone recipients
@@ -69,6 +83,6 @@ public class DefaultNotificationService extends AbstractNotificationService impl
 			notificationLog.getRecipients().add(cloneRecipient(notificationLog, recipient));
 		});
 		notificationLog.setSender(notification.getSender());
-		return idmNotificationRepository.save(notificationLog);
+		return save(notificationLog);
 	}
 }

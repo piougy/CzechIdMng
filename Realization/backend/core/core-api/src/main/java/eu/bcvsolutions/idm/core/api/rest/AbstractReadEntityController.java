@@ -137,7 +137,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public E getEntity(String backendId) {
+	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
 		}		

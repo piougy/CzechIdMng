@@ -107,7 +107,7 @@ export class AuditTable extends Basic.AbstractContent {
               <div className="col-lg-4">
                 <Advanced.Filter.DateTimePicker
                   mode="date"
-                  ref="to"
+                  ref="till"
                   placeholder={this.i18n('filter.dateTill.placeholder')}
                   label={this.i18n('filter.dateTill.label')}/>
               </div>

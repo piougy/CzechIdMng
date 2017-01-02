@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.notification.service.api;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
- * Extend default notification service for simle noticitaion log sending
+ * Extend default notification service for simple notification sending
  * 
  * @author Radek Tomiška 
  *

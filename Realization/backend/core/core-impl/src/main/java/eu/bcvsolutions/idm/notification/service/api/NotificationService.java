@@ -9,10 +9,14 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 /**
  * Notification system
  * 
+ * TODO: return IdmNotification or ex 
+ * 
  * @author Radek Tomiška 
  *
  */
 public interface NotificationService {
+	
+	static final String DEFAULT_TOPIC = "default";
 
 	/**
 	 * Sends given message to given identity.

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -14,8 +13,10 @@ import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.support.SynchronizationAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -48,6 +49,7 @@ public class DefaultEmailer implements Emailer {
 	@Autowired
 	private DefaultEmailerConfiguration configuration;
 	
+	@Transactional
 	public boolean send(IdmEmailLog emailLog) {
 		log.debug("Sending email [{}]", emailLog);
 		
@@ -73,7 +75,7 @@ public class DefaultEmailer implements Emailer {
 			*/
 
 			if (configuration.isTestEnabled()) {
-				log.info("Test mode for emailer is enabled. Email [{}] is logged only.", emailLog);
+				log.info("Test mode for emailer is enabled. Email [{}] will be logged only.", emailLog);
 				emailService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
 			} else {
 				log.debug("Email was registered to producer [{}]", emailLog);
@@ -161,7 +163,7 @@ public class DefaultEmailer implements Emailer {
 	    @Override
 	    public void onComplete(Exchange exchange) {
 	    	log.info("Sending email [id:{}] succeeded", emailLogId);
-	    	emailService.setEmailSent(emailLogId, new Date());
+	    	emailService.setEmailSent(emailLogId, new DateTime());
 	    }
 	}
 }

@@ -7,6 +7,7 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.Type;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -18,9 +19,11 @@ public class IdmMessage {
 	private String subject;
 
 	@Column(name = "text_message")
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	private String textMessage;
 
 	@Column(name = "html_message")
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	private String htmlMessage;
 	
 	public IdmMessage(String subject, String message) {

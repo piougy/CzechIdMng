@@ -85,14 +85,14 @@ export class NotificationTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
-                      ref="createdFrom"
+                      ref="from"
                       placeholder={this.i18n('filter.dateFrom.placeholder')}
                       label={this.i18n('filter.dateFrom.label')}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
-                      ref="createdTill"
+                      ref="till"
                       placeholder={this.i18n('filter.dateTill.placeholder')}
                       label={this.i18n('filter.dateTill.label')}/>
                   </div>
@@ -131,7 +131,7 @@ export class NotificationTable extends Basic.AbstractContent {
                 <Basic.Row className="last">
                   <div className="col-lg-4">
                     <Advanced.Filter.EnumSelectBox
-                      ref="sent"
+                      ref="state"
                       label={this.i18n('filter.sent.label')}
                       placeholder={this.i18n('filter.sent.placeholder')}
                       enum={NotificationStateEnum}/>

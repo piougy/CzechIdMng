@@ -1,13 +1,14 @@
 package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.UUID;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -18,23 +19,30 @@ import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.service.api.EmailService;
 
 @Component("emailService")
-public class DefaultEmailService extends AbstractNotificationService implements EmailService {
+public class DefaultEmailService extends AbstractNotificationService<IdmEmailLog> implements EmailService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultEmailService.class);
-	
-	@Autowired
-	private IdmEmailLogRepository emailLogRepository;
-	
-	@Autowired
-    private ProducerTemplate producerTemplate;
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEmailService.class);
+    private final ProducerTemplate producerTemplate;
+    
+    @Autowired
+    public DefaultEmailService(
+    		IdmEmailLogRepository repository,
+    		ProducerTemplate producerTemplate) {
+    	super(repository);
+    	//
+    	Assert.notNull(producerTemplate);
+    	//
+		this.producerTemplate = producerTemplate;
+	}
 	
 	@Override
+	@Transactional
 	public boolean send(IdmNotification notification) {
 		Assert.notNull(notification, "Noticition is required!");
 		//
-		log.info("Adding email notification to queue [{}]", notification);
+		LOG.info("Adding email notification to queue [{}]", notification);
 		IdmEmailLog emailLog = createLog(notification);		
-		emailLog = emailLogRepository.save(emailLog);
+		emailLog = save(emailLog);
 		// send notification to routing
 		producerTemplate.sendBody("direct:emails", emailLog);
 		return true;
@@ -48,7 +56,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 */
 	@Override
 	public String getEmailAddress(IdmNotificationRecipient recipient) {
-		log.trace("Resolving email address to recipient [{}]", recipient);
+		LOG.trace("Resolving email address to recipient [{}]", recipient);
 		String emailAddress = null;
 		try {
 			if (recipient == null) {
@@ -67,7 +75,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 			}			
 			return emailAddress;
 		} finally {
-			log.trace("Resolved email address to recipient [{}] is [{}]", recipient, emailAddress);
+			LOG.trace("Resolved email address to recipient [{}] is [{}]", recipient, emailAddress);
 		}
 	}	
 	
@@ -86,13 +94,14 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sent
 	 */
 	@Override
-	public void setEmailSent(UUID emailLogId, Date sent) {
-		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
+	@Transactional
+	public void setEmailSent(UUID emailLogId, DateTime sent) {
+		IdmEmailLog emailLog = get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
-		log.debug("Persist sent date [{}] to emailLogId [{}]", sent, emailLogId);
+		LOG.debug("Persist sent date [{}] to emailLogId [{}]", sent, emailLogId);
 		emailLog.setSent(sent);
-		emailLogRepository.save(emailLog);
+		save(emailLog);
 	}
 	
 	/**
@@ -102,13 +111,14 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 	 * @param sentLog
 	 */
 	@Override
+	@Transactional
 	public void setEmailSentLog(UUID emailLogId, String sentLog) {
-		IdmEmailLog emailLog = emailLogRepository.get(emailLogId);
+		IdmEmailLog emailLog = get(emailLogId);
 		Assert.notNull(emailLog, MessageFormat.format("Email log [id:{0}] does not exist", emailLogId));
 		//
-		log.debug("Persist sent log [{}] to emailLogId [{}]", sentLog, emailLogId);
+		LOG.debug("Persist sent log [{}] to emailLogId [{}]", sentLog, emailLogId);
 		emailLog.setSentLog(sentLog);
-		emailLogRepository.save(emailLog);
+		save(emailLog);
 	}
 	
 	/**
@@ -133,7 +143,7 @@ public class DefaultEmailService extends AbstractNotificationService implements 
 			emailLog.getRecipients().add(cloneRecipient(emailLog, recipient));
 		});
 		emailLog.setSender(notification.getSender());
-		return emailLogRepository.save(emailLog);
+		return save(emailLog);
 	}
 	
 	/**

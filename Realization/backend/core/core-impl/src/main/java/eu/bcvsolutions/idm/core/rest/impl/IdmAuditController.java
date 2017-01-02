@@ -64,7 +64,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		filter.setModifier(getParameterConverter().toString(parameters, "modifier"));
 		filter.setText(getParameterConverter().toString(parameters, "attributes"));
 		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTo(getParameterConverter().toDateTime(parameters, "to"));
+		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
 		filter.setEntityId(getParameterConverter().toUuid(parameters, "entityId"));
 		filter.setType(getParameterConverter().toString(parameters, "type"));
 		return filter;

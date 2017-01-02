@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.notification.entity;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -18,9 +17,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
+
+import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -56,9 +55,8 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 	private List<IdmNotificationRecipient> recipients;
 	
 	@JsonProperty(access = Access.READ_ONLY)
-	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "sent")
-	private Date sent;
+	private DateTime sent;
 	
 	@JsonProperty(access = Access.READ_ONLY)
 	@Size(max = DefaultFieldLengths.LOG)
@@ -108,11 +106,11 @@ public abstract class IdmNotification extends AbstractEntity implements BaseNoti
 		return message;
 	}
 	
-	public void setSent(Date sent) {
+	public void setSent(DateTime sent) {
 		this.sent = sent;
 	}
 	
-	public Date getSent() {
+	public DateTime getSent() {
 		return sent;
 	}
 	

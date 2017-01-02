@@ -16,10 +16,10 @@ import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
 import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -28,8 +28,9 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
  * 
  * @author Radek Tomiška
  *
+ * @Deprecated see {@link AuditableEntityListener}
  */
-@Component
+@Deprecated
 public class AuditableListener implements PreInsertEventListener, PreUpdateEventListener {
 
 	private static final long serialVersionUID = 6634361715588505690L;

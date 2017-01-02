@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
+import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.service.api.EmailService;
 import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
@@ -56,13 +57,17 @@ public class BasicEmailTest extends AbstractWorkflowIntegrationTest {
 		InputStream is = this.getClass().getClassLoader()
 				.getResourceAsStream("eu/bcvsolutions/idm/core/workflow/deploy/testEmailer.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "testEmailer.bpmn20.xml", is);
+		NotificationFilter filter = new NotificationFilter();
+		
 		assertNotNull(deploymentDto);
-		assertEquals(0, emailLogRepository.findByQuick(EMAIL_TEXT, null, EMAIL_RECIPIENT, null, null, null, null).getTotalElements());
+		filter.setText(EMAIL_TEXT);
+		filter.setRecipient(EMAIL_RECIPIENT);
+		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);
 		assertEquals(instance.getActivityId(), "endevent");
 		long count = runtimeService.createProcessInstanceQuery().processDefinitionKey(PROCESS_KEY).count();
 		assertEquals(0, count);
-		assertEquals(1, emailLogRepository.findByQuick(EMAIL_TEXT, null, EMAIL_RECIPIENT, null, null, null, null).getTotalElements());
+		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
 	}
 }

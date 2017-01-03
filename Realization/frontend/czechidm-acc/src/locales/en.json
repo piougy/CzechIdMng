@@ -14,7 +14,7 @@
     "dashboard": {
     },
     "systems": {
-      "header": "Napojené systémy",
+      "header": "Resources",
       "title": "$t(acc:content.systems.header)"
     },
     "schema": {

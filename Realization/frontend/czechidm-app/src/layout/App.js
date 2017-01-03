@@ -192,6 +192,7 @@ App.propTypes = {
    */
   bulk: PropTypes.object,
   appReady: PropTypes.bool,
+  i18nReady: PropTypes.string,
   navigationCollapsed: PropTypes.bool
 };
 
@@ -199,6 +200,7 @@ App.defaultProps = {
   userContext: null,
   bulk: { action: {} },
   appReady: false,
+  i18nReady: null,
   navigationCollapsed: false
 };
 
@@ -212,6 +214,7 @@ function select(state) {
     userContext: state.security.userContext,
     bulk: state.data.bulk,
     appReady: state.layout.get('appReady'),
+    i18nReady: state.layout.get('i18nReady'),
     navigationCollapsed: state.layout.get('navigationCollapsed')
   };
 }

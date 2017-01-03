@@ -15,6 +15,7 @@ module.exports = {
         'id': 'sys-systems',
         'type': 'DYNAMIC',
         'labelKey': 'acc:content.systems.title',
+        'titleKey': 'acc:content.systems.title',
         'order': 1100,
         'priority': 0,
         'path': '/systems',

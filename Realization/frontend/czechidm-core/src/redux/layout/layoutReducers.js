@@ -22,7 +22,7 @@ const INITIAL_STATE = new Immutable.Map({
   navigation: null,  // all navigation items from enabled modules as Map
   selectedNavigationItems: ['home'], // homepage by default
   navigationCollapsed: false, // TODO: move to local storage - different reducer
-  i18nReady: false,              // localization context is ready
+  i18nReady: null,              // localization language is ready
   modulesReady: false,            // modules loaders is ready
   navigationReady: false,
   configurationReady: false,
@@ -58,11 +58,11 @@ export function layout(state = INITIAL_STATE, action) {
       return state.set('navigationCollapsed', action.collapsed);
     }
     case I18N_INIT: {
-      return state.set('i18nReady', false);
+      return state.set('i18nReady', null);
     }
     case I18N_READY: {
-      LOGGER.debug('i18n ready [' + action.ready + ']');
-      return state.set('i18nReady', action.ready);
+      LOGGER.debug('i18n ready [' + action.lng + ']');
+      return state.set('i18nReady', action.lng);
     }
     case MODULES_INIT: {
       return state.set('modulesReady', false);

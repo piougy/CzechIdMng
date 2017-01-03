@@ -14,9 +14,7 @@ module.exports = {
         'id': 'identity-profile',
         'type': 'DYNAMIC',
         'section': 'main',
-        'label': 'Profil',
         'labelKey': 'navigation.menu.profile.label',
-        'title': 'Můj profil',
         'titleKey': 'navigation.menu.profile.title',
         'icon': 'user',
         'iconColor': '#428BCA',
@@ -144,6 +142,7 @@ module.exports = {
           {
             'id': 'tree-types',
             'labelKey': 'content.tree.types.title',
+            'titleKey': 'content.tree.types.title',
             'order': 10,
             'icon': 'tree-deciduous',
             'path': '/tree/types',
@@ -190,6 +189,7 @@ module.exports = {
       {
         'id': 'audit',
         'labelKey': 'content.audit.title',
+        'titleKey': 'content.audit.title',
         'icon': 'stats',
         'order': 1900,
         'path': '/workflow/history/processes',
@@ -246,6 +246,7 @@ module.exports = {
       {
         'id': 'system',
         'labelKey': 'navigation.menu.system',
+        'titleKey': 'navigation.menu.system',
         'icon': 'cog',
         'order': 2000,
         'path': '/configurations',

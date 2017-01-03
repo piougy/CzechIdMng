@@ -8,6 +8,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class AuditFilter extends QuickFilter {
 	
+	private Long id;
+	
 	private String type;
 	
 	private DateTime from;
@@ -66,6 +68,14 @@ public class AuditFilter extends QuickFilter {
 
 	public void setTo(DateTime to) {
 		this.to = to;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 	
 	

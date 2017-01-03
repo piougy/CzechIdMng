@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -147,7 +147,7 @@ public class DefaultFormService implements FormService {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * TODO: validations by given form definitions
+	 * TODO: validations by given form definition? I don't think, it will not be useful in synchronization etc. - only FE validations will be enough ...
 	 */
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
@@ -174,12 +174,23 @@ public class DefaultFormService implements FormService {
 			// set attribute values
 			value.setPersistentType(attribute.getPersistentType());
 			value.setConfidential(attribute.isConfidential());
-			// find values to be removed
-			if (value.getId() != null) {
-				previousValues.remove(value.getId());
-			}
 			//
-			formValueService.save(value);
+			E previousValue = value.getId() == null ? null :previousValues.get(value.getId());
+			if (previousValue != null) {
+				// saved values will nod be removed
+				previousValues.remove(value.getId());
+				// the same value should not be updated 
+				// confidential value is always updated - only new values are sent from client
+				if (value.isConfidential() || !value.isEquals(previousValue)) {
+					// update value
+					formValueService.save(value);
+					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getName(), value.getId(), owner);
+				}
+			} else {
+				// create new value
+				formValueService.save(value);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getName(), value.getId(), owner);
+			}
 		});
 		//
 		// remove unsaved values by attribute definition (patch method is not implemented now)
@@ -189,11 +200,13 @@ public class DefaultFormService implements FormService {
 				// they could not be sent with form (only changed values)
 				return !formValue.isConfidential();
 			})
-			.forEach(formValue -> {
-				formValueService.deleteValue(formValue);
+			.forEach(value -> {
+				formValueService.deleteValue(value);
+				LOG.trace("FormValue [{}:{}] for owner [{}] was deleted", value.getFormAttribute().getName(), value.getId(), owner);
 			});
 		//
-		// publish event identity saved
+		// publish event - eav was saved
+		// TODO: this whole method could be moved to processor (=> could be overriden in some module)
 		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
 	}
 

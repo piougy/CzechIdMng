@@ -33,7 +33,7 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
 		if (types != null) {
 			for(EventType type : types) {
-				this.types.add(type.toString());
+				this.types.add(type.name());
 			}
 		}
 	}
@@ -48,7 +48,7 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");
 		
 		return entityEvent.getContent().getClass().isAssignableFrom(entityClass)
-				&& (types.isEmpty() || types.contains(entityEvent.getType().toString()));
+				&& (types.isEmpty() || types.contains(entityEvent.getType().name()));
 	}
 
 	/**

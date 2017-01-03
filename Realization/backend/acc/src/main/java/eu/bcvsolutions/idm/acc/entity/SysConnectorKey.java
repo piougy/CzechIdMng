@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**
  * Connector key persisted with target system
@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.icf.api.IcfConnectorKey;
  */
 @Audited
 @Embeddable
-public class SysConnectorKey implements IcfConnectorKey, Serializable {
+public class SysConnectorKey implements IcConnectorKey, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class SysConnectorKey implements IcfConnectorKey, Serializable {
 	public SysConnectorKey() {
 	}
 	
-	public SysConnectorKey(IcfConnectorKey key) {
+	public SysConnectorKey(IcConnectorKey key) {
 		this.framework = key.getFramework();
 		this.connectorName = key.getConnectorName();
 		this.bundleName = key.getBundleName();

@@ -103,8 +103,8 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	@Override
 	protected RoleCatalogueFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleCatalogueFilter filter = new RoleCatalogueFilter();
-		filter.setText(this.convertStringParameter(parameters, "text"));
-		filter.setParent(this.convertEntityParameter(parameters, "parent", IdmRoleCatalogue.class));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setParent(getParameterConverter().toEntity(parameters, "parent", IdmRoleCatalogue.class));
 		return filter;
 	}
 	

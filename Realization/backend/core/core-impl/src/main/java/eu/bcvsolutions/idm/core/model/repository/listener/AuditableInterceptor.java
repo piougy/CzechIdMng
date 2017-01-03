@@ -36,19 +36,21 @@ public class AuditableInterceptor extends EmptyInterceptor {
 			return false;
 		}
 		//
+		boolean result = false;
 		for (int i = 0; i < propertyNames.length; i++) {
 			String propertyName = propertyNames[i];
 			if (unmodifiablePropertyNames.contains(propertyName)) {
 				if (previousState[i] == null) {
-					// new value
+					// accepting new value
 					continue;
 				}
 				if (!previousState[i].equals(currentState[i])) {
+					// set to previous value
 					currentState[i] = previousState[i];
-					return true;
+					result = true;
 				}
 			}
 		}
-		return false;
+		return result;
 	}
 }

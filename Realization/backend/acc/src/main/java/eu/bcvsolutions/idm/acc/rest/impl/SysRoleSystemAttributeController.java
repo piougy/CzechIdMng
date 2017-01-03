@@ -110,7 +110,7 @@ public class SysRoleSystemAttributeController
 	@Override
 	protected RoleSystemAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
-		filter.setRoleSystemId(convertUuidParameter(parameters, "roleSystemId"));
+		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, "roleSystemId"));
 		return filter;
 	}
 }

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>7.1.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -119,7 +119,7 @@
 			</dependencies>
 		</profile>
 
-		<!-- Result of build with this profile is single war file containing backend
+		<!-- Result of build with this profile is single war file containing backend 
 			and frontend -->
 		<profile>
 			<id>fullApp</id>
@@ -143,7 +143,7 @@
 			<build>
 				<finalName>idm</finalName>
 				<plugins>
-					<!-- plugin sequentionaly runs commands which are needed for build of
+					<!-- plugin sequentionaly runs commands which are needed for build of 
 						frontend -->
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
@@ -164,7 +164,7 @@
 									<npmVersion>3.6.0</npmVersion>
 								</configuration>
 							</execution>
-							<!-- script within package.json checks whether node_modules directory
+							<!-- script within package.json checks whether node_modules directory 
 								and its symlink exist and creates them if they do not exist -->
 							<execution>
 								<id>link node-modules or skip if exists</id>
@@ -186,54 +186,55 @@
 								</configuration>
 								<phase>generate-resources</phase>
 							</execution>
-							<!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module -->
+							<!-- TODO installing dependencies are currently set only for czechidm-core 
+								module, this step is requested for every used module -->
 							<execution>
-                 <id>install czechidm-core dependencies</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>install</arguments>
-                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>install czechidm-acc dependencies</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>install</arguments>
-                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
+								<id>install czechidm-core dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>install</arguments>
+									<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+									<installDirectory>target</installDirectory>
+								</configuration>
+							</execution>
 							<execution>
-                 <id>make all modules together</id>
-                 <goals>
-                    <goal>gulp</goal>
-                 </goals>
-                 <phase>generate-resources</phase>
-                 <configuration>
-                    <arguments>makeModules</arguments>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>gulp build</id>
-                 <goals>
-                    <goal>gulp</goal>
-                 </goals>
-                 <phase>generate-resources</phase>
-                 <configuration>
-                    <arguments>build -p default -s test</arguments>
-                    <workingDirectory>../../frontend/czechidm-app</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
+								<id>install czechidm-acc dependencies</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>install</arguments>
+									<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
+									<installDirectory>target</installDirectory>
+								</configuration>
+							</execution>
+							<execution>
+								<id>make all modules together</id>
+								<goals>
+									<goal>gulp</goal>
+								</goals>
+								<phase>generate-resources</phase>
+								<configuration>
+									<arguments>makeModules</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>gulp build</id>
+								<goals>
+									<goal>gulp</goal>
+								</goals>
+								<phase>generate-resources</phase>
+								<configuration>
+									<arguments>build -p default -s test</arguments>
+									<workingDirectory>../../frontend/czechidm-app</workingDirectory>
+									<installDirectory>target</installDirectory>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
-					<!-- After build of frontend is result - content of dist folder, copied
+					<!-- After build of frontend is result - content of dist folder, copied 
 						into idm directory, where is already backend built -->
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
@@ -260,7 +261,7 @@
 				</plugins>
 			</build>
 		</profile>
-		<!-- Due portability of maven build among different OSs we need to distinguish
+		<!-- Due portability of maven build among different OSs we need to distinguish 
 			scripts for windows/unix. Profiles are activated automaticaly based on OS -->
 		<profile>
 			<id>Windows</id>

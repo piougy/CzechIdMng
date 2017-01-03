@@ -76,14 +76,14 @@ export class EmailTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
-                      ref="createdFrom"
+                      ref="from"
                       placeholder={this.i18n('filter.dateFrom.placeholder')}
                       label={this.i18n('filter.dateFrom.label')}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
-                      ref="createdTill"
+                      ref="till"
                       placeholder={this.i18n('filter.dateTill.placeholder')}
                       label={this.i18n('filter.dateTill.label')}/>
                   </div>

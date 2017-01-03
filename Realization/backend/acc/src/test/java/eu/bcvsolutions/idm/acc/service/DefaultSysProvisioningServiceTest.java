@@ -48,7 +48,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.icf.service.api.IcfConnectorFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -342,7 +342,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
-			} else if (IcfConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
+			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
 				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
 				attributeHandlingName.setIdmPropertyName("password");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);

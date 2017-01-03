@@ -107,8 +107,8 @@ public class SysSchemaObjectClassController extends AbstractReadWriteEntityContr
 	@Override
 	protected SchemaObjectClassFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setObjectClassName(convertStringParameter(parameters, "objectClassName"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setObjectClassName(getParameterConverter().toString(parameters, "objectClassName"));
 		return filter;
 	}
 }

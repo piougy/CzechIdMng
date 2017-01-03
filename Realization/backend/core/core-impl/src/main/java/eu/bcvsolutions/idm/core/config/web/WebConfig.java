@@ -27,6 +27,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.NotExportedAssociations;
 import eu.bcvsolutions.idm.core.api.rest.domain.RequestResourceResolver;
@@ -36,6 +39,8 @@ import eu.bcvsolutions.idm.core.exception.RestErrorAttributes;
 
 /**
  * Web configurations - we are reusing spring data rest web configuration
+ * 
+ * TODO: its not only web configuration ...
  * 
  * @author Radek Tomiška 
  *
@@ -100,6 +105,16 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	@Primary
 	Validator validator() {
 		return new LocalValidatorFactoryBean();
+	}
+	
+	/**
+	 * Adds joda time json module
+	 */
+	@Bean
+	public ObjectMapper objectMapper() {
+		ObjectMapper mapper = super.objectMapper();
+		mapper.registerModule(new JodaModule());
+		return mapper;
 	}
 
 	/*

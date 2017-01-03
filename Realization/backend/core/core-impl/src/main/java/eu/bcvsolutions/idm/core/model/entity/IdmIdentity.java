@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.eav.entity.FormableEntity;
+import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
 
@@ -51,7 +51,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 	@Transient // passwords are saved to confidental storage
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
-	private GuardedString password;
+	private transient GuardedString password;
 
 	@Audited
 	@NotNull

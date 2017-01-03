@@ -28,8 +28,8 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 	private static final long serialVersionUID = 1L;
 	private static final transient Logger log = LoggerFactory.getLogger(CustomMailActivityBehavior.class);
 
-	private EmailService emailService;
-	private IdmIdentityService identityService;
+	private transient EmailService emailService;
+	private transient IdmIdentityService identityService;
 
 	/**
 	 * Sending emails through {@link EmailService}

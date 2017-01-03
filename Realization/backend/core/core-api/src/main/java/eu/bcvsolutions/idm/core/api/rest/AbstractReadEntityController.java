@@ -4,12 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
@@ -42,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
+import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 
 /**
  * Read operations (get, find)
@@ -52,25 +50,31 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  */
 public abstract class AbstractReadEntityController<E extends BaseEntity, F extends BaseFilter> implements BaseEntityController<E> {
 	
-	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);
+	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
+	protected final EntityLookupService entityLookupService;	
+	private final ReadEntityService<E, F> entityService;
+	private final ParameterConverter parameterConverter;
 	
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler; // TODO: autowired in api package - move higher
 	
-	protected final EntityLookupService entityLookupService;
-	
-	private final ReadEntityService<E, F> entityService;
-	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityController(EntityLookupService entityLookupService) {
+		Assert.notNull(entityLookupService);
+		//
 		this.entityLookupService = entityLookupService;
+		this.parameterConverter = new ParameterConverter(entityLookupService);
 		//
 		Class<E> entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityController.class);
 		this.entityService = (ReadEntityService<E, F>)entityLookupService.getEntityService(entityClass);
 	}
 	
 	public AbstractReadEntityController(EntityLookupService entityLookupService, ReadEntityService<E, F> entityService) {
+		Assert.notNull(entityLookupService);
+		Assert.notNull(entityService);
+		//
 		this.entityLookupService = entityLookupService;
+		this.parameterConverter = new ParameterConverter(entityLookupService);
 		this.entityService = entityService;
 	}
 	
@@ -133,7 +137,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public E getEntity(String backendId) {
+	public E getEntity(Serializable backendId) {
 		if(getEntityLookup() == null) {
 			return getEntityService().get(backendId);
 		}		
@@ -200,14 +204,14 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Resources<?> toResources(Iterable<?> source, PersistentEntityResourceAssembler assembler,
 			Class<?> domainType, Link baseLink) {
-
+		if (source == null) {
+			return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
+		}
 		if (source instanceof Page) {
 			Page<Object> page = (Page<Object>) source;
 			return entitiesToResources(page, assembler, domainType, baseLink);
-		} else if (source instanceof Iterable) {
-			return entitiesToResources((Iterable<Object>) source, assembler, domainType);
 		} else {
-			return new Resources(ControllerUtils.EMPTY_RESOURCE_LIST);
+			return entitiesToResources((Iterable<Object>) source, assembler, domainType);
 		}
 	}
 	
@@ -253,133 +257,12 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		return null;
 	}
 	
-	protected String convertStringParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		Assert.notNull(parameters);
-	    Assert.notNull(parameterName);
-	    //
-		return (String)parameters.toSingleValueMap().get(parameterName);
-	}
-	
-	protected Boolean convertBooleanParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if (StringUtils.isNotEmpty(valueAsString)) {
-			return Boolean.valueOf(valueAsString);
-		}
-		return null;
-	}
-	
 	/**
-	 * Converts parameter to {@code Long} from given parameters.
+	 * Return parameter converter helper
 	 * 
-	 * @param parameters
-	 * @param parameterName
 	 * @return
 	 */
-	protected Long convertLongParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return Long.valueOf(valueAsString);
-			} catch (NumberFormatException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-			}		
-		}
-		return null;
-	}
-	
-	/**
-	 * Converts parameter to {@code UUID} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @return
-	 */
-	protected UUID convertUuidParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if(StringUtils.isNotEmpty(valueAsString)) {
-			try {
-				return UUID.fromString(valueAsString);
-			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-			}		
-		}
-		return null;
-	}
-	
-	/**
-	 * Converts parameter to given {@code enumClass} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @param enumClass
-	 * @return
-	 */
-	protected <T extends Enum<T>> T convertEnumParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
-		Assert.notNull(enumClass);
-	    //
-	    String valueAsString = convertStringParameter(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
-	    	return null;
-	    }
-        try {
-            return Enum.valueOf(enumClass, valueAsString.trim().toUpperCase());
-        } catch(IllegalArgumentException ex) {
-        	throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
-        }
-	}
-	
-	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @param entityClass
-	 * @return
-	 */
-	protected <T extends BaseEntity> T convertEntityParameter(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
-		 String valueAsString = convertStringParameter(parameters, parameterName);
-	    if(StringUtils.isEmpty(valueAsString)) {
-	    	return null;
-	    }
-		T entity = entityLookupService.lookup(entityClass, valueAsString);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), parameterName, valueAsString));
-		}
-		return entity;
-	}
-	
-	/**
-	 * Converts parameter to given {@code entityClass} from given parameters.
-	 * 
-	 * @param parameterValue
-	 * @param parameterName
-	 * @param entityClass
-	 * @return
-	 */
-	protected <T extends BaseEntity> T convertEntityParameter(String parameterValue, Class<T> entityClass) {
-	    if(StringUtils.isEmpty(parameterValue)) {
-	    	return null;
-	    }
-		T entity = entityLookupService.lookup(entityClass, parameterValue);
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, "Entity type [%s] with identifier [%s] does not found", ImmutableMap.of("entityClass", entityClass.getSimpleName(), "identifier", parameterValue));
-		}
-		return entity;
-	}
-	
-	/**
-	 * Converts parameter {@code DateTime} from given parameters.
-	 * 
-	 * @param parameters
-	 * @param parameterName
-	 * @return
-	 */
-	protected DateTime convertDateTimeParameter(MultiValueMap<String, Object> parameters, String parameterName) {
-		String valueAsString = convertStringParameter(parameters, parameterName);
-		if (valueAsString == null || valueAsString.isEmpty()) {
-			return null;
-		} else {
-			return new DateTime(valueAsString);
-		}
+	protected ParameterConverter getParameterConverter() {
+		return parameterConverter;
 	}
 }

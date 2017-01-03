@@ -151,10 +151,10 @@ public class WorkflowFilterDto {
 		if(sorts != null && sorts.length > 1){
 			this.setSortByFields(sorts[0]);
 			String order = sorts[sorts.length-1];
-			if(order.equals(WorkflowFilterDto.ORDER_ASC)){
+			if(WorkflowFilterDto.ORDER_ASC.equals(order)){
 				this.setSortAsc(true);
 			}
-			if(order.equals(WorkflowFilterDto.ORDER_DESC)){
+			if(WorkflowFilterDto.ORDER_DESC.equals(order)){
 				this.setSortDesc(true);
 			}
 		}

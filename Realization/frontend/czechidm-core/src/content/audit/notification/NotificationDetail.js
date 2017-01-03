@@ -83,6 +83,9 @@ class NotificationDetail extends Basic.AbstractContent {
   _afterSave(entity, error) {
     if (error) {
       this.addError(error);
+      this.setState({
+        showLoading: false
+      }, this.refs.form.processEnded());
       return;
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
@@ -142,8 +145,8 @@ class NotificationDetail extends Basic.AbstractContent {
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.TextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} max={255} />
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} max={255} />
+          <Basic.RichTextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} />
+          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} />
 
           <Basic.LabelWrapper hidden={isNew}
             label={this.i18n('entity.Notification.sent')}>

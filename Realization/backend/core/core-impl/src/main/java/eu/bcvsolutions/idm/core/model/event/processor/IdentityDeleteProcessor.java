@@ -15,9 +15,10 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.notification.repository.IdmNotificationRecipientRepository;
 
 /**
- * Delete identity
+ * Delete identity - ensures referential integrity
  * 
  * @author Radek Tomiška
  *
@@ -31,6 +32,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 	private final IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmIdentityContractRepository identityContractRepository;
+	private final IdmNotificationRecipientRepository notificationRecipientRepository;
 	
 	@Autowired
 	public IdentityDeleteProcessor(
@@ -39,7 +41,8 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 			IdentityPasswordProcessor passwordProcessor,
 			IdmRoleGuaranteeRepository roleGuaranteeRepository,
 			IdmIdentityRoleRepository identityRoleRepository,
-			IdmIdentityContractRepository identityContractRepository) {
+			IdmIdentityContractRepository identityContractRepository,
+			IdmNotificationRecipientRepository notificationRecipientRepository) {
 		super(IdentityEventType.DELETE);
 		//
 		Assert.notNull(repository);
@@ -48,6 +51,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		Assert.notNull(roleGuaranteeRepository);
 		Assert.notNull(identityRoleRepository);
 		Assert.notNull(identityContractRepository);
+		Assert.notNull(notificationRecipientRepository);
 		//
 		this.repository = repository;
 		this.formService = formService;
@@ -55,6 +59,7 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		this.roleGuaranteeRepository = roleGuaranteeRepository;
 		this.identityRoleRepository = identityRoleRepository;
 		this.identityContractRepository = identityContractRepository;
+		this.notificationRecipientRepository = notificationRecipientRepository;
 	}
 
 	@Override
@@ -73,6 +78,8 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		passwordProcessor.deletePassword(identity);
 		// delete eav attrs
 		formService.deleteValues(identity);
+		// set to null all notification recipients - real recipient remains (email etc.)
+		notificationRecipientRepository.clearIdentity(identity);
 		// deletes identity
 		repository.delete(identity);
 		//

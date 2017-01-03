@@ -90,10 +90,10 @@
 		addedIdentityRole.addWorkflowKey = "notApproveRoleRealizationAdd";
 	}
 	if (addedIdentityRole.validFrom) { 
-		addedIdentityRole._validFromDate = Date.parse("yyyy-M-d", addedIdentityRole.validFrom);
+		addedIdentityRole._validFromDate = org.joda.time.LocalDate.parse(addedIdentityRole.validFrom);
 	}
 	if (addedIdentityRole.validTill) { 
-		addedIdentityRole._validTillDate = Date.parse("yyyy-M-d", addedIdentityRole.validTill);
+		addedIdentityRole._validTillDate = org.joda.time.LocalDate.parse(addedIdentityRole.validTill);
 	}
  }</script>
     </scriptTask>
@@ -122,7 +122,7 @@ for (changedIdentityRole in changedIdentityRoles) {
 	//Check if exist changed dates
 	if (changedIdentityRole.containsKey('validTill')){
 		if (changedIdentityRole.validTill) {
-			changedIdentityRole._validTillDateNew = Date.parse("yyyy-M-d", changedIdentityRole.validTill);
+			changedIdentityRole._validTillDateNew = org.joda.time.LocalDate.parse(changedIdentityRole.validTill);
 		} else {
 			changedIdentityRole._validTillDateNew = null;
 		}
@@ -131,7 +131,7 @@ for (changedIdentityRole in changedIdentityRoles) {
 	}
 	if (changedIdentityRole.containsKey("validFrom")){
 		if (changedIdentityRole.validFrom) {
-			changedIdentityRole._validFromDateNew = Date.parse("yyyy-M-d", changedIdentityRole.validFrom);
+			changedIdentityRole._validFromDateNew = org.joda.time.LocalDate.parse(changedIdentityRole.validFrom);
 		} else {
 			changedIdentityRole._validFromDateNew = null;
 		}

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -14,8 +15,6 @@ import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
@@ -23,19 +22,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.eav.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 
 /**
  * Super class for "extended" attribute values, which can be added to custom
  * abstract entity
  * 
- * TODO: byte[] persistent type?
+ * TODO: byte[] persistent type - integrate with ic connectors
  * 
  * @author Radek Tomiška
  *
@@ -86,8 +87,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 
 	@Audited
 	@Column(name = "date_value")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateValue;
+	private DateTime dateValue;
 
 	@Audited
 	@Max(99999)
@@ -187,6 +187,39 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 				return StringUtils.isEmpty(stringValue);
 		}
 	}
+	
+	/**
+	 * Returns {@code true}, when value by persistent type is equal. 
+	 * Returns {@code false}, when other is null.
+	 * Returns {@code false}, when persistent types differs.
+	 * 
+	 * @param other
+	 * @return
+	 */
+	public boolean isEquals(AbstractFormValue<?> other) {
+		if (other == null) {
+			return false;
+		}
+		if (!Objects.equals(persistentType, other.getPersistentType())) {
+			return false;
+		}
+		if (isEmpty() && other.isEmpty()) {
+			return true;
+		}
+		if((isEmpty() && !other.isEmpty()) || (!isEmpty() && other.isEmpty())) {
+			return false;
+		}
+		//
+		Assert.notNull(persistentType);
+		switch (persistentType) {
+			case DATE:
+			case DATETIME:
+				// date from FE vs DB has different chronology - we are using isEquals method
+				return dateValue.isEqual(other.getDateValue());
+			default:
+				return Objects.equals(getValue(), other.getValue());
+		}
+	}
 
 	/**
 	 * Sets value by persintent type
@@ -226,8 +259,10 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			case DATETIME:
 				if (value == null) {
 					setDateValue(null);
+				} else if (value instanceof DateTime) {
+					setDateValue((DateTime) value);
 				} else if (value instanceof Date) {
-					setDateValue((Date) value);
+					setDateValue(new DateTime((Date) value));
 				} else {
 					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
 							formAttribute.getName(), persistentType, value));
@@ -338,11 +373,11 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.doubleValue = doubleValue;
 	}
 
-	public Date getDateValue() {
+	public DateTime getDateValue() {
 		return dateValue;
 	}
 
-	public void setDateValue(Date dateValue) {
+	public void setDateValue(DateTime dateValue) {
 		this.dateValue = dateValue;
 	}
 	

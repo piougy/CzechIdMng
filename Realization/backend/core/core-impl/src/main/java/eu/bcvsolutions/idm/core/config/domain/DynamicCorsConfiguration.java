@@ -45,7 +45,7 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 		}
 
 		if (allowedOrigins.contains(ALL)) {
-			if (this.getAllowCredentials() != Boolean.TRUE) {
+			if (!Boolean.TRUE.equals(this.getAllowCredentials())) {
 				return ALL;
 			}
 			else {

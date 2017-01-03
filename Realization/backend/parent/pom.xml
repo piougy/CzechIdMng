@@ -5,7 +5,7 @@
 
 	<groupId>eu.bcvsolutions.idm</groupId>
 	<artifactId>idm-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>7.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>CzechIdM Parent</name>
@@ -108,8 +108,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		<!-- we are using entity lookups, which is not in version provided by dependency management -->
+
+		<!-- we are using entity lookups, which is not in version provided by dependency 
+			management -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-rest-webmvc</artifactId>
@@ -189,9 +190,9 @@
 			<artifactId>groovy-all</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.kohsuke</groupId>
-		    <artifactId>groovy-sandbox</artifactId>
-		    <version>1.11</version>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>groovy-sandbox</artifactId>
+			<version>1.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
@@ -213,7 +214,23 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		
+
+		<!-- Using joda time in entities and json -->
+		<!-- Envers 4.x has issue with java.time -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jadira.usertype</groupId>
+			<artifactId>usertype.core</artifactId>
+			<version>3.1.0.CR1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+		</dependency>
+
 		<!-- We are using migration strategy and configuration from 4.x -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -226,7 +243,7 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!--ICF dependency -->
+		<!--IC dependency -->
 		<dependency>
 			<groupId>net.tirasa.connid</groupId>
 			<artifactId>connector-framework</artifactId>
@@ -238,16 +255,16 @@
 			<version>2.2.4</version>
 		</dependency>
 		<dependency>
-		  	<groupId>net.tirasa.connid.bundles</groupId>
-		  	<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
-		  	<version>1.5.1</version>
+			<groupId>net.tirasa.connid.bundles</groupId>
+			<artifactId>net.tirasa.connid.bundles.ldap</artifactId>
+			<version>1.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.tirasa.connid.bundles</groupId>
-		  	<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
-		  	<version>0.8.5</version>
+			<artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
+			<version>0.8.5</version>
 		</dependency>
-		<dependency>		
+		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>
@@ -267,7 +284,7 @@
 					<useIncrementalCompilation>false</useIncrementalCompilation>
 				</configuration>
 			</plugin>
-			
+
 			<!-- execute junit tests -->
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -284,7 +301,7 @@
 					<threadCount>1</threadCount>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.8.1</version>
@@ -301,13 +318,13 @@
 					<deployAtEnd>false</deployAtEnd>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.6</version>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>maven-jgitflow-plugin</artifactId>
@@ -346,7 +363,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>dev</id>
 			<properties>
@@ -359,7 +376,7 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>dev-mysql</id>
 			<properties>
@@ -372,13 +389,14 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>separatedApp</id>
 			<properties>
 				<spring.profiles.active>separatedApp</spring.profiles.active>
 			</properties>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy' -->
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+				- used by goal 'deploy' -->
 			<distributionManagement>
 				<snapshotRepository>
 					<id>nexus</id>
@@ -393,13 +411,20 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>release</id>
 			<properties>
 				<spring.profiles.active>release</spring.profiles.active>
 			</properties>
-			<!-- DistrubitonManagment resolves deploying on remote servers/repositories - used by goal 'deploy' -->
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</dependency>
+			</dependencies>
+			<!-- DistrubitonManagment resolves deploying on remote servers/repositories 
+				- used by goal 'deploy' -->
 			<distributionManagement>
 				<repository>
 					<id>nexus</id>
@@ -409,7 +434,7 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
-	
+
 	<!-- used for reporting pmd results in jenkins -->
 	<reporting>
 		<plugins>

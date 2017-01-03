@@ -2,8 +2,7 @@ package eu.bcvsolutions.idm.notification;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
-
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
@@ -81,40 +81,58 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
-		Date start = new Date();
+		DateTime start = new DateTime();
 		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
-		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);		
+		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);	
 		
-		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
-		assertEquals(2, idmNotificationRepository.findByQuick(null, null, null, null, start, null, null).getTotalElements());
-		assertEquals(0, idmNotificationRepository.findByQuick(null, null, null, null, null, start, null).getTotalElements());
+		NotificationFilter filter = new NotificationFilter();
+		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
+		
+		filter.setFrom(start);
+		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
+		
+		filter.setFrom(null);
+		filter.setTill(start);
+		assertEquals(0, idmNotificationRepository.find(filter, null).getTotalElements());
 	}
 	
 	@Test
 	@Transactional
 	public void testEmailFilterBySender() {
+		NotificationFilter filter = new NotificationFilter();
 		
-		assertEquals(0, emailLogRepository.findByQuick(null, InitTestData.TEST_USER_2, null, null, null, null, null).getTotalElements());
-		assertEquals(0, emailLogRepository.findByQuick(null, InitTestData.TEST_USER_1, null, null, null, null, null).getTotalElements());
+		filter.setSender(InitTestData.TEST_USER_2);
+		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		filter.setSender(InitTestData.TEST_USER_1);
+		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
 		
 		// send some email
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		IdmIdentity identity2 = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
 		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
-		assertEquals(1, emailLogRepository.findByQuick(null, null, null, null, null, null, null).getTotalElements());
-		assertEquals(0, emailLogRepository.findByQuick(null, null, identity2.getUsername(), null, null, null, null).getTotalElements());
-		assertEquals(1, emailLogRepository.findByQuick(null, null, identity.getUsername(), null, null, null, null).getTotalElements());
+		
+		filter.setSender(null);
+		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
+		filter.setSender(identity2.getUsername());
+		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
+		filter.setSender(null);
+		filter.setRecipient(identity.getUsername());
+		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
 	}
 	
 	@Test
 	@Transactional
 	public void testEmailFilterBySent() {
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
+		NotificationFilter filter = new NotificationFilter();
+		
 		emailService.send(new IdmMessage("subject", "Idm notification"),  identity);
-		assertEquals(0, emailLogRepository.findByQuick(null, null, null, true, null, null, null).getTotalElements());
+		filter.setSent(true);
+		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
 		
 		emailService.send(new IdmMessage("subject2", "Idm notification2"),  identity);
-		assertEquals(2, emailLogRepository.findByQuick(null, null, null, false, null, null, null).getTotalElements());
+		filter.setSent(false);
+		assertEquals(2, emailLogRepository.find(filter, null).getTotalElements());
 	}
 	
 	

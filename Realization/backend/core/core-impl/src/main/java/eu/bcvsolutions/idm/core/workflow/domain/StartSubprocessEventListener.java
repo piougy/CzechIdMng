@@ -25,8 +25,6 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 
 	@Autowired
 	private AutowireCapableBeanFactory beanFactory;
-	
-	private RuntimeService runtimeService;
 
 	@Override
 	public void onEvent(ActivitiEvent event) {
@@ -41,14 +39,14 @@ public class StartSubprocessEventListener implements ActivitiEventListener {
 				return;
 			}
 			// Manual load bean ... autowired is not possible, because this listeners are create before runtimeService 
-			runtimeService = beanFactory.getBean(RuntimeService.class);
+			RuntimeService runtimeService = beanFactory.getBean(RuntimeService.class);
 			@SuppressWarnings("unchecked") Map<String, Object> variables = eventStarted.getVariables();
 			variables.forEach((k, v) -> {
-				if (k.equals(WorkflowProcessInstanceService.APPLICANT_USERNAME)) {
+				if (WorkflowProcessInstanceService.APPLICANT_USERNAME.equals(k)) {
 					// Set applicant as owner of process
 					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.OWNER);
 					log.debug("StartSubprocesEventListener - set process owner [{}]", v);
-				} else if (k.equals(WorkflowProcessInstanceService.IMPLEMENTER_USERNAME)) {
+				} else if (WorkflowProcessInstanceService.IMPLEMENTER_USERNAME.equals(k)) {
 					// Set current logged user (implementer) as starter of
 					// process
 					runtimeService.addUserIdentityLink(event.getProcessInstanceId(), (String) v, IdentityLinkType.STARTER);

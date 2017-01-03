@@ -14,7 +14,7 @@ public class AuditFilter extends QuickFilter {
 	
 	private DateTime from;
 	
-	private DateTime to;
+	private DateTime till;
 	
 	private String modification;
 	
@@ -53,21 +53,17 @@ public class AuditFilter extends QuickFilter {
 	public void setType(String type) {
 		this.type = type;
 	}
-
-	public Long getFrom() {
-		return from == null ? null : from.getMillis();
+	
+	public DateTime getFrom() {
+		return from;
 	}
 
 	public void setFrom(DateTime from) {
 		this.from = from;
 	}
-
-	public Long getTo() {
-		return to == null ? null : to.getMillis();
-	}
-
-	public void setTo(DateTime to) {
-		this.to = to;
+	
+	public DateTime getTill() {
+		return till;
 	}
 
 	public Long getId() {
@@ -77,6 +73,7 @@ public class AuditFilter extends QuickFilter {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	
+	public void setTill(DateTime till) {
+		this.till = till;
+	}	
 }

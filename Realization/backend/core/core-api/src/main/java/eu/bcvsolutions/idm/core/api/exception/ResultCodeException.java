@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.api.exception;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 
@@ -75,7 +76,7 @@ public class ResultCodeException extends CoreException {
 		return this.getError().getErrors().get(0).getStatus();
 	}
 		
-	public String getId() {
+	public UUID getId() {
 		return this.getError().getErrors().get(0).getId();
 	}
 	
@@ -84,7 +85,7 @@ public class ResultCodeException extends CoreException {
 		return super.getMessage();
 	}
 	
-	public String getErrorID() {
+	public UUID getErrorId() {
 		return getId();
 	}	
 	

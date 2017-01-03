@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>eu.bcvsolutions.idm</groupId>
 		<artifactId>idm-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>7.1.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -44,7 +44,7 @@
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>idm-icf</artifactId>
+			<artifactId>idm-ic</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

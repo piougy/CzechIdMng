@@ -91,9 +91,8 @@ public class RequestResourceResolver {
 			}
 
 			ObjectMapper mapper = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
-			Object result = readPatch(request, mapper, objectToUpdate);
-
-			return result;
+			
+			return readPatch(request, mapper, objectToUpdate);
 
 			// JSON + PUT request
 		} else if (converter instanceof MappingJackson2HttpMessageConverter) {

@@ -26,16 +26,12 @@ public class SpinalCase {
 		String out = normalize(input);
 		out = removeDuplicateWhiteSpaces(out);
 		out = out.toLowerCase();
-		out = out.replace(' ', '-');
-
-		return out;
+		return out.replace(' ', '-');
 	}
 
 	private static String normalize(String input) {
 		String result = Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", ""); // 1
-		result = result.replaceAll("[^a-zA-Z0-9\\s]", " "); // 2
-
-		return result;
+		return result.replaceAll("[^a-zA-Z0-9\\s]", " "); // 2
 	}
 
 	private static String removeDuplicateWhiteSpaces(String input) {

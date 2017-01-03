@@ -1,7 +1,8 @@
 package eu.bcvsolutions.idm.core.api.domain;
 
-import java.util.Date;
 import java.util.UUID;
+
+import org.joda.time.DateTime;
 
 /**
  * Base audit information
@@ -61,14 +62,14 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	Date getCreated();
+	DateTime getCreated();
 
 	/**
 	 * Created date
 	 * 
 	 * @param created
 	 */
-	void setCreated(Date created);
+	void setCreated(DateTime created);
 
 	/**
 	 * Original last entity modifier (logged as modifier)
@@ -103,14 +104,14 @@ public interface Auditable {
 	 * 
 	 * @return
 	 */
-	Date getModified();
+	DateTime getModified();
 
 	/**
 	 * Last entity modified date
 	 * 
 	 * @param modified
 	 */
-	void setModified(Date modified);
+	void setModified(DateTime modified);
 	
 	/**
 	 * Entity author identifier

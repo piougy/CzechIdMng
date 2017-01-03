@@ -42,7 +42,7 @@
 	        <includeCallerData>true</includeCallerData>
 	    </appender>
 	
-		<logger name="eu.bcvsolutions" level="DEBUG">
+		<logger name="eu.bcvsolutions" level="TRACE">
 			<appender-ref ref="DB_ASYNC" />
 		</logger>
 		<logger name="org.springframework" level="INFO"/>

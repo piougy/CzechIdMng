@@ -111,8 +111,8 @@ public class SysRoleSystemController extends DefaultReadWriteEntityController<Sy
 	@Override
 	protected RoleSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleSystemFilter filter = new RoleSystemFilter();
-		filter.setRoleId(convertUuidParameter(parameters, "roleId"));
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
+		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
 		return filter;
 	}
 }

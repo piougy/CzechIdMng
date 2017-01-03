@@ -229,8 +229,7 @@ public class IdmAudit implements BaseEntity {
 	public int hashCode() {
 		int result;
 		result = (int) (timestamp ^ (timestamp >>> 32));
-		result = 31 * result + (modifiedEntityNames != null ? modifiedEntityNames.hashCode() : 0);
-		return result;
+		return 31 * result + (modifiedEntityNames != null ? modifiedEntityNames.hashCode() : 0);
 	}
 	
 	@Override

@@ -65,19 +65,28 @@ class IdentityDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: true,
       setDataToForm: false // Form will not be set new data (we are waiting to saved data)
+    }, () => {
+      this.context.store.dispatch(identityManager.patchEntity(json, null, (patchedEntity, error) => {
+        this._afterSave(patchedEntity, error);
+      }));
     });
-    const { entityId } = this.props;
-    const result = _.merge({}, json);
+  }
 
-    identityManager.getService().patchById(entityId, result)
-    .then(() => {
-      this.context.store.dispatch(identityManager.fetchEntity(entityId));
-      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entityId }) });
-    }).catch(ex => {
-      this.transformData(null, ex, ApiOperationTypeEnum.UPDATE);
-      this.setState({
-        showLoading: false
-      });
+  _afterSave(entity, error) {
+    this.setState({
+      showLoading: false
+    }, () => {
+      if (error) {
+        this.addError(error);
+        return;
+      }
+      this.addMessage({ level: 'success', key: 'form-success', message: this.i18n('messages.saved', { username: entity.username }) });
+      //
+      // when username was changed, then new url is replaced
+      const { identity } = this.props;
+      if (identity.username !== entity.username) {
+        this.context.router.replace(`/identity/${entity.username}/profile`);
+      }
     });
   }
 
@@ -93,9 +102,9 @@ class IdentityDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.onSave.bind(this)}>
-          <Basic.Panel className="no-border last" showLoading={showLoadingIdentityTrimmed || showLoading}>
+          <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('header')}/>
-            <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled') || readOnly}>
+            <Basic.AbstractForm ref="form" className="form-horizontal" readOnly={!canEditMap.get('isSaveEnabled') || readOnly} showLoading={showLoadingIdentityTrimmed || showLoading}>
               <Basic.TextField ref="username" readOnly label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
               <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255} />
               <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255} />
@@ -128,7 +137,16 @@ class IdentityDetail extends Basic.AbstractContent {
 
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button type="submit" level="success" showLoading={showLoading} rendered={canEditMap.get('isSaveEnabled')} hidden={readOnly}>{this.i18n('button.save')}</Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={showLoading}
+                showLoadingIcon
+                showLoadingText={this.i18n('button.saving')}
+                rendered={canEditMap.get('isSaveEnabled')}
+                hidden={readOnly}>
+                { this.i18n('button.save') }
+              </Basic.Button>
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>

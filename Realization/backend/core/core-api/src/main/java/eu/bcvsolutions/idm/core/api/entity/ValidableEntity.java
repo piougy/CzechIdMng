@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
-import java.util.Date;
+import org.joda.time.LocalDate;
 
 /**
  * Entity with validity
@@ -15,12 +15,12 @@ public interface ValidableEntity {
 	 * 
 	 * @return 
 	 */
-	Date getValidFrom();
+	LocalDate getValidFrom();
 	
 	/**
 	 * Entity is valid till date
 	 * 
 	 * @return 
 	 */
-	Date getValidTill();
+	LocalDate getValidTill();
 }

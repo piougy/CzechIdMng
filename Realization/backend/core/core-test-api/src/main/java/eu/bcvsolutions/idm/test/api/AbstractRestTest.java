@@ -12,7 +12,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Ignore
 public abstract class AbstractRestTest extends AbstractIntegrationTest {
 
-	protected MockMvc mockMvc;
+	private MockMvc mockMvc;
 	
 	@Autowired
     private WebApplicationContext webApplicationContext;
@@ -20,5 +20,9 @@ public abstract class AbstractRestTest extends AbstractIntegrationTest {
 	@Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+	}
+	
+	public MockMvc getMockMvc() {
+		return mockMvc;
 	}
 }

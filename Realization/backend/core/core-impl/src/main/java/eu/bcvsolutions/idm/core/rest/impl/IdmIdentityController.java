@@ -239,16 +239,16 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityFilter filter = new IdentityFilter();
-		filter.setText(convertStringParameter(parameters, "text"));
-		filter.setSubordinatesFor(convertEntityParameter(parameters, "subordinatesFor", IdmIdentity.class));
-		filter.setSubordinatesByTreeType(convertEntityParameter(parameters, "subordinatesByTreeType", IdmTreeType.class));
-		filter.setManagersFor(convertEntityParameter(parameters, "managersFor", IdmIdentity.class));
-		filter.setManagersByTreeType(convertEntityParameter(parameters, "managersByTreeType", IdmTreeType.class));
-		filter.setManagersByTreeNode(convertEntityParameter(parameters, "managersByTreeNode", IdmTreeNode.class));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
+		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {
 			for(Object role : parameters.get("role")) {
-				filter.getRoles().add(convertEntityParameter((String)role, IdmRole.class));
+				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class));
 			}
 		}
 		return filter;
@@ -264,7 +264,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
 	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmFormDefinition formDefinition = getFormDefinition(null);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		return formDefinitionController.get(formDefinition.getId().toString(), assembler);
 	}
 	
@@ -282,7 +282,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		return toResources(formService.getValues(identity, formDefinition), assembler, getEntityClass(), null);
 	}
 	
@@ -305,18 +305,19 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition(identity);
+		IdmFormDefinition formDefinition = getFormDefinition();
 		formService.saveValues(identity, formDefinition, formValues);
 		return getFormValues(backendId, assembler);
 	}
 	
 	/**
 	 * Returns form definition for given identity
+	 *
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	private IdmFormDefinition getFormDefinition(IdmIdentity identity) {
+	private IdmFormDefinition getFormDefinition() {
 		// find default definition only (maybe we will need to customize form definition to custom entity instance)
 		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName(), null);
 		if (formDefinition == null) {			

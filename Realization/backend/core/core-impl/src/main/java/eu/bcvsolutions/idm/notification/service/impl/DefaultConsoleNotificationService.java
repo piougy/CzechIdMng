@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.text.MessageFormat;
-import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.notification.entity.IdmConsoleLog;
@@ -14,24 +15,27 @@ import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
 import eu.bcvsolutions.idm.notification.service.api.ConsoleNotificationService;
 
 /**
- * For testing purpose only
+ * For testing purpose only - prints message to console and persists log
  * 
  * @author Radek Tomiška 
  *
  */
 @Component("consoleNotificationService")
-public class DefaultConsoleNotificationService extends AbstractNotificationService implements ConsoleNotificationService {
+public class DefaultConsoleNotificationService extends AbstractNotificationService<IdmConsoleLog> implements ConsoleNotificationService {
 
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultConsoleNotificationService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConsoleNotificationService.class);
 	
 	@Autowired
-	private IdmConsoleLogRepository logRepository;
+	public DefaultConsoleNotificationService(IdmConsoleLogRepository repository) {
+		super(repository);
+	}
 	
 	@Override
+	@Transactional
 	public boolean send(IdmNotification notification) {
 		Assert.notNull(notification, "Noticition is required!");
 		//
-		log.info("Sending notification to console [{}]", notification);
+		LOG.info("Sending notification to console [{}]", notification);
 		IdmNotification log = createLog(notification);
 		System.out.println(MessageFormat.format("Sending notification [{0}]", log));
 		return true;
@@ -48,7 +52,7 @@ public class DefaultConsoleNotificationService extends AbstractNotificationServi
 		Assert.notNull(notification.getMessage());
 		//
 		IdmConsoleLog notificationLog = new IdmConsoleLog();
-		notificationLog.setSent(new Date());
+		notificationLog.setSent(new DateTime());
 		notificationLog.setParent(notification);
 		// clone message
 		notificationLog.setMessage(cloneMessage(notification));
@@ -60,6 +64,6 @@ public class DefaultConsoleNotificationService extends AbstractNotificationServi
 		if (notification.getSender() != null) {
 			notificationLog.setSender(notification.getSender());
 		}
-		return logRepository.save(notificationLog);
+		return save(notificationLog);
 	}
 }

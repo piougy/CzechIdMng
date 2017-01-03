@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -135,21 +133,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 		identityRoles.stream().filter(identityRole -> {
 			LocalDate fromDate = LocalDate.MIN;
 			if (identityRole.getValidFrom() != null) {
-				if (identityRole.getValidFrom() instanceof Date) {
-					fromDate = ((Date) identityRole.getValidFrom()).toLocalDate();
-				} else {
-					fromDate = identityRole.getValidFrom().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
+				fromDate = identityRole.getValidFrom().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			}
 
 			LocalDate tillDate = LocalDate.MAX;
 			if (identityRole.getValidTill() != null) {
-				if (identityRole.getValidTill() instanceof Date) {
-					tillDate = ((Date) identityRole.getValidTill()).toLocalDate();
-				} else {
-					tillDate = identityRole.getValidTill().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
-
+				tillDate = identityRole.getValidTill().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			}
 			LocalDate now = LocalDate.now();
 			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {
@@ -184,21 +173,12 @@ public class DefaultAccAccountManagementService implements AccAccountManagementS
 
 			LocalDate fromDate = LocalDate.MIN;
 			if (identityRole.getValidFrom() != null) {
-				if (identityRole.getValidFrom() instanceof Date) {
-					fromDate = ((Date) identityRole.getValidFrom()).toLocalDate();
-				} else {
-					fromDate = identityRole.getValidFrom().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
+				fromDate = identityRole.getValidFrom().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			}
 
 			LocalDate tillDate = LocalDate.MAX;
 			if (identityRole.getValidTill() != null) {
-				if (identityRole.getValidTill() instanceof Date) {
-					tillDate = ((Date) identityRole.getValidTill()).toLocalDate();
-				} else {
-					tillDate = identityRole.getValidTill().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				}
-
+				tillDate = identityRole.getValidTill().toDateTimeAtStartOfDay().toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			}
 			LocalDate now = LocalDate.now();
 			if ((now.isAfter(fromDate) || now.isEqual(fromDate)) && (now.isBefore(tillDate) || now.isEqual(tillDate))) {

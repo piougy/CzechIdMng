@@ -121,14 +121,14 @@ public class AccIdentityAccountController extends DefaultReadWriteEntityControll
 	@Override
 	protected IdentityAccountFilter toFilter(MultiValueMap<String, Object> parameters) {
 		IdentityAccountFilter filter = new IdentityAccountFilter();
-		filter.setAccountId(convertUuidParameter(parameters, "accountId"));
-		IdmIdentity identity = convertEntityParameter(parameters, "identity", IdmIdentity.class);
+		filter.setAccountId(getParameterConverter().toUuid(parameters, "accountId"));
+		IdmIdentity identity = getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class);
 		if (identity != null) {
 			filter.setIdentityId(identity.getId());
 		}
-		filter.setRoleId(convertUuidParameter(parameters, "roleId"));
-		filter.setSystemId(convertUuidParameter(parameters, "systemId"));
-		filter.setOwnership(convertBooleanParameter(parameters, "ownership"));
+		filter.setRoleId(getParameterConverter().toUuid(parameters, "roleId"));
+		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
+		filter.setOwnership(getParameterConverter().toBoolean(parameters, "ownership"));
 		return filter;
 	}
 }

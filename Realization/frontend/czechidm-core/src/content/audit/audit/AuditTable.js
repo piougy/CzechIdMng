@@ -2,11 +2,11 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import * as Utils from '../../utils';
-import * as Basic from '../../components/basic';
-import * as Advanced from '../../components/advanced';
-import { AuditManager } from '../../redux';
-import AuditModificationEnum from '../../enums/AuditModificationEnum';
+import * as Utils from '../../../utils';
+import * as Basic from '../../../components/basic';
+import * as Advanced from '../../../components/advanced';
+import { AuditManager } from '../../../redux';
+import AuditModificationEnum from '../../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();
 
@@ -24,6 +24,7 @@ export class AuditTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    this.selectSidebarItem('audit-entities');
     this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
       if (entities !== null) {
         const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });
@@ -157,6 +158,15 @@ export class AuditTable extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Method for show detail of revision, redirect to detail
+   *
+   * @param entityId id of revision
+   */
+  showDetail(entityId) {
+    this.context.router.push(`/audit/entities/${entityId}/diff/`);
+  }
+
   _getForceSearchParameters() {
     const { entityId, entityClass } = this.props;
 
@@ -167,7 +177,7 @@ export class AuditTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { columns, tableUiKey, clickTarget } = this.props;
+    const { columns, tableUiKey } = this.props;
     const { showLoading, auditedEntities } = this.state;
     return (
       <div>
@@ -183,8 +193,6 @@ export class AuditTable extends Basic.AbstractContent {
             this._getAdvancedFilter(auditedEntities, showLoading, columns)
           }>
           {
-            !clickTarget
-            ||
             <Advanced.Column
               header=""
               className="detail-button"
@@ -193,7 +201,7 @@ export class AuditTable extends Basic.AbstractContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
-                      onClick={clickTarget.bind(this, data[rowIndex].id, data[rowIndex].entityId)}/>
+                      onClick={this.showDetail.bind(this, data[rowIndex].id)}/>
                   );
                 }
               }
@@ -250,8 +258,6 @@ AuditTable.propTypes = {
   entityClass: PropTypes.string,
   // id of entity
   entityId: PropTypes.number,
-  // callback for detail
-  clickTarget: PropTypes.func,
   // flag for detail
   isDetail: PropTypes.boolean,
   // table uiKe

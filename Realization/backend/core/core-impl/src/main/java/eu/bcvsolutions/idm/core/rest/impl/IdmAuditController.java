@@ -1,16 +1,11 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
@@ -27,12 +22,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.IdmAuditDiffDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmAuditDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -83,75 +82,41 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	@Override
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		// TODO get revision detail
-		AuditFilter filter = new AuditFilter();
-		filter.setId(Long.parseLong(backendId));
-		List<IdmAudit> audits = auditService.find(filter, null).getContent();
-		
-		// number founds audits must be exactly 1
-		if (audits.isEmpty() || audits.size() != 1) {
-			// throw..
-		}
-		
-		IdmAudit audit = audits.get(0);
+		IdmAudit audit = auditService.get(backendId);
 		
 		// Map with all values
 		Map<String, Object> revisionValues = new HashMap<>();
 		
 		Object revision = null;
 		try {
-			revision = auditService.getPreviousVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.parseLong(audit.getId().toString()));
+			revision = auditService.getVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.parseLong(audit.getId().toString()));
 		} catch (NumberFormatException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", audit));
 		}
 		
 		List<String> auditedClass = auditService.getAllAuditedEntitiesNames();
 		
-		Field[] fields = revision.getClass().getDeclaredFields();
-		for (Field field : fields) {
-			try {
-				PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(revision, field.getName());
-				
-				// not all property must have read method
-				if (propertyDescriptor == null) {
-					continue;
-				}
-				
-				Method readMethod = propertyDescriptor.getReadMethod();
-				Object value = readMethod.invoke(revision);
-				
-				// value can be null
-				if (value == null) {
-					continue;
-				}
-				
-				// we want only primitive date types
-				String className = value.getClass().getSimpleName();
-				if (className.indexOf("_", 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf("_", 0)))) {
-					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
-				} else {
-					revisionValues.put(field.getName(), value);
-				}
-				
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		revisionValues = auditService.getValuesFromVersion(revision, auditedClass);
 		
-		// DTO
+		// create DTO and fill with values from IdmAudit
 		IdmAuditDto auditDto = new IdmAuditDto(audit);
 		auditDto.setRevisionValues(revisionValues);
 		
 		ResponseEntity<IdmAuditDto> resource = new ResponseEntity<IdmAuditDto>(auditDto, HttpStatus.OK);
 		
+		return resource;
+	}
+	
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.GET, value = "/{firstRevId}/diff/{secondRevId}")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
+	public ResponseEntity<?> diff(@PathVariable @NotNull String firstRevId, @PathVariable String secondRevId, PersistentEntityResourceAssembler assembler) {
+		IdmAuditDiffDto dto = new IdmAuditDiffDto();
+		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.parseLong(firstRevId), Long.parseLong(secondRevId)));
+		dto.setIdFirstRevision(Long.parseLong(firstRevId));
+		dto.setIdSecondRevision(Long.parseLong(secondRevId));
+		
+		ResponseEntity<IdmAuditDiffDto> resource = new ResponseEntity<IdmAuditDiffDto>(dto, HttpStatus.OK);
 		return resource;
 	}
 	

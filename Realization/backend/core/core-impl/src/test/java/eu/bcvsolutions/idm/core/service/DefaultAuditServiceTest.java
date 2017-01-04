@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.service;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -16,19 +18,20 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
 
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class DefaultAuditServiceTest extends AbstractIntegrationTest {
@@ -37,10 +40,10 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	private IdmAuditService auditService;
 	
 	@Autowired
-	private IdmRoleRepository roleRepository;
+	private IdmRoleService roleService;
 	
 	@Autowired
-	private IdmIdentityRepository identityRepository;
+	private IdmIdentityService identityService;
 	
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
@@ -60,16 +63,16 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	
 	@Test
 	public void roleAuditTestCreateModify() {		
-		IdmRole role = saveTransactional(constructRole("audit_test_role"), roleRepository);
+		IdmRole role = saveInTransaction(constructRole("audit_test_role"), roleService);
 		
 		List<IdmAudit> result = auditService.findRevisions(IdmRole.class, role.getId());
 		
 		assertEquals(1, result.size());
 		
-		role = roleRepository.findOne(role.getId());
+		role = roleService.get(role.getId());
 		role.setName("audit_test_role_2");
 		role.setDescription("desc");
-		roleRepository.save(role);
+		roleService.save(role);
 		result = auditService.findRevisions(IdmRole.class, role.getId());
 
 		assertEquals(2, result.size());
@@ -123,13 +126,101 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	public void diffAuditTest() {
+		IdmIdentity identity = this.constructIdentity("test_diff", "John", "Doe");
+		identity = saveInTransaction(identity, identityService);
+		// identityRepository.save(identity);
+		
+		identity = identityService.get(identity.getId());
+		
+		identity.setEmail("example@example.ex");
+		identity.setFirstName("Leonard");
+		identity.setLastName("Nimoy");
+		identity = saveInTransaction(identity, identityService);
+		// identityRepository.save(identity);
+		
+		identity = identityService.get(identity.getId());
+		identity.setEmail(null);
+		identity.setFirstName("John");
+		identity.setLastName("Doe");
+		identity = saveInTransaction(identity, identityService);
+		
+		List<IdmAudit> result = auditService.findRevisions(IdmIdentity.class, identity.getId());
+		assertEquals(3, result.size());
+		
+		getTransactionTemplate().execute(new TransactionCallback<Object>() {
+			public Object doInTransaction(TransactionStatus transactionStatus) {
+				IdmAudit idmAudit = result.get(0);
+				IdmIdentity version1 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(), Long.parseLong(idmAudit.getId().toString()));
+				
+				idmAudit = result.get(1);
+				IdmIdentity version2 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(), Long.parseLong(idmAudit.getId().toString()));
+				
+				idmAudit = result.get(2);
+				IdmIdentity version3 = auditService.getVersion(IdmIdentity.class, idmAudit.getEntityId(), Long.parseLong(idmAudit.getId().toString()));
+				
+				// sample test to default value
+				assertEquals(version1.getFirstName(), "John");
+				assertEquals(version1.getLastName(), "Doe");
+				
+				assertEquals(version2.getFirstName(), "Leonard");
+				assertEquals(version2.getLastName(), "Nimoy");
+				assertEquals(version2.getEmail(), "example@example.ex");
+				
+				assertEquals(version3.getFirstName(), "John");
+				assertEquals(version3.getLastName(), "Doe");
+				assertNull(version3.getEmail());
+				
+				// get diff between version
+				// test version #1 with #2
+				Map<String, Object> diff = auditService.getDiffBetweenVersion(
+						parseSerializableToString(result.get(0).getId()),
+						parseSerializableToString(result.get(1).getId()));
+				
+				assertEquals(3, diff.size());
+				assertTrue(diff.containsKey("firstName"));
+				assertTrue(diff.containsKey("lastName"));
+				assertTrue(diff.containsKey("email"));
+				
+				assertEquals("Leonard", diff.get("firstName"));
+				assertEquals("Nimoy", diff.get("lastName"));
+				assertEquals("example@example.ex", diff.get("email"));
+				
+				// test version #2 with #3
+				diff = auditService.getDiffBetweenVersion(
+						parseSerializableToString(result.get(1).getId()),
+						parseSerializableToString(result.get(2).getId()));
+				
+				assertEquals(3, diff.size());
+				assertTrue(diff.containsKey("firstName"));
+				assertTrue(diff.containsKey("lastName"));
+				assertTrue(diff.containsKey("email"));
+				
+				assertEquals("John", diff.get("firstName"));
+				assertEquals("Doe", diff.get("lastName"));
+				assertEquals(null, diff.get("email"));
+				
+				// final test version #1 with #3
+				diff = auditService.getDiffBetweenVersion(
+						parseSerializableToString(result.get(0).getId()),
+						parseSerializableToString(result.get(2).getId()));
+				assertEquals(0, diff.size());
+
+				return null;
+			}
+		});
+		
+		
+	}
+	
+	@Test
 	public void identityAuditCreateModify() {
 		IdmIdentity identity = this.constructIdentity("aud_test", "test", "test");
-		identityRepository.save(identity);
+		identityService.save(identity);
 		
-		identity = identityRepository.findOne(identity.getId());
+		identity = identityService.get(identity.getId());
 		
-		IdmRole role = roleRepository.save(constructRole("aud_test_role"));
+		IdmRole role = roleService.save(constructRole("aud_test_role"));
 		
 		IdmIdentityRole identityRole = new IdmIdentityRole();
 		identityRole.setIdentity(identity);
@@ -164,11 +255,6 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		}
 	}
 	
-	@Transactional
-	private <T extends BaseEntity> T saveTransactional(T entity, AbstractEntityRepository<T, ?> respository) {
-		return respository.save(entity);
-	}
-	
 	private IdmRole constructRole(String name) {
 		IdmRole role = new IdmRole();
 		role.setName(name);
@@ -181,5 +267,9 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		identity.setFirstName(firstName);
 		identity.setLastName(secondName);
 		return identity;
+	}
+	
+	private Long parseSerializableToString(Serializable id) {
+		return Long.parseLong(id.toString());
 	}
 }

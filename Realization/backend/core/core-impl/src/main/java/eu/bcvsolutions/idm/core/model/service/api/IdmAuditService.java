@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
@@ -62,6 +63,16 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	<T> T getPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
 	/**
+	 * Method return version of entity for currentRevId
+	 * 
+	 * @param entityClass
+	 * @param entityId
+	 * @param currentRevId
+	 * @return
+	 */
+	<T> T getVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
+	
+	/**
 	 * Return last version number id.
 	 * 
 	 * @param entityClass
@@ -100,4 +111,34 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @return
 	 */
 	Page<IdmAudit> getRevisionsForEntity(String clazz, UUID entityId, Pageable pageable);
+	
+	/**
+	 * Method get two revision and compare their values. The difference is first from second. 
+	 * If @param secondRevision is null, difference will be from a previous revision.
+	 * 
+	 * @param clazz
+	 * @param firstRev
+	 * @return map with only changed values
+	 */
+	Map<String, Object> getDiffBetweenVersion(String clazz, Long firstRevId, Long secondRevId);
+	
+	/**
+	 * Method get two revision and compare their values. Method call {@link getDiffBetweenRevision}
+	 * with @param clazz null. The difference is first from second. 
+	 * If @param secondRevision is null, difference will be from a previous revision.
+	 * 
+	 * @param clazz
+	 * @param firstRev
+	 * @return map with only changed values
+	 */
+	Map<String, Object> getDiffBetweenVersion(Long firstRevId, Long secondRevId);
+	
+	/**
+	 * Method return all values from @param revisionObject.
+	 * 
+	 * @param revisionObject
+	 * @param auditedClass
+	 * @return map key is name of attribute.
+	 */
+	Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass);
 }

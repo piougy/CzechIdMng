@@ -1261,9 +1261,16 @@
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
+      "pickRevision": "Vyberte revizi",
+      "detail": "detail",
       "id": "ID",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "revision": {
+        "id": "ID revize",
+        "modifier": "Změnu provedl",
+        "revisionDate": "Datum revize"
       },
       "filter": {
         "dateFrom": {
@@ -1472,7 +1479,9 @@
       "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
       "changedAttributes": "Změněné atributy",
-      "type": "Typ entity"
+      "type": "Typ entity",
+      "key": "Atribut",
+      "value": "Hodnota"
     },
     "Module": {
       "id": "Id",

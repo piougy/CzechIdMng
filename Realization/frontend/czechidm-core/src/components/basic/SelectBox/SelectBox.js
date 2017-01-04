@@ -262,15 +262,21 @@ class SelectBox extends AbstractFormComponent {
   }
 
   itemRenderer(item, input) {
-    const niceLabel = this.props.manager.getNiceLabel(item);
+    let niceLabel = this.props.manager.getNiceLabel(item);
+    const { niceLabelTransform } = this.props;
     const inputLower = input.toLowerCase();
+
     let itemFullKey = niceLabel;
-    if (inputLower) {
-      if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
-        for (const field of this.props.searchInFields) {
-          if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
-            itemFullKey = itemFullKey + ' (' + item[field] + ')';
-            break;
+    if (niceLabelTransform) {
+      niceLabel = niceLabelTransform(item);
+    } else {
+      if (inputLower) {
+        if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+          for (const field of this.props.searchInFields) {
+            if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
+              itemFullKey = itemFullKey + ' (' + item[field] + ')';
+              break;
+            }
           }
         }
       }
@@ -397,7 +403,11 @@ SelectBox.propTypes = {
   /**
    * Selected options can be cleared
    */
-  clearable: PropTypes.bool
+  clearable: PropTypes.bool,
+  /**
+   * Function with transform label in select box
+   */
+  niceLabelTransform: PropTypes.func
 };
 
 SelectBox.defaultProps = {

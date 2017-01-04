@@ -18,5 +18,6 @@ public enum PersistentType {
 	CURRENCY, 
 	BOOLEAN, 
 	DATE, 
-	DATETIME;
+	DATETIME,
+	BYTE_ARRAY;
 }

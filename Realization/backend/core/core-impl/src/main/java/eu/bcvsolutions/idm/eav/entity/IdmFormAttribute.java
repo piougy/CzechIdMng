@@ -1,10 +1,5 @@
 package eu.bcvsolutions.idm.eav.entity;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
@@ -26,9 +21,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.util.Assert;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -72,6 +64,10 @@ public class IdmFormAttribute extends AbstractEntity {
 	@Size(max = DefaultFieldLengths.LOG)
 	@Column(name = "description", nullable = true)
 	private String description;	
+	
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "placeholder", nullable = true)
+	private String placeholder;	
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -142,34 +138,6 @@ public class IdmFormAttribute extends AbstractEntity {
 
 	public void setPersistentType(PersistentType persistentType) {
 		this.persistentType = persistentType;
-	}
-	
-	/**
-	 * Returns empty list by persistentType
-	 * 
-	 * @param persistentType
-	 * @return
-	 */
-	@JsonIgnore
-	@SuppressWarnings("rawtypes")
-	public List getEmptyList() {
-		Assert.notNull(persistentType);
-		//
-		switch (persistentType) {
-			case INT:
-			case LONG:
-				return new ArrayList<Long>();
-			case BOOLEAN:
-				return new ArrayList<Boolean>();
-			case DATE:
-			case DATETIME:
-				return new ArrayList<Date>();
-			case DOUBLE:
-			case CURRENCY:
-				return new ArrayList<BigDecimal>();
-			default:
-				return new ArrayList<String>();
-		}
 	}
 
 	/**
@@ -271,5 +239,18 @@ public class IdmFormAttribute extends AbstractEntity {
 	
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
+	}
+	
+	/**
+	 * Attribute placeholder
+	 * 
+	 * @return
+	 */
+	public String getPlaceholder() {
+		return placeholder;
+	}
+	
+	public void setPlaceholder(String placeholder) {
+		this.placeholder = placeholder;
 	}
 }

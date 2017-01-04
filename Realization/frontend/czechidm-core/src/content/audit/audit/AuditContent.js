@@ -1,7 +1,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import * as Basic from '../../components//basic';
+import * as Basic from '../../../components/basic';
 import AuditTable from '../audit/AuditTable';
 
 class AuditContent extends Basic.AbstractContent {

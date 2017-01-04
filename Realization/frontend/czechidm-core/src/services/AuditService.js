@@ -1,5 +1,7 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
+import RestApiService from './RestApiService';
+import * as Utils from '../utils';
 
 class AuditService extends AbstractService {
 
@@ -35,11 +37,29 @@ class AuditService extends AbstractService {
   getAuditedEntitiesSearchParameters() {
     return super.getDefaultSearchParameters().setName(AuditService.ENTITIES_SEARCH);
   }
+
+  getDiffBetweenVersion(firstRevId, secondRevId) {
+    return RestApiService.get(this.getApiPath() + `/${firstRevId}/diff/${secondRevId}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
 }
 
 /**
  * Search all audited entities
  */
 AuditService.ENTITIES_SEARCH = 'entities';
+
+/**
+ * Search difference between two version
+ */
+AuditService.DIFF_SEARCH = 'diff';
 
 export default AuditService;

@@ -68,6 +68,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
       <div className={weight}>
         <Basic.Table
           data={transformData}
+          noData={this.i18n('revision.deleted')}
           rowClass={({ rowIndex, data }) => {
             if (diffValues && diffValues[data[rowIndex].key]) {
               return diffRowClass;

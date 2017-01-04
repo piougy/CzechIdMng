@@ -36,8 +36,6 @@ import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
  * Super class for "extended" attribute values, which can be added to custom
  * abstract entity
  * 
- * TODO: byte[] persistent type - integrate with ic connectors
- * 
  * @author Radek Tomiška
  *
  * @param <O> Owner entity class
@@ -88,6 +86,10 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	@Audited
 	@Column(name = "date_value")
 	private DateTime dateValue;
+	
+	@Audited
+	@Column(name = "byte_value")
+	private byte[] byteValue;
 
 	@Audited
 	@Max(99999)
@@ -157,6 +159,9 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			return doubleValue;
 		case CHAR: 
 			return stringValue == null ? null : stringValue.charAt(0);
+		case BYTE_ARRAY: {
+			return byteValue;
+		}
 		default:
 			return stringValue;
 		}
@@ -183,6 +188,9 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			case DOUBLE:
 			case CURRENCY:
 				return doubleValue == null;
+			case BYTE_ARRAY: {
+				return byteValue == null || byteValue.length == 0;
+			}
 			default:
 				return StringUtils.isEmpty(stringValue);
 		}
@@ -289,6 +297,17 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 							formAttribute.getName(), persistentType, value));
 				}
 				break;
+			case BYTE_ARRAY: {
+				if (value == null) {
+					setByteValue(null);
+				} else if (value instanceof byte[]) {
+					setByteValue((byte[]) value);
+				} else {
+					throw new IllegalArgumentException(MessageFormat.format("Form value [{0}] has to be [{1}], given [{2}]", 
+							formAttribute.getName(), persistentType, value));
+				}
+				break;
+			}
 			default:
 				if (value == null) {
 					setStringValue(null);
@@ -310,6 +329,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.dateValue = null;
 		this.longValue = null;
 		this.doubleValue = null;
+		this.byteValue = null;
 	}
 
 	/**
@@ -381,6 +401,14 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 		this.dateValue = dateValue;
 	}
 	
+	public byte[] getByteValue() {
+		return byteValue;
+	}
+
+	public void setByteValue(byte[] byteValue) {
+		this.byteValue = byteValue;
+	}
+
 	public boolean isConfidential() {
 		return confidential;
 	}

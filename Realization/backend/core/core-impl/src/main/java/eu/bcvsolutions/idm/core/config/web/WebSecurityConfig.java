@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.config.web;
 
+import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -65,5 +67,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+	
+	/**
+	 * Inherit security context from parent thread
+	 * 
+	 * @return
+	 */
+	@Bean
+	public MethodInvokingFactoryBean methodInvokingFactoryBean() {
+	    MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
+	    methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
+	    methodInvokingFactoryBean.setTargetMethod("setStrategyName");
+	    methodInvokingFactoryBean.setArguments(new String[]{SecurityContextHolder.MODE_INHERITABLETHREADLOCAL});
+	    return methodInvokingFactoryBean;
 	}
 }

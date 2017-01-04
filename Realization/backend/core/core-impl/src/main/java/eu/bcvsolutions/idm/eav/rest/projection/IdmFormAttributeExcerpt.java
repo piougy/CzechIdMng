@@ -37,4 +37,6 @@ public interface IdmFormAttributeExcerpt extends AbstractDtoProjection {
 	boolean isConfidential();
 	
 	String getDefaultValue();
+	
+	String getPlaceholder();
 }

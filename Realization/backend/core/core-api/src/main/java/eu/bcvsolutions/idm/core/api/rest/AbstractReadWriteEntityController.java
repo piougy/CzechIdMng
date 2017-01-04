@@ -23,10 +23,10 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
  * CRUD operations
- * 
  * @author Radek Tomiška
  *
- * @param <E>
+ * @param <E> {@link BaseEntity} type
+ * @param <F> {@link BaseFilter} type
  */
 public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F extends BaseFilter> extends AbstractReadEntityController<E, F> {
 	

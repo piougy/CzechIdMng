@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import moment from 'moment';
 //
 import { AuditManager, DataManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
@@ -45,7 +46,11 @@ class AuditDetail extends Basic.AbstractContent {
     const { entityId, revID } = props.params;
     this.context.store.dispatch(auditManager.fetchEntity(entityId));
     if (revID) {
-      this.context.store.dispatch(auditManager.fetchEntity(revID));
+      this.context.store.dispatch(auditManager.fetchEntity(revID, null, (selectItem) => {
+        if (this.refs.revisionDiff) {
+          this.refs.revisionDiff.setValue(selectItem);
+        }
+      }));
       this.context.store.dispatch(auditManager.fetchDiffBetweenVersion(entityId, revID, AUDIT_DETAIL_DIFF));
     }
   }
@@ -59,38 +64,24 @@ class AuditDetail extends Basic.AbstractContent {
     }
   }
 
-  _getSelectBoxWithRevision() {
-    const {
-      auditDetailFirst,
-      auditDetailSecond } = this.props;
+  _transformLabelForCheckBox(item) {
+    return item.id + ' (' + moment(item.revisionDate).format('d. M. Y  H:mm:ss') + ')';
+  }
 
-    if (auditDetailFirst && auditDetailSecond) {
-      return (
-        <Basic.SelectBox
-          ref="revisionDiff"
-          label={this.i18n('pickRevision')}
-          fieldLabel="revisionDate"
-          labelSpan=""
-          componentSpan=""
-          onChange={this.changeSecondRevision.bind(this)}
-          forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst.entityId)}
-          value={auditDetailSecond}
-          manager={auditManager}/>
-      );
-    } else if (auditDetailFirst) {
-      return (
-        <Basic.SelectBox
-          ref="revisionDiff"
-          labelSpan=""
-          componentSpan=""
-          label={this.i18n('pickRevision')}
-          fieldLabel="revisionDate"
-          onChange={this.changeSecondRevision.bind(this)}
-          forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst.entityId)}
-          manager={auditManager}/>
-      );
-    }
-    return null;
+  _getSelectBoxWithRevision() {
+    const { auditDetailFirst } = this.props;
+
+    return (
+      <Basic.SelectBox
+        ref="revisionDiff"
+        label={this.i18n('pickRevision')}
+        labelSpan=""
+        componentSpan=""
+        onChange={this.changeSecondRevision.bind(this)}
+        forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)}
+        niceLabelTransform={this._transformLabelForCheckBox}
+        manager={auditManager}/>
+    );
   }
 
   render() {

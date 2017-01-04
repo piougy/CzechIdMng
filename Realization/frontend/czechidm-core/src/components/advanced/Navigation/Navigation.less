@@ -57,7 +57,7 @@ header {
     }
 
     @media (min-width: 768px) {
-      #navbar > .nav {
+      #navbar > * > .nav {
         li.active a {
           border-bottom-width: 3px;
           border-bottom-style: solid;
@@ -69,10 +69,14 @@ header {
       }
     }
 
-    .glyphicon {
-      margin-right: 3px;
+    .glyphicon, .fa {
+      margin-right: 0px;
       font-size: 12px;
     }
+  }
+
+  .navbar-text {
+    margin-bottom: 12px;
   }
 
   .navbar-right {
@@ -81,6 +85,45 @@ header {
 
   .navbar-right li:last-child {
     //
+  }
+
+  /**
+   * Localization control
+   */
+  .flags-container {
+
+    margin-top: 2px;
+    margin-bottom: -4px;
+
+    .flags {
+      .flag {
+        text-decoration: none;
+        padding: 0px 12px 0px 12px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        margin-right: 5px;
+        border: 1px solid @idm-base-color;
+        display: inline-block;
+        height: 20px;
+
+        &.cs { background-image: url('../images/flags/cs.gif'); }
+        &.en { background-image: url('../images/flags/en.gif'); }
+
+        &.active {
+          background-color: @idm-base-color;
+          border-color: @idm-link-color;
+          cursor: default;
+        }
+
+        &:hover {
+          background-color: @idm-base-color;
+        }
+
+        &.last {
+          margin-right: 0px;
+        }
+      }
+    }
   }
 }
 

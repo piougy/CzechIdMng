@@ -205,7 +205,8 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmFormAttribute letter = new IdmFormAttribute();
 				letter.setName("letter");
 				letter.setDisplayName("Favorite letter");
-				letter.setDescription("Favorite character");
+				letter.setPlaceholder("Character");
+				letter.setDescription("Some favorite character");
 				letter.setPersistentType(PersistentType.CHAR);
 				letter.setRequired(true);
 				attributes.add(letter);
@@ -291,6 +292,16 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				password.setConfidential(true);
 				password.setDescription("Test password");
 				attributes.add(password);
+				
+				
+				IdmFormAttribute byteArray = new IdmFormAttribute();
+				byteArray.setName("byteArray");
+				byteArray.setDisplayName("Byte array");
+				byteArray.setPersistentType(PersistentType.BYTE_ARRAY);
+				byteArray.setConfidential(false);
+				byteArray.setDescription("Test byte array");
+				byteArray.setPlaceholder("or image :-)");
+				attributes.add(byteArray);
 				
 				IdmFormDefinition formDefinition = formService.createDefinition(IdmIdentity.class, attributes);
 				

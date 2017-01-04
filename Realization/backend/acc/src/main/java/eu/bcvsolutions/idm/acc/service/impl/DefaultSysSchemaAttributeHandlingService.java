@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeHandlingRepository;
+import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -54,6 +55,7 @@ public class DefaultSysSchemaAttributeHandlingService
 	private final FormService formService;
 	private final IdmFormAttributeService formAttributeService;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
+	private final FormPropertyManager formPropertyManager;
 	
 	@Autowired
 	public DefaultSysSchemaAttributeHandlingService(
@@ -61,19 +63,22 @@ public class DefaultSysSchemaAttributeHandlingService
 			GroovyScriptService groovyScriptService, 
 			FormService formService,
 			IdmFormAttributeService formAttributeService, 
-			SysRoleSystemAttributeRepository roleSystemAttributeRepository) {
+			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
+			FormPropertyManager formPropertyManager) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(formService);
 		Assert.notNull(formAttributeService);
 		Assert.notNull(roleSystemAttributeRepository);
+		Assert.notNull(formPropertyManager);
 		//
 		this.formService = formService;
 		this.repository = repository;
 		this.groovyScriptService = groovyScriptService;
 		this.formAttributeService = formAttributeService;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
+		this.formPropertyManager = formPropertyManager;
 		
 	}
 
@@ -213,8 +218,7 @@ public class DefaultSysSchemaAttributeHandlingService
 		attributeDefinition.setSeq((short) 0);
 		attributeDefinition.setName(entity.getIdmPropertyName());
 		attributeDefinition.setDisplayName(entity.getName());
-		// TODO: refactor converters to stand alone service
-		attributeDefinition.setPersistentType(DefaultSysSystemService.convertPropertyType(schemaAttribute.getClassType()));
+		attributeDefinition.setPersistentType(formPropertyManager.getPersistentType(schemaAttribute.getClassType()));
 		attributeDefinition.setRequired(schemaAttribute.isRequired());
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());

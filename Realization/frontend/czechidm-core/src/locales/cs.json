@@ -135,16 +135,22 @@
     "toogle": "Toggle navigation",
     "menu": {
       "home": "Nástěnka",
-      "profile": "Profil",
+      "profile": {
+        "label": "Profil",
+        "title": "Můj profil"
+      },
       "subordinates": {
         "label": "Podřízení",
         "title": "Můj tým"
       },
       "roles": {
-        "label" : "Role uživatele",
-        "title" : "Přiřazené role"
+        "label": "Role uživatele",
+        "title": "Přiřazené role"
       },
-      "tasks" : "Úkoly",
+      "tasks": {
+        "label" : "Úkoly",
+        "title" : "Moje úkoly"
+      },
       "task" : "Úkol",
       "identities": {
         "label": "Uživatelé",

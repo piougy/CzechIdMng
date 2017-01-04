@@ -110,6 +110,13 @@ export default class AbstractContent extends AbstractContextComponent {
       </PageHeader>
     );
   }
+
+  /**
+   * Reloads current route
+   */
+  reloadRoute() {
+    this.context.router.replace(this.context.store.getState().routing.location.pathname);
+  }
 }
 
 AbstractContent.propTypes = {

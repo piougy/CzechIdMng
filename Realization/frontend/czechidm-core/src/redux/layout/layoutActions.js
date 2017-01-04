@@ -121,11 +121,11 @@ export function backendConfigurationInit() {
 /**
 * After localization is initied - set to ready, before inicialization will be false
 */
-function i18nReady(ready) {
+function i18nReady(lng) {
   return (dispatch) => {
     dispatch({
       type: I18N_READY,
-      ready
+      lng
     });
     dispatch(backendConfigurationInit());
   };
@@ -142,7 +142,25 @@ function i18nInit() {
           const flashMessagesManager = new FlashMessagesManager();
           dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
         } else {
-          dispatch(i18nReady(true));
+          dispatch(i18nReady(LocalizationService.getCurrentLanguage()));
+        }
+      }
+    );
+  };
+}
+
+export function i18nChange(lng, cb) {
+  return (dispatch) => {
+    LocalizationService.changeLanguage(lng,
+      (error) => {
+        if (error) {
+          const flashMessagesManager = new FlashMessagesManager();
+          dispatch(flashMessagesManager.addMessage({level: 'error', title: 'Nepodařilo se iniciovat lokalizaci', message: error }));
+        } else {
+          dispatch(i18nReady(LocalizationService.getCurrentLanguage()));
+          if (cb) {
+            cb();
+          }
         }
       }
     );

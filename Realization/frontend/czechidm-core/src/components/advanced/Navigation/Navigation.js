@@ -4,16 +4,17 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 //
 import * as Basic from '../../basic';
-import {ConfigurationManager} from '../../../redux/data';
-import {SecurityManager} from '../../../redux';
-import { getNavigationItems, resolveNavigationParameters, collapseNavigation } from '../../../redux/layout/layoutActions';
+import { LocalizationService } from '../../../services';
+import { ConfigurationManager } from '../../../redux/data';
+import { SecurityManager } from '../../../redux';
+import { getNavigationItems, resolveNavigationParameters, collapseNavigation, i18nChange } from '../../../redux/layout/layoutActions';
 import NavigationItem from './NavigationItem';
 import NavigationSeparator from './NavigationSeparator';
 
 /**
  * Top navigation
  */
-export class Navigation extends Basic.AbstractContextComponent {
+export class Navigation extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -104,7 +105,7 @@ export class Navigation extends Basic.AbstractContextComponent {
       );
     }
     return (
-      <span className="visible-xs-inline"> {this.i18n(item.titleKey, { defaultValue: item.title })}</span>
+      <span className="visible-xs-inline"> { this.i18n(item.titleKey, { defaultValue: item.title }) }</span>
     );
   }
 
@@ -165,19 +166,21 @@ export class Navigation extends Basic.AbstractContextComponent {
       if (children && !navigationCollapsed) {
         items.push(
           <li key={`nav-item-${levelItem.id}`} className={isActive ? 'has-children active' : 'has-children'}>
-            <a href="#">
-              <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
-              {
-                navigationCollapsed
-                ?
-                null
-                :
-                <span>
-                  { this._resolveNavigationItemText(levelItem, userContext) }
-                  <span className="fa arrow"></span>
-                </span>
-              }
-            </a>
+            <Basic.Tooltip id={`${levelItem.id}-tooltip`} placement="right" value={ this.i18n(levelItem.titleKey, { defaultValue: levelItem.title }) } delayShow={200}>
+              <a href="#">
+                <Basic.Icon icon={levelItem.icon} color={levelItem.iconColor}/>
+                {
+                  navigationCollapsed
+                  ?
+                  null
+                  :
+                  <span>
+                    { this._resolveNavigationItemText(levelItem, userContext) }
+                    <span className="fa arrow"></span>
+                  </span>
+                }
+              </a>
+            </Basic.Tooltip>
             { children }
           </li>
         );
@@ -243,7 +246,7 @@ export class Navigation extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { environment, userContext, navigationCollapsed, rendered } = this.props;
+    const { environment, userContext, navigationCollapsed, rendered, i18nReady } = this.props;
     //
     if (!rendered) {
       return false;
@@ -263,6 +266,33 @@ export class Navigation extends Basic.AbstractContextComponent {
             <span className="hidden-sm">{this.i18n('environment.' + environment + '.label', { defaultValue: environment })}</span>
             <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short', { defaultValue: environment })}</span>
           </span>
+        </p>
+      );
+    }
+
+    const supportedLanguages = LocalizationService.getSupportedLanguages();
+    let flags = null;
+    if (supportedLanguages && supportedLanguages.length > 1) {
+      flags = (
+        <p className="navbar-text hidden-xs">
+          <div className="flags-container">
+            <div className="flags">
+              {
+                supportedLanguages.map((lng, i) => {
+                  const lgnClassName = classnames(
+                    'flag',
+                    lng,
+                    { 'active': i18nReady === lng },
+                    { 'last': i === supportedLanguages.length - 1 }
+                  );
+                  return (
+                    <span className={lgnClassName} onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { this.reloadRoute(); } )); }}>
+                    </span>
+                  );
+                })
+              }
+            </div>
+          </div>
         </p>
       );
     }
@@ -302,14 +332,17 @@ export class Navigation extends Basic.AbstractContextComponent {
                 :
                 null
               }
-              <ul className="nav navbar-nav navbar-right">
-                {environmentLabel}
-                {
-                  userContext.isExpired
-                  ||
-                  systemItems
-                }
-              </ul>
+              <div className="navbar-right">
+                { environmentLabel }
+                { flags }
+                <ul className="nav navbar-nav">
+                  {
+                    userContext.isExpired
+                    ||
+                    systemItems
+                  }
+                </ul>
+              </div>
             </div>
             {
               !userContext.isExpired && SecurityManager.isAuthenticated(userContext)
@@ -335,7 +368,8 @@ Navigation.propTypes = {
   navigationCollapsed: PropTypes.bool,
   selectedNavigationItems: PropTypes.array,
   environment: PropTypes.string,
-  userContext: PropTypes.object
+  userContext: PropTypes.object,
+  i18nReady: PropTypes.string
 };
 
 Navigation.defaultProps = {
@@ -344,7 +378,8 @@ Navigation.defaultProps = {
   navigationCollapsed: false,
   selectedNavigationItems: null,
   environment: null,
-  userContext: null
+  userContext: null,
+  i18nReady: null
 };
 
 Navigation.contextTypes = {
@@ -362,7 +397,8 @@ function select(state) {
     navigationCollapsed: state.layout.get('navigationCollapsed'),
     selectedNavigationItems: state.layout.get('selectedNavigationItems'),
     environment,
-    userContext: state.security.userContext
+    userContext: state.security.userContext,
+    i18nReady: state.layout.get('i18nReady')
   };
 }
 

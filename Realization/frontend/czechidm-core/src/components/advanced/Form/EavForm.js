@@ -144,6 +144,10 @@ export default class EavForm extends Basic.AbstractContextComponent {
         formValue.dateValue = rawValue;
         break;
       }
+      case 'BYTE_ARRAY': {
+        formValue.byteValue = rawValue;
+        break;
+      }
       default: {
         this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
       }
@@ -207,6 +211,9 @@ export default class EavForm extends Basic.AbstractContextComponent {
       case 'DATETIME': {
         return formValue.dateValue;
       }
+      case 'BYTE_ARRAY': {
+        return formValue.byteValue;
+      }
       default: {
         this.getLogger().warn(`[EavForm]: Persistent type [${attribute.persistentType}] is not supported and not be filled and send to BE!`);
       }
@@ -238,6 +245,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return validation;
       }
       case 'RICHTEXTAREA': {
+        // required is on form component directly
         return null;
       }
       case 'INT': {
@@ -263,6 +271,11 @@ export default class EavForm extends Basic.AbstractContextComponent {
         return validation;
       }
       case 'BOOLEAN': {
+        // required is on form component directly
+        return null;
+      }
+      case 'BYTE_ARRAY': {
+        // required is on form component directly
         return null;
       }
       default: {
@@ -310,7 +323,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 );
               }
               // multi values are presented as multi lines string
-              // TODO: use SelectBox component instead
+              // TODO: use SelectBox component instead?
               return (
                 <Basic.TextArea
                   ref={attribute.name}
@@ -325,7 +338,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   }
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description ? attribute.description : this.i18n('multiple.title')}
-                  readOnly={readOnly || attribute.readonly}/>
+                  readOnly={readOnly || attribute.readonly}
+                  placeholder={attribute.placeholder}/>
               );
             }
             //
@@ -335,12 +349,14 @@ export default class EavForm extends Basic.AbstractContextComponent {
               || attribute.persistentType === 'INT'
               || attribute.persistentType === 'LONG'
               || attribute.persistentType === 'DOUBLE'
-              || attribute.persistentType === 'CURRENCY') {
+              || attribute.persistentType === 'CURRENCY'
+              || (attribute.confidential && (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTE_ARRAY'))) { // TODO: confidential TEXTAREA and BYTE_ARRAY is represented as textfield now - implement confidential to Basic.TextArea
               return (
                 <Basic.TextField
                   ref={attribute.name}
                   type={attribute.confidential ? 'password' : 'text'}
                   label={attribute.displayName}
+                  placeholder={attribute.placeholder}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={readOnly || attribute.readonly}
@@ -365,18 +381,20 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   mode={attribute.persistentType.toLowerCase()}
                   required={attribute.required}
                   label={attribute.displayName}
+                  placeholder={attribute.placeholder}
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={readOnly || attribute.readonly}/>
               );
             }
             // textarea field
-            if (attribute.persistentType === 'TEXTAREA') {
+            if (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTE_ARRAY') {
               return (
                 <Basic.TextArea
                   ref={attribute.name}
                   label={attribute.displayName}
                   value={this._toInputValue(attribute, formValues)}
+                  placeholder={attribute.placeholder}
                   helpBlock={attribute.description}
                   readOnly={readOnly || attribute.readonly}
                   validation={this._getInputValidation(attribute)}
@@ -392,7 +410,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                   value={this._toInputValue(attribute, formValues)}
                   helpBlock={attribute.description}
                   readOnly={readOnly || attribute.readonly}
-                  required={attribute.required}/>
+                  required={attribute.required}
+                  placeholder={attribute.placeholder}/>
               );
             }
             // boolean field - boolean can not be multiple

@@ -1276,7 +1276,8 @@
       "revision": {
         "id": "ID revize",
         "modifier": "Změnu provedl",
-        "revisionDate": "Datum revize"
+        "revisionDate": "Datum revize",
+        "deleted": "Entita byla odstraněna"
       },
       "filter": {
         "dateFrom": {
@@ -1622,6 +1623,10 @@
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Katalog rolí nelze odebrat",
       "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
+    },
+    "AUDIT_REVISION_NOT_SAME": {
+      "title": "Revize nelze porovnat",
+      "message": "Revize musí být stejného typu."
     }
   },
   "validationError": {

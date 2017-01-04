@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -267,20 +269,41 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit", secondRevId));
 		}
 		
+		// check if revision are from same type (class, entity id)
+		if (!firstRevision.getEntityId().equals(secondRevision.getEntityId())) {
+			throw new ResultCodeException(CoreResultCode.AUDIT_REVISION_NOT_SAME, ImmutableMap.of("revision", clazz));
+		}
+		
 		// now we will receive version from audit tables
 		try {
 			Object firstVersion = this.getRevision(clazz, firstRevision.getEntityId(), firstRevId);
 			Object secondVersion = this.getRevision(clazz, secondRevision.getEntityId(), secondRevId);
 			
-			if (firstVersion == null && secondVersion == null) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit version", firstVersion));
-			}
 			List<String> auditedClass = this.getAllAuditedEntitiesNames();
 			
-			Map<String, Object> firstValues = this.getValuesFromVersion(firstVersion, auditedClass);
-			Map<String, Object> secondValues = this.getValuesFromVersion(secondVersion, auditedClass);
+			Map<String, Object> firstValues = null;
+			Map<String, Object> secondValues = null;
 			
-			for (String key : firstValues.keySet()) {
+			// first revision is DEL, all attributes are null
+			if (firstRevision.getModification().equals(RevisionType.DEL.name())) {
+				firstValues = Collections.emptyMap();
+			} else {
+				firstValues = this.getValuesFromVersion(firstVersion, auditedClass);
+			}
+			
+			if (secondRevision.getModification().equals(RevisionType.DEL.name())) {
+				secondValues = Collections.emptyMap();
+			} else {
+				secondValues = this.getValuesFromVersion(secondVersion, auditedClass);
+			}
+			
+			Set<String> keySet = firstValues.keySet();
+			
+			if (keySet.isEmpty()) {
+				keySet = secondValues.keySet();
+			}
+			
+			for (String key : keySet) {
 				if (!compareObject(firstValues.get(key), secondValues.get(key))) {
 					result.put(key, secondValues.get(key));
 				}
@@ -304,7 +327,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	public Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass) {
 		Map<String, Object> revisionValues = new HashMap<>();
 		if (revisionObject == null) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("revision", revisionObject));
+			return Collections.emptyMap();
 		}
 		
 		Field[] fields = revisionObject.getClass().getDeclaredFields();

@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
+import eu.bcvsolutions.idm.acc.dto.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
@@ -32,6 +33,7 @@ import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
@@ -74,6 +76,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
 	private final SysSystemEntityHandlingService systemEntityHandlingService;
+	private final SysSynchronizationConfigService synchronizationConfigService;
 	/**
 	 * Connector property type vs. eav type mapping
 	 */
@@ -111,7 +114,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
-			SysSystemEntityHandlingService systemEntityHandlingService) {
+			SysSystemEntityHandlingService systemEntityHandlingService,
+			SysSynchronizationConfigService synchronizationConfigService) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -121,6 +125,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(systemEntityRepository);
 		Assert.notNull(accountRepository);
 		Assert.notNull(systemEntityHandlingService);
+		Assert.notNull(synchronizationConfigService);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -130,6 +135,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.systemEntityRepository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.systemEntityHandlingService = systemEntityHandlingService;
+		this.synchronizationConfigService = synchronizationConfigService;
 	}
 
 	@Override
@@ -158,6 +164,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		roleSystemFilter.setSystemId(system.getId());
 		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
 			roleSystemService.delete(roleSystem);
+		});
+		// delete synchronization configs
+		SynchronizationConfigFilter synchronizationConfigFilter = new SynchronizationConfigFilter();
+		synchronizationConfigFilter.setSystemId(system.getId());
+		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
+			synchronizationConfigService.delete(config);
 		});
 		//
 		super.delete(system);

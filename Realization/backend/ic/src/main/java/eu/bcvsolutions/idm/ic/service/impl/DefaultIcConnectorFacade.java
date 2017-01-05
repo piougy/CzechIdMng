@@ -21,13 +21,13 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
-@Service
 /**
  * Service for do active operations on all IC implementations
  * 
  * @author svandav
  *
  */
+@Service
 public class DefaultIcConnectorFacade implements IcConnectorFacade {
 
 	private Map<String, IcConnectorService> icConnectors = new HashMap<>();

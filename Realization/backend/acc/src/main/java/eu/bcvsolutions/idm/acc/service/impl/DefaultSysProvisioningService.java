@@ -202,10 +202,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	public void doProvisioning(AccAccount account, IdmIdentity identity) {
 		Assert.notNull(account);
 		Assert.notNull(identity);
-		
-		// TODO: remove this after remove list form account. List not contains current data (can contains deleted items)
-		account.setIdentityAccounts(null);
-		
+		//
 		SysSystem system = account.getSystem();
 		SysSystemEntity systemEntity = account.getSystemEntity();
 		// find uid from system entity or form account
@@ -621,7 +618,6 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		if (SystemOperationType.PROVISIONING == provisioningType) {
 			// Provisioning
-			
 			return doProvisioning(uid, entity, operationType, attributes, connectorKey, connectorConfig,
 					objectByClassMap);
 

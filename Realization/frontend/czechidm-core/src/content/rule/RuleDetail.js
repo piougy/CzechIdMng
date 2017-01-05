@@ -3,6 +3,7 @@ import * as Basic from '../../components/basic';
 import { RuleManager, SecurityManager } from '../../redux';
 import RuleCategoryEnum from '../../enums/RuleCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
+import AbstractEnum from '../../enums/AbstractEnum';
 
 /**
  * Detail for rules
@@ -49,6 +50,7 @@ export default class RuleDetail extends Basic.AbstractContent {
     if (entity !== undefined) {
       if (EntityUtils.isNew(entity)) {
         entity.description = '';
+        entity.category = AbstractEnum.findKeyBySymbol(RuleCategoryEnum, RuleCategoryEnum.DEFAULT);
         this.refs.name.focus();
       }
       this.refs.form.setData(entity);
@@ -73,7 +75,6 @@ export default class RuleDetail extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const entity = this.refs.form.getData();
-
     if (entity.id === undefined) {
       this.context.store.dispatch(this.ruleManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);

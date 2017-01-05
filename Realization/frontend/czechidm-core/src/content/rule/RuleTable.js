@@ -7,6 +7,9 @@ import RuleCategoryEnum from '../../enums/RuleCategoryEnum';
 import AbstractEnum from '../../enums/AbstractEnum';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
+
+const MAX_DESCRIPTION_LENGTH = 60;
+
 /**
  * Table with definitions of rules
  */
@@ -170,6 +173,13 @@ export class RuleTable extends Basic.AbstractContent {
               sort={false}/>
             <Advanced.Column property="name" sort />
             <Advanced.Column property="category" sort face="enum" enumClass={RuleCategoryEnum}/>
+            <Advanced.Column property="description" cell={ ({ rowIndex, data }) => {
+              if (data[rowIndex]) {
+                const description = data[rowIndex].description.replace(/<(?:.|\n)*?>/gm, '').substr(0, MAX_DESCRIPTION_LENGTH);
+                return description.substr(0, Math.min(description.length, description.lastIndexOf(' ')));
+              }
+              return '';
+            }}/>
           </Advanced.Table>
         </div>
       </Basic.Row>

@@ -23,7 +23,6 @@ public interface SysSynchronizationConfigExcerpt extends AbstractDtoProjection {
 
 	LocalDateTime getTimestamp();
 
-
 	public boolean isEnabled();
 	
 	public boolean isReconciliation();

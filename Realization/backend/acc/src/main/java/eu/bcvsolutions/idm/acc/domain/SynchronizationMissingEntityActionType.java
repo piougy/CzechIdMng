@@ -10,6 +10,6 @@ public enum SynchronizationMissingEntityActionType {
 
 	CREATE_ENTITY, 
 	DELETE_ACCOUNT,
-	DISABLED_ACCOUNT,
+	DISABLE_ACCOUNT,
 	IGNORE;
 }

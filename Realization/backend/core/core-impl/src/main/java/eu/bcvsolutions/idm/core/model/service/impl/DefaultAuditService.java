@@ -1,11 +1,17 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
+import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,6 +25,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +34,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
@@ -112,9 +124,9 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	    }
 	}
 	
-	private <T> T find(Class<T> entityClass, UUID entityId, Long revisionId) {
-		AuditReader reader = this.getAuditReader();
-		return reader.find(entityClass, entityId, revisionId);
+	@Override
+	public <T> T getVersion(Class<T> entityClass, UUID entityId, Long currentRevId) {
+		return this.find(entityClass, entityId, currentRevId);
 	}
 
 	@Override
@@ -205,5 +217,176 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			    .addProjection(AuditEntity.revisionNumber().max())
 			    .add(AuditEntity.id().eq(entityId))
 			    .getSingleResult();
+	}
+	
+	/**
+	 * Is necessary to override method get, because old get transform id to UUID and audits have Long ID.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public IdmAudit get(Serializable id) {
+		AuditFilter filter = new AuditFilter();
+		filter.setId(Long.parseLong(id.toString()));
+		List<IdmAudit> audits = this.find(filter, null).getContent();
+		
+		// number founds audits must be exactly 1
+		if (audits.isEmpty() || audits.size() != 1) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit", id));
+		}
+		// return only one element
+		return audits.get(0);
+	}
+
+	public Map<String, Object> getDiffBetweenVersion(String clazz, Long firstRevId, Long secondRevId) {
+		Map<String, Object> result = new HashMap<>();
+		IdmAudit firstRevision = this.get(firstRevId);
+		// first revision must exist
+		if (firstRevision == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit", firstRevId));
+		}
+		
+		if (clazz == null) {
+			clazz = firstRevision.getType();
+		}
+		
+		IdmAudit secondRevision = null;
+		
+		if (secondRevId == null) {
+			try {
+				secondRevision = (IdmAudit)this.getPreviousVersion(Class.forName(clazz), firstRevision.getEntityId(), Long.parseLong(firstRevision.getId().toString()));
+			} catch (NumberFormatException e) {
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", firstRevision.getId()));
+			} catch (ClassNotFoundException e) {
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz));
+			}
+		} else {
+			secondRevision = this.get(secondRevId);
+		}
+		// check if we have second revision
+		if (secondRevision == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit", secondRevId));
+		}
+		
+		// check if revision are from same type (class, entity id)
+		if (!firstRevision.getEntityId().equals(secondRevision.getEntityId())) {
+			throw new ResultCodeException(CoreResultCode.AUDIT_REVISION_NOT_SAME, ImmutableMap.of("revision", clazz));
+		}
+		
+		// now we will receive version from audit tables
+		try {
+			Object firstVersion = this.getRevision(clazz, firstRevision.getEntityId(), firstRevId);
+			Object secondVersion = this.getRevision(clazz, secondRevision.getEntityId(), secondRevId);
+			
+			List<String> auditedClass = this.getAllAuditedEntitiesNames();
+			
+			Map<String, Object> firstValues = null;
+			Map<String, Object> secondValues = null;
+			
+			// first revision is DEL, all attributes are null
+			if (firstRevision.getModification().equals(RevisionType.DEL.name())) {
+				firstValues = Collections.emptyMap();
+			} else {
+				firstValues = this.getValuesFromVersion(firstVersion, auditedClass);
+			}
+			
+			if (secondRevision.getModification().equals(RevisionType.DEL.name())) {
+				secondValues = Collections.emptyMap();
+			} else {
+				secondValues = this.getValuesFromVersion(secondVersion, auditedClass);
+			}
+			
+			Set<String> keySet = firstValues.keySet();
+			
+			if (keySet.isEmpty()) {
+				keySet = secondValues.keySet();
+			}
+			
+			for (String key : keySet) {
+				if (!compareObject(firstValues.get(key), secondValues.get(key))) {
+					result.put(key, secondValues.get(key));
+				}
+			}
+			
+		} catch (ClassNotFoundException e) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz));
+		}
+		
+		return result;
+	}
+	
+	public Map<String, Object> getDiffBetweenVersion(Long firstRevId, Long secondRevId) {
+		return this.getDiffBetweenVersion(null, firstRevId, secondRevId);
+	}
+	
+	private boolean compareObject(Object o1, Object o2) {
+		return Objects.equals(o1, o2);
+	}
+	
+	public Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass) {
+		Map<String, Object> revisionValues = new HashMap<>();
+		if (revisionObject == null) {
+			return Collections.emptyMap();
+		}
+		
+		Field[] fields = revisionObject.getClass().getDeclaredFields();
+		for (Field field : fields) {
+			try {
+				PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(revisionObject, field.getName());
+				
+				// not all property must have read method
+				if (propertyDescriptor == null) {
+					continue;
+				}
+				
+				Method readMethod = propertyDescriptor.getReadMethod();
+				Object value = readMethod.invoke(revisionObject);
+				
+				// value can be null, but we want it
+				if (value == null) {
+					revisionValues.put(field.getName(), value);
+					continue;
+				}
+				
+				// we want only primitive date types
+				String className = value.getClass().getSimpleName();
+				if (className.indexOf("_", 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf("_", 0)))) {
+					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
+				} else {
+					revisionValues.put(field.getName(), value);
+				}
+				
+			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("field", field.getName()));
+			}
+		}
+		return revisionValues;
+	}
+	
+	/**
+	 * Method get version for @param revisionId
+	 * 
+	 * @param clazz
+	 * @param entityId
+	 * @param revisionId
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	private Object getRevision(String clazz, UUID entityId, Long revisionId) throws ClassNotFoundException {
+		return this.find(Class.forName(clazz), entityId, revisionId);
+	}
+	
+	/**
+	 * Method working with envers, find is realized in audited tables
+	 * 
+	 * @param entityClass
+	 * @param entityId
+	 * @param revisionId
+	 * @return
+	 */
+	private <T> T find(Class<T> entityClass, UUID entityId, Long revisionId) {
+		AuditReader reader = this.getAuditReader();
+		return reader.find(entityClass, entityId, revisionId);
 	}
 }

@@ -1267,9 +1267,17 @@
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
+      "pickRevision": "Vyberte revizi",
+      "detail": "detail",
       "id": "ID",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "revision": {
+        "id": "ID revize",
+        "modifier": "Změnu provedl",
+        "revisionDate": "Datum revize",
+        "deleted": "Entita byla odstraněna"
       },
       "filter": {
         "dateFrom": {
@@ -1478,7 +1486,9 @@
       "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
       "changedAttributes": "Změněné atributy",
-      "type": "Typ entity"
+      "type": "Typ entity",
+      "key": "Atribut",
+      "value": "Hodnota"
     },
     "Module": {
       "id": "Id",
@@ -1613,6 +1623,10 @@
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Katalog rolí nelze odebrat",
       "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
+    },
+    "AUDIT_REVISION_NOT_SAME": {
+      "title": "Revize nelze porovnat",
+      "message": "Revize musí být stejného typu."
     }
   },
   "validationError": {

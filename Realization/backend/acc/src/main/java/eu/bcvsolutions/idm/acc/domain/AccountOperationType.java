@@ -7,7 +7,7 @@ package eu.bcvsolutions.idm.acc.domain;
  *
  */
 public enum AccountOperationType {
-
-	UPDATE, //update or create
+	
+	UPDATE,
 	DELETE;
 }

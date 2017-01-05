@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
@@ -33,6 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -44,7 +46,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
@@ -52,7 +54,9 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -82,10 +86,10 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  *
  */
 @Service
-public class DefaultSysProvisioningService implements SysProvisioningService {
+public class DefaultProvisioningService implements ProvisioningService {
 
 	public static final String PASSWORD_SCHEMA_PROPERTY_NAME = "__PASSWORD__";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSysProvisioningService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningService.class);
 	private final SysSystemEntityHandlingService entityHandlingService;
 	private final SysSchemaAttributeHandlingService attributeHandlingService;
 	private final IcConnectorFacade connectorFacade;
@@ -98,14 +102,16 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemEntityService systemEntityService;
 	private final AccAccountService accountService;
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
-	public DefaultSysProvisioningService(SysSystemEntityHandlingService entityHandlingService,
+	public DefaultProvisioningService(SysSystemEntityHandlingService entityHandlingService,
 			SysSchemaAttributeHandlingService attributeHandlingService, IcConnectorFacade connectorFacade,
 			SysSystemService systemService, ConfidentialStorage confidentialStorage, FormService formService,
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
-			AccAccountService accountService, AccIdentityAccountService identityAccountService) {
+			AccAccountService accountService, AccIdentityAccountService identityAccountService,
+			EntityEventManager entityEventManager) {
 
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
@@ -119,6 +125,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
 		Assert.notNull(identityAccountService);
+		Assert.notNull(entityEventManager);
 		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
@@ -132,6 +139,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		this.systemEntityService = systemEntityService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
+		this.entityEventManager = entityEventManager;
 	}
 
 	@Override
@@ -204,35 +212,26 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		Assert.notNull(identity);
 		//
 		SysSystem system = account.getSystem();
-		SysSystemEntity systemEntity = account.getSystemEntity();
-		// find uid from system entity or form account
-		String uid = account.getUid();
-		String systemUid = getRealUid(account);
+		if (account.getSystemEntity() == null) {
+			// prepare system entity - uid could be changed by provisioning, but we need to link her with account
+			SysSystemEntity systemEntity = new SysSystemEntity();
+			systemEntity.setEntityType(SystemEntityType.IDENTITY);
+			systemEntity.setSystem(system);
+			systemEntity.setUid(account.getUid());
+			systemEntity = systemEntityService.save(systemEntity);
+			account.setSystemEntity(systemEntity);
+			account = accountService.save(account);
+		}
 		SystemOperationType operationType = SystemOperationType.PROVISIONING;
 		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		
-		List<MappingAttribute> finalAttributes = resolveMappedAttributes(account, identity, system, uid, operationType, entityType);
+		List<MappingAttribute> finalAttributes = resolveMappedAttributes(account, identity, system, account.getUid(), operationType, entityType);
 		if(CollectionUtils.isEmpty(finalAttributes)){
 			return;
 		}
 
-		String uidFromOperation = doOperation(systemUid, identity, AccountOperationType.UPDATE, operationType, entityType, system,
-				finalAttributes);
-		
-
-		if (systemEntity == null) {
-			systemEntity = new SysSystemEntity();
-			systemEntity.setEntityType(SystemEntityType.IDENTITY);
-			systemEntity.setSystem(system);
-		}
-		account.setSystemEntity(systemEntity);
-		systemEntity.setUid(uidFromOperation);
-		systemEntityService.save(systemEntity);
-		accountService.save(account);
-
-	}
-
-	
+		doOperation(account.getRealUid(), identity, AccountOperationType.UPDATE, operationType, entityType, system, finalAttributes);		
+	}	
 	
 	@Override
 	public void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute,
@@ -274,7 +273,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		accounts.forEach(account -> {
 			// find uid from system entity or from account
 			String uid = account.getUid();
-			String systemUid = getRealUid(account);
+			String systemUid = account.getRealUid();
 			SysSystem system = account.getSystem();
 			SystemOperationType operationType = SystemOperationType.PROVISIONING;
 			SystemEntityType entityType = SystemEntityType.IDENTITY;
@@ -567,16 +566,16 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * Do provisioning/synchronisation/reconciliation on given system for given
 	 * entity
 	 * 
-	 * @param uid
+	 * @param systemEntityUid
 	 * @param entity
 	 * @param provisioningType
 	 * @param entityType
 	 * @param system
 	 */
-	public String doOperation(String uid, AbstractEntity entity, AccountOperationType operationType,
+	public void doOperation(String systemEntityUid, AbstractEntity entity, AccountOperationType operationType,
 			SystemOperationType provisioningType, SystemEntityType entityType, SysSystem system,
 			List<? extends MappingAttribute> attributes) {
-		Assert.notNull(uid);
+		Assert.notNull(systemEntityUid);
 		Assert.notNull(provisioningType);
 		Assert.notNull(system);
 		Assert.notNull(entityType);
@@ -586,7 +585,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			attributes = findAttributesHandling(provisioningType, entityType, system);
 		}
 		if (attributes == null || attributes.isEmpty()) {
-			return uid;
+			return;
 		}
 
 		// Find connector identification persisted in system
@@ -602,7 +601,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
 		}
-		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
+		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
 
 		Map<String, IcConnectorObject> objectByClassMap = new HashMap<>();
 
@@ -618,14 +617,12 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 
 		if (SystemOperationType.PROVISIONING == provisioningType) {
 			// Provisioning
-			return doProvisioning(uid, entity, operationType, attributes, connectorKey, connectorConfig,
+			doProvisioning(systemEntityUid, entity, entityType, operationType, attributes, system, connectorConfig,
 					objectByClassMap);
 
 		} else {
 			// TODO Synchronisation or reconciliation
 		}
-		return uid;
-
 	}
 
 	/**
@@ -653,7 +650,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	/**
 	 * Do provisioning for given entity
 	 * 
-	 * @param uid
+	 * @param systemEntityUid
 	 * @param entity
 	 * @param attributes
 	 * @param connectorKey
@@ -661,15 +658,13 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param uidAttribute
 	 * @param objectByClassMap
 	 */
-	private String doProvisioning(String uid, AbstractEntity entity, AccountOperationType operationType,
-			List<? extends MappingAttribute> attributes, IcConnectorKey connectorKey,
+	private void doProvisioning(String systemEntityUid, AbstractEntity entity, SystemEntityType entityType, AccountOperationType operationType,
+			List<? extends MappingAttribute> attributes, SysSystem system,
 			IcConnectorConfiguration connectorConfig, Map<String, IcConnectorObject> objectByClassMap) {
 
 		Map<String, IcConnectorObject> objectByClassMapForUpdate = new HashMap<>();
 		Map<String, IcConnectorObject> objectByClassMapForCreate = new HashMap<>();
 		Map<String, IcConnectorObject> objectByClassMapForDelete = new HashMap<>();
-
-		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
 
 		// One IDM account can be mapped to more then one connector object (on
 		// more connector class).
@@ -686,7 +681,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				 */
 				IcConnectorObject connectorObjectForCreate = initConnectorObject(objectByClassMapForCreate,
 						objectClassName);
-				createAttribute(uid, entity, connectorObjectForCreate, attributeHandling, schemaAttribute);
+				createAttribute(systemEntityUid, entity, connectorObjectForCreate, attributeHandling, schemaAttribute);
 
 			} else if (AccountOperationType.UPDATE == operationType && connectorObject != null) {
 				/**
@@ -699,7 +694,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 					} else {
 						// Update attribute on resource by given handling
 						// attribute and mapped value in entity
-						updateAttribute(uid, entity, objectByClassMapForUpdate, attributeHandling, schemaAttribute,
+						updateAttribute(systemEntityUid, entity, objectByClassMapForUpdate, attributeHandling, schemaAttribute,
 								objectClassName, connectorObject);
 					}
 				}
@@ -712,51 +707,41 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 				}
 			}
 		}
-		final List<String> uids = new ArrayList<>();
+		//
 		// call create on IC module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - create object with uid {} and connector object {}", uid,
-					connectorObject.getObjectClass().getType());
-			IcUidAttribute icUid = connectorFacade.createObject(connectorKey, connectorConfig,
-					connectorObject.getObjectClass(), connectorObject.getAttributes());
-			if (icUid != null && icUid.getUidValue() != null) {
-				uids.add(icUid.getUidValue());
-			}
+			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
+			provisioningOperation.setOperationType(ProvisioningOperationType.CREATE);
+			provisioningOperation.setConnectorObject(connectorObject);
+			provisioningOperation.setSystem(system);
+			provisioningOperation.setSystemEntityUid(systemEntityUid);
+			provisioningOperation.setEntityType(entityType);
+			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
+			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
 		});
 
 		// call update on IC module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - update object with uid {} and connector object {}", uid,
-					connectorObject.getObjectClass().getType());
-			IcUidAttribute icUid = connectorFacade.updateObject(connectorKey, connectorConfig,
-					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());
-			if (icUid != null && icUid.getUidValue() != null) {
-				uids.add(icUid.getUidValue());
-			}
+			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
+			provisioningOperation.setOperationType(ProvisioningOperationType.UPDATE);
+			provisioningOperation.setConnectorObject(connectorObject);
+			provisioningOperation.setSystem(system);
+			provisioningOperation.setSystemEntityUid(systemEntityUid);
+			provisioningOperation.setEntityType(entityType);
+			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
+			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
 		});
 		// call delete on IC module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
-			LOG.debug("Provisioning - delete object with uid {} and connector object {}", uid,
-					connectorObject.getObjectClass().getType());
-			connectorFacade.deleteObject(connectorKey, connectorConfig, connectorObject.getObjectClass(), uidAttribute);
+			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
+			provisioningOperation.setOperationType(ProvisioningOperationType.DELETE);
+			provisioningOperation.setConnectorObject(connectorObject);
+			provisioningOperation.setSystem(system);
+			provisioningOperation.setSystemEntityUid(systemEntityUid);
+			provisioningOperation.setEntityType(entityType);
+			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
+			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
 		});
-
-		// We have to validate returned uids form connector.
-		// Different uids are inconsistent state, we will throw exception
-		if (uids.isEmpty()) {
-			return uid;
-		}
-		final String firstUidConnector = uids.get(0);
-		boolean foundDiffUid = uids.stream().filter(uidConnector -> {
-			return !uidConnector.equals(firstUidConnector);
-		}).findFirst().isPresent();
-		if (foundDiffUid) {
-			throw new ProvisioningException(AccResultCode.PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR,
-					ImmutableMap.of("uid", uid, "connectorUids", uids));
-		}
-
-		return firstUidConnector;
-
 	}
 
 	/**
@@ -1044,22 +1029,5 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 		PropertyDescriptor propertyDescriptor = propertyDescriptionOptional.get();
 
 		return propertyDescriptor.getReadMethod().invoke(entity);
-	}
-	
-	/**
-	 * Return real uid from system entity.
-	 * If system entity do not exist, then return uid from account.
-	 * @param account
-	 * @return
-	 */
-	private String getRealUid(AccAccount account){
-		Assert.notNull(account);
-		String uid = account.getUid();
-
-		SysSystemEntity systemEntity = account.getSystemEntity();
-		if (systemEntity != null && account.getUid() != null) {
-			uid = systemEntity.getUid();
-		}
-		return uid;
 	}
 }

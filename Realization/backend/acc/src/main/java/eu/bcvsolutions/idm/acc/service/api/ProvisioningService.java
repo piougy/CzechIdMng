@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  * @author svandav
  *
  */
-public interface SysProvisioningService {
+public interface ProvisioningService {
 
 	/**
 	 * Do provisioning for given identity on all connected systems
@@ -62,7 +62,8 @@ public interface SysProvisioningService {
 	
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
-	 * @param uid
+	 * 
+	 * @param systemEntityUid
 	 * @param mappedAttribute
 	 * @param value
 	 * @param system
@@ -70,12 +71,13 @@ public interface SysProvisioningService {
 	 * @param entityType
 	 * @param entity
 	 */
-	void doProvisioningForAttribute(String uid, MappingAttribute mappedAttribute, Object value, SysSystem system,
+	void doProvisioningForAttribute(String systemEntityUid, MappingAttribute mappedAttribute, Object value, SysSystem system,
 			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity);
 	
 	
 	/**
 	 * Do authenticate check for given identityAccount on target resource. Username for check is get from account (attribute UID) linked in identityAccount.
+	 * 
 	 * @param identityAccount
 	 * @param system
 	 * @return

@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import moment from 'moment';
 //
 import { AuditManager, DataManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
@@ -64,10 +63,6 @@ class AuditDetail extends Basic.AbstractContent {
     }
   }
 
-  _transformLabelForCheckBox(item) {
-    return item.id + ' (' + moment(item.revisionDate).format('d. M. Y  H:mm:ss') + ')';
-  }
-
   _getSelectBoxWithRevision() {
     const { auditDetailFirst } = this.props;
 
@@ -79,7 +74,6 @@ class AuditDetail extends Basic.AbstractContent {
         componentSpan=""
         onChange={this.changeSecondRevision.bind(this)}
         forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)}
-        niceLabelTransform={this._transformLabelForCheckBox}
         manager={auditManager}/>
     );
   }

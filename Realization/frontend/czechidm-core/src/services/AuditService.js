@@ -2,6 +2,7 @@ import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 import RestApiService from './RestApiService';
 import * as Utils from '../utils';
+import moment from 'moment';
 
 class AuditService extends AbstractService {
 
@@ -14,7 +15,8 @@ class AuditService extends AbstractService {
   }
 
   /**
-   * Get nice labal for audit entity. Audit entity hasn't name. Nicelabel is type of audited entity.
+   * Get nice labal for audit entity. Audit entity hasn't name.
+   * Nicelabel is id and revision date of entity.
    *
    * @param {[type]} entity [description]
    */
@@ -22,7 +24,7 @@ class AuditService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.type}`;
+    return entity.id + ' (' + moment(entity.revisionDate).format('d. M. Y  H:mm:ss') + ')';
   }
 
   /**

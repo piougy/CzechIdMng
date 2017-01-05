@@ -275,6 +275,12 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
+    "RuleCategoryEnum": {
+      "DEFAULT": "Standardní",
+      "TRANSFORM_FROM": "Transformace z",
+      "TRANSFORM_TO": "Transformace do",
+      "SYSTEM": "Systemové"
+    },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",
       "WAIT_ASSIGN": "Nepřiřazena (čeká na přiřazení)",
@@ -365,7 +371,8 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "TREENODE": "Prvky struktur",
-      "TREETYPE": "Typy struktur"
+      "TREETYPE": "Typy struktur",
+      "RULE": "Pravidla"
     }
   },
   "content": {
@@ -761,6 +768,21 @@
       "parentPick": "Vyberte složku",
       "reloadTree": "Obnov strom katalogu rolí",
       "addRoleCatalogue": "Přidat novou složku"
+    },
+    "rules": {
+      "header": "Definice pravidel",
+      "title": "Definice pravidel",
+      "edit": {
+        "title": "Detail pravidla",
+        "header": "{{name}} detail pravidla"
+      },
+      "create": {
+        "title": "Nové pravidlo",
+        "header": "Nové pravidlo"
+      },
+      "save": {
+        "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+      }
     },
     "roles": {
       "header": "Role",
@@ -1325,6 +1347,15 @@
         "parentPlaceHolder": "Nadřezená složka"
       }
 
+    },
+    "Rule": {
+      "name": "Název pravidla",
+      "category": "Kategorie",
+      "script": {
+        "help": "Tělo pravidla, skript v jazyce Groovy.",
+        "label": "Pravidlo"
+       },
+      "description": "Popis pravidla"
     },
     "Role": {
       "_type": "Role",

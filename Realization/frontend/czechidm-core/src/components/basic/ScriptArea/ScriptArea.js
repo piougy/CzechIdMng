@@ -36,7 +36,7 @@ class ScriptArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, helpBlock } = this.props;
+    const { labelSpan, label, componentSpan, required, mode, helpBlock, height } = this.props;
     //
     const className = classNames('form-control');
     const labelClassName = classNames(labelSpan, 'control-label');
@@ -69,7 +69,7 @@ class ScriptArea extends AbstractFormComponent {
                 ref="input"
                 mode={mode}
                 width={null}
-                height="10em"
+                height={height}
                 className={className}
                 title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
                 readOnly={this.state.readOnly}
@@ -108,11 +108,13 @@ ScriptArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   helpBlock: PropTypes.string,
   mode: PropTypes.string,
+  height: PropTypes.string
 };
 
 ScriptArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   mode: 'groovy',
+  height: '10em'
 };
 
 export default ScriptArea;

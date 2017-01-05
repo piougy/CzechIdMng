@@ -228,6 +228,7 @@ export default class SearchParameters {
     this.sorts.forEach((ascending, property) => {
       url += `&sort=${property},` + (ascending ? 'asc' : 'desc');
     });
+    console.log(222, url);
     // filterable
     this.filters.forEach((filter, property) => {
       if (filter !== null && filter !== undefined) {

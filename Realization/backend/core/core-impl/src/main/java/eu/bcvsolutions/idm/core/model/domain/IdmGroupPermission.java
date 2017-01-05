@@ -22,6 +22,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	TREETYPE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	RULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
 	
@@ -48,6 +49,10 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ROLE_READ = "ROLE" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_WRITE = "ROLE" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_DELETE = "ROLE" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String RULE_READ = "RULE" + BasePermission.SEPARATOR + "READ";
+	public static final String RULE_WRITE = "RULE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String RULE_DELETE = "RULE" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
 	//

@@ -9,6 +9,7 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | --- | :--- | :--- | :--- |
 | helpBlock  | string   | Long description show under this component|  |
 | mode  | string   | Type of script. Supported are only 'javascript' and 'groovy'  | 'groovy' |
+| height  | string   | Height of editor  | '10em' |
 
 ## Usage
 

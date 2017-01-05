@@ -198,6 +198,16 @@ module.exports = {
       component: require('./src/content/workflow/HistoricProcessInstanceDetail')
     },
     {
+      path: 'rules',
+      component: require('./src/content/rule/Rules'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+    },
+    {
+      path: 'rules/:entityId',
+      component: require('./src/content/rule/RuleContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+    },
+    {
       path: 'audit/',
       component: 'div',
       childRoutes: [

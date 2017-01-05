@@ -12,7 +12,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -98,15 +97,5 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 		List<IdmRoleCatalogue> listOfChildren = this.roleCatalogueService.findChildrenByParent(parent.getId());
 		
 		return toResources((Iterable<?>) listOfChildren, assembler, IdmRoleCatalogue.class, null);
-	}
-	
-	@Override
-	protected RoleCatalogueFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleCatalogueFilter filter = new RoleCatalogueFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setParent(getParameterConverter().toEntity(parameters, "parent", IdmRoleCatalogue.class));
-		return filter;
-	}
-	
-	
+	}	
 }

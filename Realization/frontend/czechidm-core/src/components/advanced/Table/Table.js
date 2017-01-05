@@ -384,7 +384,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               { this.i18n('error.load') }
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Basic.Button onClick={this.reload.bind(this)}>
+              <Basic.Button onClick={this.reload.bind(this, this.props)}>
                 <Basic.Icon value="fa:refresh"/>
                 {' '}
                 { this.i18n('button.refresh') }

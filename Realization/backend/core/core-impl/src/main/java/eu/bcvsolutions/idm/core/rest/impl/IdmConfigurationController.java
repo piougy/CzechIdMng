@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.MultiValueMap;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,8 +32,13 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	private final IdmConfigurationService configurationService;
 	
 	@Autowired
-	public IdmConfigurationController(EntityLookupService entityLookupService, IdmConfigurationService configurationService) {
+	public IdmConfigurationController(
+			EntityLookupService entityLookupService, 
+			IdmConfigurationService configurationService) {
 		super(entityLookupService);
+		//
+		Assert.notNull(configurationService);
+		//
 		this.configurationService = configurationService;
 	}
 	
@@ -44,7 +49,7 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 */
 	@ResponseBody
 	@PostFilter("filterObject.name.startsWith('idm.pub.') or hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	@RequestMapping(path = "/file", method = RequestMethod.GET)
+	@RequestMapping(path = "/all/file", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromFiles() {
 		// TODO: resource wrapper + assembler
 		return configurationService.getAllConfigurationsFromFiles();
@@ -57,16 +62,9 @@ public class IdmConfigurationController extends DefaultReadWriteEntityController
 	 */
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')")
-	@RequestMapping(path = "/environment", method = RequestMethod.GET)
+	@RequestMapping(path = "/all/environment", method = RequestMethod.GET)
 	public List<ConfigurationDto> getAllConfigurationsFromEnvironment() {
-		// TODO: resource wrapper + assembler
+		// TODO: resource wrapper + assembler + hateoas links
 		return configurationService.getAllConfigurationsFromEnvironment();
-	}
-	
-	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
-		return filter;
 	}
 }

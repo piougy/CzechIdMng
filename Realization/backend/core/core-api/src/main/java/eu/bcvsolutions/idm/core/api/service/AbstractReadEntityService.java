@@ -28,11 +28,15 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 public abstract class AbstractReadEntityService<E extends BaseEntity, F extends BaseFilter> implements ReadEntityService<E, F> {
 	
 	private final Class<E> entityClass;
+	private final Class<F> filterClass;
+	
 	private final AbstractEntityRepository<E, F> repository;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityService(AbstractEntityRepository<E, F> repository) {
-		entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityService.class);
+		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), ReadEntityService.class);
+		entityClass = (Class<E>)genericTypes[0];
+		filterClass = (Class<F>)genericTypes[1];
 		//
 		Assert.notNull(repository, MessageFormat.format("Repository for class [{0}] is required!", entityClass));
 		//
@@ -57,6 +61,16 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	public Class<E> getEntityClass() {
 		return entityClass;
 	}
+	
+	/**
+	 * Returns {@link BaseFilter} type class, which is controlled by this service
+	 * 
+	 * @return
+	 */
+	@Override
+	public Class<F> getFilterClass() {
+		return filterClass;
+	}	
 
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.

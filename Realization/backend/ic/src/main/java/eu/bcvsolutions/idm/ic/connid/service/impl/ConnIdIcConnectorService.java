@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.identityconnectors.framework.api.APIConfiguration;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
@@ -14,6 +13,9 @@ import org.identityconnectors.framework.common.exceptions.InvalidCredentialExcep
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
+import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
@@ -173,11 +177,48 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 	}
+	
+	@Override
+	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration){
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		log.debug("Validate connector - ConnId ({})", key.toString());
+		// Validation is in getConnectorFacade method
+		getConnectorFacade(key, connectorConfiguration);
+				
+	}
 
-	public void synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
-			IcObjectClass objectClass) {
+	@Override
+	public SyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		Assert.notNull(objectClass);
+		Assert.notNull(handler);
+		log.debug("Start synchronization for connector {} and objectClass {} - ConnId", key.toString(), objectClass.getDisplayName());
+		
+		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 
-		throw new NotImplementedException();
+		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
+		if (objectClassConnId == null) {
+			objectClassConnId = ObjectClass.ACCOUNT;
+		}
+		
+		SyncToken syncToken = ConnIdIcConvertUtil.convertIcSyncToken(token);
+		if(syncToken == null){
+			// If is given token null, then we load latest token from connector
+			syncToken = conn.getLatestSyncToken(objectClassConnId);
+		}
+		
+		SyncResultsHandler handlerConnId = new SyncResultsHandler() {
+			
+			@Override
+			public boolean handle(SyncDelta delta) {
+				return handler.handle(ConnIdIcConvertUtil.convertConnIdSyncDelta(delta));
+			}
+		};
+		
+		return conn.sync(objectClassConnId, syncToken, handlerConnId, null);
 
 	}
 

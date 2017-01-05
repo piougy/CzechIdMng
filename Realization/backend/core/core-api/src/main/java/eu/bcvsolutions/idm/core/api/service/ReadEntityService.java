@@ -21,6 +21,13 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> extends BaseEntityService<E> {
 
 	/**
+	 * Returns {@link BaseFilter} type class, which is controlled by this service
+	 * 
+	 * @return
+	 */
+	Class<F> getFilterClass();
+	
+	/**
 	 * Returns entity by given id. Returns null, if entity is not exists.
 	 * 
 	 * @param id

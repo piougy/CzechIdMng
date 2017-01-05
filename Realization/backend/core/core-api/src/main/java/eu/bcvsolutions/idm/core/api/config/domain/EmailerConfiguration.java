@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.config.domain;
 
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+
 /**
  * Configuration for {@link eu.bcvsolutions.idm.notification.service.api.Emailer}.
  * 
@@ -59,7 +61,7 @@ public interface EmailerConfiguration {
 	 * 
 	 * @return
 	 */
-	String getPassword();
+	GuardedString getPassword();
 	
 	/**
 	 * Test mode

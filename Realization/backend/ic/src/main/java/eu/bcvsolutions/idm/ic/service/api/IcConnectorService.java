@@ -2,11 +2,15 @@ package eu.bcvsolutions.idm.ic.service.api;
 
 import java.util.List;
 
+import org.identityconnectors.framework.common.objects.SyncToken;
+
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
+import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
@@ -74,6 +78,25 @@ public interface IcConnectorService {
 	 */
 	IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password);
+
+	/**
+	 * Check if is connector valid
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 */
+	void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+
+	/**
+	 * 
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 * @param objectClass - Type or category of connector object
+	 * @param token - Synchronization token
+	 * @param handler - Handler will be call for every synchronization item
+	 * @return token
+	 */
+	SyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
+			IcSyncToken token, IcSyncResultsHandler handler);
 
 
 }

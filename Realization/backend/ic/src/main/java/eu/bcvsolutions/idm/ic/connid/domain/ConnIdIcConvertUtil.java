@@ -20,6 +20,8 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Schema;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.impl.api.APIConfigurationImpl;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
@@ -39,6 +41,8 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcObjectPoolConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
+import eu.bcvsolutions.idm.ic.api.IcSyncDelta;
+import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeInfoImpl;
@@ -53,6 +57,9 @@ import eu.bcvsolutions.idm.ic.impl.IcObjectClassInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectPoolConfigurationImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSchemaImpl;
+import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaImpl;
+import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
+import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 
 /**
@@ -188,12 +195,10 @@ public class ConnIdIcConvertUtil {
 		if (icAttribute instanceof IcEnabledAttribute && ((IcEnabledAttribute) icAttribute).getEnabled() != null) {
 			return AttributeBuilder.buildEnabled(((IcEnabledAttribute) icAttribute).getEnabled());
 		}
-		if (icAttribute instanceof IcEnabledAttribute
-				&& ((IcEnabledAttribute) icAttribute).getEnabledDate() != null) {
+		if (icAttribute instanceof IcEnabledAttribute && ((IcEnabledAttribute) icAttribute).getEnabledDate() != null) {
 			return AttributeBuilder.buildEnableDate(((IcEnabledAttribute) icAttribute).getEnabledDate());
 		}
-		if (icAttribute instanceof IcEnabledAttribute
-				&& ((IcEnabledAttribute) icAttribute).getDisabledDate() != null) {
+		if (icAttribute instanceof IcEnabledAttribute && ((IcEnabledAttribute) icAttribute).getDisabledDate() != null) {
 			return AttributeBuilder.buildDisableDate(((IcEnabledAttribute) icAttribute).getDisabledDate());
 		}
 		if (icAttribute instanceof IcPasswordAttribute) {
@@ -372,4 +377,34 @@ public class ConnIdIcConvertUtil {
 		return icAttribute;
 	}
 
+	public static IcSyncDelta convertConnIdSyncDelta(SyncDelta delta) {
+		if (delta == null) {
+			return null;
+		}
+		IcSyncToken token = ConnIdIcConvertUtil.convertConnIdSyncToken(delta.getToken());
+		IcSyncDeltaTypeEnum deltaType = IcSyncDeltaTypeEnum.valueOf(delta.getDeltaType().name());
+		IcUidAttribute previousUid = ConnIdIcConvertUtil.convertConnIdUid(delta.getPreviousUid());
+		IcObjectClass objectClass = ConnIdIcConvertUtil.convertConnIdObjectClass(delta.getObjectClass());
+		IcUidAttribute uid = ConnIdIcConvertUtil.convertConnIdUid(delta.getUid());
+		IcConnectorObject object = ConnIdIcConvertUtil.convertConnIdConnectorObject(delta.getObject());
+
+		return new IcSyncDeltaImpl(token, deltaType, previousUid, objectClass, uid, object);
+
+	}
+
+	public static IcSyncToken convertConnIdSyncToken(SyncToken token) {
+		if (token == null) {
+			return null;
+		}
+
+		return new IcSyncTokenImpl(token.getValue());
+	}
+
+	public static SyncToken convertIcSyncToken(IcSyncToken token) {
+		if (token == null) {
+			return null;
+		}
+
+		return new SyncToken(token.getValue());
+	}
 }

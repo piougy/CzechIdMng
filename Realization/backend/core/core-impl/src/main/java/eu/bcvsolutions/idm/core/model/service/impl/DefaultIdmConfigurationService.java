@@ -167,6 +167,19 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 		LOG.debug("Resolved configuration value for key [{}] and default [{}] is [{}].", key, defaultValue, value);
 		return value;
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public GuardedString getGuardedValue(String key) {
+		return getGuardedValue(key, null);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public GuardedString getGuardedValue(String key, String defaultValue) {
+		String value = getValue(key, defaultValue);
+		return value == null ? null : new GuardedString(value);
+	}
 
 	@Override
 	@Transactional(readOnly = true)

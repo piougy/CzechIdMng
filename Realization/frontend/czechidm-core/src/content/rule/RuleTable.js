@@ -4,6 +4,7 @@ import uuid from 'uuid';
 //
 import { SecurityManager } from '../../redux';
 import RuleCategoryEnum from '../../enums/RuleCategoryEnum';
+import AbstractEnum from '../../enums/AbstractEnum';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 /**
@@ -41,7 +42,8 @@ export class RuleTable extends Basic.AbstractContent {
       event.preventDefault();
     }
     const data = {
-      ... this.refs.filterForm.getData(),
+      name: this.refs.filterForm.getData().name,
+      category: AbstractEnum.findKeyBySymbol(RuleCategoryEnum, this.refs.filterForm.getData().category)
     };
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
@@ -115,7 +117,7 @@ export class RuleTable extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="text"
+                        ref="name"
                         placeholder={this.i18n('entity.Rule.name')}
                         label={this.i18n('entity.Rule.name')}/>
                     </div>

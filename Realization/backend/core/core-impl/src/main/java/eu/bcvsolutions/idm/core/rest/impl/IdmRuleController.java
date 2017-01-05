@@ -9,6 +9,7 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
 import eu.bcvsolutions.idm.core.model.dto.filter.RuleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRule;
 
@@ -64,5 +66,14 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
+	}
+	
+	@Override
+	protected RuleFilter toFilter(MultiValueMap<String, Object> parameters) {
+		RuleFilter filter = new RuleFilter();
+		filter.setText(getParameterConverter().toString(parameters, "name"));
+		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmRuleCategory.class));
+		filter.setDescription(getParameterConverter().toString(parameters, "description"));
+		return filter;
 	}
 }

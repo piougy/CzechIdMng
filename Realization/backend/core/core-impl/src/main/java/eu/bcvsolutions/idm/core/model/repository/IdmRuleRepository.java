@@ -45,7 +45,7 @@ public interface IdmRuleRepository extends AbstractEntityRepository<IdmRule, Rul
 	        + "AND "
 	        + " ("
 	        	+ " ?#{[0].category} is null"
-	        	+ " or lower(e.category) like ?#{[0].category == null ? '%' : '%'.concat([0].category.toLowerCase()).concat('%')}"
+	        	+ " or e.category = ?#{[0].category}" 
 	        + " )")
 	Page<IdmRule> find(RuleFilter filter, Pageable pageable);
 }

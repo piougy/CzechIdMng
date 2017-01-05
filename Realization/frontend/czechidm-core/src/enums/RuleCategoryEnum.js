@@ -12,12 +12,10 @@ export default class RuleCategoryEnum extends AbstractEnum {
   }
 
   static findKeyBySymbol(sym) {
-    console.log(11, sym);
     return super.findKeyBySymbol(this, sym);
   }
 
   static findSymbolByKey(key) {
-    console.log(key);
     return super.findSymbolByKey(this, key);
   }
 

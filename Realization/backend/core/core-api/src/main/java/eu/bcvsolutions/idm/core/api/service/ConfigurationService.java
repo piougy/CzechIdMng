@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Provides configuration through application
@@ -114,4 +115,21 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	List<ConfigurationDto> getAllConfigurationsFromEnvironment();
+	
+	/**
+	 * Returns configured value as {@code GuardedString} for given key.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	GuardedString getGuardedValue(String key);
+	
+	/**
+	 * Returns configured value as {@code GuardedString} for given key. If no value for given key is configured, then returns given defaultValue as {@code GuardedString}.
+	 * 
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
+	GuardedString getGuardedValue(String key, String defaultValue);
 }

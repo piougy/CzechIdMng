@@ -79,7 +79,7 @@ export default class LocalizationService {
         ns: this._getModuleIdsWithLocales(configLoader),
         defaultNS: 'core',
 
-        debug: true,
+        debug: false,
 
         interpolation: {
           escapeValue: false // not needed for react!!

@@ -7,9 +7,11 @@ import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -24,11 +26,30 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 public class ParameterConverter {
 
 	private final EntityLookupService entityLookupService;
+	private final ObjectMapper mapper;
 	
-	public ParameterConverter(EntityLookupService entityLookupService) {
+	public ParameterConverter(
+			EntityLookupService entityLookupService,
+			ObjectMapper mapper) {
 		Assert.notNull(entityLookupService);
+		Assert.notNull(mapper);
 		//
 		this.entityLookupService = entityLookupService;
+		this.mapper = mapper;
+	}
+	
+	/**
+	 * Converts http get parameters to filter
+	 * 
+	 * @param parameters
+	 * @param filterClass
+	 * @return
+	 */
+	public <F extends BaseFilter> F toFilter(MultiValueMap<String, Object> parameters, Class<F> filterClass) {
+		if (mapper == null || parameters.isEmpty()) {
+			return null;
+		}
+		return mapper.convertValue(parameters.toSingleValueMap(), filterClass);
 	}
 	
 	/**

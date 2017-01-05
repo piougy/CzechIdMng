@@ -21,8 +21,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 /**
  * Application configuration
  * 
- * TODO: move security to rest endpoint
- * 
  * @author Radek Tomiška 
  *
  */
@@ -70,7 +68,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	@Override
 	@Query(value = "select e from IdmConfiguration e" +
 	        " where " +
-	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')}) "
+	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "
 	        + "and "
 	        + "( "
 	        	+ "e.secured = :#{hasAuthority('" + IdmGroupPermission.CONFIGURATIONSECURED_READ + "')} "

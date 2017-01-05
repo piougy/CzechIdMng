@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -53,17 +55,20 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
 	protected final EntityLookupService entityLookupService;	
 	private final ReadEntityService<E, F> entityService;
-	private final ParameterConverter parameterConverter;
+	private ParameterConverter parameterConverter;
 	
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler; // TODO: autowired in api package - move higher
+	
+	@Autowired(required = false)
+	@Qualifier("objectMapper")
+	private ObjectMapper mapper;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractReadEntityController(EntityLookupService entityLookupService) {
 		Assert.notNull(entityLookupService);
 		//
 		this.entityLookupService = entityLookupService;
-		this.parameterConverter = new ParameterConverter(entityLookupService);
 		//
 		Class<E> entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), BaseEntityController.class);
 		this.entityService = (ReadEntityService<E, F>)entityLookupService.getEntityService(entityClass);
@@ -74,7 +79,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 		Assert.notNull(entityService);
 		//
 		this.entityLookupService = entityLookupService;
-		this.parameterConverter = new ParameterConverter(entityLookupService);
 		this.entityService = entityService;
 	}
 	
@@ -182,7 +186,6 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	public Page<E> findEntities(F filter, Pageable pageable) {
-		// TODO: read event
 		return getEntityService().find(filter, pageable);
 	}	
 	
@@ -250,11 +253,12 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	
 	/**
 	 * Transforms request parameters to {@link BaseFilter}.
+	 * 
 	 * @param parameters
 	 * @return
 	 */
 	protected F toFilter(MultiValueMap<String, Object> parameters) {
-		return null;
+		return getParameterConverter().toFilter(parameters, getEntityService().getFilterClass());
 	}
 	
 	/**
@@ -263,6 +267,9 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * @return
 	 */
 	protected ParameterConverter getParameterConverter() {
+		if (parameterConverter == null) {
+			parameterConverter = new ParameterConverter(entityLookupService, mapper);
+		}
 		return parameterConverter;
 	}
 }

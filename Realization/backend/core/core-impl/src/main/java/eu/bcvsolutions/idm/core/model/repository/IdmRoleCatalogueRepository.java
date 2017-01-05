@@ -35,10 +35,10 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
 	@Override
-	@Query(value = "select e from IdmRoleCatalogue e" +
+	@Query(value = "select e from IdmRoleCatalogue e left join e.parent p" +
 	        " where" +
 	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" + 
-	        " and (?#{[0].parent} is null or e.parent = ?#{[0].parent})")
+	        " and (?#{[0].parentId} is null or p.id = ?#{[0].parentId})")
 	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
 	
 	IdmRoleCatalogue findOneByName(@Param("name") String name);

@@ -98,7 +98,7 @@ public class DefaultEmailer implements Emailer {
 		// append principals
 		String username = configuration.getUsername();
 		if (StringUtils.isNotBlank(username)) {
-			endpoint.append(MessageFormat.format("?username={0}&password={1}", username, configuration.getPassword()));
+			endpoint.append(MessageFormat.format("?username={0}&password={1}", username, configuration.getPassword().asString()));
 		}		
 		return camelContext.getEndpoint(endpoint.toString());
 	}

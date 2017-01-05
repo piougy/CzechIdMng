@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Configuration for {@link eu.bcvsolutions.idm.notification.service.api.Emailer}.
@@ -56,8 +57,8 @@ public class DefaultEmailerConfiguration implements EmailerConfiguration {
 	}
 	
 	@Override
-	public String getPassword() {
-		return configurationService.getValue(PROPERTY_PASSWORD);
+	public GuardedString getPassword() {
+		return configurationService.getGuardedValue(PROPERTY_PASSWORD);
 	}
 	
 	@Override

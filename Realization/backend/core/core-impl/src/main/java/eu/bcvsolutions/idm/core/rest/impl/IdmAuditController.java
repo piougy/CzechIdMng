@@ -57,16 +57,4 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		ResourcesWrapper<String> resource = new ResourcesWrapper<>(entities);
 		return new ResponseEntity<ResourcesWrapper<String>>(resource, HttpStatus.OK);
 	}
-	
-	public AuditFilter toFilter(MultiValueMap<String, Object> parameters) {
-		AuditFilter filter = new AuditFilter();
-		filter.setModification(getParameterConverter().toString(parameters, "modification"));
-		filter.setModifier(getParameterConverter().toString(parameters, "modifier"));
-		filter.setText(getParameterConverter().toString(parameters, "attributes"));
-		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
-		filter.setEntityId(getParameterConverter().toUuid(parameters, "entityId"));
-		filter.setType(getParameterConverter().toString(parameters, "type"));
-		return filter;
-	}
 }

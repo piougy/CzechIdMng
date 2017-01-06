@@ -14,7 +14,7 @@
     "dashboard": {
     },
     "systems": {
-      "header": "Resources",
+      "header": "Napojené systémy",
       "title": "$t(acc:content.systems.header)"
     },
     "schema": {
@@ -97,6 +97,20 @@
         },
         "save": {
           "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
+        }
+      },
+      "systemSynchronizationConfigs": {
+        "header": "Synchronizace<small> konfigurace</small>",
+        "title": "Synchronizace",
+        "edit": {
+          "header": "Detail konfigurace synchronizace"
+        },
+        "create": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně vytvořena",
+          "header": "Nová konfigurace synchronizace"
+        },
+        "save": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
         }
       },
       "accounts": {
@@ -366,6 +380,23 @@
       "_type": "Účet identity na koncovém systému",
       "ownership": "Vlastní účet",
       "role": "Přiřazen dle role"
+    },
+    "SynchronizationConfig": {
+      "enabled": "Synchronizace je povolena",
+      "name": "Název",
+      "description": "Popis",
+      "runOnServer": "Spustit na serveru",
+      "reconciliation": "Reconciliace",
+      "customFilter": "Použít vlastní filtr",
+      "token": "Token",
+      "timestamp": "Časová značka",
+      "customFilterScript": "Vlastní filtr",
+      "correlationAttribute": "Korelační atribut",
+      "attributeMapping": "Sada mapovaných atributů",
+      "linkedAction": "Vazba existuje",
+      "unlinkedAction": "Vazba neexistuje",
+      "missingEntityAction": "Entita neexistuje",
+      "missingAccountAction": "Účet neexistuje"
     }
   },
   "enums" : {
@@ -381,6 +412,27 @@
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
+    },
+    "ReconciliationMissingAccountActionTypeEnum": {
+      "CREATE_ACCOUNT": "Vytvořit účet",
+      "DELETE_ENTITY": "Smazat entitu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationLinkedActionTypeEnum": {
+      "UPDATE_ENTITY": "Aktualizovat účet",
+      "UNLINK": "Odstranit vazbu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationMissingEntityActionTypeEnum": {
+      "CREATE_ENTITY": "Vytvořit entitu",
+      "DELETE_ACCOUNT": "Smazat účet",
+      "DISABLE_ACCOUNT": "Zneplatnit účet",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationUnlinkedActionTypeEnum": {
+      "LINK": "Vytvořit vazbu",
+      "LINK_AND_UPDATE_ENTITY": "Vytvořit vazbu a aktualizovat entitu",
+      "IGNORE": "Ignorovat"
     }
   },
   "permission": {

@@ -1,16 +1,22 @@
-package eu.bcvsolutions.idm.security.dto;
+package eu.bcvsolutions.idm.security.api.dto;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * JWT token autentocation dto
+ * 
+ * @author svandav
+ *
+ */
 public class IdmJwtAuthenticationDto {
 
 	private String currentUsername;
 	private UUID currentIdentityId;
 	private String originalUsername;
 	private UUID originaIdentityId;
-	private Date expiration;
+	private Date expiration; // TODO: datetime
 	private Collection<DefaultGrantedAuthorityDto> authorities;
 
 	public IdmJwtAuthenticationDto() {
@@ -64,4 +70,10 @@ public class IdmJwtAuthenticationDto {
 		this.originaIdentityId = originaIdentityId;
 	}
 	
+	public boolean isExpired() {
+		if (expiration == null) {
+			return false;
+		}
+		return expiration.before(new Date());
+	}
 }

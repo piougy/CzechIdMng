@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.dto;
+package eu.bcvsolutions.idm.security.api.dto;
 
 public class DefaultGrantedAuthorityDto {
 	

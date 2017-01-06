@@ -123,7 +123,7 @@ public class ModuleController {
 		}
 		ModuleDescriptorDto md = (ModuleDescriptorDto)requestResourceResolver.resolve(nativeRequest, ModuleDescriptorDto.class, toResource(updatedModuleDescriptor));
 		
-		moduleService.setEnabled(moduleId, !md.isDisabled());		
+		moduleService.setEnabled(moduleId, !md.isDisabled());	
 		return get(moduleId);	
 	}
 	

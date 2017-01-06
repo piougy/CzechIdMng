@@ -38,6 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()
 			.antMatchers(BaseEntityController.BASE_PATH + "/public/**").permitAll()
+			.antMatchers(BaseEntityController.BASE_PATH + "/websocket-info/**").permitAll() // websockets has their own security configuration
 			.antMatchers(BaseEntityController.BASE_PATH + "/**").fullyAuthenticated() // TODO: controllers should choose security?
 			.anyRequest().permitAll(); // gui could run in application context
     }

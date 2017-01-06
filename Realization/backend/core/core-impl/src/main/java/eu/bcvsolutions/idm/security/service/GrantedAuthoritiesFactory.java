@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
-
 /**
  * Granted authorities for users
  * 
@@ -21,8 +18,4 @@ public interface GrantedAuthoritiesFactory {
 	 * @return
 	 */
 	List<GrantedAuthority> getGrantedAuthorities(String username);
-
-	IdmJwtAuthentication getIdmJwtAuthentication(IdmJwtAuthenticationDto dto);
-
-	IdmJwtAuthenticationDto getIdmJwtAuthenticationDto(IdmJwtAuthentication authentication);
 }

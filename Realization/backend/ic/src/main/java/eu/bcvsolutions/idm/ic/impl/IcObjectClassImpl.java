@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  */
 public class IcObjectClassImpl implements IcObjectClass {
 	
+	private static final long serialVersionUID = 3167353857125655289L;
 	private String type;
 	private String displayName;
 	

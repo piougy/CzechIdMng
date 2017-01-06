@@ -51,7 +51,7 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
-	@Column(name = "connector_object")
+	@Column(name = "connector_object", length = Integer.MAX_VALUE)
 	private IcConnectorObject connectorObject; // attributes 
 	
 	@NotNull
@@ -59,13 +59,17 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@Column(name = "entity_type", nullable = false)
 	private SystemEntityType entityType;
 	
-	@NotNull
-	@Column(name = "entity_identifier", nullable = false)
+	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
 	
 	@Column(name = "system_entity_uid")
 	private String systemEntityUid; // account uid, etc.
 
+	/**
+	 * Provisioning operation type
+	 * 
+	 * @return
+	 */
 	public ProvisioningOperationType getOperationType() {
 		return operationType;
 	}
@@ -74,6 +78,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.operationType = operationType;
 	}
 
+	/**
+	 * Target system
+	 * 
+	 * @return
+	 */
 	public SysSystem getSystem() {
 		return system;
 	}
@@ -82,6 +91,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.system = system;
 	}
 
+	/**
+	 * Provisioning context - object type + attributes
+	 * 
+	 * @return
+	 */
 	public IcConnectorObject getConnectorObject() {
 		return connectorObject;
 	}
@@ -90,6 +104,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.connectorObject = connectorObject;
 	}
 
+	/**
+	 * IdM entity type
+	 * 
+	 * @return
+	 */
 	public SystemEntityType getEntityType() {
 		return entityType;
 	}
@@ -98,6 +117,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 		this.entityType = entityType;
 	}
 
+	/**
+	 * IdM entity type identifier
+	 * 
+	 * @return
+	 */
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
 	}
@@ -105,12 +129,17 @@ public class SysProvisioningOperation extends AbstractEntity {
 	public void setEntityIdentifier(UUID entityIdentifier) {
 		this.entityIdentifier = entityIdentifier;
 	}
+	
+	/**
+	 * Target system entity identifier
+	 * 
+	 * @return
+	 */
+	public String getSystemEntityUid() {
+		return systemEntityUid;
+	}
 
 	public void setSystemEntityUid(String systemEntityUid) {
 		this.systemEntityUid = systemEntityUid;
-	}
-	
-	public String getSystemEntityUid() {
-		return systemEntityUid;
 	}
 }

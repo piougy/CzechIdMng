@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationBuilder;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -34,7 +35,6 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -46,6 +46,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
@@ -54,9 +55,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -102,7 +101,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 	private final SysRoleSystemAttributeService roleSystemAttributeService;
 	private final SysSystemEntityService systemEntityService;
 	private final AccAccountService accountService;
-	private final EntityEventManager entityEventManager;
+	private final ProvisioningExecutor provisioningExecutor;
 
 	@Autowired
 	public DefaultProvisioningService(SysSystemEntityHandlingService entityHandlingService,
@@ -111,7 +110,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccIdentityAccountService identityAccountService,
-			EntityEventManager entityEventManager) {
+			ProvisioningExecutor provisioningExecutor) {
 
 		Assert.notNull(entityHandlingService);
 		Assert.notNull(attributeHandlingService);
@@ -125,7 +124,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(systemEntityService);
 		Assert.notNull(accountService);
 		Assert.notNull(identityAccountService);
-		Assert.notNull(entityEventManager);
+		Assert.notNull(provisioningExecutor);
 		//
 		this.entityHandlingService = entityHandlingService;
 		this.attributeHandlingService = attributeHandlingService;
@@ -139,7 +138,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		this.systemEntityService = systemEntityService;
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
-		this.entityEventManager = entityEventManager;
+		this.provisioningExecutor = provisioningExecutor;
 	}
 
 	@Override
@@ -707,40 +706,31 @@ public class DefaultProvisioningService implements ProvisioningService {
 				}
 			}
 		}
+		
+		ProvisioningOperationBuilder operationBuilder = new ProvisioningOperationBuilder();
+		operationBuilder.setSystem(system);
+		operationBuilder.setSystemEntityUid(systemEntityUid);
+		operationBuilder.setEntityType(entityType);
+		operationBuilder.setEntityIdentifier(entity == null ? null : entity.getId());
 		//
 		// call create on IC module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
-			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
-			provisioningOperation.setOperationType(ProvisioningOperationType.CREATE);
-			provisioningOperation.setConnectorObject(connectorObject);
-			provisioningOperation.setSystem(system);
-			provisioningOperation.setSystemEntityUid(systemEntityUid);
-			provisioningOperation.setEntityType(entityType);
-			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
-			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
+			operationBuilder.setOperationType(ProvisioningOperationType.CREATE);
+			operationBuilder.setConnectorObject(connectorObject);						
+			provisioningExecutor.executeOperation(operationBuilder.build());
 		});
 
 		// call update on IC module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
-			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
-			provisioningOperation.setOperationType(ProvisioningOperationType.UPDATE);
-			provisioningOperation.setConnectorObject(connectorObject);
-			provisioningOperation.setSystem(system);
-			provisioningOperation.setSystemEntityUid(systemEntityUid);
-			provisioningOperation.setEntityType(entityType);
-			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
-			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
+			operationBuilder.setOperationType(ProvisioningOperationType.UPDATE);
+			operationBuilder.setConnectorObject(connectorObject);		
+			provisioningExecutor.executeOperation(operationBuilder.build());
 		});
 		// call delete on IC module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
-			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
-			provisioningOperation.setOperationType(ProvisioningOperationType.DELETE);
-			provisioningOperation.setConnectorObject(connectorObject);
-			provisioningOperation.setSystem(system);
-			provisioningOperation.setSystemEntityUid(systemEntityUid);
-			provisioningOperation.setEntityType(entityType);
-			provisioningOperation.setEntityIdentifier(entity == null ? null : entity.getId());			
-			entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation));
+			operationBuilder.setOperationType(ProvisioningOperationType.DELETE);
+			operationBuilder.setConnectorObject(connectorObject);	
+			provisioningExecutor.executeOperation(operationBuilder.build());
 		});
 	}
 

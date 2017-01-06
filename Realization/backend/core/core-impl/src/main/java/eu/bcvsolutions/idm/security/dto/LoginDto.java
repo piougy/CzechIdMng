@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.security.api.dto.IdmJwtAuthenticationDto;
 
 public class LoginDto {
 

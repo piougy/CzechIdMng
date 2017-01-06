@@ -84,6 +84,8 @@
     "redux-promise": "0.5.0",
     "redux-thunk": "2.0.1",
     "stringify": "5.1.0",
+    "sockjs-client": "1.1.1",
+    "stompjs": "2.3.3",
     "uuid": "2.0.1",
     "babel": "5.8.38",
     "babel-core": "5.8.38",

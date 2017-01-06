@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.ic.api.IcLoginAttribute;
  */
 public class IcLoginAttributeImpl extends IcAttributeImpl implements IcLoginAttribute {
 
+	private static final long serialVersionUID = 1L;
 	private final static String NAME = "__UID__";
 	protected boolean login = false;
 

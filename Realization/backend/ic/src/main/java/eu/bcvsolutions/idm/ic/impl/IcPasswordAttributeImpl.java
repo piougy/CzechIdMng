@@ -8,6 +8,7 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswordAttribute {
 
+	private static final long serialVersionUID = -4667649003440978002L;
 	private boolean password = false;
 
 	public IcPasswordAttributeImpl(GuardedString value) {

@@ -1,11 +1,13 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import java.io.Serializable;
+
 /**
  * Interface for object class. Object class defined type or category of connector object.
  * @author svandav
  *
  */
-public interface IcObjectClass {
+public interface IcObjectClass extends Serializable{
 
 	/**
 	 * Return type or category of connector object

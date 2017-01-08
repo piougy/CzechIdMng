@@ -8,6 +8,7 @@ import SchemaObjectClassService from './SchemaObjectClassService';
 import SchemaAttributeService from './SchemaAttributeService';
 import SchemaAttributeHandlingService from './SchemaAttributeHandlingService';
 import SystemEntityHandlingService from './SystemEntityHandlingService';
+import ProvisioningOperationService from './ProvisioningOperationService';
 
 const ServiceRoot = {
   SystemService,
@@ -19,7 +20,8 @@ const ServiceRoot = {
   SchemaAttributeService,
   SchemaAttributeHandlingService,
   SystemEntityHandlingService,
-  RoleSystemAttributeService
+  RoleSystemAttributeService,
+  ProvisioningOperationService
 };
 
 ServiceRoot.version = '0.1.0';

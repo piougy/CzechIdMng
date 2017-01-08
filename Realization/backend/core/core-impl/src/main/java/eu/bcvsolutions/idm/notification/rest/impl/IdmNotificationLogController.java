@@ -24,10 +24,9 @@ import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.notification.domain.NotificationState;
 import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
-import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
+import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Read and send notifications 
@@ -40,17 +39,17 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationLogService;
 public class IdmNotificationLogController extends AbstractReadWriteEntityController<IdmNotificationLog, NotificationFilter> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmNotificationLogController.class);
-	private final NotificationLogService notificationLogService;
+	private final NotificationManager notificationManager;
 	
 	@Autowired
 	public IdmNotificationLogController(
 			EntityLookupService entityLookupService,
-			NotificationLogService notificationLogService) {
+			NotificationManager notificationManager) {
 		super(entityLookupService);
 		//
-		Assert.notNull(notificationLogService);
+		Assert.notNull(notificationManager);
 		//
-		this.notificationLogService = notificationLogService;
+		this.notificationManager = notificationManager;
 	}
 	
 	@Override
@@ -95,20 +94,8 @@ public class IdmNotificationLogController extends AbstractReadWriteEntityControl
 	@Override
 	public IdmNotificationLog createEntity(IdmNotificationLog entity) {
 		LOG.debug("Notification log [{}] was created and notificatio will be send.", entity);
-		notificationLogService.send(entity);
+		notificationManager.send(entity);
 		// TODO: send method should result notification or ex to prevent another loading
 		return getEntity(entity.getId());
-	}
-	
-	@Override
-	protected NotificationFilter toFilter(MultiValueMap<String, Object> parameters) {
-		NotificationFilter filter = new NotificationFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSender(getParameterConverter().toString(parameters, "sender"));
-		filter.setRecipient(getParameterConverter().toString(parameters, "recipient"));
-		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
-		filter.setState(getParameterConverter().toEnum(parameters, "state", NotificationState.class));		
-		return filter;
 	}
 }

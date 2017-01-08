@@ -5,7 +5,7 @@ import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 
 /**
- * Notification logs
+ * Notification log service
  * 
  * @author Radek Tomiška
  *

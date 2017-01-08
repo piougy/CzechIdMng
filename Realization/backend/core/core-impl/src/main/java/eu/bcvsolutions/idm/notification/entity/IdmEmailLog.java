@@ -3,17 +3,16 @@ package eu.bcvsolutions.idm.notification.entity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
-
 @Entity
-@Table(name = "idm_email_log")
+@Table(name = "idm_notification_email")
 public class IdmEmailLog extends IdmNotification {
 	
 	private static final long serialVersionUID = -6492542811469689133L;
+	public static final String NOTIFICATION_TYPE = "email";
 	
 	@Override
 	public String getType() {
-		return EmailService.NOTIFICATION_TYPE;
+		return NOTIFICATION_TYPE;
 	}
 	
 	// TODO: attachments

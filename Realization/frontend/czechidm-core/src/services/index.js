@@ -19,6 +19,8 @@ import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
 import RoleCatalogueService from './RoleCatalogueService';
 import AuditService from './AuditService';
+import NotificationConfigurationService from './NotificationConfigurationService';
+import WebsocketService from './WebsocketService';
 
 const ServiceRoot = {
   RestApiService,
@@ -41,7 +43,9 @@ const ServiceRoot = {
   EmailService,
   BackendModuleService,
   RoleCatalogueService,
-  AuditService
+  AuditService,
+  NotificationConfigurationService,
+  WebsocketService
 };
 
 ServiceRoot.version = '0.0.1';

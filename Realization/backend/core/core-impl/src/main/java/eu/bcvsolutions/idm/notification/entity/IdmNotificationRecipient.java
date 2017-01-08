@@ -19,6 +19,12 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
+/**
+ * Notification recipient
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @Entity
 @Table(name = "idm_notification_recipient", indexes = {
 		@Index(name = "idx_idm_notification_rec_not", columnList = "notification_id"),
@@ -65,10 +71,10 @@ public class IdmNotificationRecipient extends AbstractEntity {
 		this(notification, null, recipient);
 	}
 	
-	public IdmNotificationRecipient(IdmNotification notification, IdmIdentity identity, String recipient) {
+	public IdmNotificationRecipient(IdmNotification notification, IdmIdentity identity, String realRecipient) {
 		this.notification = notification;
 		this.identityRecipient = identity;
-		this.realRecipient = recipient;
+		this.realRecipient = realRecipient;
 	}
 	
 	public IdmNotification getNotification() {

@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 public interface IdmNotificationLogRepository extends AbstractEntityRepository<IdmNotificationLog, NotificationFilter> {
 	
 	@Override
-	@Query(value = "select e from IdmNotificationLog e left join e.sender s" +
+	@Query(value = "select e from IdmNotificationLog e left join e.identitySender s" +
 	        " where "
 	        + "("
 	        	+ "?#{[0].text} is null "

@@ -131,5 +131,10 @@ module.exports = {
         }
       ]
     },
+    {
+      path: 'provisioning',
+      component: require('./src/content/provisioning/ProvisioningOperations'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+    }
   ]
 };

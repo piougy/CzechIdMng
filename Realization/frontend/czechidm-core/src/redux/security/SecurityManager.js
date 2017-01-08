@@ -363,6 +363,9 @@ export default class SecurityManager {
           stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (message) => {
             dispatch(flashMessagesManager.addMessage( JSON.parse(message.body) ));
           }, headers);
+        }, () => {
+          // try reconnect
+          // setTimeout(SecurityManager.connectStompClient, 10000);
         });
       }
     };

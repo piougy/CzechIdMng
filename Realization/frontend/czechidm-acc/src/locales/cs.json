@@ -252,6 +252,11 @@
           }
         }
       }
+    },
+    "provisioningOperations": {
+      "label": "Provisioning",
+      "title" : "Provisioning - log operací",
+      "header" : "Provisioning <small>log operací</small>"
     }
   },
   "entity": {
@@ -366,6 +371,13 @@
       "_type": "Účet identity na koncovém systému",
       "ownership": "Vlastní účet",
       "role": "Přiřazen dle role"
+    },
+    "ProvisioningOperation": {
+      "_type": "Provisioning - operace",
+      "creator": "Spustil",
+      "operationType": "Typ operace",
+      "entityIdentifier": "Identifikátor entity (IdM)",
+      "status": "Výsledek"
     }
   },
   "enums" : {
@@ -381,6 +393,11 @@
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
+    },
+    "ProvisioningOperationTypeEnum": {
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
+      "DELETE": "Smazání"
     }
   },
   "permission": {

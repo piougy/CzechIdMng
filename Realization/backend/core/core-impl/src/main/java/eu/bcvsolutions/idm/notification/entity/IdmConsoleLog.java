@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.notification.entity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import eu.bcvsolutions.idm.notification.service.api.ConsoleNotificationService;
-
 /**
  * For testing purpose only
  * 
@@ -12,13 +10,14 @@ import eu.bcvsolutions.idm.notification.service.api.ConsoleNotificationService;
  *
  */
 @Entity
-@Table(name = "idm_console_log")
+@Table(name = "idm_notification_console")
 public class IdmConsoleLog extends IdmNotification {
 	
 	private static final long serialVersionUID = -6492542811469689133L;
+	public static final String NOTIFICATION_TYPE = "console";
 	
 	@Override
 	public String getType() {
-		return ConsoleNotificationService.NOTIFICATION_TYPE;
+		return NOTIFICATION_TYPE;
 	}
 }

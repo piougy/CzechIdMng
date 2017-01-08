@@ -17,8 +17,8 @@ import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.repository.IdmConsoleLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
 import eu.bcvsolutions.idm.notification.repository.IdmNotificationLogRepository;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
-import eu.bcvsolutions.idm.notification.service.api.NotificationService;
+import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.security.service.impl.DefaultSecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -31,10 +31,10 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
-	private NotificationService notificationService;
+	private NotificationManager notificationManager;
 	
 	@Autowired
-	private EmailService emailService;
+	private EmailNotificationSender emailService;
 	
 	@Autowired
 	private IdmNotificationLogRepository idmNotificationRepository;
@@ -69,21 +69,22 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
-		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);
+		notificationManager.send(new IdmMessage("subject", "Idm notification"),  identity);
 		
 		assertEquals(1, idmNotificationRepository.count());
 		assertEquals(1, emailLogRepository.count());
 	}
 	
 	@Test
+	@Transactional
 	public void testFilterByDate() {
 		assertEquals(0, idmNotificationRepository.count());
 		
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		DateTime start = new DateTime();
-		notificationService.send(new IdmMessage("subject", "Idm notification"),  identity);		
-		notificationService.send(new IdmMessage("subject2", "Idm notification2"),  identity);	
+		notificationManager.send(new IdmMessage("subject", "Idm notification"),  identity);		
+		notificationManager.send(new IdmMessage("subject2", "Idm notification2"),  identity);	
 		
 		NotificationFilter filter = new NotificationFilter();
 		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());

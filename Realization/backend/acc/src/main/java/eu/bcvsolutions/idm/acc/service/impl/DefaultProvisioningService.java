@@ -309,23 +309,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(entityType);
 		Assert.notNull(mappedAttribute);
 
-
-		// Find connector identification persisted in system
-		IcConnectorKey connectorKey = system.getConnectorKey();
-		if (connectorKey == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-
-		// Find connector configuration persisted in system
-		IcConnectorConfiguration connectorConfig = systemService.getConnectorConfiguration(system);
-		if (connectorConfig == null) {
-			throw new ProvisioningException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
-					ImmutableMap.of("system", system.getName()));
-		}
-		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, uid, null);
-
-
 		if (!mappedAttribute.getSchemaAttribute().isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
 					ImmutableMap.of("property", mappedAttribute.getIdmPropertyName(), "uid", uid));
@@ -342,11 +325,16 @@ public class DefaultProvisioningService implements ProvisioningService {
 					entity);
 		}
 		IcAttribute icAttributeForCreate = createIcAttribute(mappedAttribute, valueTransformed);
-		IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
+		//
 		// Call ic modul for update single attribute
-		connectorFacade.updateObject(connectorKey, connectorConfig, icObjectClass, uidAttribute,
-				ImmutableList.of(icAttributeForCreate));
-
+		ProvisioningOperationBuilder operationBuilder = new ProvisioningOperationBuilder();
+		operationBuilder.setSystem(system);
+		operationBuilder.setSystemEntityUid(uid);
+		operationBuilder.setEntityType(entityType);
+		operationBuilder.setEntityIdentifier(entity == null ? null : entity.getId());
+		operationBuilder.setOperationType(ProvisioningOperationType.UPDATE);
+		operationBuilder.setConnectorObject(new IcConnectorObjectImpl(new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate)));						
+		provisioningExecutor.executeOperation(operationBuilder.build());
 	}
 
 	@Override

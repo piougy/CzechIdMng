@@ -172,6 +172,10 @@
       },
       "separator": {
         "system": "Systémové menu"
+      },
+      "notifications": {
+        "label": "Notifikace",
+        "title": "Notifikace"
       }
     }
   },
@@ -344,7 +348,7 @@
   },
   "dashboard": {
     "profileDashboard" : {
-      "header": "Profile",
+      "header": "Vaše základní údaje",
       "goToProfil": "Přejít na detail profilu"
     }
   },
@@ -399,10 +403,10 @@
       "link": "$t(content.about.header)"
     },
     "login": {
-      "header": "Login",
+      "header": "Přihlášení",
       "title": "$t(content.login.header)",
       "username": "$t(entity.Identity.username)",
-      "password": "Password",
+      "password": "Heslo",
       "admin": "Administártor",
       "button": {
         "login": "$t(content.login.header)",
@@ -455,8 +459,8 @@
         }
       },
       "change": {
-        "header": "Change password",
-        "title": "Change password",
+        "header": "Změna hesla",
+        "title": "Změna hesla",
         "passwordOld": "Staré heslo",
         "password": "Nové heslo",
         "passwordChangeTooltip": "Síla hesla:",
@@ -731,8 +735,8 @@
         "reloadTree": "Zrušení filtru a znovunačtení stromu"
       },
       "types": {
-        "header": "Structure types",
-        "title": "Structure types",
+        "header": "Typy struktur",
+        "title": "Typy struktur",
         "edit": "detail typu struktury",
         "create": "Nový typ stromové struktury",
         "save": {
@@ -763,8 +767,8 @@
       "addRoleCatalogue": "Přidat novou složku"
     },
     "roles": {
-      "header": "Roles",
-      "title": "Roles",
+      "header": "Role",
+      "title": "Role",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -1106,8 +1110,9 @@
       }
     },
     "notifications": {
-      "header": "Notifikace",
-      "title": "Notifikace",
+      "header": "Odeslané notifikace",
+      "label": "Odeslané notifikace",
+      "title": "Záznamy odeslaných notifikací",
       "filter": {
         "dateFrom": {
           "label": "Od",
@@ -1151,33 +1156,7 @@
     },
     "emails": {
       "header": "Emaily",
-      "title": "Emaily",
-      "filter": {
-        "dateFrom": {
-          "label": "Od",
-          "placeholder": "Datum od"
-        },
-        "dateTill": {
-          "label": "Do",
-          "placeholder": "Datum do"
-        },
-        "text": {
-          "label": "Zpráva",
-          "placeholder": "Předmět, obsah zprávy"
-        },
-        "sender": {
-          "label": "Odesílatel",
-          "placeholder": ""
-        },
-        "recipient": {
-          "label": "Příjemce",
-          "placeholder": ""
-        },
-        "sent": {
-          "label": "Odesláno",
-          "placeholder": "Stav odeslání ..."
-        }
-      }
+      "title": "Emaily"
     },
     "email": {
       "header": "Detail emailu",
@@ -1187,6 +1166,19 @@
         "notSent": "Neodesláno",
         "sentPartly": "Částečně"
       }
+    },
+    "websockets": {
+      "header": "Websocket",
+      "title": "Websocket"
+    },
+    "websocket": {
+      "header": "Detail websocket zprávy",
+      "title": "Detail websocket zprávy"
+    },
+    "notificationConfigurations": {
+      "label": "Konfigurace",
+      "header": "Konfigurace notifikací",
+      "title": "Konfigurace notifikací"
     },
     "workflow" : {
       "definition": {
@@ -1267,9 +1259,17 @@
       "modifier": "Akci provedl",
       "date": "Datum změny",
       "empty": "Bez žádných záznamů",
+      "pickRevision": "Vyberte revizi",
+      "detail": "detail",
       "id": "ID",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
+      },
+      "revision": {
+        "id": "ID revize",
+        "modifier": "Změnu provedl",
+        "revisionDate": "Datum revize",
+        "deleted": "Entita byla odstraněna"
       },
       "filter": {
         "dateFrom": {
@@ -1435,7 +1435,7 @@
       "candicateUsers": "Mohou řešit"
     },
     "Notification": {
-      "topic": "Téma",
+      "topic": "Téma / Topic",
       "created": "$t(entity.created)",
       "message": {
         "subject": "Předmět",
@@ -1449,20 +1449,40 @@
       "sentLog": "Zpráva při odeslání",
       "type": "Typ"
     },
+    "NotificationConfiguration": {
+      "_type": "Konfigurace notifikace",
+      "topic": "$t(entity.Notification.topic)",
+      "notificationType": "Typ notifikace"
+    },
     "Email": {
-      "topic": "Téma",
-      "created": "$t(entity.created)",
+      "topic": "$t(entity.Notification.topic)",
+      "created": "$t(entity.Notification.created)",
       "message": {
-        "subject": "Předmět",
-        "message": "Zpráva",
-        "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
+        "subject": "$t(entity.Notification.message.subject)",
+        "message": "$t(entity.Notification.message.message)",
+        "textMessage": "$t(entity.Notification.message.textMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
       },
-      "sender": "Odesílatel",
-      "recipients": "Příjemci",
-      "sent": "Odesláno",
-      "sentLog": "Zpráva při odeslání",
-      "type": "Typ"
+      "sender": "$t(entity.Notification.sender)",
+      "recipients": "$t(entity.Notification.recipients)",
+      "sent": "$t(entity.Notification.sent)",
+      "sentLog": "$t(entity.Notification.sentLog)",
+      "type": "$t(entity.Notification.type)"
+    },
+    "WebsocketLog": {
+      "topic": "$t(entity.Notification.topic)",
+      "created": "$t(entity.Notification.created)",
+      "message": {
+        "subject": "$t(entity.Notification.message.subject)",
+        "message": "$t(entity.Notification.message.message)",
+        "textMessage": "$t(entity.Notification.message.textMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+      },
+      "sender": "$t(entity.Notification.sender)",
+      "recipients": "$t(entity.Notification.recipients)",
+      "sent": "$t(entity.Notification.sent)",
+      "sentLog": "$t(entity.Notification.sentLog)",
+      "type": "$t(entity.Notification.type)"
     },
     "Configuration": {
       "name": "Klíč",
@@ -1478,7 +1498,9 @@
       "modifier": "Akci provedl",
       "revisionDate": "Datum revize",
       "changedAttributes": "Změněné atributy",
-      "type": "Typ entity"
+      "type": "Typ entity",
+      "key": "Atribut",
+      "value": "Hodnota"
     },
     "Module": {
       "id": "Id",
@@ -1613,6 +1635,10 @@
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Katalog rolí nelze odebrat",
       "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
+    },
+    "AUDIT_REVISION_NOT_SAME": {
+      "title": "Revize nelze porovnat",
+      "message": "Revize musí být stejného typu."
     }
   },
   "validationError": {

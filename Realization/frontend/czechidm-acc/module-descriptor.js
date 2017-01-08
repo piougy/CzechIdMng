@@ -96,6 +96,20 @@ module.exports = {
         'path': '/role/:entityId/systems',
         'icon': 'link',
         'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+      },
+      {
+        'id': 'provisioning-operations',
+        'parentId': 'audit',
+        'labelKey': 'acc:content.provisioningOperations.label',
+        'titleKey': 'acc:content.provisioningOperations.title',
+        'order': 100,
+        'path': '/provisioning',
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': ['APP_ADMIN']
+          }
+        ]
       }
     ]
   }

@@ -8,6 +8,7 @@ import SchemaObjectClassManager from './SchemaObjectClassManager';
 import SchemaAttributeManager from './SchemaAttributeManager';
 import SchemaAttributeHandlingManager from './SchemaAttributeHandlingManager';
 import SystemEntityHandlingManager from './SystemEntityHandlingManager';
+import ProvisioningOperationManager from './ProvisioningOperationManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -19,7 +20,8 @@ const ManagerRoot = {
   SchemaAttributeManager,
   SchemaAttributeHandlingManager,
   SystemEntityHandlingManager,
-  RoleSystemAttributeManager
+  RoleSystemAttributeManager,
+  ProvisioningOperationManager
 };
 
 ManagerRoot.version = '0.0.1';

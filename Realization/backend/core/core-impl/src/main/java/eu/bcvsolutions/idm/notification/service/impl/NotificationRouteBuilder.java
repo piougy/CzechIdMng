@@ -11,8 +11,13 @@ public class NotificationRouteBuilder extends RouteBuilder {
 		// suports email only for now, @see http://redmine.czechidm.com/issues/65
 		// TODO: complex routing - by topic and identity configuration
     	from("direct:notifications")
-    		.multicast()
-    		.to("bean:emailService?method=send", "bean:consoleNotificationService?method=send");
+    		.choice()
+    			.when().simple("${body.topic} == 'idm:websocket'")
+    				.to("bean:websocketService?method=send")
+    			.otherwise() // TODO: this branch will be removed
+		    		.multicast() // TODO: .parallelProcessing()
+		    		.to("bean:emailService?method=send", "bean:consoleNotificationService?method=send");
+		    		// .bean(Object.class);
     	//
     	// register email sender
     	from("direct:emails").to("bean:emailer?method=send");

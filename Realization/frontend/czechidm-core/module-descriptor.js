@@ -203,32 +203,6 @@ module.exports = {
             'path': '/workflow/history/processes',
           },
           {
-            'id': 'notifications',
-            'labelKey': 'content.notifications.title',
-            'order': 30,
-            'path': '/audit/notifications',
-            'icon': 'fa:envelope',
-            'access': [
-              {
-                'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['NOTIFICATION_READ']
-              }
-            ]
-          },
-          {
-            'id': 'emails',
-            'labelKey': 'content.emails.title',
-            'order': 35,
-            'path': '/audit/emails',
-            'icon': 'fa:envelope-o',
-            'access': [
-              {
-                'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['NOTIFICATION_READ']
-              }
-            ]
-          },
-          {
             'id': 'audit-entities',
             'labelKey': 'content.audit.title-entities',
             'order': 40,
@@ -241,6 +215,75 @@ module.exports = {
               }
             ]
           }
+        ]
+      },
+      {
+        'id': 'notification',
+        'labelKey': 'navigation.menu.notifications.label',
+        'titleKey': 'navigation.menu.notifications.title',
+        'icon': 'fa:envelope',
+        'order': 1910,
+        'path': '/notification/notifications',
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': ['NOTIFICATION_READ']
+          }
+        ],
+        'items': [
+          {
+            'id': 'notification-notifications',
+            'labelKey': 'content.notifications.label',
+            'titleKey': 'content.notifications.title',
+            'order': 30,
+            'path': '/notification/notifications',
+            'icon': 'fa:envelope',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
+            'id': 'notification-emails',
+            'labelKey': 'content.emails.title',
+            'order': 35,
+            'path': '/notification/emails',
+            'icon': 'fa:envelope-o',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
+            'id': 'notification-websockets',
+            'labelKey': 'content.websockets.title',
+            'order': 100,
+            'path': '/notification/websockets',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
+            'id': 'notification-configurations',
+            'labelKey': 'content.notificationConfigurations.label',
+            'titleKey': 'content.notificationConfigurations.title',
+            'order': 1000,
+            'path': '/notification/configurations',
+            'icon': 'cog',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATIONCONFIGURATION_READ']
+              }
+            ]
+          },
         ]
       },
       {

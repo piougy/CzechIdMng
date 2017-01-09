@@ -423,6 +423,24 @@
       "unlinkedAction": "Vazba neexistuje",
       "missingEntityAction": "Entita neexistuje",
       "missingAccountAction": "Účet neexistuje"
+    },
+    "SynchronizationLog": {
+      "running": "Spuštěna",
+      "started": "Zahájena",
+      "ended": "Ukončena",
+      "token": "Token",
+      "exceptionCreateEntity": "Chyby vytvoření entit",
+      "successCreateEntity": "Vytvořeno entit",
+      "successUpdateEntity": "Upraveno entit",
+      "successDeleteEntity": "Smazáno entit",
+      "exceptionDeleteEntity": "Chyby smazání entit",
+      "exceptionUpdateEntity": "Chyby úpravení entit",
+      "exceptionCreateAccount": "Chyby vytvoření účtů",
+      "exceptionUpdateAccount": "Chyby upravení účtů",
+      "exceptionDeleteAccount": "Chyby smazání účtů",
+      "successDeleteAccount": "Smazáno účtů",
+      "successCreateAccount": "Vytvořeno účtů",
+      "successUpdateAccount": "Upraveno účtů"
     }
   },
   "enums" : {

@@ -312,9 +312,20 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
-              <Advanced.Column property="started" face="dateTime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
-              <Advanced.Column property="ended" face="dateTime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
-              <Advanced.Column property="token" face="text" header={this.i18n('acc:entity.SynchronizationLog.token')} sort/>
+              <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
+              <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
+              <Advanced.Column property="successCreateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successCreateEntity')} sort/>
+              <Advanced.Column property="successUpdateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successUpdateEntity')} sort/>
+              <Advanced.Column property="successDeleteEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successDeleteEntity')} sort/>
+              <Advanced.Column property="exceptionCreateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionCreateEntity')} sort/>
+              <Advanced.Column property="exceptionUpdateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionUpdateEntity')} sort/>
+              <Advanced.Column property="exceptionDeleteEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionDeleteEntity')} sort/>
+              <Advanced.Column property="successCreateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successCreateAccount')} sort/>
+              <Advanced.Column property="successUpdateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successUpdateAccount')} sort/>
+              <Advanced.Column property="successDeleteAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successDeleteAccount')} sort/>
+              <Advanced.Column property="exceptionCreateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionCreateAccount')} sort/>
+              <Advanced.Column property="exceptionUpdateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionUpdateAccount')} sort/>
+              <Advanced.Column property="exceptionDeleteAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionDeleteAccount')} sort/>
             </Advanced.Table>
           </Basic.Panel>
         </div>

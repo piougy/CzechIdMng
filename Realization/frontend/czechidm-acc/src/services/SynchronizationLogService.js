@@ -19,6 +19,6 @@ export default class SynchronizationLogService extends Services.AbstractService 
   }
 
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort();
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('started', 'DESC');
   }
 }

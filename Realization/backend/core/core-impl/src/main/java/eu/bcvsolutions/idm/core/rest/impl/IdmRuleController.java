@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRule;
 
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/rules")
-public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule, RuleFilter>{
-	
+public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule, RuleFilter> {
+
 	@Autowired
 	public IdmRuleController(EntityLookupService entityLookupService) {
 		super(entityLookupService);
@@ -44,14 +44,14 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 			throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
 	}
-	
+
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_DELETE+ "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_WRITE + "')")
@@ -59,7 +59,7 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
 	}
-	
+
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_WRITE + "')")
@@ -67,7 +67,7 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
-	
+
 	@Override
 	protected RuleFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RuleFilter filter = new RuleFilter();

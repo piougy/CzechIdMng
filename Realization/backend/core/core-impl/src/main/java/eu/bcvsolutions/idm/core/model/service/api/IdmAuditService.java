@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
-import org.hibernate.validator.internal.util.privilegedactions.GetAnnotationParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

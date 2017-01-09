@@ -13,6 +13,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
 
@@ -32,7 +33,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
 		@Index(name = "ux_rule_name", columnList = "name", unique = true), 
 		@Index(name = "ux_rule_category", columnList = "category") 
 		})
-public class IdmRule  extends AbstractEntity {
+public class IdmRule extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3827618803196757060L;
 
@@ -63,7 +64,8 @@ public class IdmRule  extends AbstractEntity {
 	public void setScript(String script) {
 		this.script = script;
 	}
-
+	
+	@Override
 	public String getName() {
 		return name;
 	}

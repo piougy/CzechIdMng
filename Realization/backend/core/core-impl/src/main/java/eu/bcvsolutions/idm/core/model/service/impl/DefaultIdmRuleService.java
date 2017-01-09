@@ -11,12 +11,12 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRule;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRuleService;
 
 @Service
-public class DefaultRuleService extends AbstractReadWriteEntityService<IdmRule, RuleFilter> implements IdmRuleService {
+public class DefaultIdmRuleService extends AbstractReadWriteEntityService<IdmRule, RuleFilter> implements IdmRuleService {
 	
 	private final GroovyScriptService groovyScriptService;
 	
 	@Autowired
-	public DefaultRuleService(AbstractEntityRepository<IdmRule, RuleFilter> repository, GroovyScriptService groovyScriptService) {
+	public DefaultIdmRuleService(AbstractEntityRepository<IdmRule, RuleFilter> repository, GroovyScriptService groovyScriptService) {
 		super(repository);
 		
 		this.groovyScriptService = groovyScriptService;

@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.List;
+
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
@@ -100,6 +102,19 @@ public interface SysProvisioningService {
 	 * @param overloadedAttribute
 	 */
 	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, MappingAttribute overloadedAttribute);
+
+	/**
+	 * Return all mapped attributes for this account (include overloaded attributes)
+	 * @param account
+	 * @param identity
+	 * @param system
+	 * @param uid
+	 * @param operationType
+	 * @param entityType
+	 * @return
+	 */
+	List<MappingAttribute> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
+			String uid, SystemOperationType operationType, SystemEntityType entityType);
 
 	
 }

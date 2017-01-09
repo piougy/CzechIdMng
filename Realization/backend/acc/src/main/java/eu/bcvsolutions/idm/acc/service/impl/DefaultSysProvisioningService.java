@@ -418,7 +418,8 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	private List<MappingAttribute> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
+	@Override
+	public List<MappingAttribute> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
 			String uid, SystemOperationType operationType, SystemEntityType entityType) {
 		
 		IdentityAccountFilter filter = new IdentityAccountFilter();
@@ -1034,7 +1035,7 @@ public class DefaultSysProvisioningService implements SysProvisioningService {
 	IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
 			 {
 		Optional<PropertyDescriptor> propertyDescriptionOptional = Arrays
-				.asList(Introspector.getBeanInfo(entity.getClass(), AbstractEntity.class).getPropertyDescriptors())
+				.asList(Introspector.getBeanInfo(entity.getClass()).getPropertyDescriptors())
 				.stream().filter(propertyDescriptor -> {
 					return propertyName.equals(propertyDescriptor.getName());
 				}).findFirst();

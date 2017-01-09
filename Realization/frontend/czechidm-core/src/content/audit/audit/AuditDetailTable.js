@@ -99,7 +99,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
 
     // transform revision values for table, key=>value
     const transformData = this._prepareData(detail.revisionValues);
-console.log('diffValues', diffValues);
+
     return (
       <div className={weight}>
         <Basic.Table

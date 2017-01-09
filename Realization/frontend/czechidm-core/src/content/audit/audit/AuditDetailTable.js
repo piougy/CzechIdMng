@@ -99,7 +99,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
 
     // transform revision values for table, key=>value
     const transformData = this._prepareData(detail.revisionValues);
-
+console.log('diffValues', diffValues);
     return (
       <div className={weight}>
         <Basic.Table
@@ -107,7 +107,7 @@ export class AuditDetailTable extends Basic.AbstractContent {
           data={transformData}
           noData={detail.modification === MOD_ADD ? this.i18n('revision.created') : this.i18n('revision.deleted') }
           rowClass={({ rowIndex, data }) => {
-            if (diffValues && diffValues[data[rowIndex].key]) {
+            if (diffValues && diffValues[data[rowIndex].key] !== undefined) {
               return diffRowClass;
             }
           }}>

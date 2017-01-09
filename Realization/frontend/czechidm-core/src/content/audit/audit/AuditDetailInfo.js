@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 
@@ -40,7 +41,7 @@ class AuditDetailInfo extends Basic.AbstractContent {
 
   _reloadComponent(props) {
     if (this.refs.form && props.auditDetail) {
-      const revison = props.auditDetail;
+      const revison = _.merge({ }, props.auditDetail);
       revison.modification = this.i18n('content.audit.revision.modificationType.' + revison.modification);
       revison.type = this._getType(revison.type);
       this.refs.form.setData(revison);

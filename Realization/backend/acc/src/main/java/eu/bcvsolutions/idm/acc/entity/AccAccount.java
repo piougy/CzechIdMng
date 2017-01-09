@@ -72,6 +72,15 @@ public class AccAccount extends AbstractEntity {
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
 	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig- we dont want lazy lists
+	
+//	@Audited
+//	@NotNull
+//	@ManyToOne(optional = false)
+//	@JoinColumn(name = "attribute_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+//	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+//										// hibernate 4
+//	@org.hibernate.annotations.ForeignKey(name = "none")
+//	private SysSystemEntityHandling attributeMapping;
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
@@ -104,4 +113,6 @@ public class AccAccount extends AbstractEntity {
 	public String getUid() {
 		return uid;
 	}
+
+
 }

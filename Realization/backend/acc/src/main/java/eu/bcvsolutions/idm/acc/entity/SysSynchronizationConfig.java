@@ -69,6 +69,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private boolean customFilter = false;
 
 	@Audited
+	@Lob
 	@Column(name = "token")
 	private String token;
 

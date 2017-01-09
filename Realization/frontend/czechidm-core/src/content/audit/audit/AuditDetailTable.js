@@ -6,6 +6,8 @@ import { AuditManager } from '../../../redux';
 
 const auditManager = new AuditManager();
 
+const MOD_ADD = 'ADD';
+
 /**
 * Table for detail audits
 */
@@ -44,31 +46,66 @@ export class AuditDetailTable extends Basic.AbstractContent {
     return null;
   }
 
+  /**
+   * Method set nice label for value from audit version
+   * TODO: link to detail of UUID?
+   */
+  _prepareValue(value) {
+    if (typeof value === 'boolean') {
+      return value ? 'true' : 'false'; // TODO? localized?
+    } else if (value === null) {
+      return 'null';
+    }
+
+    return value;
+  }
+
+  _prepareData(revisionValues) {
+    const transformData = [];
+    let index = 0;
+    for (const key in revisionValues) {
+      if (revisionValues.hasOwnProperty(key)) {
+        if (revisionValues[key] instanceof Object) {
+          for (const keySec in revisionValues[key]) {
+            if (revisionValues[key].hasOwnProperty(keySec)) {
+              const row = {
+                'key': keySec,
+                'value': this._prepareValue(revisionValues[key][keySec])
+              };
+              transformData[index] = row;
+
+              index++;
+            }
+          }
+        } else {
+          const row = {
+            key,
+            'value': this._prepareValue(revisionValues[key])
+          };
+          transformData[index] = row;
+
+          index++;
+        }
+      }
+    }
+    return transformData;
+  }
+
   render() {
-    const { detail, weight, diffValues, diffRowClass } = this.props;
+    const { detail, weight, diffValues, diffRowClass, showLoading } = this.props;
     if (detail === null || detail.revisionValues === null) {
       return null;
     }
 
     // transform revision values for table, key=>value
-    const transformData = [];
-    let index = 0;
-    for (const key in detail.revisionValues) {
-      if (detail.revisionValues.hasOwnProperty(key)) {
-        const row = {
-          key,
-          'value': detail.revisionValues[key]};
-        transformData[index] = row;
-
-        index++;
-      }
-    }
+    const transformData = this._prepareData(detail.revisionValues);
 
     return (
       <div className={weight}>
         <Basic.Table
+          showLoading={showLoading}
           data={transformData}
-          noData={this.i18n('revision.deleted')}
+          noData={detail.modification === MOD_ADD ? this.i18n('revision.created') : this.i18n('revision.deleted') }
           rowClass={({ rowIndex, data }) => {
             if (diffValues && diffValues[data[rowIndex].key]) {
               return diffRowClass;
@@ -96,8 +133,8 @@ AuditDetailTable.propTypes = {
   // weight of table
   weight: PropTypes.string,
   // Class for row when diffValues contains key
-  diffRowClass: PropTypes.string
-
+  diffRowClass: PropTypes.string,
+  showLoading: PropTypes.bool
 };
 
 AuditDetailTable.defaultProps = {

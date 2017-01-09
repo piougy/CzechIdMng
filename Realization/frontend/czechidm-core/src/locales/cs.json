@@ -1298,8 +1298,15 @@
       "revision": {
         "id": "ID revize",
         "modifier": "Změnu provedl",
+        "modification": "Typ modifikace",
         "revisionDate": "Datum revize",
-        "deleted": "Entita byla odstraněna"
+        "deleted": "Entita byla odstraněna",
+        "created": "Entita byla vytvořena",
+        "modificationType": {
+          "ADD": "Vytvoření",
+          "MOD": "Modifikace",
+          "DEL": "Smazání"
+        }
       },
       "filter": {
         "dateFrom": {

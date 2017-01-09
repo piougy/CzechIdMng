@@ -4,17 +4,27 @@ import Helmet from 'react-helmet';
 //
 import { AuditManager, DataManager } from '../../../redux';
 import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
 import AuditDetailTable from '../audit/AuditDetailTable';
+import AuditDetailInfo from './AuditDetailInfo';
 
 const auditManager = new AuditManager();
 
+/**
+ * uiKey for diff detail values
+ */
 const AUDIT_DETAIL_DIFF = 'auditDiff';
+
+/**
+ * uiKey for previous version
+ */
+const AUDIT_PREVIOUS_VERSION = 'auditPreviousVersion';
+
+const FIRST_ENTITY_UIKEY = 'firstEntityUiKey';
+const SECOND_ENTITY_UIKEY = 'secondEntityUiKey';
 
 /**
  * Audit detail content
  *
- * TODO: Add better fieldLabel to select box
  */
 class AuditDetail extends Basic.AbstractContent {
 
@@ -36,6 +46,7 @@ class AuditDetail extends Basic.AbstractContent {
    */
   componentWillReceiveProps(nextProps) {
     const { entityId, revID } = this.props.params;
+
     if (entityId !== nextProps.params.entityId || revID !== nextProps.params.revID) {
       this._reloadComponent(nextProps);
     }
@@ -43,23 +54,30 @@ class AuditDetail extends Basic.AbstractContent {
 
   _reloadComponent(props) {
     const { entityId, revID } = props.params;
-    this.context.store.dispatch(auditManager.fetchEntity(entityId));
+    this.context.store.dispatch(auditManager.fetchEntityIfNeeded(entityId, FIRST_ENTITY_UIKEY));
     if (revID) {
-      this.context.store.dispatch(auditManager.fetchEntity(revID, null, (selectItem) => {
+      this.context.store.dispatch(auditManager.fetchEntityIfNeeded(revID, SECOND_ENTITY_UIKEY, (selectItem) => {
         if (this.refs.revisionDiff) {
           this.refs.revisionDiff.setValue(selectItem);
         }
       }));
       this.context.store.dispatch(auditManager.fetchDiffBetweenVersion(entityId, revID, AUDIT_DETAIL_DIFF));
+    } else {
+      this.context.store.dispatch(auditManager.fetchPreviousVersion(entityId, AUDIT_DETAIL_DIFF, (previousVersion) => {
+        if (this.refs.revisionDiff && previousVersion) {
+          this.refs.revisionDiff.setValue(previousVersion);
+          this.context.router.replace(`/audit/entities/${entityId}/diff/${previousVersion.id}`);
+        }
+      }));
     }
   }
 
   changeSecondRevision(rev) {
     const { entityId } = this.props.params;
     if (rev) {
-      this.context.router.push(`/audit/entities/${entityId}/diff/${rev.id}`);
+      this.context.router.replace(`/audit/entities/${entityId}/diff/${rev.id}`);
     } else {
-      this.context.router.push(`/audit/entities/${entityId}/diff`);
+      this.context.router.replace(`/audit/entities/${entityId}/diff`);
     }
   }
 
@@ -81,7 +99,8 @@ class AuditDetail extends Basic.AbstractContent {
   render() {
     const {
       auditDetailFirst,
-      auditDetailSecond, diffValues } = this.props;
+      auditDetailSecond, diffValues,
+      showLoadingFirstDetail } = this.props;
 
     return (
       <Basic.Row>
@@ -95,7 +114,7 @@ class AuditDetail extends Basic.AbstractContent {
           <small>{this.i18n('detail')}</small>
         </Basic.PageHeader>
 
-        <Basic.Panel >
+        <Basic.Panel>
           <div className="col-lg-12">
             <Basic.Row>
               <div className="col-md-6 pull-right" style={ {marginTop: '15px', marginBottom: '15px' } }>
@@ -106,52 +125,20 @@ class AuditDetail extends Basic.AbstractContent {
             </Basic.Row>
             <Basic.Row >
               <div className="col-md-12">
-                {
-                  !auditDetailFirst
-                  ||
-                  <div className="col-md-6">
-                    <big>
-                      {this.i18n('revision.id') + ' '}<span className="pull-right">{auditDetailFirst.id}</span>
-                      <br/>
-                      {this.i18n('revision.modifier') + ' '}<span className="pull-right">{auditDetailFirst.modifier}</span>
-                      <br/>
-                      {this.i18n('revision.revisionDate') + ' '}
-                      <span className="pull-right">
-                        <Advanced.DateValue
-                          value={auditDetailFirst.revisionDate}
-                          format="d. M. Y  H:mm:ss"/>
-                      </span>
-                    </big>
-                  </div>
-                }
-                {
-                  !auditDetailSecond
-                  ||
-                  <div className="col-md-6 last">
-                    <big>
-                      {this.i18n('revision.id') + ' '}<span className="pull-right">{auditDetailSecond.id}</span>
-                      <br/>
-                      {this.i18n('revision.modifier') + ' '}<span className="pull-right">{auditDetailSecond.modifier}</span>
-                      <br/>
-                      {this.i18n('revision.revisionDate') + ' '}
-                        <span className="pull-right">
-                          <Advanced.DateValue
-                            value={auditDetailSecond.revisionDate}
-                            format="d. M. Y  H:mm:ss"/>
-                        </span>
-                    </big>
-                  </div>
-                }
+                <div className="col-md-6">
+                  <AuditDetailInfo auditDetail={auditDetailFirst} showLoading={showLoadingFirstDetail}/>
+                </div>
+                <div className="col-md-6 last">
+                  <AuditDetailInfo auditDetail={auditDetailSecond}/>
+                </div>
               </div>
             </Basic.Row>
-            <AuditDetailTable detail={auditDetailFirst} />
-            {
-              !diffValues
-              ||
-              <AuditDetailTable
-                detail={auditDetailSecond}
-                diffValues={diffValues.diffValues}/>
-            }
+            <AuditDetailTable detail={auditDetailFirst} showLoading={showLoadingFirstDetail} />
+
+            <AuditDetailTable
+              detail={auditDetailSecond}
+              diffValues={diffValues ? diffValues.diffValues : null}/>
+
           </div>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
@@ -176,7 +163,9 @@ function select(state, component) {
     userContext: state.security.userContext,
     auditDetailFirst: auditManager.getEntity(state, entityId),
     auditDetailSecond: auditManager.getEntity(state, revID),
-    diffValues: DataManager.getData(state, AUDIT_DETAIL_DIFF)
+    previousVersion: DataManager.getData(state, AUDIT_PREVIOUS_VERSION),
+    diffValues: DataManager.getData(state, AUDIT_DETAIL_DIFF),
+    showLoadingFirstDetail: auditManager.isShowLoading(state, null, entityId)
   };
 }
 

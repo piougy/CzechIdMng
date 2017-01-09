@@ -40,8 +40,27 @@ class AuditService extends AbstractService {
     return super.getDefaultSearchParameters().setName(AuditService.ENTITIES_SEARCH);
   }
 
+  /**
+   * Difference between two revision
+   */
   getDiffBetweenVersion(firstRevId, secondRevId) {
     return RestApiService.get(this.getApiPath() + `/${firstRevId}/diff/${secondRevId}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Previous version of revision
+   */
+  getPreviousVersion(revId) {
+    return RestApiService.get(this.getApiPath() + `/${revId}/diff/previous`)
     .then(response => {
       return response.json();
     })

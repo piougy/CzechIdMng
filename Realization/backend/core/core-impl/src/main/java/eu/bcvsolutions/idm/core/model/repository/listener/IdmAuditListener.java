@@ -62,13 +62,6 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId, IdmAudit revisionEntity, RevisionType revisionType) {
 		List<String> changedColumns;
 		
-		// if revision type is MOD - modification, get and set changed columns
-		if (revisionType == RevisionType.MOD) {
-			AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
-			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, (Long)revisionEntity.getId(), currentEntity);
-			revisionEntity.addChanged(changedColumns);
-		}
-		
         // name of entity class - full name. 
         revisionEntity.setType(entityName);
         // revision type - MOD, DEL, ADD
@@ -85,6 +78,13 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
      	revisionEntity.setOriginalModifierId(originalIdentity == null ? null : originalIdentity.getId());
      	// entity id
      	revisionEntity.setEntityId((UUID)entityId);
+     	
+	    // if revision type is MOD - modification, get and set changed columns
+		if (revisionType == RevisionType.MOD) {
+			AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
+			revisionEntity.addChanged(changedColumns);
+		}
 	}
 	
 	/**

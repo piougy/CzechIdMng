@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
+import org.hibernate.validator.internal.util.privilegedactions.GetAnnotationParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +15,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 
 /**
  * Interface for Audit service
+ * 
+ * Methods with word:
+ * 
+ * - revision - return object type of {@link IdmAudit}
+ * - version - return object from audit tables
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * 
@@ -51,6 +57,14 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @return
 	 */
 	<T> T getPreviousVersion(T entity, Long currentRevId);
+	
+	/**
+	 * Method find revision by id get class and return previous version of this entity
+	 * 
+	 * @param currentRevId
+	 * @return
+	 */
+	Object getPreviousVersion(Long currentRevId);
 	
 	/**
 	 * TODO:
@@ -141,4 +155,27 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	 * @return map key is name of attribute.
 	 */
 	Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass);
+	
+	/**
+	 * Method return all values from @param revisionObject.
+	 * 
+	 * @param revisionObject
+	 * @return map key is name of attribute.
+	 */
+	Map<String, Object> getValuesFromVersion(Object revisionObject);
+	
+	/**
+	 * Method return previous revision for entity with current revision
+	 * 
+	 * @param revision
+	 * @return
+	 */
+	IdmAudit getPreviousRevision(IdmAudit revision);
+	
+	/**
+	 * Method user {@link getPreviousRevision} and {@link get} for geting current revision
+	 * @param revisionId
+	 * @return
+	 */
+	IdmAudit getPreviousRevision(Long revisionId);
 }

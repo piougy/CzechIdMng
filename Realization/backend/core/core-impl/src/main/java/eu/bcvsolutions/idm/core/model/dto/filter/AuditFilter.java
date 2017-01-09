@@ -20,6 +20,8 @@ public class AuditFilter extends QuickFilter {
 	
 	private String modifier;
 	
+	private String changedAttributes;
+	
 	private UUID entityId;
 
 	public String getModifier() {
@@ -66,14 +68,23 @@ public class AuditFilter extends QuickFilter {
 		return till;
 	}
 
+	public void setTill(DateTime till) {
+		this.till = till;
+	}
+
+	public String getChangedAttributes() {
+		return changedAttributes;
+	}
+
+	public void setChangedAttributes(String changedAttributes) {
+		this.changedAttributes = changedAttributes;
+	}
+
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public void setTill(DateTime till) {
-		this.till = till;
 	}	
 }

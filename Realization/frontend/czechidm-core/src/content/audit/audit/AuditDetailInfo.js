@@ -33,9 +33,17 @@ class AuditDetailInfo extends Basic.AbstractContent {
     }
   }
 
+  _getType(name) {
+    const type = name.split('.');
+    return type[type.length - 1];
+  }
+
   _reloadComponent(props) {
-    if (this.refs.form) {
-      this.refs.form.setData(props.auditDetail);
+    if (this.refs.form && props.auditDetail) {
+      const revison = props.auditDetail;
+      revison.modification = this.i18n('content.audit.revision.modificationType.' + revison.modification);
+      revison.type = this._getType(revison.type);
+      this.refs.form.setData(revison);
     }
   }
 
@@ -47,6 +55,9 @@ class AuditDetailInfo extends Basic.AbstractContent {
         <Basic.TextField
           ref="id"
           label={this.i18n('revision.id')}/>
+        <Basic.TextField
+          ref="type"
+          label={this.i18n('revision.type')}/>
         <Basic.TextField
           ref="modification"
           label={this.i18n('revision.modification')}/>

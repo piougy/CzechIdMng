@@ -96,6 +96,13 @@ class AuditDetail extends Basic.AbstractContent {
     );
   }
 
+  /**
+   * Method check if version types are same
+   */
+  _sameType(firstVersion, secondRevision) {
+    return firstVersion && secondRevision && firstVersion.entityId === secondRevision.entityId;
+  }
+
   render() {
     const {
       auditDetailFirst,
@@ -136,7 +143,7 @@ class AuditDetail extends Basic.AbstractContent {
             <AuditDetailTable detail={auditDetailFirst} showLoading={showLoadingFirstDetail} />
 
             <AuditDetailTable
-              detail={auditDetailSecond}
+              detail={this._sameType(auditDetailFirst, auditDetailSecond) ? auditDetailSecond : null}
               diffValues={diffValues ? diffValues.diffValues : null}/>
 
           </div>

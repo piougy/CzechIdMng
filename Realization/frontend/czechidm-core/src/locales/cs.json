@@ -1298,6 +1298,7 @@
       "revision": {
         "id": "ID revize",
         "modifier": "Změnu provedl",
+        "type": "Typ entity",
         "modification": "Typ modifikace",
         "revisionDate": "Datum revize",
         "deleted": "Entita byla odstraněna",
@@ -1664,7 +1665,7 @@
     },
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",
-      "message": "Revize musí být stejného typu."
+      "message": "Revize musí být stejného typu a od stejné entity."
     }
   },
   "validationError": {

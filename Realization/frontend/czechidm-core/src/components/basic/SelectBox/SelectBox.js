@@ -262,25 +262,29 @@ class SelectBox extends AbstractFormComponent {
   }
 
   itemRenderer(item, input) {
-    let niceLabel = this.props.manager.getNiceLabel(item);
     const { niceLabelTransform } = this.props;
-    const inputLower = input.toLowerCase();
 
-    let itemFullKey = niceLabel;
+    let niceLabel;
     if (niceLabelTransform) {
       niceLabel = niceLabelTransform(item);
     } else {
-      if (inputLower) {
-        if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
-          for (const field of this.props.searchInFields) {
-            if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
-              itemFullKey = itemFullKey + ' (' + item[field] + ')';
-              break;
-            }
+      niceLabel = this.props.manager.getNiceLabel(item);
+    }
+
+    const inputLower = input.toLowerCase();
+
+    let itemFullKey = niceLabel;
+    if (inputLower) {
+      if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+        for (const field of this.props.searchInFields) {
+          if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
+            itemFullKey = itemFullKey + ' (' + item[field] + ')';
+            break;
           }
         }
       }
     }
+
     _.merge(item, {[NICE_LABEL]: niceLabel, [ITEM_FULL_KEY]: itemFullKey});
   }
 

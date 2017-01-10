@@ -30,6 +30,7 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -61,6 +62,9 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	@PersistenceContext
 	private EntityManager entityManager;
 	
+	@Autowired
+	private IdmAuditRepository auditRepository;
+	
 	@LazyCollection(LazyCollectionOption.TRUE)
 	private List<String> allAuditedEntititesNames;
 	
@@ -81,17 +85,10 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getPreviousVersion(T entity, Long currentRevId) {
-		AuditReader reader = this.getAuditReader();
+	    IdmAudit previousRevision = this.getPreviousRevision(currentRevId);
 
-	    Number previousRevId = (Number) reader.createQuery()
-	    .forRevisionsOfEntity(entity.getClass(), false, true)
-	    .addProjection(AuditEntity.revisionNumber().max())
-	    .add(AuditEntity.id().eq(((BaseEntity) entity).getId()))
-	    .add(AuditEntity.revisionNumber().lt(currentRevId))
-	    .getSingleResult();
-
-	    if (previousRevId != null) {
-	        return (T) this.find(entity.getClass(), (UUID)((BaseEntity) entity).getId(), previousRevId.longValue());
+	    if (previousRevision != null) {
+	        return (T) this.find(entity.getClass(), (UUID)((BaseEntity) entity).getId(), Long.parseLong(previousRevision.getId().toString()));
 	    } else {
 	        return null;
 	    }
@@ -108,20 +105,32 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	
 	@Override
 	public <T> T getPreviousVersion(Class<T> entityClass, UUID entityId, Long currentRevisionId) {
-		AuditReader reader = this.getAuditReader();
+	    IdmAudit previousRevision = this.getPreviousRevision(currentRevisionId);
 
-	    Number previousRevisionId = (Number) reader.createQuery()
-		    .forRevisionsOfEntity(entityClass, false, true)
-		    .addProjection(AuditEntity.revisionNumber().max())
-		    .add(AuditEntity.id().eq(entityId))
-		    .add(AuditEntity.revisionNumber().lt(currentRevisionId))
-		    .getSingleResult();
-
-	    if (previousRevisionId != null) {
-	        return this.find(entityClass, entityId, previousRevisionId.longValue());
+	    if (previousRevision != null) {
+	        return this.find(entityClass, entityId, Long.parseLong(previousRevision.getId().toString()));
 	    } else {
 	    	return this.find(entityClass, entityId, currentRevisionId);
 	    }
+	}
+	
+	@Override
+	public Object getPreviousVersion(Long currentRevisionId) {
+		IdmAudit revision = this.get(currentRevisionId);
+		
+		Object result = null;
+
+	    IdmAudit previousRevision;
+		try {
+			previousRevision = this.getPreviousRevision(currentRevisionId);
+			
+			if (previousRevision != null) {
+				result = this.find(Class.forName(previousRevision.getType()), previousRevision.getEntityId(), Long.parseLong(previousRevision.getId().toString()));
+		    }
+		} catch (ClassNotFoundException e) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("class", revision.getType()));
+		}
+		return result;
 	}
 	
 	@Override
@@ -135,6 +144,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		List<String> changedColumns = new ArrayList<>();
 		
 		T previousEntity = null;
+		
 		if (currentRevId == null) {
 			currentRevId = this.getLastVersionNumber(entityClass, entityId).longValue();
 		}
@@ -227,6 +237,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	 */
 	@Override
 	public IdmAudit get(Serializable id) {
+		Assert.notNull(id, "Id is required");
 		AuditFilter filter = new AuditFilter();
 		filter.setId(Long.parseLong(id.toString()));
 		List<IdmAudit> audits = this.find(filter, null).getContent();
@@ -238,7 +249,8 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		// return only one element
 		return audits.get(0);
 	}
-
+	
+	@Override
 	public Map<String, Object> getDiffBetweenVersion(String clazz, Long firstRevId, Long secondRevId) {
 		Map<String, Object> result = new HashMap<>();
 		IdmAudit firstRevision = this.get(firstRevId);
@@ -324,6 +336,12 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		return Objects.equals(o1, o2);
 	}
 	
+	@Override
+	public Map<String, Object> getValuesFromVersion(Object revisionObject) {
+		return this.getValuesFromVersion(revisionObject, this.getAllAuditedEntitiesNames());
+	}
+	
+	@Override
 	public Map<String, Object> getValuesFromVersion(Object revisionObject, List<String> auditedClass) {
 		Map<String, Object> revisionValues = new HashMap<>();
 		if (revisionObject == null) {
@@ -333,6 +351,11 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		Field[] fields = revisionObject.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			try {
+				// check if field has Audited annotation
+				if (!field.isAnnotationPresent(Audited.class)) {
+					continue;
+				}
+				
 				PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(revisionObject, field.getName());
 				
 				// not all property must have read method
@@ -362,6 +385,28 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			}
 		}
 		return revisionValues;
+	}
+	
+	@Override
+	public IdmAudit getPreviousRevision(IdmAudit revision) {
+		Assert.notNull(revision, MessageFormat.format("DefaultAuditService: method getPreviousRevision - current revision [{0}] can't be null.", revision));
+		
+		if (revision.getEntityId() == null) {
+			return null;
+		}
+		
+		List<IdmAudit> results = this.auditRepository.getPreviousVersion(revision.getEntityId(), Long.parseLong(revision.getId().toString()), new PageRequest(0, 1)).getContent();
+		if (!results.isEmpty() && results.size() == 1) {
+			return results.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	@Override
+	public IdmAudit getPreviousRevision(Long revisionId) {
+		Assert.notNull(revisionId, MessageFormat.format("DefaultAuditService: method getPreviousRevision - current revision id [{0}] can't be null.", revisionId));
+		return this.getPreviousRevision(this.get(revisionId));
 	}
 	
 	/**

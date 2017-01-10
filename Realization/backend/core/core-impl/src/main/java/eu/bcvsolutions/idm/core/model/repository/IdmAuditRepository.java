@@ -1,9 +1,13 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.AuditFilter;
@@ -23,8 +27,13 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 					+ "IdmAudit e "
 				+ "WHERE "
 					+ "("
-						+ "?#{[0].id == null ? 'null' : ''} = 'null' or e.id = ?#{[0].id} "
+						+ " ?#{[0].id == null ? 'null' : ''} = 'null' or e.id = ?#{[0].id} "
 					+ ")"
+					+ " AND "
+					+ "("
+						+ "?#{[0].text} IS null "
+						+ "OR CAST(e.id as string) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
+					+ ")"	
 					+ " AND "
 					+ "("
 						+ "?#{[0].modification} IS null "
@@ -32,8 +41,8 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 					+ ")"
 					+ " AND "
 					+ "("
-						+ "?#{[0].text} IS null "
-						+ "OR lower(e.changedAttributes) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
+						+ "?#{[0].changedAttributes} IS null "
+						+ "OR lower(e.changedAttributes) like ?#{[0].changedAttributes == null ? '%' : '%'.concat([0].changedAttributes.toLowerCase()).concat('%')} "
 					+ ")"
 					+ " AND "
 					+ "("
@@ -64,4 +73,19 @@ public interface IdmAuditRepository extends AbstractEntityRepository<IdmAudit, A
 						+ "OR lower(e.type) like ?#{[0].type == null ? '%' : '%'.concat([0].type.toLowerCase())} "
 					+ ")" )
 	Page<IdmAudit> find(AuditFilter filter, Pageable pageable);
+	
+	// Query get previous version, from entity id and id current revision
+	@Query(value = "SELECT e "
+			+ "FROM "
+				+ "IdmAudit e "
+			+ "WHERE "
+				+ "("
+					+ "e.entityId = :entityId "
+				+ ")"
+				+ " AND "
+				+ "("
+					+ " e.id < :revId "
+				+ ") "
+				+ " ORDER BY e.id DESC " )
+	Page<IdmAudit> getPreviousVersion(@Param(value = "entityId") UUID entityId, @Param(value = "revId") Long revId, Pageable pageable);
 }

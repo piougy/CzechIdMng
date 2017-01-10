@@ -293,6 +293,16 @@ module.exports = {
             'order': 40,
             'path': '/role-catalogues',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+          },
+          {
+            'id': 'rules',
+            'labelKey': 'content.rules.header',
+            'titleKey': 'content.rules.title',
+            'icon': 'fa:clone',
+            'iconColor': '#272fd8',
+            'order': 26,
+            'path': '/rules',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ],
           }
         ]
       },

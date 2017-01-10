@@ -46,12 +46,14 @@ public class DefaultIdmConfidentialStorageIntegrationTest extends AbstractIntegr
 	@Before
 	public void initStorage() {
 		confidentalStorage = new DefaultIdmConfidentialStorage(repository);
+		loginAsAdmin(InitTestData.TEST_ADMIN_USERNAME);
 	}
 	
 	@After
 	public void clearData() {
 		repository.deleteByKey(STORAGE_KEY_ONE);
 		repository.deleteByKey(STORAGE_KEY_TWO);
+		super.logout();
 	}
 	
 	@Test

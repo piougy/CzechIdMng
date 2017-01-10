@@ -212,26 +212,6 @@ module.exports = {
       component: 'div',
       childRoutes: [
         {
-          path: 'notifications',
-          component: require('./src/content/audit/notification/Notifications'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
-        },
-        {
-          path: 'notification/:entityId',
-          component: require('./src/content/audit/notification/NotificationContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
-        },
-        {
-          path: 'emails',
-          component: require('./src/content/audit/email/Emails'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
-        },
-        {
-          path: 'emails/:entityId',
-          component: require('./src/content/audit/email/EmailContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
-        },
-        {
           path: 'entities',
           component: require('./src/content/audit/audit/AuditContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
@@ -245,6 +225,47 @@ module.exports = {
           path: 'entities/:entityId/diff',
           component: require('./src/content/audit/audit/AuditDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        }
+      ]
+    },
+    {
+      path: 'notification/',
+      component: 'div',
+      childRoutes: [
+        {
+          path: 'notifications',
+          component: require('./src/content/notification/Notifications'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'notification/:entityId',
+          component: require('./src/content/notification/NotificationContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'emails',
+          component: require('./src/content/notification/email/Emails'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'emails/:entityId',
+          component: require('./src/content/notification/email/EmailContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'websockets',
+          component: require('./src/content/notification/websocket/Websockets'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'websockets/:entityId',
+          component: require('./src/content/notification/websocket/WebsocketContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
+        },
+        {
+          path: 'configurations',
+          component: require('./src/content/notification/configuration/NotificationConfigurations'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATIONCONFIGURATION_READ'] } ]
         }
       ]
     },

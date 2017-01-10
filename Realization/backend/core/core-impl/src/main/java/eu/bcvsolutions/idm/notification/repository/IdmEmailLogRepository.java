@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 
 /**
- * Repository for sended emails
+ * Repository for sent emails
  * 
  * @author Radek Tomiška 
  *
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 public interface IdmEmailLogRepository extends AbstractEntityRepository<IdmEmailLog, NotificationFilter> {
 	
 	@Override
-	@Query(value = "select e from IdmEmailLog e left join e.sender s" +
+	@Query(value = "select e from IdmEmailLog e left join e.identitySender s" +
 	        " where "
 	        + "("
 	        	+ "?#{[0].text} is null "

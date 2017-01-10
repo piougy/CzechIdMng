@@ -1,6 +1,7 @@
 import React from 'react';
 //
 import DefaultCell from './DefaultCell';
+import Icon from '../Icon/Icon';
 
 /**
  * Renders cell with link and text content.
@@ -17,22 +18,32 @@ import DefaultCell from './DefaultCell';
 const EnumCell = ({rowIndex, data, property, enumClass, ...props}) => {
   const propertyValue = DefaultCell.getPropertyValue(data[rowIndex], property);
   //
+  let content = propertyValue;
+  if (propertyValue && enumClass) {
+    content = enumClass.getNiceLabel(propertyValue);
+    //
+    const icon = enumClass.getIcon(propertyValue);
+    if (icon) {
+      content = (
+        <span>
+          <Icon value={icon} style={{ marginRight: 3 }}/>
+          { content }
+        </span>
+      );
+    }
+    const level = enumClass.getLevel(propertyValue);
+    if (level) {
+      content = (
+        <span className={'label label-' + level}>
+          { content }
+        </span>
+      );
+    }
+  }
+  //
   return (
     <DefaultCell {...props}>
-      {
-        /* eslint no-nested-ternary: 0 */
-        !propertyValue
-        ||
-        !enumClass
-        ?
-        propertyValue
-        :
-        !enumClass.getLevel(propertyValue)
-        ?
-        enumClass.getNiceLabel(propertyValue)
-        :
-        <span className={'label label-' + enumClass.getLevel(propertyValue)}>{enumClass.getNiceLabel(propertyValue)}</span>
-      }
+      { content }
     </DefaultCell>
   );
 };

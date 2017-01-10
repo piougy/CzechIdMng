@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.security.api.domain;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -13,14 +14,13 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 /**
  * Guarded string used for storing sensitive data.
  * 
- * TODO: use for passwords (passwords in secured configuration)
- * 
  * @author BCV
  *
  */
 @JsonSerialize(using = GuardedStringSerializer.class)
-public final class GuardedString {
+public final class GuardedString implements Serializable {
 
+	private static final long serialVersionUID = 2213684064638411076L;
 	/**
 	 * Proxy string will be shown instead target string value
 	 */

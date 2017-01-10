@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
@@ -84,7 +84,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 
 	@Autowired
-	private SysProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 
 	@Autowired
 	private SysSystemEntityHandlingService systemEntityHandlingService;

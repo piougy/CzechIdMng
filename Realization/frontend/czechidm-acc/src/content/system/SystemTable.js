@@ -135,7 +135,8 @@ export class SystemTable extends Basic.AbstractContent {
             sort={false}/>
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
-          <Advanced.Column property="virtual" sort face="bool" width="75px" rendered={_.includes(columns, 'virtual')}/>
+          <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
+          <Advanced.Column property="queue" header={this.i18n('acc:entity.System.queue.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
           <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>
@@ -151,7 +152,7 @@ SystemTable.propTypes = {
 };
 
 SystemTable.defaultProps = {
-  columns: ['name', 'description', 'disabled', 'virtual'],
+  columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue'],
   filterOpened: false,
   _showLoading: false
 };

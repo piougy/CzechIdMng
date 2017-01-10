@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.AbstractWorkflowIntegrationTest;
 import eu.bcvsolutions.idm.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.notification.repository.IdmEmailLogRepository;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
 import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
 
@@ -49,7 +49,7 @@ public class BasicEmailTest extends AbstractWorkflowIntegrationTest {
 	}
 
 	/**
-	 * Send email through {@link EmailService}
+	 * Send email through {@link EmailNotificationSender}
 	 */
 	@Test
 	public void testSendEmailFromWorkflow() {

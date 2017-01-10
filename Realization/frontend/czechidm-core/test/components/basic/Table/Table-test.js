@@ -116,7 +116,7 @@ describe('Basic Table', function basicTableTestSuite() {
       expect(tableInstance.getIdentifier(4)).to.equal(1004);
     });
 
-    it('- table row selection', function test() {
+    it.skip('- table row selection', function test() {
       const tableInstance = TestUtils.renderIntoDocument(<Basic.Table data={data}/>);
       tableInstance.selectRow(3, true);
       tableInstance.selectRow(5, true);

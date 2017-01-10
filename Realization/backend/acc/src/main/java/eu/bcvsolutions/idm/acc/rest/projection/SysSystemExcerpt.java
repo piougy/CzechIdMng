@@ -24,5 +24,9 @@ public interface SysSystemExcerpt extends AbstractDtoProjection {
 	
 	boolean isVirtual();
 	
+	boolean isReadonly();
+	
+	boolean isQueue();
+	
 	SysConnectorKey getConnectorKey();
 }

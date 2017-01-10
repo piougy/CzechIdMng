@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent.CoreEventType;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
-	private SysProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
@@ -60,9 +60,9 @@ public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProces
 	 * 
 	 * @return
 	 */
-	private SysProvisioningService getProvisioningService() {
+	private ProvisioningService getProvisioningService() {
 		if (provisioningService == null) {
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		return provisioningService;
 	}

@@ -10,6 +10,7 @@ import SchemaAttributeHandlingService from './SchemaAttributeHandlingService';
 import SystemEntityHandlingService from './SystemEntityHandlingService';
 import SynchronizationConfigService from './SynchronizationConfigService';
 import SynchronizationLogService from './SynchronizationLogService';
+import ProvisioningOperationService from './ProvisioningOperationService';
 
 const ServiceRoot = {
   SystemService,
@@ -23,7 +24,8 @@ const ServiceRoot = {
   SystemEntityHandlingService,
   RoleSystemAttributeService,
   SynchronizationConfigService,
-  SynchronizationLogService
+  SynchronizationLogService,
+  ProvisioningOperationService
 };
 
 ServiceRoot.version = '0.1.0';

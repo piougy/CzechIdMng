@@ -42,7 +42,7 @@ public interface SysSystemEntityRepository extends AbstractEntityRepository<SysS
 	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<SysSystemEntity> find(SystemEntityFilter filter, Pageable pageable);
 	
-	SysSystem findOneByUidAndEntityType(@Param("uid") String uid, @Param("entityType") SystemEntityType entityType);
+	SysSystemEntity findOneBySystemAndEntityTypeAndUid(@Param("system") SysSystem system, @Param("entityType") SystemEntityType entityType, @Param("uid") String uid);
 	
 	Long countBySystem(@Param("system") SysSystem system);	
 }

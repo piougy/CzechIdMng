@@ -113,6 +113,17 @@ public class AccAccount extends AbstractEntity {
 	public String getUid() {
 		return uid;
 	}
-
-
+	
+	/**
+	 * Return real uid from system entity.
+	 * If system entity do not exist, then return uid from account.
+	 * 
+	 * @return
+	 */
+	public String getRealUid() {
+		if (systemEntity != null) {
+			return systemEntity.getUid();
+		}
+		return uid;
+	}
 }

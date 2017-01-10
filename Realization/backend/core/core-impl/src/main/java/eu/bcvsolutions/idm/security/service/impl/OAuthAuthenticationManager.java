@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.security.service.impl;
 
-import java.util.Date;
-
 import org.activiti.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,8 +23,10 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 
 	@Autowired
 	private IdmIdentityService identityService;
+	
 	@Autowired
 	private IdentityService workflowIdentityService;
+	
 	@Autowired
 	private SecurityService securityService;
 	
@@ -38,9 +38,8 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 		}
 
 		IdmJwtAuthentication idmJwtAuthentication = (IdmJwtAuthentication) authentication;
-		Date currentDate = new Date();
 
-		if (idmJwtAuthentication.getExpiration() == null || currentDate.after(idmJwtAuthentication.getExpiration())) {
+		if (idmJwtAuthentication.isExpired()) {
 			throw new ResultCodeException(CoreResultCode.AUTH_EXPIRED);
 		}
 

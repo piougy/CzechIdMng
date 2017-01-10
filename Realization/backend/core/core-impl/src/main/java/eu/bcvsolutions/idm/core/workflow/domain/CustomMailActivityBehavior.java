@@ -15,8 +15,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
 
 /**
  * Custom Mail implementation
@@ -28,11 +29,11 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 	private static final long serialVersionUID = 1L;
 	private static final transient Logger log = LoggerFactory.getLogger(CustomMailActivityBehavior.class);
 
-	private transient EmailService emailService;
+	private transient EmailNotificationSender emailService;
 	private transient IdmIdentityService identityService;
 
 	/**
-	 * Sending emails through {@link EmailService}
+	 * Sending emails through {@link EmailNotificationSender}
 	 */
 	@Override
 	public void execute(ActivityExecution execution) {
@@ -49,13 +50,16 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 					.collect(Collectors.toList()));
 		}
 		// sender
-		emailLog.setSender(getIdentity(getStringFromField(from, execution)));
+		emailLog.setIdentitySender(getIdentity(getStringFromField(from, execution)));
 		// message
-		emailLog.setMessage(new IdmMessage(getStringFromField(subject, execution), getStringFromField(text, execution),
-				getStringFromField(html, execution)));
+		emailLog.setMessage(new IdmMessage.Builder()
+				.setSubject(getStringFromField(subject, execution))
+				.setTextMessage(getStringFromField(text, execution))
+				.setHtmlMessage(getStringFromField(html, execution))
+				.build());
 
-		boolean result = emailService.send(emailLog);
-		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result);
+		IdmNotification result = emailService.send(emailLog);
+		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result == null ? false : true);
 		
 		leave(execution);
 	}
@@ -77,7 +81,7 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 		return identityService.getByUsername(identity);
 	}
 
-	public void setEmailService(EmailService emailService) {
+	public void setEmailService(EmailNotificationSender emailService) {
 		this.emailService = emailService;
 	}
 

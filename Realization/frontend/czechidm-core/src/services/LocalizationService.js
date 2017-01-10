@@ -6,7 +6,7 @@ import Cache from 'i18next-localstorage-cache';
 
 let i18nextInstance = null;
 // TODO: move to configuration
-const SUPPORTED_LANGUAGES = ['cs', 'en'];
+const SUPPORTED_LANGUAGES = ['cs'];
 
 // original lookup - window.location.search.substring(1) - does not work
 const customQueryStringDetector = {

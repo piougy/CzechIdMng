@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
+import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
@@ -31,8 +31,8 @@ import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
  *
  */
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/emails")
-public class IdmEmailLogController extends AbstractReadWriteEntityController<IdmEmailLog, NotificationFilter> {	
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/notification-emails")
+public class IdmEmailLogController extends AbstractReadEntityController<IdmEmailLog, NotificationFilter> {	
 	
 	@Autowired
 	public IdmEmailLogController(EntityLookupService entityLookupService) {
@@ -62,17 +62,5 @@ public class IdmEmailLogController extends AbstractReadWriteEntityController<Idm
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
 		return super.get(backendId, assembler);
-	}
-	
-	@Override
-	protected NotificationFilter toFilter(MultiValueMap<String, Object> parameters) {
-		NotificationFilter filter = new NotificationFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSender(getParameterConverter().toString(parameters, "sender"));
-		filter.setRecipient(getParameterConverter().toString(parameters, "recipient"));
-		filter.setFrom(getParameterConverter().toDateTime(parameters, "from"));
-		filter.setTill(getParameterConverter().toDateTime(parameters, "till"));
-		filter.setSent(getParameterConverter().toBoolean(parameters, "sent"));		
-		return filter;
 	}
 }

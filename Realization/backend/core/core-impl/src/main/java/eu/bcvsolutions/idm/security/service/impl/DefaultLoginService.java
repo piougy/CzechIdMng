@@ -6,20 +6,18 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.jwt.crypto.sign.MacSigner;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
+import eu.bcvsolutions.idm.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
@@ -37,8 +35,6 @@ public class DefaultLoginService implements LoginService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
 	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.core.security.jwt.expirationTimeout";
 	public static final int DEFAULT_EXPIRATION_TIMEOUT = 36000000;
-	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.core.security.jwt.secret.token";
-	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 
 	@Autowired
 	private IdmIdentityService identityService;
@@ -51,13 +47,16 @@ public class DefaultLoginService implements LoginService {
 	private ObjectMapper mapper;
 	
 	@Autowired
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 
 	@Autowired
 	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
 	
 	@Autowired
 	private OAuthAuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtAuthenticationMapper jwtTokenMapper;
 
 	@Override
 	public LoginDto login(String username, GuardedString password) {
@@ -85,20 +84,20 @@ public class DefaultLoginService implements LoginService {
 
 		LOG.info("Identity with username [{}] is authenticated", username);
 
-		IdmJwtAuthenticationDto authenticationDto = grantedAuthoritiesFactory
-				.getIdmJwtAuthenticationDto(authentication);
-		String authenticationJson;
+		//JwtAuthenticationMapper jwtTokenMapper = new JwtAuthenticationMapper(mapper, configurationService.getValue(PROPERTY_SECRET_TOKEN, DEFAULT_SECRET_TOKEN));
+		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
+	
 		try {
-			authenticationJson = mapper.writeValueAsString(authenticationDto);
+			LoginDto loginDto = new LoginDto();
+			loginDto.setUsername(username);
+			loginDto.setAuthentication(authenticationDto);
+			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
+			return loginDto;
 		} catch (IOException ex) {
 			throw new IdmAuthenticationException(ex.getMessage(), ex);
 		}
 
-		LoginDto loginDto = new LoginDto();
-		loginDto.setUsername(username);
-		loginDto.setAuthentication(authenticationDto);
-		loginDto.setToken(JwtHelper.encode(authenticationJson, new MacSigner(configurationService.getValue(PROPERTY_SECRET_TOKEN, DEFAULT_SECRET_TOKEN))).getEncoded());
-		return loginDto;
+		
 	}
 
 	/**

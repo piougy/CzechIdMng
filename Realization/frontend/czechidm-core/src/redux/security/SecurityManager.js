@@ -1,6 +1,11 @@
 import _ from 'lodash';
+//
+import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
+//
 import { AuthenticateService, LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
+import ConfigLoader from '../../utils/ConfigLoader';
 
 /**
  * action types
@@ -14,6 +19,8 @@ export const LOGOUT = 'LOGOUT';
 const TOKEN_COOKIE_NAME = 'XSRF-TOKEN';
 
 const authenticateService = new AuthenticateService();
+const flashMessagesManager = new FlashMessagesManager();
+let stompClient = null;
 
 /**
  * Encapsulate user context / authentication and authorization (commig soon)
@@ -21,7 +28,6 @@ const authenticateService = new AuthenticateService();
 export default class SecurityManager {
 
   constructor() {
-    this.flashMessagesManager = new FlashMessagesManager();
   }
 
   /**
@@ -34,7 +40,7 @@ export default class SecurityManager {
   login(username, password, redirect) {
     return (dispatch, getState) => {
       dispatch(this.requestLogin());
-      dispatch(this.flashMessagesManager.hideAllMessages());
+      dispatch(flashMessagesManager.hideAllMessages());
       //
       authenticateService.login(username, password)
       .then(json => {
@@ -54,7 +60,7 @@ export default class SecurityManager {
         };
         //
         // remove all messages (only logout could be fond in messages after logout)
-        dispatch(this.flashMessagesManager.removeAllMessages());
+        dispatch(flashMessagesManager.removeAllMessages());
         //
         // send userContext to state
         dispatch(this.receiveLogin(userContext, redirect));
@@ -75,7 +81,9 @@ export default class SecurityManager {
   }
 
   receiveLogin(userContext, redirect) {
-    return (dispatch) => {
+    return dispatch => {
+      // login to websocke
+      dispatch(SecurityManager.connectStompClient(userContext));
       // getState().logger.debug('received login', userContext);
       // redirect after login, if needed
       if (redirect) {
@@ -93,7 +101,7 @@ export default class SecurityManager {
       authenticateService.logout();
       // add error message
       if (error) {
-        dispatch(this.flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
+        dispatch(flashMessagesManager.addErrorMessage({ position: 'tc' }, error));
       }
       // redirect after login, if needed
       if (redirect) {
@@ -114,8 +122,8 @@ export default class SecurityManager {
   logout(redirect) {
     return dispatch => {
       authenticateService.logout();
-      dispatch(this.flashMessagesManager.removeAllMessages());
-      dispatch(this.flashMessagesManager.addMessage({
+      dispatch(flashMessagesManager.removeAllMessages());
+      dispatch(flashMessagesManager.addMessage({
         key: 'logout',
         message: LocalizationService.i18n('content.logout.message.logout'),
         level: 'info',
@@ -139,8 +147,12 @@ export default class SecurityManager {
   }
 
   receiveLogout() {
-    return {
-      type: LOGOUT
+    return dispatch => {
+      // logout from web sockets
+      dispatch(SecurityManager.disconectStompClient());
+      dispatch({
+        type: LOGOUT
+      });
     };
   }
 
@@ -326,5 +338,52 @@ export default class SecurityManager {
         state: { nextPathname: nextState.location.pathname }
       });
     }
+  }
+
+  /**
+   * Connect websocket client to receiving flashmessages from BE
+   *
+   * @param  {UserContext} userContext
+   */
+  static connectStompClient(userContext = null) {
+    return (dispatch, getState) => {
+      dispatch(this.disconectStompClient());
+      if (!userContext) {
+        userContext = AuthenticateService.getUserContext();
+      }
+      // logged user only
+      if (userContext && userContext.username) {
+        stompClient = Stomp.over(new SockJS(`${ConfigLoader.getServerUrl()}/websocket-info`));
+        const headers = {
+          login: userContext.username,
+          CIDMST: userContext.tokenCIDMST
+        };
+        stompClient.connect(headers, () => {
+          getState().logger.debug(`stomp client for messages - identity [${userContext.username}] is logged.`);
+          stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (stompMessage) => {
+            const message = JSON.parse(stompMessage.body);
+            dispatch(flashMessagesManager.addMessage(message));
+          }, headers);
+        }, () => {
+          // try reconnect
+          // setTimeout(SecurityManager.connectStompClient, 10000);
+        });
+      }
+    };
+  }
+
+  /**
+   * Disconnect websocket client to receiving flashmessages from BE
+   *
+   * @return {[type]} [description]
+   */
+  static disconectStompClient() {
+    return (dispatch, getState) => {
+      if (stompClient) {
+        stompClient.disconnect(() => {
+          getState().logger.debug(`stom client for messages - websocket successfully closed.`);
+        });
+      }
+    };
   }
 }

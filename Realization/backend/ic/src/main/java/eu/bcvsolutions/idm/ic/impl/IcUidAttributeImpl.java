@@ -55,6 +55,7 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
  */
 public class IcUidAttributeImpl extends IcAttributeImpl implements IcUidAttribute {
 
+	private static final long serialVersionUID = 7514965769990064116L;
 	private final String revision;
 
 	public IcUidAttributeImpl(String name, String uid, String revision) {

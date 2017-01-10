@@ -10,6 +10,7 @@ import SchemaAttributeHandlingManager from './SchemaAttributeHandlingManager';
 import SystemEntityHandlingManager from './SystemEntityHandlingManager';
 import SynchronizationLogManager from './SynchronizationLogManager';
 import SynchronizationConfigManager from './SynchronizationConfigManager';
+import ProvisioningOperationManager from './ProvisioningOperationManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -23,7 +24,8 @@ const ManagerRoot = {
   SystemEntityHandlingManager,
   RoleSystemAttributeManager,
   SynchronizationLogManager,
-  SynchronizationConfigManager
+  SynchronizationConfigManager,
+  ProvisioningOperationManager
 };
 
 ManagerRoot.version = '0.0.1';

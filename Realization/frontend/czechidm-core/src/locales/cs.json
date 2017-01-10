@@ -172,6 +172,10 @@
       },
       "separator": {
         "system": "Systémové menu"
+      },
+      "notifications": {
+        "label": "Notifikace",
+        "title": "Notifikace"
       }
     }
   },
@@ -1128,8 +1132,9 @@
       }
     },
     "notifications": {
-      "header": "Notifikace",
-      "title": "Notifikace",
+      "header": "Odeslané notifikace",
+      "label": "Odeslané notifikace",
+      "title": "Záznamy odeslaných notifikací",
       "filter": {
         "dateFrom": {
           "label": "Od",
@@ -1173,33 +1178,7 @@
     },
     "emails": {
       "header": "Emaily",
-      "title": "Emaily",
-      "filter": {
-        "dateFrom": {
-          "label": "Od",
-          "placeholder": "Datum od"
-        },
-        "dateTill": {
-          "label": "Do",
-          "placeholder": "Datum do"
-        },
-        "text": {
-          "label": "Zpráva",
-          "placeholder": "Předmět, obsah zprávy"
-        },
-        "sender": {
-          "label": "Odesílatel",
-          "placeholder": ""
-        },
-        "recipient": {
-          "label": "Příjemce",
-          "placeholder": ""
-        },
-        "sent": {
-          "label": "Odesláno",
-          "placeholder": "Stav odeslání ..."
-        }
-      }
+      "title": "Emaily"
     },
     "email": {
       "header": "Detail emailu",
@@ -1209,6 +1188,19 @@
         "notSent": "Neodesláno",
         "sentPartly": "Částečně"
       }
+    },
+    "websockets": {
+      "header": "Websocket",
+      "title": "Websocket"
+    },
+    "websocket": {
+      "header": "Detail websocket zprávy",
+      "title": "Detail websocket zprávy"
+    },
+    "notificationConfigurations": {
+      "label": "Konfigurace",
+      "header": "Konfigurace notifikací",
+      "title": "Konfigurace notifikací"
     },
     "workflow" : {
       "definition": {
@@ -1482,7 +1474,7 @@
       "candicateUsers": "Mohou řešit"
     },
     "Notification": {
-      "topic": "Téma",
+      "topic": "Téma / Topic",
       "created": "$t(entity.created)",
       "message": {
         "subject": "Předmět",
@@ -1496,20 +1488,40 @@
       "sentLog": "Zpráva při odeslání",
       "type": "Typ"
     },
+    "NotificationConfiguration": {
+      "_type": "Konfigurace notifikace",
+      "topic": "$t(entity.Notification.topic)",
+      "notificationType": "Typ notifikace"
+    },
     "Email": {
-      "topic": "Téma",
-      "created": "$t(entity.created)",
+      "topic": "$t(entity.Notification.topic)",
+      "created": "$t(entity.Notification.created)",
       "message": {
-        "subject": "Předmět",
-        "message": "Zpráva",
-        "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
+        "subject": "$t(entity.Notification.message.subject)",
+        "message": "$t(entity.Notification.message.message)",
+        "textMessage": "$t(entity.Notification.message.textMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
       },
-      "sender": "Odesílatel",
-      "recipients": "Příjemci",
-      "sent": "Odesláno",
-      "sentLog": "Zpráva při odeslání",
-      "type": "Typ"
+      "sender": "$t(entity.Notification.sender)",
+      "recipients": "$t(entity.Notification.recipients)",
+      "sent": "$t(entity.Notification.sent)",
+      "sentLog": "$t(entity.Notification.sentLog)",
+      "type": "$t(entity.Notification.type)"
+    },
+    "WebsocketLog": {
+      "topic": "$t(entity.Notification.topic)",
+      "created": "$t(entity.Notification.created)",
+      "message": {
+        "subject": "$t(entity.Notification.message.subject)",
+        "message": "$t(entity.Notification.message.message)",
+        "textMessage": "$t(entity.Notification.message.textMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+      },
+      "sender": "$t(entity.Notification.sender)",
+      "recipients": "$t(entity.Notification.recipients)",
+      "sent": "$t(entity.Notification.sent)",
+      "sentLog": "$t(entity.Notification.sentLog)",
+      "type": "$t(entity.Notification.type)"
     },
     "Configuration": {
       "name": "Klíč",

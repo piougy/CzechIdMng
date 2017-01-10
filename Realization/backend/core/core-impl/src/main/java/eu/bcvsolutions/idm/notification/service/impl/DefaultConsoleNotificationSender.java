@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.notification.service.api.IdmConsoleLogService;
  * @author Radek Tomiška 
  *
  */
-@Component("consoleNotificationService")
+@Component("consoleNotificationSender")
 public class DefaultConsoleNotificationSender extends AbstractNotificationSender<IdmConsoleLog> implements ConsoleNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConsoleNotificationSender.class);

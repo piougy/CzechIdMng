@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.notification.service.api.WebsocketNotificationSender;
  * @author Radek Tomiška
  *
  */
-@Component("websocketService")
+@Component("websocketNotificationSender")
 public class DefaultWebsocketNotificationSender extends AbstractNotificationSender<IdmWebsocketLog> implements WebsocketNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultWebsocketNotificationSender.class);
@@ -48,12 +48,13 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		LOG.info("Adding email notification to queue [{}]", notification);
 		IdmWebsocketLog log = createLog(notification);
 		// send flashmessage
+		FlashMessage message = toFlashMessage(log);
 		boolean sent = false;
 		for (IdmNotificationRecipient recipient : log.getRecipients()) {
 			websocket.convertAndSendToUser(
 					recipient.getRealRecipient(),
 					"/queue/messages", // TODO: configurable
-					toFlashMessage(log));
+					message);
 		}
 		return sent ? log : null;
 	}
@@ -128,13 +129,14 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		FlashMessage flashMessage = new FlashMessage();
 		flashMessage.setId(log.getId());
 		flashMessage.setCode(message.getSubject());
-		flashMessage.setMessage(message.getTextMessage());
+		flashMessage.setMessage(message.getTextMessage()); // default message
 		flashMessage.setDate(log.getCreated());
-		flashMessage.setLevel("success"); // TODO: from parameters
+		flashMessage.setLevel(message.getLevel() == null ? null : message.getLevel().toString().toLowerCase());
+		//
+		flashMessage.setParameters(message.getParameters());
 		flashMessage.setPosition("tr"); // TODO: from parameters
 		flashMessage.setKey(null); // TODO: from parameters
 		flashMessage.setHidden(false); // TODO: from parameters
-		flashMessage.setParameters(message.getParameters());
 		return flashMessage;
 	}
 }

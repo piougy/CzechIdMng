@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.notification.service.api.IdmEmailLogService;
  * @author Radek Tomiška
  *
  */
-@Component("emailService")
+@Component("emailNotificationSender")
 public class DefaultEmailNotificationSender extends AbstractNotificationSender<IdmEmailLog> implements EmailNotificationSender {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEmailNotificationSender.class);

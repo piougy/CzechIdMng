@@ -12,8 +12,18 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 public interface ProvisioningExecutor {
 
 	/**
-	 * Executes the resource operation. If the operation fails, it creates a resource request and saves
+	 *  Executes the resource operation. If the operation fails, it creates a resource request and saves
 	 * it to the queue.
+	 * 
+	 * @param provisioningOperation executed operation
+	 * @return
 	 */
-	void executeOperation(SysProvisioningOperation provisioningOperation);
+	SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation);
+	
+	/**
+	 * Cancel the resource operation.
+	 * 
+	 * @param provisioningOperation executed operation
+	 */
+	SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation);
 }

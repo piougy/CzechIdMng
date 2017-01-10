@@ -52,8 +52,11 @@ public class CustomMailActivityBehavior extends MailActivityBehavior {
 		// sender
 		emailLog.setIdentitySender(getIdentity(getStringFromField(from, execution)));
 		// message
-		emailLog.setMessage(new IdmMessage(getStringFromField(subject, execution), getStringFromField(text, execution),
-				getStringFromField(html, execution)));
+		emailLog.setMessage(new IdmMessage.Builder()
+				.setSubject(getStringFromField(subject, execution))
+				.setTextMessage(getStringFromField(text, execution))
+				.setHtmlMessage(getStringFromField(html, execution))
+				.build());
 
 		IdmNotification result = emailService.send(emailLog);
 		log.trace("Email from workflow execution [{}] was sent with result [{}]", execution.getId(), result == null ? false : true);

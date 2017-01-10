@@ -256,7 +256,31 @@
     "provisioningOperations": {
       "label": "Provisioning",
       "title" : "Provisioning - log operací",
-      "header" : "Provisioning <small>log operací</small>"
+      "header" : "Provisioning <small>log operací</small>",
+      "action": {
+        "retry": {
+          "action": "Opakovat operaci",
+          "header_1": "Opakovat operaci pro provisioning",
+          "header_2": "Opakovat operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.retry.header_2)",
+          "message_1": "Opravdu chcete spustit vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Opravdu chcete spustit <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Opravdu chcete spustit <strong>{{count}}</strong> vybraných operací?",
+          "error": "Při opakování operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning [{{names}}] byly znovu spuštěny."
+        },
+        "cancel": {
+          "action": "Zrušit operaci",
+          "header_1": "Zrušit operaci pro provisioning",
+          "header_2": "Zrušit operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.cancel.header_2)",
+          "message_1": "Opravdu chcete zrušit vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Opravdu chcete zrušit <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Opravdu chcete zrušit <strong>{{count}}</strong> vybraných operací?",
+          "error": "Při rušení operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning [{{names}}] byly zrušeny."
+        }
+      }
     }
   },
   "entity": {
@@ -266,6 +290,14 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "readonly": {
+        "label": "Readonly",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
+      },
+      "queue": {
+        "label": "Podporuje frontu",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu."
+      },
       "connectorKey": {
         "_type": "Konektor",
         "framework": "Framework",
@@ -374,10 +406,10 @@
     },
     "ProvisioningOperation": {
       "_type": "Provisioning - operace",
-      "creator": "Spustil",
+      "creator": "Vytvořil",
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
-      "status": "Výsledek"
+      "resultState": "Výsledek"
     }
   },
   "enums" : {
@@ -398,6 +430,13 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
+    },
+    "ProvisioningResultStateEnum":{
+      "CREATED": "Vytvořeno",
+    	"EXECUTED": "Provedeno",
+    	"EXCEPTION": "Chyba",
+    	"NOT_EXECUTED": "Neprovedeno",
+    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {

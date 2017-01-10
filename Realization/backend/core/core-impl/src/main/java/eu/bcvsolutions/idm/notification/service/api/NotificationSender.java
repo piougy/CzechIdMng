@@ -66,4 +66,13 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
 	N send(IdmNotification notification);
+	
+	/**
+	 * Sends given message with given topic to currently logged identity.
+	 * 
+	 * @param topic
+	 * @param message
+	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
+	 */
+	N send(String topic, IdmMessage message);
 }

@@ -1,5 +1,5 @@
 import { Services } from 'czechidm-core';
-import { Domain } from 'czechidm-core';
+import { Domain, Utils } from 'czechidm-core';
 import SystemEntityTypeEnum from '../domain/SystemEntityTypeEnum';
 
 export default class ProvisioningOperationService extends Services.AbstractService {
@@ -21,5 +21,35 @@ export default class ProvisioningOperationService extends Services.AbstractServi
 
   getDefaultSearchParameters() {
     return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+  }
+
+  /**
+   * Retry or cancel provisioning operation
+   *
+   * @param  {string} id
+   * @param  {string} action 'retry' or 'cancel'
+   * @return {Promise}
+   */
+  retry(id, action = 'retry') {
+    return Services.RestApiService
+      .put(this.getApiPath() + `/${id}/${action}`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
   }
 }

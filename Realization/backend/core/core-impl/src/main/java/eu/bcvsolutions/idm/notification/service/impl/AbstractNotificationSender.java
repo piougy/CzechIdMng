@@ -2,17 +2,22 @@ package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Basic notification service
@@ -25,6 +30,13 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractNotificationSender.class);
 	private final Class<N> notificationClass;
+	
+	@Autowired(required = false)
+	private SecurityService securityService;
+	
+	@Autowired(required = false)
+	@Deprecated // will be removed after recipient refactoring
+	private IdmIdentityService identityService;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractNotificationSender() {
@@ -61,10 +73,27 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	public N send(String topic, IdmMessage message, IdmIdentity recipient) {
 		return send(topic, message, Lists.newArrayList(recipient));
 	}
+	
+	@Override
+	@Transactional
+	public N send(String topic, IdmMessage message) {
+		Assert.notNull(securityService, "Security service is required for this operation");
+		Assert.notNull(identityService, "Identity service is required for this operation");
+		//
+		IdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
+		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
+			// system, guest, etc.
+			return null;
+		}
+		IdmIdentity recipient = identityService.get(currentIdentityDto.getId());
+		return send(topic, message, Lists.newArrayList(recipient));
+	}
 
 	@Override
 	@Transactional
 	public N send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
+		Assert.notNull(message, "Message is required");
+		//
 		IdmNotificationLog notification = new IdmNotificationLog();
 		notification.setTopic(topic);
 		notification.setMessage(message);
@@ -82,8 +111,14 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	 * @return
 	 */
 	protected IdmMessage cloneMessage(IdmNotification notification) {
-		return new IdmMessage(notification.getMessage().getSubject(), notification.getMessage().getTextMessage(),
-				notification.getMessage().getHtmlMessage(), notification.getMessage().getParameters());
+		IdmMessage message = notification.getMessage();
+		return new IdmMessage.Builder()
+				.setLevel(message.getLevel())
+				.setSubject(message.getSubject())
+				.setTextMessage(message.getTextMessage())
+				.setHtmlMessage(message.getHtmlMessage())
+				.setParameters(message.getParameters())
+				.build();
 	}
 
 	/**

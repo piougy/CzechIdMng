@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -36,15 +38,25 @@ public class DefaultProvisioningExecutor extends AbstractReadWriteEntityService<
 		this.entityEventManager = entityEventManager;
 	}
 
+	// TODO: return provisioning request
 	@Override
-	public void executeOperation(SysProvisioningOperation provisioningOperation) {
+	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
-		// TODO: clone
-		save(provisioningOperation);
-		// TODO: readonly system
+		if (provisioningOperation.getId() == null) {
+			provisioningOperation = save(provisioningOperation);
+		}
 		// TODO: result / exception handling
-		entityEventManager.process(new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(),
-				provisioningOperation));
+		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
+		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
+		return context.getContent();
+	}
+	
+	@Override
+	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
+		// TODO: cancel single request or batch ... 
+		provisioningOperation.setResultState(ResultState.CANCELED);
+		delete(provisioningOperation);
+		return provisioningOperation;
 	}
 
 }

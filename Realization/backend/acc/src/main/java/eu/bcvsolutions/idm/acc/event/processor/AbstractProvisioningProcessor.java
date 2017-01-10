@@ -6,9 +6,13 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -17,6 +21,9 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import eu.bcvsolutions.idm.notification.domain.NotificationLevel;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Execute provisioning
@@ -29,18 +36,26 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
+	private final NotificationManager notificationManager;
+	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	
 	public AbstractProvisioningProcessor(
 			ProvisioningOperationType provisioningOperationType,
 			IcConnectorFacade connectorFacade,
-			SysSystemService systemService) {
+			SysSystemService systemService,
+			NotificationManager notificationManager,
+			SysProvisioningOperationRepository provisioningOperationRepository) {
 		super(provisioningOperationType);
 		//
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
+		Assert.notNull(notificationManager);
+		Assert.notNull(provisioningOperationRepository);
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
+		this.notificationManager = notificationManager;
+		this.provisioningOperationRepository = provisioningOperationRepository;
 	}
 	
 	/**
@@ -75,12 +90,51 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 					ImmutableMap.of("system", system.getName()));
 		}
 		//
-		processInternal(provisioningOperation, connectorConfig);
-		//
-		LOG.debug("Provisioning operation [{}] for object with uid [{}] and connector object [{}] is completed", 
-				provisioningOperation.getOperationType(), 
-				provisioningOperation.getSystemEntityUid(),
-				provisioningOperation.getConnectorObject().getObjectClass().getType());
+		
+		try {
+			processInternal(provisioningOperation, connectorConfig);
+			//
+			SysProvisioningRequest request = provisioningOperation.getRequest();
+			if (provisioningOperation.getRequest() == null) {
+				request = new SysProvisioningRequest(provisioningOperation);
+				provisioningOperation.setRequest(request);
+			}
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setCode("OK").build()); // TODO: code
+			provisioningOperationRepository.save(provisioningOperation);
+			//
+			LOG.debug("Provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
+					provisioningOperation.getOperationType(), 
+					provisioningOperation.getSystemEntityUid(),
+					provisioningOperation.getConnectorObject().getObjectClass().getType());
+			//
+			notificationManager.send(
+					"idm:websocket", 
+					new IdmMessage.Builder(NotificationLevel.SUCCESS)
+						.setSubject("Proběhl provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "]")
+						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] úspěšně proběhl.")
+						.build());
+		} catch (Exception ex) {	
+			LOG.error("Provisioning operation [{}] for object with uid [{}] and connector object [{}] failed", 
+					provisioningOperation.getOperationType(), 
+					provisioningOperation.getSystemEntityUid(),
+					provisioningOperation.getConnectorObject().getObjectClass().getType(),
+					ex);
+			SysProvisioningRequest request = provisioningOperation.getRequest();
+			if (provisioningOperation.getRequest() == null) {
+				request = new SysProvisioningRequest(provisioningOperation);
+				provisioningOperation.setRequest(request);
+			}
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: code
+			//
+			provisioningOperationRepository.save(provisioningOperation);
+			//
+			notificationManager.send(
+					"idm:websocket", 
+					new IdmMessage.Builder(NotificationLevel.ERROR)
+						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
+						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] selhal.")
+						.build());
+		}
 		return new DefaultEventResult<>(event, this);
 	}
 	

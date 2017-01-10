@@ -454,7 +454,7 @@ AdvancedTable.propTypes = {
   /**
    * Enable row selection - checkbox in first cell
    */
-  showRowSelection: PropTypes.bool,
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   /**
    * selected row indexes as immutable set
    */

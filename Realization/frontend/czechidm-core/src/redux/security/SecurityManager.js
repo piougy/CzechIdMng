@@ -360,8 +360,9 @@ export default class SecurityManager {
         };
         stompClient.connect(headers, () => {
           getState().logger.debug(`stomp client for messages - identity [${userContext.username}] is logged.`);
-          stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (message) => {
-            dispatch(flashMessagesManager.addMessage( JSON.parse(message.body) ));
+          stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (stompMessage) => {
+            const message = JSON.parse(stompMessage.body);
+            dispatch(flashMessagesManager.addMessage(message));
           }, headers);
         }, () => {
           // try reconnect

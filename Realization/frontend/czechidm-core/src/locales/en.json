@@ -7,9 +7,9 @@
     },
     "helpdesk": "HelpDesk",
     "version": {
-      "frontend": "Version",
-      "backend": "API version",
-      "releaseDate": "Release date"
+      "frontend": "Verze",
+      "backend": "Verze rozhraní",
+      "releaseDate": "Datum vydání"
     }
   },
   "format": {
@@ -136,32 +136,32 @@
     "menu": {
       "home": "Nástěnka",
       "profile": {
-        "label": "Profile",
-        "title": "My profile"
+        "label": "Profil",
+        "title": "Můj profil"
       },
       "subordinates": {
         "label": "Podřízení",
         "title": "Můj tým"
       },
       "roles": {
-        "label" : "Role uživatele",
-        "title" : "Přiřazené role"
+        "label": "Role uživatele",
+        "title": "Přiřazené role"
       },
       "tasks": {
-        "label" : "Tasks",
-        "title" : "My tasks"
+        "label" : "Úkoly",
+        "title" : "Moje úkoly"
       },
-      "task" : "Task",
+      "task" : "Úkol",
       "identities": {
-        "label": "Identities",
-        "title": "Identities"
+        "label": "Uživatelé",
+        "title": "Seznam uživatelů"
       },
-      "messages": "Messages",
-      "configuration": "Configuration",
+      "messages": "Hlášení",
+      "configuration": "Konfigurace aplikace",
       "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
       "logout": "Odhlásit",
-      "system": "Configuration",
+      "system": "Nastavení",
       "workflow": {
         "definitions": "Definice workflow",
         "historicProcess": "Historie workflow",
@@ -469,7 +469,7 @@
           "placeholder": "Nové heslo pro kontrolu"
         },
         "button": {
-          "passwordChange": "Change password"
+          "passwordChange": "Změna hesla"
         },
         "message": {
           "passwordChange": {
@@ -712,8 +712,8 @@
       }
     },
     "tree": {
-      "header": "Tree structures",
-      "title": "Tree structures",
+      "header": "Stromové struktury",
+      "title": "Stromové struktury",
       "filter": {
         "parentId": {
           "label": "Nadřazená jedn."
@@ -1287,8 +1287,8 @@
     "created": "Vytvořeno",
 
     "Identity": {
-      "_type": "User",
-      "username": "Username",
+      "_type": "Uživatel",
+      "username": "Uživatelské jméno",
       "firstName": "Jméno",
       "lastName": "Příjmení",
       "email": "Email",
@@ -1646,7 +1646,7 @@
       "min_1" : "Zadejte minimálně jeden znak!",
       "min_2" : "Zadejte minimálně dva znaky!",
       "min_5" : "Zadejte minimálně {{count}} znaků!",
-      "base" : "Value is requied",
+      "base" : "Položka je povinná!",
       "email": "Formát emailu není validní!",
       "max_1" : "Zadejte maximálně {{count}} znak!",
       "max_2" : "Zadejte maximálně {{count}} znaky!",

@@ -19,7 +19,7 @@ public class ProvisioningOperationBuilderUnitTest extends AbstractUnitTest {
 
 	@Test
 	public void testBuildEmpty() {
-		ProvisioningOperationBuilder builder = new ProvisioningOperationBuilder();
+		SysProvisioningOperation.Builder builder = new SysProvisioningOperation.Builder();
 		
 		assertNotNull(builder.build());
 		assertNull(builder.build().getOperationType());
@@ -27,7 +27,7 @@ public class ProvisioningOperationBuilderUnitTest extends AbstractUnitTest {
 	
 	@Test
 	public void testBuildWithChange() {
-		ProvisioningOperationBuilder builder = new ProvisioningOperationBuilder();
+		SysProvisioningOperation.Builder builder = new SysProvisioningOperation.Builder();
 		
 		builder.setOperationType(ProvisioningOperationType.CREATE);
 		SysProvisioningOperation one = builder.build();

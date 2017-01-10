@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationBuilder;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -35,6 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -327,14 +327,14 @@ public class DefaultProvisioningService implements ProvisioningService {
 		IcAttribute icAttributeForCreate = createIcAttribute(mappedAttribute, valueTransformed);
 		//
 		// Call ic modul for update single attribute
-		ProvisioningOperationBuilder operationBuilder = new ProvisioningOperationBuilder();
-		operationBuilder.setSystem(system);
-		operationBuilder.setSystemEntityUid(uid);
-		operationBuilder.setEntityType(entityType);
-		operationBuilder.setEntityIdentifier(entity == null ? null : entity.getId());
-		operationBuilder.setOperationType(ProvisioningOperationType.UPDATE);
-		operationBuilder.setConnectorObject(new IcConnectorObjectImpl(new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate)));						
-		provisioningExecutor.executeOperation(operationBuilder.build());
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+				.setSystem(system)
+				.setSystemEntityUid(uid)
+				.setEntityType(entityType)
+				.setEntityIdentifier(entity == null ? null : entity.getId())
+				.setOperationType(ProvisioningOperationType.UPDATE)
+				.setConnectorObject(new IcConnectorObjectImpl(new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate)));						
+		provisioningExecutor.execute(operationBuilder.build());
 	}
 
 	@Override
@@ -695,30 +695,30 @@ public class DefaultProvisioningService implements ProvisioningService {
 			}
 		}
 		
-		ProvisioningOperationBuilder operationBuilder = new ProvisioningOperationBuilder();
-		operationBuilder.setSystem(system);
-		operationBuilder.setSystemEntityUid(systemEntityUid);
-		operationBuilder.setEntityType(entityType);
-		operationBuilder.setEntityIdentifier(entity == null ? null : entity.getId());
+		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
+				.setSystem(system)
+				.setSystemEntityUid(systemEntityUid)
+				.setEntityType(entityType)
+				.setEntityIdentifier(entity == null ? null : entity.getId());
 		//
 		// call create on IC module
 		objectByClassMapForCreate.forEach((objectClassName, connectorObject) -> {
 			operationBuilder.setOperationType(ProvisioningOperationType.CREATE);
 			operationBuilder.setConnectorObject(connectorObject);						
-			provisioningExecutor.executeOperation(operationBuilder.build());
+			provisioningExecutor.execute(operationBuilder.build());
 		});
 
 		// call update on IC module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
 			operationBuilder.setOperationType(ProvisioningOperationType.UPDATE);
 			operationBuilder.setConnectorObject(connectorObject);		
-			provisioningExecutor.executeOperation(operationBuilder.build());
+			provisioningExecutor.execute(operationBuilder.build());
 		});
 		// call delete on IC module
 		objectByClassMapForDelete.forEach((objectClassName, connectorObject) -> {
 			operationBuilder.setOperationType(ProvisioningOperationType.DELETE);
 			operationBuilder.setConnectorObject(connectorObject);	
-			provisioningExecutor.executeOperation(operationBuilder.build());
+			provisioningExecutor.execute(operationBuilder.build());
 		});
 	}
 

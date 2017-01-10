@@ -73,6 +73,15 @@ module.exports = {
             'order': 50,
             'path': '/system/:entityId/entities-handling',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-synchronization-configs',
+            'type': 'TAB',
+            'icon': 'transfer',
+            'labelKey': 'acc:content.system.systemSynchronizationConfigs.title',
+            'order': 60,
+            'path': '/system/:entityId/synchronization-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]
       },

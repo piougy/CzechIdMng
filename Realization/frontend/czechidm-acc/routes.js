@@ -33,6 +33,11 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {
+          path: 'synchronization-configs',
+          component: require('./src/content/system/SystemSynchronizationConfigs'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
           path: 'accounts',
           component: require('./src/content/system/SystemAccounts'),
           access: [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['SYSTEM_READ', 'ACCOUNT_READ'] } ]
@@ -80,6 +85,16 @@ module.exports = {
         {
           path: 'schema-attributes-handling/:attributeId/new',
           component: require('./src/content/system/SchemaAttributeHandlingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'synchronization-configs/:configId/detail',
+          component: require('./src/content/system/SystemSynchronizationConfigDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'synchronization-configs/:configId/new',
+          component: require('./src/content/system/SystemSynchronizationConfigDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
         }
       ]

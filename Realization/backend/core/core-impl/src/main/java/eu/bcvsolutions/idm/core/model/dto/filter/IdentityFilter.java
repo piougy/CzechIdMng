@@ -40,6 +40,12 @@ public class IdentityFilter extends QuickFilter {
 	 * roles - OR
 	 */
 	private List<IdmRole> roles;
+	
+	/**
+	 * Little dynamic search by identity property and value
+	 */
+	private String property;
+	private Object value;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -90,5 +96,21 @@ public class IdentityFilter extends QuickFilter {
 			roles = new ArrayList<>();
 		}
 		return roles;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public void setProperty(String property) {
+		this.property = property;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
 	}
 }

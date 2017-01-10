@@ -70,6 +70,13 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	        	// identity with any of given role (OR)
 	        	+ " ?#{[0].roles == null ? 0 : [0].roles.size()} = 0"
 	        	+ " or exists (from IdmIdentityRole ir where ir.identity = e and ir.role.id IN (?#{T(eu.bcvsolutions.idm.core.api.utils.RepositoryUtils).queryEntityIds([0].roles)}))"
+	        + " )"
+	  	    + " and "
+	  	    + " ("
+	  	    	+ " ?#{[0].property} is null or (?#{[0].property} = 'username' and e.username = ?#{[0].value}) "
+	  	    		+ "or (?#{[0].property} = 'firstName' and e.firstName = ?#{[0].value}) "
+	  	    		+ "or (?#{[0].property} = 'lastName' and e.lastName = ?#{[0].value}) "
+	  	    		+ "or (?#{[0].property} = 'email' and e.email = ?#{[0].value}) "
 	        + " )")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	

@@ -189,7 +189,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 
 	@Override
-	public SyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
 		Assert.notNull(key);
 		Assert.notNull(connectorConfiguration);
@@ -207,7 +207,7 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		SyncToken syncToken = ConnIdIcConvertUtil.convertIcSyncToken(token);
 		if(syncToken == null){
 			// If is given token null, then we load latest token from connector
-			syncToken = conn.getLatestSyncToken(objectClassConnId);
+			//syncToken = conn.getLatestSyncToken(objectClassConnId);
 		}
 		
 		SyncResultsHandler handlerConnId = new SyncResultsHandler() {
@@ -218,7 +218,8 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 			}
 		};
 		
-		return conn.sync(objectClassConnId, syncToken, handlerConnId, null);
+		SyncToken resultToken =  conn.sync(objectClassConnId, syncToken, handlerConnId, null);
+		return ConnIdIcConvertUtil.convertConnIdSyncToken(resultToken);
 
 	}
 

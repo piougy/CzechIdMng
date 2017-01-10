@@ -95,7 +95,7 @@ public interface IcConnectorService {
 	 * @param handler - Handler will be call for every synchronization item
 	 * @return token
 	 */
-	SyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
+	IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcSyncToken token, IcSyncResultsHandler handler);
 
 

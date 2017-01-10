@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -15,7 +16,10 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
+import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
+import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
@@ -86,6 +90,14 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 				username, password);
 	}
 
+	@Override
+	public IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
+		Assert.notNull(key);
+		checkIcType(key);
+		return icConnectors.get(key.getFramework()).synchronization(key, connectorConfiguration, objectClass, token, handler);
+	}
+
 	private boolean checkIcType(IcConnectorKey key) {
 		if (!icConnectors.containsKey(key.getFramework())) {
 			throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
@@ -93,5 +105,6 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 		}
 		return true;
 	}
+
 
 }

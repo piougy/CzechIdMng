@@ -9,6 +9,6 @@ package eu.bcvsolutions.idm.acc.domain;
 public enum ReconciliationMissingAccountActionType {
 
 	CREATE_ACCOUNT, 
-	DELETE_IDENTITY,
+	DELETE_ENTITY,
 	IGNORE;
 }

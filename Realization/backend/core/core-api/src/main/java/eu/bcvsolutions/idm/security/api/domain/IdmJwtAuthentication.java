@@ -20,7 +20,6 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 
 	private Date expiration;
 	private Collection<GrantedAuthority> authorities;
-
 	
 	public IdmJwtAuthentication(IdentityDto currentIdentity, Date expiration,
 			Collection<GrantedAuthority> authorities) {
@@ -43,5 +42,11 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 	public Date getExpiration() {
 		return expiration;
 	}
-
+	
+	public boolean isExpired() {
+		if (expiration == null) {
+			return false;
+		}
+		return expiration.before(new Date());
+	}
 }

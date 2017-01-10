@@ -18,7 +18,15 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * @see {@link Ordered}
  * @param <E> {@link AbstractEntity} type
  */
-public interface EntityEventProcessor<E extends BaseEntity> extends Plugin<EntityEvent<?>>, Ordered {
+public interface EntityEventProcessor<E extends BaseEntity> extends Ordered {
+	
+	/**
+	 * Returns true, when processor supports given event
+	 * 
+	 * @param entityEvent
+	 * @return
+	 */
+	boolean supports(EntityEvent<?> entityEvent);
 	
 	/**
 	 * Process entity event without context.

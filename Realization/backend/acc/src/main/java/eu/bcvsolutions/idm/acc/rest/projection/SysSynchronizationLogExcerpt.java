@@ -23,5 +23,29 @@ public interface SysSynchronizationLogExcerpt extends AbstractDtoProjection {
 	public LocalDateTime getEnded();
 
 	public String getToken();
+	
+	public int getExceptionCreateEntity();
+	
+	public int getSuccessCreateEntity();
+	
+	public int getExceptionUpdateEntity();
+	
+	public int getSuccessUpdateEntity();
+	
+	public int getSuccessDeleteEntity();
+	
+	public int getExceptionDeleteEntity();
+	
+	public int getExceptionCreateAccount();
+
+	public int getSuccessCreateAccount();
+	
+	public int getExceptionUpdateAccount();
+
+	public int getSuccessUpdateAccount();
+
+	public int getExceptionDeleteAccount();
+
+	public int getSuccessDeleteAccount();
 
 }

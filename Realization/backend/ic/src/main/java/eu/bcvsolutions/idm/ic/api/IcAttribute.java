@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  * @author svandav
  *
  */
-public interface IcAttribute {
+public interface IcAttribute extends Serializable {
 
 	/**
 	 * Property name

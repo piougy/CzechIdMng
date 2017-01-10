@@ -196,6 +196,8 @@ function fillCheckAccess(route, moduleId) {
   }
 }
 fillCheckAccess(routes, null);
+// init websocket for user messages (after F5 etc.)
+store.dispatch(Managers.SecurityManager.connectStompClient());
 //
 // app entry point
 ReactDOM.render(

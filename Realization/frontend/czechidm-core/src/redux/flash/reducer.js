@@ -1,5 +1,3 @@
-
-
 import merge from 'object-assign';
 import Immutable from 'immutable';
 import { ADD_MESSAGE, HIDE_MESSAGE, HIDE_ALL_MESSAGES, REMOVE_MESSAGE, REMOVE_ALL_MESSAGES } from './FlashMessagesManager';

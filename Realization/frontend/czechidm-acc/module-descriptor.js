@@ -73,6 +73,15 @@ module.exports = {
             'order': 50,
             'path': '/system/:entityId/entities-handling',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-synchronization-configs',
+            'type': 'TAB',
+            'icon': 'transfer',
+            'labelKey': 'acc:content.system.systemSynchronizationConfigs.title',
+            'order': 60,
+            'path': '/system/:entityId/synchronization-configs',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           }
         ]
       },
@@ -96,6 +105,20 @@ module.exports = {
         'path': '/role/:entityId/systems',
         'icon': 'link',
         'access': [ { 'type': 'HAS_ALL_AUTHORITIES', 'authorities': ['ROLE_READ', 'SYSTEM_READ'] } ]
+      },
+      {
+        'id': 'provisioning-operations',
+        'parentId': 'audit',
+        'labelKey': 'acc:content.provisioningOperations.label',
+        'titleKey': 'acc:content.provisioningOperations.title',
+        'order': 100,
+        'path': '/provisioning',
+        'access': [
+          {
+            'type': 'HAS_ANY_AUTHORITY',
+            'authorities': ['APP_ADMIN']
+          }
+        ]
       }
     ]
   }

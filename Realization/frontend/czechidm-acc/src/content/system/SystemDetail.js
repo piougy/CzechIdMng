@@ -147,6 +147,14 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.virtual')}
                   rendered={false}/>
                 <Basic.Checkbox
+                  ref="readonly"
+                  label={this.i18n('acc:entity.System.readonly.label')}
+                  helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
+                <Basic.Checkbox
+                  ref="queue"
+                  label={this.i18n('acc:entity.System.queue.label')}
+                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
+                <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
               </Basic.AbstractForm>

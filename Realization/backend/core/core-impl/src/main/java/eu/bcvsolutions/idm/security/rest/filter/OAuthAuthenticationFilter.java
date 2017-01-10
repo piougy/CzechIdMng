@@ -11,13 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.InvalidSignatureException;
-import org.springframework.security.jwt.crypto.sign.MacSigner;
-import org.springframework.security.jwt.crypto.sign.SignerVerifier;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -28,8 +24,7 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModels;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
-import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
+import eu.bcvsolutions.idm.security.service.impl.JwtAuthenticationMapper;
 import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 
 /**
@@ -41,10 +36,6 @@ import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
 public class OAuthAuthenticationFilter extends GenericFilterBean {
 
 	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OAuthAuthenticationFilter.class);
-	public static final String AUTHENTICATION_TOKEN_NAME = "CIDMST";
-
-	@Value("${security.jwt.secretPhrase:idmSecret}")
-	private String secret;
 
 	@Autowired
 	private OAuthAuthenticationManager authenticationManager;
@@ -54,8 +45,7 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 	private ObjectMapper mapper;
 	
 	@Autowired
-	private GrantedAuthoritiesFactory grantedAuthoritiesFactory;
-
+	private JwtAuthenticationMapper jwtTokenMapper;
 	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -63,8 +53,8 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 		final HttpServletRequest httpRequest = (HttpServletRequest) request;
 		final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		String tokenHeader = httpRequest.getHeader(AUTHENTICATION_TOKEN_NAME);
-		String tokenParameter = httpRequest.getParameter(AUTHENTICATION_TOKEN_NAME);
+		String tokenHeader = httpRequest.getHeader(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME);
+		String tokenParameter = httpRequest.getParameter(JwtAuthenticationMapper.AUTHENTICATION_TOKEN_NAME);
 
 		if (tokenHeader == null && tokenParameter == null) {
 			chain.doFilter(request, response);
@@ -72,17 +62,8 @@ public class OAuthAuthenticationFilter extends GenericFilterBean {
 		}
 		String token = tokenHeader != null ? tokenHeader : tokenParameter;
 
-		SignerVerifier verifier = new MacSigner(secret);
-
 		try {
-			String decoded = JwtHelper.decodeAndVerify(token, verifier).getClaims();
-			IdmJwtAuthenticationDto authenticationDto = mapper.readValue(decoded, IdmJwtAuthenticationDto.class);
-
-			if (authenticationDto == null) {
-				return;
-			}
-
-			authenticationManager.authenticate(grantedAuthoritiesFactory.getIdmJwtAuthentication(authenticationDto));
+			authenticationManager.authenticate(jwtTokenMapper.readToken(token));
 		} catch (ResultCodeException ex) {			
 			sendErrorModel(httpRequest, httpResponse, ex.getError().getError(), ex);
 			return;

@@ -16,12 +16,17 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
  */
 public enum NotificationGroupPermission implements GroupPermission {
 	
-	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
+	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
+	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
 	public static final String NOTIFICATION_READ = "NOTIFICATION" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATION_WRITE = "NOTIFICATION" + BasePermission.SEPARATOR + "WRITE";
+	//
+	public static final String NOTIFICATIONCONFIGURATION_READ = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "READ";
+	public static final String NOTIFICATIONCONFIGURATION_WRITE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONCONFIGURATION_DELETE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

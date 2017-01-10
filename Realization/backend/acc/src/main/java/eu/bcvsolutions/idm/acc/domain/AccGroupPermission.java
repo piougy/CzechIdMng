@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 public enum AccGroupPermission implements GroupPermission {
 	
 	SYSTEM(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	ACCOUNT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	SYNCHRONIZATION(IdmBasePermission.WRITE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -28,6 +29,8 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String ACCOUNT_READ = "ACCOUNT" + BasePermission.SEPARATOR + "READ";
 	public static final String ACCOUNT_WRITE = "ACCOUNT" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ACCOUNT_DELETE = "ACCOUNT" + BasePermission.SEPARATOR + "DELETE";
+	
+	public static final String SYNCHRONIZATION_WRITE = "SYNCHRONIZATION" + BasePermission.SEPARATOR + "WRITE";
 	
 	private final List<BasePermission> permissions;
 

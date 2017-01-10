@@ -13,6 +13,8 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  *
  */
 public class IcAttributeImpl implements IcAttribute {
+
+	private static final long serialVersionUID = 1L;
 	protected String name;
 	protected List<Object> values;
 	protected boolean multiValue = false;

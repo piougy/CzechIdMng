@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -69,6 +68,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private boolean customFilter = false;
 
 	@Audited
+	@Lob
 	@Column(name = "token")
 	private String token;
 
@@ -84,19 +84,20 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "synchronization_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "correlation_attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSystemEntityHandling synchronizationMapping;
-
+	private SysSchemaAttributeHandling correlationAttribute;
+	
 	@Audited
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "provisioning_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "attribute_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSystemEntityHandling provisioningMapping;
+	private SysSystemEntityHandling attributeMapping;
 
 	@Audited
 	@NotNull
@@ -178,6 +179,14 @@ public class SysSynchronizationConfig extends AbstractEntity {
 		this.token = token;
 	}
 
+	public SysSchemaAttributeHandling getCorrelationAttribute() {
+		return correlationAttribute;
+	}
+
+	public void setCorrelationAttribute(SysSchemaAttributeHandling correlationAttribute) {
+		this.correlationAttribute = correlationAttribute;
+	}
+
 	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
@@ -194,20 +203,12 @@ public class SysSynchronizationConfig extends AbstractEntity {
 		this.customFilterScript = customFilterScript;
 	}
 
-	public SysSystemEntityHandling getSynchronizationMapping() {
-		return synchronizationMapping;
+	public SysSystemEntityHandling getAttributeMapping() {
+		return attributeMapping;
 	}
 
-	public void setSynchronizationMapping(SysSystemEntityHandling synchronizationMapping) {
-		this.synchronizationMapping = synchronizationMapping;
-	}
-
-	public SysSystemEntityHandling getProvisioningMapping() {
-		return provisioningMapping;
-	}
-
-	public void setProvisioningMapping(SysSystemEntityHandling provisioningMapping) {
-		this.provisioningMapping = provisioningMapping;
+	public void setAttributeMapping(SysSystemEntityHandling attributeMapping) {
+		this.attributeMapping = attributeMapping;
 	}
 
 	public SynchronizationLinkedActionType getLinkedAction() {

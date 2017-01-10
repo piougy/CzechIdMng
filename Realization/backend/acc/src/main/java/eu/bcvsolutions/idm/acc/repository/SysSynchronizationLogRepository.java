@@ -29,7 +29,9 @@ public interface SysSynchronizationLogRepository extends AbstractEntityRepositor
 	@Override
 	@Query(value = "select e from SysSynchronizationLog e"+ 
 			" where" +
-	        " (?#{[0].synchronizationConfigId} is null or e.synchronizationConfig.id = ?#{[0].synchronizationConfigId})"
+	        " (?#{[0].synchronizationConfigId} is null or e.synchronizationConfig.id = ?#{[0].synchronizationConfigId})"+
+			" AND"+
+	        " (?#{[0].running} is null or e.running = ?#{[0].running})"
 			)
 	Page<SysSynchronizationLog> find(SynchronizationLogFilter filter, Pageable pageable);
 }

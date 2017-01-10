@@ -13,10 +13,11 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
  *
  */
 public class IcConnectorObjectImpl implements IcConnectorObject {
+
+	private static final long serialVersionUID = 7115318820292735486L;
 	private IcObjectClass objectClass;
 	private List<IcAttribute> attributes;
 
-	
 	public IcConnectorObjectImpl() {
 	}
 

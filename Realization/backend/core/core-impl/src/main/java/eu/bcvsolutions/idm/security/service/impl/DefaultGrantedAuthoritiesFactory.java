@@ -1,7 +1,5 @@
 package eu.bcvsolutions.idm.security.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +11,6 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
@@ -23,11 +20,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
-import eu.bcvsolutions.idm.security.dto.DefaultGrantedAuthorityDto;
-import eu.bcvsolutions.idm.security.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 
@@ -111,43 +105,5 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 			}
 		});
 		return grantedAuthorities;
-	}
-
-	@Override
-	public IdmJwtAuthentication getIdmJwtAuthentication(IdmJwtAuthenticationDto dto) {
-		Collection<DefaultGrantedAuthorityDto> authorities = dto.getAuthorities();
-		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-		if (authorities != null) {
-			for (DefaultGrantedAuthorityDto a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthority(a.getAuthority()));
-			}
-		}
-		IdmJwtAuthentication authentication = new IdmJwtAuthentication(
-				new IdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
-				new IdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
-				dto.getExpiration(), 
-				grantedAuthorities);
-		return authentication;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public IdmJwtAuthenticationDto getIdmJwtAuthenticationDto(IdmJwtAuthentication authentication) {
-		IdmJwtAuthenticationDto authenticationDto = new IdmJwtAuthenticationDto();
-		authenticationDto.setCurrentUsername(authentication.getCurrentUsername());
-		authenticationDto.setCurrentIdentityId(authentication.getCurrentIdentity() == null ? null : authentication.getCurrentIdentity().getId());
-		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
-		authenticationDto.setOriginaIdentityId(authentication.getOriginalIdentity() == null ? null : authentication.getOriginalIdentity().getId());
-		authenticationDto.setExpiration(authentication.getExpiration());
-		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
-				.getAuthorities();
-		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();
-		if (authorities != null) {
-			for (DefaultGrantedAuthority a : authorities) {
-				grantedAuthorities.add(new DefaultGrantedAuthorityDto(a.getAuthority()));
-			}
-		}
-		authenticationDto.setAuthorities(grantedAuthorities);
-		return authenticationDto;
 	}
 }

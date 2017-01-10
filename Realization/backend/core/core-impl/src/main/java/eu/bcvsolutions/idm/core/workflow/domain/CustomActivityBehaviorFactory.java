@@ -10,7 +10,7 @@ import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFacto
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
+import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
 
 /**
  * 
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.notification.service.api.EmailService;
 public class CustomActivityBehaviorFactory extends DefaultActivityBehaviorFactory {
 	
 	@Autowired
-	private EmailService emailService;
+	private EmailNotificationSender emailService;
 	
 	@Autowired
 	private IdmIdentityService identityService;

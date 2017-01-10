@@ -20,6 +20,20 @@ public interface BaseNotification {
 	 * @return
 	 */
 	String getType();
+	
+	/**
+	 * Notification topic
+	 * 
+	 * @return
+	 */
+	String getTopic();
+
+	/**
+	 * Notification topic
+	 * 
+	 * @param topic
+	 */
+	void setTopic(String topic);
 
 	/**
 	 * Notification sender - could be filled, when notification is send from
@@ -27,7 +41,7 @@ public interface BaseNotification {
 	 * 
 	 * @param sender
 	 */
-	void setSender(IdmIdentity sender);
+	void setIdentitySender(IdmIdentity identitySender);
 
 	/**
 	 * Notification sender - could be filled, when notification is send from
@@ -35,7 +49,7 @@ public interface BaseNotification {
 	 * 
 	 * @return
 	 */
-	IdmIdentity getSender();
+	IdmIdentity getIdentitySender();
 
 	/**
 	 * Notification recipients

@@ -52,6 +52,16 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	
 	@Audited
 	@NotNull
+	@Column(name = "readonly", nullable = false)
+	private boolean readonly;
+	
+	@Audited
+	@NotNull
+	@Column(name = "queue", nullable = false)
+	private boolean queue;
+	
+	@Audited
+	@NotNull
 	@Column(name = "virtual", nullable = false)
 	private boolean virtual;
 	
@@ -113,5 +123,21 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	
 	public void setConnectorKey(SysConnectorKey connectorKey) {
 		this.connectorKey = connectorKey;
+	}
+
+	public boolean isReadonly() {
+		return readonly;
+	}
+
+	public void setReadonly(boolean readonly) {
+		this.readonly = readonly;
+	}
+
+	public boolean isQueue() {
+		return queue;
+	}
+
+	public void setQueue(boolean queue) {
+		this.queue = queue;
 	}
 }

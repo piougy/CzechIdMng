@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -46,7 +47,7 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <F extends BaseFilter> F toFilter(MultiValueMap<String, Object> parameters, Class<F> filterClass) {
-		if (mapper == null || parameters.isEmpty()) {
+		if (mapper == null || parameters.isEmpty() || EmptyFilter.class.equals(filterClass)) {
 			return null;
 		}
 		return mapper.convertValue(parameters.toSingleValueMap(), filterClass);

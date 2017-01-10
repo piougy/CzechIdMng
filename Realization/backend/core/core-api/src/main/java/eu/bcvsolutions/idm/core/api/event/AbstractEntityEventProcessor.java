@@ -38,10 +38,6 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		}
 	}
 	
-	/* 
-	 * (non-Javadoc)
-	 * @see org.springframework.plugin.core.Plugin#supports(java.lang.Object)
-	 */
 	@Override
 	public boolean supports(EntityEvent<?> entityEvent) {
 		Assert.notNull(entityEvent);

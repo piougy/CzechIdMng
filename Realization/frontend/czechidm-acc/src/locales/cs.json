@@ -99,6 +99,43 @@
           "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
         }
       },
+      "systemSynchronizationConfigs": {
+        "header": "Synchronizace<small> konfigurace</small>",
+        "title": "Synchronizace",
+        "startSynchronization": "Spustit synchronizaci",
+        "edit": {
+          "header": "Detail konfigurace synchronizace"
+        },
+        "create": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně vytvořena",
+          "header": "Nová konfigurace synchronizace"
+        },
+        "save": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        },
+        "action": {
+          "startSynchronization": {
+            "message": "<b>Opravdu chcete ručně spustit všechny vybrané synchronizace?</b>",
+            "header": "Ruční spuštění synchronizací",
+            "success": "Spuštění synchronizace '{{name}}' proběhlo v pořádku."
+          }
+        }
+      },
+      "systemSynchronizationConfigDetail": {
+        "header": "Detail synchronizace",
+        "title": "Detail synchronizace",
+        "synchronizationLogsHeader": "Logy synchronizace",
+        "edit": {
+          "header": "Detail konfigurace synchronizace"
+        },
+        "create": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně vytvořena",
+          "header": "Nová konfigurace synchronizace"
+        },
+        "save": {
+          "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        }
+      },
       "accounts": {
         "header": "Účty na koncovém systému <small>uložené v idm</small>",
         "title": "Účty na systému",
@@ -252,6 +289,35 @@
           }
         }
       }
+    },
+    "provisioningOperations": {
+      "label": "Provisioning",
+      "title" : "Provisioning - log operací",
+      "header" : "Provisioning <small>log operací</small>",
+      "action": {
+        "retry": {
+          "action": "Opakovat operaci",
+          "header_1": "Opakovat operaci pro provisioning",
+          "header_2": "Opakovat operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.retry.header_2)",
+          "message_1": "Opravdu chcete spustit vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Opravdu chcete spustit <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Opravdu chcete spustit <strong>{{count}}</strong> vybraných operací?",
+          "error": "Při opakování operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning [{{names}}] byly znovu spuštěny."
+        },
+        "cancel": {
+          "action": "Zrušit operaci",
+          "header_1": "Zrušit operaci pro provisioning",
+          "header_2": "Zrušit operace pro provisioning",
+          "header_5": "$t(acc:content.provisioningOperations.action.cancel.header_2)",
+          "message_1": "Opravdu chcete zrušit vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Opravdu chcete zrušit <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Opravdu chcete zrušit <strong>{{count}}</strong> vybraných operací?",
+          "error": "Při rušení operace {{name}} nastala chyba",
+          "success": "Operace pro provisioning [{{names}}] byly zrušeny."
+        }
+      }
     }
   },
   "entity": {
@@ -261,6 +327,14 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "readonly": {
+        "label": "Readonly",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
+      },
+      "queue": {
+        "label": "Podporuje frontu",
+        "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) budou probíhat přes frontu."
+      },
       "connectorKey": {
         "_type": "Konektor",
         "framework": "Framework",
@@ -366,6 +440,51 @@
       "_type": "Účet identity na koncovém systému",
       "ownership": "Vlastní účet",
       "role": "Přiřazen dle role"
+    },
+    "SynchronizationConfig": {
+      "enabled": "Synchronizace je povolena",
+      "name": "Název",
+      "description": "Popis",
+      "runOnServer": "Spustit na serveru",
+      "reconciliation": "Reconciliace",
+      "customFilter": "Použít vlastní filtr",
+      "token": "Token",
+      "timestamp": "Časová značka",
+      "customFilterScript": {
+        "label": "Vlastní filtr",
+        "help": "V tomto Groovy skriptu můžete definovat vlastní filtr, dle kterého bude provedeno vyhledání účtů na koncovém systému a následná synchronizace."
+      },
+      "correlationAttribute": "Korelační atribut",
+      "attributeMapping": "Sada mapovaných atributů",
+      "linkedAction": "Vazba existuje",
+      "unlinkedAction": "Vazba neexistuje",
+      "missingEntityAction": "Entita neexistuje",
+      "missingAccountAction": "Účet neexistuje"
+    },
+    "SynchronizationLog": {
+      "running": "Spuštěna",
+      "started": "Zahájena",
+      "ended": "Ukončena",
+      "token": "Token",
+      "exceptionCreateEntity": "Chyby vytvoření entit",
+      "successCreateEntity": "Vytvořeno entit",
+      "successUpdateEntity": "Upraveno entit",
+      "successDeleteEntity": "Smazáno entit",
+      "exceptionDeleteEntity": "Chyby smazání entit",
+      "exceptionUpdateEntity": "Chyby úpravení entit",
+      "exceptionCreateAccount": "Chyby vytvoření účtů",
+      "exceptionUpdateAccount": "Chyby upravení účtů",
+      "exceptionDeleteAccount": "Chyby smazání účtů",
+      "successDeleteAccount": "Smazáno účtů",
+      "successCreateAccount": "Vytvořeno účtů",
+      "successUpdateAccount": "Upraveno účtů"
+    },
+    "ProvisioningOperation": {
+      "_type": "Provisioning - operace",
+      "creator": "Vytvořil",
+      "operationType": "Typ operace",
+      "entityIdentifier": "Identifikátor entity (IdM)",
+      "resultState": "Výsledek"
     }
   },
   "enums" : {
@@ -381,6 +500,39 @@
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",
       "TECHNICAL": "Systémový"
+    },
+    "ReconciliationMissingAccountActionTypeEnum": {
+      "CREATE_ACCOUNT": "Vytvořit účet",
+      "DELETE_ENTITY": "Smazat entitu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationLinkedActionTypeEnum": {
+      "UPDATE_ENTITY": "Aktualizovat účet",
+      "UNLINK": "Odstranit vazbu",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationMissingEntityActionTypeEnum": {
+      "CREATE_ENTITY": "Vytvořit entitu",
+      "DELETE_ACCOUNT": "Smazat účet",
+      "DISABLE_ACCOUNT": "Zneplatnit účet",
+      "IGNORE": "Ignorovat"
+    },
+    "SynchronizationUnlinkedActionTypeEnum": {
+      "LINK": "Vytvořit vazbu",
+      "LINK_AND_UPDATE_ENTITY": "Vytvořit vazbu a aktualizovat entitu",
+      "IGNORE": "Ignorovat"
+    },
+    "ProvisioningOperationTypeEnum": {
+      "CREATE": "Vytvoření",
+      "UPDATE": "Úprava",
+      "DELETE": "Smazání"
+    },
+    "ProvisioningResultStateEnum":{
+      "CREATED": "Vytvořeno",
+    	"EXECUTED": "Provedeno",
+    	"EXCEPTION": "Chyba",
+    	"NOT_EXECUTED": "Neprovedeno",
+    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {

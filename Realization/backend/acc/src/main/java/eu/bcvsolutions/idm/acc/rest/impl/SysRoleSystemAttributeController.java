@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -42,9 +41,8 @@ public class SysRoleSystemAttributeController
 		extends AbstractReadWriteEntityController<SysRoleSystemAttribute, RoleSystemAttributeFilter> {
 
 	@Autowired
-	public SysRoleSystemAttributeController(EntityLookupService entityLookupService,
-			SysRoleSystemAttributeService service) {
-		super(entityLookupService, service);
+	public SysRoleSystemAttributeController(EntityLookupService entityLookupService) {
+		super(entityLookupService);
 	}
 
 	@Override
@@ -105,12 +103,5 @@ public class SysRoleSystemAttributeController
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
-	}
-
-	@Override
-	protected RoleSystemAttributeFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RoleSystemAttributeFilter filter = new RoleSystemAttributeFilter();
-		filter.setRoleSystemId(getParameterConverter().toUuid(parameters, "roleSystemId"));
-		return filter;
 	}
 }

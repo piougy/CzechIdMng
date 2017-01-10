@@ -122,6 +122,16 @@ class Table extends AbstractComponent {
     return newColumns;
   }
 
+  _showRowSelection({ rowIndex, data, showRowSelection }) {
+    if (typeof showRowSelection === 'function') {
+      return showRowSelection({
+        rowIndex,
+        data
+      });
+    }
+    return showRowSelection;
+  }
+
   selectRow(rowIndex, selected) {
     let newSelectedRows;
     if (rowIndex !== undefined && rowIndex !== null && rowIndex > -1) {
@@ -130,11 +140,14 @@ class Table extends AbstractComponent {
     } else { // de/select all
       newSelectedRows = this.state.selectedRows;
       const { data } = this.props;
+      //
       for (let i = 0; i < data.length; i++) {
-        if (selected) {
-          newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
-        } else {
-          newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+        if (this._showRowSelection({ ...this.props, rowIndex: i })) {
+          if (selected) {
+            newSelectedRows = newSelectedRows.add(this.getIdentifier(i));
+          } else {
+            newSelectedRows = newSelectedRows.remove(this.getIdentifier(i));
+          }
         }
       }
     }
@@ -185,6 +198,7 @@ class Table extends AbstractComponent {
           columns={headerColumns}
           rowIndex={-1}
           showLoading={showLoading}
+          showRowSelection={showRowSelection}
           onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
           selected={this._isAllRowsSelected()}/>
       </thead>
@@ -216,6 +230,7 @@ class Table extends AbstractComponent {
          data={this.props.data}
          columns={columns}
          rowIndex={rowIndex}
+         showRowSelection={showRowSelection}
          onRowSelect={showRowSelection ? this.selectRow.bind(this) : null}
          selected={this.state.selectedRows.has(this.getIdentifier(rowIndex))}
          onClick={onRowClick}
@@ -299,7 +314,7 @@ Table.propTypes = {
   /**
    * Enable row selection - checkbox in first cell
    */
-  showRowSelection: PropTypes.bool,
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   /**
    * css added to row
    */

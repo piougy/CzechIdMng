@@ -13,7 +13,8 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class SynchronizationLogFilter implements BaseFilter {
 
 	private UUID synchronizationConfigId;
-
+	private Boolean running;
+	
 	public UUID getSynchronizationConfigId() {
 		return synchronizationConfigId;
 	}
@@ -22,4 +23,11 @@ public class SynchronizationLogFilter implements BaseFilter {
 		this.synchronizationConfigId = synchronizationConfigId;
 	}
 
+	public Boolean getRunning() {
+		return running;
+	}
+
+	public void setRunning(Boolean running) {
+		this.running = running;
+	}
 }

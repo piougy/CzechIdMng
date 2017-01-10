@@ -6,6 +6,7 @@ import eu.bcvsolutions.idm.ic.api.IcEnabledAttribute;
 
 public class IcEnabledAttributeImpl extends IcAttributeImpl implements IcEnabledAttribute {
 
+	private static final long serialVersionUID = 1453760261269556609L;
 	private Boolean enabled;
 	private Date enabledDate;
 	private Date disabledDate;

@@ -23,8 +23,8 @@ import org.springframework.util.ObjectUtils;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.config.domain.DefaultEmailerConfiguration;
 import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.service.api.EmailService;
 import eu.bcvsolutions.idm.notification.service.api.Emailer;
+import eu.bcvsolutions.idm.notification.service.api.IdmEmailLogService;
 
 /**
  * Default email sender implementation
@@ -41,7 +41,7 @@ public class DefaultEmailer implements Emailer {
 	private CamelContext camelContext;
 	
 	@Autowired 
-	private EmailService emailService;
+	private IdmEmailLogService emailLogService;
 
 	@Autowired
     private ProducerTemplate producerTemplate;
@@ -55,7 +55,7 @@ public class DefaultEmailer implements Emailer {
 		
 		if (ObjectUtils.isEmpty(emailLog.getRecipients())) {
 			log.info("Email recipiets is empty. Email [{}] is logged only.", emailLog);
-			emailService.setEmailSentLog(emailLog.getId(), "Email recipiets is empty. Email was logged only.");
+			emailLogService.setEmailSentLog(emailLog.getId(), "Email recipiets is empty. Email was logged only.");
 			return false;
 		}
 		
@@ -76,15 +76,15 @@ public class DefaultEmailer implements Emailer {
 
 			if (configuration.isTestEnabled()) {
 				log.info("Test mode for emailer is enabled. Email [{}] will be logged only.", emailLog);
-				emailService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
+				emailLogService.setEmailSentLog(emailLog.getId(), "Test mode for emailer was enabled. Email was logged only.");
 			} else {
 				log.debug("Email was registered to producer [{}]", emailLog);
-				producerTemplate.asyncCallback(endpoint, exchange, new EmailCallback(emailLog.getId(), emailService));
+				producerTemplate.asyncCallback(endpoint, exchange, new EmailCallback(emailLog.getId(), emailLogService));
 			}
 			return true;
 		} catch(Exception ex) {
 			log.error("Sending email [{}] failed: [{}]", emailLog, ex);
-			emailService.setEmailSentLog(emailLog.getId(), StringUtils.abbreviate(ex.toString(), DefaultFieldLengths.LOG));
+			emailLogService.setEmailSentLog(emailLog.getId(), StringUtils.abbreviate(ex.toString(), DefaultFieldLengths.LOG));
 			return false;
 		}
 	}
@@ -113,8 +113,8 @@ public class DefaultEmailer implements Emailer {
 			headers.put("From", from);
 		}
 		// when from is given - transform to reply to
-		if (emailLog.getSender() != null) {
-			String fromEmail = emailService.getEmailAddress(emailLog.getSender());
+		if (emailLog.getIdentitySender() != null) {
+			String fromEmail = emailLogService.getEmailAddress(emailLog.getIdentitySender());
 			if (StringUtils.isNotBlank(fromEmail)) {
 				headers.put("Reply-To", fromEmail);
 			}			
@@ -147,23 +147,23 @@ public class DefaultEmailer implements Emailer {
 	private static class EmailCallback extends SynchronizationAdapter {
 		
 		private final UUID emailLogId;
-		private final EmailService emailService;
+		private final IdmEmailLogService emailLogService;
 		
-		public EmailCallback(UUID emailLogId, EmailService emailService) {
+		public EmailCallback(UUID emailLogId, IdmEmailLogService emailLogService) {
 			this.emailLogId = emailLogId;
-			this.emailService = emailService;
+			this.emailLogService = emailLogService;
 		}
 		
 		@Override
 	    public void onFailure(Exchange exchange) {			
 			log.error("Sending email [id:{}] failed: [{}]", emailLogId, exchange.getException()); // exception cannot be null here
-			emailService.setEmailSentLog(emailLogId, StringUtils.abbreviate(exchange.getException().toString(), DefaultFieldLengths.LOG));
+			emailLogService.setEmailSentLog(emailLogId, StringUtils.abbreviate(exchange.getException().toString(), DefaultFieldLengths.LOG));
 		}		
 		
 	    @Override
 	    public void onComplete(Exchange exchange) {
 	    	log.info("Sending email [id:{}] succeeded", emailLogId);
-	    	emailService.setEmailSent(emailLogId, new DateTime());
+	    	emailLogService.setEmailSent(emailLogId, new DateTime());
 	    }
 	}
 }

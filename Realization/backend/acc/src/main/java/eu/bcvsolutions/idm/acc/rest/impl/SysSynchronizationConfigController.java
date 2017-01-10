@@ -9,9 +9,11 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,7 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
+import eu.bcvsolutions.idm.acc.service.impl.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -41,10 +44,15 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 public class SysSynchronizationConfigController
 		extends AbstractReadWriteEntityController<SysSynchronizationConfig, SynchronizationConfigFilter> {
 
+	private final SynchronizationService synchronizationService;
+	
 	@Autowired
 	public SysSynchronizationConfigController(EntityLookupService entityLookupService,
-			SysSynchronizationConfigService service) {
+			SysSynchronizationConfigService service, SynchronizationService synchronizationService) {
 		super(entityLookupService, service);
+		Assert.notNull(synchronizationService);
+		
+		this.synchronizationService = synchronizationService;
 	}
 
 	@Override
@@ -105,6 +113,20 @@ public class SysSynchronizationConfigController
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	/**
+	 * Start synchronization
+	 * @param backendId
+	 * @return
+	 * @throws HttpMessageNotReadableException
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.POST)
+	public ResponseEntity<?> startSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		return new ResponseEntity<>(toResource(this.synchronizationService.synchronization(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
 	}
 
 	@Override

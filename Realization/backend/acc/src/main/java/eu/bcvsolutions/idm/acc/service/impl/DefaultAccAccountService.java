@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -27,7 +27,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	private final AccIdentityAccountRepository accIdentityAccountRepository;
 	@Autowired
 	private ApplicationContext applicationContext;
-	private SysProvisioningService provisioningService;
+	private ProvisioningService provisioningService;
 
 	@Autowired
 	public DefaultAccAccountService(
@@ -57,7 +57,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		super.delete(account);
 		// TODO move to asynchronouse queue
 		if(provisioningService == null){
-			provisioningService = applicationContext.getBean(SysProvisioningService.class);
+			provisioningService = applicationContext.getBean(ProvisioningService.class);
 		}
 		this.provisioningService.doDeleteProvisioning(account);
 	}

@@ -5,6 +5,7 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -51,6 +52,7 @@ public class SysSynchronizationLog extends AbstractEntity {
 	private LocalDateTime ended;
 
 	@Audited
+	@Lob
 	@Column(name = "token")
 	private String token;
 

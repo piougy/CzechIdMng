@@ -116,8 +116,14 @@ describe('Basic Table', function basicTableTestSuite() {
       expect(tableInstance.getIdentifier(4)).to.equal(1004);
     });
 
-    it.skip('- table row selection', function test() {
-      const tableInstance = TestUtils.renderIntoDocument(<Basic.Table data={data}/>);
+    it('- disabled table row selection', function test() {
+      const tableInstance = TestUtils.renderIntoDocument(<Basic.Table data={data} />);
+      tableInstance.selectRow(null, true);
+      expect(tableInstance.getSelectedRows().length).to.eql(0);
+    });
+
+    it('- table row selection', function test() {
+      const tableInstance = TestUtils.renderIntoDocument(<Basic.Table data={data} showRowSelection/>);
       tableInstance.selectRow(3, true);
       tableInstance.selectRow(5, true);
       expect(tableInstance.getSelectedRows()).to.eql([1003, 1005]);

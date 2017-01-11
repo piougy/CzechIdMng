@@ -30,6 +30,7 @@ import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
@@ -513,7 +514,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysSystem system = createTestSystem();
 
 		// generate schema for system
-		sysSystemService.generateSchema(system);
+		 List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 
 		// Create test identity for provisioning test
 		identity = new IdmIdentity();
@@ -527,7 +528,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
 		entityHandling.setEntityType(SystemEntityType.IDENTITY);
 		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
-		entityHandling.setSystem(system);
+		entityHandling.setObjectClass(objectClasses.get(0));
 		final SysSystemEntityHandling entityHandlingResult = systemEntityHandlingService.save(entityHandling);
 
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();

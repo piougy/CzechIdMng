@@ -4,7 +4,7 @@ import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
@@ -20,8 +20,7 @@ public interface SysSystemEntityHandlingExcerpt extends AbstractDtoProjection {
 	
 	SystemEntityType getEntityType();
 	
-	SystemOperationType getOperationType();
+	SysSchemaObjectClass getObjectClass();
 	
-	SysSystem getSystem();
-
+	SystemOperationType getOperationType();
 }

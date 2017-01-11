@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import java.util.List;
+
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
@@ -20,9 +23,11 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, Quic
 	 * Generate and persist schema to system. 
 	 * Use connector info and connector configuration stored in system.
 	 * If system contains any schema, then will be every object compare and only same will be regenerated
+	 * 
 	 * @param system
+	 * @return all schemas on system
 	 */
-	void generateSchema(SysSystem system);
+	List<SysSchemaObjectClass> generateSchema(SysSystem system);
 	
 	/**
 	 * Returns connector configuration for given system

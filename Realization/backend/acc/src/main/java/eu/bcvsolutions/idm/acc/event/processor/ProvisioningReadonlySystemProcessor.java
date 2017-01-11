@@ -66,7 +66,7 @@ public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProc
 					system.getName());
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING,
-					new IdmMessage.Builder(NotificationLevel.WARNING)
+					new IdmMessage.Builder(NotificationLevel.WARNING)	
 						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
 						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je v readonly režimu.")
 						.build());

@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -24,16 +25,20 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 		implements SysSchemaObjectClassService {
 
 	private final SysSchemaAttributeService sysSchemaAttributeService;
+	private final SysSystemEntityHandlingService systemEntityHandlingService;
 	
 	@Autowired
 	public DefaultSysSchemaObjectClassService(
 			SysSchemaObjectClassRepository repository,
-			SysSchemaAttributeService sysSchemaAttributeService) {
+			SysSchemaAttributeService sysSchemaAttributeService,
+			SysSystemEntityHandlingService systemEntityHandlingService) {
 		super(repository);
 		//
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
+		Assert.notNull(systemEntityHandlingService);
 		//
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
+		this.systemEntityHandlingService = systemEntityHandlingService;
 	}
 	
 	@Override
@@ -47,6 +52,10 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 		sysSchemaAttributeService.find(filter, null).forEach(schemaAttribute -> {
 			sysSchemaAttributeService.delete(schemaAttribute);
 		});	
+		// delete all mappings
+		systemEntityHandlingService.findByObjectClass(schemaObjectClass, null, null).forEach(systemEntityHandling -> {
+			systemEntityHandlingService.delete(systemEntityHandling);
+		});
 		//
 		super.delete(schemaObjectClass);
 	}

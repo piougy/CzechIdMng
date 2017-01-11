@@ -62,7 +62,6 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
             ref="table"
             uiKey={uiKey}
             manager={this.getManager()}
-            forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])

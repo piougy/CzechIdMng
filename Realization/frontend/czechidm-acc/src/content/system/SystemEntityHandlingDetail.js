@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SystemEntityHandlingManager, SystemManager, SchemaAttributeHandlingManager } from '../../redux';
+import { SystemEntityHandlingManager, SystemManager, SchemaAttributeHandlingManager, SchemaObjectClassManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import uuid from 'uuid';
@@ -13,6 +13,7 @@ const uiKeyAttributes = 'schema-attributes-handling';
 const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
 const systemManager = new SystemManager();
 const systemEntityHandlingManager = new SystemEntityHandlingManager();
+const schemaObjectClassManager = new SchemaObjectClassManager();
 
 class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
 
@@ -86,6 +87,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
 
     const formEntity = this.refs.form.getData();
     formEntity.system = systemManager.getSelfLink(formEntity.system);
+    formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(systemEntityHandlingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -142,6 +144,11 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
                 manager={systemManager}
                 label={this.i18n('acc:entity.SystemEntityHandling.system')}
                 readOnly
+                required/>
+              <Basic.SelectBox
+                ref="objectClass"
+                manager={schemaObjectClassManager}
+                label={this.i18n('acc:entity.SystemEntityHandling.objectClass')}
                 required/>
               <Basic.EnumSelectBox
                 ref="entityType"

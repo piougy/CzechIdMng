@@ -15,6 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class SystemEntityHandlingFilter implements BaseFilter {
 	
 	private UUID systemId;
+	private UUID objectClassId;
 	private SystemOperationType operationType;
 	private SystemEntityType entityType;
 
@@ -42,4 +43,11 @@ public class SystemEntityHandlingFilter implements BaseFilter {
 		this.entityType = entityType;
 	}
 
+	public void setObjectClassId(UUID objectClassId) {
+		this.objectClassId = objectClassId;
+	}
+	
+	public UUID getObjectClassId() {
+		return objectClassId;
+	}
 }

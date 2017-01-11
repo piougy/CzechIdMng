@@ -16,11 +16,13 @@ import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
+import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -52,6 +54,8 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 	private SysRoleSystemService roleSystemService;
 	@Autowired
 	private SysSystemEntityHandlingService systemEntityHandlingService;
+	@Autowired
+	private SysSchemaObjectClassService schemaObjectClassService;
 	
 	@Before
 	public void init() {
@@ -103,8 +107,13 @@ public class CoreReferentialIntegrityIntegrationTest extends AbstractIntegration
 		SysSystem system = new SysSystem();
 		system.setName("system_" + System.currentTimeMillis());
 		system = systemService.save(system);
+		// schema
+		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
+		objectClass.setSystem(system);
+		objectClass.setObjectClassName("__ACCOUNT__");	
+		objectClass = schemaObjectClassService.save(objectClass);
 		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
-		entityHandling.setSystem(system);
+		entityHandling.setObjectClass(objectClass);
 		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
 		entityHandling.setEntityType(SystemEntityType.IDENTITY);
 		entityHandling = systemEntityHandlingService.save(entityHandling);

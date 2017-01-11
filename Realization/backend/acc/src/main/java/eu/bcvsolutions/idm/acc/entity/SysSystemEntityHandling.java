@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "sys_system_entity_handling", indexes = {
-		@Index(name = "ux_system_enth_types_sys", columnList = "entity_type,operation_type,system_id", unique = true) })
+		@Index(name = "ux_system_enth_types_sys", columnList = "entity_type,operation_type,object_class_id", unique = true) })
 public class SysSystemEntityHandling extends AbstractEntity {
 
 	private static final long serialVersionUID = -8492560756893726050L;
@@ -39,20 +39,20 @@ public class SysSystemEntityHandling extends AbstractEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "entity_type", nullable = false)
 	private SystemEntityType entityType;
+	
+	@Audited
+	//@NotNull
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "object_class_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private SysSchemaObjectClass objectClass;
 
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
 	private SystemOperationType operationType;
-
-	@Audited
-	@NotNull
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysSystem system;
 
 	public SystemEntityType getEntityType() {
 		return entityType;
@@ -71,11 +71,17 @@ public class SysSystemEntityHandling extends AbstractEntity {
 	}
 
 	public SysSystem getSystem() {
-		return system;
+		if (objectClass == null) {
+			return null;
+		}
+		return objectClass.getSystem();
 	}
 
-	public void setSystem(SysSystem system) {
-		this.system = system;
+	public void setObjectClass(SysSchemaObjectClass objectClass) {
+		this.objectClass = objectClass;
 	}
-
+	
+	public SysSchemaObjectClass getObjectClass() {
+		return objectClass;
+	}
 }

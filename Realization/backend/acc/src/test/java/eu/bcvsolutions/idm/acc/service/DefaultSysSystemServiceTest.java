@@ -114,7 +114,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
 		objectClass.setSystem(system);
 		objectClass.setObjectClassName("obj_class");
-		schemaObjectClassService.save(objectClass);	
+		objectClass = schemaObjectClassService.save(objectClass);	
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		// schema attribute
@@ -127,7 +127,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		schemaAttributeFilter.setSystemId(system.getId());	
 		// system entity handling
 		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
-		entityHandling.setSystem(system);
+		entityHandling.setObjectClass(objectClass);
 		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
 		entityHandling.setEntityType(SystemEntityType.IDENTITY);
 		entityHandling = systemEntityHandlingService.save(entityHandling);

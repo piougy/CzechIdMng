@@ -29,7 +29,7 @@ public interface SysSynchronizationConfigRepository extends AbstractEntityReposi
 	@Override
 	@Query(value = "select e from SysSynchronizationConfig e"+ 
 			" where" +
-	        " (?#{[0].systemId} is null or e.attributeMapping.system.id = ?#{[0].systemId})"
+	        " (?#{[0].systemId} is null or e.attributeMapping.objectClass.system.id = ?#{[0].systemId})"
 			)
 	Page<SysSynchronizationConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
 }

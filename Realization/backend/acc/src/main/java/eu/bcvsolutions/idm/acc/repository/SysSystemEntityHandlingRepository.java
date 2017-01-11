@@ -31,9 +31,11 @@ public interface SysSystemEntityHandlingRepository extends AbstractEntityReposit
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
 	@Override
-	@Query(value = "select e from SysSystemEntityHandling e"+ 
+	@Query(value = "select e from SysSystemEntityHandling e left join e.objectClass o"+ 
 			" where" +
-	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})"+
+	        " (?#{[0].systemId} is null or o.system.id = ?#{[0].systemId})"+
+			" and" +
+			" (?#{[0].objectClassId} is null or o.id = ?#{[0].objectClassId})"+
 			" and" +
 			" (?#{[0].operationType} is null or e.operationType = ?#{[0].operationType})"+
 			" and" +

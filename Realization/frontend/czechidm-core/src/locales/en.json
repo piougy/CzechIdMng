@@ -279,6 +279,12 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
+    "RuleCategoryEnum": {
+      "DEFAULT": "Standardní",
+      "TRANSFORM_FROM": "Transformace z",
+      "TRANSFORM_TO": "Transformace do",
+      "SYSTEM": "Systemové"
+    },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "Nepřiřazena",
       "WAIT_ASSIGN": "Nepřiřazena (čeká na přiřazení)",
@@ -344,6 +350,12 @@
       "ADD": "vytvoření",
       "MOD": "modifikace",
       "DEL": "smazání"
+    },
+    "NotificationLevelEnum": {
+      "SUCCESS": "SUCCESS",
+      "INFO": "INFO",
+      "WARNING": "WARNING",
+      "ERROR": "ERROR"
     }
   },
   "dashboard": {
@@ -369,7 +381,8 @@
       "NOTIFICATION": "Notifikace",
       "ROLE": "Role",
       "TREENODE": "Prvky struktur",
-      "TREETYPE": "Typy struktur"
+      "TREETYPE": "Typy struktur",
+      "RULE": "Pravidla"
     }
   },
   "content": {
@@ -765,6 +778,21 @@
       "parentPick": "Vyberte složku",
       "reloadTree": "Obnov strom katalogu rolí",
       "addRoleCatalogue": "Přidat novou složku"
+    },
+    "rules": {
+      "header": "Definice pravidel",
+      "title": "Definice pravidel",
+      "edit": {
+        "title": "Detail pravidla",
+        "header": "{{name}} detail pravidla"
+      },
+      "create": {
+        "title": "Nové pravidlo",
+        "header": "Nové pravidlo"
+      },
+      "save": {
+        "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+      }
     },
     "roles": {
       "header": "Role",
@@ -1178,7 +1206,16 @@
     "notificationConfigurations": {
       "label": "Konfigurace",
       "header": "Konfigurace notifikací",
-      "title": "Konfigurace notifikací"
+      "title": "Konfigurace notifikací",
+      "edit": {
+        "header": "{{name}} <small>detail položky konfigurace</small>"
+      },
+      "create": {
+        "header": "Nová konfigurační položka"
+      },
+      "save": {
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+      }
     },
     "workflow" : {
       "definition": {
@@ -1268,8 +1305,16 @@
       "revision": {
         "id": "ID revize",
         "modifier": "Změnu provedl",
+        "type": "Typ entity",
+        "modification": "Typ modifikace",
         "revisionDate": "Datum revize",
-        "deleted": "Entita byla odstraněna"
+        "deleted": "Entita byla odstraněna",
+        "created": "Entita byla vytvořena",
+        "modificationType": {
+          "ADD": "Vytvoření",
+          "MOD": "Modifikace",
+          "DEL": "Smazání"
+        }
       },
       "filter": {
         "dateFrom": {
@@ -1317,6 +1362,15 @@
         "parentPlaceHolder": "Nadřezená složka"
       }
 
+    },
+    "Rule": {
+      "name": "Název pravidla",
+      "category": "Kategorie",
+      "script": {
+        "help": "Tělo pravidla, skript v jazyce Groovy.",
+        "label": "Pravidlo"
+       },
+      "description": "Popis pravidla"
     },
     "Role": {
       "_type": "Role",
@@ -1452,7 +1506,8 @@
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
-      "notificationType": "Typ notifikace"
+      "level": "Typ notifikace",
+      "notificationType": "Kanál"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -1638,7 +1693,7 @@
     },
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",
-      "message": "Revize musí být stejného typu."
+      "message": "Revize musí být stejného typu a od stejné entity."
     }
   },
   "validationError": {

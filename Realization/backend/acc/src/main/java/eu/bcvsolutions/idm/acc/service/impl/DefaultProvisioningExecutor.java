@@ -38,14 +38,13 @@ public class DefaultProvisioningExecutor extends AbstractReadWriteEntityService<
 		this.entityEventManager = entityEventManager;
 	}
 
-	// TODO: return provisioning request
 	@Override
 	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
+		//
 		if (provisioningOperation.getId() == null) {
 			provisioningOperation = save(provisioningOperation);
 		}
-		// TODO: result / exception handling
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
 		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
 		return context.getContent();
@@ -53,7 +52,7 @@ public class DefaultProvisioningExecutor extends AbstractReadWriteEntityService<
 	
 	@Override
 	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
-		// TODO: cancel single request or batch ... 
+		// Cancel single request
 		provisioningOperation.setResultState(ResultState.CANCELED);
 		delete(provisioningOperation);
 		return provisioningOperation;

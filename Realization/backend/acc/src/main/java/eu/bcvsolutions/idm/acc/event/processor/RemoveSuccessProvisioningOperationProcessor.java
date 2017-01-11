@@ -42,8 +42,8 @@ public class RemoveSuccessProvisioningOperationProcessor extends AbstractEntityE
 		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
 				|| ResultState.CANCELED.equals(provisioningOperation.getResultState())) {
 			// TODO: resolve referential integrity
-			// provisioningOperationRepository.delete(provisioningOperation);
-			// LOG.debug("Successfully executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
+			//provisioningOperationRepository.delete(provisioningOperation);
+			//LOG.debug("Successfully executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 		}
 		return new DefaultEventResult<>(event, this, isClosable());
 	}

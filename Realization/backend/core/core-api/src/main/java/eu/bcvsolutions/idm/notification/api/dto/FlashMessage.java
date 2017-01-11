@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.notification.dto;
+package eu.bcvsolutions.idm.notification.api.dto;
 
 import java.util.Map;
 import java.util.UUID;
@@ -25,10 +25,12 @@ public class FlashMessage implements BaseDto {
 	private boolean hidden;	
 	private Map<String, Object> parameters;
 
+	@Override
 	public UUID getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(UUID id) {
 		this.id = id;
 	}

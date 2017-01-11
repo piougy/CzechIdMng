@@ -4,6 +4,7 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
@@ -21,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.domain.NotificationLevel;
+import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -108,7 +109,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 					provisioningOperation.getConnectorObject().getObjectClass().getType());
 			//
 			notificationManager.send(
-					"idm:websocket", 
+					AccModuleDescriptor.TOPIC_PROVISIONING, 
 					new IdmMessage.Builder(NotificationLevel.SUCCESS)
 						.setSubject("Proběhl provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "]")
 						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] úspěšně proběhl.")
@@ -129,7 +130,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			notificationManager.send(
-					"idm:websocket", 
+					AccModuleDescriptor.TOPIC_PROVISIONING, 
 					new IdmMessage.Builder(NotificationLevel.ERROR)
 						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
 						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] selhal.")

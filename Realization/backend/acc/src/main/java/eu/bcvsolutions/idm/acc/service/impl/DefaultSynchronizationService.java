@@ -9,26 +9,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.NotSupportedException;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.bouncycastle.tsp.cms.ImprintDigestInvalidException;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.social.LinkedInAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
-import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
@@ -51,7 +45,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;

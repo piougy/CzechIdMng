@@ -156,6 +156,15 @@ class Table extends AbstractComponent {
     }, this._onRowSelect(rowIndex, selected, newSelectedRows.toArray()));
   }
 
+  /**
+   * Clears row selection
+   */
+  clearSelectedRows() {
+    this.setState({
+      selectedRows: this.state.selectedRows.clear()
+    });
+  }
+
   _onRowSelect(rowIndex, selected, selection) {
     const { onRowSelect } = this.props;
     if (!onRowSelect) {

@@ -20,6 +20,13 @@ import eu.bcvsolutions.idm.notification.entity.IdmNotification;
 public interface NotificationSender<N extends BaseNotification> extends Plugin<String> {
 	
 	static final String DEFAULT_TOPIC = "default";
+	
+	/**
+	 * Returns this manager's {@link IdmNotification} type.
+	 * 
+	 * @return
+	 */
+	String getType();
 
 	/**
 	 * Sends given message to given identity.

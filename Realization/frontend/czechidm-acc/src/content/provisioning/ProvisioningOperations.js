@@ -38,7 +38,11 @@ class SystemEntitiesContent extends Basic.AbstractTableContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), ids[0])) }),
       this.i18n(`action.${bulkActionValue}.header`, { count: ids.length})
     ).then(() => {
-      this.context.store.dispatch(manager.retry(ids, bulkActionValue));
+      this.context.store.dispatch(manager.retry(ids, bulkActionValue, () => {
+        // clear selected rows and reload
+        this.refs.table.getWrappedInstance().clearSelectedRows();
+        this.refs.table.getWrappedInstance().reload();
+      }));
     }, () => {
       // nothing
     });

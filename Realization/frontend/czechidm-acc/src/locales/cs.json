@@ -55,7 +55,7 @@
           }
         }
       },
-      "systemObjectClasses": {
+      "schemaObjectClasses": {
         "header": "Schéma systému",
         "title": "Schéma systému",
         "schemaObjectClassesHeader": "Typy objektů <small>na koncovém systému</small>",
@@ -83,20 +83,6 @@
             "header": "Generování schématu",
             "success": "Generování schématu pro systém '{{name}}' proběhlo v pořádku."
           }
-        }
-      },
-      "systemEntitiesHandling": {
-        "header": "Mapování atributů<small> skupiny atributů pro typ entity a operaci</small>",
-        "title": "Mapování atributů",
-        "edit": {
-          "header": "Detail mapování entit a operací"
-        },
-        "create": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
-          "header": "Nové mapování pro entitu a operaci"
-        },
-        "save": {
-          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
         }
       },
       "systemSynchronizationConfigs": {
@@ -185,10 +171,24 @@
           }
         }
       },
-      "entityHandlingDetail": {
-        "title" :"Skupina atributů",
-        "systemEntityHandlingHeader": "Skupina atributů <small>pro IdM entitu a typ operace</small>",
-        "schemaAttributesHandlingHeader": "Namapované atributy",
+      "mappings": {
+        "header": "Mapování atributů<small> skupiny atributů pro typ entity a operaci</small>",
+        "title": "Mapování atributů",
+        "edit": {
+          "header": "Detail mapování entit a operací"
+        },
+        "create": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně vytvořeno",
+          "header": "Nové mapování pro entitu a operaci"
+        },
+        "save": {
+          "success": "Mapování pro typ entity [{{name}}] bylo úspěšně uloženo"
+        }
+      },
+      "mappingDetail": {
+        "title" :"Mapování atributů",
+        "header": "Mapování atributů <small>pro IdM entitu a typ operace</small>",
+        "systemAttributesMappingHeader": "Namapované atributy",
         "edit": {
           "header": "Detail typu IdM entity a operace"
         },
@@ -217,7 +217,7 @@
           "header": "Nový atribut systému"
         }
       },
-      "attributeHandlingDetail": {
+      "attributeMappingDetail": {
         "title" : "Atribut v IdM",
         "header" : "Detail mapování atributu ",
         "alertNoRepository": "Atribut není mapován na žádné IdM úložiště (entitu ani rozšířený atribut). Výstupem bude konstanta, z 'Transformace do systému'",
@@ -248,7 +248,7 @@
         "header": "Napojený systém",
         "title": "Napojený systém",
         "roleSystemAttributesHeader": "Atributy mapované v rámci této role",
-        "systemEntityHandling": {
+        "systemMapping": {
           "systemPlaceholder": "Nejprve vyberte system ..."
         },
         "create": {
@@ -349,7 +349,7 @@
       "type": "Typ přiřazení",
       "role": "Role",
       "system": "Systém",
-      "systemEntityHandling": "Typ entity"
+      "systemMapping": "Název mapování"
     },
     "SystemEntity": {
       "_type": "Entita na systému",
@@ -363,10 +363,13 @@
       "objectClassName": "Název objektu",
       "system": "Napojený systém"
     },
-    "SystemEntityHandling": {
+    "SystemMapping": {
+      "_type": "Mapování atributů na systému",
+      "name": "Název mapování",
       "entityType": "Typ IdM entity",
       "operationType": "Typ operace",
-      "system": "Napojený systém"
+      "system": "Napojený systém",
+      "objectClass": "Název objektu"
     },
     "SchemaAttribute": {
       "name": "Název atributu",
@@ -381,7 +384,7 @@
       "system": "Napojený systém",
       "multivalued": "Obsahuje více hodnot"
     },
-    "SchemaAttributeHandling": {
+    "SystemAttributeMapping": {
       "name": {
         "label": "Název",
         "help": "Uživatelsky definovaný identifikátor tohoto atributu."
@@ -391,7 +394,7 @@
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
       "schemaAttribute": "Atribut ve schéma",
-      "systemEntityHandling": "Podskupina",
+      "systemMapping": "Název mapování",
       "extendedAttribute": "Rozšířený atribut",
       "confidentialAttribute": "Tajný atribut",
       "entityAttribute": "Atribut entity",
@@ -419,7 +422,7 @@
         "label": "Název",
         "help": "Uživatelsky definovaný název tohoto rolí přetíženého mapovaného atributu systému."
       },
-      "schemaAttributeHandling": "Atribut v systému",
+      "systemAttributeMapping": "Atribut v systému",
       "roleSystem": "Patří k roli a systému",
       "disabledDefaultAttribute": "Vynechat",
       "disabledDefaultAttributeTooltip": "Pokud je zatrhnuto, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
@@ -455,7 +458,7 @@
         "help": "V tomto Groovy skriptu můžete definovat vlastní filtr, dle kterého bude provedeno vyhledání účtů na koncovém systému a následná synchronizace."
       },
       "correlationAttribute": "Korelační atribut",
-      "attributeMapping": "Sada mapovaných atributů",
+      "systemMapping": "Sada mapovaných atributů",
       "linkedAction": "Vazba existuje",
       "unlinkedAction": "Vazba neexistuje",
       "missingEntityAction": "Entita neexistuje",
@@ -495,7 +498,7 @@
     "SystemOperationTypeEnum": {
       "PROVISIONING": "Provisioning",
       "RECONCILIACE": "Reconciliace",
-      "SYNCHRONISATION": "Synchronizace"
+      "SYNCHRONIZATION": "Synchronizace"
     },
     "AccountTypeEnum": {
       "PERSONAL": "Osobní",

@@ -80,7 +80,7 @@ public class AccAccount extends AbstractEntity {
 //	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 //										// hibernate 4
 //	@org.hibernate.annotations.ForeignKey(name = "none")
-//	private SysSystemEntityHandling attributeMapping;
+//	private SysSystemMapping attributeMapping;
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;

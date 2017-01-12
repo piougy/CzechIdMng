@@ -12,9 +12,9 @@ export default class RoleSystemService extends Services.AbstractService {
       return '';
     }
     if (!entity._embedded) {
-      return `${entity.role.name} - ${entity.system.name} (${entity.systemEntityHandling.entityType})`;
+      return `${entity.role.name} - ${entity.system.name} (${entity.systemMapping.entityType})`;
     }
-    return `${entity._embedded.role.name} - ${entity._embedded.system.name} (${entity._embedded.systemEntityHandling.entityType})`;
+    return `${entity._embedded.role.name} - ${entity._embedded.system.name} (${entity._embedded.systemMapping.entityType})`;
   }
 
   getApiPath() {

@@ -10,11 +10,11 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Svanda
  *
  */
-public class SchemaAttributeHandlingFilter implements BaseFilter {
+public class SystemAttributeMappingFilter implements BaseFilter {
 	
 	private UUID systemId;
 	
-	private UUID entityHandlingId;
+	private UUID systemMappingId;
 	
 	private UUID schemaAttributeId;
 	
@@ -30,12 +30,12 @@ public class SchemaAttributeHandlingFilter implements BaseFilter {
 		this.isUid = isUid;
 	}
 
-	public UUID getEntityHandlingId() {
-		return entityHandlingId;
+	public UUID getSystemMappingId() {
+		return systemMappingId;
 	}
 
-	public void setEntityHandlingId(UUID entityHandlingId) {
-		this.entityHandlingId = entityHandlingId;
+	public void setSystemMappingId(UUID systemMappingId) {
+		this.systemMappingId = systemMappingId;
 	}
 
 	public String getIdmPropertyName() {

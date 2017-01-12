@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SynchronizationConfigManager, SynchronizationLogManager, SystemEntityHandlingManager, SchemaAttributeHandlingManager} from '../../redux';
+import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
@@ -14,8 +14,8 @@ const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
 const synchronizationLogManager = new SynchronizationLogManager();
 const synchronizationConfigManager = new SynchronizationConfigManager();
-const systemEntityHandlingManager = new SystemEntityHandlingManager();
-const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
+const systemMappingManager = new SystemMappingManager();
+const systemAttributeMappingManager = new SystemAttributeMappingManager();
 
 class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
 
@@ -23,9 +23,9 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     super(props, context);
     this.state = {
       ...this.state,
-      attributeMappingId: null, // dependant select box
+      systemMappingId: null, // dependant select box
       forceSearchCorrelationAttribute: new Domain.SearchParameters()
-        .setFilter('entityHandlingId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+        .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID) // dependant select box
     };
   }
 
@@ -96,8 +96,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     }
 
     const formEntity = this.refs.form.getData();
-    formEntity.attributeMapping = systemEntityHandlingManager.getSelfLink(formEntity.attributeMapping);
-    formEntity.correlationAttribute = schemaAttributeHandlingManager.getSelfLink(formEntity.correlationAttribute);
+    formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
+    formEntity.correlationAttribute = systemAttributeMappingManager.getSelfLink(formEntity.correlationAttribute);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -133,11 +133,11 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   /**
    * Call after attribute mapping selection was changed. Create filter for correlationAttribute
    */
-  _onChangeAttributeMapping(attributeMapping) {
-    const attributeMappingId = attributeMapping ? attributeMapping.id : null;
+  _onChangeSystemMapping(systemMapping) {
+    const systemMappingId = systemMapping ? systemMapping.id : null;
     this.setState({
-      attributeMappingId,
-      forceSearchCorrelationAttribute: this.state.forceSearchCorrelationAttribute.setFilter('entityHandlingId', attributeMappingId || Domain.SearchParameters.BLANK_UUID)
+      systemMappingId,
+      forceSearchCorrelationAttribute: this.state.forceSearchCorrelationAttribute.setFilter('systemMappingId', systemMappingId || Domain.SearchParameters.BLANK_UUID)
     }, () => {
       // clear selected correlationAttribute
       this.refs.correlationAttribute.setValue(null);
@@ -190,15 +190,15 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                 label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}/>
               <Basic.SelectBox
-                ref="attributeMapping"
-                manager={systemEntityHandlingManager}
+                ref="systemMapping"
+                manager={systemMappingManager}
                 forceSearchParameters={forceSearchMappingAttributes}
-                onChange={this._onChangeAttributeMapping.bind(this)}
-                label={this.i18n('acc:entity.SynchronizationConfig.attributeMapping')}
+                onChange={this._onChangeSystemMapping.bind(this)}
+                label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
                 required/>
               <Basic.SelectBox
                 ref="correlationAttribute"
-                manager={schemaAttributeHandlingManager}
+                manager={systemAttributeMappingManager}
                 forceSearchParameters={forceSearchCorrelationAttribute}
                 label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                 required/>
@@ -345,8 +345,8 @@ function select(state, component) {
   if (entity) {
     const correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute.id : null;
     entity.correlationAttribute = correlationAttribute;
-    const attributeMapping = entity._embedded && entity._embedded.attributeMapping ? entity._embedded.attributeMapping.id : null;
-    entity.attributeMapping = attributeMapping;
+    const systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
+    entity.systemMapping = systemMapping;
   }
   return {
     _synchronizationConfig: entity,

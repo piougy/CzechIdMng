@@ -17,6 +17,8 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 /**
  * Removes successfully processed provisioning event from queue.
  * 
+ * TODO: Archive success operations - without request and batch
+ * 
  * @author Radek Tomiška
  *
  */
@@ -41,9 +43,8 @@ public class RemoveSuccessProvisioningOperationProcessor extends AbstractEntityE
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
 				|| ResultState.CANCELED.equals(provisioningOperation.getResultState())) {
-			// TODO: resolve referential integrity
-			//provisioningOperationRepository.delete(provisioningOperation);
-			//LOG.debug("Successfully executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
+//			provisioningOperationRepository.delete(provisioningOperation);
+//			LOG.debug("Successfully executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 		}
 		return new DefaultEventResult<>(event, this, isClosable());
 	}

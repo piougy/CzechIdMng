@@ -55,10 +55,10 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "schema_attr_handling_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "system_attr_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysSchemaAttributeHandling schemaAttributeHandling;
+	private SysSystemAttributeMapping systemAttributeMapping;
 
 	@Audited
 	@Column(name = "extended_attribute", nullable = false)
@@ -109,12 +109,12 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 		this.roleSystem = roleSystem;
 	}
 
-	public SysSchemaAttributeHandling getSchemaAttributeHandling() {
-		return schemaAttributeHandling;
+	public SysSystemAttributeMapping getSystemAttributeMapping() {
+		return systemAttributeMapping;
 	}
 
-	public void setSchemaAttributeHandling(SysSchemaAttributeHandling schemaAttributeHandling) {
-		this.schemaAttributeHandling = schemaAttributeHandling;
+	public void setSystemAttributeMapping(SysSystemAttributeMapping systemAttributeMapping) {
+		this.systemAttributeMapping = systemAttributeMapping;
 	}
 
 	public boolean isExtendedAttribute() {

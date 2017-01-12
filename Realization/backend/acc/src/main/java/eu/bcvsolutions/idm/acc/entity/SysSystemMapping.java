@@ -10,17 +10,21 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * <i>SysSystemEntityHandling</i> is responsible for mapping attribute to entity
+ * <i>SysSystemMapping</i> is responsible for mapping attribute to entity
  * type and operations (Provisioning, Reconciliace, Synchronisation) to idm
  * entity
  * 
@@ -28,12 +32,22 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_system_entity_handling", indexes = {
-		@Index(name = "ux_system_enth_types_sys", columnList = "entity_type,operation_type,object_class_id", unique = true) })
-public class SysSystemEntityHandling extends AbstractEntity {
+@Table(name = "sys_system_mapping", indexes = {
+		@Index(name = "idx_sys_s_mapping_name", columnList = "name"), // TODO: unique
+		@Index(name = "idx_sys_s_mapping_o_c_id", columnList = "object_class_id"),
+		@Index(name = "idx_sys_s_mapping_o_type", columnList = "operation_type"),
+		@Index(name = "idx_sys_s_mapping_e_type", columnList = "entity_type")
+		})
+public class SysSystemMapping extends AbstractEntity {
 
 	private static final long serialVersionUID = -8492560756893726050L;
 
+	@Audited
+	@NotEmpty
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
+	private String name;
+	
 	@Audited
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -41,8 +55,8 @@ public class SysSystemEntityHandling extends AbstractEntity {
 	private SystemEntityType entityType;
 	
 	@Audited
-	//@NotNull
-	@ManyToOne(optional = true)
+	@NotNull
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "object_class_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -53,6 +67,14 @@ public class SysSystemEntityHandling extends AbstractEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
 	private SystemOperationType operationType;
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
 
 	public SystemEntityType getEntityType() {
 		return entityType;
@@ -70,6 +92,7 @@ public class SysSystemEntityHandling extends AbstractEntity {
 		this.operationType = operationType;
 	}
 
+	@JsonIgnore
 	public SysSystem getSystem() {
 		if (objectClass == null) {
 			return null;

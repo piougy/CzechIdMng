@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemEntityHandlingManager } from '../../redux';
+import { RoleSystemManager, SystemManager, RoleSystemAttributeManager, SystemMappingManager } from '../../redux';
 import uuid from 'uuid';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
@@ -13,7 +13,7 @@ const roleSystemAttributeManager = new RoleSystemAttributeManager();
 const systemManager = new SystemManager();
 const roleSystemManager = new RoleSystemManager();
 const roleManager = new Managers.RoleManager();
-const systemEntityHandlingManager = new SystemEntityHandlingManager();
+const systemMappingManager = new SystemMappingManager();
 
 class RoleSystemDetail extends Basic.AbstractTableContent {
 
@@ -22,7 +22,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     this.state = {
       ...this.state,
       systemId: null, // dependant select box
-      systemEntityHandlingFilter: new Domain.SearchParameters()
+      systemMappingFilter: new Domain.SearchParameters()
         .setFilter('operationType', SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING))
         .setFilter('systemId', Domain.SearchParameters.BLANK_UUID) // dependant select box
     };
@@ -46,7 +46,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     if (add) {
       // When we add new object class, then we need id of role as parametr and use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`/role/${role}/systems/${roleSystem}/attributes/${uuidId}/new?new=1&entityHandlingId=${entity.systemEntityHandling}`);
+      this.context.router.push(`/role/${role}/systems/${roleSystem}/attributes/${uuidId}/new?new=1&mappingId=${entity.systemMapping}`);
     } else {
       this.context.router.push(`/role/${role}/systems/${roleSystem}/attributes/${entity.id}/detail`);
     }
@@ -102,7 +102,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     formEntity.role = roleManager.getSelfLink(formEntity.role);
     formEntity.system = systemManager.getSelfLink(formEntity.system);
-    formEntity.systemEntityHandling = systemManager.getSelfLink(formEntity.systemEntityHandling);
+    formEntity.systemMapping = systemManager.getSelfLink(formEntity.systemMapping);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(roleSystemManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -147,16 +147,16 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
     const systemId = system ? system.id : null;
     this.setState({
       systemId,
-      systemEntityHandlingFilter: this.state.systemEntityHandlingFilter.setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID)
+      systemMappingFilter: this.state.systemMappingFilter.setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID)
     }, () => {
-      // clear selected systemEntityHandling
-      this.refs.systemEntityHandling.setValue(null);
+      // clear selected systemMapping
+      this.refs.systemMapping.setValue(null);
     });
   }
 
   render() {
     const { _showLoading, _roleSystem } = this.props;
-    const { systemEntityHandlingFilter, systemId } = this.state;
+    const { systemMappingFilter, systemId } = this.state;
     //
     const forceSearchParameters = new Domain.SearchParameters().setFilter('roleSystemId', _roleSystem ? _roleSystem.id : Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
@@ -189,11 +189,11 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 required
                 onChange={this.onChangeSystem.bind(this)}/>
               <Basic.SelectBox
-                ref="systemEntityHandling"
-                manager={systemEntityHandlingManager}
-                forceSearchParameters={systemEntityHandlingFilter}
-                label={this.i18n('acc:entity.RoleSystem.systemEntityHandling')}
-                placeholder={systemId ? null : this.i18n('systemEntityHandling.systemPlaceholder')}
+                ref="systemMapping"
+                manager={systemMappingManager}
+                forceSearchParameters={systemMappingFilter}
+                label={this.i18n('acc:entity.RoleSystem.systemMapping')}
+                placeholder={systemId ? null : this.i18n('systemMapping.systemPlaceholder')}
                 readOnly={!isNew || !systemId}
                 required/>
             </Basic.AbstractForm>
@@ -264,10 +264,10 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 property="name"
                 header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
                 sort />
-              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
-              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
+              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')} sort/>
               <Advanced.Column property="disabledDefaultAttribute" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.disabledDefaultAttribute')} sort/>
               <Advanced.Column property="transformScript" face="boolean" header={this.i18n('acc:entity.RoleSystemAttribute.transformScriptTable')}/>
             </Advanced.Table>
@@ -287,9 +287,9 @@ RoleSystemDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, roleSystemManager.getEntityType(), component.params.roleSystemId);
   if (entity) {
-    entity.role = entity._embedded && entity._embedded.role ? entity._embedded.role.id : null;
+    entity.role = entity._embedded && entity._embedded.role ? entity._embedded.role : null;
     entity.system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
-    entity.systemEntityHandling = entity._embedded && entity._embedded.systemEntityHandling ? entity._embedded.systemEntityHandling.id : null;
+    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
   }
   return {
     _roleSystem: entity,

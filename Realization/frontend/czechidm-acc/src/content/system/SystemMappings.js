@@ -3,16 +3,16 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
-import { SystemEntityHandlingManager, SystemManager } from '../../redux';
+import { SystemMappingManager, SystemManager } from '../../redux';
 import uuid from 'uuid';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 
-const uiKey = 'system-entities-handling-table';
-const manager = new SystemEntityHandlingManager();
+const uiKey = 'system-mappings-table';
+const manager = new SystemMappingManager();
 const systemManager = new SystemManager();
 
-class SystemEntitiesHandling extends Basic.AbstractTableContent {
+class SystemMappings extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -27,11 +27,11 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.systemEntitiesHandling';
+    return 'acc:content.system.mappings';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
+    this.selectNavigationItems(['sys-systems', 'system-mappings']);
   }
 
   showDetail(entity, add) {
@@ -39,9 +39,9 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
     if (add) {
       // When we add new object class, then we need use "new" url
       const uuidId = uuid.v1();
-      this.context.router.push(`system/${systemId}/system-entities-handling/${uuidId}/new?new=1&systemId=${systemId}`);
+      this.context.router.push(`system/${systemId}/mappings/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`system/${systemId}/system-entities-handling/${entity.id}/detail`);
+      this.context.router.push(`system/${systemId}/mappings/${entity.id}/detail`);
     }
   }
 
@@ -62,6 +62,7 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
             ref="table"
             uiKey={uiKey}
             manager={this.getManager()}
+            forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={
               Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
@@ -98,16 +99,28 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
                 }
               }/>
             <Advanced.Column
+              property="operationType"
+              width="100px"
+              face="enum"
+              enumClass={SystemOperationTypeEnum}
+              header={this.i18n('acc:entity.SystemMapping.operationType')}
+              sort/>
+            <Advanced.ColumnLink
+              to={`system/${entityId}/mappings/:id/detail`}
+              property="name"
+              face="text"
+              header={this.i18n('acc:entity.SystemMapping.name')}
+              sort/>
+            <Advanced.Column
+              property="objectClass.objectClassName"
+              face="text"
+              header={this.i18n('acc:entity.SystemMapping.objectClass')}
+              sort/>
+            <Advanced.Column
               property="entityType"
               face="enum"
               enumClass={SystemEntityTypeEnum}
-              header={this.i18n('acc:entity.SystemEntityHandling.entityType')}
-              sort/>
-            <Advanced.Column
-              property="operationType"
-              face="enum"
-              enumClass={SystemOperationTypeEnum}
-              header={this.i18n('acc:entity.SystemEntityHandling.operationType')}
+              header={this.i18n('acc:entity.SystemMapping.entityType')}
               sort/>
           </Advanced.Table>
         </Basic.Panel>
@@ -116,11 +129,11 @@ class SystemEntitiesHandling extends Basic.AbstractTableContent {
   }
 }
 
-SystemEntitiesHandling.propTypes = {
+SystemMappings.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SystemEntitiesHandling.defaultProps = {
+SystemMappings.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -132,4 +145,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemEntitiesHandling);
+export default connect(select)(SystemMappings);

@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_synchronization_log")
+@Table(name = "sys_sync_log")
 public class SysSynchronizationLog extends AbstractEntity {
 
 	private static final long serialVersionUID = -5447620157233410338L;

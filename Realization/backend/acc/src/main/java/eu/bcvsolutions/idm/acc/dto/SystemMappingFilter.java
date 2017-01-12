@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
  * Filter for system entity handling
@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
  * @author Svanda
  *
  */
-public class SystemEntityHandlingFilter implements BaseFilter {
+public class SystemMappingFilter extends QuickFilter {
 	
 	private UUID systemId;
 	private UUID objectClassId;

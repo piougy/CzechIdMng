@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
 /**
@@ -14,8 +14,8 @@ import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
  * @author Svanda
  *
  */
-@Projection(name = "excerpt", types = SysSchemaAttributeHandling.class)
-public interface SysSchemaAttributeHandlingExcerpt extends AbstractDtoProjection {
+@Projection(name = "excerpt", types = SysSystemAttributeMapping.class)
+public interface SysSystemAttributeMappingExcerpt extends AbstractDtoProjection {
 
 	String getName();
 

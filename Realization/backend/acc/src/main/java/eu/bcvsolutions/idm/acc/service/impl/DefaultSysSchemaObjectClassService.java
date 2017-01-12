@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaObjectClassRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -25,20 +25,20 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 		implements SysSchemaObjectClassService {
 
 	private final SysSchemaAttributeService sysSchemaAttributeService;
-	private final SysSystemEntityHandlingService systemEntityHandlingService;
+	private final SysSystemMappingService systemMappingService;
 	
 	@Autowired
 	public DefaultSysSchemaObjectClassService(
 			SysSchemaObjectClassRepository repository,
 			SysSchemaAttributeService sysSchemaAttributeService,
-			SysSystemEntityHandlingService systemEntityHandlingService) {
+			SysSystemMappingService systemMappingService) {
 		super(repository);
 		//
 		Assert.notNull(sysSchemaAttributeService, "Schema attribute service is required!");
-		Assert.notNull(systemEntityHandlingService);
+		Assert.notNull(systemMappingService);
 		//
 		this.sysSchemaAttributeService = sysSchemaAttributeService;
-		this.systemEntityHandlingService = systemEntityHandlingService;
+		this.systemMappingService = systemMappingService;
 	}
 	
 	@Override
@@ -53,8 +53,8 @@ public class DefaultSysSchemaObjectClassService extends AbstractReadWriteEntityS
 			sysSchemaAttributeService.delete(schemaAttribute);
 		});	
 		// delete all mappings
-		systemEntityHandlingService.findByObjectClass(schemaObjectClass, null, null).forEach(systemEntityHandling -> {
-			systemEntityHandlingService.delete(systemEntityHandling);
+		systemMappingService.findByObjectClass(schemaObjectClass, null, null).forEach(systemMapping -> {
+			systemMappingService.delete(systemMapping);
 		});
 		//
 		super.delete(schemaObjectClass);

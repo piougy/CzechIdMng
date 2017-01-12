@@ -3,50 +3,52 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SystemEntityHandlingManager, SystemManager, SchemaAttributeHandlingManager, SchemaObjectClassManager } from '../../redux';
+import { SystemMappingManager, SystemManager, SystemAttributeMappingManager, SchemaObjectClassManager } from '../../redux';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import SystemOperationTypeEnum from '../../domain/SystemOperationTypeEnum';
 import uuid from 'uuid';
 
-const uiKey = 'system-entities-handling';
-const uiKeyAttributes = 'schema-attributes-handling';
-const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
+const uiKey = 'system-mappings';
+const uiKeyAttributes = 'system-attribute-mappings';
+const systemAttributeMappingManager = new SystemAttributeMappingManager();
 const systemManager = new SystemManager();
-const systemEntityHandlingManager = new SystemEntityHandlingManager();
+const systemMappingManager = new SystemMappingManager();
 const schemaObjectClassManager = new SchemaObjectClassManager();
 
-class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
+class SystemMappingDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
-  }
-
-  getManager() {
-    return schemaAttributeHandlingManager;
   }
 
   getUiKey() {
     return uiKey;
   }
 
+  getManager() {
+    // returns manager for underlying table
+    return systemAttributeMappingManager;
+  }
+
   getContentKey() {
-    return 'acc:content.system.entityHandlingDetail';
+    return 'acc:content.system.mappingDetail';
   }
 
   showDetail(entity, add) {
-    const entityHandlingId = this.props._entityHandling.id;
-    const systemId = this.props._entityHandling.system;
+    const mappingId = this.props._mapping.id;
+    const systemId = this.props._mapping.system.id;
+    const objectClassId = this.props._mapping.objectClass.id;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${systemId}/schema-attributes-handling/${uuidId}/new?new=1&entityHandlingId=${entityHandlingId}&systemId=${systemId}`);
+      this.context.router.push(`/system/${systemId}/attribute-mappings/${uuidId}/new?new=1&mappingId=${mappingId}&objectClassId=${objectClassId}`);
     } else {
-      this.context.router.push(`/system/${systemId}/schema-attributes-handling/${entity.id}/detail`);
+      this.context.router.push(`/system/${systemId}/attribute-mappings/${entity.id}/detail`);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { entityHandlingId} = nextProps.params;
-    if (entityHandlingId && entityHandlingId !== this.props.params.entityHandlingId) {
+    const { mappingId } = nextProps.params;
+    if (mappingId && mappingId !== this.props.params.mappingId) {
       this._initComponent(nextProps);
     }
   }
@@ -61,17 +63,19 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
    * @param  {properties of component} props For didmount call is this.props for call from willReceiveProps is nextProps.
    */
   _initComponent(props) {
-    const { entityHandlingId} = props.params;
+    const { entityId, mappingId } = props.params;
     if (this._getIsNew(props)) {
-      this.setState({entityHandling: {
-        system: props.location.query.systemId,
-        entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY),
-        operationType: SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING)
-      }});
+      this.setState({
+        mapping: {
+          system: entityId,
+          entityType: SystemEntityTypeEnum.findKeyBySymbol(SystemEntityTypeEnum.IDENTITY),
+          operationType: SystemOperationTypeEnum.findKeyBySymbol(SystemOperationTypeEnum.PROVISIONING)
+        }
+      });
     } else {
-      this.context.store.dispatch(systemEntityHandlingManager.fetchEntity(entityHandlingId));
+      this.context.store.dispatch(systemMappingManager.fetchEntity(mappingId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
+    this.selectNavigationItems(['sys-systems', 'system-mappings']);
   }
 
   /**
@@ -89,14 +93,14 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
     formEntity.system = systemManager.getSelfLink(formEntity.system);
     formEntity.objectClass = schemaObjectClassManager.getSelfLink(formEntity.objectClass);
     if (formEntity.id === undefined) {
-      this.context.store.dispatch(systemEntityHandlingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(systemMappingManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
         if (!error && this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
       }));
     } else {
-      this.context.store.dispatch(systemEntityHandlingManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
+      this.context.store.dispatch(systemMappingManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
     }
   }
 
@@ -108,7 +112,7 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
         this.addMessage({ message: this.i18n('save.success', {entityType: entity.entityType, operationType: entity.operationType}) });
       }
       const { entityId } = this.props.params;
-      this.context.router.replace(`/system/${entityId}/system-entities-handling/${entity.id}/detail`, {entityHandlingId: entity.id});
+      this.context.router.replace(`/system/${entityId}/mappings/${entity.id}/detail`, { mappingId: entity.id });
     } else {
       this.addError(error);
     }
@@ -121,11 +125,12 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _entityHandling} = this.props;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandling ? _entityHandling.id : Domain.SearchParameters.BLANK_UUID);
+    const { _showLoading, _mapping } = this.props;
     const isNew = this._getIsNew();
-    const entityHandling = isNew ? this.state.entityHandling : _entityHandling;
+    const mapping = isNew ? this.state.mapping : _mapping;
     const systemId = this.props.params.entityId;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mapping ? _mapping.id : Domain.SearchParameters.BLANK_UUID);
+    const objectClassSearchParameters = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
 
     return (
       <div>
@@ -133,32 +138,38 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
         <Basic.ContentHeader>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('systemEntityHandlingHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={entityHandling} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={mapping} showLoading={_showLoading} className="form-horizontal">
               <Basic.SelectBox
                 ref="system"
                 manager={systemManager}
-                label={this.i18n('acc:entity.SystemEntityHandling.system')}
-                readOnly
+                label={this.i18n('acc:entity.SystemMapping.system')}
+                readOnly/>
+              <Basic.EnumSelectBox
+                ref="operationType"
+                enum={SystemOperationTypeEnum}
+                label={this.i18n('acc:entity.SystemMapping.operationType')}
+                required/>
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('acc:entity.SystemMapping.name')}
                 required/>
               <Basic.SelectBox
                 ref="objectClass"
                 manager={schemaObjectClassManager}
-                label={this.i18n('acc:entity.SystemEntityHandling.objectClass')}
+                forceSearchParameters={objectClassSearchParameters}
+                label={this.i18n('acc:entity.SystemMapping.objectClass')}
+                readOnly={!Utils.Entity.isNew(mapping)}
                 required/>
               <Basic.EnumSelectBox
                 ref="entityType"
                 enum={SystemEntityTypeEnum}
-                label={this.i18n('acc:entity.SystemEntityHandling.entityType')}
-                required/>
-              <Basic.EnumSelectBox
-                ref="operationType"
-                enum={SystemOperationTypeEnum}
-                label={this.i18n('acc:entity.SystemEntityHandling.operationType')}
+                label={this.i18n('acc:entity.SystemMapping.entityType')}
+                readOnly={!Utils.Entity.isNew(mapping)}
                 required/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
@@ -177,16 +188,16 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
             </Basic.PanelFooter>
           </Basic.Panel>
         </form>
-        <Basic.ContentHeader rendered={entityHandling && !isNew} style={{ marginBottom: 0 }}>
+        <Basic.ContentHeader rendered={mapping && !isNew} style={{ marginBottom: 0 }}>
           <Basic.Icon value="list-alt"/>
           {' '}
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('schemaAttributesHandlingHeader') }}/>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('systemAttributesMappingHeader') }}/>
         </Basic.ContentHeader>
-        <Basic.Panel rendered={entityHandling && !isNew} className="no-border">
+        <Basic.Panel rendered={mapping && !isNew} className="no-border">
           <Advanced.Table
             ref="table"
             uiKey={uiKeyAttributes}
-            manager={schemaAttributeHandlingManager}
+            manager={systemAttributeMappingManager}
             forceSearchParameters={forceSearchParameters}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabledAttribute ? 'disabled' : ''; }}
@@ -243,16 +254,16 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to={`system/${systemId}/schema-attributes-handling/:id/detail`}
+                to={`system/${systemId}/attribute-mappings/:id/detail`}
                 property="name"
-                header={this.i18n('acc:entity.SchemaAttributeHandling.name.label')}
+                header={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
                 sort />
-              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')} sort/>
-              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')} sort/>
-              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')} sort/>
-              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')} sort/>
-              <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationFromResource')}/>
-              <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SchemaAttributeHandling.transformationToResource')}/>
+              <Advanced.Column property="idmPropertyName" header={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')} sort/>
+              <Advanced.Column property="uid" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.uid.label')} sort/>
+              <Advanced.Column property="entityAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')} sort/>
+              <Advanced.Column property="extendedAttribute" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')} sort/>
+              <Advanced.Column property="transformationFromResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationFromResource')}/>
+              <Advanced.Column property="transformationToResource" face="boolean" header={this.i18n('acc:entity.SystemAttributeMapping.transformationToResource')}/>
             </Advanced.Table>
           </Basic.Panel>
         </div>
@@ -260,23 +271,23 @@ class SystemEntityHandlingDetail extends Basic.AbstractTableContent {
   }
 }
 
-SystemEntityHandlingDetail.propTypes = {
+SystemMappingDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SystemEntityHandlingDetail.defaultProps = {
+SystemMappingDetail.defaultProps = {
   _showLoading: false,
 };
 
 function select(state, component) {
-  const entity = Utils.Entity.getEntity(state, systemEntityHandlingManager.getEntityType(), component.params.entityHandlingId);
-  if (entity) {
-    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : null;
-    entity.system = system;
+  const entity = Utils.Entity.getEntity(state, systemMappingManager.getEntityType(), component.params.mappingId);
+  if (entity && entity._embedded && entity._embedded.objectClass) {
+    entity.system = entity._embedded.objectClass.system;
+    entity.objectClass = entity._embedded.objectClass;
   }
   return {
-    _entityHandling: entity,
+    _mapping: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
   };
 }
 
-export default connect(select)(SystemEntityHandlingDetail);
+export default connect(select)(SystemMappingDetail);

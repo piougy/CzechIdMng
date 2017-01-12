@@ -12,6 +12,7 @@ public enum PersistentType {
 	TEXT, 
 	TEXTAREA, 
 	RICHTEXTAREA,
+	// TODO: SCRIPTAREA
 	INT,
 	LONG, 
 	DOUBLE, 

@@ -159,7 +159,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			return doubleValue;
 		case CHAR: 
 			return stringValue == null ? null : stringValue.charAt(0);
-		case BYTE_ARRAY: {
+		case BYTEARRAY: {
 			return byteValue;
 		}
 		default:
@@ -188,7 +188,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 			case DOUBLE:
 			case CURRENCY:
 				return doubleValue == null;
-			case BYTE_ARRAY: {
+			case BYTEARRAY: {
 				return byteValue == null || byteValue.length == 0;
 			}
 			default:
@@ -297,7 +297,7 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 							formAttribute.getName(), persistentType, value));
 				}
 				break;
-			case BYTE_ARRAY: {
+			case BYTEARRAY: {
 				if (value == null) {
 					setByteValue(null);
 				} else if (value instanceof byte[]) {

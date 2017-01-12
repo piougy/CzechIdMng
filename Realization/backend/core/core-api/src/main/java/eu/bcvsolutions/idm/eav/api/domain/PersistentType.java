@@ -20,5 +20,5 @@ public enum PersistentType {
 	BOOLEAN, 
 	DATE, 
 	DATETIME,
-	BYTE_ARRAY;
+	BYTEARRAY;
 }

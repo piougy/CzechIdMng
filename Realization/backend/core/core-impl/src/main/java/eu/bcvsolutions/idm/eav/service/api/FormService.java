@@ -95,7 +95,17 @@ public interface FormService {
 	 * @param <O> values owner
 	 * @param <E> values entity
 	 */
-	<O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
+	
+	/**
+	 * Save form value to given owner and form definition.
+	 * 
+	 * @param owner
+	 * @param attribute
+	 * @param persistentValue
+	 * @return
+	 */
+	<O extends FormableEntity, E extends AbstractFormValue<O>> E saveValue(O owner, IdmFormAttribute attribute, Serializable persistentValue);
 	
 	/**
 	 * Reads form values by given owner. Return values from default form definition.
@@ -151,7 +161,7 @@ public interface FormService {
 	 * @param values form values
 	 * @return
 	 */
-	Map<String, List<Object>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values);
+	Map<String, List<Serializable>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values);
 	
 	/**
 	 * Returns FormValue values by persistent type - usable for single multi attribute values
@@ -160,7 +170,7 @@ public interface FormService {
 	 * @param values form values
 	 * @return
 	 */
-	List<Object> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values);
+	List<Serializable> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values);
 	
 	/**
 	 * Returns single FormValue by persistent type - usable for single attribute value
@@ -170,7 +180,7 @@ public interface FormService {
 	 * @return
 	 * @throws IllegalArgumentException if attributte has multi values
 	 */
-	Object toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values);
+	Serializable toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values);
 	
 	/**
 	 * Deletes form values by given owner

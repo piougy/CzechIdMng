@@ -150,7 +150,7 @@ public class DefaultFormService implements FormService {
 	 * TODO: validations by given form definition? I don't think, it will not be useful in synchronization etc. - only FE validations will be enough ...
 	 */
 	@Transactional
-	public <O extends FormableEntity, E extends AbstractFormValue<O>> void saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(formDefinition, "Form definition is required!");
 		Assert.notNull(values, "Form values are required!");
@@ -162,6 +162,7 @@ public class DefaultFormService implements FormService {
 			previousValues.put(formValue.getId(), formValue);
 		});
 		//
+		List<E> results = new ArrayList<>();
 		values.forEach(value -> {
 			// value could contant attribute id only
 			IdmFormAttribute attributeId = value.getFormAttribute();
@@ -183,12 +184,12 @@ public class DefaultFormService implements FormService {
 				// confidential value is always updated - only new values are sent from client
 				if (value.isConfidential() || !value.isEquals(previousValue)) {
 					// update value
-					formValueService.save(value);
+					results.add(formValueService.save(value));
 					LOG.trace("FormValue [{}:{}] for owner [{}] was updated", attribute.getName(), value.getId(), owner);
 				}
 			} else {
 				// create new value
-				formValueService.save(value);
+				results.add(formValueService.save(value));
 				LOG.trace("FormValue [{}:{}] for owner [{}] was created", attribute.getName(), value.getId(), owner);
 			}
 		});
@@ -208,6 +209,15 @@ public class DefaultFormService implements FormService {
 		// publish event - eav was saved
 		// TODO: this whole method could be moved to processor (=> could be overriden in some module)
 		entityEventManager.process(new CoreEvent<O>(CoreEventType.EAV_SAVE, owner)); 
+		return results;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <O extends FormableEntity, E extends AbstractFormValue<O>> E saveValue(O owner, IdmFormAttribute attribute, Serializable persistentValue) {
+		return null;
 	}
 
 	/**
@@ -304,10 +314,10 @@ public class DefaultFormService implements FormService {
 	 * @return
 	 */
 	@Override
-	public Map<String, List<Object>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values) {
+	public Map<String, List<Serializable>> toPersistentValueMap(final List<AbstractFormValue<FormableEntity>> values) {
 		Assert.notNull(values);
 		//
-		Map<String, List<Object>> results = new HashMap<>();
+		Map<String, List<Serializable>> results = new HashMap<>();
 		for(AbstractFormValue<?> value : values) {
 			String key = value.getFormAttribute().getName();
 			if (!results.containsKey(key)) {
@@ -326,7 +336,7 @@ public class DefaultFormService implements FormService {
 	 * @return
 	 */
 	@Override
-	public List<Object> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values) {
+	public List<Serializable> toPersistentValues(final List<AbstractFormValue<FormableEntity>> values) {
 		Assert.notNull(values);
 		//
 		return values.stream()
@@ -345,7 +355,7 @@ public class DefaultFormService implements FormService {
 	 * @throws IllegalArgumentException if attributte has multi values
 	 */
 	@Override
-	public Object toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values) {
+	public Serializable toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values) {
 		Assert.notNull(values);
 		if (values.size() > 1) {
 			throw new IllegalArgumentException(MessageFormat.format("Attribute [{}] has mutliple values [{}]", values.get(0).getFormAttribute().getName(), values.size()));

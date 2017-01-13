@@ -8,8 +8,6 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum SynchronizationMissingEntityActionType {
 
-	CREATE_ENTITY, 
-	DELETE_ACCOUNT,
-	DISABLE_ACCOUNT,
+	CREATE_ENTITY,
 	IGNORE;
 }

@@ -10,5 +10,6 @@ public enum ReconciliationMissingAccountActionType {
 
 	CREATE_ACCOUNT, 
 	DELETE_ENTITY,
+	UNLINK,
 	IGNORE;
 }

@@ -11,17 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.ecs.html.Body;
-import org.apache.ecs.html.H3;
-import org.apache.ecs.html.Head;
-import org.apache.ecs.html.Html;
-import org.apache.ecs.html.LI;
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TH;
-import org.apache.ecs.html.TR;
-import org.apache.ecs.html.Table;
-import org.apache.ecs.html.Title;
-import org.apache.ecs.html.UL;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

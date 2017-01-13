@@ -344,6 +344,22 @@ public abstract class AbstractFormValue<O extends FormableEntity> extends Abstra
 	public void setFormAttribute(IdmFormAttribute formAttribute) {
 		this.formAttribute = formAttribute;
 	}
+	
+	/**
+	 * Set s owner and all attribute properties.
+	 * 
+	 * @param owner
+	 * @param attribute
+	 */
+	public void setOwnerAndAttribute(O owner, IdmFormAttribute attribute) {
+		setOwner(owner);
+		setFormAttribute(attribute);
+		if (attribute != null) {
+			setPersistentType(attribute.getPersistentType());
+			setConfidential(attribute.isConfidential());
+		}
+	}
+	
 
 	public String getStringValue() {
 		return stringValue;

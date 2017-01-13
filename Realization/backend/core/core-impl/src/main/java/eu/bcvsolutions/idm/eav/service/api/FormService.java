@@ -42,7 +42,7 @@ public interface FormService {
 	 * Finds definition by given type and name (optional) 
 	 * 
 	 * @param type
-	 * @param name optional - if no name given, then returns default definition
+	 * @param name [optional] - if no name given, then returns default definition
 	 * @return
 	 */
 	IdmFormDefinition getDefinition(String type, String name);
@@ -69,7 +69,7 @@ public interface FormService {
 	 * Creates form definition
 	 * 
 	 * @param type definition type
-	 * @param name definition name (default will be created, if no definition name is given)
+	 * @param name [optional] definition name (default will be created, if no definition name is given)
 	 * @param formAttributes
 	 * @return
 	 */
@@ -87,25 +87,53 @@ public interface FormService {
 	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, List<IdmFormAttribute> formAttributes);
 		
 	/**
-	 * Save form values to given owner and form definition.
+	 * Saves form values to given owner and form definition.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * 
 	 * @param owner
-	 * @param formDefinition
+	 * @param formDefinition [optional]
 	 * @param values
 	 * @param <O> values owner
 	 * @param <E> values entity
+	 * @return persisted values
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, List<E> values);
 	
 	/**
-	 * Save form value to given owner and form definition.
+	 * Saves form values to given owner and form attribute - saves attribute values only.
 	 * 
 	 * @param owner
 	 * @param attribute
-	 * @param persistentValue
-	 * @return
+	 * @param persistentValue raw values
+	 * @return persisted values
 	 */
-	<O extends FormableEntity, E extends AbstractFormValue<O>> E saveValue(O owner, IdmFormAttribute attribute, Serializable persistentValue);
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormAttribute attribute, List<Serializable> persistentValues);
+	
+	/**
+	 * Saves form values to given owner and form attribute - saves attribute values only.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param owner
+	 * @param formDefinition [optional] - default will be used, if no definition name is given
+	 * @param attributeName
+	 * @param persistentValues
+	 * @return persisted values
+	 * @throws IllegalArgumentException if default definition does not exist
+	 */
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
+	
+	/**
+	 * Saves form values to given owner and form attribute - saves attribute values only. Default form definition will be used.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param owner
+	 * @param attributeName
+	 * @param persistentValues
+	 * @return persisted values
+	 * @throws IllegalArgumentException if default definition does not exist
+	 */
+	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName, List<Serializable> persistentValues);
 	
 	/**
 	 * Reads form values by given owner. Return values from default form definition.
@@ -143,6 +171,30 @@ public interface FormService {
 	 * @throws IllegalArgumentException if form definition is not given and default definition does not exist
 	 */
 	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName);
+	
+	/**
+	 * Returns attribute values by given attribute definition, or empty collection.
+	 * 
+	 * @param owner
+	 * @param attribute (required)
+	 * @param <O> values owner
+	 * @return
+	 * @throws IllegalArgumentException if attribute is not given
+	 */
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormAttribute attribute);
+	
+	/**
+	 * Returns attribute values by attributeName from default definition, or empty collection
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * 
+	 * @param owner
+	 * @param attributeName
+	 * @param <O> values owner
+	 * @return
+	 * @throws IllegalArgumentException if default definition does not exist
+	 */
+	<O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, String attributeName);
 	
 	/**
 	 * Returns form values as map, key is attribute name
@@ -200,6 +252,14 @@ public interface FormService {
 	 * @return
 	 */
 	<O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition);
+	
+	/**
+	 * Deletes form values by given owner and form attribute
+	 * 
+	 * @param owner
+	 * @param formAttribute
+	 */
+	<O extends FormableEntity> void deleteValues(O owner, IdmFormAttribute formAttribute);
 	
 	/**
 	 * Returns key in confidential storage for given extended attribute and owner

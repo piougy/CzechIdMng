@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.dto.filter.FormValueFilter;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 
 /**
@@ -53,4 +54,13 @@ public interface AbstractFormValueRepository<O extends FormableEntity, E extends
 	 * @return
 	 */
 	List<E> findByOwnerAndFormAttribute_FormDefinitionOrderBySeqAsc(@Param("owner") O owner, @Param("formDefinition") IdmFormDefinition formDefiniton);
+	
+	/**
+	 * Returns form values by given owner and attribute ordered by seq
+	 * 
+	 * @param owner
+	 * @param attribute
+	 * @return
+	 */
+	List<E> findByOwnerAndFormAttributeOrderBySeqAsc(@Param("owner") O owner, @Param("attribute") IdmFormAttribute attribute);
 }

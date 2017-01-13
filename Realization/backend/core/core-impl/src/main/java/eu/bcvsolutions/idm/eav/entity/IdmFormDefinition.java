@@ -159,13 +159,13 @@ public class IdmFormDefinition extends AbstractEntity {
 	/**
 	 * Returns attribute definition by name
 	 *
-	 * @param formAttributeKey
+	 * @param attributeName
 	 * @return
 	 */
-	public IdmFormAttribute getMappedAttributeByName(String formAttributeName) {
-		if (!getMappedNames().containsKey(formAttributeName)) {
+	public IdmFormAttribute getMappedAttributeByName(String attributeName) {
+		if (!getMappedNames().containsKey(attributeName)) {
 			return null;
 		}
-		return getMappedAttributes().get(getMappedNames().get(formAttributeName));
+		return getMappedAttributes().get(getMappedNames().get(attributeName));
 	}
 }

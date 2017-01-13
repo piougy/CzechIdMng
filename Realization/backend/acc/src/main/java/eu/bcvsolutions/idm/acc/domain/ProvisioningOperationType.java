@@ -12,5 +12,6 @@ public enum ProvisioningOperationType implements EventType {
 	
 	CREATE,
 	UPDATE,
-	DELETE;
+	DELETE,
+	CANCEL;
 }

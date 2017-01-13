@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -26,16 +26,16 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 public class RemoveSuccessProvisioningOperationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningReadonlySystemProcessor.class);
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
+	private final SysProvisioningOperationService provisioningOperationService;
 	
 	@Autowired
 	public RemoveSuccessProvisioningOperationProcessor(
-			SysProvisioningOperationRepository provisioningOperationRepository) {
-		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE);
+			SysProvisioningOperationService provisioningOperationService) {
+		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE, ProvisioningOperationType.CANCEL);
 		//
-		Assert.notNull(provisioningOperationRepository);
+		Assert.notNull(provisioningOperationService);
 		//
-		this.provisioningOperationRepository = provisioningOperationRepository;
+		this.provisioningOperationService = provisioningOperationService;
 	}
 	
 	@Override
@@ -43,8 +43,8 @@ public class RemoveSuccessProvisioningOperationProcessor extends AbstractEntityE
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
 				|| ResultState.CANCELED.equals(provisioningOperation.getResultState())) {
-//			provisioningOperationRepository.delete(provisioningOperation);
-//			LOG.debug("Successfully executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
+			provisioningOperationService.delete(provisioningOperation);
+			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 		}
 		return new DefaultEventResult<>(event, this, isClosable());
 	}

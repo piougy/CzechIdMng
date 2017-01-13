@@ -1,8 +1,11 @@
 package eu.bcvsolutions.idm.acc.rest.projection;
 
+import java.util.List;
+
 import org.joda.time.LocalDateTime;
 import org.springframework.data.rest.core.config.Projection;
 
+import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
@@ -21,31 +24,33 @@ public interface SysSynchronizationLogExcerpt extends AbstractDtoProjection {
 	public LocalDateTime getStarted();
 
 	public LocalDateTime getEnded();
+	
+	public List<SysSyncActionLog> getSyncActionLogs();
 
 	public String getToken();
-	
-	public int getExceptionCreateEntity();
-	
-	public int getSuccessCreateEntity();
-	
-	public int getExceptionUpdateEntity();
-	
-	public int getSuccessUpdateEntity();
-	
-	public int getSuccessDeleteEntity();
-	
-	public int getExceptionDeleteEntity();
-	
-	public int getExceptionCreateAccount();
-
-	public int getSuccessCreateAccount();
-	
-	public int getExceptionUpdateAccount();
-
-	public int getSuccessUpdateAccount();
-
-	public int getExceptionDeleteAccount();
-
-	public int getSuccessDeleteAccount();
+//	
+//	public int getExceptionCreateEntity();
+//	
+//	public int getSuccessCreateEntity();
+//	
+//	public int getExceptionUpdateEntity();
+//	
+//	public int getSuccessUpdateEntity();
+//	
+//	public int getSuccessDeleteEntity();
+//	
+//	public int getExceptionDeleteEntity();
+//	
+//	public int getExceptionCreateAccount();
+//
+//	public int getSuccessCreateAccount();
+//	
+//	public int getExceptionUpdateAccount();
+//
+//	public int getSuccessUpdateAccount();
+//
+//	public int getExceptionDeleteAccount();
+//
+//	public int getSuccessDeleteAccount();
 
 }

@@ -1,12 +1,12 @@
 import { Enums } from 'czechidm-core';
 
 /**
- * SynchronizationMissingEntityActionType for synchronization.
+ * OperationResultType for synchronization.
  */
-export default class SynchronizationMissingEntityActionTypeEnum extends Enums.AbstractEnum {
+export default class OperationResultTypeEnum extends Enums.AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.SynchronizationMissingEntityActionTypeEnum.${key}`);
+    return super.getNiceLabel(`acc:enums.OperationResultTypeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {
@@ -25,11 +25,11 @@ export default class SynchronizationMissingEntityActionTypeEnum extends Enums.Ab
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CREATE_ENTITY: {
+      case this.SUCCESS: {
         return 'success';
       }
-      case this.IGNORE: {
-        return 'primary';
+      case this.ERROR: {
+        return 'danger';
       }
       default: {
         return 'default';
@@ -38,5 +38,6 @@ export default class SynchronizationMissingEntityActionTypeEnum extends Enums.Ab
   }
 }
 
-SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY = Symbol('CREATE_ENTITY');
-SynchronizationMissingEntityActionTypeEnum.IGNORE = Symbol('IGNORE');
+OperationResultTypeEnum.SUCCESS = Symbol('SUCCESS');
+OperationResultTypeEnum.ERROR = Symbol('ERROR');
+OperationResultTypeEnum.WARNING = Symbol('WARNING');

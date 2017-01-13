@@ -11,7 +11,7 @@ export default class SynchronizationLogService extends Services.AbstractService 
     if (!entity) {
       return '';
     }
-    return entity.name;
+    return entity.started;
   }
 
   getApiPath() {

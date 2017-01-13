@@ -11,6 +11,8 @@ import SystemEntityHandlingManager from './SystemEntityHandlingManager';
 import SynchronizationLogManager from './SynchronizationLogManager';
 import SynchronizationConfigManager from './SynchronizationConfigManager';
 import ProvisioningOperationManager from './ProvisioningOperationManager';
+import SyncActionLogManager from './SyncActionLogManager';
+import SyncItemLogManager from './SyncItemLogManager';
 
 const ManagerRoot = {
   SystemManager,
@@ -25,7 +27,9 @@ const ManagerRoot = {
   RoleSystemAttributeManager,
   SynchronizationLogManager,
   SynchronizationConfigManager,
-  ProvisioningOperationManager
+  ProvisioningOperationManager,
+  SyncActionLogManager,
+  SyncItemLogManager
 };
 
 ManagerRoot.version = '0.0.1';

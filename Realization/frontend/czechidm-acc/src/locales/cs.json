@@ -136,6 +136,20 @@
           "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
         }
       },
+      "systemSynchronizationLogDetail": {
+        "header": "Detail logu synchronizace",
+        "title": "Detail logu synchronizace",
+        "syncActionLogsHeader": "Logy akcí synchronizace"
+      },
+      "systemSyncActionLogDetail": {
+        "header": "Detail logu akce",
+        "title": "Detail logu akce",
+        "syncItemLogsHeader": "Logy položek synchronizace"
+      },
+      "SystemSyncItemLogDetail": {
+        "header": "Detail logu položky",
+        "title": "Detail logu položky"
+      },
       "accounts": {
         "header": "Účty na koncovém systému <small>uložené v idm</small>",
         "title": "Účty na systému",
@@ -466,18 +480,41 @@
       "started": "Zahájena",
       "ended": "Ukončena",
       "token": "Token",
-      "exceptionCreateEntity": "Chyby vytvoření entit",
-      "successCreateEntity": "Vytvořeno entit",
-      "successUpdateEntity": "Upraveno entit",
-      "successDeleteEntity": "Smazáno entit",
-      "exceptionDeleteEntity": "Chyby smazání entit",
-      "exceptionUpdateEntity": "Chyby úpravení entit",
-      "exceptionCreateAccount": "Chyby vytvoření účtů",
-      "exceptionUpdateAccount": "Chyby upravení účtů",
-      "exceptionDeleteAccount": "Chyby smazání účtů",
-      "successDeleteAccount": "Smazáno účtů",
-      "successCreateAccount": "Vytvořeno účtů",
-      "successUpdateAccount": "Upraveno účtů"
+      "results": "Výsledky",
+      "actions": {
+        "SUCCESS": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Upraveno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Vytvořeno a upraveno entit",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "IGNORE": "Ignorováno"
+        },
+        "ERROR": {
+          "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
+          "UPDATE_ENTITY": "Neúspěšně upraveno entit",
+          "DELETE_ENTITY": "Neúspěšně smazáno entit",
+          "LINK_AND_UPDATE_ENTITY": "Neúspěšně vytvořeno a upraveno entit",
+          "LINK": "Neúspěšně vytvořeno vazeb",
+          "UNLINK": "Neúspěšně odstraněno vazeb",
+          "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
+          "IGNORE": "Neúspěšně ignorováno"
+        }
+      }
+    },
+    "SyncActionLog": {
+      "syncAction": "Akce",
+      "operationResult": "Výsledek",
+      "operationCount": "Počet operací"
+    },
+    "SyncItemLog": {
+      "identification": "Identifikátor",
+      "displayName": "Název",
+      "message": "Zpráva",
+      "type": "Typ",
+      "log": "Log"
     },
     "ProvisioningOperation": {
       "_type": "Provisioning - operace",
@@ -502,25 +539,39 @@
       "TECHNICAL": "Systémový"
     },
     "ReconciliationMissingAccountActionTypeEnum": {
-      "CREATE_ACCOUNT": "Vytvořit účet",
+      "LINK": "Vytvořit vazbu",
+      "UNLINK": "Odstranit vazbu",
       "DELETE_ENTITY": "Smazat entitu",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationLinkedActionTypeEnum": {
-      "UPDATE_ENTITY": "Aktualizovat účet",
+      "UPDATE_ENTITY": "Aktualizovat entitu",
       "UNLINK": "Odstranit vazbu",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationMissingEntityActionTypeEnum": {
       "CREATE_ENTITY": "Vytvořit entitu",
-      "DELETE_ACCOUNT": "Smazat účet",
-      "DISABLE_ACCOUNT": "Zneplatnit účet",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationUnlinkedActionTypeEnum": {
       "LINK": "Vytvořit vazbu",
       "LINK_AND_UPDATE_ENTITY": "Vytvořit vazbu a aktualizovat entitu",
       "IGNORE": "Ignorovat"
+    },
+    "SynchronizationActionTypeEnum": {
+      "CREATE_ENTITY": "Vytvoření nové entity",
+      "UPDATE_ENTITY": "Úprava entity",
+      "DELETE_ENTITY": "Smazání entity",
+      "LINK_AND_UPDATE_ENTITY": "Vytvoření vazby a aktualizování entity",
+      "LINK": "Vytvoření vazby",
+      "UNLINK": "Odstranění vazby",
+      "CREATE_ACCOUNT": "Vytvoření účtu",
+      "IGNORE": "Ignorováno"
+    },
+    "OperationResultTypeEnum": {
+      "SUCCESS": "Úspěšné",
+      "ERROR": "Neúspěšné",
+      "WARNING": "Varování"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

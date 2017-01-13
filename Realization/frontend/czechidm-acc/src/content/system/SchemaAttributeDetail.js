@@ -50,7 +50,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   _getIsNew(nextProps) {
@@ -73,7 +73,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
         this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
       }
       const systemId = this.props.params.entityId;
-      this.context.router.replace(`system/${systemId}/schema-object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
+      this.context.router.replace(`system/${systemId}/object-classes/${entity._embedded.objectClass.id}/detail`, {attributeId: entity.id});
     } else {
       this.addError(error);
     }

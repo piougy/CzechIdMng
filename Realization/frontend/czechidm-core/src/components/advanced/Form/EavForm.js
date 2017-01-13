@@ -144,7 +144,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         formValue.dateValue = rawValue;
         break;
       }
-      case 'BYTE_ARRAY': {
+      case 'BYTEARRAY': {
         formValue.byteValue = rawValue;
         break;
       }
@@ -211,7 +211,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
       case 'DATETIME': {
         return formValue.dateValue;
       }
-      case 'BYTE_ARRAY': {
+      case 'BYTEARRAY': {
         return formValue.byteValue;
       }
       default: {
@@ -274,7 +274,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
         // required is on form component directly
         return null;
       }
-      case 'BYTE_ARRAY': {
+      case 'BYTEARRAY': {
         // required is on form component directly
         return null;
       }
@@ -350,7 +350,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
               || attribute.persistentType === 'LONG'
               || attribute.persistentType === 'DOUBLE'
               || attribute.persistentType === 'CURRENCY'
-              || (attribute.confidential && (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTE_ARRAY'))) { // TODO: confidential TEXTAREA and BYTE_ARRAY is represented as textfield now - implement confidential to Basic.TextArea
+              || (attribute.confidential && (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTEARRAY'))) { // TODO: confidential TEXTAREA and BYTEARRAY is represented as textfield now - implement confidential to Basic.TextArea
               return (
                 <Basic.TextField
                   ref={attribute.name}
@@ -388,7 +388,7 @@ export default class EavForm extends Basic.AbstractContextComponent {
               );
             }
             // textarea field
-            if (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTE_ARRAY') {
+            if (attribute.persistentType === 'TEXTAREA' || attribute.persistentType === 'BYTEARRAY') {
               return (
                 <Basic.TextArea
                   ref={attribute.name}

@@ -5,7 +5,8 @@ import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { NotificationConfigurationManager, SecurityManager } from '../../../redux';
+import { NotificationConfigurationManager, SecurityManager, DataManager } from '../../../redux';
+import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 const uiKey = 'notification-configurations-table';
 const manager = new NotificationConfigurationManager();
@@ -33,6 +34,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
 
   componentDidMount() {
     this.selectNavigationItems(['notification', 'notification-configurations']);
+    this.context.store.dispatch(manager.fetchSupportedNotificationTypes());
   }
 
   showDetail(entity) {
@@ -56,7 +58,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
   }
 
   render() {
-    const { _showLoading } = this.props;
+    const { _showLoading, _supportedNotificationTypesLoading, _supportedNotificationTypes } = this.props;
     const { detail } = this.state;
 
     return (
@@ -87,7 +89,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   level="success"
                   key="add_button"
                   className="btn-xs"
-                  onClick={this.showDetail.bind(this, { })}
+                  onClick={this.showDetail.bind(this, { level: NotificationLevelEnum.findKeyBySymbol(NotificationLevelEnum.SUCCESS) })}
                   rendered={SecurityManager.hasAnyAuthority(['NOTIFICATIONCONFIGURATION_WRITE'])}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
@@ -108,7 +110,8 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   );
                 }
               }/>
-            <Advanced.Column property="topic" width="50%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
+            <Advanced.Column property="topic" width="30%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
+            <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
             <Advanced.Column property="notificationType" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
           </Advanced.Table>
         </Basic.Panel>
@@ -118,20 +121,27 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
           show={detail.show}
           onHide={this.closeDetail.bind(this)}
           backdrop="static"
-          keyboard={!_showLoading}>
+          keyboard={!_showLoading}
+          showLoading={_supportedNotificationTypesLoading}>
 
           <form onSubmit={this.save.bind(this, {})}>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
-            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.topic })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
                 <Basic.TextField
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}
                   required/>
-                <Basic.TextField
+                <Basic.EnumSelectBox
+                  ref="level"
+                  enum={NotificationLevelEnum}
+                  useSymbol={false}
+                  label={this.i18n('entity.NotificationConfiguration.level')}/>
+                <Basic.EnumSelectBox
                   ref="notificationType"
                   label={this.i18n('entity.NotificationConfiguration.notificationType')}
+                  options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
@@ -161,14 +171,18 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
 
 NotificationConfigurations.propTypes = {
   _showLoading: PropTypes.bool,
+  _supportedNotificationTypesLoading: PropTypes.bool
 };
 NotificationConfigurations.defaultProps = {
   _showLoading: false,
+  _supportedNotificationTypesLoading: true
 };
 
 function select(state) {
   return {
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _supportedNotificationTypesLoading: Utils.Ui.isShowLoading(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES),
+    _supportedNotificationTypes: DataManager.getData(state, NotificationConfigurationManager.SUPPORTED_NOTIFICATION_TYPES)
   };
 }
 

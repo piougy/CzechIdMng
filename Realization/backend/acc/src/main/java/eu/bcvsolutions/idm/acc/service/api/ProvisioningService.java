@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
@@ -73,7 +73,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @param entity
 	 */
-	void doProvisioningForAttribute(String systemEntityUid, MappingAttribute mappedAttribute, Object value, SysSystem system,
+	void doProvisioningForAttribute(String systemEntityUid, AttributeMapping mappedAttribute, Object value, SysSystem system,
 			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity);
 	
 	
@@ -103,7 +103,7 @@ public interface ProvisioningService {
 	 * @param overloadingAttribute
 	 * @param overloadedAttribute
 	 */
-	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, MappingAttribute overloadedAttribute);
+	void fillOverloadedAttribute(SysRoleSystemAttribute overloadingAttribute, AttributeMapping overloadedAttribute);
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
@@ -115,7 +115,7 @@ public interface ProvisioningService {
 	 * @param entityType
 	 * @return
 	 */
-	List<MappingAttribute> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
+	List<AttributeMapping> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
 			String uid, SystemOperationType operationType, SystemEntityType entityType);
 
 	

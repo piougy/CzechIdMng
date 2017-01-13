@@ -9,6 +9,12 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
+/**
+ * Provisioning log
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @RepositoryRestResource(
 		collectionResourceRel = "provisioningOperations",
 		path = "provisioning-operations",

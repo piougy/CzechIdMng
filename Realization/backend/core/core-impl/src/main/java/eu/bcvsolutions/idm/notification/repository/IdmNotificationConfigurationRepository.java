@@ -10,6 +10,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationConfiguration;
 
 /**
@@ -32,6 +33,8 @@ public interface IdmNotificationConfigurationRepository extends AbstractEntityRe
 	
 	List<IdmNotificationConfiguration> findAllByNotificationType(@Param("notificationType") String notificationType);
 	
-	@Query(value = "select e.notificationType from IdmNotificationConfiguration e where e.topic = :topic")
-	List<String> findDistinctNotificationTypeByTopic(@Param("topic") String topic);
+	@Query(value = "select distinct(e.notificationType) from IdmNotificationConfiguration e where e.topic = :topic and (e.level is null or e.level = :level)")
+	List<String> findTypes(@Param("topic") String topic, @Param("level") NotificationLevel level);
+	
+	Long countByTopic(@Param("topic") String topic);
 }

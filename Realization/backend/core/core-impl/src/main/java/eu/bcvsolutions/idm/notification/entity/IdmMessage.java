@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.notification.domain.NotificationLevel;
+import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 
 /**
  * Notification content

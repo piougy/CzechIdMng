@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.notification.service.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,11 +49,23 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	 */
 	@Override
 	public boolean supports(String delimiter) {
+		String type = getType();
+		if (StringUtils.isEmpty(type)) {
+			return false;
+		}
+		return getType().equals(delimiter);
+	}
+	
+	/**
+	 * Returns this manager's {@link IdmNotification} type.
+	 */
+	@Override
+	public String getType() {
 		try {
-			return notificationClass.newInstance().getType().equals(delimiter);
+			return notificationClass.newInstance().getType();
 		} catch (InstantiationException | IllegalAccessException o_O) {
 			LOG.error("[{}] does not supports a notification type. Fix notification service configuration or override supports method correctly.", notificationClass, o_O);
-			return false;
+			return null;
 		}
 	}
 	

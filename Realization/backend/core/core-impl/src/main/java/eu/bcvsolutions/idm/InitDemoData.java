@@ -297,7 +297,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				IdmFormAttribute byteArray = new IdmFormAttribute();
 				byteArray.setName("byteArray");
 				byteArray.setDisplayName("Byte array");
-				byteArray.setPersistentType(PersistentType.BYTE_ARRAY);
+				byteArray.setPersistentType(PersistentType.BYTEARRAY);
 				byteArray.setConfidential(false);
 				byteArray.setDescription("Test byte array");
 				byteArray.setPlaceholder("or image :-)");

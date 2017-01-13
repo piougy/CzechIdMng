@@ -3,14 +3,14 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Utils, Domain} from 'czechidm-core';
-import { SystemEntityHandlingManager, SchemaAttributeHandlingManager, SchemaAttributeManager} from '../../redux';
+import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager} from '../../redux';
 
-const uiKey = 'schema-attribute-handling';
-const manager = new SchemaAttributeHandlingManager();
-const systemEntityHandlingManager = new SystemEntityHandlingManager();
+const uiKey = 'system-attribute-mapping';
+const manager = new SystemAttributeMappingManager();
+const systemMappingManager = new SystemMappingManager();
 const schemaAttributeManager = new SchemaAttributeManager();
 
-class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
+class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,7 +25,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.attributeHandlingDetail';
+    return 'acc:content.system.attributeMappingDetail';
   }
 
   componentWillReceiveProps(nextProps) {
@@ -47,12 +47,16 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
   _initComponent(props) {
     const { attributeId} = props.params;
     if (this._getIsNew(props)) {
-      this.setState({attribute: {systemEntityHandling: props.location.query.entityHandlingId,
-        system: props.location.query.systemId}});
+      this.setState({
+        attribute: {
+          systemMapping: props.location.query.mappingId,
+          objectClassId: props.location.query.objectClassId
+        }
+      });
     } else {
       this.context.store.dispatch(this.getManager().fetchEntity(attributeId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-entities-handling']);
+    this.selectNavigationItems(['sys-systems', 'system-mappings']);
   }
 
   _getIsNew(nextProps) {
@@ -62,7 +66,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
 
   save(event) {
     const formEntity = this.refs.form.getData();
-    formEntity.systemEntityHandling = systemEntityHandlingManager.getSelfLink(formEntity.systemEntityHandling);
+    formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
     formEntity.schemaAttribute = schemaAttributeManager.getSelfLink(formEntity.schemaAttribute);
     //
     super.save(formEntity, event);
@@ -123,7 +127,7 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
     const { _showLoading, _attribute} = this.props;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemId', attribute && attribute.system ? attribute.system : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', attribute && attribute.objectClassId ? attribute.objectClassId : Domain.SearchParameters.BLANK_UUID);
 
     const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
@@ -148,12 +152,12 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="disabledAttribute"
                 onChange={this._disabledChanged.bind(this, 'disabledAttribute')}
-                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.disabledAttribute.tooltip')}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.disabledAttribute.label')}/>
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.label')}/>
               <Basic.SelectBox
-                ref="systemEntityHandling"
-                manager={systemEntityHandlingManager}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.systemEntityHandling')}
+                ref="systemMapping"
+                manager={systemMappingManager}
+                label={this.i18n('acc:entity.SystemAttributeMapping.systemMapping')}
                 readOnly
                 required/>
               <Basic.SelectBox
@@ -161,39 +165,39 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
                 manager={schemaAttributeManager}
                 forceSearchParameters={forceSearchParameters}
                 onChange={this._schemaAttributeChange.bind(this)}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.schemaAttribute')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.schemaAttribute')}
                 required/>
               <Basic.TextField
                 ref="name"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.name.label')}
-                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.name.help')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.name.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.name.help')}
                 required
                 max={255}/>
               <Basic.Checkbox
                 ref="uid"
                 onChange={this._uidChanged.bind(this)}
-                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uid.tooltip')}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')}
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
                 readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}
                 readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')}
                 readOnly = {_isDisabled}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
-                label={this.i18n('acc:entity.SchemaAttributeHandling.confidentialAttribute')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}
                 readOnly = {_isDisabled || !_isRequiredIdmField}/>
               <Basic.TextField
                 ref="idmPropertyName"
                 readOnly = {_isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
-                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
               <Basic.LabelWrapper label=" ">
@@ -206,14 +210,14 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
               </Basic.LabelWrapper>
               <Basic.ScriptArea
                 ref="transformFromResourceScript"
-                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.help')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.help')}
                 readOnly = {_isDisabled}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.transformFromResourceScript.label')}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.transformFromResourceScript.label')}/>
               <Basic.ScriptArea
                 ref="transformToResourceScript"
-                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.help')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.help')}
                 readOnly = {_isDisabled}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.transformToResourceScript.label')}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.transformToResourceScript.label')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"
@@ -236,22 +240,21 @@ class SchemaAttributeHandlingDetail extends Basic.AbstractTableContent {
   }
 }
 
-SchemaAttributeHandlingDetail.propTypes = {
+SystemAttributeMappingDetail.propTypes = {
   _showLoading: PropTypes.bool,
 };
-SchemaAttributeHandlingDetail.defaultProps = {
+SystemAttributeMappingDetail.defaultProps = {
   _showLoading: false,
 };
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, manager.getEntityType(), component.params.attributeId);
   if (entity) {
-    const systemEntityHandling = entity._embedded && entity._embedded.systemEntityHandling ? entity._embedded.systemEntityHandling.id : null;
-    const system = entity._embedded && entity._embedded.systemEntityHandling && entity._embedded.systemEntityHandling.system ? entity._embedded.systemEntityHandling.system.id : null;
-    const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute.id : null;
-    entity.systemEntityHandling = systemEntityHandling;
+    const systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping : null;
+    const schemaAttribute = entity._embedded && entity._embedded.schemaAttribute ? entity._embedded.schemaAttribute : null;
+    entity.systemMapping = systemMapping;
     entity.schemaAttribute = schemaAttribute;
-    entity.system = system;
+    entity.objectClassId = systemMapping ? systemMapping.objectClass.id : Domain.SearchParameters.BLANK_UUID;
   }
   return {
     _attribute: entity,
@@ -259,4 +262,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SchemaAttributeHandlingDetail);
+export default connect(select)(SystemAttributeMappingDetail);

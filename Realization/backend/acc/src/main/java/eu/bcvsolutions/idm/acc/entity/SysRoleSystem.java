@@ -47,10 +47,10 @@ public class SysRoleSystem extends AbstractEntity {
 	@NotNull
 	@Audited()
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_entity_handling_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "system_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSystemEntityHandling systemEntityHandling;
+	private SysSystemMapping systemMapping;
 
 	public IdmRole getRole() {
 		return role;
@@ -68,12 +68,12 @@ public class SysRoleSystem extends AbstractEntity {
 		this.system = system;
 	}
 
-	public SysSystemEntityHandling getSystemEntityHandling() {
-		return systemEntityHandling;
+	public SysSystemMapping getSystemMapping() {
+		return systemMapping;
 	}
 
-	public void setSystemEntityHandling(SysSystemEntityHandling systemEntityHandling) {
-		this.systemEntityHandling = systemEntityHandling;
+	public void setSystemMapping(SysSystemMapping systemMapping) {
+		this.systemMapping = systemMapping;
 	}
 
 }

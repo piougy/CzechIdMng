@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.dto;
 
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 /**
@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
  * @author svandav
  *
  */
-public class MappingAttributeDto  implements MappingAttribute {
+public class MappingAttributeDto  implements AttributeMapping {
 
 
 	private String name;

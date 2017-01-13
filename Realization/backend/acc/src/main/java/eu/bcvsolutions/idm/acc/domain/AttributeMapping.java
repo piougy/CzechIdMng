@@ -8,7 +8,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
  *
  */
 
-public interface MappingAttribute {
+public interface AttributeMapping {
 
 	String getIdmPropertyName();
 

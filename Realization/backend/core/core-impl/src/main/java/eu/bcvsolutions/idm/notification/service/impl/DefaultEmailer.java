@@ -120,7 +120,7 @@ public class DefaultEmailer implements Emailer {
 			}			
 		}
 		headers.put("Subject", emailLog.getMessage().getSubject());
-		headers.put("contentType", "text/html");
+		headers.put("contentType", "text/html;charset=UTF-8");
 		
 		return headers;
 	}

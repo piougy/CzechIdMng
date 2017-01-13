@@ -1,5 +1,9 @@
 	package eu.bcvsolutions.idm.notification.rest.impl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -19,12 +23,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.notification.entity.IdmNotificationConfiguration;
+import eu.bcvsolutions.idm.notification.service.api.IdmNotificationConfigurationService;
 
 /**
  * Configuration for notification routing
@@ -100,5 +107,21 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteEnt
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	/**
+	 * Returns registered senders notification types
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/all/notification-types", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONCONFIGURATION_WRITE + "')")
+	public List<String> getInstalledModules() {
+		Set<String> types = entityLookupService.getEntityService(IdmNotificationConfiguration.class, IdmNotificationConfigurationService.class)
+				.getSupportedNotificationTypes();
+		List<String> results = Lists.newArrayList(types);
+		Collections.sort(results);
+		return results;
 	}
 }

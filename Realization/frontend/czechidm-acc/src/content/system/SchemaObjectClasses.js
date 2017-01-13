@@ -6,11 +6,11 @@ import { Basic, Advanced, Domain, Managers, Utils } from 'czechidm-core';
 import { SchemaObjectClassManager, SystemManager } from '../../redux';
 import uuid from 'uuid';
 
-const uiKey = 'system-schema-object-classes-entities-table';
+const uiKey = 'schema-object-classes-entities-table';
 const manager = new SchemaObjectClassManager();
 const systemManager = new SystemManager();
 
-class SystemObjectClasses extends Basic.AbstractTableContent {
+class SchemaObjectClasses extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
@@ -25,20 +25,20 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'acc:content.system.systemObjectClasses';
+    return 'acc:content.system.schemaObjectClasses';
   }
 
   componentDidMount() {
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   showDetail(entity, add) {
     const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${system}/schema-object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.router.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
     } else {
-      this.context.router.push(`/system/${system}/schema-object-classes/${entity.id}/detail`);
+      this.context.router.push(`/system/${system}/object-classes/${entity.id}/detail`);
     }
   }
 
@@ -203,11 +203,11 @@ class SystemObjectClasses extends Basic.AbstractTableContent {
   }
 }
 
-SystemObjectClasses.propTypes = {
+SchemaObjectClasses.propTypes = {
   system: PropTypes.object,
   _showLoading: PropTypes.bool,
 };
-SystemObjectClasses.defaultProps = {
+SchemaObjectClasses.defaultProps = {
   system: null,
   _showLoading: false,
 };
@@ -219,4 +219,4 @@ function select(state, component) {
   };
 }
 
-export default connect(select)(SystemObjectClasses);
+export default connect(select)(SchemaObjectClasses);

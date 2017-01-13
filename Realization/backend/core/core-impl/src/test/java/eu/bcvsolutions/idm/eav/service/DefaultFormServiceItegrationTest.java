@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Radek Tomiška
  *
  */
-public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest {
+public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	private final static String FORM_VALUE_ONE = "one";
 	private final static String FORM_VALUE_TWO = "two";
@@ -258,6 +258,75 @@ public class IdmIdentityFormValueIntegrationTest extends AbstractIntegrationTest
 		assertEquals(1, savedValues.size());
 		
 		formDefinitionService.delete(formDefinition);
+	}
+	
+	@Test
+	public void testSaveSingleAttributeValues() {
+		FormableEntity owner = createTestOwner("test8");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		// save value
+		List<AbstractFormValue<FormableEntity>> attributeValues = formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		
+		assertEquals(1, attributeValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
+		
+		attributeValues = formService.getValues(owner, attribute);
+		
+		assertEquals(1, attributeValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testSaveMultipleAttributeValuesToSingleAttribute() {
+		FormableEntity owner = createTestOwner("test9");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		// save value
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
+	}
+	
+	@Test
+	public void testDeleteSingleAttributeValues() {
+		FormableEntity owner = createTestOwner("test10");
+		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class);
+		IdmFormAttribute attribute = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_PHONE);
+		IdmFormAttribute attributeWWW = formDefinition.getMappedAttributeByName(InitDemoData.FORM_ATTRIBUTE_WWW);
+		// save value
+		formService.saveValues(owner, attribute, Lists.newArrayList(FORM_VALUE_ONE));
+		formService.saveValues(owner, attributeWWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
+		//
+		List<AbstractFormValue<FormableEntity>> attributeValues = formService.getValues(owner, attribute);		
+		assertEquals(1, attributeValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeValues.get(0).getValue());
+		List<AbstractFormValue<FormableEntity>> attributeWWWValues = formService.getValues(owner, formDefinition, InitDemoData.FORM_ATTRIBUTE_WWW);		
+		assertEquals(2, attributeWWWValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
+		//
+		formService.deleteValues(owner, attribute);
+		//
+		attributeValues = formService.getValues(owner, attribute);		
+		assertEquals(0, attributeValues.size());
+		attributeWWWValues = formService.getValues(owner, attributeWWW);		
+		assertEquals(2, attributeWWWValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
+	}
+	
+	@Test
+	public void testEditMultipleAttributeValues() {
+		FormableEntity owner = createTestOwner("test11");
+		// save value
+		formService.saveValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_ONE, FORM_VALUE_TWO));
+		//
+		List<AbstractFormValue<FormableEntity>> attributeWWWValues = formService.getValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW);
+		assertEquals(2, attributeWWWValues.size());
+		assertEquals(FORM_VALUE_ONE, attributeWWWValues.get(0).getValue());
+		// update
+		formService.saveValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW, Lists.newArrayList(FORM_VALUE_TWO));
+		//
+		attributeWWWValues = formService.getValues(owner, InitDemoData.FORM_ATTRIBUTE_WWW);		
+		assertEquals(1, attributeWWWValues.size());
+		assertEquals(FORM_VALUE_TWO, attributeWWWValues.get(0).getValue());
 	}
 	
 	private FormableEntity createTestOwner(String name) {

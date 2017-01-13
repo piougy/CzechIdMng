@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -15,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.notification.domain.NotificationLevel;
+import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -64,8 +65,8 @@ public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProc
 					provisioningOperation.getSystemEntityUid(),
 					system.getName());
 			notificationManager.send(
-					"idm:websocket", 
-					new IdmMessage.Builder(NotificationLevel.WARNING)
+					AccModuleDescriptor.TOPIC_PROVISIONING,
+					new IdmMessage.Builder(NotificationLevel.WARNING)	
 						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
 						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je v readonly režimu.")
 						.build());

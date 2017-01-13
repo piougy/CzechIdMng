@@ -21,10 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.dto.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -37,11 +36,11 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-entities-handling")
-public class SysSystemEntityHandlingController extends AbstractReadWriteEntityController<SysSystemEntityHandling, SystemEntityHandlingFilter> {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-mappings")
+public class SysSystemMappingController extends AbstractReadWriteEntityController<SysSystemMapping, SystemMappingFilter> {
 
 	@Autowired
-	public SysSystemEntityHandlingController(EntityLookupService entityLookupService, SysSystemEntityHandlingService service) {
+	public SysSystemMappingController(EntityLookupService entityLookupService, SysSystemMappingService service) {
 		super(entityLookupService, service);
 	}
 
@@ -103,13 +102,5 @@ public class SysSystemEntityHandlingController extends AbstractReadWriteEntityCo
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
-	}
-	
-	@Override
-	protected SystemEntityHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SystemEntityHandlingFilter filter = new SystemEntityHandlingFilter();
-		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
-		filter.setOperationType(getParameterConverter().toEnum(parameters, "operationType", SystemOperationType.class));
-		return filter;
 	}
 }

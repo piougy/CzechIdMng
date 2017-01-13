@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -36,11 +36,11 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
  */
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/schema-attributes-handling")
-public class SysSchemaAttributeHandlingController extends AbstractReadWriteEntityController<SysSchemaAttributeHandling, SchemaAttributeHandlingFilter> {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/system-attribute-mappings")
+public class SysSystemAttributeMappingController extends AbstractReadWriteEntityController<SysSystemAttributeMapping, SystemAttributeMappingFilter> {
 
 	@Autowired
-	public SysSchemaAttributeHandlingController(EntityLookupService entityLookupService, SysSchemaAttributeHandlingService service) {
+	public SysSystemAttributeMappingController(EntityLookupService entityLookupService, SysSystemAttributeMappingService service) {
 		super(entityLookupService, service);
 	}
 
@@ -102,14 +102,5 @@ public class SysSchemaAttributeHandlingController extends AbstractReadWriteEntit
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
-	}
-	
-	@Override
-	protected SchemaAttributeHandlingFilter toFilter(MultiValueMap<String, Object> parameters) {
-		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
-		filter.setEntityHandlingId(getParameterConverter().toUuid(parameters, "entityHandlingId"));
-		filter.setSystemId(getParameterConverter().toUuid(parameters, "systemId"));
-		filter.setIdmPropertyName(getParameterConverter().toString(parameters, "idmPropertyName"));
-		return filter;
 	}
 }

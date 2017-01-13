@@ -27,6 +27,27 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	public static final String CONFIDENTIAL_STORAGE_VALUE_PREFIX = "eav";
 	
 	/**
+	 * Returns values owner type.
+	 * 
+	 * @return
+	 */
+	Class<O> getOwnerClass();
+	
+	/**
+	 * Returns form value entity type.
+	 * 
+	 * @return
+	 */
+	Class<E> getFormValueClass();
+	
+	/**
+	 * Return new form value instance
+	 * 
+	 * @return
+	 */
+	E newValue();
+	
+	/**
 	 * Saves a given form value. Use the returned instance for further operations as the save operation might have changed the
 	 * entity instance completely.
 	 * 
@@ -52,6 +73,14 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	List<E> getValues(O owner, IdmFormDefinition formDefiniton);
 	
 	/**
+	 * Returns values by given owner and attribute (required). If no attribute is given, then {@link IllegalArgumentException} is thrown.
+	 *
+	 * @param owner
+	 * @param attribute
+	 */
+	List<E> getValues(O owner, IdmFormAttribute attribute);
+	
+	/**
 	 * Returns page of entities by given filter
 	 * 
 	 * @param filter
@@ -74,6 +103,14 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @param definiton
 	 */
 	void deleteValues(O owner, IdmFormDefinition formDefiniton);
+	
+	/**
+	 * Deletes values by given owner and attribute. If no attribute is given, then {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param owner
+	 * @param formAttribute
+	 */
+	void deleteValues(O owner, IdmFormAttribute attribute);
 	
 	/**
 	 * Returns key in confidential storage for given extended attribute

@@ -25,20 +25,21 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
@@ -87,10 +88,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private ProvisioningService provisioningService;
 
 	@Autowired
-	private SysSystemEntityHandlingService systemEntityHandlingService;
+	private SysSystemMappingService systemEntityHandlingService;
 
 	@Autowired
-	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private SysSystemAttributeMappingService schemaAttributeHandlingService;
 
 	@Autowired
 	private SysSchemaAttributeService schemaAttributeService;
@@ -165,7 +166,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		SysSystem system = accountIdentityOne.getAccount().getSystem();
 		
-		SchemaAttributeHandlingFilter attributeFilter = new SchemaAttributeHandlingFilter();
+		SystemAttributeMappingFilter attributeFilter = new SystemAttributeMappingFilter();
 		attributeFilter.setSystemId(system.getId());
 		attributeFilter.setIdmPropertyName("firstName");
 		
@@ -245,10 +246,10 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		
 		// We will use firstName attribute (password attribute is not returned by default)
-		SchemaAttributeHandlingFilter filterSchemaAttr = new SchemaAttributeHandlingFilter();
+		SystemAttributeMappingFilter filterSchemaAttr = new SystemAttributeMappingFilter();
 		filterSchemaAttr.setIdmPropertyName("firstName");
 		filterSchemaAttr.setSystemId(accountIdentityOne.getAccount().getSystem().getId());
-		SysSchemaAttributeHandling attributeHandling = schemaAttributeHandlingService.find(filterSchemaAttr, null).getContent().get(0);
+		SysSystemAttributeMapping attributeHandling = schemaAttributeHandlingService.find(filterSchemaAttr, null).getContent().get(0);
 		// Set attribute to extended attribute and modify idmPropety to extPassword
 		attributeHandling.setIdmPropertyName(IDENTITY_EXT_PASSWORD);
 		attributeHandling.setExtendedAttribute(true);
@@ -283,7 +284,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		system = defaultSysAccountManagementServiceTest.createTestSystem();
 
 		// generate schema for system
-		sysSystemService.generateSchema(system);
+		 List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 
 		// Create test identity for provisioning test
 		identity = new IdmIdentity();
@@ -305,11 +306,12 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		accountIdentityOne = identityAccoutnService.save(accountIdentityOne);
 
-		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
-		entityHandling.setEntityType(SystemEntityType.IDENTITY);
-		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
-		entityHandling.setSystem(system);
-		final SysSystemEntityHandling entityHandlingResult = systemEntityHandlingService.save(entityHandling);
+		SysSystemMapping systemMapping = new SysSystemMapping();
+		systemMapping.setName("default_" + System.currentTimeMillis());
+		systemMapping.setEntityType(SystemEntityType.IDENTITY);
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping.setObjectClass(objectClasses.get(0));
+		final SysSystemMapping entityHandlingResult = systemEntityHandlingService.save(systemMapping);
 
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());
@@ -317,37 +319,37 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Page<SysSchemaAttribute> schemaAttributesPage = schemaAttributeService.find(schemaAttributeFilter, null);
 		schemaAttributesPage.forEach(schemaAttr -> {
 			if ("__NAME__".equals(schemaAttr.getName())) {
-				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
+				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(false);
 				attributeHandlingName.setTransformToResourceScript("return \""+"x" + IDENTITY_USERNAME+"\";");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
 			} else if ("firstname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
+				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("firstName");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
 			} else if ("lastname".equalsIgnoreCase(schemaAttr.getName())) {
-				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
+				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("lastName");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
-				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
 			} else if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equalsIgnoreCase(schemaAttr.getName())) {
-				SysSchemaAttributeHandling attributeHandlingName = new SysSchemaAttributeHandling();
+				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setIdmPropertyName("password");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setName(schemaAttr.getName());
-				attributeHandlingName.setSystemEntityHandling(entityHandlingResult);
+				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 
 			}

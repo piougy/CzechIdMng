@@ -9,7 +9,7 @@ class EnumSelectBox extends SelectBox {
 
   constructor(props) {
     super(props);
-    this.useSymbol = true;
+    this.useSymbol = props.useSymbol;
   }
 
   componentDidMount() {
@@ -48,19 +48,17 @@ class EnumSelectBox extends SelectBox {
       const options = this.props.options;
       const results = [];
       let data = null;
-      if (options) {
-        for (const item in options) {
-          if (!options.hasOwnProperty(item)) {
-            continue;
-          }
-          results.push(this.itemRenderer(options[item]));
+      for (const item in options) {
+        if (!options.hasOwnProperty(item)) {
+          continue;
         }
-
-        data = {
-          options: results,
-          complete: true
-        };
+        results.push(this.itemRenderer(options[item]));
       }
+
+      data = {
+        options: results,
+        complete: true
+      };
       callback(null, data);
     }
   }
@@ -85,7 +83,11 @@ class EnumSelectBox extends SelectBox {
         }
       }
       const itemFullKey = niceLabel;
-      _.merge(item, {[SelectBox.NICE_LABEL]: niceLabel, [SelectBox.ITEM_FULL_KEY]: itemFullKey, value: key });
+      _.merge(item, {
+        [SelectBox.NICE_LABEL]: niceLabel,
+        [SelectBox.ITEM_FULL_KEY]: itemFullKey,
+        value: key
+      });
     }
     return item;
   }
@@ -122,6 +124,9 @@ class EnumSelectBox extends SelectBox {
       for (const item in options) {
         if (options[item].value === rawValue) {
           return options[item].niceLabel;
+        }
+        if (options[item] === rawValue) {
+          return options[item];
         }
       }
     }
@@ -259,12 +264,14 @@ EnumSelectBox.propTypes = {
     PropTypes.arrayOf(PropTypes.symbol),
     PropTypes.symbol
   ]),
-  searchable: PropTypes.bool
+  searchable: PropTypes.bool,
+  useSymbol: PropTypes.bool
 };
 
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
-  searchable: false
+  searchable: false,
+  useSymbol: true
 };
 
 export default EnumSelectBox;

@@ -17,27 +17,27 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.dto.SchemaObjectClassFilter;
-import eu.bcvsolutions.idm.acc.dto.SystemEntityHandlingFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystem;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
@@ -84,9 +84,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	@Autowired
 	private SysRoleSystemService roleSystemService;
 	@Autowired
-	private SysSystemEntityHandlingService systemEntityHandlingService;
+	private SysSystemMappingService systemEntityHandlingService;
 	@Autowired
-	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private SysSystemAttributeMappingService schemaAttributeHandlingService;
 	@Autowired
 	private SysRoleSystemAttributeService roleSystemAttributeService;
 	@Autowired
@@ -114,7 +114,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysSchemaObjectClass objectClass = new SysSchemaObjectClass();
 		objectClass.setSystem(system);
 		objectClass.setObjectClassName("obj_class");
-		schemaObjectClassService.save(objectClass);	
+		objectClass = schemaObjectClassService.save(objectClass);	
 		SchemaObjectClassFilter objectClassFilter = new SchemaObjectClassFilter();
 		objectClassFilter.setSystemId(system.getId());
 		// schema attribute
@@ -126,21 +126,22 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SchemaAttributeFilter schemaAttributeFilter = new SchemaAttributeFilter();
 		schemaAttributeFilter.setSystemId(system.getId());	
 		// system entity handling
-		SysSystemEntityHandling entityHandling = new SysSystemEntityHandling();
-		entityHandling.setSystem(system);
-		entityHandling.setOperationType(SystemOperationType.PROVISIONING);
-		entityHandling.setEntityType(SystemEntityType.IDENTITY);
-		entityHandling = systemEntityHandlingService.save(entityHandling);
-		SystemEntityHandlingFilter entityHandlingFilter = new SystemEntityHandlingFilter();
+		SysSystemMapping systemMapping = new SysSystemMapping();
+		systemMapping.setName("default_" + System.currentTimeMillis());
+		systemMapping.setObjectClass(objectClass);
+		systemMapping.setOperationType(SystemOperationType.PROVISIONING);
+		systemMapping.setEntityType(SystemEntityType.IDENTITY);
+		systemMapping = systemEntityHandlingService.save(systemMapping);
+		SystemMappingFilter entityHandlingFilter = new SystemMappingFilter();
 		entityHandlingFilter.setSystemId(system.getId());
 		// schema attribute handling
-		SysSchemaAttributeHandling schemaAttributeHandling = new SysSchemaAttributeHandling();
+		SysSystemAttributeMapping schemaAttributeHandling = new SysSystemAttributeMapping();
 		schemaAttributeHandling.setSchemaAttribute(schemaAttribute);
-		schemaAttributeHandling.setSystemEntityHandling(entityHandling);
+		schemaAttributeHandling.setSystemMapping(systemMapping);
 		schemaAttributeHandling.setName("name");
 		schemaAttributeHandling.setIdmPropertyName("name");
 		schemaAttributeHandlingService.save(schemaAttributeHandling);
-		SchemaAttributeHandlingFilter schemaAttributeHandlingFilter = new SchemaAttributeHandlingFilter(); 
+		SystemAttributeMappingFilter schemaAttributeHandlingFilter = new SystemAttributeMappingFilter(); 
 		schemaAttributeHandlingFilter.setSystemId(system.getId());		
 		// role system
 		IdmRole role = new IdmRole();
@@ -150,14 +151,14 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		SysRoleSystem roleSystem = new SysRoleSystem();
 		roleSystem.setSystem(system);
 		roleSystem.setRole(role);
-		roleSystem.setSystemEntityHandling(entityHandling);
+		roleSystem.setSystemMapping(systemMapping);
 		roleSystemService.save(roleSystem);
 		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
 		roleSystemFilter.setRoleId(role.getId());
 		// role system attributes
 		SysRoleSystemAttribute roleSystemAttribute = new SysRoleSystemAttribute();
 		roleSystemAttribute.setRoleSystem(roleSystem);
-		roleSystemAttribute.setSchemaAttributeHandling(schemaAttributeHandling);
+		roleSystemAttribute.setSystemAttributeMapping(schemaAttributeHandling);
 		roleSystemAttribute.setName("name");
 		roleSystemAttribute.setIdmPropertyName("name");
 		roleSystemAttribute = roleSystemAttributeService.save(roleSystemAttribute);

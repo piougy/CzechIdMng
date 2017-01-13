@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
 /**
@@ -21,7 +21,7 @@ public interface SysRoleSystemAttributeExcerpt extends AbstractDtoProjection {
 	
 	String getIdmPropertyName();
 	
-	SysSchemaAttributeHandling getSchemaAttributeHandling();
+	SysSystemAttributeMapping getSystemAttributeMapping();
 
 	boolean isExtendedAttribute();
 	

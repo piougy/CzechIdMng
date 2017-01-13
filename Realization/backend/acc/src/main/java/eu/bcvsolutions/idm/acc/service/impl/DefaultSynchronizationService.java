@@ -24,32 +24,32 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
 import eu.bcvsolutions.idm.acc.dto.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSchemaAttributeHandling;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.entity.SysSystemEntityHandling;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -81,7 +81,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
-	private final SysSchemaAttributeHandlingService attributeHandlingService;
+	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSynchronizationConfigService synchronizationConfigService;
 	private final SysSynchronizationLogService synchronizationLogService;
 	private final AccAccountService accountService;
@@ -97,13 +97,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	@Autowired
 	public DefaultSynchronizationService(IcConnectorFacade connectorFacade, SysSystemService systemService,
-			SysSchemaAttributeHandlingService attributeHandlingService,
+			SysSystemAttributeMappingService attributeHandlingService,
 			SysSynchronizationConfigService synchronizationConfigService,
 			SysSynchronizationLogService synchronizationLogService, AccAccountService accountService,
 			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
 			FormService formService, IdmIdentityService identityService,
-			AccIdentityAccountService identityAccoutnService,
-			SysSyncItemLogService syncItemLogService) {
+			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService) {
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(attributeHandlingService);
@@ -150,15 +149,15 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					ImmutableMap.of("name", config.getName()));
 		}
 
-		SysSystem system = config.getAttributeMapping().getSystem();
-		Assert.notNull(system);
-		SysSystemEntityHandling mapping = config.getAttributeMapping();
+		SysSystemMapping mapping = config.getSystemMapping();
 		Assert.notNull(mapping);
+		SysSystem system = mapping.getSystem();
+		Assert.notNull(system);
 		SystemEntityType entityType = mapping.getEntityType();
 
-		SchemaAttributeHandlingFilter attributeHandlingFilter = new SchemaAttributeHandlingFilter();
-		attributeHandlingFilter.setEntityHandlingId(mapping.getId());
-		List<SysSchemaAttributeHandling> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
+		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
+		attributeHandlingFilter.setSystemMappingId(mapping.getId());
+		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
 				.getContent();
 
 		// Find connector identification persisted in system
@@ -218,9 +217,10 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					} finally {
 						synchronizationConfigService.save(config);
 						synchronizationLogService.save(log);
-						if(itemLog.getSyncActionLog() == null){
+						if (itemLog.getSyncActionLog() == null) {
 							// Default action log (for unexpected situation)
-							String message = MessageFormat.format("Missing syncActionLog for delta {0}", delta.toString());
+							String message = MessageFormat.format("Missing syncActionLog for delta {0}",
+									delta.toString());
 							LOG.warn(message);
 							SysSyncActionLog actionLogDefault = new SysSyncActionLog();
 							actionLogDefault.setSyncLog(log);
@@ -251,8 +251,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public boolean doItemSynchronization(SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSchemaAttributeHandling> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs,
-			IcSyncDelta delta) {
+			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem,
+			List<SysSyncActionLog> actionLogs, IcSyncDelta delta) {
+
 		IcSyncDeltaTypeEnum type = delta.getDeltaType();
 		IcConnectorObject icObject = delta.getObject();
 
@@ -305,11 +306,10 @@ public class DefaultSynchronizationService implements SynchronizationService {
 									log, actionLogs);
 							return true;
 						case CREATE_ENTITY:
-							 if(true){
-							 throw new
-							 ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
-							 "ddddddddddddd");
-							 }
+							if (true) {
+								throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_MORE_UID,
+										"ddddddddddddd");
+							}
 							// We will create new Identity
 							logItem.addToLog("Missing entity action is CREATE_ENTITY, we will do create new identity.");
 							IdmIdentity identity = new IdmIdentity();
@@ -339,7 +339,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							"Synchronization - exception during create new entity for UID {0}", uid.getUidValue());
 					logItem.setMessage(message);
 					logItem.addToLog(Throwables.getStackTraceAsString(e));
-					initSyncActionLog(SynchronizationActionType.CREATE_ENTITY, OperationResultType.ERROR, logItem, log, actionLogs);
+					initSyncActionLog(SynchronizationActionType.CREATE_ENTITY, OperationResultType.ERROR, logItem, log,
+							actionLogs);
 					LOG.error(message, e);
 					throw e;
 				}
@@ -412,7 +413,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							"Synchronization - exception during update new entity for UID {0}", uid.getUidValue());
 					logItem.setMessage(message);
 					logItem.addToLog(Throwables.getStackTraceAsString(e));
-					initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.ERROR, logItem, log, actionLogs);
+					initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.ERROR, logItem, log,
+							actionLogs);
 					LOG.error(message, e);
 					throw e;
 				}
@@ -444,7 +446,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			actionLogs.add(actionLog);
 		}
 		logItem.setSyncActionLog(actionLog);
-		actionLog.setOperationCount(actionLog.getOperationCount() +1);
+		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
 	}
 
 	/**
@@ -454,7 +456,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param mappedAttributes
 	 * @return
 	 */
-	private IcObjectClass findObjectClass(List<SysSchemaAttributeHandling> mappedAttributes) {
+	private IcObjectClass findObjectClass(List<SysSystemAttributeMapping> mappedAttributes) {
 		Assert.notNull(mappedAttributes);
 		return new IcObjectClassImpl(
 				mappedAttributes.get(0).getSchemaAttribute().getObjectClass().getObjectClassName());
@@ -467,7 +469,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return this.synchronizationService;
 	}
 
-	private AbstractEntity findEntityByCorrelationAttribute(MappingAttribute attribute, SystemEntityType entityType,
+	private AbstractEntity findEntityByCorrelationAttribute(AttributeMapping attribute, SystemEntityType entityType,
 			List<IcAttribute> icAttributes) {
 		Assert.notNull(attribute);
 		Assert.notNull(entityType);
@@ -516,7 +518,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
 	}
 
-	private AbstractEntity fillEntity(List<SysSchemaAttributeHandling> mappedAttributes, String uid,
+	private AbstractEntity fillEntity(List<SysSystemAttributeMapping> mappedAttributes, String uid,
 			List<IcAttribute> icAttributes, AbstractEntity entity) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
@@ -589,7 +591,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return entity;
 	}
 
-	private Object getValueByMappedAttribute(MappingAttribute attribute, List<IcAttribute> icAttributes) {
+	private Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
 			return attribute.getSchemaAttribute().getName().equals(icAttribute.getName());
 		}).findFirst();

@@ -15,23 +15,22 @@ import org.hibernate.envers.Audited;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * <i>SysSchemaAttributeHandling</i> is responsible for mapping schema attribute
+ * <i>SysSystemAttributeMapping</i> is responsible for mapping schema attribute
  * to idm entity
  * 
  * @author svandav
  *
  */
 @Entity
-@Table(name = "sys_schema_attribute_handling", indexes = {
-		@Index(name = "ux_schema_atth_pname_enth", columnList = "idm_property_name,system_entity_handling_id", unique = true),
-		@Index(name = "ux_schema_atth_name_enth", columnList = "name,system_entity_handling_id", unique = true)})
-
-public class SysSchemaAttributeHandling extends AbstractEntity implements MappingAttribute {
+@Table(name = "sys_system_attribute_mapping", indexes = {
+		@Index(name = "ux_sys_attr_m_pname_enth", columnList = "idm_property_name,system_mapping_id", unique = true),
+		@Index(name = "ux_sys_attr_m_name_enth", columnList = "name,system_mapping_id", unique = true)})
+public class SysSystemAttributeMapping extends AbstractEntity implements AttributeMapping {
 
 	private static final long serialVersionUID = -8492560756893726050L;
 
@@ -44,6 +43,14 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "idm_property_name", length = DefaultFieldLengths.NAME, nullable = true)
 	private String idmPropertyName;
+	
+	@Audited
+	@NotNull
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "system_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private SysSystemMapping systemMapping;
 
 	@Audited
 	@NotNull
@@ -52,14 +59,6 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSchemaAttribute schemaAttribute;
-
-	@Audited
-	@NotNull
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_entity_handling_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSystemEntityHandling systemEntityHandling;
 
 	@Audited
 	@Column(name = "disabled_attribute", nullable = false)
@@ -141,12 +140,12 @@ public class SysSchemaAttributeHandling extends AbstractEntity implements Mappin
 		this.transformToResourceScript = transformToResourceScript;
 	}
 
-	public SysSystemEntityHandling getSystemEntityHandling() {
-		return systemEntityHandling;
+	public SysSystemMapping getSystemMapping() {
+		return systemMapping;
 	}
 
-	public void setSystemEntityHandling(SysSystemEntityHandling systemEntityHandling) {
-		this.systemEntityHandling = systemEntityHandling;
+	public void setSystemMapping(SysSystemMapping systemMapping) {
+		this.systemMapping = systemMapping;
 	}
 
 	@Override

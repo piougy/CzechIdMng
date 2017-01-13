@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityHandlingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -70,7 +69,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysRoleSystemService roleSystemService;
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
-	private final SysSystemEntityHandlingService systemEntityHandlingService;
 	private final SysSynchronizationConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
 
@@ -84,7 +82,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
-			SysSystemEntityHandlingService systemEntityHandlingService,
 			SysSynchronizationConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager) {
 		super(systemRepository, formService);
@@ -95,7 +92,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(roleSystemService);
 		Assert.notNull(systemEntityRepository);
 		Assert.notNull(accountRepository);
-		Assert.notNull(systemEntityHandlingService);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
 		//
@@ -106,7 +102,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.roleSystemService = roleSystemService;
 		this.systemEntityRepository = systemEntityRepository;
 		this.accountRepository = accountRepository;
-		this.systemEntityHandlingService = systemEntityHandlingService;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
 	}
@@ -128,10 +123,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		roleSystemFilter.setSystemId(system.getId());
 		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
 			roleSystemService.delete(roleSystem);
-		});
-		// delete all mappings
-		systemEntityHandlingService.findBySystem(system, null, null).forEach(systemEntityHandling -> {
-			systemEntityHandlingService.delete(systemEntityHandling);
 		});
 		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
 		filter.setSystemId(system.getId());	
@@ -189,7 +180,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public void generateSchema(SysSystem system) {
+	public List<SysSchemaObjectClass> generateSchema(SysSystem system) {
 		Assert.notNull(system);
 
 		// Find connector identification persisted in system
@@ -282,6 +273,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		// Persist generated schema to system
 		objectClassService.saveAll(sysObjectClasses);
 		attributeService.saveAll(sysAttributes);
+		return sysObjectClasses;
 	}
 
 	private SysSchemaObjectClass convertIcObjectClassInfo(IcObjectClassInfo objectClass,

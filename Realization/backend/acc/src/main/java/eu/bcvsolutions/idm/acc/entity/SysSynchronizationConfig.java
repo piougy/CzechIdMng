@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_synchronization_config")
+@Table(name = "sys_sync_config")
 public class SysSynchronizationConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;
@@ -109,7 +109,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "unlinked_action", nullable = false)
-	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK;
+	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY;
 
 	@Audited
 	@NotNull

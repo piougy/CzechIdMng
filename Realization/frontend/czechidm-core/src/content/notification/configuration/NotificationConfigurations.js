@@ -141,7 +141,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                 <Basic.EnumSelectBox
                   ref="notificationType"
                   label={this.i18n('entity.NotificationConfiguration.notificationType')}
-                  options={_supportedNotificationTypes}
+                  options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

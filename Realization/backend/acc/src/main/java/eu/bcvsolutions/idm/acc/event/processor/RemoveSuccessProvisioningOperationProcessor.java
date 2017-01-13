@@ -43,8 +43,8 @@ public class RemoveSuccessProvisioningOperationProcessor extends AbstractEntityE
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
 				|| ResultState.CANCELED.equals(provisioningOperation.getResultState())) {
-			provisioningOperationService.delete(provisioningOperation);
-			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
+			//provisioningOperationService.delete(provisioningOperation);
+			//LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 		}
 		return new DefaultEventResult<>(event, this, isClosable());
 	}

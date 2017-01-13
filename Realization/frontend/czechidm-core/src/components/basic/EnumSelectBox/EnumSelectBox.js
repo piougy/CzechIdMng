@@ -63,12 +63,7 @@ class EnumSelectBox extends SelectBox {
     }
   }
 
-  itemRenderer(enumItem, key = null) {
-    if (!key) {
-      // default key
-      key = enumItem.value || enumItem;
-    }
-    //
+  itemRenderer(enumItem, key) {
     let item;
     if (enumItem && enumItem.value && !enumItem[SelectBox.ITEM_FULL_KEY]) {
       item = _.merge({}, enumItem, {
@@ -77,7 +72,7 @@ class EnumSelectBox extends SelectBox {
       });
     } else {
       item = _.merge({}, enumItem);
-      let niceLabel = enumItem;
+      let niceLabel;
       if (this.props.enum) {
         if (enumItem.niceLabel) {
           // enum item has nice label, then use this niceLabel
@@ -90,12 +85,10 @@ class EnumSelectBox extends SelectBox {
       const itemFullKey = niceLabel;
       _.merge(item, {
         [SelectBox.NICE_LABEL]: niceLabel,
-        [SelectBox.ITEM_FULL_KEY]:
-        itemFullKey,
+        [SelectBox.ITEM_FULL_KEY]: itemFullKey,
         value: key
       });
     }
-    console.log(item);
     return item;
   }
 

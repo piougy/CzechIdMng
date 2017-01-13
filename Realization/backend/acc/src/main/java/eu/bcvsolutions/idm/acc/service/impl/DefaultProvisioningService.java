@@ -708,7 +708,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 			operationBuilder.setConnectorObject(connectorObject);						
 			provisioningExecutor.execute(operationBuilder.build());
 		});
-
 		// call update on IC module
 		objectByClassMapForUpdate.forEach((objectClassName, connectorObject) -> {
 			operationBuilder.setOperationType(ProvisioningOperationType.UPDATE);

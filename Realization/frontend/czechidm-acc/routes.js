@@ -96,6 +96,21 @@ module.exports = {
           path: 'synchronization-configs/:configId/new',
           component: require('./src/content/system/SystemSynchronizationConfigDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'synchronization-logs/:logId/detail',
+          component: require('./src/content/system/SystemSynchronizationLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'synchronization-action-logs/:logActionId/detail',
+          component: require('./src/content/system/SystemSyncActionLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'synchronization-item-logs/:logItemId/detail',
+          component: require('./src/content/system/SystemSyncItemLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         }
       ]
     },

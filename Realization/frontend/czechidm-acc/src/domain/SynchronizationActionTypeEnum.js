@@ -40,6 +40,9 @@ export default class SynchronizationActionTypeEnum extends Enums.AbstractEnum {
       case this.UNLINK: {
         return 'warning';
       }
+      case this.UNLINK_AND_REMOVE_ROLE: {
+        return 'danger';
+      }
       case this.CREATE_ACCOUNT: {
         return 'success';
       }
@@ -59,8 +62,9 @@ export default class SynchronizationActionTypeEnum extends Enums.AbstractEnum {
 SynchronizationActionTypeEnum.CREATE_ENTITY = Symbol('CREATE_ENTITY');
 SynchronizationActionTypeEnum.UPDATE_ENTITY = Symbol('UPDATE_ENTITY');
 SynchronizationActionTypeEnum.DELETE_ENTITY = Symbol('DELETE_ENTITY');
-SynchronizationActionTypeEnum.LINK_AND_UPDATE_ENTITY = Symbol('LINK_AND_UPDATE_ENTITY');
+SynchronizationActionTypeEnum.LINK_AND_UPDATE_ACCOUNT = Symbol('LINK_AND_UPDATE_ACCOUNT');
 SynchronizationActionTypeEnum.LINK = Symbol('LINK');
+SynchronizationActionTypeEnum.UNLINK_AND_REMOVE_ROLE = Symbol('UNLINK_AND_REMOVE_ROLE');
 SynchronizationActionTypeEnum.UNLINK = Symbol('UNLINK');
 SynchronizationActionTypeEnum.CREATE_ACCOUNT = Symbol('CREATE_ACCOUNT');
 SynchronizationActionTypeEnum.IGNORE = Symbol('IGNORE');

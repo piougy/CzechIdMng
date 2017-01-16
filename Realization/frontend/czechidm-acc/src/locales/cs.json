@@ -544,12 +544,14 @@
     "ReconciliationMissingAccountActionTypeEnum": {
       "LINK": "Vytvořit vazbu",
       "UNLINK": "Odstranit vazbu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
       "DELETE_ENTITY": "Smazat entitu",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationLinkedActionTypeEnum": {
       "UPDATE_ENTITY": "Aktualizovat entitu",
       "UNLINK": "Odstranit vazbu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationMissingEntityActionTypeEnum": {
@@ -558,14 +560,15 @@
     },
     "SynchronizationUnlinkedActionTypeEnum": {
       "LINK": "Vytvořit vazbu",
-      "LINK_AND_UPDATE_ENTITY": "Vytvořit vazbu a aktualizovat entitu",
+      "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationActionTypeEnum": {
       "CREATE_ENTITY": "Vytvoření nové entity",
       "UPDATE_ENTITY": "Úprava entity",
       "DELETE_ENTITY": "Smazání entity",
-      "LINK_AND_UPDATE_ENTITY": "Vytvoření vazby a aktualizování entity",
+      "LINK_AND_UPDATE_ACCOUNT": "Vytvoření vazby a aktualizování účtu",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
       "LINK": "Vytvoření vazby",
       "UNLINK": "Odstranění vazby",
       "CREATE_ACCOUNT": "Vytvoření účtu",

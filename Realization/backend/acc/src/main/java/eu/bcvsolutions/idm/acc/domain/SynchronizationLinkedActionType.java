@@ -10,5 +10,6 @@ public enum SynchronizationLinkedActionType {
 
 	UPDATE_ENTITY, 
 	UNLINK,
+	UNLINK_AND_REMOVE_ROLE,
 	IGNORE;
 }

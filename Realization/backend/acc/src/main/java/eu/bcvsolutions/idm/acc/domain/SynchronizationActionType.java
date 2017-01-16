@@ -14,6 +14,7 @@ public enum SynchronizationActionType {
 	LINK_AND_UPDATE_ENTITY,
 	LINK,
 	UNLINK,
+	UNLINK_AND_REMOVE_ROLE,
 	CREATE_ACCOUNT,
 	IGNORE;
 }

@@ -8,6 +8,7 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum SynchronizationUnlinkedActionType {
 
-	LINK_AND_UPDATE_ENTITY,
+	LINK,
+	LINK_AND_UPDATE_ACCOUNT,
 	IGNORE;
 }

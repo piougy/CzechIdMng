@@ -3,19 +3,18 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
-import { SynchronizationConfigManager, SynchronizationLogManager, SystemEntityHandlingManager, SchemaAttributeHandlingManager} from '../../redux';
+import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
 import ReconciliationMissingAccountActionTypeEnum from '../../domain/ReconciliationMissingAccountActionTypeEnum';
 import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLinkedActionTypeEnum';
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
-import uuid from 'uuid';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
 const synchronizationLogManager = new SynchronizationLogManager();
 const synchronizationConfigManager = new SynchronizationConfigManager();
-const systemEntityHandlingManager = new SystemEntityHandlingManager();
-const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
+const systemMappingManager = new SystemMappingManager();
+const systemAttributeMappingManager = new SystemAttributeMappingManager();
 
 class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
 
@@ -23,14 +22,14 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     super(props, context);
     this.state = {
       ...this.state,
-      attributeMappingId: null, // dependant select box
+      systemMappingId: null, // dependant select box
       forceSearchCorrelationAttribute: new Domain.SearchParameters()
-        .setFilter('entityHandlingId', Domain.SearchParameters.BLANK_UUID) // dependant select box
+        .setFilter('mappingId', Domain.SearchParameters.BLANK_UUID) // dependant select box
     };
   }
 
   getManager() {
-    return synchronizationConfigManager;
+    return synchronizationLogManager;
   }
 
   getUiKey() {
@@ -41,15 +40,9 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     return 'acc:content.system.systemSynchronizationConfigDetail';
   }
 
-  showDetail(entity, add) {
-    const synchronizationConfigId = this.props._synchronizationConfig.id;
-    const {systemId} = this.props.params;
-    if (add) {
-      const uuidId = uuid.v1();
-      this.context.router.push(`/system/${systemId}/synchronization-log/${uuidId}/new?new=1&synchronizationConfigId=${synchronizationConfigId}&systemId=${systemId}`);
-    } else {
-      this.context.router.push(`/system/${systemId}/synchronization-log/${entity.id}/detail`);
-    }
+  showDetail(entity) {
+    const {entityId} = this.props.params;
+    this.context.router.push(`/system/${entityId}/synchronization-logs/${entity.id}/detail`);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -74,7 +67,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       this.setState({synchronizationConfig: {
         system: props.location.query.systemId,
         linkedAction: SynchronizationLinkedActionTypeEnum.findKeyBySymbol(SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY),
-        unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK),
+        unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ENTITY),
         missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
         missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE)
       }});
@@ -96,8 +89,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     }
 
     const formEntity = this.refs.form.getData();
-    formEntity.attributeMapping = systemEntityHandlingManager.getSelfLink(formEntity.attributeMapping);
-    formEntity.correlationAttribute = schemaAttributeHandlingManager.getSelfLink(formEntity.correlationAttribute);
+    formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
+    formEntity.correlationAttribute = systemAttributeMappingManager.getSelfLink(formEntity.correlationAttribute);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -133,25 +126,52 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   /**
    * Call after attribute mapping selection was changed. Create filter for correlationAttribute
    */
-  _onChangeAttributeMapping(attributeMapping) {
-    const attributeMappingId = attributeMapping ? attributeMapping.id : null;
+  _onChangeSystemMapping(systemMapping) {
+    const systemMappingId = systemMapping ? systemMapping.id : null;
     this.setState({
-      attributeMappingId,
-      forceSearchCorrelationAttribute: this.state.forceSearchCorrelationAttribute.setFilter('entityHandlingId', attributeMappingId || Domain.SearchParameters.BLANK_UUID)
+      systemMappingId
     }, () => {
       // clear selected correlationAttribute
       this.refs.correlationAttribute.setValue(null);
     });
   }
 
+  _generateResultCell(rowIndex, data) {
+    const actions = [];
+    for (const action of data[rowIndex].syncActionLogs) {
+      let level = 'default';
+      if (action.operationResult === 'SUCCESS') {
+        level = 'success';
+      }
+      if (action.operationResult === 'ERROR') {
+        level = 'danger';
+      }
+      if (action.operationResult === 'WARNING') {
+        level = 'warning';
+      }
+      actions.push(
+        <Basic.Row>
+          <div className="col-lg-9">
+            <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)}: </label>
+          </div>
+          <div className="col-lg-3">
+            <Basic.Label style={{marginLeft: '0px'}} level={level} text={action.operationCount}/>
+          </div>
+        </Basic.Row>);
+    }
+    return actions;
+  }
+
   render() {
     const { _showLoading, _synchronizationConfig} = this.props;
-    const {forceSearchCorrelationAttribute} = this.state;
+    const {attributeMappingId} = this.state;
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
-    const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId ? systemId : Domain.SearchParameters.BLANK_UUID);
+    const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
+    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.attributeMapping ? synchronizationConfig.attributeMapping : null;
+    const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('entityHandlingId', attributeMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
 
     return (
       <div>
@@ -179,9 +199,19 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="reconciliation"
                 label={this.i18n('acc:entity.SynchronizationConfig.reconciliation')}/>
-              <Basic.DateTimePicker
-                ref="timestamp"
-                label={this.i18n('acc:entity.SynchronizationConfig.timestamp')}/>
+              <Basic.SelectBox
+                ref="systemMapping"
+                manager={systemMappingManager}
+                forceSearchParameters={forceSearchMappingAttributes}
+                onChange={this._onChangeSystemMapping.bind(this)}
+                label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
+                required/>
+              <Basic.SelectBox
+                ref="correlationAttribute"
+                manager={systemAttributeMappingManager}
+                forceSearchParameters={forceSearchCorrelationAttribute}
+                label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
+                required/>
               <Basic.Checkbox
                 ref="customFilter"
                 label={this.i18n('acc:entity.SynchronizationConfig.customFilter')}/>
@@ -189,19 +219,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 ref="customFilterScript"
                 helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                 label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}/>
-              <Basic.SelectBox
-                ref="attributeMapping"
-                manager={systemEntityHandlingManager}
-                forceSearchParameters={forceSearchMappingAttributes}
-                onChange={this._onChangeAttributeMapping.bind(this)}
-                label={this.i18n('acc:entity.SynchronizationConfig.attributeMapping')}
-                required/>
-              <Basic.SelectBox
-                ref="correlationAttribute"
-                manager={schemaAttributeHandlingManager}
-                forceSearchParameters={forceSearchCorrelationAttribute}
-                label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
-                required/>
               <Basic.EnumSelectBox
                 ref="linkedAction"
                 enum={SynchronizationLinkedActionTypeEnum}
@@ -222,10 +239,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 enum={ReconciliationMissingAccountActionTypeEnum}
                 label={this.i18n('acc:entity.SynchronizationConfig.missingAccountAction')}
                 required/>
+              <Basic.DateTimePicker
+                ref="timestamp"
+                label={this.i18n('acc:entity.SynchronizationConfig.timestamp')}/>
               <Basic.TextField
                 ref="token"
-                label={this.i18n('acc:entity.SynchronizationConfig.token')}
-                readOnly/>
+                label={this.i18n('acc:entity.SynchronizationConfig.token')}/>
               <Basic.TextArea
                 ref="description"
                 label={this.i18n('acc:entity.SynchronizationConfig.description')}/>
@@ -312,26 +331,24 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
+              <Advanced.Column
+                property="syncActionLogs"
+                header={this.i18n('acc:entity.SynchronizationLog.results')}
+                cell={
+                  ({ rowIndex, data }) => {
+                    return this._generateResultCell(rowIndex, data);
+                  }
+                }
+                />
               <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
               <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
-              <Advanced.Column property="successCreateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successCreateEntity')} sort/>
-              <Advanced.Column property="successUpdateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successUpdateEntity')} sort/>
-              <Advanced.Column property="successDeleteEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.successDeleteEntity')} sort/>
-              <Advanced.Column property="exceptionCreateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionCreateEntity')} sort/>
-              <Advanced.Column property="exceptionUpdateEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionUpdateEntity')} sort/>
-              <Advanced.Column property="exceptionDeleteEntity" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionDeleteEntity')} sort/>
-              <Advanced.Column property="successCreateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successCreateAccount')} sort/>
-              <Advanced.Column property="successUpdateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successUpdateAccount')} sort/>
-              <Advanced.Column property="successDeleteAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.successDeleteAccount')} sort/>
-              <Advanced.Column property="exceptionCreateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionCreateAccount')} sort/>
-              <Advanced.Column property="exceptionUpdateAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionUpdateAccount')} sort/>
-              <Advanced.Column property="exceptionDeleteAccount" face="text" header={this.i18n('acc:entity.SynchronizationLog.exceptionDeleteAccount')} sort/>
             </Advanced.Table>
           </Basic.Panel>
         </div>
     );
   }
 }
+
 
 SystemSynchronizationConfigDetail.propTypes = {
   _showLoading: PropTypes.bool,
@@ -345,8 +362,8 @@ function select(state, component) {
   if (entity) {
     const correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute.id : null;
     entity.correlationAttribute = correlationAttribute;
-    const attributeMapping = entity._embedded && entity._embedded.attributeMapping ? entity._embedded.attributeMapping.id : null;
-    entity.attributeMapping = attributeMapping;
+    const systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
+    entity.systemMapping = systemMapping;
   }
   return {
     _synchronizationConfig: entity,

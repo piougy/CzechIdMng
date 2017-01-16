@@ -6,10 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.SchemaAttributeFilter;
-import eu.bcvsolutions.idm.acc.dto.SchemaAttributeHandlingFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.repository.SysSchemaAttributeRepository;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
@@ -23,17 +23,17 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntityService<SysSchemaAttribute, SchemaAttributeFilter>
 		implements SysSchemaAttributeService {
 
-	private final SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private final SysSystemAttributeMappingService systeAttributeMappingService;
 
 	@Autowired
 	public DefaultSysSchemaAttributeService(
 			SysSchemaAttributeRepository repository,
-			SysSchemaAttributeHandlingService schemaAttributeHandlingService) {
+			SysSystemAttributeMappingService systeAttributeMappingService) {
 		super(repository);
 		//
-		Assert.notNull(schemaAttributeHandlingService);
+		Assert.notNull(systeAttributeMappingService);
 		//
-		this.schemaAttributeHandlingService = schemaAttributeHandlingService;
+		this.systeAttributeMappingService = systeAttributeMappingService;
 	}
 	
 	@Override
@@ -42,10 +42,10 @@ public class DefaultSysSchemaAttributeService extends AbstractReadWriteEntitySer
 		Assert.notNull(schemaAttribute);
 		// 
 		// remove all handled attributes
-		SchemaAttributeHandlingFilter filter = new SchemaAttributeHandlingFilter();
+		SystemAttributeMappingFilter filter = new SystemAttributeMappingFilter();
 		filter.setSchemaAttributeId(schemaAttribute.getId());
-		schemaAttributeHandlingService.find(filter, null).forEach(schemaAttributeHandling -> {
-			schemaAttributeHandlingService.delete(schemaAttributeHandling);
+		systeAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
+			systeAttributeMappingService.delete(systemAttributeMapping);
 		});
 		//
 		super.delete(schemaAttribute);

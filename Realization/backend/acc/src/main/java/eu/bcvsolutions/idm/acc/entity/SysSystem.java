@@ -38,7 +38,7 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
 	@Audited

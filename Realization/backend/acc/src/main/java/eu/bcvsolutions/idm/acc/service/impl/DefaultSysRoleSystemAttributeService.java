@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.MappingAttribute;
+import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountManagementService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningService;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
-import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeHandlingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -43,7 +43,7 @@ public class DefaultSysRoleSystemAttributeService
 	@Autowired(required = false)
 	private AccIdentityAccountService identityAccountService;
 	@Autowired
-	private SysSchemaAttributeHandlingService schemaAttributeHandlingService;
+	private SysSystemAttributeMappingService systeAttributeMappingService;
 	@Autowired
 	private GroovyScriptService groovyScriptService;
 	@Autowired
@@ -74,12 +74,12 @@ public class DefaultSysRoleSystemAttributeService
 		}
 		
 		// We will check exists definition for extended attribute
-		Class<?> entityType = entity.getSchemaAttributeHandling().getSystemEntityHandling().getEntityType().getEntityType();
+		Class<?> entityType = entity.getSystemAttributeMapping().getSystemMapping().getEntityType().getEntityType();
 		if (entity.isExtendedAttribute() && FormableEntity.class.isAssignableFrom(entityType)) {
-			MappingAttribute mappingAttributeDto = new MappingAttributeDto();
-			mappingAttributeDto.setSchemaAttribute(entity.getSchemaAttributeHandling().getSchemaAttribute());
+			AttributeMapping mappingAttributeDto = new MappingAttributeDto();
+			mappingAttributeDto.setSchemaAttribute(entity.getSystemAttributeMapping().getSchemaAttribute());
 			getProvisioningService().fillOverloadedAttribute(entity, mappingAttributeDto);
-			schemaAttributeHandlingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
+			systeAttributeMappingService.createExtendedAttributeDefinition(mappingAttributeDto, entityType);
 		}
 		
 		// We will do script validation (on compilation errors), before save

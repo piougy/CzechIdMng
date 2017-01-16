@@ -21,7 +21,7 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
     return 'provisioningOperations';
   }
 
-  retry(ids, bulkActionName) {
+  retry(ids, bulkActionName, cb = null) {
     return (dispatch, getState) => {
       dispatch(
         this.startBulkAction(
@@ -33,11 +33,13 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
         )
       );
       const successNames = [];
+      const successIds = [];
       ids.reduce((sequence, operationId) => {
         return sequence.then(() => {
           return this.getService().retry(operationId, bulkActionName);
         }).then(json => {
           dispatch(this.updateBulkAction());
+          successIds.push(operationId);
           successNames.push(this.getNiceLabel(this.getEntity(getState(), operationId)));
           // new entity to redux trimmed store
           dispatch(this.receiveEntity(operationId, json));
@@ -56,6 +58,9 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
             level: successNames.length === ids.length ? 'success' : 'info',
             message: this.i18n(`acc:content.provisioningOperations.action.${bulkActionName}.success`, { names: successNames.join(', ') })
           }));
+          if (cb) {
+            cb(successIds);
+          }
         }
         dispatch(this.stopBulkAction());
       });

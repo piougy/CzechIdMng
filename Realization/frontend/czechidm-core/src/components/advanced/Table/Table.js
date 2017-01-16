@@ -57,6 +57,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
   }
 
   /**
+   * Clears row selection
+   */
+  clearSelectedRows() {
+    this.setState({
+      selectedRows: []
+    });
+  }
+
+  /**
    * Merge hard, default and user deffined search parameters
    */
   _mergeSearchParameters(searchParameters, props = null) {

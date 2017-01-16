@@ -23,16 +23,6 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {
-          path: 'object-classes',
-          component: require('./src/content/system/SystemObjectClasses'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-        },
-        {
-          path: 'entities-handling',
-          component: require('./src/content/system/SystemEntitiesHandling'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-        },
-        {
           path: 'synchronization-configs',
           component: require('./src/content/system/SystemSynchronizationConfigs'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
@@ -48,23 +38,18 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {
-          path: 'schema-object-classes/:objectClassId/detail',
+          path: 'object-classes',
+          component: require('./src/content/system/SchemaObjectClasses'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'object-classes/:objectClassId/detail',
           component: require('./src/content/system/SchemaObjectClassDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {
-          path: 'schema-object-classes/:objectClassId/new',
+          path: 'object-classes/:objectClassId/new',
           component: require('./src/content/system/SchemaObjectClassDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
-        },
-        {
-          path: 'system-entities-handling/:entityHandlingId/detail',
-          component: require('./src/content/system/SystemEntityHandlingDetail'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
-        },
-        {
-          path: 'system-entities-handling/:entityHandlingId/new',
-          component: require('./src/content/system/SystemEntityHandlingDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
         },
         {
@@ -78,13 +63,28 @@ module.exports = {
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
         },
         {
-          path: 'schema-attributes-handling/:attributeId/detail',
-          component: require('./src/content/system/SchemaAttributeHandlingDetail'),
+          path: 'mappings',
+          component: require('./src/content/system/SystemMappings'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         },
         {
-          path: 'schema-attributes-handling/:attributeId/new',
-          component: require('./src/content/system/SchemaAttributeHandlingDetail'),
+          path: 'mappings/:mappingId/detail',
+          component: require('./src/content/system/SystemMappingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'mappings/:mappingId/new',
+          component: require('./src/content/system/SystemMappingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'attribute-mappings/:attributeId/detail',
+          component: require('./src/content/system/SystemAttributeMappingDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'attribute-mappings/:attributeId/new',
+          component: require('./src/content/system/SystemAttributeMappingDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
         },
         {
@@ -96,6 +96,21 @@ module.exports = {
           path: 'synchronization-configs/:configId/new',
           component: require('./src/content/system/SystemSynchronizationConfigDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_WRITE'] } ]
+        },
+        {
+          path: 'synchronization-logs/:logId/detail',
+          component: require('./src/content/system/SystemSynchronizationLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'synchronization-action-logs/:logActionId/detail',
+          component: require('./src/content/system/SystemSyncActionLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'synchronization-item-logs/:logItemId/detail',
+          component: require('./src/content/system/SystemSyncItemLogDetail'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
         }
       ]
     },

@@ -358,6 +358,12 @@
     "PasswordPolicyGenerateTypeEnum": {
       "RANDOM": "Náhodné",
       "PASSPHRASE": "Passphrase"
+    },
+    "NotificationLevelEnum": {
+      "SUCCESS": "SUCCESS",
+      "INFO": "INFO",
+      "WARNING": "WARNING",
+      "ERROR": "ERROR"
     }
   },
   "dashboard": {
@@ -1228,7 +1234,16 @@
     "notificationConfigurations": {
       "label": "Konfigurace",
       "header": "Konfigurace notifikací",
-      "title": "Konfigurace notifikací"
+      "title": "Konfigurace notifikací",
+      "edit": {
+        "header": "{{name}} <small>detail položky konfigurace</small>"
+      },
+      "create": {
+        "header": "Nová konfigurační položka"
+      },
+      "save": {
+        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+      }
     },
     "workflow" : {
       "definition": {
@@ -1519,7 +1534,8 @@
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
-      "notificationType": "Typ notifikace"
+      "level": "Typ notifikace",
+      "notificationType": "Kanál"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

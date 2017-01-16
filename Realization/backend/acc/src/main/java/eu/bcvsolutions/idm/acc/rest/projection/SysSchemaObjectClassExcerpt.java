@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.rest.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
+import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
 /**
@@ -20,4 +21,6 @@ public interface SysSchemaObjectClassExcerpt extends AbstractDtoProjection {
 	boolean isContainer();
 
 	String getObjectClassName();
+	
+	SysSystem getSystem();
 }

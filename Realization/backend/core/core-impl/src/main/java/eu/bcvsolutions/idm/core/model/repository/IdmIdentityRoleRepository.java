@@ -37,7 +37,7 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	        " where " +
 	        " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})" +
 	        " and" +
-	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].toLowerCase()).concat('%')})")
+	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
 	Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable);
 	
 	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);

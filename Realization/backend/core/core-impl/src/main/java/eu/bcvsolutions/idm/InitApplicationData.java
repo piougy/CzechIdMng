@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.notification.service.api.IdmNotificationConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
@@ -62,6 +63,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private IdmNotificationConfigurationService notificationConfigurationService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -136,6 +140,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				organizationRoot.setTreeType(treeType);
 				this.treeNodeService.save(organizationRoot);
 			}
+			//
+			// init notification configuration
+			notificationConfigurationService.initDefaultTopics();
 		} finally {
 			SecurityContextHolder.clearContext();
 		}

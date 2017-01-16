@@ -11,8 +11,6 @@ import org.springframework.core.annotation.AliasFor;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-// import eu.bcvsolutions.idm.core.model.service.IdmConfigurationService; // TODO: split configuration service vs IdmConfigurationService
-
 /**
  * Checks, if given modules or configuration properties are enabled before method invocation.
  * 

@@ -3,12 +3,12 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import { Basic, Utils, Domain} from 'czechidm-core';
-import { RoleSystemAttributeManager, RoleSystemManager, SchemaAttributeHandlingManager} from '../../redux';
+import { RoleSystemAttributeManager, RoleSystemManager, SystemAttributeMappingManager} from '../../redux';
 
 const uiKey = 'role-system-attribute';
 const roleSystemAttributeManager = new RoleSystemAttributeManager();
 const roleSystemManager = new RoleSystemManager();
-const schemaAttributeHandlingManager = new SchemaAttributeHandlingManager();
+const systemAttributeMappingManager = new SystemAttributeMappingManager();
 
 class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
 
@@ -50,7 +50,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
       this.setState({attribute: {
         roleSystem: roleSystemId,
       },
-      entityHandlingId: props.location.query.entityHandlingId});
+      mappingId: props.location.query.mappingId});
     } else {
       this.context.store.dispatch(roleSystemAttributeManager.fetchEntity(attributeId));
     }
@@ -65,28 +65,21 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
   save(event) {
     const formEntity = this.refs.form.getData();
     formEntity.roleSystem = roleSystemManager.getSelfLink(formEntity.roleSystem);
-    formEntity.schemaAttributeHandling = schemaAttributeHandlingManager.getSelfLink(formEntity.schemaAttributeHandling);
+    formEntity.systemAttributeMapping = systemAttributeMappingManager.getSelfLink(formEntity.systemAttributeMapping);
     //
     super.save(formEntity, event);
   }
 
   afterSave(entity, error) {
     if (!error) {
-      if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.name }) });
-        this.context.router.goBack();
-      } else {
-        this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-      }
-      this.context.router.goBack();
-    } else {
-      this.addError(error);
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     }
     super.afterSave();
   }
 
   closeDetail() {
     this.refs.form.processEnded();
+    this.context.router.goBack();
   }
 
   _uidChanged(event) {
@@ -123,12 +116,12 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
   }
 
   render() {
-    const { _showLoading, _attribute, _systemEntityHandlingId} = this.props;
-    const { entityHandlingId} = this.state;
+    const { _showLoading, _attribute, _systemMappingId} = this.props;
+    const { mappingId } = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
-    const _entityHandlingId = isNew ? entityHandlingId : _systemEntityHandlingId;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('entityHandlingId', _entityHandlingId ? _entityHandlingId : Domain.SearchParameters.BLANK_UUID);
+    const _mappingId = isNew ? mappingId : _systemMappingId;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('systemMappingId', _mappingId ? _mappingId : Domain.SearchParameters.BLANK_UUID);
 
     const _isDisabled = this.refs.disabledDefaultAttribute ? this.refs.disabledDefaultAttribute.getValue() : false;
     const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
@@ -162,11 +155,11 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 readOnly
                 required/>
               <Basic.SelectBox
-                ref="schemaAttributeHandling"
-                manager={schemaAttributeHandlingManager}
+                ref="systemAttributeMapping"
+                manager={systemAttributeMappingManager}
                 onChange={this._schemaAttributeChange.bind(this)}
                 forceSearchParameters={forceSearchParameters}
-                label={this.i18n('acc:entity.RoleSystemAttribute.schemaAttributeHandling')}
+                label={this.i18n('acc:entity.RoleSystemAttribute.systemAttributeMapping')}
                 required/>
               <Basic.TextField
                 ref="name"
@@ -178,27 +171,27 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 ref="uid"
                 readOnly = {_isDisabled}
                 onChange={this._uidChanged.bind(this)}
-                tooltip={this.i18n('acc:entity.SchemaAttributeHandling.uid.tooltip')}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.uid.label')}/>
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}/>
               <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 readOnly = {_isDisabled}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.extendedAttribute')}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.extendedAttribute')}/>
               <Basic.Checkbox
                 ref="entityAttribute"
                 onChange={this._checkboxChanged.bind(this, 'entityAttribute', 'extendedAttribute')}
                 readOnly = {_isDisabled}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.entityAttribute')}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.entityAttribute')}/>
               <Basic.Checkbox
                 ref="confidentialAttribute"
                 readOnly = {_isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.confidentialAttribute')}/>
+                label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}/>
               <Basic.TextField
                 ref="idmPropertyName"
                 readOnly = {_isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.label')}
-                helpBlock={this.i18n('acc:entity.SchemaAttributeHandling.idmPropertyName.help')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
                 required = {_isRequiredIdmField}
                 max={255}/>
               <Basic.LabelWrapper label=" ">
@@ -207,7 +200,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                    key="no-repository-alert"
                    icon="exclamation-sign"
                    className="no-margin"
-                   text={this.i18n('acc:content.system.attributeHandlingDetail.alertNoRepository')}/>
+                   text={this.i18n('acc:content.system.attributeMappingDetail.alertNoRepository')}/>
               </Basic.LabelWrapper>
               <Basic.ScriptArea
                 ref="transformScript"
@@ -245,16 +238,16 @@ RoleSystemAttributeDetail.defaultProps = {
 
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, roleSystemAttributeManager.getEntityType(), component.params.attributeId);
-  let systemEntityHandling = null;
+  let systemMappingId = null;
   if (entity) {
-    entity.roleSystem = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.id : null;
-    entity.schemaAttributeHandling = entity._embedded && entity._embedded.schemaAttributeHandling ? entity._embedded.schemaAttributeHandling.id : null;
-    systemEntityHandling = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.systemEntityHandling.id : null;
+    entity.roleSystem = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem : null;
+    entity.systemAttributeMapping = entity._embedded && entity._embedded.systemAttributeMapping ? entity._embedded.systemAttributeMapping : null;
+    systemMappingId = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.systemMapping.id : null;
   }
   return {
     _attribute: entity,
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
-    _systemEntityHandlingId: systemEntityHandling
+    _systemMappingId: systemMappingId
   };
 }
 

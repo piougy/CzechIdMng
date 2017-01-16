@@ -12,6 +12,7 @@ public enum PersistentType {
 	TEXT, 
 	TEXTAREA, 
 	RICHTEXTAREA,
+	// TODO: SCRIPTAREA
 	INT,
 	LONG, 
 	DOUBLE, 
@@ -19,5 +20,5 @@ public enum PersistentType {
 	BOOLEAN, 
 	DATE, 
 	DATETIME,
-	BYTE_ARRAY;
+	BYTEARRAY;
 }

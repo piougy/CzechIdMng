@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_synchronization_config")
+@Table(name = "sys_sync_config")
 public class SysSynchronizationConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;
@@ -88,16 +88,16 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSchemaAttributeHandling correlationAttribute;
+	private SysSystemAttributeMapping correlationAttribute;
 	
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "attribute_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "system_mapping_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSystemEntityHandling attributeMapping;
+	private SysSystemMapping systemMapping;
 
 	@Audited
 	@NotNull
@@ -109,7 +109,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "unlinked_action", nullable = false)
-	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK;
+	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY;
 
 	@Audited
 	@NotNull
@@ -179,11 +179,11 @@ public class SysSynchronizationConfig extends AbstractEntity {
 		this.token = token;
 	}
 
-	public SysSchemaAttributeHandling getCorrelationAttribute() {
+	public SysSystemAttributeMapping getCorrelationAttribute() {
 		return correlationAttribute;
 	}
 
-	public void setCorrelationAttribute(SysSchemaAttributeHandling correlationAttribute) {
+	public void setCorrelationAttribute(SysSystemAttributeMapping correlationAttribute) {
 		this.correlationAttribute = correlationAttribute;
 	}
 
@@ -203,12 +203,12 @@ public class SysSynchronizationConfig extends AbstractEntity {
 		this.customFilterScript = customFilterScript;
 	}
 
-	public SysSystemEntityHandling getAttributeMapping() {
-		return attributeMapping;
+	public SysSystemMapping getSystemMapping() {
+		return systemMapping;
 	}
 
-	public void setAttributeMapping(SysSystemEntityHandling attributeMapping) {
-		this.attributeMapping = attributeMapping;
+	public void setSystemMapping(SysSystemMapping systemMapping) {
+		this.systemMapping = systemMapping;
 	}
 
 	public SynchronizationLinkedActionType getLinkedAction() {

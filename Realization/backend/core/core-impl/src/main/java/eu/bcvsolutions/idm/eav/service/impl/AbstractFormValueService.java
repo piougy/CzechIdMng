@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.eav.service.impl;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +37,7 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractFormValueService.class);
 	private final Class<O> ownerClass;
+	private final Class<E> formValueClass;
 	private final ConfidentialStorage confidentialStorage;
 
 	@Autowired
@@ -43,8 +45,29 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	public AbstractFormValueService(ConfidentialStorage confidentialStorage) {
 		Assert.notNull(confidentialStorage);
 		//
-		ownerClass = (Class<O>) GenericTypeResolver.resolveTypeArguments(getClass(), AbstractFormValueService.class)[0];
+		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), FormValueService.class);
+		this.ownerClass = (Class<O>)genericTypes[0];
+		this.formValueClass = (Class<E>)genericTypes[1];
 		this.confidentialStorage = confidentialStorage;
+	}
+	
+	@Override
+	public Class<O> getOwnerClass() {
+		return ownerClass;
+	}
+	
+	@Override
+	public Class<E> getFormValueClass() {
+		return formValueClass;
+	}
+	
+	@Override
+	public E newValue() {
+		try {
+			return formValueClass.newInstance();
+		} catch(IllegalAccessException | InstantiationException ex) {
+			throw new IllegalStateException(MessageFormat.format("New form value instance could not be created. Check class [{0}] and their constructors (no-argument constructor is required)", formValueClass), ex);
+		}
 	}
 
 	/*
@@ -127,6 +150,17 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public List<E> getValues(O owner, IdmFormAttribute attribute) {
+		Assert.notNull(attribute, "Form attribute definition is required!");
+		//
+		return getRepository().findByOwnerAndFormAttributeOrderBySeqAsc(owner, attribute);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public Page<E> find(FormValueFilter<O> filter, Pageable pageable) {
 		if (filter == null) {
 			return getRepository().findAll(pageable);
@@ -156,6 +190,18 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	@Transactional
 	public void deleteValues(O owner, IdmFormDefinition formDefiniton) {
 		getValues(owner, formDefiniton).forEach(formValue -> {
+			deleteValue(formValue);
+		});
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional
+	public void deleteValues(O owner, IdmFormAttribute attribute) {
+		Assert.notNull(attribute, "Form attribute definition is required!");
+		//
+		getValues(owner, attribute).forEach(formValue -> {
 			deleteValue(formValue);
 		});
 	}

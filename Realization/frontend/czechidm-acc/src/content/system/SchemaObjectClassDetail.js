@@ -64,7 +64,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     } else {
       this.context.store.dispatch(schemaObjectClassManager.fetchEntity(objectClassId));
     }
-    this.selectNavigationItems(['sys-systems', 'system-object-classes']);
+    this.selectNavigationItems(['sys-systems', 'schema-object-classes']);
   }
 
   /**
@@ -84,9 +84,6 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
     if (formEntity.id === undefined) {
       this.context.store.dispatch(schemaObjectClassManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
-        if (!error) {
-          this.refs.table.getWrappedInstance().reload();
-        }
       }));
     } else {
       this.context.store.dispatch(schemaObjectClassManager.patchEntity(formEntity, `${uiKey}-detail`, this.afterSave.bind(this)));
@@ -96,12 +93,10 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
   afterSave(entity, error) {
     if (!error) {
       const systemId = this.props.params.entityId;
+      this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
       if (this._getIsNew()) {
-        this.addMessage({ message: this.i18n('create.success', { name: entity.objectClassName }) });
-      } else {
-        this.addMessage({ message: this.i18n('save.success', { name: entity.objectClassName }) });
+        this.context.router.replace(`/system/${systemId}/object-classes/${entity.id}/detail`, {objectClassId: entity.id});
       }
-      this.context.router.replace(`/system/${systemId}/schema-object-classes/${entity.id}/detail`, {objectClassId: entity.id});
     } else {
       this.addError(error);
     }

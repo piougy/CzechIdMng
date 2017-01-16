@@ -57,21 +57,21 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
-            'id': 'system-object-classes',
+            'id': 'schema-object-classes',
             'type': 'TAB',
             'icon': 'fa:object-group',
-            'labelKey': 'acc:content.system.systemObjectClasses.title',
+            'labelKey': 'acc:content.system.schemaObjectClasses.title',
             'order': 40,
             'path': '/system/:entityId/object-classes',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {
-            'id': 'system-entities-handling',
+            'id': 'system-mappings',
             'type': 'TAB',
             'icon': 'list-alt',
-            'labelKey': 'acc:content.system.systemEntitiesHandling.title',
+            'labelKey': 'acc:content.system.mappings.title',
             'order': 50,
-            'path': '/system/:entityId/entities-handling',
+            'path': '/system/:entityId/mappings',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
           },
           {

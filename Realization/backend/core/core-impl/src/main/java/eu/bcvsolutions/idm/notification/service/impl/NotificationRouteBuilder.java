@@ -46,12 +46,16 @@ public class NotificationRouteBuilder extends RouteBuilder {
 	public List<String> routes(IdmNotification notification) {
 		List<String> routes = new ArrayList<>();
 		notificationConfigurationService.getSenders(notification).forEach(sender -> {
+			// we need to know spring bean id from instance
 			for(Entry<String, NotificationSender> entry : context.getBeansOfType(NotificationSender.class).entrySet()) {
 				if (entry.getValue().equals(sender)) {
-					routes.add("bean:" + entry.getKey() + "?method=send");
+					routes.add(String.format("bean:%s?method=send", entry.getKey()));
 				}
 			}
-		});	
+		});
+		if (routes.isEmpty()) {
+			return null; // no sender
+		}
 	    return routes;
 	}
 }

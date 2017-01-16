@@ -25,9 +25,6 @@ export default class SynchronizationUnlinkedActionTypeEnum extends Enums.Abstrac
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.LINK: {
-        return 'success';
-      }
       case this.LINK_AND_UPDATE_ENTITY: {
         return 'success';
       }
@@ -41,6 +38,5 @@ export default class SynchronizationUnlinkedActionTypeEnum extends Enums.Abstrac
   }
 }
 
-SynchronizationUnlinkedActionTypeEnum.LINK = Symbol('LINK');
 SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ENTITY = Symbol('LINK_AND_UPDATE_ENTITY');
 SynchronizationUnlinkedActionTypeEnum.IGNORE = Symbol('IGNORE');

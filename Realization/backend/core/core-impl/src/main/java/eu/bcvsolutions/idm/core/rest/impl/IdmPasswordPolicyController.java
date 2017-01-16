@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -11,21 +12,31 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/password-policy")
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/password-policies")
 public class IdmPasswordPolicyController extends DefaultReadWriteEntityController<IdmPasswordPolicy, PasswordPolicyFilter> {
 	
+	private final IdmPasswordPolicyService passwordPolicyService;
+	
 	@Autowired
-	public IdmPasswordPolicyController(EntityLookupService entityLookupService) {
+	public IdmPasswordPolicyController(EntityLookupService entityLookupService, IdmPasswordPolicyService passwordPolicyService) {
 		super(entityLookupService);
+		this.passwordPolicyService = passwordPolicyService;
 	}
 	
 	@Override
@@ -58,5 +69,69 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
 	}
-
+	
+	/**
+	 * Return generate password by password policy.
+	 * Check password policy type.
+	 * 
+	 * @param entityId
+	 * @return string, new password
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{entityId}/generate", method = RequestMethod.GET)
+	public String generate(@PathVariable String entityId) {
+		IdmPasswordPolicy entity = getPasswordPolicy(entityId);
+		//
+		return this.passwordPolicyService.generatePassword(entity);
+	}
+	
+	/**
+	 * Validate password by given password policy id
+	 * 
+	 * @param password
+	 * @param entityId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{entityId}/validate/{password}", method = RequestMethod.GET)
+	public String validate(@PathVariable @NotNull String password, @PathVariable String entityId) {
+		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(entityId);
+		return this.passwordPolicyService.validate(password, passwordPolicy) ? "ano" : "ne";
+	}
+	
+	/**
+	 * Validate password by default validate policy
+	 * 
+	 * @param password
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/validate/{password}", method = RequestMethod.GET)
+	public String validateByDefault(@PathVariable @NotNull String password) {
+		return this.passwordPolicyService.validate(password) ? "ano" : "ne";
+	}
+	
+	
+	/**
+	 * Method generate password by default generate password policy.
+	 * This policy is only one.
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/generate", method = RequestMethod.GET)
+	public String generateByDefaultPolicy() {
+		return passwordPolicyService.generatePasswordByDefault();
+	}
+	
+	
+	private IdmPasswordPolicy getPasswordPolicy(String entityId) {
+		IdmPasswordPolicy entity = this.getEntity(entityId);
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", entityId));
+		} else if (entity.getType() == IdmPasswordPolicyType.VALIDATE) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_BAD_TYPE, ImmutableMap.of("type", entity.getType()));
+		}
+		return entity;
+	}
 }

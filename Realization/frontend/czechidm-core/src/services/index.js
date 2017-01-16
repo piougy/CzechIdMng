@@ -22,6 +22,7 @@ import AuditService from './AuditService';
 import RuleService from './RuleService';
 import NotificationConfigurationService from './NotificationConfigurationService';
 import WebsocketService from './WebsocketService';
+import PasswordPolicyService from './PasswordPolicyService';
 
 const ServiceRoot = {
   RestApiService,
@@ -47,7 +48,8 @@ const ServiceRoot = {
   AuditService,
   RuleService,
   NotificationConfigurationService,
-  WebsocketService
+  WebsocketService,
+  PasswordPolicyService
 };
 
 ServiceRoot.version = '0.0.1';

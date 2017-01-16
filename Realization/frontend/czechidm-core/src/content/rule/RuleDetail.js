@@ -135,7 +135,7 @@ export default class RuleDetail extends Basic.AbstractContent {
                 level="success"
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                rendered={SecurityManager.hasAuthority('RULE_WRITE')}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>

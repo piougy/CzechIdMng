@@ -208,6 +208,16 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
     },
     {
+      path: 'password-policies',
+      component: require('./src/content/passwordpolicy/PasswordPolicies'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+    },
+    {
+      path: 'password-policies/:entityId',
+      component: require('./src/content/passwordpolicy/PasswordPolicyContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+    },
+    {
       path: 'audit/',
       component: 'div',
       childRoutes: [

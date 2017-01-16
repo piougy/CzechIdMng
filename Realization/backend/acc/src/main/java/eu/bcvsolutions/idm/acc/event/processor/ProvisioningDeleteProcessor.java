@@ -8,6 +8,9 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -28,16 +31,18 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 			SysSystemService systemService,
 			NotificationManager notificationManager,
 			SysProvisioningOperationRepository provisioningOperationRepository) {
-		super(ProvisioningOperationType.DELETE, connectorFacade, systemService, notificationManager, provisioningOperationRepository);
+		super(connectorFacade, systemService, notificationManager, provisioningOperationRepository, ProvisioningOperationType.DELETE);
 	}
 
 	@Override
 	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
+		IcConnectorKey connectorKey = provisioningOperation.getSystem().getConnectorKey();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
-		connectorFacade.deleteObject(
-				provisioningOperation.getSystem().getConnectorKey(), 
-				connectorConfig, 
-				provisioningOperation.getConnectorObject().getObjectClass(), 
-				uidAttribute);
+		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
+		//
+		IcConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig, objectClass, uidAttribute);
+		if (connectorObject != null) {
+			connectorFacade.deleteObject(connectorKey, connectorConfig, objectClass, uidAttribute);
+		}
 	}
 }

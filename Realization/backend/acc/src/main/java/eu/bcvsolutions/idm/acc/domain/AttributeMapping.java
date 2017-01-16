@@ -1,14 +1,17 @@
 package eu.bcvsolutions.idm.acc.domain;
 
+import java.io.Serializable;
+
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 /**
  * Interface for mapping attribute dto
+ * 
  * @author svandav
  *
  */
 
-public interface AttributeMapping {
+public interface AttributeMapping extends Serializable {
 
 	String getIdmPropertyName();
 

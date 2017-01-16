@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
-import eu.bcvsolutions.idm.core.model.service.impl.DefaultIdmConfigurationService;
+import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrationTest {
@@ -27,16 +27,16 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 
 	private ConfigurationService configurationService;
 	@Autowired
+	private ConfidentialStorage confidentialStorage;
+	@Autowired
 	private ConfigurableEnvironment env;
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;
-	@Autowired
-	private ConfidentialStorage configurationStorage;
 	
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_USER_1);
-		configurationService = new DefaultIdmConfigurationService(configurationRepository, configurationStorage, env);
+		configurationService = new DefaultConfigurationService(configurationRepository, confidentialStorage, env);
 	}
 	
 	@After

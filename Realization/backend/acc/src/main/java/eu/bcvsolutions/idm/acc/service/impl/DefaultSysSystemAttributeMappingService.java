@@ -35,6 +35,10 @@ import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
 import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
+import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default schema attributes handling
@@ -201,6 +205,61 @@ public class DefaultSysSystemAttributeMappingService
 		roleSystemAttributeRepository.deleteBySystemAttributeMapping(entity);
 		//
 		super.delete(entity);
+	}
+	
+	/**
+	 * Create instance of IC attribute for given name. Given idm value will be
+	 * transformed to resource.
+	 * 
+	 * @param attributeMapping
+	 * @param idmValue
+	 * @return
+	 */
+	@Override
+	public IcAttribute createIcAttribute(AttributeMapping attributeMapping, Object idmValue) {
+		SysSchemaAttribute schemaAttribute = attributeMapping.getSchemaAttribute();
+		// Check type of value
+		try {
+			Class<?> classType = Class.forName(schemaAttribute.getClassType());
+			
+			// If is multivalue and value is list, then we will iterate list and check every item on correct type
+			if (schemaAttribute.isMultivalued() && idmValue instanceof List){
+				((List<?>)idmValue).stream().forEachOrdered(value ->{
+					if (value != null && !(classType.isAssignableFrom(value.getClass()))) {
+						throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
+								ImmutableMap.of("attribute", attributeMapping.getIdmPropertyName(), "schemaAttributeType",
+										schemaAttribute.getClassType(), "valueType", value.getClass().getName()));
+					}
+				});
+				
+			// Check single value on correct type
+			}else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
+						ImmutableMap.of("attribute", attributeMapping.getName(), "schemaAttributeType",
+								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
+			}
+		} catch (ClassNotFoundException | ProvisioningException e) {
+			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
+					ImmutableMap.of("attribute", attributeMapping.getName(), "schemaAttributeType",
+							schemaAttribute.getClassType()),
+					e);
+		}
+
+		IcAttribute icAttributeForUpdate = null;
+		if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
+			// Attribute is password type
+			icAttributeForUpdate = new IcPasswordAttributeImpl((GuardedString) idmValue);
+
+		} else {
+			if(idmValue instanceof List){
+				@SuppressWarnings("unchecked")
+				List<Object> values = (List<Object>)idmValue;
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), values, true);
+			}else{
+				icAttributeForUpdate = new IcAttributeImpl(schemaAttribute.getName(), idmValue);
+			}
+		}
+		return icAttributeForUpdate;
 	}
 
 	/**

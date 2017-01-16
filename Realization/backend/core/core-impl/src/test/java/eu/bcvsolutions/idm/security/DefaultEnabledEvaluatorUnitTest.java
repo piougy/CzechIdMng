@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.security.api.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.security.api.exception.ModuleDisabledException;
@@ -33,7 +33,7 @@ public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
 	private static final String PROPERTY_TWO = "test-property-two";
 
 	@Mock
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 
 	@Mock
 	private ModuleService moduleService;

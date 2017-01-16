@@ -5,7 +5,6 @@ import java.util.List;
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
@@ -91,12 +90,10 @@ public interface ProvisioningService {
 	 * @param username
 	 * @param password
 	 * @param system
-	 * @param operationType
 	 * @param entityType
 	 * @return
 	 */
-	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system,
-			SystemOperationType operationType, SystemEntityType entityType);
+	IcUidAttribute authenticate(String username, GuardedString password, SysSystem system, SystemEntityType entityType);
 
 	/**
 	 * Convert method for SysRoleSystemAttribute to mapping attribute dto
@@ -107,16 +104,15 @@ public interface ProvisioningService {
 
 	/**
 	 * Return all mapped attributes for this account (include overloaded attributes)
+	 * 
+	 * @param uid
 	 * @param account
 	 * @param identity
 	 * @param system
-	 * @param uid
-	 * @param operationType
 	 * @param entityType
 	 * @return
 	 */
-	List<AttributeMapping> resolveMappedAttributes(AccAccount account, IdmIdentity identity, SysSystem system,
-			String uid, SystemOperationType operationType, SystemEntityType entityType);
+	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity identity, SysSystem system, SystemEntityType entityType);
 
 	
 }

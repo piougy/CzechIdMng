@@ -7,7 +7,9 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
@@ -28,13 +30,22 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 			SysSystemService systemService,
 			NotificationManager notificationManager,
 			SysProvisioningOperationRepository provisioningOperationRepository) {
-		super(ProvisioningOperationType.UPDATE, connectorFacade, systemService, notificationManager, provisioningOperationRepository);
+		super(connectorFacade, systemService, notificationManager, provisioningOperationRepository, ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
 	}
 
 	@Override
 	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {	
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
+		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
-				provisioningOperation.getConnectorObject().getObjectClass(), uidAttribute, provisioningOperation.getConnectorObject().getAttributes());	
+				connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
+	}
+	
+	@Override
+	public boolean supports(EntityEvent<?> entityEvent) {
+		if(!super.supports(entityEvent)) {
+			return false;
+		}
+		return ProvisioningOperationType.UPDATE.equals(((SysProvisioningOperation)entityEvent.getContent()).getOperationType());
 	}
 }

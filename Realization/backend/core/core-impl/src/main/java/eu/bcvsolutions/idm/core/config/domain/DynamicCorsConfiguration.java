@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
@@ -23,7 +24,7 @@ public class DynamicCorsConfiguration extends CorsConfiguration {
 	public static final String PROPERTY_ALLOWED_ORIGIN_SEPARATOR = ",";
 	
 	@Autowired
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 	
 	/**
 	 * Check the origin of the request against the configured allowed origins. 

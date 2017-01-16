@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.config.domain.EmailerConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
@@ -22,10 +22,10 @@ public class DefaultEmailerConfiguration implements EmailerConfiguration {
 	protected static final String DEFAULT_PORT = "25";
 	protected static final boolean DEFAULT_TEST_ENABLED = true;
 	
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 	
 	@Autowired
-	public DefaultEmailerConfiguration(IdmConfigurationService configurationService) {
+	public DefaultEmailerConfiguration(ConfigurationService configurationService) {
 		Assert.notNull(configurationService, "Configuration is required for loading default email configuration");
 		//
 		this.configurationService = configurationService;

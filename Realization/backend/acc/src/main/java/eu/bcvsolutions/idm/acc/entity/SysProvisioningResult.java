@@ -26,7 +26,7 @@ public class SysProvisioningResult {
 	@Column(name = "result_code", length = 45)
 	private String code;
 	
-	@Column(name = "result_cause")
+	@Column(name = "result_cause", length = Integer.MAX_VALUE)
 	private Throwable cause;
 	
 	public SysProvisioningResult() {

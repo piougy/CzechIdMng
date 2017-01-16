@@ -39,6 +39,8 @@ public interface SysSystemEntityRepository extends AbstractEntityRepository<SysS
 	        " and" +
 	        " (lower(e.uid) like ?#{[0].uid == null ? '%' : '%'.concat([0].uid.toLowerCase()).concat('%')})" +
 	        " and" + 
+	        " (?#{[0].uidId} is null or e.uid = ?#{[0].uidId})"+
+	        " and" + 
 	        " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})")
 	Page<SysSystemEntity> find(SystemEntityFilter filter, Pageable pageable);
 	

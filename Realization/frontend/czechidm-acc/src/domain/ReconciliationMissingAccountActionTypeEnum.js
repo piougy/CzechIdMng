@@ -25,11 +25,14 @@ export default class ReconciliationMissingAccountActionTypeEnum extends Enums.Ab
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CREATE_ACCOUNT: {
+      case this.LINK: {
         return 'success';
       }
       case this.DELETE_ENTITY: {
         return 'danger';
+      }
+      case this.UNLINK: {
+        return 'warning';
       }
       case this.IGNORE: {
         return 'primary';
@@ -41,6 +44,7 @@ export default class ReconciliationMissingAccountActionTypeEnum extends Enums.Ab
   }
 }
 
-ReconciliationMissingAccountActionTypeEnum.CREATE_ACCOUNT = Symbol('CREATE_ACCOUNT');
+ReconciliationMissingAccountActionTypeEnum.LINK = Symbol('LINK');
 ReconciliationMissingAccountActionTypeEnum.DELETE_ENTITY = Symbol('DELETE_ENTITY');
+ReconciliationMissingAccountActionTypeEnum.UNLINK = Symbol('UNLINK');
 ReconciliationMissingAccountActionTypeEnum.IGNORE = Symbol('IGNORE');

@@ -17,6 +17,8 @@ public class SystemEntityFilter implements BaseFilter {
 	
 	private String uid;
 	
+	private String uidId;
+	
 	private SystemEntityType entityType; 
 
 	public UUID getSystemId() {
@@ -42,4 +44,13 @@ public class SystemEntityFilter implements BaseFilter {
 	public void setEntityType(SystemEntityType entityType) {
 		this.entityType = entityType;
 	}
+
+	public String getUidId() {
+		return uidId;
+	}
+
+	public void setUidId(String uidId) {
+		this.uidId = uidId;
+	}
+
 }

@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -32,11 +33,13 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
 	private final SecurityService securityService;
 	private final ConfidentialStorage confidentialStorage;
+	private final IdmPasswordPolicyService passwordService;
 	
 	@Autowired
 	public IdentityPasswordProcessor(
 			SecurityService securityService,
-			ConfidentialStorage confidentialStorage) {
+			ConfidentialStorage confidentialStorage,
+			IdmPasswordPolicyService passwordService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
@@ -44,6 +47,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 		//
 		this.securityService = securityService;
 		this.confidentialStorage = confidentialStorage;
+		this.passwordService = passwordService;
 	}
 
 	@Override
@@ -61,6 +65,8 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 			if(!StringUtils.equals(String.valueOf(idmPassword.asString()), passwordChangeDto.getOldPassword().asString())) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
+			// validate password
+			this.passwordService.validate(idmPassword.asString());			
 		}
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			savePassword(identity, passwordChangeDto.getNewPassword());

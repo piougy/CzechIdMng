@@ -28,12 +28,6 @@ export default class SynchronizationMissingEntityActionTypeEnum extends Enums.Ab
       case this.CREATE_ENTITY: {
         return 'success';
       }
-      case this.DELETE_ACCOUNT: {
-        return 'danger';
-      }
-      case this.DISABLE_ACCOUNT: {
-        return 'warning';
-      }
       case this.IGNORE: {
         return 'primary';
       }
@@ -45,6 +39,4 @@ export default class SynchronizationMissingEntityActionTypeEnum extends Enums.Ab
 }
 
 SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY = Symbol('CREATE_ENTITY');
-SynchronizationMissingEntityActionTypeEnum.DELETE_ACCOUNT = Symbol('DELETE_ACCOUNT');
-SynchronizationMissingEntityActionTypeEnum.DISABLE_ACCOUNT = Symbol('DISABLE_ACCOUNT');
 SynchronizationMissingEntityActionTypeEnum.IGNORE = Symbol('IGNORE');

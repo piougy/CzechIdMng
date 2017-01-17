@@ -11,9 +11,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.envers.Audited;
-import org.joda.time.LocalDateTime;
-
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;

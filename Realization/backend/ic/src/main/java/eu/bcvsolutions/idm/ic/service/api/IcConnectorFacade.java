@@ -3,8 +3,6 @@ package eu.bcvsolutions.idm.ic.service.api;
 import java.util.List;
 import java.util.Map;
 
-import org.identityconnectors.framework.common.objects.SyncToken;
-
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;

@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -22,7 +23,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleComposition;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -78,7 +78,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	private SecurityService securityService;
 	
 	@Autowired
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 	
 	@Autowired
 	private FormService formService;

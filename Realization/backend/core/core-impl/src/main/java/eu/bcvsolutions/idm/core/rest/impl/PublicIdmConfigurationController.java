@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 
 /**
  * Provides public configurations
@@ -31,10 +32,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/public/configurations")
 public class PublicIdmConfigurationController implements BaseEntityController<IdmConfiguration> {
 	
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 	
 	@Autowired
-	public PublicIdmConfigurationController(IdmConfigurationService configurationService) {
+	public PublicIdmConfigurationController(ConfigurationService configurationService) {
+		Assert.notNull(configurationService);
+		//
 		this.configurationService = configurationService;
 	}
 	

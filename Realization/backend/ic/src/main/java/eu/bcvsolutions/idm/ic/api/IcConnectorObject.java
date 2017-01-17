@@ -10,6 +10,12 @@ import java.util.List;
 public interface IcConnectorObject extends Serializable {
 	
 	/**
+	 * Return object identifier
+	 * @return
+	 */
+	String getUidValue();
+	
+	/**
 	 * Define type of object on resource
 	 * @return
 	 */

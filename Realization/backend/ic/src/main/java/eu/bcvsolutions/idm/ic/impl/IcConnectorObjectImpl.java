@@ -15,16 +15,26 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 public class IcConnectorObjectImpl implements IcConnectorObject {
 
 	private static final long serialVersionUID = 7115318820292735486L;
+	private String uidValue;
 	private IcObjectClass objectClass;
 	private List<IcAttribute> attributes;
 
 	public IcConnectorObjectImpl() {
 	}
 
-	public IcConnectorObjectImpl(IcObjectClass objectClass, List<IcAttribute> attributes) {
-		super();
+	public IcConnectorObjectImpl(String uidValue, IcObjectClass objectClass, List<IcAttribute> attributes) {
+		this.uidValue = uidValue;
 		this.objectClass = objectClass;
 		this.attributes = attributes;
+	}
+	
+	@Override
+	public String getUidValue() {
+		return uidValue;
+	}
+	
+	public void setUidValue(String uidValue) {
+		this.uidValue = uidValue;
 	}
 
 	public List<IcAttribute> getAttributes() {

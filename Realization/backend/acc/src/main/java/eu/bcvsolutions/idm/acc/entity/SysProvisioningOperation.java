@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import java.text.MessageFormat;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -18,11 +19,12 @@ import javax.persistence.Table;
 
 import com.sun.istack.NotNull;
 
+import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
  * Persisted provisioning operation 
@@ -55,8 +57,9 @@ public class SysProvisioningOperation extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
-	@Column(name = "connector_object", length = Integer.MAX_VALUE)
-	private IcConnectorObject connectorObject; // attributes 
+	@NotNull
+	@Column(name = "provisioning_context", length = Integer.MAX_VALUE, nullable = false)
+	private ProvisioningContext provisioningContext; 
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -98,19 +101,6 @@ public class SysProvisioningOperation extends AbstractEntity {
 
 	public void setSystem(SysSystem system) {
 		this.system = system;
-	}
-
-	/**
-	 * Provisioning context - object type + attributes
-	 * 
-	 * @return
-	 */
-	public IcConnectorObject getConnectorObject() {
-		return connectorObject;
-	}
-
-	public void setConnectorObject(IcConnectorObject connectorObject) {
-		this.connectorObject = connectorObject;
 	}
 
 	/**
@@ -177,6 +167,14 @@ public class SysProvisioningOperation extends AbstractEntity {
 		return request;
 	}
 	
+	public ProvisioningContext getProvisioningContext() {
+		return provisioningContext;
+	}
+	
+	public void setProvisioningContext(ProvisioningContext provisioningContext) {
+		this.provisioningContext = provisioningContext;
+	}
+	
 	/**
 	 * New {@link SysProvisioningOperation} builder.
 	 * 
@@ -186,7 +184,7 @@ public class SysProvisioningOperation extends AbstractEntity {
 	public static class Builder {
 		private ProvisioningOperationType operationType;
 		private SysSystem system;
-		private IcConnectorObject connectorObject;
+		private ProvisioningContext provisioningContext;
 		private SystemEntityType entityType;
 		private UUID entityIdentifier;
 		private String systemEntityUid;
@@ -196,13 +194,40 @@ public class SysProvisioningOperation extends AbstractEntity {
 			return this;
 		}
 		
+		/**
+		 * Maps {@linkAccountOperationType} to {@link ProvisioningOperationType}.
+		 * @param operationType
+		 * @return
+		 */
+		public Builder setOperationType(AccountOperationType operationType) {
+			switch (operationType) {
+				case CREATE: {
+					this.operationType = ProvisioningOperationType.CREATE;
+					break;
+				}
+				case UPDATE: {
+					this.operationType = ProvisioningOperationType.UPDATE;
+					break;
+				}
+				case DELETE: {
+					this.operationType = ProvisioningOperationType.DELETE;
+					break;
+				}
+				default: {
+					throw new UnsupportedOperationException(MessageFormat.format("Account operation type [{}] is not supported for provisioning", operationType));
+				}
+			}
+			
+			return this;
+		}
+		
 		public Builder setSystem(SysSystem system) {
 			this.system = system;
 			return this;
 		}
 		
-		public Builder setConnectorObject(IcConnectorObject connectorObject) {
-			this.connectorObject = connectorObject;
+		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
+			this.provisioningContext = provisioningContext;
 			return this;
 		}
 		
@@ -229,11 +254,11 @@ public class SysProvisioningOperation extends AbstractEntity {
 		public SysProvisioningOperation build() {
 			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
 			provisioningOperation.setOperationType(operationType);
-			provisioningOperation.setConnectorObject(connectorObject);
 			provisioningOperation.setSystem(system);
 			provisioningOperation.setSystemEntityUid(systemEntityUid);
 			provisioningOperation.setEntityType(entityType);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
+			provisioningOperation.setProvisioningContext(provisioningContext);
 			return provisioningOperation;
 		}
 	}

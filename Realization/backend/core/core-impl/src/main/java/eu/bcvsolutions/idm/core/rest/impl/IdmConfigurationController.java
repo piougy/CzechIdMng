@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;;
+import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;;
 
 /**
  * Configuration controller - add custom methods to configuration repository
@@ -29,12 +29,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/configurations")
 public class IdmConfigurationController extends DefaultReadWriteEntityController<IdmConfiguration, QuickFilter> {
 	
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 	
 	@Autowired
 	public IdmConfigurationController(
 			EntityLookupService entityLookupService, 
-			IdmConfigurationService configurationService) {
+			ConfigurationService configurationService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(configurationService);

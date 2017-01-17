@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -39,16 +40,16 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  *
  */
 @Service
-public class DefaultIdmConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService {
+public class DefaultConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService, ConfigurationService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfigurationService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 
 	private final IdmConfigurationRepository configurationRepository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env; // TODO: optional
 	
 	@Autowired
-	public DefaultIdmConfigurationService(
+	public DefaultConfigurationService(
 			IdmConfigurationRepository configurationRepository,
 			ConfidentialStorage confidentialStorage, 
 			ConfigurableEnvironment env) {
@@ -349,6 +350,6 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	 * @return
 	 */
 	private static boolean shouldBeSecured(String key) {
-		return key.startsWith(IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
+		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
 	}
 }

@@ -12,6 +12,12 @@ import { SecurityManager, IdentityManager, ConfigurationManager } from '../../re
 
 const RESOURCE_IDM = '0:CzechIdM';
 
+/**
+ * Parameters in errors. Contain names of not success policies
+ * @type {String}
+ */
+const PASSWORD_POLICIES_NAMES = 'policiesNames';
+
 const identityService = new IdentityService();
 const securityManager = new SecurityManager();
 
@@ -109,7 +115,24 @@ class PasswordChangeForm extends Basic.AbstractContent {
     })
     .then(json => {
       if (Utils.Response.hasError(json)) {
-        throw Utils.Response.getFirstError(json);
+        const error = Utils.Response.getFirstError(json);
+        let parameters = '';
+        let policies = '';
+        for (const key in error.parameters) {
+          if (error.parameters.hasOwnProperty(key)) {
+            if (key === PASSWORD_POLICIES_NAMES) {
+              policies = this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key];
+            } else {
+              parameters += this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key];
+            }
+          }
+        }
+        parameters += policies;
+
+        const newMessage = _.merge({}, error);
+        delete newMessage.parameters;
+        newMessage.parameters = { 0: parameters};
+        throw newMessage;
       }
       return json;
     })

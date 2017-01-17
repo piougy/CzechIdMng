@@ -338,6 +338,16 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           },
           {
+            'id': 'password-policies',
+            'labelKey': 'content.passwordPolicies.header',
+            'titleKey': 'content.passwordPolicies.title',
+            'icon': 'fa:key',
+            'iconColor': '#ff0000',
+            'order': 45,
+            'path': '/password-policies',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+          },
+          {
             'id': 'rules',
             'labelKey': 'content.rules.header',
             'titleKey': 'content.rules.title',

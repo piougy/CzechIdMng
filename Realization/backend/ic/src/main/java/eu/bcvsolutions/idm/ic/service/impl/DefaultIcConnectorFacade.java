@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -19,7 +18,6 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
-import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;

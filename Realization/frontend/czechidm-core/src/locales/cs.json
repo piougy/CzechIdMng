@@ -351,6 +351,14 @@
       "MOD": "modifikace",
       "DEL": "smazání"
     },
+    "PasswordPolicyTypeEnum": {
+      "VALIDATE": "Validační",
+      "GENERATE": "Generování"
+    },
+    "PasswordPolicyGenerateTypeEnum": {
+      "RANDOM": "Náhodné",
+      "PASSPHRASE": "Passphrase"
+    },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
       "INFO": "INFO",
@@ -514,6 +522,26 @@
       "empty": "Nenalazena žádná hlášení.",
       "button": {
         "removeAll": "Odebrat všechna hlášení"
+      }
+    },
+    "passwordPolicies": {
+      "header": "Politiky hesel",
+      "title": "Politiky hesel",
+      "edit": {
+        "header": "detail konfigurace politiky hesel",
+        "title": "Detail konfigurace politiky hesel"
+      },
+      "create": {
+        "header": "Nová konfigurace politiky hesel"
+      },
+      "validation": {
+        "maxLength": "Maximální povolená délka hesla: {{0}}",
+        "minLength": "Minimální délka hesla: {{0}}",
+        "minNumber": "Minimální počet číslic: {{0}}",
+        "minUpperChar": "Minimální počet velkých znaků: {{0}}",
+        "minLowerChar": "Minimální počet malých znaků: {{0}}",
+        "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
+        "policiesNames": "Heslo neprošlo pro tyto politiky: "
       }
     },
     "configuration": {
@@ -1556,6 +1584,33 @@
       "type": "Typ entity",
       "key": "Atribut",
       "value": "Hodnota"
+    },
+    "PasswordPolicy": {
+      "type": "Typ",
+      "name": "Jméno",
+      "generateType": "Typ generování",
+      "disabled": "Neaktivní",
+      "defaultPolicy": "Standardní politika",
+      "passwordLengthRequired": "Povinná délka hesla",
+      "minPasswordLength": "Minimální délka",
+      "maxPasswordLength": "Maximální délka",
+      "upperCharRequired": "Povinné velké znaky",
+      "minUpperChar": "Minimum velkých znaků",
+      "lowerCharRequired": "Povinné malé znaky",
+      "minLowerChar": "Minimum malých znaků",
+      "numberRequired": "Povinná čísla",
+      "minNumber": "Minimum čísel",
+      "specialCharRequired": "Povinné speciální znaky",
+      "minSpecialChar": "Minimum speciálních znaků",
+      "prohibitedCharacters": "Zakázané znaky",
+      "weakPassRequired": "Povinné slabé hesla",
+      "weakPass": "Slabé hesla",
+      "passphraseWords": "Počet slov pro passphrase",
+      "maxPasswordAge": "Maximální doba pro změnu hesla",
+      "minPasswordAge": "Minimální doba pro změnu hesla",
+      "enchancedControl": "Rozšířená kontrola hesla",
+      "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
+      "maxHistorySimilar": "Počet zpětně kontrolovaných heselna shodu"
     },
     "Module": {
       "id": "Id",

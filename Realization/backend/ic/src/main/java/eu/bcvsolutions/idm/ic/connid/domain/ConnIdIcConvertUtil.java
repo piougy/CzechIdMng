@@ -306,7 +306,7 @@ public class ConnIdIcConvertUtil {
 				icAttributes.add(ConnIdIcConvertUtil.convertConnIdAttribute(a));
 			}
 		}
-		return new IcConnectorObjectImpl(icClass, icAttributes);
+		return new IcConnectorObjectImpl(connObject.getUid().getUidValue(), icClass, icAttributes);
 	}
 
 	public static IcSchema convertConnIdSchema(Schema schema) {

@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
- * Readonly sestem provisioning - only saves provisioning operations
+ * Readonly system provisioning - only saves provisioning operations
  * 
  * @author Radek Tomiška
  *
@@ -83,6 +83,7 @@ public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProc
 
 	@Override
 	public int getOrder() {
+		// before account attributes preparation
 		return -2000;
 	}
 }

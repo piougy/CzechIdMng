@@ -8,7 +8,8 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum SynchronizationLinkedActionType {
 
-	UPDATE_ENTITY, 
+	UPDATE_ENTITY,
+	UPDATE_ACCOUNT, // produce only entity save event (call provisioning)
 	UNLINK,
 	UNLINK_AND_REMOVE_ROLE,
 	IGNORE;

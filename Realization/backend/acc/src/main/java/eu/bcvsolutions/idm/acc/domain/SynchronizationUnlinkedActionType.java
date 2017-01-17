@@ -9,6 +9,6 @@ package eu.bcvsolutions.idm.acc.domain;
 public enum SynchronizationUnlinkedActionType {
 
 	LINK,
-	LINK_AND_UPDATE_ACCOUNT,
+	LINK_AND_UPDATE_ACCOUNT, // create link and produce entity save event (call provisioning)
 	IGNORE;
 }

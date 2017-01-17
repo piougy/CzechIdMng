@@ -31,7 +31,10 @@ export default class SynchronizationActionTypeEnum extends Enums.AbstractEnum {
       case this.UPDATE_ENTITY: {
         return 'success';
       }
-      case this.LINK_AND_UPDATE_ENTITY: {
+      case this.UPDATE_ACCOUNT: {
+        return 'success';
+      }
+      case this.LINK_AND_UPDATE_ACCOUNT: {
         return 'success';
       }
       case this.LINK: {
@@ -67,4 +70,5 @@ SynchronizationActionTypeEnum.LINK = Symbol('LINK');
 SynchronizationActionTypeEnum.UNLINK_AND_REMOVE_ROLE = Symbol('UNLINK_AND_REMOVE_ROLE');
 SynchronizationActionTypeEnum.UNLINK = Symbol('UNLINK');
 SynchronizationActionTypeEnum.CREATE_ACCOUNT = Symbol('CREATE_ACCOUNT');
+SynchronizationActionTypeEnum.UPDATE_ACCOUNT = Symbol('UPDATE_ACCOUNT');
 SynchronizationActionTypeEnum.IGNORE = Symbol('IGNORE');

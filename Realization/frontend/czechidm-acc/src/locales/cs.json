@@ -487,22 +487,38 @@
       "actions": {
         "SUCCESS": {
           "CREATE_ENTITY": "Vytvořeno entit",
-          "UPDATE_ENTITY": "Upraveno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
           "DELETE_ENTITY": "Smazáno entit",
-          "LINK_AND_UPDATE_ENTITY": "Vytvořeno a upraveno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
           "LINK": "Vytvořeno vazeb",
           "UNLINK": "Odstraněno vazeb",
           "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "IGNORE": "Ignorováno"
+        },
+        "WARNING": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
           "IGNORE": "Ignorováno"
         },
         "ERROR": {
           "CREATE_ENTITY": "Neúspěšně vytvořeno entit",
-          "UPDATE_ENTITY": "Neúspěšně upraveno entit",
+          "UPDATE_ENTITY": "Neúspěšně aktualizováno entit",
           "DELETE_ENTITY": "Neúspěšně smazáno entit",
-          "LINK_AND_UPDATE_ENTITY": "Neúspěšně vytvořeno a upraveno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Neúspěšně vytvořeno a aktualizováno účtů",
           "LINK": "Neúspěšně vytvořeno vazeb",
           "UNLINK": "Neúspěšně odstraněno vazeb",
+          "UNLINK_AND_REMOVE_ROLE": "Neúspěšně odstraněno vazeb a navázaných rolí",
           "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",
           "IGNORE": "Neúspěšně ignorováno"
         }
       }
@@ -542,16 +558,17 @@
       "TECHNICAL": "Systémový"
     },
     "ReconciliationMissingAccountActionTypeEnum": {
-      "LINK": "Vytvořit vazbu",
+      "CREATE_ACCOUNT": "Vytvořit účet",
       "UNLINK": "Odstranit vazbu",
-      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazby a navázané role",
       "DELETE_ENTITY": "Smazat entitu",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationLinkedActionTypeEnum": {
       "UPDATE_ENTITY": "Aktualizovat entitu",
       "UNLINK": "Odstranit vazbu",
-      "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazby a navázané role",
+      "UPDATE_ACCOUNT": "Aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationMissingEntityActionTypeEnum": {
@@ -565,13 +582,14 @@
     },
     "SynchronizationActionTypeEnum": {
       "CREATE_ENTITY": "Vytvoření nové entity",
-      "UPDATE_ENTITY": "Úprava entity",
+      "UPDATE_ENTITY": "Aktualizace entity",
       "DELETE_ENTITY": "Smazání entity",
       "LINK_AND_UPDATE_ACCOUNT": "Vytvoření vazby a aktualizování účtu",
       "UNLINK_AND_REMOVE_ROLE": "Odstranění vazby a navázané role",
       "LINK": "Vytvoření vazby",
       "UNLINK": "Odstranění vazby",
       "CREATE_ACCOUNT": "Vytvoření účtu",
+      "UPDATE_ACCOUNT": "Aktualizace účtu",
       "IGNORE": "Ignorováno"
     },
     "OperationResultTypeEnum": {

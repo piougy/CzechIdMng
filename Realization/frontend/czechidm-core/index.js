@@ -15,6 +15,7 @@ import SearchParameters from './src/domain/SearchParameters';
 import FormInstance from './src/domain/FormInstance';
 
 import AbstractEnum from './src/enums/AbstractEnum';
+import PasswordPolicyTypeEnum from './src/enums/PasswordPolicyTypeEnum';
 
 const ModuleRoot = {
   Basic,
@@ -35,7 +36,8 @@ const ModuleRoot = {
     FormInstance
   },
   Enums: {
-    AbstractEnum
+    AbstractEnum,
+    PasswordPolicyTypeEnum
   }
 };
 ModuleRoot.version = '0.0.1';

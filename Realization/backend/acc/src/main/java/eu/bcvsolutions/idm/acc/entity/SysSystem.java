@@ -3,9 +3,13 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -20,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 
 /**
@@ -30,7 +35,8 @@ import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
  */
 @Entity
 @Table(name = "sys_system", indexes = {
-		@Index(name = "ux_system_name", columnList = "name", unique = true) })
+		@Index(name = "ux_system_name", columnList = "name", unique = true),
+		@Index(name = "idx_idm_password_policy", columnList = "password_policy_id")})
 public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
@@ -78,6 +84,13 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@Audited
 	@Embedded
 	private SysConnectorKey connectorKey;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "password_policy_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmPasswordPolicy passwordPolicy;
 
 	@Override
 	public String getName() {
@@ -86,6 +99,14 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public IdmPasswordPolicy getPasswordPolicy() {
+		return passwordPolicy;
+	}
+
+	public void setPasswordPolicy(IdmPasswordPolicy passwordPolicy) {
+		this.passwordPolicy = passwordPolicy;
 	}
 
 	public boolean isDisabled() {

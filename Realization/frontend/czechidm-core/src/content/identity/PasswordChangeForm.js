@@ -116,22 +116,28 @@ class PasswordChangeForm extends Basic.AbstractContent {
     .then(json => {
       if (Utils.Response.hasError(json)) {
         const error = Utils.Response.getFirstError(json);
-        let parameters = '';
+        const validationMessage = [];
         let policies = '';
+
         for (const key in error.parameters) {
           if (error.parameters.hasOwnProperty(key)) {
-            if (key === PASSWORD_POLICIES_NAMES) {
-              policies = this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key];
-            } else {
-              parameters += this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key];
+            if (key !== PASSWORD_POLICIES_NAMES) {
+              validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
             }
           }
         }
-        parameters += policies;
+        if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
+          policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
+          validationMessage.push(<Basic.Alert level="warning" >{policies}</Basic.Alert>);
+        }
 
         const newMessage = _.merge({}, error);
         delete newMessage.parameters;
-        newMessage.parameters = { 0: parameters};
+        newMessage.parameters = { 0: policies};
+
+        this.setState({
+          validationMessage
+        });
         throw newMessage;
       }
       return json;
@@ -154,27 +160,30 @@ class PasswordChangeForm extends Basic.AbstractContent {
       this.addMessage({
         message: this.i18n('message.success', { accounts, username: entityId })
       });
+      this.setState({
+        validationMessage: null
+      });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
       //
       this.refs.form.processEnded();
 
       // TODO: do we want reset password input after change?
-      this.refs.form.setData({
+      /* this.refs.form.setData({
         accounts: formData.accounts,
         oldPassword: null,
         newPassword: null,
         newPasswordAgain: null
-      });
+      }); */
     })
     .catch(error => {
-      this.addError(error);
+      this.addErrorMessage({hidden: true}, error);
     });
   }
 
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload } = this.state;
+    const { preload, validationMessage } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
@@ -185,7 +194,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
         <form onSubmit={this.save.bind(this)}>
           <Basic.Row>
-            <Basic.Panel className="col-lg-7 no-border last">
+            <Basic.Panel className="col-lg-7 no-border">
               <Basic.PanelHeader text={this.i18n('header')}/>
 
               <Basic.Loading className="static" showLoading={preload && this._canPasswordChange()}/>
@@ -233,6 +242,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                   </Basic.PanelFooter>
                 </div>
               }
+            </Basic.Panel>
+            <Basic.Panel className="col-lg-5 no-border last" style={{marginTop: '120px'}}>
+              {validationMessage}
             </Basic.Panel>
           </Basic.Row>
         </form>

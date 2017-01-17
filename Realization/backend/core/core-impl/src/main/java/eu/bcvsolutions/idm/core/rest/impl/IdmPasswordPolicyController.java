@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,6 +27,13 @@ import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+
+/**
+ * Default controller for password policy
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/password-policies")
@@ -93,10 +101,12 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{entityId}/validate/{password}", method = RequestMethod.GET)
-	public String validate(@PathVariable @NotNull String password, @PathVariable String entityId) {
+	@RequestMapping(value = "/{entityId}/validate", method = RequestMethod.POST)
+	public boolean validate(@PathVariable String entityId,
+			@RequestBody String password,
+			PersistentEntityResourceAssembler assembler) {
 		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(entityId);
-		return this.passwordPolicyService.validate(password, passwordPolicy) ? "ano" : "ne";
+		return this.passwordPolicyService.validate(password, passwordPolicy);
 	}
 	
 	/**
@@ -106,9 +116,10 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/validate/{password}", method = RequestMethod.GET)
-	public String validateByDefault(@PathVariable @NotNull String password) {
-		return this.passwordPolicyService.validate(password) ? "ano" : "ne";
+	@RequestMapping(value = "/validate", method = RequestMethod.POST)
+	public boolean validateByDefault(@RequestBody String password,
+			PersistentEntityResourceAssembler assembler) {
+		return this.passwordPolicyService.validate(password);
 	}
 	
 	

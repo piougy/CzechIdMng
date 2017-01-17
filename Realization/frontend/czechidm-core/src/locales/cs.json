@@ -541,7 +541,7 @@
         "minUpperChar": "Minimální počet velkých znaků: {{0}}",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo pro tyto politiky: "
+        "policiesNames": "Heslo neprošlo přes tyto politiky: "
       }
     },
     "configuration": {

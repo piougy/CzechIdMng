@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -132,8 +133,8 @@ public interface IdmPasswordPolicyRepository extends AbstractEntityRepository<Id
 			+ "WHERE "
 	        + "e.defaultPolicy = true "
 	        + "AND "
-	        + "e.type = type "
+	        + "e.type = :type "
 	        + "AND "
 	        + "e.disabled = false")
-	List<IdmPasswordPolicy> findDefaultType(IdmPasswordPolicyType type,Pageable pageable);
+	List<IdmPasswordPolicy> findDefaultType(@Param("type") IdmPasswordPolicyType type, Pageable pageable);
 }

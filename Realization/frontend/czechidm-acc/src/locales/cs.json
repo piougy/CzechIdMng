@@ -341,6 +341,7 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "passwordPolicy": "Politika hesel",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."

@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.service.impl;
 import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
@@ -20,6 +21,10 @@ public interface SynchronizationService {
 	boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
 			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
 			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem,
+			List<SysSyncActionLog> actionLogs);
+
+	void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
+			SysSynchronizationConfig config, SysSystem system, SysSynchronizationLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs);
 
 

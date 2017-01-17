@@ -188,7 +188,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					ImmutableMap.of("system", system.getName()));
 		}
 
-		IcObjectClass objectClass = findObjectClass(mappedAttributes);
+		IcObjectClass objectClass = new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName());
 
 		Object lastToken = config.isReconciliation() ? null : config.getToken();
 		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
@@ -264,6 +264,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			connectorFacade.synchronization(connectorKey, connectorConfig, objectClass, lastIcToken,
 					icSyncResultsHandler);
 
+			// We do reconciliation (find missing account)
 			if (config.isReconciliation()) {
 				AccountFilter accountFilter = new AccountFilter();
 				accountFilter.setSystemId(system.getId());
@@ -282,8 +283,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							itemLog.setType(entityType.getEntityType().getSimpleName());
 
 							// Resolve missing account situation for one item
-							resolveMissingAccountSituation(account.getRealUid(), account, entityType, config, system,
-									log, itemLog, actionsLog);
+							findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
+									entityType, config, system, log, itemLog, actionsLog);
 
 						} catch (Exception ex) {
 							LOG.error(MessageFormat.format("Reconciliation - error for uid {0}", uid), ex);
@@ -307,18 +308,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
 		}
-	}
-
-	private void initMissingActionLog(String uid, SysSyncItemLog itemLog, SysSynchronizationLog log) {
-		String message = MessageFormat.format("Missing syncActionLog for uid {0}", uid);
-		LOG.warn(message);
-		SysSyncActionLog actionLogDefault = new SysSyncActionLog();
-		actionLogDefault.setSyncLog(log);
-		actionLogDefault.setOperationCount(1);
-		actionLogDefault.setOperationResult(OperationResultType.ERROR);
-		actionLogDefault.setSyncAction(SynchronizationActionType.IGNORE);
-		itemLog.addToLog(message);
-		itemLog.setSyncActionLog(actionLogDefault);
 	}
 
 	@Override
@@ -356,8 +345,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						uid, systemEntity.getId()));
 				accountFilter.setSystemEntityId(systemEntity.getId());
 				accounts = accountService.find(accountFilter, null).getContent();
-			} 
-			if(CollectionUtils.isEmpty(accounts)){
+			}
+			if (CollectionUtils.isEmpty(accounts)) {
 				// System entity was not found. We will find account by uid
 				// directly.
 				logItem.addToLog(MessageFormat
@@ -466,20 +455,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	private void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSynchronizationLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
-		if (SystemEntityType.IDENTITY == entityType) {
-			IdmIdentity identity = getIdentityByAccount(account, log, logItem, actionLogs);
-			if (identity == null) {
-				return;
-			}
-			// Call provisioning for this entity
-			doUpdateAccountByEntity(identity, entityType, logItem);
-		} else if (SystemEntityType.GROUP == entityType) {
-			// TODO: group
-		}
-	}
-
 	private void resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<SysSystemAttributeMapping> mappedAttributes, SysSystem system, SysSynchronizationConfig config,
 			SysSynchronizationLog log, SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs,
@@ -529,7 +504,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	private void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+	public void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
 			SysSynchronizationConfig config, SysSystem system, SysSynchronizationLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs) {
 		logItem.addToLog(
@@ -560,6 +537,20 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					log, actionLogs);
 			return;
 
+		}
+	}
+
+	private void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSynchronizationLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+		if (SystemEntityType.IDENTITY == entityType) {
+			IdmIdentity identity = getIdentityByAccount(account, log, logItem, actionLogs);
+			if (identity == null) {
+				return;
+			}
+			// Call provisioning for this entity
+			doUpdateAccountByEntity(identity, entityType, logItem);
+		} else if (SystemEntityType.GROUP == entityType) {
+			// TODO: group
 		}
 	}
 
@@ -685,36 +676,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	private IdmIdentity getIdentityByAccount(AccAccount account, SysSynchronizationLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs) {
-		IdentityAccountFilter identityAccountFilter = new IdentityAccountFilter();
-		identityAccountFilter.setAccountId(account.getId());
-		identityAccountFilter.setOwnership(Boolean.TRUE);
-		List<AccIdentityAccount> identityAccounts = identityAccoutnService.find(identityAccountFilter, null)
-				.getContent();
-		if (identityAccounts.isEmpty()) {
-			logItem.addToLog("Identity account relation (with ownership = true) was not found!");
-			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
-					actionLogs);
-			return null;
-		} else {
-			// We assume that all identity accounts
-			// (mark as
-			// ownership) have same identity!
-			return identityAccounts.get(0).getIdentity();
-		}
-	}
-
-	private void loggingException(SynchronizationActionType synchronizationActionType, SysSynchronizationLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs, String uid, Exception e) {
-		String message = MessageFormat.format("Synchronization - exception during {0} for UID {1}",
-				synchronizationActionType, uid);
-		logItem.setMessage(message);
-		logItem.addToLog(Throwables.getStackTraceAsString(e));
-		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
-		LOG.error(message, e);
-	}
-
 	private void doUnlink(AccAccount account, boolean removeIdentityRole, SysSynchronizationLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 
@@ -750,11 +711,42 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return;
 	}
 
+	private IdmIdentity getIdentityByAccount(AccAccount account, SysSynchronizationLog log, SysSyncItemLog logItem,
+			List<SysSyncActionLog> actionLogs) {
+		IdentityAccountFilter identityAccountFilter = new IdentityAccountFilter();
+		identityAccountFilter.setAccountId(account.getId());
+		identityAccountFilter.setOwnership(Boolean.TRUE);
+		List<AccIdentityAccount> identityAccounts = identityAccoutnService.find(identityAccountFilter, null)
+				.getContent();
+		if (identityAccounts.isEmpty()) {
+			logItem.addToLog("Identity account relation (with ownership = true) was not found!");
+			initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
+					actionLogs);
+			return null;
+		} else {
+			// We assume that all identity accounts
+			// (mark as
+			// ownership) have same identity!
+			return identityAccounts.get(0).getIdentity();
+		}
+	}
+
+	private void loggingException(SynchronizationActionType synchronizationActionType, SysSynchronizationLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs, String uid, Exception e) {
+		String message = MessageFormat.format("Synchronization - exception during {0} for UID {1}",
+				synchronizationActionType, uid);
+		logItem.setMessage(message);
+		logItem.addToLog(Throwables.getStackTraceAsString(e));
+		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
+		LOG.error(message, e);
+	}
+
 	private void initSyncActionLog(SynchronizationActionType actionType, OperationResultType resultType,
 			SysSyncItemLog logItem, SysSynchronizationLog log, List<SysSyncActionLog> actionLogs) {
 
 		if (logItem.getSyncActionLog() != null && !(OperationResultType.ERROR == resultType)) {
-			// Log is already initialized, but if is new result type ERROR, then have priority
+			// Log is already initialized, but if is new result type ERROR, then
+			// have priority
 			return;
 		}
 		SysSyncActionLog actionLog = null;
@@ -772,19 +764,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 		logItem.setSyncActionLog(actionLog);
 		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
-	}
-
-	/**
-	 * TODO: !!!We assume that all mapped attributes have same object class!!!
-	 * Find objectClass from mapped attribute
-	 * 
-	 * @param mappedAttributes
-	 * @return
-	 */
-	private IcObjectClass findObjectClass(List<SysSystemAttributeMapping> mappedAttributes) {
-		Assert.notNull(mappedAttributes);
-		return new IcObjectClassImpl(
-				mappedAttributes.get(0).getSchemaAttribute().getObjectClass().getObjectClassName());
 	}
 
 	private SynchronizationService findSynchronizationService() {
@@ -933,6 +912,18 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 		Object transformedValue = attributeHandlingService.transformValueFromResource(icValue, attribute, icAttributes);
 		return transformedValue;
+	}
+
+	private void initMissingActionLog(String uid, SysSyncItemLog itemLog, SysSynchronizationLog log) {
+		String message = MessageFormat.format("Missing syncActionLog for uid {0}", uid);
+		LOG.warn(message);
+		SysSyncActionLog actionLogDefault = new SysSyncActionLog();
+		actionLogDefault.setSyncLog(log);
+		actionLogDefault.setOperationCount(1);
+		actionLogDefault.setOperationResult(OperationResultType.ERROR);
+		actionLogDefault.setSyncAction(SynchronizationActionType.IGNORE);
+		itemLog.addToLog(message);
+		itemLog.setSyncActionLog(actionLogDefault);
 	}
 
 }

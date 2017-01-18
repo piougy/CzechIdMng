@@ -21,9 +21,9 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
@@ -47,7 +47,7 @@ public class DefaultModuleServiceUnitTest extends AbstractUnitTest {
 	}
 
 	@Mock
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 
 	private DefaultModuleService defaultModuleService;
 

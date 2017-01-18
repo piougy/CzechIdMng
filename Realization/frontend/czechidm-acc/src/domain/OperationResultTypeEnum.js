@@ -31,6 +31,9 @@ export default class OperationResultTypeEnum extends Enums.AbstractEnum {
       case this.ERROR: {
         return 'danger';
       }
+      case this.WARNING: {
+        return 'warning';
+      }
       default: {
         return 'default';
       }

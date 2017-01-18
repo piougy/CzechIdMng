@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
  * Schema attribute handling service
+ * 
  * @author svandav
  *
  */
@@ -55,4 +56,14 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * @param entityType
 	 */
 	void createExtendedAttributeDefinition(AttributeMapping attributeMapping, Class<?> entityType);
+	
+	/**
+	 * Create instance of IC attribute for given name. Given idm value will be
+	 * transformed to resource.
+	 * 
+	 * @param attributeMapping
+	 * @param idmValue
+	 * @return
+	 */
+	IcAttribute createIcAttribute(AttributeMapping attributeMapping, Object idmValue);
 }

@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
  */
 public class MappingAttributeDto  implements AttributeMapping {
 
-
+	private static final long serialVersionUID = 3813047739818544156L;
 	private String name;
 	private String idmPropertyName;
 	private SysSchemaAttribute schemaAttribute;

@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
  */
 public class FieldErrorModel extends DefaultErrorModel {
 
+	private static final long serialVersionUID = 1927685199638984683L;
 	@JsonIgnore
 	private final String objectName;
 	@JsonIgnore

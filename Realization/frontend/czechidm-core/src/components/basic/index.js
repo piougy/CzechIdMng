@@ -34,6 +34,7 @@ import PageHeader from './PageHeader/PageHeader';
 import ContentHeader from './ContentHeader/ContentHeader';
 import LabelWrapper from './LabelWrapper/LabelWrapper';
 import DateValue from './DateValue/DateValue';
+import EnumValue from './EnumValue/EnumValue';
 import EnumLabel from './EnumLabel/EnumLabel';
 import Collapse from './Collapse/Collapse';
 import Tooltip from './Tooltip/Tooltip';
@@ -95,6 +96,7 @@ const Components = {
   ContentHeader,
   LabelWrapper,
   DateValue,
+  EnumValue,
   EnumLabel,
   Collapse,
   Tooltip,

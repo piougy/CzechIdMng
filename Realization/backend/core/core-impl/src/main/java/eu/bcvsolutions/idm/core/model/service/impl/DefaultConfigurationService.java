@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
@@ -33,28 +34,26 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  * Public (not secured) configuration could be read without authentication. 
  * Confidential properties are saved to confidential storage.
  * 
- * TODO: cache
- * 
  * @author Radek Tomiška 
  *
  */
 @Service
-public class DefaultIdmConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService {
+public class DefaultConfigurationService extends AbstractReadWriteEntityService<IdmConfiguration, QuickFilter> implements IdmConfigurationService, ConfigurationService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConfigurationService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 
-	private final IdmConfigurationRepository configurationRepository;
+	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env; // TODO: optional
 	
 	@Autowired
-	public DefaultIdmConfigurationService(
-			IdmConfigurationRepository configurationRepository,
-			ConfidentialStorage confidentialStorage, 
+	public DefaultConfigurationService(
+			IdmConfigurationRepository repository,
+			ConfidentialStorage confidentialStorage,
 			ConfigurableEnvironment env) {
-		super(configurationRepository);
+		super(repository);
 		//
-		this.configurationRepository = configurationRepository;
+		this.repository = repository;
 		this.confidentialStorage = confidentialStorage;
 		this.env = env; // TODO: optional
 	}
@@ -62,7 +61,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional(readOnly = true)
 	public IdmConfiguration getByName(String name) {
-		return configurationRepository.findOneByName(name);
+		return repository.findOneByName(name);
 	}
 
 	@Override
@@ -85,7 +84,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
 		// only maps dto to entity
-		IdmConfiguration configurationEntity = configurationRepository.get(configuration.getName());
+		IdmConfiguration configurationEntity = getByName(configuration.getName());
 		if (configurationEntity == null) {
 			configurationEntity = new IdmConfiguration(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential());
 		} else {
@@ -147,7 +146,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 		LOG.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
 		// idm configuration has higher priority than property file
-		IdmConfiguration config = configurationRepository.get(key);
+		IdmConfiguration config = repository.get(key);
 		if (config != null) {
 			if (config.isConfidential()) {
 				value = confidentialStorage.get(config, CONFIDENTIAL_PROPERTY_VALUE, String.class);			
@@ -238,7 +237,7 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 			}
 		}
 		// override from database
-		configurationRepository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
+		repository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
 			configurations.put(idmConfiguration.getName(), idmConfiguration.getValue());
 		});
 		List<ConfigurationDto> results = new ArrayList<>();
@@ -349,6 +348,6 @@ public class DefaultIdmConfigurationService extends AbstractReadWriteEntityServi
 	 * @return
 	 */
 	private static boolean shouldBeSecured(String key) {
-		return key.startsWith(IdmConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
+		return key.startsWith(ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX) || shouldBeConfidential(key);
 	}
 }

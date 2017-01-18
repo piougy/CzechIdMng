@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
@@ -22,12 +23,12 @@ import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 public class DefaultEnabledEvaluator implements EnabledEvaluator {
 	
 	private final ModuleService moduleService;
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 	
 	@Autowired
-	public DefaultEnabledEvaluator(ModuleService moduleService, IdmConfigurationService configurationService) {
+	public DefaultEnabledEvaluator(ModuleService moduleService, ConfigurationService configurationService) {
 		Assert.notNull(moduleService, "ModuleService is required");
-		Assert.notNull(configurationService, "IdmConfigurationService is configurationService");
+		Assert.notNull(configurationService, "ConfigurationService is configurationService");
 		//
 		this.moduleService = moduleService;
 		this.configurationService = configurationService;

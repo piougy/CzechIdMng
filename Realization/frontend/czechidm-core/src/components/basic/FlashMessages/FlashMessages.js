@@ -1,31 +1,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import NotificationSystem from 'react-notification-system';
-import merge from 'object-assign';
 //
-import AbstractComponent from '../AbstractComponent/AbstractComponent';
-import { FlashMessagesManager } from '../../../redux';
-import { i18n } from '../../../services/LocalizationService';
+import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 
-const _DEFAULT_MESSAGE = {
-  id: null, // internal id
-  key: null, // key for unique checking
-  title: null,
-  message: null,
-  level: 'success', // React.PropTypes.oneOf(['success', 'info', 'warning', 'error']),
-  position: 'tr', // React.PropTypes.oneOf(['tr', 'tc']),
-  autoDismiss: 5,
-  dismissible: true,
-  action: null,
-  hidden: false,
-  date: new Date()
-};
-
-export class FlashMessages extends AbstractComponent {
+export class FlashMessages extends AbstractContextComponent {
 
   constructor(props, context) {
     super(props, context);
-    this.flashMessagesManager = new FlashMessagesManager();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -70,39 +52,7 @@ export class FlashMessages extends AbstractComponent {
   }
 
   _onRemove(notification) {
-    this.context.store.dispatch(this.flashMessagesManager.hideMessage(notification.uid));
-  }
-
-  /**
-  * Transforms options to message and adds default props
-  */
-  static getMessage(options) {
-    if (!options) {
-      return null;
-    }
-    let message = options;
-    if (message == null) {
-      message = i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
-    }
-    if (typeof message === 'string') {
-      message = merge({}, _DEFAULT_MESSAGE, { message });
-    }
-    // errors are shown centered by default
-    if (message.level && (message.level === 'error' /* || message.level === 'warning' */) && !message.position) {
-      message.position = 'tc';
-    }
-    // add default
-    message = merge({}, _DEFAULT_MESSAGE, message);
-    if (!message.title && !message.message) {
-      message.message = i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
-    }
-    if (message.title && typeof message.title === 'object') {
-      message.title = JSON.stringify(message.title);
-    }
-    if (message.message && typeof message.message === 'object') {
-      message.message = JSON.stringify(message.message);
-    }
-    return message;
+    this.context.store.dispatch(this.getFlashManager().hideMessage(notification.uid));
   }
 
   _getAutoDismiss(message) {
@@ -122,7 +72,7 @@ export class FlashMessages extends AbstractComponent {
     if (!options) {
       return;
     }
-    const message = FlashMessages.getMessage(options);
+    const message = this.getFlashManager().createMessage(options);
     //
     if (message.hidden) {
       // skip hidden messages

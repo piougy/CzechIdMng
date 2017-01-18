@@ -31,10 +31,8 @@ public class DefaultAccIdentityAccountService extends
 	private final IdmIdentityRoleService identityRoleService;
 
 	@Autowired
-	public DefaultAccIdentityAccountService(
-			AccIdentityAccountRepository identityAccountRepository,
-			AccAccountService accountService, 
-			IdmIdentityRoleService identityRoleService) {
+	public DefaultAccIdentityAccountService(AccIdentityAccountRepository identityAccountRepository,
+			AccAccountService accountService, IdmIdentityRoleService identityRoleService) {
 		super(identityAccountRepository);
 		Assert.notNull(accountService);
 		Assert.notNull(identityRoleService);
@@ -60,15 +58,23 @@ public class DefaultAccIdentityAccountService extends
 	@Override
 	@Transactional
 	public void delete(AccIdentityAccount entity) {
+		this.delete(entity, true);
+	}
+
+	@Override
+	@Transactional
+	public void delete(AccIdentityAccount entity, boolean deleteTargetAccount) {
 		Assert.notNull(entity);
+		super.delete(entity);
 
 		AccAccount account = entity.getAccount();
-		// We check if exists another (ownership) identityAccounts, if not then
+		// We check if exists another (ownership) identityAccounts, if not
+		// then
 		// we will delete account
 		IdentityAccountFilter filter = new IdentityAccountFilter();
 		filter.setAccountId(account.getId());
 		filter.setOwnership(Boolean.TRUE);
-		
+
 		List<AccIdentityAccount> identityAccounts = this.find(filter, null).getContent();
 		boolean moreIdentityAccounts = identityAccounts.stream().filter(identityAccount -> {
 			return identityAccount.isOwnership() && !identityAccount.equals(entity);
@@ -80,10 +86,7 @@ public class DefaultAccIdentityAccountService extends
 				super.delete(identityAccount);
 			});
 			// Finally we can delete account
-			accountService.delete(account);
-		} else {
-			super.delete(entity);
+			accountService.delete(account, deleteTargetAccount);
 		}
 	}
-
 }

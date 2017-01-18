@@ -67,7 +67,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       this.setState({synchronizationConfig: {
         system: props.location.query.systemId,
         linkedAction: SynchronizationLinkedActionTypeEnum.findKeyBySymbol(SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY),
-        unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ENTITY),
+        unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ACCOUNT),
         missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
         missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE)
       }});
@@ -150,14 +150,10 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         level = 'warning';
       }
       actions.push(
-        <Basic.Row>
-          <div className="col-lg-9">
-            <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)}: </label>
-          </div>
-          <div className="col-lg-3">
-            <Basic.Label style={{marginLeft: '0px'}} level={level} text={action.operationCount}/>
-          </div>
-        </Basic.Row>);
+        <div>
+            <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
+            <label>{this.i18n(`acc:entity.SynchronizationLog.actions.${action.operationResult}.${action.syncAction}`)} </label>
+        </div>);
     }
     return actions;
   }

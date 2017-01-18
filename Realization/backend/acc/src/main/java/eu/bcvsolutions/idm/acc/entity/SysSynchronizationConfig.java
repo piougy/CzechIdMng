@@ -109,7 +109,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "unlinked_action", nullable = false)
-	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ENTITY;
+	private SynchronizationUnlinkedActionType unlinkedAction = SynchronizationUnlinkedActionType.LINK_AND_UPDATE_ACCOUNT;
 
 	@Audited
 	@NotNull

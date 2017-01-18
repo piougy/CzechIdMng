@@ -8,8 +8,9 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum ReconciliationMissingAccountActionType {
 
-	CREATE_ACCOUNT, 
+	CREATE_ACCOUNT, // produce only entity save event (call provisioning)
 	DELETE_ENTITY,
 	UNLINK,
+	UNLINK_AND_REMOVE_ROLE,
 	IGNORE;
 }

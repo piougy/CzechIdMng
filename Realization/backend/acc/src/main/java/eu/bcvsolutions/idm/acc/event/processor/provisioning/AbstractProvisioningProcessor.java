@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.util.Assert;
 
@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -21,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
@@ -34,18 +36,18 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  */
 public abstract class AbstractProvisioningProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareAccountProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	
 	public AbstractProvisioningProcessor(
-			ProvisioningOperationType provisioningOperationType,
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
+			SysProvisioningOperationRepository provisioningOperationRepository,
+			ProvisioningOperationType... provisioningOperationType) {
 		super(provisioningOperationType);
 		//
 		Assert.notNull(connectorFacade);
@@ -65,7 +67,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	protected abstract void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
+	protected abstract void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
 	
 	/**
 	 * Prepare provisioning operation execution
@@ -74,10 +76,11 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {		
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		SysSystem system = provisioningOperation.getSystem();
+		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
 				provisioningOperation.getSystemEntityUid(),
-				provisioningOperation.getConnectorObject().getObjectClass().getType());
+				objectClass.getType());
 		//
 		// Find connector identification persisted in system
 		if (system.getConnectorKey() == null) {
@@ -100,13 +103,13 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setCode("OK").build()); // TODO: code
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).build()); // TODO: code
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			LOG.debug("Provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
 					provisioningOperation.getOperationType(), 
 					provisioningOperation.getSystemEntityUid(),
-					provisioningOperation.getConnectorObject().getObjectClass().getType());
+					objectClass.getType());
 			//
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, 
@@ -118,14 +121,14 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			LOG.error("Provisioning operation [{}] for object with uid [{}] and connector object [{}] failed", 
 					provisioningOperation.getOperationType(), 
 					provisioningOperation.getSystemEntityUid(),
-					provisioningOperation.getConnectorObject().getObjectClass().getType(),
+					objectClass.getType(),
 					ex);
 			SysProvisioningRequest request = provisioningOperation.getRequest();
 			if (provisioningOperation.getRequest() == null) {
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: code
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCause(ex).build()); // TODO: code
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//

@@ -10,8 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.web.cors.CorsConfiguration;
 
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 
 /**
@@ -25,7 +25,7 @@ public class DynamicCorsConfigurationUnitTest extends AbstractUnitTest {
 	private static final String ORIGIN_VALUE = "http://localhost";
 	
 	@Mock
-	private IdmConfigurationService configurationService;
+	private ConfigurationService configurationService;
 	
 	@InjectMocks
 	private DynamicCorsConfiguration dynamicCorsConfiguration = new DynamicCorsConfiguration();

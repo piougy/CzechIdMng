@@ -1,0 +1,127 @@
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+//
+import { Basic, Advanced } from 'czechidm-core';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
+import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
+import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
+
+export class ProvisioningOperationTable extends Basic.AbstractContent {
+
+  constructor(props, context) {
+    super(props, context);
+  }
+
+  getContentKey() {
+    return 'acc:content.provisioningOperations';
+  }
+
+  clearSelectedRows() {
+    this.refs.table.getWrappedInstance().clearSelectedRows();
+  }
+
+  reload() {
+    this.refs.table.getWrappedInstance().reload();
+  }
+
+  _renderEntityType(entity) {
+    if (!entity) {
+      return null;
+    }
+    //
+    // entity link and info
+    const entityType = SystemEntityTypeEnum.findSymbolByKey(entity.entityType);
+    switch (entityType) {
+      case SystemEntityTypeEnum.IDENTITY: {
+        return (
+          <Advanced.IdentityInfo id={entity.entityIdentifier} face="link"/>
+        );
+      }
+      default: {
+        this.getLogger().warn(`[ProvisioningOperations]: Entity info for type [${entity.entityType}] is not supported.`);
+      }
+    }
+    //
+    return entity.entityIdentifier;
+  }
+
+  render() {
+    const { uiKey, manager, showRowSelection, actions, showDetail } = this.props;
+    //
+    return (
+      <Advanced.Table
+        ref="table"
+        uiKey={uiKey}
+        manager={manager}
+        showRowSelection={showRowSelection}
+        actions={actions}>
+        {
+          !showDetail
+          ||
+          <Advanced.Column
+            property=""
+            header=""
+            className="detail-button"
+            cell={
+              ({ rowIndex, data }) => {
+                return (
+                  <Advanced.DetailButton
+                    title={this.i18n('button.detail')}
+                    onClick={() => showDetail(data[rowIndex])}/>
+                );
+              }
+            }/>
+        }
+        <Advanced.Column property="resultState" width="75px" header={this.i18n('acc:entity.ProvisioningOperation.resultState')} face="enum" enumClass={ProvisioningResultStateEnum} />
+        <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" />
+        <Advanced.Column property="operationType" width="75px" header={this.i18n('acc:entity.ProvisioningOperation.operationType')} sort face="enum" enumClass={ProvisioningOperationTypeEnum}/>
+        <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
+        <Advanced.Column
+          property="entityIdentifier"
+          header={this.i18n('acc:entity.ProvisioningOperation.entity')}
+          face="text"
+          cell={
+            ({ rowIndex, data }) => {
+              return this._renderEntityType(data[rowIndex]);
+            }
+          }/>
+        <Advanced.ColumnLink
+          to="/system/:_target/detail"
+          target="_embedded.system.id"
+          access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
+          property="_embedded.system.name"
+          header={this.i18n('acc:entity.System.name')} />
+        <Advanced.Column property="systemEntityUid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
+      </Advanced.Table>
+    );
+  }
+}
+
+ProvisioningOperationTable.propTypes = {
+  uiKey: PropTypes.string.isRequired,
+  manager: PropTypes.object.isRequired,
+  /**
+   * Enable row selection - checkbox in first cell
+   */
+  showRowSelection: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  /**
+   * Bulk actions e.g. { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) }
+   */
+  actions: PropTypes.arrayOf(PropTypes.object),
+  /**
+   * Detail  callback
+   */
+  showDetail: PropTypes.func
+};
+ProvisioningOperationTable.defaultProps = {
+  showRowSelection: false,
+  actions: []
+};
+
+function select() {
+  return {
+  };
+}
+
+
+export default connect(select, null, null, { withRef: true })(ProvisioningOperationTable);

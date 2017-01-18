@@ -8,12 +8,13 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
- * Role could assign identity account on target system.
+ * Persists provisioning operations
  * 
  * @author Radek Tomiška
  *
@@ -23,27 +24,32 @@ public class DefaultSysProvisioningOperationService
 		extends AbstractReadWriteEntityService<SysProvisioningOperation, EmptyFilter> implements SysProvisioningOperationService {
 
 	private final SysProvisioningRequestRepository provisioningRequestRepository;
+	private final SysProvisioningArchiveService provisioningArchiveService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
 			SysProvisioningOperationRepository repository,
-			SysProvisioningRequestRepository provisioningRequestRepository) {
+			SysProvisioningRequestRepository provisioningRequestRepository,
+			SysProvisioningArchiveService provisioningArchiveService) {
 		super(repository);
 		//
 		Assert.notNull(provisioningRequestRepository);
+		Assert.notNull(provisioningArchiveService);
 		//
 		this.provisioningRequestRepository = provisioningRequestRepository;
+		this.provisioningArchiveService = provisioningArchiveService;
 	}
 
 	@Override
 	@Transactional
 	public void delete(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
+		// create archived operation
+		provisioningArchiveService.archive(provisioningOperation);	
 		// delete request
 		provisioningRequestRepository.deleteByOperation(provisioningOperation);
 		provisioningOperation.setRequest(null);
-		// TODO: remove batch
-		// TODO: move to archive 
+		// TODO: remove empty batch
 		super.delete(provisioningOperation);
 	}
 }

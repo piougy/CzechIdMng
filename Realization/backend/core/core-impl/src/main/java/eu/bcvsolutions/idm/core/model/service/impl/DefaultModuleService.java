@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
-import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 
 /**
@@ -32,11 +32,11 @@ public class DefaultModuleService implements ModuleService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultModuleService.class);
 	
 	private final PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry;
-	private final IdmConfigurationService configurationService;
+	private final ConfigurationService configurationService;
 
 	@Autowired
 	public DefaultModuleService(PluginRegistry<ModuleDescriptor, String> moduleDescriptorRegistry,
-			IdmConfigurationService configurationService) {
+			ConfigurationService configurationService) {
 		Assert.notNull(moduleDescriptorRegistry, "Module registry is required!");
 		Assert.notNull(configurationService, "ConfigurationService is required!");
 
@@ -131,8 +131,8 @@ public class DefaultModuleService implements ModuleService {
 	 */
 	@Override
 	public String getModuleConfigurationProperty(String moduleId, String property) {
-		return IdmConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
-				+ moduleId + IdmConfigurationService.PROPERTY_SEPARATOR + property;
+		return ConfigurationService.IDM_PUBLIC_PROPERTY_PREFIX //
+				+ moduleId + ConfigurationService.PROPERTY_SEPARATOR + property;
 	}
 
 }

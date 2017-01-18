@@ -89,7 +89,7 @@ class NotificationDetail extends Basic.AbstractContent {
       return;
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
-    this.context.router.replace('audit/notifications/');
+    this.context.router.replace('notification/notifications/');
   }
 
   render() {

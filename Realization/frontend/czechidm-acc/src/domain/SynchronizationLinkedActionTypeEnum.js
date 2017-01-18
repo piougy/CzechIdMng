@@ -28,6 +28,12 @@ export default class SynchronizationLinkedActionTypeEnum extends Enums.AbstractE
       case this.UPDATE_ENTITY: {
         return 'success';
       }
+      case this.UPDATE_ACCOUNT: {
+        return 'success';
+      }
+      case this.UNLINK_AND_REMOVE_ROLE: {
+        return 'danger';
+      }
       case this.UNLINK: {
         return 'warning';
       }
@@ -42,5 +48,7 @@ export default class SynchronizationLinkedActionTypeEnum extends Enums.AbstractE
 }
 
 SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY = Symbol('UPDATE_ENTITY');
+SynchronizationLinkedActionTypeEnum.UPDATE_ACCOUNT = Symbol('UPDATE_ACCOUNT');
 SynchronizationLinkedActionTypeEnum.UNLINK = Symbol('UNLINK');
+SynchronizationLinkedActionTypeEnum.UNLINK_AND_REMOVE_ROLE = Symbol('UNLINK_AND_REMOVE_ROLE');
 SynchronizationLinkedActionTypeEnum.IGNORE = Symbol('IGNORE');

@@ -38,7 +38,9 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "select": "Vyberte ...",
-    "disabled": "Neaktivní"
+    "disabled": "Neaktivní",
+    "property": "Attribut",
+    "value": "Hodnota"
   },
   "button": {
     "activate": "Aktivovat",
@@ -1738,7 +1740,7 @@
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
     "GROVY_SCRIPT_VALIDATION": {
-      "title": "Groovy skript obsahuje kompilační chyby.",
+      "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
     },
     "GROVY_SCRIPT_SECURITY_VALIDATION": {

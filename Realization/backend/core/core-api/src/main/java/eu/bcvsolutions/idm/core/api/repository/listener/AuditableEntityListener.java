@@ -44,7 +44,9 @@ public class AuditableEntityListener {
 			DateTime date = new DateTime();
 			Auditable entity = (Auditable) target;
 			//
-			entity.setCreated(date);
+			if (entity.getCreated() == null) {
+				entity.setCreated(date);
+			}
 			
 			//
 			AbstractAuthentication authentication = securityService.getAuthentication();

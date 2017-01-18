@@ -30,8 +30,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 	private ProvisioningService provisioningService;
 
 	@Autowired
-	public DefaultAccAccountService(
-			AccAccountRepository accountRepository,
+	public DefaultAccAccountService(AccAccountRepository accountRepository,
 			AccIdentityAccountRepository accIdentityAccountRepository) {
 		super(accountRepository);
 		//
@@ -39,26 +38,37 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		//
 		this.accIdentityAccountRepository = accIdentityAccountRepository;
 	}
-	
+
 	@Override
+	@Transactional
 	public AccAccount save(AccAccount entity) {
-		return  super.save(entity);
+ 		return super.save(entity);
 	}
 
 	@Override
 	@Transactional
 	public void delete(AccAccount account) {
+		delete(account, true);
+	}
+
+	@Override
+	@Transactional
+	public void delete(AccAccount account, boolean deleteTargetAccount) {
 		Assert.notNull(account);
 		//
 		// delete all identity accounts
-		// we are calling repository instead service to prevent cycle - we only need clean db in this case
+		// we are calling repository instead service to prevent cycle - we only
+		// need clean db in this case
 		accIdentityAccountRepository.deleteByAccount(account);
 		//
 		super.delete(account);
 		// TODO move to asynchronouse queue
-		if(provisioningService == null){
-			provisioningService = applicationContext.getBean(ProvisioningService.class);
+		if (deleteTargetAccount) {
+			if (provisioningService == null) {
+				provisioningService = applicationContext.getBean(ProvisioningService.class);
+			}
+			this.provisioningService.doDeleteProvisioning(account);
 		}
-		this.provisioningService.doDeleteProvisioning(account);
 	}
+
 }

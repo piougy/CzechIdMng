@@ -11,6 +11,13 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  *
  */
 public interface AccIdentityAccountService extends ReadWriteEntityService<AccIdentityAccount, IdentityAccountFilter> {
+
+	/**
+	 * Delete identity account
+	 * @param entity
+	 * @param deleteAccount  If is true, then will be deleted (call provisioning) account on target system.
+	 */
+	void delete(AccIdentityAccount entity, boolean deleteAccount);
 	
 }
 	

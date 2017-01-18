@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.RoleSystemFilter;
+import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -205,11 +206,21 @@ public class DefaultProvisioningService implements ProvisioningService {
 		SysSystem system = account.getSystem();
 		if (account.getSystemEntity() == null) {
 			// prepare system entity - uid could be changed by provisioning, but we need to link her with account
-			SysSystemEntity systemEntity = new SysSystemEntity();
-			systemEntity.setEntityType(SystemEntityType.IDENTITY);
-			systemEntity.setSystem(system);
-			systemEntity.setUid(account.getUid());
-			systemEntity = systemEntityService.save(systemEntity);
+			// First we try find system entity with same uid. 
+			SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
+			systemEntityFilter.setSystemId(system.getId());
+			systemEntityFilter.setUidId(account.getRealUid());
+			List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
+			SysSystemEntity systemEntity = null;
+			if (systemEntities.isEmpty()) {
+				systemEntity = new SysSystemEntity();
+				systemEntity.setEntityType(SystemEntityType.IDENTITY);
+				systemEntity.setSystem(system);
+				systemEntity.setUid(account.getUid());
+				systemEntity = systemEntityService.save(systemEntity);
+			}else {
+				systemEntity = systemEntities.get(0);
+			}
 			account.setSystemEntity(systemEntity);
 			account = accountService.save(account);
 			accountOperationType = AccountOperationType.CREATE; // we wont create account, but after target system call can be switched to UPDATE

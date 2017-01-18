@@ -12,4 +12,12 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  */
 public interface AccAccountService extends ReadWriteEntityService<AccAccount, AccountFilter> {
 
+	/**
+	 * Delete AccAccount
+	 * @param account
+	 * @param deleteTargetAccount If is true, then will be call provisioning 
+	 *  and deleted account on target system
+	 */
+	void delete(AccAccount account, boolean deleteTargetAccount);
+
 }

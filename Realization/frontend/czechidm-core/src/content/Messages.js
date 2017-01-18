@@ -1,7 +1,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import moment from 'moment';
 //
 import * as Basic from '../components/basic';
 import help from './Messages_cs.md';
@@ -32,21 +31,12 @@ class Messages extends Basic.AbstractContent {
     } else {
       for (let i = 0; i < this.props.messages.length; i++) {
         const m = this.getFlashManager().createMessage(this.props.messages[i]);
-        //
-        const titleWithDatetime = (
-          <div>
-            <small> {moment(m.date).format(this.i18n('format.datetime'))}</small>
-            <div>{m.title}</div>
-          </div>
-        );
-
         const key = 'flash-message-' + m.id;
         messages.push(
-          <Basic.Alert
+          <Basic.FlashMessage
             key={key}
-            level={m.level}
-            title={titleWithDatetime}
-            text={m.message}
+            message={m}
+            showDate
             onClose={this.removeMessage.bind(this, m.id)}/>
         );
       }

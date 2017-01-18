@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
-import { Basic } from 'czechidm-core';
-import { SchemaAttributeManager } from '../../redux';
+import { Basic, Utils } from 'czechidm-core';
+import { SchemaAttributeManager } from '../redux';
 
 const manager = new SchemaAttributeManager();
 
@@ -28,7 +28,9 @@ export class SchemaAttributeInfo extends Basic.AbstractContextComponent {
   _loadEntityIfNeeded() {
     const { entity, _entity, id } = this.props;
     if (id && !entity && !_entity) {
-      this.context.store.dispatch(manager.fetchEntityIfNeeded(id));
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), manager.resolveUiKey(null, id))) { // show loading check has to be here - new state is needed
+        this.context.store.dispatch(manager.fetchEntityIfNeeded(id));
+      }
     }
   }
 

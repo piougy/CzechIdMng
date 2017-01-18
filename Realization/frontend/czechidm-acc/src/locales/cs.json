@@ -643,6 +643,10 @@
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
       "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_SYSTEM_DISABLED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je nakonfigurován jako neaktivní."
     }
   }
 }

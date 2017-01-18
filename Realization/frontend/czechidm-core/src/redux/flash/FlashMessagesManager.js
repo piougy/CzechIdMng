@@ -100,6 +100,9 @@ export default class FlashMessagesManager {
    * @return {FlashMessage}
    */
   convertFromResultModel(resultModel) {
+    if (!resultModel) {
+      return null;
+    }
     // automatic localization
     const messageTitle = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.title', this._prepareParams(resultModel.parameters, `${resultModel.statusEnum} (${resultModel.statusCode}:${resultModel.id})`));
     let defaultMessage = resultModel.message;

@@ -218,7 +218,8 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový"
+        "disabledInfo": "Uživatel je deaktivový",
+        "profileLink": "Zobrazit celý detail"
       },
       "Filter": {
         "option": {

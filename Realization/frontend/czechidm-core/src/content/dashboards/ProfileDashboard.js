@@ -17,7 +17,7 @@ export default class ProfileDashboard extends Basic.AbstractContent {
       <Basic.Panel>
         <Basic.PanelHeader text={this.i18n('header')}/>
         <Basic.PanelBody >
-          <Advanced.IdentityInfo username={this.props.entityId}/>
+          <Advanced.IdentityInfo username={this.props.entityId} showLink={false}/>
           <div className="col-lg-8 col-lg-offset-2">
             <Basic.Button className="btn-block" level="success" onClick={this._goToProfil.bind(this)}>
               {this.i18n('goToProfil')}

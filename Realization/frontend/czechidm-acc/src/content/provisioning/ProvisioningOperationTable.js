@@ -5,6 +5,7 @@ import { Basic, Advanced } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
+import EntityInfo from '../../components/EntityInfo';
 
 export class ProvisioningOperationTable extends Basic.AbstractContent {
 
@@ -22,27 +23,6 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
 
   reload() {
     this.refs.table.getWrappedInstance().reload();
-  }
-
-  _renderEntityType(entity) {
-    if (!entity) {
-      return null;
-    }
-    //
-    // entity link and info
-    const entityType = SystemEntityTypeEnum.findSymbolByKey(entity.entityType);
-    switch (entityType) {
-      case SystemEntityTypeEnum.IDENTITY: {
-        return (
-          <Advanced.IdentityInfo id={entity.entityIdentifier} face="link"/>
-        );
-      }
-      default: {
-        this.getLogger().warn(`[ProvisioningOperations]: Entity info for type [${entity.entityType}] is not supported.`);
-      }
-    }
-    //
-    return entity.entityIdentifier;
   }
 
   render() {
@@ -82,7 +62,10 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
           face="text"
           cell={
             ({ rowIndex, data }) => {
-              return this._renderEntityType(data[rowIndex]);
+              const entity = data[rowIndex];
+              return (
+                <EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="link"/>
+              );
             }
           }/>
         <Advanced.ColumnLink

@@ -152,7 +152,7 @@ FlashMessages.propTypes = {
   maxShown: PropTypes.number
 };
 FlashMessages.defaultProps = {
-  maxShown: 3
+  maxShown: 4
 };
 FlashMessages.contextTypes = {
   store: PropTypes.object.isRequired

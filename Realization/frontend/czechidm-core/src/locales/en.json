@@ -218,7 +218,8 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový"
+        "disabledInfo": "Uživatel je deaktivový",
+        "profileLink": "Zobrazit celý detail"
       },
       "Filter": {
         "option": {
@@ -1737,7 +1738,7 @@
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
     "GROVY_SCRIPT_VALIDATION": {
-      "title": "Groovy skript obsahuje kompilační chyby.",
+      "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
     },
     "GROVY_SCRIPT_SECURITY_VALIDATION": {

@@ -1,13 +1,11 @@
 package eu.bcvsolutions.idm.acc.entity;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import com.google.common.base.Throwables;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ResultState;
@@ -78,9 +76,7 @@ public class SysProvisioningResult {
 		if(cause == null) {
 			return null;
 		}
-		StringWriter errors = new StringWriter();
-		cause.printStackTrace(new PrintWriter(errors));
-		return errors.toString();
+		return Throwables.getStackTraceAsString(cause);
 	}
 	
 	public void setModel(ResultModel model) {

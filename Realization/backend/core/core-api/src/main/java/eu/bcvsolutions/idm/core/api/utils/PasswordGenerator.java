@@ -75,8 +75,6 @@ public class PasswordGenerator {
 		
 		if (policy.getMaxPasswordLength() < (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
 			throw new IllegalArgumentException("Parameter: maxLength must be higer or same as sum minimal length of all base.");
-		} else if (policy.getMinPasswordLength() < (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
-			throw new IllegalArgumentException("Parameter: minLength must be lower or same as sum minimal length of all base.");
 		}
 
 		StringBuilder password = new StringBuilder();
@@ -84,10 +82,10 @@ public class PasswordGenerator {
 		String prohibited = policy.getProhibitedCharacters();
 		
 		// set bases for generating
-		String lowerBase = policy.getLowerCharBase() == null || policy.getLowerCharBase().isEmpty() ? LOWER_CHARACTERS : policy.getLowerCharBase();
-		String upperBase = policy.getUpperCharBase() == null || policy.getUpperCharBase().isEmpty() ? UPPER_CHARACTERS : policy.getUpperCharBase();
-		String specialBase = policy.getSpecialCharBase() == null || policy.getSpecialCharBase().isEmpty() ? SPECIAL_CHARACTERS : policy.getSpecialCharBase();
-		String numberBase = policy.getNumberBase() == null || policy.getNumberBase().isEmpty() ? NUMBERS : policy.getNumberBase();
+		String lowerBase = policy.getLowerCharBase();
+		String upperBase = policy.getUpperCharBase();
+		String specialBase = policy.getSpecialCharBase();
+		String numberBase = policy.getNumberBase();
 		
 		// generate minimal requirements
 		if (policy.getMinLowerChar() != 0) {
@@ -113,7 +111,16 @@ public class PasswordGenerator {
 		
 		// add final string to password 
 		int missingLength = getRandomNumber(policy.getMinPasswordLength() - password.length(), policy.getMaxPasswordLength() - password.length());
-		password.append(getRandomChars(shuffle(base).toString(), missingLength, null));
+		if (missingLength > 0) {
+			if (base.length() == 0) {
+				base.append(policy.getLowerCharBase());
+				base.append(policy.getUpperCharBase());
+				base.append(policy.getSpecialCharBase());
+				base.append(policy.getNumberBase());
+				base = new StringBuilder(removeProhibited(base.toString(), policy.getProhibitedCharacters()));
+			}
+			password.append(getRandomChars(shuffle(base).toString(), missingLength, null));
+		}
 		
 		return shuffle(password).toString();
 	}

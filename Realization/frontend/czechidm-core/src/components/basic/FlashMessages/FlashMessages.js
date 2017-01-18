@@ -94,7 +94,7 @@ export class FlashMessages extends AbstractContextComponent {
       title: message.title,
       message: message.message,
       level: message.level,
-      position: message.position,
+      position: message.position || 'tr',
       onRemove: (n) => this._onRemove(n),
       dismissible: message.dismissible,
       autoDismiss: this._getAutoDismiss(message),

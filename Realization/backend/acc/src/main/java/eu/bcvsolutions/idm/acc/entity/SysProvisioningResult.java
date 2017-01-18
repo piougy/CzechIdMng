@@ -9,6 +9,7 @@ import com.google.common.base.Throwables;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ResultState;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 
 /**
@@ -25,7 +26,7 @@ public class SysProvisioningResult {
 	@Column(name = "result_state", nullable = false, length = 45)
 	private ResultState state = ResultState.CREATED;
 	
-	@Column(name = "result_code", length = 45)
+	@Column(name = "result_code", length = DefaultFieldLengths.NAME)
 	private String code;
 	
 	@Column(name = "result_model", length = Integer.MAX_VALUE)

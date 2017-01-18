@@ -128,15 +128,13 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 		//
 		FlashMessage flashMessage = new FlashMessage();
 		flashMessage.setId(log.getId());
-		flashMessage.setCode(message.getSubject());
+		flashMessage.setTitle(message.getSubject());
 		flashMessage.setMessage(message.getTextMessage()); // default message
 		flashMessage.setDate(log.getCreated());
 		flashMessage.setLevel(message.getLevel() == null ? null : message.getLevel().toString().toLowerCase());
-		//
-		flashMessage.setParameters(message.getParameters());
-		flashMessage.setPosition("tr"); // TODO: from parameters
-		flashMessage.setKey(null); // TODO: from parameters
-		flashMessage.setHidden(false); // TODO: from parameters
+		flashMessage.setModel(message.getModel());
+		// TODO: other params
+		flashMessage.setPosition("tr");
 		return flashMessage;
 	}
 }

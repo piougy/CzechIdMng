@@ -1,13 +1,11 @@
 package eu.bcvsolutions.idm.notification.entity;
 
 import java.text.MessageFormat;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -15,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 
 /**
@@ -25,11 +24,13 @@ import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
  */
 @Embeddable
 public class IdmMessage {
+	
+	public static final NotificationLevel DEFAULT_LEVEL = NotificationLevel.INFO;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "level", nullable = false, length = 45)
-	private NotificationLevel level = NotificationLevel.INFO;
+	private NotificationLevel level = DEFAULT_LEVEL;
 
 	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "subject", length = DefaultFieldLengths.NAME)
@@ -43,19 +44,18 @@ public class IdmMessage {
 	@Type(type = "org.hibernate.type.StringClobType")
 	private String htmlMessage;
 
-	@Lob
-	@Column(name = "parameters")
-	private Map<String, Object> parameters; // Parameters - for localization etc.
+	@Column(name = "result_model", length = Integer.MAX_VALUE)
+	private ResultModel model;
 
 	public IdmMessage() {
 	}
 	
 	private IdmMessage(Builder builder) {
-		level = builder.level;
+		level = builder.level == null ? DEFAULT_LEVEL : builder.level;
 		subject = builder.subject;
 		textMessage = builder.textMessage;
 		htmlMessage = builder.htmlMessage;
-		parameters = builder.parameters;
+		model = builder.model;
 	}
 
 	public String getSubject() {
@@ -82,12 +82,12 @@ public class IdmMessage {
 		this.htmlMessage = htmlMessage;
 	}
 
-	public Map<String, Object> getParameters() {
-		return parameters;
+	public void setModel(ResultModel model) {
+		this.model = model;
 	}
-
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
+	
+	public ResultModel getModel() {
+		return model;
 	}
 
 	public NotificationLevel getLevel() {
@@ -114,11 +114,11 @@ public class IdmMessage {
 	 */
 	public static class Builder {
 
-		private NotificationLevel level = NotificationLevel.INFO;
+		private NotificationLevel level;
 		private String subject;
 		private String textMessage;
 		private String htmlMessage;
-		private Map<String, Object> parameters;
+		private ResultModel model;
 		
 		public Builder() {
 		}
@@ -158,8 +158,26 @@ public class IdmMessage {
 			return this;
 		}
 
-		public Builder setParameters(Map<String, Object> parameters) {
-			this.parameters = parameters;
+		public Builder setModel(ResultModel model) {
+			this.model = model;
+			if (model != null) {
+				// set default subject and message
+				if (StringUtils.isEmpty(subject)) {
+					subject = model.getStatusEnum();
+				}
+				if (StringUtils.isEmpty(textMessage)) {
+					textMessage = model.getMessage();
+				}
+				if (level == null) {
+					if (model.getStatus().is5xxServerError()) {
+						level = NotificationLevel.ERROR;
+					} else if(model.getStatus().is2xxSuccessful()) {
+						level = NotificationLevel.SUCCESS;
+					} else {
+						level = NotificationLevel.WARNING;
+					}
+				}
+			}
 			return this;
 		}
 	

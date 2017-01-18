@@ -344,7 +344,8 @@
         "header": "Detail operace",
         "result": "Výsledek",
         "accountObject": "Idm atributy",
-        "connectorObject": "Atributy pro provisioning"
+        "connectorObject": "Atributy pro provisioning",
+        "resultCode": "Kód"
       }
     }
   },
@@ -647,6 +648,22 @@
     "PROVISIONING_SYSTEM_DISABLED": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je nakonfigurován jako neaktivní."
+    },
+    "PROVISIONING_SYSTEM_READONLY": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+    },
+    "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Proběhl provisioning účtu [{{name}}]",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
     }
   }
 }

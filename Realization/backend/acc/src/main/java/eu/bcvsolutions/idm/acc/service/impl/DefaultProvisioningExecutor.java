@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
@@ -54,7 +53,6 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
 		// Cancel single request
-		provisioningOperation.setResultState(ResultState.CANCELED);
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningOperationType.CANCEL, provisioningOperation);
 		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
 		return context.getContent();

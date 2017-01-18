@@ -1523,10 +1523,12 @@
       "topic": "Téma / Topic",
       "created": "$t(entity.created)",
       "message": {
+        "level": "Level",
         "subject": "Předmět",
         "message": "Zpráva",
         "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
+        "htmlMessage": "Zpráva (html)",
+        "model": "Zpráva (model)"
       },
       "sender": "Odesílatel",
       "recipients": "Příjemci",
@@ -1547,7 +1549,10 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",
@@ -1562,7 +1567,9 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",

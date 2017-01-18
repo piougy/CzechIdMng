@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 @Component
 public class RemoveProcessedOperationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ReadonlySystemProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveProcessedOperationProcessor.class);
 	private final SysProvisioningOperationService provisioningOperationService;
 	
 	@Autowired
@@ -42,7 +42,7 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
-				|| ResultState.CANCELED.equals(provisioningOperation.getResultState())) {
+				|| ProvisioningOperationType.CANCEL.equals(event.getType())) {
 			provisioningOperationService.delete(provisioningOperation);
 			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 		}

@@ -66,8 +66,12 @@ public class DefaultEmailer implements Emailer {
 			Exchange exchange = endpoint.createExchange();
 			Message in = exchange.getIn();
 			in.setHeaders(createEmailHeaders(emailLog));
-			// TODO: textMessage 
-			in.setBody(emailLog.getMessage().getHtmlMessage());
+			// message - html has higher priority
+			String message = emailLog.getMessage().getHtmlMessage();
+			if (StringUtils.isEmpty(message)) {
+				message = emailLog.getMessage().getTextMessage();
+			}
+			in.setBody(message);
 			
 			/* TODO: attachment preparations
 			DataSource ds = new javax.mail.util.ByteArrayDataSource("test txt content", "text/plain; charset=UTF-8");

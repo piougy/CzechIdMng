@@ -32,6 +32,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -44,7 +46,6 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -137,27 +138,26 @@ public class PrepareAccountProcessor extends AbstractEntityEventProcessor<SysPro
 					provisioningOperation.getSystemEntityUid(),
 					objectClass.getType());
 			return new DefaultEventResult<>(event, this);
-		} catch (Exception ex) {	
-			LOG.error("Preparing attribubes for provisioning operation [{}] for object with uid [{}] and connector object [{}] failed", 
-					provisioningOperation.getOperationType(), 
-					provisioningOperation.getSystemEntityUid(),
-					objectClass.getType(),
-					ex);
+		} catch (Exception ex) {
+			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
+					ImmutableMap.of(
+							"name", provisioningOperation.getSystemEntityUid(), 
+							"system", system.getName(),
+							"operationType", provisioningOperation.getOperationType(),
+							"objectClass", objectClass.getType()));
+			LOG.error(resultModel.toString(), ex);
 			SysProvisioningRequest request = provisioningOperation.getRequest();
 			if (provisioningOperation.getRequest() == null) {
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: code
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, 
-					new IdmMessage.Builder(NotificationLevel.ERROR)
-						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] selhal.")
-						.build());
+					new IdmMessage.Builder().setModel(resultModel).build());
 			return new DefaultEventResult<>(event, this, true);
 		}
 	}

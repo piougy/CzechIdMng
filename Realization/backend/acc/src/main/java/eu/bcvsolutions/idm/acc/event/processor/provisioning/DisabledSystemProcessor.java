@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -70,12 +69,7 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
-			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING,
-					new IdmMessage.Builder(NotificationLevel.WARNING)	
-						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je nakonfigurován jako neaktivní.")
-						.build());
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());
 			//
 			closed = true;
 		} 

@@ -121,9 +121,20 @@ export default class FlashMessagesManager {
     }
     const messageText = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.message', this._prepareParams(resultModel.parameters, defaultMessage));
     //
+    const levelStatusCode = parseInt(resultModel.statusCode, 10);
+    let level; // 4xx - warning message, 5xx - error message
+    if (levelStatusCode >= 500) {
+      level = 'error';
+    } else if (levelStatusCode >= 200 && levelStatusCode < 300) {
+      level = 'success';
+    } else {
+      level = 'warning';
+      // TODO: info level
+    }
+    //
     return this.createMessage({
       key: resultModel.statusEnum,
-      level: (parseInt(resultModel.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
+      level,
       title: messageTitle,
       message: messageText,
     });

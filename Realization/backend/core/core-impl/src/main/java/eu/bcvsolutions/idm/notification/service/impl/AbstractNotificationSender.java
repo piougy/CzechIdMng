@@ -130,7 +130,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 				.setSubject(message.getSubject())
 				.setTextMessage(message.getTextMessage())
 				.setHtmlMessage(message.getHtmlMessage())
-				.setParameters(message.getParameters())
+				.setModel(message.getModel())
 				.build();
 	}
 

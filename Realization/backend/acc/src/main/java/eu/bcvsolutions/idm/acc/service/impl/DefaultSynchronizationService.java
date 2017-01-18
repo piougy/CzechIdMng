@@ -612,7 +612,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			logItem.addToLog(MessageFormat.format(
 					"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
 					identity.getId(), identity.getUsername()));
-			entityEventProcessorService.process(new IdentityEvent(IdentityEventType.SAVE, identity)).getContent();
+			entityEventProcessorService.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
 		} else if (SystemEntityType.GROUP == entityType) {
 			// TODO: group
 		}

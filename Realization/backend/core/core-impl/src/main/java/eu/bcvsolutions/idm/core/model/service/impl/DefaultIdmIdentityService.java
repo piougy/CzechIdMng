@@ -68,7 +68,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(identity);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
-		return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.SAVE, identity)).getContent();
+		if (identity.getId() == null) { // create
+			return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
+		}
+		return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
 	}
 	
 	@Override

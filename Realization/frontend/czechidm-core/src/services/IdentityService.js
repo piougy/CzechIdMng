@@ -2,6 +2,9 @@ import * as Utils from '../utils';
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';
+import PasswordPolicyService from './PasswordPolicyService';
+
+const passwordPolicyService = new PasswordPolicyService();
 
 class IdentityService extends AbstractService {
 
@@ -59,7 +62,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   generatePassword() {
-    return RestApiService.post(this.getApiPath() + `/password/generate`);
+    return passwordPolicyService.generatePassword();
   }
 
   /**

@@ -44,6 +44,7 @@ import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RichTextArea from './RichTextArea/RichTextArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
+import ValidationMessage from './ValidationMessage/ValidationMessage';
 
 const Components = {
   AbstractComponent,
@@ -105,7 +106,8 @@ const Components = {
   Popover,
   ScriptArea,
   RichTextArea,
-  PasswordStrength
+  PasswordStrength,
+  ValidationMessage
 };
 
 Components.version = '0.0.1';

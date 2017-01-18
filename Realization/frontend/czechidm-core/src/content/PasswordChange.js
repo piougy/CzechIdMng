@@ -83,7 +83,11 @@ class PasswordChange extends Basic.AbstractContent {
     .then(json => {
       if (Utils.Response.hasError(json)) {
         this._initPasswordFields(password);
-        throw Utils.Response.getFirstError(json);
+        const error = Utils.Response.getFirstError(json);
+        this.setState({
+          validationError: error
+        });
+        throw error;
       }
       return json;
     })
@@ -101,6 +105,7 @@ class PasswordChange extends Basic.AbstractContent {
       } else {
         this.addError(error);
       }
+      this.refs.passwords.setValue(password);
     });
   }
 
@@ -129,7 +134,7 @@ class PasswordChange extends Basic.AbstractContent {
   }
 
   render() {
-    const { showLoading } = this.state;
+    const { showLoading, validationError } = this.state;
 
     return (
       <div>
@@ -165,7 +170,9 @@ class PasswordChange extends Basic.AbstractContent {
                     labelSpan="col-md-4"
                     componentSpan="col-md-8"/>
                 </Basic.AbstractForm>
-
+                <Basic.Panel className="no-border last">
+                  <Basic.ValidationMessage error={validationError} />
+                </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>
                     {this.i18n('button.cancel')}

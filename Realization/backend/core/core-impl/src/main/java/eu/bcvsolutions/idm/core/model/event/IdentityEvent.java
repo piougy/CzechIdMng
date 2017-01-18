@@ -22,7 +22,7 @@ public class IdentityEvent extends CoreEvent<IdmIdentity> {
 	 *
 	 */
 	public enum IdentityEventType implements EventType {
-		SAVE, DELETE, PASSWORD // TODO: split SAVE to UPDATE / CREATE?
+		DELETE, PASSWORD, UPDATE, CREATE
 	}
 	
 	public IdentityEvent(IdentityEventType operation, IdmIdentity content) {

@@ -7,7 +7,6 @@ import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { AuthenticateService } from '../../services';
 import { IdentityManager } from '../../redux';
 
 const identityManager = new IdentityManager();
@@ -100,9 +99,14 @@ class Profile extends Basic.AbstractContent {
       });
     }).catch(error => {
       this.setState({
-        showLoading: false
+        showLoading: false,
+        validationError: error
       }, () => {
         this.refs.form.processEnded();
+        this.setState({
+          password: formData.password,
+          passwordAgain: formData.password
+        });
         this.transformData(null);
         this.addError(error);
       });
@@ -143,18 +147,17 @@ class Profile extends Basic.AbstractContent {
     if (!generate) {
       return;
     }
-    /*
     // generate
     this.setState({
       generatePasswordShowLoading: true
-    })
+    });
     identityManager.getService().generatePassword()
     .then(response => {
       return response.json();
     })
     .then(json => {
       if (!json.error) {
-        this.setNewPassword(json.password);
+        this.setNewPassword(json);
         this.setState({
           generatePasswordShowLoading: false,
           generatePassword: true
@@ -173,9 +176,9 @@ class Profile extends Basic.AbstractContent {
         generatePasswordShowLoading: false,
         generatePassword: false
       });
-    });*/
+    });
     // TODO: rest service for password generate
-    this.setNewPassword(AuthenticateService.generatePassword());
+    // this.setNewPassword(AuthenticateService.generatePassword());
   }
 
   canEditMap() {
@@ -185,7 +188,12 @@ class Profile extends Basic.AbstractContent {
   }
 
   render() {
-    const { detail, showLoading, generatePassword, generatePasswordShowLoading, password, passwordAgain } = this.state;
+    const { detail,
+      showLoading,
+      generatePassword,
+      generatePasswordShowLoading,
+      passwordAgain, password,
+      validationError } = this.state;
 
     return (
       <Basic.Row>
@@ -225,8 +233,10 @@ class Profile extends Basic.AbstractContent {
                       readOnly={generatePassword}
                       newPassword={password}
                       newPasswordAgain={passwordAgain}/>
-
                   </div>
+                  <Basic.Panel className="col-lg-5 no-border">
+                    <Basic.ValidationMessage error={validationError} />
+                  </Basic.Panel>
                 </Basic.AbstractForm>
               </Basic.PanelBody>
 

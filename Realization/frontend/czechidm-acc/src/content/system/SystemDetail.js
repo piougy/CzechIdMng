@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Managers, Utils } from 'czechidm-core';
+import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
 
 /**
@@ -13,6 +13,7 @@ class SystemDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.manager = new SystemManager();
+    this.passwordPolicyManager = new Managers.PasswordPolicyManager();
     this.state = {
       _showLoading: false,
       selectedFramework: null
@@ -36,7 +37,14 @@ class SystemDetail extends Basic.AbstractContent {
         connector: entity.connectorKey.fullName
       };
     }
+    if (entity._embedded && entity._embedded.passwordPolicy) {
+      data = {
+        ...data,
+        passwordPolicy: entity._embedded.passwordPolicy
+      };
+    }
     data.host = 'local';
+
     this.refs.form.setData(data);
     this.refs.name.focus();
   }
@@ -56,6 +64,9 @@ class SystemDetail extends Basic.AbstractContent {
     }, () => {
       const entity = this.refs.form.getData();
       const connector = availableFrameworks.get(entity.connector.split(':')[0]).get(entity.connector);
+      if (entity.passwordPolicy) {
+        entity.passwordPolicy = this.passwordPolicyManager.getSelfLink(entity.passwordPolicy);
+      }
       const saveEntity = {
         ...entity,
         connectorKey: {
@@ -138,6 +149,13 @@ class SystemDetail extends Basic.AbstractContent {
                   placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
                   options={_availableConnectors}
                   required/>
+                <Basic.SelectBox
+                  ref="passwordPolicy"
+                  label={this.i18n('acc:entity.System.passwordPolicy')}
+                  placeholder={this.i18n('acc:entity.System.passwordPolicy')}
+                  manager={this.passwordPolicyManager}
+                  forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
+                    .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}

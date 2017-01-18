@@ -381,7 +381,7 @@ export default class SecurityManager {
     return (dispatch, getState) => {
       if (stompClient) {
         stompClient.disconnect(() => {
-          getState().logger.debug(`stom client for messages - websocket successfully closed.`);
+          getState().logger.debug(`stomp client for messages - websocket successfully closed.`);
         });
       }
     };

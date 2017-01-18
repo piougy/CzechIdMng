@@ -1,10 +1,10 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -34,11 +34,14 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {	
+	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {	
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
-		connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
-				connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
+		if (!connectorObject.getAttributes().isEmpty()) {
+			// TODO: appropriate message - provisioning is not executed - attributes don't change
+			connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
+					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
+		}
 	}
 	
 	@Override
@@ -46,6 +49,6 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningOperationType.UPDATE.equals(((SysProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningOperationType.UPDATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
 	}
 }

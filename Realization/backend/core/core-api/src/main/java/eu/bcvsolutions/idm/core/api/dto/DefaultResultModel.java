@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.domain.ResultCode;
 @JsonInclude(Include.NON_NULL)
 public class DefaultResultModel implements ResultModel {
 	
+	private static final long serialVersionUID = 7396789300001882593L;
 	private UUID id; // TODO: orchestrate with transaction id
 	private DateTime creation;	
 	/**

@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -15,13 +14,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.envers.Audited;
 import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 
 /**
  * <i>SysSynchronizationLog</i> is responsible for keep log informations about

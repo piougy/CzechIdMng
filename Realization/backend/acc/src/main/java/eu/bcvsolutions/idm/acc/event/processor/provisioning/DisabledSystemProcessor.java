@@ -1,10 +1,14 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -12,6 +16,8 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -21,20 +27,20 @@ import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
- * Readonly system provisioning - only saves provisioning operations
+ * Disabled system provisioning - only saves provisioning operations
  * 
  * @author Radek Tomiška
  *
  */
 @Component
-public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningReadonlySystemProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DisabledSystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	
 	@Autowired
-	public ProvisioningReadonlySystemProcessor(
+	public DisabledSystemProcessor(
 			NotificationManager notificationManager,
 			SysProvisioningOperationRepository provisioningOperationRepository) {
 		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE);
@@ -51,24 +57,24 @@ public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProc
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		SysSystem system = provisioningOperation.getSystem();
 		boolean closed = false;
-		if (system.isReadonly()) {
+		if (system.isDisabled()) {
 			SysProvisioningRequest request = provisioningOperation.getRequest();
 			if (provisioningOperation.getRequest() == null) {
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setCode("READONLY").build()); // TODO: code
-			
+			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_DISABLED, 
+					ImmutableMap.of("systemEntityUid", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
+			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
+			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//
-			LOG.debug("Provisioning operation for object with uid [{}] and system [{}] is canceled - system is readonly", 
-					provisioningOperation.getSystemEntityUid(),
-					system.getName());
+			LOG.info(resultModel.toString());
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING,
 					new IdmMessage.Builder(NotificationLevel.WARNING)	
 						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je v readonly režimu.")
+						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je nakonfigurován jako neaktivní.")
 						.build());
 			//
 			closed = true;
@@ -83,7 +89,7 @@ public class ProvisioningReadonlySystemProcessor extends AbstractEntityEventProc
 
 	@Override
 	public int getOrder() {
-		// before account attributes preparation
-		return -2000;
+		// before all
+		return Ordered.HIGHEST_PRECEDENCE;
 	}
 }

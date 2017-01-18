@@ -11,7 +11,34 @@
 
 .tab-horizontal {
   .nav.nav-tabs {
-    // nothing now
+  }
+
+  .nav-tabs > li {
+    margin-top: 3px;
+  }
+
+  .nav-tabs > li.active {
+    margin-top: 0px;
+  }
+
+  .nav-tabs > li > a {
+    border-top-style: solid;
+    border-top-width: 0px;
+    border-top-color: transparent;
+    color: @idm-nav-color;
+    border-radius: 0;
+    padding: 7px 15px 10px 15px;
+    outline: 0;
+
+    &:hover, &:active, &:focus {
+      outline: 0;
+    }
+  }
+
+  .nav-tabs > li.active > a {
+    color: @panel-default-text;
+    border-top-width: 3px;
+    border-top-color: @idm-base-color;
   }
 
   .tab-pane {
@@ -20,6 +47,11 @@
     border-right: @idm-border-color 1px solid;
     border-bottom: @idm-border-color 1px solid;
     border-radius: 0 0 4px 4px;
+
+    > .basic-table > .alert,
+    > .advanced-table > div > .basic-table > .alert {
+      margin: 15px;
+    }
   }
 }
 
@@ -43,6 +75,11 @@
     border-left-color: transparent;
     color: @idm-nav-color;
     padding: 9px 10px;
+    outline: 0;
+
+    &:hover, &:active, &:focus {
+      outline: 0;
+    }
 
     .glyphicon {
       top: 0px;

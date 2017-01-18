@@ -34,8 +34,6 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  * Public (not secured) configuration could be read without authentication. 
  * Confidential properties are saved to confidential storage.
  * 
- * TODO: cache
- * 
  * @author Radek Tomiška 
  *
  */
@@ -44,18 +42,18 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultConfigurationService.class);
 
-	private final IdmConfigurationRepository configurationRepository;
+	private final IdmConfigurationRepository repository;
 	private final ConfidentialStorage confidentialStorage;
 	private final ConfigurableEnvironment env; // TODO: optional
 	
 	@Autowired
 	public DefaultConfigurationService(
-			IdmConfigurationRepository configurationRepository,
-			ConfidentialStorage confidentialStorage, 
+			IdmConfigurationRepository repository,
+			ConfidentialStorage confidentialStorage,
 			ConfigurableEnvironment env) {
-		super(configurationRepository);
+		super(repository);
 		//
-		this.configurationRepository = configurationRepository;
+		this.repository = repository;
 		this.confidentialStorage = confidentialStorage;
 		this.env = env; // TODO: optional
 	}
@@ -63,7 +61,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	@Override
 	@Transactional(readOnly = true)
 	public IdmConfiguration getByName(String name) {
-		return configurationRepository.findOneByName(name);
+		return repository.findOneByName(name);
 	}
 
 	@Override
@@ -86,7 +84,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 		Assert.notNull(configuration);
 		Assert.hasText(configuration.getName());
 		// only maps dto to entity
-		IdmConfiguration configurationEntity = configurationRepository.get(configuration.getName());
+		IdmConfiguration configurationEntity = getByName(configuration.getName());
 		if (configurationEntity == null) {
 			configurationEntity = new IdmConfiguration(configuration.getName(), configuration.getValue(), configuration.isSecured(), configuration.isConfidential());
 		} else {
@@ -148,7 +146,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 		LOG.debug("Reading configuration for key [{}] and default[{}]", key, defaultValue);
 		String value = null;
 		// idm configuration has higher priority than property file
-		IdmConfiguration config = configurationRepository.get(key);
+		IdmConfiguration config = repository.get(key);
 		if (config != null) {
 			if (config.isConfidential()) {
 				value = confidentialStorage.get(config, CONFIDENTIAL_PROPERTY_VALUE, String.class);			
@@ -239,7 +237,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 			}
 		}
 		// override from database
-		configurationRepository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
+		repository.findAllBySecuredIsFalse().forEach(idmConfiguration -> {
 			configurations.put(idmConfiguration.getName(), idmConfiguration.getValue());
 		});
 		List<ConfigurationDto> results = new ArrayList<>();

@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ import org.springframework.http.HttpStatus;
  * @author Radek Tomiška 
  *
  */
-public interface ResultModel {
+public interface ResultModel extends Serializable {
 
 	/**
 	 * Unique model id

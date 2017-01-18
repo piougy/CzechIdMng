@@ -11,6 +11,7 @@ import SystemMappingManager from './SystemMappingManager';
 import SynchronizationLogManager from './SynchronizationLogManager';
 import SynchronizationConfigManager from './SynchronizationConfigManager';
 import ProvisioningOperationManager from './ProvisioningOperationManager';
+import ProvisioningArchiveManager from './ProvisioningArchiveManager';
 import SyncActionLogManager from './SyncActionLogManager';
 import SyncItemLogManager from './SyncItemLogManager';
 
@@ -28,6 +29,7 @@ const ManagerRoot = {
   SynchronizationLogManager,
   SynchronizationConfigManager,
   ProvisioningOperationManager,
+  ProvisioningArchiveManager,
   SyncActionLogManager,
   SyncItemLogManager
 };

@@ -47,6 +47,39 @@ export default class FlashMessagesManager {
     return this.addErrorMessage({}, error, context);
   }
 
+  /**
+   * Converts result model to flash message
+   *
+   * @param  {ResultModel} resultModel
+   * @return {FlashMessage}
+   */
+  toMessage(resultModel) {
+    // automatic localization
+    const messageTitle = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.title', this._prepareParams(resultModel.parameters, `${resultModel.statusEnum} (${resultModel.statusCode}:${resultModel.id})`));
+    let defaultMessage = resultModel.message;
+    if (!_.isEmpty(resultModel.parameters)) {
+      defaultMessage += ' (';
+      let first = true;
+      for (const parameterKey in resultModel.parameters) {
+        if (!first) {
+          defaultMessage += ', ';
+        } else {
+          first = false;
+        }
+        defaultMessage += `${parameterKey}:${resultModel.parameters[parameterKey]}`;
+      }
+      defaultMessage += ')';
+    }
+    const messageText = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.message', this._prepareParams(resultModel.parameters, defaultMessage));
+    //
+    return {
+      key: resultModel.statusEnum,
+      level: (parseInt(resultModel.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
+      title: messageTitle,
+      message: messageText,
+    };
+  }
+
   addErrorMessage(message, error) {
     return (dispatch, getState) => {
       if (DEBUG) {
@@ -54,30 +87,7 @@ export default class FlashMessagesManager {
       }
       let errorMessage;
       if (error.statusEnum) { // our error message
-        // automatic localization
-        const messageTitle = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.title', this._prepareParams(error.parameters, `${error.statusEnum} (${error.statusCode}:${error.id})`));
-        let defaultMessage = error.message;
-        if (!_.isEmpty(error.parameters)) {
-          defaultMessage += ' (';
-          let first = true;
-          for (const parameterKey in error.parameters) {
-            if (!first) {
-              defaultMessage += ', ';
-            } else {
-              first = false;
-            }
-            defaultMessage += `${parameterKey}:${error.parameters[parameterKey]}`;
-          }
-          defaultMessage += ')';
-        }
-        const messageText = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.message', this._prepareParams(error.parameters, defaultMessage));
-        //
-        errorMessage = _.merge({}, {
-          key: error.statusEnum,
-          level: (parseInt(error.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
-          title: messageTitle,
-          message: messageText,
-        }, message);
+        errorMessage = _.merge({}, this.toMessage(error), message);
       } else { // system error - only contain message
         errorMessage = _.merge({}, {
           level: 'error',

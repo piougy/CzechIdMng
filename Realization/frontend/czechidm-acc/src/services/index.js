@@ -11,6 +11,7 @@ import SystemMappingService from './SystemMappingService';
 import SynchronizationConfigService from './SynchronizationConfigService';
 import SynchronizationLogService from './SynchronizationLogService';
 import ProvisioningOperationService from './ProvisioningOperationService';
+import ProvisioningArchiveService from './ProvisioningArchiveService';
 import SyncActionLogService from './SyncActionLogService';
 import SyncItemLogService from './SyncItemLogService';
 
@@ -28,6 +29,7 @@ const ServiceRoot = {
   SynchronizationConfigService,
   SynchronizationLogService,
   ProvisioningOperationService,
+  ProvisioningArchiveService,
   SyncActionLogService,
   SyncItemLogService
 };

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.util.Assert;
 
@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  */
 public abstract class AbstractProvisioningProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningPrepareSaveProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareAccountProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
 	private final NotificationManager notificationManager;
@@ -66,7 +67,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	protected abstract void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
+	protected abstract void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
 	
 	/**
 	 * Prepare provisioning operation execution
@@ -102,7 +103,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setCode("OK").build()); // TODO: code
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).build()); // TODO: code
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			LOG.debug("Provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 

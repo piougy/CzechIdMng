@@ -54,6 +54,11 @@ header {
 
     li a {
       color: @idm-nav-color;
+      outline: 0;
+
+      &:hover, &:active, &:focus {
+        outline: 0;
+      }
     }
 
     @media (min-width: 768px) {
@@ -165,6 +170,11 @@ header {
   border-left-style: solid;
   border-left-width: 3px;
   border-left-color: transparent;
+  outline: 0;
+
+  &:hover, &:active, &:focus {
+    outline: 0;
+  }
 }
 
 .sidebar ul li a.active {

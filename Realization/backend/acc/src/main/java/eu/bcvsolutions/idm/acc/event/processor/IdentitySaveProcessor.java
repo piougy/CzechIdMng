@@ -22,16 +22,16 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  * @author Radek Tomiška
  *
  */
-@Component
+@Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-public class IdentitySaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProvisioningProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
 	
 	@Autowired
-	public IdentitySaveProvisioningProcessor(ApplicationContext applicationContext) {
+	public IdentitySaveProcessor(ApplicationContext applicationContext) {
 		super(CoreEventType.SAVE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);

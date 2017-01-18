@@ -331,6 +331,20 @@
           "error": "Při rušení operace {{name}} nastala chyba",
           "success": "Operace pro provisioning [{{names}}] byly zrušeny."
         }
+      },
+      "tabs": {
+        "active": {
+          "label": "Aktivní operace"
+        },
+        "archive": {
+          "label": "Archiv"
+        }
+      },
+      "detail": {
+        "header": "Detail operace",
+        "result": "Výsledek",
+        "accountObject": "Idm atributy",
+        "connectorObject": "Atributy pro provisioning"
       }
     }
   },
@@ -524,7 +538,8 @@
       "creator": "Vytvořil",
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
-      "resultState": "Výsledek"
+      "resultState": "Výsledek",
+      "entity": "Entita (IdM)"
     }
   },
   "enums" : {

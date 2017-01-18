@@ -11,11 +11,11 @@ Wrapped react bootstrap Tabs and Tab
   <Basic.Tab eventKey={1} title="Tab One">
     content 1
   </Basic.Tab>
-  <Basic.Tab eventKey={2} title="Tab Two"}>
+  <Basic.Tab eventKey={2} title="Tab Two">
     content 2
   </Basic.Tab>
   <Basic.Tab eventKey={3} title="Tab Three">
-    content 2
+    content 3
   </Basic.Tab>
 </Basic.Tabs>
 ```

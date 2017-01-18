@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -55,9 +55,9 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  *
  */
 @Component
-public class ProvisioningPrepareSaveProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
+public class PrepareAccountProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningPrepareSaveProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareAccountProcessor.class);
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService attributeMappingService;
 	private final IcConnectorFacade connectorFacade;
@@ -66,7 +66,7 @@ public class ProvisioningPrepareSaveProcessor extends AbstractEntityEventProcess
 	private final SysProvisioningOperationRepository provisioningOperationRepository;
 	
 	@Autowired
-	public ProvisioningPrepareSaveProcessor(
+	public PrepareAccountProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysSystemEntityService systemEntityService,

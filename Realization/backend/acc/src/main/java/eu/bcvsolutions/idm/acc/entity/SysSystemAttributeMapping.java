@@ -6,11 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
 import com.sun.istack.NotNull;
@@ -82,12 +82,12 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	private boolean uid = false;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "transform_from_res_script")
 	private String transformFromResourceScript;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "transform_to_res_script")
 	private String transformToResourceScript;
 

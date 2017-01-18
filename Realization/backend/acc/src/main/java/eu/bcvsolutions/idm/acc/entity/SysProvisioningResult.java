@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
@@ -8,6 +11,7 @@ import javax.persistence.Enumerated;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ResultState;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 
 /**
  * Provisioning operation result
@@ -26,6 +30,9 @@ public class SysProvisioningResult {
 	@Column(name = "result_code", length = 45)
 	private String code;
 	
+	@Column(name = "result_model", length = Integer.MAX_VALUE)
+	private ResultModel model;
+	
 	@Column(name = "result_cause", length = Integer.MAX_VALUE)
 	private Throwable cause;
 	
@@ -40,6 +47,7 @@ public class SysProvisioningResult {
 		state = builder.state;
 		code = builder.code;
 		cause = builder.cause;
+		model = builder.model;
 	}
 
 	public String getCode() {
@@ -66,6 +74,23 @@ public class SysProvisioningResult {
 		this.state = state;
 	}
 	
+	public String getStackTrace() {
+		if(cause == null) {
+			return null;
+		}
+		StringWriter errors = new StringWriter();
+		cause.printStackTrace(new PrintWriter(errors));
+		return errors.toString();
+	}
+	
+	public void setModel(ResultModel model) {
+		this.model = model;
+	}
+	
+	public ResultModel getModel() {
+		return model;
+	}
+	
 	/**
 	 * {@link SysProvisioningResult} builder
 	 * 
@@ -78,6 +103,7 @@ public class SysProvisioningResult {
 		// optional	
 		private String code;
 		private Throwable cause;
+		private ResultModel model;
 		
 		public Builder(ResultState state) {
 			this.state = state;
@@ -90,6 +116,14 @@ public class SysProvisioningResult {
 		
 		public Builder setCode(String code) {
 			this.code = code;
+			return this;
+		}
+		
+		public Builder setModel(ResultModel model) {
+			this.model = model;
+			if (model != null) {
+				this.code = model.getStatusEnum();
+			}
 			return this;
 		}
 		

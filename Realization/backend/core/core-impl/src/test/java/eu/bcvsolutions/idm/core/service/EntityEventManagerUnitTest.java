@@ -36,7 +36,8 @@ public class EntityEventManagerUnitTest extends AbstractUnitTest {
 	public void testSupportAllIdentityEvents() {		
 		EntityEventProcessor<?> processor = new EventProcessorIdentity();
 		
-		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.CREATE, new IdmIdentity())));
+		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentity())));
 		assertTrue(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentity())));
 		assertFalse(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
 		assertTrue(processor.supports(new CoreEvent<IdmIdentity>(CustomType.SAVE, new IdmIdentity())));
@@ -48,12 +49,12 @@ public class EntityEventManagerUnitTest extends AbstractUnitTest {
 		
 		EntityEventProcessor<?> processor = new EventProcessorRole();
 		
-		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.SAVE, new IdmIdentity())));
+		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.UPDATE, new IdmIdentity())));
 		assertFalse(processor.supports(new IdentityEvent(IdentityEventType.DELETE, new IdmIdentity())));
 		assertTrue(processor.supports(new RoleEvent(RoleEventType.DELETE, new IdmRole())));
 		assertFalse(processor.supports(new CoreEvent<IdmIdentity>(CustomType.SAVE, new IdmIdentity())));
 		assertFalse(processor.supports(new CoreEvent<>(CustomType.CUSTOM, new IdmIdentity())));
-		assertTrue(processor.supports(new CoreEvent<IdmRole>(IdentityEventType.SAVE, new IdmRole())));
+		assertTrue(processor.supports(new CoreEvent<IdmRole>(IdentityEventType.UPDATE, new IdmRole())));
 	}
 
 	private class EventProcessorIdentity extends AbstractEntityEventProcessor<IdmIdentity> {
@@ -74,7 +75,7 @@ public class EntityEventManagerUnitTest extends AbstractUnitTest {
 	private class EventProcessorRole extends AbstractEntityEventProcessor<IdmRole> {
 
 		public EventProcessorRole() {
-			super(RoleEventType.DELETE, IdentityEventType.SAVE);
+			super(RoleEventType.DELETE, IdentityEventType.UPDATE);
 		}
 		
 		@Override

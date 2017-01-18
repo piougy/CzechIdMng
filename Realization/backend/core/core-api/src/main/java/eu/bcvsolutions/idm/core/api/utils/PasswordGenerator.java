@@ -78,7 +78,7 @@ public class PasswordGenerator {
 		
 		if (policy.getMaxPasswordLength() < (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
 			throw new IllegalArgumentException("Parameter: maxLength must be higer or same as sum minimal length of all base.");
-		} else if (policy.getMinPasswordLength() <= (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
+		} else if (policy.getMinPasswordLength() < (policy.getMinLowerChar() + policy.getMinUpperChar() + policy.getMinSpecialChar() + policy.getMinNumber())) {
 			throw new IllegalArgumentException("Parameter: minLength must be lower or same as sum minimal length of all base.");
 		}
 

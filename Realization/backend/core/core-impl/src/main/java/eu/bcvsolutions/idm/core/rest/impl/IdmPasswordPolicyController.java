@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,15 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.security.dto.LoginDto;
 
 /**
  * Default controller for password policy
@@ -96,30 +100,29 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	/**
 	 * Validate password by given password policy id
 	 * 
-	 * @param password
 	 * @param entityId
 	 * @return
 	 */
-	@ResponseBody
 	@RequestMapping(value = "/{entityId}/validate", method = RequestMethod.POST)
-	public boolean validate(@PathVariable String entityId,
-			@RequestBody String password,
-			PersistentEntityResourceAssembler assembler) {
+	public ResourceWrapper<IdmPasswordValidationDto> validate(@Valid @RequestBody(required = true) IdmPasswordValidationDto password, @PathVariable String entityId) {
 		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(entityId);
-		return this.passwordPolicyService.validate(password, passwordPolicy);
+		if (this.passwordPolicyService.validate(password.toString(), passwordPolicy)) {
+			password.setValid(true);
+		}
+		return new ResourceWrapper<IdmPasswordValidationDto>(password);
 	}
 	
 	/**
 	 * Validate password by default validate policy
 	 * 
-	 * @param password
 	 * @return
 	 */
-	@ResponseBody
 	@RequestMapping(value = "/validate", method = RequestMethod.POST)
-	public boolean validateByDefault(@RequestBody String password,
-			PersistentEntityResourceAssembler assembler) {
-		return this.passwordPolicyService.validate(password);
+	public ResourceWrapper<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
+		if (this.passwordPolicyService.validate(password.toString())) {
+			password.setValid(true);
+		}
+		return new ResourceWrapper<IdmPasswordValidationDto>(password);
 	}
 	
 	

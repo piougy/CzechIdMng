@@ -28,6 +28,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 
+/**
+ * Password policy service.
+ * validation and generate method.
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Service
 public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
 	

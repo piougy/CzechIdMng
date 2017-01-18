@@ -542,6 +542,9 @@
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
         "policiesNames": "Heslo neprošlo přes tyto politiky: "
+      },
+      "save": {
+        "success": "Politika byla úspěšně uložena."
       }
     },
     "configuration": {

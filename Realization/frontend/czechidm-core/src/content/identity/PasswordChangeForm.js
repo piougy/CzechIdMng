@@ -12,11 +12,7 @@ import { SecurityManager, IdentityManager, ConfigurationManager } from '../../re
 
 const RESOURCE_IDM = '0:CzechIdM';
 
-/**
- * Parameters in errors. Contain names of not success policies
- * @type {String}
- */
-const PASSWORD_POLICIES_NAMES = 'policiesNames';
+const PASSWORD_DOES_NOT_MEET_POLICY = 'PASSWORD_DOES_NOT_MEET_POLICY';
 
 const identityService = new IdentityService();
 const securityManager = new SecurityManager();
@@ -116,29 +112,12 @@ class PasswordChangeForm extends Basic.AbstractContent {
     .then(json => {
       if (Utils.Response.hasError(json)) {
         const error = Utils.Response.getFirstError(json);
-        const validationMessage = [];
-        let policies = '';
-
-        for (const key in error.parameters) {
-          if (error.parameters.hasOwnProperty(key)) {
-            if (key !== PASSWORD_POLICIES_NAMES) {
-              validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
-            }
-          }
-        }
-        if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
-          policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
-          validationMessage.push(<Basic.Alert level="warning" >{policies}</Basic.Alert>);
-        }
-
-        const newMessage = _.merge({}, error);
-        delete newMessage.parameters;
-        newMessage.parameters = { 0: policies};
 
         this.setState({
-          validationMessage
+          validationError: error
         });
-        throw newMessage;
+
+        throw error;
       }
       return json;
     })
@@ -177,13 +156,23 @@ class PasswordChangeForm extends Basic.AbstractContent {
       }); */
     })
     .catch(error => {
-      this.addErrorMessage({hidden: true}, error);
+      if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
+        this.addErrorMessage({hidden: true}, error);
+      } else {
+        this.addError(error);
+      }
+
+      this.refs.form.setData({
+        accounts: formData.accounts,
+        oldPassword: formData.oldPassword
+      });
+      this.refs.passwords.setValue(formData.newPassword);
     });
   }
 
   render() {
     const { passwordChangeType, requireOldPassword, userContext, accountOptions } = this.props;
-    const { preload, validationMessage } = this.state;
+    const { preload, validationError } = this.state;
     const allOnlyWarningClassNames = classnames(
       'form-group',
       { 'hidden': passwordChangeType !== IdentityManager.PASSWORD_ALL_ONLY || SecurityManager.isAdmin(userContext) }
@@ -243,8 +232,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
                 </div>
               }
             </Basic.Panel>
-            <Basic.Panel className="col-lg-5 no-border last" style={{marginTop: '120px'}}>
-              {validationMessage}
+            <Basic.Panel className="col-lg-5 no-border last">
+              <Basic.ValidationMessage error={validationError} />
             </Basic.Panel>
           </Basic.Row>
         </form>

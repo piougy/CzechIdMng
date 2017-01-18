@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -146,12 +145,8 @@ public class PrepareAccountProcessor extends AbstractEntityEventProcessor<SysPro
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", objectClass.getType()));
 			LOG.error(resultModel.toString(), ex);
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			provisioningOperation.getRequest().setResult(
+					new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//

@@ -10,7 +10,6 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -105,13 +104,8 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 							"name", provisioningOperation.getSystemEntityUid(), 
 							"system", system.getName(),
 							"operationType", provisioningOperation.getOperationType(),
-							"objectClass", objectClass.getType()));		
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setModel(resultModel).build()); // TODO: code
+							"objectClass", objectClass.getType()));
+			provisioningOperation.getRequest().setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setModel(resultModel).build()); // TODO: code
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			LOG.debug(resultModel.toString());
@@ -125,12 +119,8 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", objectClass.getType()));			
 			LOG.error(resultModel.toString(), ex);
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+			provisioningOperation.getRequest().setResult(
+					new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//

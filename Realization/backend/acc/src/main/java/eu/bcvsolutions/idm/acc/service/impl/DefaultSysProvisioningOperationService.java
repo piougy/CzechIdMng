@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -25,6 +27,8 @@ public class DefaultSysProvisioningOperationService
 
 	private final SysProvisioningRequestRepository provisioningRequestRepository;
 	private final SysProvisioningArchiveService provisioningArchiveService;
+	@Autowired
+	private SysProvisioningBatchRepository batchRepository;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
@@ -46,10 +50,14 @@ public class DefaultSysProvisioningOperationService
 		Assert.notNull(provisioningOperation);
 		// create archived operation
 		provisioningArchiveService.archive(provisioningOperation);	
-		// delete request
+		// delete request and empty batch
+		SysProvisioningBatch batch = provisioningOperation.getRequest().getBatch();
+		if (batch.getRequests().size() <= 1) {
+			batchRepository.delete(batch);
+		}
 		provisioningRequestRepository.deleteByOperation(provisioningOperation);
 		provisioningOperation.setRequest(null);
-		// TODO: remove empty batch
+		//
 		super.delete(provisioningOperation);
 	}
 }

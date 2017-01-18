@@ -58,10 +58,6 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 		boolean closed = false;
 		if (system.isDisabled()) {			
 			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_DISABLED, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
 			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());

@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
@@ -56,14 +55,10 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 		SysSystem system = provisioningOperation.getSystem();
 		boolean closed = false;
 		if (system.isReadonly()) {
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
-			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
+			provisioningOperation.getRequest().setResult(
+					new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//

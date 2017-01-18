@@ -6,12 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
@@ -48,7 +49,7 @@ public class SysProvisioningRequest extends AbstractEntity {
 	@Embedded
 	private SysProvisioningResult result;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -112,5 +113,12 @@ public class SysProvisioningRequest extends AbstractEntity {
 	
 	public void setResult(SysProvisioningResult result) {
 		this.result = result;
+	}
+	
+	public DateTime getNextAttempt() {
+		if (batch == null) {
+			return null;
+		}
+		return batch.getNextAttempt();
 	}
 }

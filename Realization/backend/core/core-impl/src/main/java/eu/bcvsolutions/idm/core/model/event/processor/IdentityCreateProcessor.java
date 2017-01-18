@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Processor for only create user, for now is there only validate password
@@ -38,10 +39,13 @@ private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
-		String password = event.getContent().getPassword().asString();
+		GuardedString password = event.getContent().getPassword();
 		
-		// validate create new password by default password policy
-		this.passwordPolicyService.validate(password);
+		// when create identity password can be null
+		if (password != null) {
+			// validate create new password by default password policy
+			this.passwordPolicyService.validate(password.asString());
+		}
 		
 		return new DefaultEventResult<>(event, this);
 	}

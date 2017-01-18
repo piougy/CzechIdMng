@@ -2,15 +2,14 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import moment from 'moment';
+//
 import * as Basic from '../components/basic';
-import { FlashMessagesManager } from '../redux';
 import help from './Messages_cs.md';
 
 class Messages extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.flashMessagesManager = new FlashMessagesManager();
   }
 
   componentDidMount() {
@@ -18,11 +17,11 @@ class Messages extends Basic.AbstractContent {
   }
 
   removeAllMessages() {
-    this.context.store.dispatch(this.flashMessagesManager.removeAllMessages());
+    this.context.store.dispatch(this.getFlashManager().removeAllMessages());
   }
 
   removeMessage(id) {
-    this.context.store.dispatch(this.flashMessagesManager.removeMessage(id));
+    this.context.store.dispatch(this.getFlashManager().removeMessage(id));
   }
 
   render() {
@@ -32,14 +31,8 @@ class Messages extends Basic.AbstractContent {
       messages.push(<Basic.Alert icon="ok" level="success" text={this.i18n('content.messages.empty')}/>);
     } else {
       for (let i = 0; i < this.props.messages.length; i++) {
-        const m = Basic.FlashMessages.getMessage(this.props.messages[i]);
-        if (m.title && typeof m.title === 'object') {
-          m.title = JSON.stringify(m.title);
-        }
-        if (m.message && typeof m.message === 'object') {
-          m.message = JSON.stringify(m.message);
-        }
-
+        const m = this.getFlashManager().createMessage(this.props.messages[i]);
+        //
         const titleWithDatetime = (
           <div>
             <small> {moment(m.date).format(this.i18n('format.datetime'))}</small>

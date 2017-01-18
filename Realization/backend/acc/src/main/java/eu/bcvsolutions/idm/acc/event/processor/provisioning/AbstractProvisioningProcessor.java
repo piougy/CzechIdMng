@@ -128,7 +128,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 				request = new SysProvisioningRequest(provisioningOperation);
 				provisioningOperation.setRequest(request);
 			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: code
+			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCause(ex).build()); // TODO: code
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//

@@ -37,8 +37,7 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {	
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
-		if (!connectorObject.getAttributes().isEmpty()) {
-			// TODO: appropriate message - provisioning is not executed - attributes don't change
+		if (!connectorObject.getAttributes().isEmpty()) { // TODO: appropriate message - provisioning is not executed - attributes don't change
 			connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
 					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
 		}

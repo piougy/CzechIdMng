@@ -19,6 +19,8 @@ import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
@@ -94,6 +96,14 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 		Assert.notNull(key);
 		checkIcType(key);
 		return icConnectors.get(key.getFramework()).synchronization(key, connectorConfiguration, objectClass, token, handler);
+	}
+	
+	@Override
+	public void search(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
+			IcFilter filter, IcResultsHandler handler){
+		Assert.notNull(key);
+		checkIcType(key);
+		icConnectors.get(key.getFramework()).search(key, connectorConfiguration, objectClass, filter, handler);
 	}
 
 	private boolean checkIcType(IcConnectorKey key) {

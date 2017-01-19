@@ -11,12 +11,17 @@ import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -33,6 +38,8 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
@@ -205,10 +212,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 		
 		SyncToken syncToken = ConnIdIcConvertUtil.convertIcSyncToken(token);
-		if(syncToken == null){
-			// If is given token null, then we load latest token from connector
-			//syncToken = conn.getLatestSyncToken(objectClassConnId);
-		}
 		
 		SyncResultsHandler handlerConnId = new SyncResultsHandler() {
 			
@@ -221,6 +224,37 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		SyncToken resultToken =  conn.sync(objectClassConnId, syncToken, handlerConnId, null);
 		return ConnIdIcConvertUtil.convertConnIdSyncToken(resultToken);
 
+	}
+	
+	@Override
+	public void search(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler){
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		Assert.notNull(objectClass);
+		Assert.notNull(handler);
+		Assert.notNull(filter);
+		
+		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", key.toString(), objectClass.getDisplayName(), filter);
+		
+		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+
+		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
+		if (objectClassConnId == null) {
+			objectClassConnId = ObjectClass.ACCOUNT;
+		}
+		
+		ResultsHandler handlerConnId = new ResultsHandler() {
+			
+			@Override
+			public boolean handle(ConnectorObject connectorObject) {
+				
+				return handler.handle(ConnIdIcConvertUtil.convertConnIdConnectorObject(connectorObject));
+			}
+		};
+		Filter filterConnId = ConnIdIcConvertUtil.convertIcFilter(filter);
+	
+		conn.search(objectClassConnId, filterConnId, handlerConnId, null);
 	}
 
 	private ConnectorFacade getConnectorFacade(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {

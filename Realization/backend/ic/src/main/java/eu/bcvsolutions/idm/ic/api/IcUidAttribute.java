@@ -7,6 +7,8 @@ package eu.bcvsolutions.idm.ic.api;
  *
  */
 public interface IcUidAttribute extends IcAttribute {
+	
+	public final static String NAME = "__UID__";
 
 	/**
 	 * Obtain a string representation of the value of this attribute, which

@@ -11,6 +11,8 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 public interface IcConnectorFacade {
@@ -85,6 +87,17 @@ public interface IcConnectorFacade {
 	 */
 	IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcSyncToken token, IcSyncResultsHandler handler);
+	
+	/**
+	 * Search by given filter. For every searched item will be call given handler.
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 * @param objectClass - Type or category of connector object
+	 * @param filter
+	 * @param handler - Handler will be call for every searched item
+	 */
+	void search(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
+			IcFilter filter, IcResultsHandler handler);
 	
 	/**
 	 * @return Connector services for all ICs

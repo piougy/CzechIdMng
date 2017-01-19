@@ -40,7 +40,7 @@ public abstract class IcSingleValueAttributeFilter extends IcAttributeFilter {
             throw new IllegalArgumentException("Uid can only be used for equals comparison.");
         }
         // actual runtime..
-        if (attr.getValues().size() != 1) {
+        if (attr.isMultiValue()) {
             throw new IllegalArgumentException("Must only be one value!");
         }
     }
@@ -49,6 +49,6 @@ public abstract class IcSingleValueAttributeFilter extends IcAttributeFilter {
      * Value to test against.
      */
     public Object getValue() {
-        return getAttribute().getValues().get(0);
+        return getAttribute().getValue();
     }
 }

@@ -362,18 +362,7 @@ export default class SecurityManager {
           getState().logger.debug(`stomp client for messages - identity [${userContext.username}] is logged.`);
           stompClient.subscribe(`/user/${userContext.username}/queue/messages`, (stompMessage) => {
             const rawMessage = JSON.parse(stompMessage.body);
-            if (rawMessage.model) {
-              const message = flashMessagesManager.convertFromResultModel(rawMessage.model);
-              if (rawMessage.position) {
-                message.position = rawMessage.position;
-              }
-              if (rawMessage.level) {
-                message.level = rawMessage.level;
-              }
-              dispatch(flashMessagesManager.addMessage(message));
-            } else {
-              dispatch(flashMessagesManager.addMessage(rawMessage));
-            }
+            dispatch(flashMessagesManager.addMessage(flashMessagesManager.convertFromWebsocketMessage(rawMessage)));
           }, headers);
         }, () => {
           // try reconnect

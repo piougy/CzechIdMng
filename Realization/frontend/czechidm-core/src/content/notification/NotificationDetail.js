@@ -178,7 +178,7 @@ class NotificationDetail extends Basic.AbstractContent {
 
           <Basic.LabelWrapper hidden={isNew || !notification.message.model}
             label={this.i18n('entity.Notification.message.model')}>
-            <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
+            <Basic.FlashMessage level={notification.message.level} message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
           </Basic.LabelWrapper>
 
           <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew || !notification.sentLog} max={2000} />

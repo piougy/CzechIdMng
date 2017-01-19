@@ -1,3 +1,7 @@
+import _ from 'lodash';
+import moment from 'moment';
+import Immutable from 'immutable';
+//
 import { Managers } from 'czechidm-core';
 import { ProvisioningOperationService } from '../services';
 
@@ -21,8 +25,34 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
     return 'provisioningOperations';
   }
 
-  retry(ids, bulkActionName, cb = null) {
+  /**
+   * Retry or cancel provisioning operation
+   *
+   * @param  {[type]} _ids           [description]
+   * @param  {[type]} bulkActionName [description]
+   * @param  {[type]} batch          =             true [description]
+   * @param  {[type]} cb             =             null [description]
+   * @return {[type]}                [description]
+   */
+  retry(_ids, bulkActionName, batch = true, cb = null) {
     return (dispatch, getState) => {
+      // prepare ids
+      let ids;
+      if (batch) {
+        // resolve batch ids;
+        let idSet = new Immutable.Set();
+        _ids.forEach(id => {
+          idSet = idSet.add(this.getEntity(getState(), id).request.batch.id);
+        });
+        //
+        ids = idSet.toArray();
+      } else {
+        // sort ids by created date
+        ids = _.sortBy(_ids, (id) => {
+          return moment(this.getEntity(getState(), id).created);
+        });
+      }
+      //
       dispatch(
         this.startBulkAction(
           {
@@ -34,8 +64,12 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
       );
       const successNames = [];
       const successIds = [];
+      //
       ids.reduce((sequence, operationId) => {
         return sequence.then(() => {
+          if (batch) {
+            return this.getService().retryBatch(operationId, bulkActionName);
+          }
           return this.getService().retry(operationId, bulkActionName);
         }).then(json => {
           dispatch(this.updateBulkAction());

@@ -14,7 +14,7 @@ export default class FlashMessage extends AbstractContextComponent {
   }
 
   render() {
-    const { rendered, message, showDate, onClose, style } = this.props;
+    const { rendered, message, showDate, onClose, style, level } = this.props;
     //
     if (!rendered || !message) {
       return null;
@@ -29,9 +29,16 @@ export default class FlashMessage extends AbstractContextComponent {
         </div>
       );
     }
+    //
+    let _level = message.level;
+    if (level) {
+      // props has higher priority
+      _level = level.toLowerCase();
+    }
+    //
     return (
       <Alert
-        level={message.level}
+        level={_level}
         title={_title}
         text={message.message}
         onClose={onClose}
@@ -50,6 +57,7 @@ FlashMessage.propTypes = {
   onClose: PropTypes.func
 };
 FlashMessage.defaultProps = {
+  level: null,
   rendered: true,
   message: null,
   showDate: false

@@ -474,7 +474,7 @@
             "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk-it@vig.cz",
+            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
             "success": {
               "title": "Reset hesla proběhl v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"

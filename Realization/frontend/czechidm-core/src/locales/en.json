@@ -474,7 +474,7 @@
             "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk-it@vig.cz",
+            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
             "success": {
               "title": "Reset hesla proběhl v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
@@ -542,9 +542,13 @@
         "minLength": "Minimální délka hesla: {{0}}",
         "minNumber": "Minimální počet číslic: {{0}}",
         "minUpperChar": "Minimální počet velkých znaků: {{0}}",
+        "prohibited": "Heslo obsahuje zakázané znaky: ",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo pro tyto politiky: "
+        "policiesNames": "Heslo neprošlo přes tyto politiky: "
+      },
+      "save": {
+        "success": "Politika byla úspěšně uložena."
       }
     },
     "configuration": {
@@ -1551,7 +1555,8 @@
         "textMessage": "$t(entity.Notification.message.textMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
-        "model": "$t(entity.Notification.message.model)"
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",
@@ -1567,7 +1572,8 @@
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
         "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
-        "model": "$t(entity.Notification.message.model)"
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",

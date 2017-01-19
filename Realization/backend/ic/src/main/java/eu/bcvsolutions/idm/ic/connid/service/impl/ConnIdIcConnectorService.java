@@ -233,7 +233,6 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
-		Assert.notNull(filter);
 		
 		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", key.toString(), objectClass.getDisplayName(), filter);
 		

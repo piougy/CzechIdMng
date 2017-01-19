@@ -87,6 +87,10 @@ class SystemSynchronizationLogDetail extends Basic.AbstractTableContent {
               <Basic.TextField
                 ref="token"
                 label={this.i18n('acc:entity.SynchronizationLog.token')}/>
+              <Basic.TextArea
+                ref="log"
+                rows="15"
+                label={this.i18n('acc:entity.SyncItemLog.log')}/>
             </Basic.AbstractForm>
             <Basic.PanelFooter>
               <Basic.Button type="button" level="link"

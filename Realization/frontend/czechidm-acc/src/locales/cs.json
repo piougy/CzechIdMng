@@ -494,7 +494,18 @@
       "description": "Popis",
       "runOnServer": "Spustit na serveru",
       "reconciliation": "Reconciliace",
-      "customFilter": "Použít vlastní filtr",
+      "customFilter" :{
+        "label": "Použít vlastní filtr",
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
+      },
+      "filterAttribute" :{
+        "label": "Filtrovat dle atributu",
+        "help": "Tento atribut (spolu s typem filtrovací operace) bude použit jako výchozí filtrovací kritérium pro synchronizaci. Další kritéria je motné definovat ve filtrovacím skriptu."
+      },
+      "tokenAttribute" :{
+        "label": "Token je v tomto atributu",
+        "help": "Určuje, kde se v synchronizovaném objektu nachází token."
+      },
       "token": "Token",
       "timestamp": "Časová značka",
       "customFilterScript": {

@@ -2,10 +2,8 @@ import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
-import { Basic, Domain, Utils, Advanced } from 'czechidm-core';
+import { Basic, Utils} from 'czechidm-core';
 import { SyncItemLogManager} from '../../redux';
-import SynchronizationActionTypeEnum from '../../domain/SynchronizationActionTypeEnum';
-import OperationResultTypeEnum from '../../domain/OperationResultTypeEnum';
 
 const uiKey = 'system-synchronization-item-log';
 const syncItemLogManager = new SyncItemLogManager();

@@ -27,21 +27,23 @@ public class DefaultSysProvisioningOperationService
 
 	private final SysProvisioningRequestRepository provisioningRequestRepository;
 	private final SysProvisioningArchiveService provisioningArchiveService;
-	@Autowired
-	private SysProvisioningBatchRepository batchRepository;
+	private final SysProvisioningBatchRepository batchService;
 
 	@Autowired
 	public DefaultSysProvisioningOperationService(
 			SysProvisioningOperationRepository repository,
 			SysProvisioningRequestRepository provisioningRequestRepository,
-			SysProvisioningArchiveService provisioningArchiveService) {
+			SysProvisioningArchiveService provisioningArchiveService,
+			SysProvisioningBatchRepository batchService) {
 		super(repository);
 		//
 		Assert.notNull(provisioningRequestRepository);
 		Assert.notNull(provisioningArchiveService);
+		Assert.notNull(batchService);
 		//
 		this.provisioningRequestRepository = provisioningRequestRepository;
 		this.provisioningArchiveService = provisioningArchiveService;
+		this.batchService = batchService;
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class DefaultSysProvisioningOperationService
 		// delete request and empty batch
 		SysProvisioningBatch batch = provisioningOperation.getRequest().getBatch();
 		if (batch.getRequests().size() <= 1) {
-			batchRepository.delete(batch);
+			batchService.delete(batch);
 		}
 		provisioningRequestRepository.deleteByOperation(provisioningOperation);
 		provisioningOperation.setRequest(null);

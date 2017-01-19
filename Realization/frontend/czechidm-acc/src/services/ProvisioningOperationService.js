@@ -26,13 +26,43 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   /**
    * Retry or cancel provisioning operation
    *
-   * @param  {string} id
+   * @param  {string} operation id
    * @param  {string} action 'retry' or 'cancel'
    * @return {Promise}
    */
   retry(id, action = 'retry') {
     return Services.RestApiService
       .put(this.getApiPath() + `/${id}/${action}`)
+      .then(response => {
+        if (response.status === 403) {
+          throw new Error(403);
+        }
+        if (response.status === 404) {
+          throw new Error(404);
+        }
+        if (response.status === 204) {
+          return {};
+        }
+        return response.json();
+      })
+      .then(json => {
+        if (Utils.Response.hasError(json)) {
+          throw Utils.Response.getFirstError(json);
+        }
+        return json;
+      });
+  }
+
+  /**
+   * Retry or cancel provisioning batch
+   *
+   * @param  {string} batch id
+   * @param  {string} action 'retry' or 'cancel'
+   * @return {Promise}
+   */
+  retryBatch(id, action = 'retry') {
+    return Services.RestApiService
+      .put(Services.RestApiService.getUrl(`/provisioning-batches/${id}/${action}`))
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);

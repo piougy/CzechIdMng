@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,8 +38,10 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {	
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
-		connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
-				connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
+		if(!CollectionUtils.isEmpty(connectorObject.getAttributes())){
+			connectorFacade.updateObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
+					connectorObject.getObjectClass(), uidAttribute, connectorObject.getAttributes());	
+		}
 	}
 	
 	@Override

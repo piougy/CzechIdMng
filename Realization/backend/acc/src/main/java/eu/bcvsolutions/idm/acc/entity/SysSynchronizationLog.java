@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.acc.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -15,13 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.envers.Audited;
 import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
 
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 
 /**
  * <i>SysSynchronizationLog</i> is responsible for keep log informations about
@@ -34,6 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 @Table(name = "sys_sync_log")
 public class SysSynchronizationLog extends AbstractEntity {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSynchronizationLog.class);
 	private static final long serialVersionUID = -5447620157233410338L;
 
 	@NotNull
@@ -57,12 +57,16 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@Lob
 	@Column(name = "token")
 	private String token;
-	
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
+
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
 	@OneToMany(mappedBy = "syncLog", fetch = FetchType.LAZY)
 	private List<SysSyncActionLog> syncActionLogs;
 
+	@Lob
+	@Column(name = "log")
+	private String log;
 
 	public SysSynchronizationConfig getSynchronizationConfig() {
 		return synchronizationConfig;
@@ -105,7 +109,7 @@ public class SysSynchronizationLog extends AbstractEntity {
 	}
 
 	public List<SysSyncActionLog> getSyncActionLogs() {
-		if(this.syncActionLogs == null){
+		if (this.syncActionLogs == null) {
 			this.syncActionLogs = new ArrayList<>();
 		}
 		return syncActionLogs;
@@ -113,5 +117,27 @@ public class SysSynchronizationLog extends AbstractEntity {
 
 	public void setSyncActionLogs(List<SysSyncActionLog> syncActionLogs) {
 		this.syncActionLogs = syncActionLogs;
+	}
+
+	public String getLog() {
+		return log;
+	}
+
+	public void setLog(String log) {
+		this.log = log;
+	}
+
+	public String addToLog(String text) {
+		if (text != null) {
+			LOG.info(text);
+			StringBuilder builder = new StringBuilder();
+			if (this.log != null) {
+				builder.append(this.log);
+				builder.append("\n" + SysSyncItemLog.LOG_SEPARATOR + "\n");
+			}
+			builder.append(text);
+			this.setLog(builder.toString());
+		}
+		return this.getLog();
 	}
 }

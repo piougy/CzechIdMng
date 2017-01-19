@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 public class SysSyncItemLog extends AbstractEntity {
 
 	private static final long serialVersionUID = -5447620157233410338L;
-	private static final String LOG_SEPARATOR = "-------------------------";
+	public static final String LOG_SEPARATOR = "-------------------------";
 
 	@NotNull
 	@ManyToOne(optional = false, cascade = { CascadeType.ALL })

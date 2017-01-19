@@ -41,6 +41,9 @@ class RichTextArea extends AbstractFormComponent {
    * @return {EditorState}
    */
   _createEditorState(value) {
+    if (!value) {
+      return EditorState.createEmpty();
+    }
     try {
       //
       // paragraph is block (need for rich - html conversions)
@@ -134,7 +137,7 @@ class RichTextArea extends AbstractFormComponent {
       if (LOGGER.isTraceEnabled()) {
         LOGGER.warn(`[RichTextArea]: editorState will be returned as plain text.`, err);
       } else {
-        LOGGER.warn(`[RichTextArea]: editorState will be rendered as plain text.`);
+        LOGGER.warn(`[RichTextArea]: editorState will be returned as plain text.`);
       }
       return editorState.getCurrentContent().getPlainText();
     }

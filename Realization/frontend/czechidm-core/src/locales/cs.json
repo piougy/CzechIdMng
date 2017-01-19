@@ -218,7 +218,8 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový"
+        "disabledInfo": "Uživatel je deaktivový",
+        "profileLink": "Zobrazit celý detail"
       },
       "Filter": {
         "option": {
@@ -473,7 +474,7 @@
             "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk-it@vig.cz",
+            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
             "success": {
               "title": "Reset hesla proběhl v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
@@ -1526,10 +1527,12 @@
       "topic": "Téma / Topic",
       "created": "$t(entity.created)",
       "message": {
+        "level": "Level",
         "subject": "Předmět",
         "message": "Zpráva",
         "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
+        "htmlMessage": "Zpráva (html)",
+        "model": "Zpráva (model)"
       },
       "sender": "Odesílatel",
       "recipients": "Příjemci",
@@ -1550,7 +1553,10 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",
@@ -1565,7 +1571,9 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",

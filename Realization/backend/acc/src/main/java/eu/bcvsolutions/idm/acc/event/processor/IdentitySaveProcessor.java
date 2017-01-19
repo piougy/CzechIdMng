@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
@@ -32,7 +33,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	
 	@Autowired
 	public IdentitySaveProcessor(ApplicationContext applicationContext) {
-		super(CoreEventType.SAVE, CoreEventType.EAV_SAVE);
+		super(IdentityEventType.CREATE, IdentityEventType.UPDATE, CoreEventType.EAV_SAVE);
 		//
 		Assert.notNull(applicationContext);
 		//

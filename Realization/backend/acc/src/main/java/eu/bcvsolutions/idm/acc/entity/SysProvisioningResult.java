@@ -1,16 +1,15 @@
 package eu.bcvsolutions.idm.acc.entity;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import com.google.common.base.Throwables;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ResultState;
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 
 /**
@@ -27,7 +26,7 @@ public class SysProvisioningResult {
 	@Column(name = "result_state", nullable = false, length = 45)
 	private ResultState state = ResultState.CREATED;
 	
-	@Column(name = "result_code", length = 45)
+	@Column(name = "result_code", length = DefaultFieldLengths.NAME)
 	private String code;
 	
 	@Column(name = "result_model", length = Integer.MAX_VALUE)
@@ -78,9 +77,7 @@ public class SysProvisioningResult {
 		if(cause == null) {
 			return null;
 		}
-		StringWriter errors = new StringWriter();
-		cause.printStackTrace(new PrintWriter(errors));
-		return errors.toString();
+		return Throwables.getStackTraceAsString(cause);
 	}
 	
 	public void setModel(ResultModel model) {

@@ -39,6 +39,11 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	}
 	
 	@Override
+	public String[] getEventTypes() {
+		return types.toArray(new String[types.size()]);
+	}
+	
+	@Override
 	public boolean supports(EntityEvent<?> entityEvent) {
 		Assert.notNull(entityEvent);
 		Assert.notNull(entityEvent.getContent(), "EntityeEvent does not contain content, content is required!");

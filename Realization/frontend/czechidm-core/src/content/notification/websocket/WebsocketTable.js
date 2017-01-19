@@ -6,6 +6,7 @@ import * as Utils from '../../../utils';
 import { IdentityManager } from '../../../redux';
 import NotificationRecipientsCell from '../NotificationRecipientsCell';
 import NotificationSentState from '../NotificationSentState';
+import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 /**
 * Table of audit log for websockets
@@ -148,6 +149,7 @@ export class WebsocketTable extends Basic.AbstractContent {
               }
             }/>
           <Advanced.Column property="created" sort face="datetime"/>
+          <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"

@@ -6,6 +6,7 @@ import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { IdentityManager, SecurityManager } from '../../redux';
 import NotificationStateEnum from '../../enums/NotificationStateEnum';
+import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from './NotificationSentState';
 import uuid from 'uuid';
@@ -169,6 +170,7 @@ export class NotificationTable extends Basic.AbstractContent {
             }/>
           <Advanced.Column property="created" sort face="datetime"/>
           <Advanced.Column property="topic" sort face="text"/>
+          <Advanced.Column property="message.level" sort face="enum" enumClass={NotificationLevelEnum}/>
           <Advanced.Column property="message.subject" sort face="text"/>
           <Advanced.Column
             property="recipients"

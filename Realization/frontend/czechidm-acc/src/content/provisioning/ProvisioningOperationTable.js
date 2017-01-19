@@ -5,6 +5,7 @@ import { Basic, Advanced } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
+import EntityInfo from '../../components/EntityInfo';
 
 export class ProvisioningOperationTable extends Basic.AbstractContent {
 
@@ -22,27 +23,6 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
 
   reload() {
     this.refs.table.getWrappedInstance().reload();
-  }
-
-  _renderEntityType(entity) {
-    if (!entity) {
-      return null;
-    }
-    //
-    // entity link and info
-    const entityType = SystemEntityTypeEnum.findSymbolByKey(entity.entityType);
-    switch (entityType) {
-      case SystemEntityTypeEnum.IDENTITY: {
-        return (
-          <Advanced.IdentityInfo id={entity.entityIdentifier} face="link"/>
-        );
-      }
-      default: {
-        this.getLogger().warn(`[ProvisioningOperations]: Entity info for type [${entity.entityType}] is not supported.`);
-      }
-    }
-    //
-    return entity.entityIdentifier;
   }
 
   render() {
@@ -72,7 +52,25 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
               }
             }/>
         }
-        <Advanced.Column property="resultState" width="75px" header={this.i18n('acc:entity.ProvisioningOperation.resultState')} face="enum" enumClass={ProvisioningResultStateEnum} />
+        <Advanced.Column
+          property="resultState"
+          width="75px"
+          header={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+          face="text"
+          cell={
+            ({ rowIndex, data }) => {
+              const entity = data[rowIndex];
+              const content = (<Basic.EnumValue value={entity.resultState} enum={ProvisioningResultStateEnum}/>);
+              if (!entity.result || !entity.result.code) {
+                return content;
+              }
+              return (
+                <Basic.Tooltip placement="bottom" value={`${this.i18n('detail.resultCode')}: ${entity.result.code}`}>
+                  { <span>{content}</span> }
+                </Basic.Tooltip>
+              );
+            }
+          }/>
         <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" />
         <Advanced.Column property="operationType" width="75px" header={this.i18n('acc:entity.ProvisioningOperation.operationType')} sort face="enum" enumClass={ProvisioningOperationTypeEnum}/>
         <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
@@ -81,8 +79,12 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
           header={this.i18n('acc:entity.ProvisioningOperation.entity')}
           face="text"
           cell={
+            /* eslint-disable react/no-multi-comp */
             ({ rowIndex, data }) => {
-              return this._renderEntityType(data[rowIndex]);
+              const entity = data[rowIndex];
+              return (
+                <EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="link"/>
+              );
             }
           }/>
         <Advanced.ColumnLink

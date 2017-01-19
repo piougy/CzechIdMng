@@ -10,12 +10,13 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -24,7 +25,6 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -98,46 +98,35 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		try {
 			processInternal(provisioningOperation, connectorConfig);
 			//
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).build()); // TODO: code
+			ResultModel resultModel = new DefaultResultModel(
+					AccResultCode.PROVISIONING_SUCCEED, 
+					ImmutableMap.of(
+							"name", provisioningOperation.getSystemEntityUid(), 
+							"system", system.getName(),
+							"operationType", provisioningOperation.getOperationType(),
+							"objectClass", objectClass.getType()));
+			provisioningOperation.getRequest().setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setModel(resultModel).build()); // TODO: code
 			provisioningOperationRepository.save(provisioningOperation);
 			//
-			LOG.debug("Provisioning operation [{}] for object with uid [{}] and connector object [{}] is sucessfully completed", 
-					provisioningOperation.getOperationType(), 
-					provisioningOperation.getSystemEntityUid(),
-					objectClass.getType());
+			LOG.debug(resultModel.toString());
 			//
-			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING, 
-					new IdmMessage.Builder(NotificationLevel.SUCCESS)
-						.setSubject("Proběhl provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "]")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] úspěšně proběhl.")
-						.build());
-		} catch (Exception ex) {	
-			LOG.error("Provisioning operation [{}] for object with uid [{}] and connector object [{}] failed", 
-					provisioningOperation.getOperationType(), 
-					provisioningOperation.getSystemEntityUid(),
-					objectClass.getType(),
-					ex);
-			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
-			request.setResult(new SysProvisioningResult.Builder(ResultState.EXCEPTION).setCause(ex).build()); // TODO: code
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());
+		} catch (Exception ex) {
+			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
+					ImmutableMap.of(
+							"name", provisioningOperation.getSystemEntityUid(), 
+							"system", system.getName(),
+							"operationType", provisioningOperation.getOperationType(),
+							"objectClass", objectClass.getType()));			
+			LOG.error(resultModel.toString(), ex);
+			provisioningOperation.getRequest().setResult(
+					new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING, 
-					new IdmMessage.Builder(NotificationLevel.ERROR)
-						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] selhal.")
-						.build());
+					new IdmMessage.Builder().setModel(resultModel).build());
 		}
 		return new DefaultEventResult<>(event, this);
 	}

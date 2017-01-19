@@ -6,6 +6,7 @@ import * as Basic from '../../components/basic';
 import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
 import NotificationSentState from '../notification/NotificationSentState';
+import NotificationLevelEnum from '../../enums/NotificationLevelEnum';
 
 /**
  * Notification detail content
@@ -35,7 +36,8 @@ class NotificationDetail extends Basic.AbstractContent {
         ...notification,
         subject: notification.message.subject,
         textMessage: notification.message.textMessage,
-        htmlMessage: notification.message.htmlMessage
+        htmlMessage: notification.message.htmlMessage,
+        level: notification.message.level
       };
     }
     this.refs.form.setData(data);
@@ -71,7 +73,8 @@ class NotificationDetail extends Basic.AbstractContent {
       message: {
         subject: entity.subject,
         textMessage: entity.textMessage,
-        htmlMessage: entity.htmlMessage
+        htmlMessage: entity.htmlMessage,
+        level: entity.level
       }
     };
 
@@ -104,8 +107,29 @@ class NotificationDetail extends Basic.AbstractContent {
       <div>
         <Basic.AbstractForm ref="form" className="form-horizontal">
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
-          <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
+
+          <Basic.LabelWrapper hidden={isNew}
+            label={this.i18n('entity.Notification.sent')}>
+            <NotificationSentState notification={notification} style={{ margin: '7px 0' }}/>
+          </Basic.LabelWrapper>
+
           <Basic.TextField ref="topic" label={this.i18n('entity.Notification.topic')} readOnly={!isNew} />
+
+          <Basic.TextField ref="subject" required label={this.i18n('entity.Notification.message.subject')} readOnly={!isNew} />
+
+          <Basic.EnumSelectBox
+            hidden={!isNew}
+            ref="level"
+            enum={NotificationLevelEnum}
+            useSymbol={false}
+            label={this.i18n('entity.Notification.message.level')}/>
+
+          <Basic.LabelWrapper hidden={isNew || !notification.message.level}
+              label={this.i18n('entity.Notification.message.level')}>
+              <div style={{ margin: '7px 0' }}>
+                <Basic.EnumValue value={notification.message.level} enum={NotificationLevelEnum} />
+              </div>
+          </Basic.LabelWrapper>
 
           <Basic.SelectBox
             hidden={!isNew}
@@ -113,7 +137,7 @@ class NotificationDetail extends Basic.AbstractContent {
             label={this.i18n('entity.Notification.sender')}
             manager={this.identityManager}/>
 
-          <Basic.LabelWrapper hidden={isNew}
+          <Basic.LabelWrapper hidden={isNew || !notification._embedded || !notification._embedded.sender}
             label={this.i18n('entity.Notification.sender')}>
             <div style={{ margin: '7px 0' }}>
               {
@@ -129,11 +153,15 @@ class NotificationDetail extends Basic.AbstractContent {
             {
               notification.recipients
               ?
-              notification.recipients.map(recipient => {
-                return (
-                  <NotificationRecipient recipient={recipient} style={{ margin: '7px 0' }} identityOnly={identityOnly}/>
-                );
-              })
+              <div style={{ margin: '7px 0' }}>
+                {
+                  notification.recipients.map(recipient => {
+                    return (
+                      <NotificationRecipient recipient={recipient} identityOnly={identityOnly}/>
+                    );
+                  })
+                }
+              </div>
               :
               null
             }
@@ -145,15 +173,15 @@ class NotificationDetail extends Basic.AbstractContent {
             manager={this.identityManager}
             multiSelect />
 
-          <Basic.RichTextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} />
-          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} />
+          <Basic.TextArea ref="textMessage" label={this.i18n('entity.Notification.message.textMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.textMessage} />
+          <Basic.RichTextArea ref="htmlMessage" label={this.i18n('entity.Notification.message.htmlMessage')} readOnly={!isNew} hidden={!isNew && !notification.message.htmlMessage} />
 
-          <Basic.LabelWrapper hidden={isNew}
-            label={this.i18n('entity.Notification.sent')}>
-            <NotificationSentState notification={notification}/>
+          <Basic.LabelWrapper hidden={isNew || !notification.message.model}
+            label={this.i18n('entity.Notification.message.model')}>
+            <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
           </Basic.LabelWrapper>
 
-          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew} max={2000} />
+          <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew || !notification.sentLog} max={2000} />
         </Basic.AbstractForm>
         {
           notification.relatedNotifications

@@ -7,10 +7,10 @@ import _ from 'lodash';
 import { Basic, Advanced, Managers } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
-import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
-import SchemaAttributeInfo from './SchemaAttributeInfo';
+import SchemaAttributeInfo from '../../components/SchemaAttributeInfo';
+import EntityInfo from '../../components/EntityInfo';
 
 const manager = new ProvisioningOperationManager();
 const archiveManager = new ProvisioningArchiveManager();
@@ -55,11 +55,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
     });
   }
 
-  _showRowSelection({ rowIndex, data }) {
-    return Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])
-      && (rowIndex === -1 || (data[rowIndex].resultState !== 'CANCELED' && data[rowIndex].resultState !== 'EXECUTED'));
-  }
-
   /**
    * Shows modal detail with given entity
    */
@@ -85,34 +80,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
         entity: null
       }
     });
-  }
-
-  _renderEntityType(entity) {
-    if (!entity) {
-      return null;
-    }
-    //
-    // entity link and info
-    const entityInfo = [];
-    const entityType = SystemEntityTypeEnum.findSymbolByKey(entity.entityType);
-    switch (entityType) {
-      case SystemEntityTypeEnum.IDENTITY: {
-        entityInfo.push(<Link to={`/identity/${entity.entityIdentifier}/profile`}>{entity.entityIdentifier}</Link>);
-        entityInfo.push(<Advanced.IdentityInfo id={entity.entityIdentifier} style={{ margin: '15px 0 0 0' }}/>);
-        break;
-      }
-      default: {
-        this.getLogger().warn(`[ProvisioningOperations]: Entity info for type [${entity.entityType}] is not supported.`);
-      }
-    }
-    //
-    return (
-      <div style={{ margin: '7px 0' }}>
-        <Basic.EnumValue value={entity.entityType} enum={SystemEntityTypeEnum}/>
-        {' '}
-        { entityInfo }
-      </div>
-    );
   }
 
   render() {
@@ -172,7 +139,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               uiKey="provisioning-operations-table"
               manager={manager}
               showDetail={this.showDetail.bind(this)}
-              showRowSelection={this._showRowSelection.bind(this)}
+              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])}
               actions={
                 [
                   { value: 'retry', niceLabel: this.i18n('action.retry.action'), action: this.onRetry.bind(this) },
@@ -209,7 +176,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   </Basic.LabelWrapper>
                   <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
-                    { this._renderEntityType(detail.entity) }
+                    <EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
                     <div style={{ margin: '7px 0' }}>
@@ -225,21 +192,28 @@ class ProvisioningOperations extends Basic.AbstractContent {
                 <br />
 
                 <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('detail.result') }</h3>
-                <div>
-                  <Basic.EnumValue value={detail.entity.resultState} enum={ProvisioningResultStateEnum}/> {' '} {detail.entity.result.code}
+                <div style={{ marginBottom: 15 }}>
+                  <Basic.EnumValue value={detail.entity.resultState} enum={ProvisioningResultStateEnum}/>
+                  {
+                    (!detail.entity.result || !detail.entity.result.code)
+                    ||
+                    <span style={{ marginLeft: 15 }}>
+                      {this.i18n('detail.resultCode')}: {detail.entity.result.code}
+                    </span>
+                  }
+                  <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
                 </div>
                 {
-                  !detail.entity.result.stackTrace
+                  (!detail.entity.result || !detail.entity.result.stackTrace)
                   ||
                   <div>
-                    <br />
                     <textArea
                       rows="10"
                       value={detail.entity.result.stackTrace}
-                      style={{ width: '100%' }}/>
+                      readOnly
+                      style={{ width: '100%', marginBottom: 15 }}/>
                   </div>
                 }
-                <br />
                 <Basic.Row>
                   <div className="col-lg-6">
                     <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('detail.accountObject')}</h3>

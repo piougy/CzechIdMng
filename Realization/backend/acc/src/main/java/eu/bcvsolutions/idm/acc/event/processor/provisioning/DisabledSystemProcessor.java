@@ -22,7 +22,6 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
@@ -59,23 +58,14 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 		boolean closed = false;
 		if (system.isDisabled()) {			
 			SysProvisioningRequest request = provisioningOperation.getRequest();
-			if (provisioningOperation.getRequest() == null) {
-				request = new SysProvisioningRequest(provisioningOperation);
-				provisioningOperation.setRequest(request);
-			}
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_DISABLED, 
-					ImmutableMap.of("systemEntityUid", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
+					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
 			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
 			//
 			provisioningOperationRepository.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
-			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING,
-					new IdmMessage.Builder(NotificationLevel.WARNING)	
-						.setSubject("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] neproběhl")
-						.setMessage("Provisioning účtu [" + provisioningOperation.getSystemEntityUid() + "] na systém [" + provisioningOperation.getSystem().getName() + "] nebyl proveden. Systém je nakonfigurován jako neaktivní.")
-						.build());
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());
 			//
 			closed = true;
 		} 

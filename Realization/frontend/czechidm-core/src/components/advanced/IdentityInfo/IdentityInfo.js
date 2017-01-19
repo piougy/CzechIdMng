@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 //
 import * as Basic from '../../basic';
-import IdentityManager from '../../../redux/data/IdentityManager';
+import * as Utils from '../../../utils';
+import { IdentityManager, SecurityManager } from '../../../redux/';
 
 const identityManager = new IdentityManager();
 
@@ -28,7 +29,9 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
   _loadIdentityIfNeeded() {
     const { identity, _identity } = this.props;
     if (this._id() && !identity && !_identity) {
-      this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id()));
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), identityManager.resolveUiKey(null, this._id()))) { // show loading check has to be here - new state is needed
+        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id()));
+      }
     }
   }
 
@@ -38,8 +41,19 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
     return id || username;
   }
 
+  _showLink() {
+    const { showLink } = this.props;
+    if (!showLink) {
+      return false;
+    }
+    if (!SecurityManager.hasAccess({ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ']})) {
+      return false;
+    }
+    return true;
+  }
+
   render() {
-    const { rendered, showLoading, className, identity, face, ...others } = this.props;
+    const { rendered, showLoading, className, identity, face, showLink, ...others } = this.props;
     //
     if (!rendered) {
       return null;
@@ -78,6 +92,9 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
     //
     switch (face) {
       case 'link': {
+        if (!this._showLink()) {
+          return identityManager.getNiceLabel(_identity);
+        }
         return (
           <Link to={`/identity/${this._id()}/profile`}>{identityManager.getNiceLabel(_identity)}</Link>
         );
@@ -101,6 +118,17 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
                   <div>{_identity.email}</div>
                   <div>{_identity.phone}</div>
                   <div><i>{_identity.disabled ? this.i18n('component.advanced.IdentityInfo.disabledInfo') : null}</i></div>
+                  {
+                    !this._showLink()
+                    ||
+                    <div>
+                      <Link to={`/identity/${this._id()}/profile`}>
+                        <Basic.Icon value="fa:angle-double-right"/>
+                        {' '}
+                        {this.i18n('component.advanced.IdentityInfo.profileLink')}
+                      </Link>
+                    </div>
+                  }
                 </div>
               </Basic.Row>
             </Basic.PanelHeader>
@@ -132,12 +160,17 @@ IdentityInfo.propTypes = {
   /**
    * Decorator
    */
-  face: PropTypes.oneOf(['full', 'link'])
+  face: PropTypes.oneOf(['full', 'link']),
+  /**
+   * Shows link to full identity detail (if currently logged user has appropriate permission)
+   */
+  showLink: PropTypes.bool
 };
 IdentityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   identity: null,
-  face: 'FULL'
+  face: 'FULL',
+  showLink: true
 };
 
 function select(state, component) {

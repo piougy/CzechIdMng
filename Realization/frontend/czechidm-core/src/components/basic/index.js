@@ -11,6 +11,7 @@ import EnumSelectBox from './EnumSelectBox/EnumSelectBox';
 import BooleanSelectBox from './BooleanSelectBox/BooleanSelectBox';
 import TextArea from './TextArea/TextArea';
 import TextField from './TextField/TextField';
+import FlashMessage from './FlashMessages/FlashMessage';
 import FlashMessages from './FlashMessages/FlashMessages';
 import HelpIcon from './HelpIcon/HelpIcon';
 import Icon from './Icon/Icon';
@@ -60,6 +61,7 @@ const Components = {
   TextArea,
   TextField,
   DateTimePicker,
+  FlashMessage,
   FlashMessages,
   HelpIcon,
   Icon,

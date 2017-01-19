@@ -7,11 +7,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDateTime;
@@ -69,7 +69,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private boolean customFilter = false;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "token")
 	private String token;
 
@@ -78,7 +78,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private LocalDateTime timestamp;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "custom_filter_script")
 	private String customFilterScript;
 

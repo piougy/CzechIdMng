@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
@@ -54,7 +55,7 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@Column(name = "ended")
 	private LocalDateTime ended;
 
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "token")
 	private String token;
 
@@ -64,7 +65,7 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@OneToMany(mappedBy = "syncLog", fetch = FetchType.LAZY)
 	private List<SysSyncActionLog> syncActionLogs;
 
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "log")
 	private String log;
 

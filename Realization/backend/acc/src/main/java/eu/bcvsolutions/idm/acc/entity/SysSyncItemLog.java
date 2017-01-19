@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
+
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -55,7 +57,7 @@ public class SysSyncItemLog extends AbstractEntity {
 	@Column(name = "type", length = DefaultFieldLengths.NAME, nullable = true)
 	private String type;
 
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "log")
 	private String log;
 

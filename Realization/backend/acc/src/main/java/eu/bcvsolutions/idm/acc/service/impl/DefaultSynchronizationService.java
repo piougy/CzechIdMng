@@ -15,7 +15,6 @@ import java.util.Optional;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.interceptor.CacheOperationInvoker.ThrowableWrapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,7 +33,6 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
-import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.SystemEntityFilter;
@@ -80,7 +78,6 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncDelta;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
-import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
 import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
@@ -213,8 +210,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		log.setStarted(LocalDateTime.now());
 		log.setRunning(true);
 		log.setToken(lastToken != null ? lastToken.toString() : null);
-		
-		log.addToLog(MessageFormat.format("Synchronization was starte in {0}.", log.getStarted()));
+
+		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
 
 		Map<String, IcConnectorObject> systemAccountsMap = new HashMap<>();
 
@@ -236,8 +233,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						IcConnectorObject icObject = delta.getObject();
 						IcSyncToken token = delta.getToken();
 						String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
-						return startItemSynchronization(uid, icObject, tokenObject, type, entityType, itemLog, config,
-								system, mappedAttributes, log, systemAccountsMap, actionsLog);
+						// Save token
+						log.setToken(tokenObject);
+						config.setToken(tokenObject);
+
+						return startItemSynchronization(uid, icObject, type, entityType, itemLog, config, system,
+								mappedAttributes, log, systemAccountsMap, actionsLog);
 					}
 				};
 
@@ -260,13 +261,27 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						Assert.notNull(connectorObject.getUidValue());
 						String uid = connectorObject.getUidValue();
 
+						// Find token by token attribute
 						Object tokenObj = getValueByMappedAttribute(tokenAttribute, connectorObject.getAttributes());
 						String token = tokenObj != null ? tokenObj.toString() : null;
+
+						// In custom filter mode, we don't have token. We find
+						// token in object by tokenAttribute, but
+						// order of returned (searched) objects is random. We
+						// have to do !!STRING!! compare and save only
+						// grater token to config and log.
+						if (token != null && config.getToken() != null && token.compareTo(config.getToken()) == -1) {
+							token = config.getToken();
+						}
+						// Save token
+						log.setToken(token);
+						config.setToken(token);
+
 						// Synchronization by custom filter not supported DELETE
 						// event
 						IcSyncDeltaTypeEnum type = IcSyncDeltaTypeEnum.CREATE_OR_UPDATE;
-						return startItemSynchronization(uid, connectorObject, token, type, entityType, itemLog, config,
-								system, mappedAttributes, log, systemAccountsMap, actionsLog);
+						return startItemSynchronization(uid, connectorObject, type, entityType, itemLog, config, system,
+								mappedAttributes, log, systemAccountsMap, actionsLog);
 					}
 				};
 
@@ -277,42 +292,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			}
 			// We do reconciliation (find missing account)
 			if (config.isReconciliation()) {
-				AccountFilter accountFilter = new AccountFilter();
-				accountFilter.setSystemId(system.getId());
-				accountService.find(accountFilter, null).forEach(account -> {
-					if (!log.isRunning()) {
-						return;
-					}
-					String uid = account.getRealUid();
-					if (!systemAccountsMap.containsKey(account.getRealUid())) {
-						SysSyncItemLog itemLog = new SysSyncItemLog();
-						try {
-
-							// Default setting for log item
-							itemLog.setIdentification(uid);
-							itemLog.setDisplayName(uid);
-							itemLog.setType(entityType.getEntityType().getSimpleName());
-
-							// Resolve missing account situation for one item
-							findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
-									entityType, config, system, log, itemLog, actionsLog);
-
-						} catch (Exception ex) {
-							String message = MessageFormat.format("Reconciliation - error for uid {0}", uid);
-							log.addToLog(message);
-							log.addToLog(Throwables.getStackTraceAsString(ex));
-							LOG.error(message, ex);
-						} finally {
-							synchronizationConfigService.save(config);
-							synchronizationLogService.save(log);
-							if (itemLog.getSyncActionLog() == null) {
-								// Default action log (for unexpected situation)
-								initMissingActionLog(uid, itemLog, log);
-							}
-							syncItemLogService.save(itemLog);
-						}
-					}
-				});
+				startReconciliation(entityType, systemAccountsMap, config, system, log, actionsLog);
 			}
 
 			log.addToLog(MessageFormat.format("Synchronization was standard ended in {0}.", LocalDateTime.now()));
@@ -331,13 +311,128 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return config;
 	}
 
+	/**
+	 * Start reconciliation. Is call after synchronization. Main purpose is find and resolve missing accounts
+	 * @param entityType
+	 * @param systemAccountsMap
+	 * @param config
+	 * @param system
+	 * @param log
+	 * @param actionsLog
+	 */
+	private void startReconciliation(SystemEntityType entityType, Map<String, IcConnectorObject> systemAccountsMap,
+			SysSynchronizationConfig config, SysSystem system, SysSynchronizationLog log,
+			List<SysSyncActionLog> actionsLog) {
+		AccountFilter accountFilter = new AccountFilter();
+		accountFilter.setSystemId(system.getId());
+		accountService.find(accountFilter, null).forEach(account -> {
+			if (!log.isRunning()) {
+				return;
+			}
+			String uid = account.getRealUid();
+			if (!systemAccountsMap.containsKey(account.getRealUid())) {
+				SysSyncItemLog itemLog = new SysSyncItemLog();
+				try {
+
+					// Default setting for log item
+					itemLog.setIdentification(uid);
+					itemLog.setDisplayName(uid);
+					itemLog.setType(entityType.getEntityType().getSimpleName());
+
+					// Resolve missing account situation for one item
+					findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
+							entityType, config, system, log, itemLog, actionsLog);
+
+				} catch (Exception ex) {
+					String message = MessageFormat.format("Reconciliation - error for uid {0}", uid);
+					log.addToLog(message);
+					log.addToLog(Throwables.getStackTraceAsString(ex));
+					LOG.error(message, ex);
+				} finally {
+					synchronizationConfigService.save(config);
+					synchronizationLogService.save(log);
+					if (itemLog.getSyncActionLog() == null) {
+						// Default action log (for unexpected situation)
+						initMissingActionLog(uid, itemLog, log);
+					}
+					syncItemLogService.save(itemLog);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Main method for synchronization item. This method is call form "custom filter" and "connector sync" mode.
+	 * @param uid
+	 * @param icObject
+	 * @param type
+	 * @param entityType
+	 * @param itemLog
+	 * @param config
+	 * @param system
+	 * @param mappedAttributes
+	 * @param log
+	 * @param systemAccountsMap
+	 * @param actionsLog
+	 * @return
+	 */
+	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
+			SystemEntityType entityType, SysSyncItemLog itemLog, SysSynchronizationConfig config, SysSystem system,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log,
+			Map<String, IcConnectorObject> systemAccountsMap, List<SysSyncActionLog> actionsLog) {
+		try {
+			if (config.isReconciliation()) {
+				systemAccountsMap.put(uid, icObject);
+			}
+
+			// Default setting for log item
+			itemLog.setIdentification(uid);
+			itemLog.setDisplayName(uid);
+			itemLog.setType(entityType.getEntityType().getSimpleName());
+
+			// Do synchronization for one item
+			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
+					entityType, mappedAttributes, log, itemLog, actionsLog);
+
+			if (!log.isRunning()) {
+				return false;
+			}
+			return result;
+		} catch (Exception ex) {
+			if (itemLog.getSyncActionLog() != null) {
+				// We have to decrement count and log as error
+				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
+				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
+			} else {
+				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
+			}
+			return true;
+		} finally {
+			synchronizationConfigService.save(config);
+			synchronizationLogService.save(log);
+			if (itemLog.getSyncActionLog() == null) {
+				// Default action log (for unexpected situation)
+				initMissingActionLog(uid, itemLog, log);
+			}
+			syncItemLogService.save(itemLog);
+		}
+	}
+
 	private IcFilter resolveSynchronizationFilter(SysSynchronizationConfig config) {
 		IcFilter filter = null;
 		AttributeMapping filterAttributeMapping = config.getFilterAttribute();
 		String configToken = config.getToken();
+		if (filterAttributeMapping == null && configToken == null) {
+			return null;
+		}
 		if (filterAttributeMapping != null) {
 			Object transformedValue = attributeHandlingService.transformValueToResource(configToken,
 					filterAttributeMapping, config);
+
+			if (transformedValue == null) {
+				return null;
+			}
+
 			IcAttributeImpl filterAttribute = new IcAttributeImpl(filterAttributeMapping.getSchemaAttribute().getName(),
 					transformedValue);
 			switch (config.getFilterOperation()) {
@@ -370,6 +465,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		if (!StringUtils.isEmpty(filterScript)) {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put("filter", filter);
+			variables.put("token", configToken);
 			List<Class<?>> allowTypes = new ArrayList<>();
 			allowTypes.add(IcFilterBuilder.class);
 			allowTypes.add(IcAttributeImpl.class);
@@ -998,52 +1094,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		actionLogDefault.setSyncAction(SynchronizationActionType.IGNORE);
 		itemLog.addToLog(message);
 		itemLog.setSyncActionLog(actionLogDefault);
-	}
-
-	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, String tokenObject,
-			IcSyncDeltaTypeEnum type, SystemEntityType entityType, SysSyncItemLog itemLog,
-			SysSynchronizationConfig config, SysSystem system, List<SysSystemAttributeMapping> mappedAttributes,
-			SysSynchronizationLog log, Map<String, IcConnectorObject> systemAccountsMap,
-			List<SysSyncActionLog> actionsLog) {
-		try {
-			if (config.isReconciliation()) {
-				systemAccountsMap.put(uid, icObject);
-			}
-
-			// Default setting for log item
-			itemLog.setIdentification(uid);
-			itemLog.setDisplayName(uid);
-			itemLog.setType(entityType.getEntityType().getSimpleName());
-
-			// Do synchronization for one item
-			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
-					entityType, mappedAttributes, log, itemLog, actionsLog);
-			// Save token
-			log.setToken(tokenObject);
-			config.setToken(tokenObject);
-
-			if (!log.isRunning()) {
-				return false;
-			}
-			return result;
-		} catch (Exception ex) {
-			if (itemLog.getSyncActionLog() != null) {
-				// We have to decrement count and log as error
-				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
-				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
-			} else {
-				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
-			}
-			return true;
-		} finally {
-			synchronizationConfigService.save(config);
-			synchronizationLogService.save(log);
-			if (itemLog.getSyncActionLog() == null) {
-				// Default action log (for unexpected situation)
-				initMissingActionLog(uid, itemLog, log);
-			}
-			syncItemLogService.save(itemLog);
-		}
 	}
 
 }

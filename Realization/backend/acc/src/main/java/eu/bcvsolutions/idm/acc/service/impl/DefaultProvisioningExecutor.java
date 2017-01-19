@@ -97,7 +97,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			}
 		}
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
-		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
+		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);		
 		return context.getContent();
 	}
 	
@@ -118,10 +118,8 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			if (operation.getRequest() != null && !ResultState.EXECUTED.equals(operation.getResultState())) {
 				return;
 			}
+			batch.removeRequest(request);
 		}
-		// delete batch after complete
-		batch.getRequests().clear();
-		batchService.delete(batch);
 	}
 
 	@Override

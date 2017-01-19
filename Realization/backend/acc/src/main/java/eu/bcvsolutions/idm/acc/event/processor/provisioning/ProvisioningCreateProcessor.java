@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Provisioning - create operation
@@ -34,9 +33,8 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysSystemEntityService systemEntityService,
-			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
-		super(connectorFacade, systemService, notificationManager, provisioningOperationRepository, 
+			SysProvisioningOperationService provisioningOperationService) {
+		super(connectorFacade, systemService, provisioningOperationService, 
 				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);

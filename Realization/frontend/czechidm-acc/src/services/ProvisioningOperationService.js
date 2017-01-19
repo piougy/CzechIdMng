@@ -20,7 +20,7 @@ export default class ProvisioningOperationService extends Services.AbstractServi
   }
 
   getDefaultSearchParameters() {
-    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'desc');
+    return super.getDefaultSearchParameters().setName(Domain.SearchParameters.NAME_QUICK).clearSort().setSort('created', 'ASC');
   }
 
   /**

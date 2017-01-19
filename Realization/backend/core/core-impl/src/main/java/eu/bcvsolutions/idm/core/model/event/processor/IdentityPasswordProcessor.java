@@ -64,11 +64,13 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
 			if(!StringUtils.equals(String.valueOf(idmPassword.asString()), passwordChangeDto.getOldPassword().asString())) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-			}
-			// validate password
-			this.passwordService.validate(idmPassword.asString());			
+			}	
 		}
+		
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
+			// validate password
+			this.passwordService.validate(passwordChangeDto.getNewPassword().asString());	
+			
 			savePassword(identity, passwordChangeDto.getNewPassword());
 		}
 		return new DefaultEventResult<>(event, this);

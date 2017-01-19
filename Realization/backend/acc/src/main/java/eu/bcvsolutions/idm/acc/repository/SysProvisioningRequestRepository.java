@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
@@ -39,5 +39,5 @@ public interface SysProvisioningRequestRepository extends AbstractEntityReposito
 	 * @param operation
 	 * @return
 	 */
-	int deleteByOperation(@Param("operation") SysProvisioningOperation operation);
+	int deleteByOperation(@Param("operation") ProvisioningOperation operation);
 }

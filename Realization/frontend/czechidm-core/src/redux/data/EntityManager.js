@@ -629,10 +629,13 @@ export default class EntityManager {
    * @param  {string} uiKey - ui key for loading indicator etc.
    * @return {boolean} - true, when entity is not contained in state and loading does not processing
    */
-  fetchEntityIsNeeded(state, id, uiKey = null) {
+  fetchEntityIsNeeded(state, id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey. id);
     // entity is saved in state
     if (this.getEntity(state, id)) {
+      return false;
+    }
+    if (!cb && this.isShowLoading(state, uiKey, id)) { // if callback is given, then loadinig is needed - callback is called after loading
       return false;
     }
     return true;
@@ -648,7 +651,7 @@ export default class EntityManager {
   fetchEntityIfNeeded(id, uiKey = null, cb = null) {
     uiKey = this.resolveUiKey(uiKey, id);
     return (dispatch, getState) => {
-      if (this.fetchEntityIsNeeded(getState(), id, uiKey)) {
+      if (this.fetchEntityIsNeeded(getState(), id, uiKey, cb)) {
         dispatch(this.fetchEntity(id, uiKey, cb));
       } else if (cb) {
         cb(this.getEntity(getState(), id), null);

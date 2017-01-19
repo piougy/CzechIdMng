@@ -1,11 +1,11 @@
-package eu.bcvsolutions.idm.acc.event.processor;
+package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -45,7 +45,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {		
+	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {		
 		// execute provisioning
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
@@ -77,6 +77,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningOperationType.CREATE.equals(((SysProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningOperationType.CREATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
 	}
 }

@@ -30,11 +30,11 @@ public class ProvisioningOperationBuilderUnitTest extends AbstractUnitTest {
 		SysProvisioningOperation.Builder builder = new SysProvisioningOperation.Builder();
 		
 		builder.setOperationType(ProvisioningOperationType.CREATE);
-		SysProvisioningOperation one = builder.build();
+		ProvisioningOperation one = builder.build();
 		assertEquals(ProvisioningOperationType.CREATE, one.getOperationType());
 		
 		builder.setOperationType(ProvisioningOperationType.UPDATE);
-		SysProvisioningOperation two = builder.build();
+		ProvisioningOperation two = builder.build();
 		assertEquals(ProvisioningOperationType.CREATE, one.getOperationType());
 		assertEquals(ProvisioningOperationType.UPDATE, two.getOperationType());
 	}

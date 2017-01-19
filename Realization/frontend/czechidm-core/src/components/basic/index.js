@@ -11,6 +11,7 @@ import EnumSelectBox from './EnumSelectBox/EnumSelectBox';
 import BooleanSelectBox from './BooleanSelectBox/BooleanSelectBox';
 import TextArea from './TextArea/TextArea';
 import TextField from './TextField/TextField';
+import FlashMessage from './FlashMessages/FlashMessage';
 import FlashMessages from './FlashMessages/FlashMessages';
 import HelpIcon from './HelpIcon/HelpIcon';
 import Icon from './Icon/Icon';
@@ -34,6 +35,7 @@ import PageHeader from './PageHeader/PageHeader';
 import ContentHeader from './ContentHeader/ContentHeader';
 import LabelWrapper from './LabelWrapper/LabelWrapper';
 import DateValue from './DateValue/DateValue';
+import EnumValue from './EnumValue/EnumValue';
 import EnumLabel from './EnumLabel/EnumLabel';
 import Collapse from './Collapse/Collapse';
 import Tooltip from './Tooltip/Tooltip';
@@ -42,6 +44,7 @@ import Popover from './Popover/Popover';
 import ScriptArea from './ScriptArea/ScriptArea';
 import RichTextArea from './RichTextArea/RichTextArea';
 import PasswordStrength from './PasswordStrength/PasswordStrength';
+import ValidationMessage from './ValidationMessage/ValidationMessage';
 
 const Components = {
   AbstractComponent,
@@ -58,6 +61,7 @@ const Components = {
   TextArea,
   TextField,
   DateTimePicker,
+  FlashMessage,
   FlashMessages,
   HelpIcon,
   Icon,
@@ -94,6 +98,7 @@ const Components = {
   ContentHeader,
   LabelWrapper,
   DateValue,
+  EnumValue,
   EnumLabel,
   Collapse,
   Tooltip,
@@ -101,7 +106,8 @@ const Components = {
   Popover,
   ScriptArea,
   RichTextArea,
-  PasswordStrength
+  PasswordStrength,
+  ValidationMessage
 };
 
 Components.version = '0.0.1';

@@ -1,11 +1,11 @@
 package eu.bcvsolutions.idm.notification.api.dto;
 
-import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.dto.BaseDto;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 
 /**
  * Websocket message
@@ -16,14 +16,14 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 public class FlashMessage implements BaseDto {
 
 	private UUID id;
-	private String code;
+	private String title;
 	private String message;
 	private DateTime date;
 	private String key;
 	private String level; // TODO: enumeration
 	private String position; // TODO: enumeration
 	private boolean hidden;	
-	private Map<String, Object> parameters;
+	private ResultModel model;
 
 	@Override
 	public UUID getId() {
@@ -75,22 +75,6 @@ public class FlashMessage implements BaseDto {
 		this.hidden = hidden;
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public Map<String, Object> getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(Map<String, Object> parameters) {
-		this.parameters = parameters;
-	}
-
 	public String getMessage() {
 		return message;
 	}
@@ -98,5 +82,20 @@ public class FlashMessage implements BaseDto {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+	
+	public ResultModel getModel() {
+		return model;
+	}
+	
+	public void setModel(ResultModel model) {
+		this.model = model;
+	}
 }

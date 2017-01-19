@@ -5,7 +5,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
- * Persists provisioning operation
+ * Persists provisioning operations
  * 
  * @author Radek Tomiška
  *

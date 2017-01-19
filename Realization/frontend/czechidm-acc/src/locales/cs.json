@@ -331,6 +331,21 @@
           "error": "Při rušení operace {{name}} nastala chyba",
           "success": "Operace pro provisioning [{{names}}] byly zrušeny."
         }
+      },
+      "tabs": {
+        "active": {
+          "label": "Aktivní operace"
+        },
+        "archive": {
+          "label": "Archiv"
+        }
+      },
+      "detail": {
+        "header": "Detail operace",
+        "result": "Výsledek",
+        "accountObject": "Idm atributy",
+        "connectorObject": "Atributy pro provisioning",
+        "resultCode": "Kód"
       }
     }
   },
@@ -341,6 +356,7 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "passwordPolicy": "Politika hesel",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
@@ -540,7 +556,8 @@
       "creator": "Vytvořil",
       "operationType": "Typ operace",
       "entityIdentifier": "Identifikátor entity (IdM)",
-      "resultState": "Výsledek"
+      "resultState": "Výsledek",
+      "entity": "Entita (IdM)"
     }
   },
   "enums" : {
@@ -628,6 +645,26 @@
     "PROVISIONING_ROLE_ATTRIBUTE_MORE_UID": {
       "title": "Již existuje jiný unikátní identifikátor",
       "message": "Pro roli: {{role}} a system {{system}} byl již nalezen unikátní identifikátor."
+    },
+    "PROVISIONING_SYSTEM_DISABLED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je nakonfigurován jako neaktivní."
+    },
+    "PROVISIONING_SYSTEM_READONLY": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+    },
+    "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Proběhl provisioning účtu [{{name}}]",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
     }
   }
 }

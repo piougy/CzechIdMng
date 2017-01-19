@@ -130,6 +130,10 @@ class AbstractContextComponent extends AbstractComponent {
   getLogger() {
     return this.context.store.getState().logger;
   }
+
+  getFlashManager() {
+    return this.flashMessagesManager;
+  }
 }
 
 AbstractContextComponent.propTypes = {

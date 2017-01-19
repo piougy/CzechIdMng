@@ -121,8 +121,10 @@ describe('Basic AbstractComponent', function abstractComponent() {
         // ScriptArea has 'global leak detected' with react-ace
         // EnumLabel hasn't use for required
         // RichTextArea try to create state with EditorState, this can't be tested now.
+        // ValidationMessage dont work with required
         if (component.endsWith('ScriptArea') || component.endsWith('EnumLabel')
-              || component.endsWith('RichTextArea') || component.endsWith('SelectBox')) {
+              || component.endsWith('RichTextArea') || component.endsWith('SelectBox')
+              || component.endsWith('ValidationMessage')) {
           continue;
         }
         const ComponentType = componentLibrary[component];

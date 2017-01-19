@@ -10,13 +10,12 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
- * Save identity
+ * Save identity, catch event UPDATE and CREATE
  * 
  * @author Radek Tomiška
  *
@@ -32,7 +31,7 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 	public IdentitySaveProcessor(
 			IdmIdentityRepository repository,
 			IdentityPasswordProcessor passwordProcessor) {
-		super(IdentityEventType.SAVE);
+		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(passwordProcessor);
@@ -45,13 +44,13 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdmIdentity identity = event.getContent();
 		GuardedString password = identity.getPassword();
-
+		
 		identity = repository.save(identity);
 		// save password to confidential storage
 		if (password != null) {
 			passwordProcessor.savePassword(identity, password);
 		}
 		// TODO: clone identity - mutable previous event content :/
-		return new DefaultEventResult<>(new IdentityEvent(IdentityEventType.SAVE, identity, event.getProperties()), this);
+		return new DefaultEventResult<>(event, this);
 	}
 }

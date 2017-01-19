@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -27,6 +28,13 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 
+/**
+ * Password policy service.
+ * validation and generate method.
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
 @Service
 public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
 	
@@ -38,7 +46,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private static final String MIN_NUMBER = "minNumber";
 	private static final String MIN_SPECIAL_CHAR = "minSpecialChar";
 	private static final String COINTAIN_PROHIBITED = "prohibited";
-	private static final String CONTAIN_WEAK_PASS = "weakPass";
+	private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
 	private static final String POLICY_NAME = "policiesNames";
 	
 	private PasswordGenerator passwordGenerator;
@@ -68,6 +76,9 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	 * and entity can be save. True if entity can't be save
 	 */
 	private boolean canSaveEntity(IdmPasswordPolicy entity) {
+		if (!entity.isDefaultPolicy()) {
+			return true;
+		}
 		// create filter and found default password policy
 		PasswordPolicyFilter filter = new PasswordPolicyFilter();
 		filter.setDefaultPolicy(true);
@@ -103,7 +114,8 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		Assert.notNull(passwordPolicyList);
 		
 		if (passwordPolicyList.isEmpty()) {
-			passwordPolicyList.add(this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE));
+			IdmPasswordPolicy defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+			passwordPolicyList.add(defaultPolicy);
 		}
 		
 		Map<String, Object> errors = new HashMap<>();
@@ -113,19 +125,19 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		for (IdmPasswordPolicy passwordPolicy : passwordPolicyList) {
 			boolean validateNotSuccess = false;
 			
-			if (password.length() > passwordPolicy.getMaxPasswordLength()) {
+			if (passwordPolicy.getMaxPasswordLength() != 0 && password.length() > passwordPolicy.getMaxPasswordLength()) {
 				if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
 					errors.put(MAX_LENGTH, passwordPolicy.getMaxPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
-			if (password.length() < passwordPolicy.getMinPasswordLength()) {
+			if (passwordPolicy.getMinPasswordLength() != 0 && password.length() < passwordPolicy.getMinPasswordLength()) {
 				if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
 					errors.put(MIN_LENGTH, passwordPolicy.getMinPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
-			if (!password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
+			if (!Strings.isNullOrEmpty(passwordPolicy.getProhibitedCharacters()) && !password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
 				for (char character : passwordPolicy.getProhibitedCharacters().toCharArray()) {
 					if (password.indexOf(character) >= 0) {
 						prohibitedChar.add(character);
@@ -137,6 +149,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
 					errors.put(MIN_NUMBER, passwordPolicy.getMinNumber());
 				}
+				validateNotSuccess = true;
 			}
 			if (passwordPolicy.getMinLowerChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
 				if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
@@ -174,6 +187,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		}
 		
 		if (!errors.isEmpty()) {
+			// TODO: password policy audit
 			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
 		}
 		
@@ -182,11 +196,11 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type) {
-		IdmPasswordPolicy policy = passwordPolicyRepository.findDefaultType(type, new PageRequest(0, 1)).get(0);
-		if (policy == null) {
+		List<IdmPasswordPolicy> policiesList = passwordPolicyRepository.findDefaultType(type, new PageRequest(0, 1));
+		if (policiesList.isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST);
 		}
-		return policy;
+		return policiesList.get(0);
 	}
 
 	@Override

@@ -55,7 +55,7 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
       .then(() => {
         if (successNames.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
-            level: successNames.length === ids.length ? 'success' : 'info',
+            level: 'info',
             message: this.i18n(`acc:content.provisioningOperations.action.${bulkActionName}.success`, { names: successNames.join(', ') })
           }));
           if (cb) {

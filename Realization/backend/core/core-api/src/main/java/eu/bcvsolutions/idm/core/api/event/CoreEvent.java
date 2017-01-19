@@ -22,7 +22,7 @@ public class CoreEvent<E extends BaseEntity> extends AbstractEntityEvent<E> {
 	public static final int DEFAULT_ORDER = 0;
 	
 	public enum CoreEventType implements EventType {
-		SAVE, DELETE, EAV_SAVE // TODO: split SAVE to UPDATE / CREATE?
+		CREATE, UPDATE, DELETE, EAV_SAVE
 	}
 	
 	public CoreEvent(EventType type, E content) {

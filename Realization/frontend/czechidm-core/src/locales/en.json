@@ -38,7 +38,9 @@
     "validFrom": "Platnost od",
     "validTill": "Platnost do",
     "select": "Vyberte ...",
-    "disabled": "Neaktivní"
+    "disabled": "Neaktivní",
+    "property": "Attribut",
+    "value": "Hodnota"
   },
   "button": {
     "activate": "Aktivovat",
@@ -216,7 +218,8 @@
     },
     "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový"
+        "disabledInfo": "Uživatel je deaktivový",
+        "profileLink": "Zobrazit celý detail"
       },
       "Filter": {
         "option": {
@@ -351,6 +354,14 @@
       "MOD": "modifikace",
       "DEL": "smazání"
     },
+    "PasswordPolicyTypeEnum": {
+      "VALIDATE": "Validační",
+      "GENERATE": "Generování"
+    },
+    "PasswordPolicyGenerateTypeEnum": {
+      "RANDOM": "Náhodné",
+      "PASSPHRASE": "Passphrase"
+    },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
       "INFO": "INFO",
@@ -463,7 +474,7 @@
             "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk-it@vig.cz",
+            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
             "success": {
               "title": "Reset hesla proběhl v pořádku",
               "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
@@ -514,6 +525,30 @@
       "empty": "Nenalazena žádná hlášení.",
       "button": {
         "removeAll": "Odebrat všechna hlášení"
+      }
+    },
+    "passwordPolicies": {
+      "header": "Politiky hesel",
+      "title": "Politiky hesel",
+      "edit": {
+        "header": "detail konfigurace politiky hesel",
+        "title": "Detail konfigurace politiky hesel"
+      },
+      "create": {
+        "header": "Nová konfigurace politiky hesel"
+      },
+      "validation": {
+        "maxLength": "Maximální povolená délka hesla: {{0}}",
+        "minLength": "Minimální délka hesla: {{0}}",
+        "minNumber": "Minimální počet číslic: {{0}}",
+        "minUpperChar": "Minimální počet velkých znaků: {{0}}",
+        "prohibited": "Heslo obsahuje zakázané znaky: ",
+        "minLowerChar": "Minimální počet malých znaků: {{0}}",
+        "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
+        "policiesNames": "Heslo neprošlo přes tyto politiky: "
+      },
+      "save": {
+        "success": "Politika byla úspěšně uložena."
       }
     },
     "configuration": {
@@ -1492,10 +1527,12 @@
       "topic": "Téma / Topic",
       "created": "$t(entity.created)",
       "message": {
+        "level": "Level",
         "subject": "Předmět",
         "message": "Zpráva",
         "textMessage": "Zpráva (text)",
-        "htmlMessage": "Zpráva (html)"
+        "htmlMessage": "Zpráva (html)",
+        "model": "Zpráva (model)"
       },
       "sender": "Odesílatel",
       "recipients": "Příjemci",
@@ -1516,7 +1553,10 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",
@@ -1531,7 +1571,9 @@
         "subject": "$t(entity.Notification.message.subject)",
         "message": "$t(entity.Notification.message.message)",
         "textMessage": "$t(entity.Notification.message.textMessage)",
-        "htmlMessage": "$t(entity.Notification.message.htmlMessage)"
+        "htmlMessage": "$t(entity.Notification.message.htmlMessage)",
+        "model": "$t(entity.Notification.message.model)",
+        "level": "$t(entity.Notification.message.level)"
       },
       "sender": "$t(entity.Notification.sender)",
       "recipients": "$t(entity.Notification.recipients)",
@@ -1556,6 +1598,33 @@
       "type": "Typ entity",
       "key": "Atribut",
       "value": "Hodnota"
+    },
+    "PasswordPolicy": {
+      "type": "Typ",
+      "name": "Jméno",
+      "generateType": "Typ generování",
+      "disabled": "Neaktivní",
+      "defaultPolicy": "Standardní politika",
+      "passwordLengthRequired": "Povinná délka hesla",
+      "minPasswordLength": "Minimální délka",
+      "maxPasswordLength": "Maximální délka",
+      "upperCharRequired": "Povinné velké znaky",
+      "minUpperChar": "Minimum velkých znaků",
+      "lowerCharRequired": "Povinné malé znaky",
+      "minLowerChar": "Minimum malých znaků",
+      "numberRequired": "Povinná čísla",
+      "minNumber": "Minimum čísel",
+      "specialCharRequired": "Povinné speciální znaky",
+      "minSpecialChar": "Minimum speciálních znaků",
+      "prohibitedCharacters": "Zakázané znaky",
+      "weakPassRequired": "Povinné slabé hesla",
+      "weakPass": "Slabé hesla",
+      "passphraseWords": "Počet slov pro passphrase",
+      "maxPasswordAge": "Maximální doba pro změnu hesla",
+      "minPasswordAge": "Minimální doba pro změnu hesla",
+      "enchancedControl": "Rozšířená kontrola hesla",
+      "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
+      "maxHistorySimilar": "Počet zpětně kontrolovaných heselna shodu"
     },
     "Module": {
       "id": "Id",
@@ -1680,7 +1749,7 @@
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
     "GROVY_SCRIPT_VALIDATION": {
-      "title": "Groovy skript obsahuje kompilační chyby.",
+      "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
     },
     "GROVY_SCRIPT_SECURITY_VALIDATION": {

@@ -17,6 +17,20 @@ export const REMOVE_ALL_MESSAGES = 'REMOVE_ALL_MESSAGES';
 //
 export const DEFAULT_SERVER_UNAVAILABLE_TIMEOUT = 3000;
 
+const _DEFAULT_MESSAGE = {
+  id: null, // internal id
+  key: null, // key for unique checking
+  title: null,
+  message: null,
+  level: 'success', // React.PropTypes.oneOf(['success', 'info', 'warning', 'error']),
+  position: 'tr', // React.PropTypes.oneOf(['tr', 'tc']),
+  autoDismiss: 5,
+  dismissible: true,
+  action: null,
+  hidden: false,
+  date: new Date()
+};
+
 export default class FlashMessagesManager {
 
   constructor() {
@@ -47,6 +61,85 @@ export default class FlashMessagesManager {
     return this.addErrorMessage({}, error, context);
   }
 
+  /**
+  * Transforms options to message and adds default props
+  */
+  createMessage(options) {
+    if (!options) {
+      return null;
+    }
+    let message = options;
+    if (message == null) {
+      message = LocalizationService.i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
+    }
+    if (typeof message === 'string') {
+      message = _.merge({}, _DEFAULT_MESSAGE, { message });
+    }
+    // errors are shown centered by default
+    if (message.level && (message.level === 'error' /* || message.level === 'warning' */) && !message.position) {
+      message.position = 'tc';
+    }
+    // add default
+    message = _.merge({}, _DEFAULT_MESSAGE, message);
+    if (!message.title && !message.message) {
+      message.message = LocalizationService.i18n('message.success.common', { defaultValue: 'The operation was successfully completed' });
+    }
+    if (message.title && typeof message.title === 'object') {
+      message.title = JSON.stringify(message.title);
+    }
+    if (message.message && typeof message.message === 'object') {
+      message.message = JSON.stringify(message.message);
+    }
+    return message;
+  }
+
+  /**
+   * Converts result model to flash message
+   *
+   * @param  {ResultModel} resultModel
+   * @return {FlashMessage}
+   */
+  convertFromResultModel(resultModel) {
+    if (!resultModel) {
+      return null;
+    }
+    // automatic localization
+    const messageTitle = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.title', this._prepareParams(resultModel.parameters, `${resultModel.statusEnum} (${resultModel.statusCode}:${resultModel.id})`));
+    let defaultMessage = resultModel.message;
+    if (!_.isEmpty(resultModel.parameters)) {
+      defaultMessage += ' (';
+      let first = true;
+      for (const parameterKey in resultModel.parameters) {
+        if (!first) {
+          defaultMessage += ', ';
+        } else {
+          first = false;
+        }
+        defaultMessage += `${parameterKey}:${resultModel.parameters[parameterKey]}`;
+      }
+      defaultMessage += ')';
+    }
+    const messageText = LocalizationService.i18n(resultModel.module + ':error.' + resultModel.statusEnum + '.message', this._prepareParams(resultModel.parameters, defaultMessage));
+    //
+    const levelStatusCode = parseInt(resultModel.statusCode, 10);
+    let level; // 4xx - warning message, 5xx - error message
+    if (levelStatusCode >= 500) {
+      level = 'error';
+    } else if (levelStatusCode >= 200 && levelStatusCode < 300) {
+      level = 'success';
+    } else {
+      level = 'warning';
+      // TODO: info level
+    }
+    //
+    return this.createMessage({
+      key: resultModel.statusEnum,
+      level,
+      title: messageTitle,
+      message: messageText,
+    });
+  }
+
   addErrorMessage(message, error) {
     return (dispatch, getState) => {
       if (DEBUG) {
@@ -54,30 +147,7 @@ export default class FlashMessagesManager {
       }
       let errorMessage;
       if (error.statusEnum) { // our error message
-        // automatic localization
-        const messageTitle = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.title', this._prepareParams(error.parameters, `${error.statusEnum} (${error.statusCode}:${error.id})`));
-        let defaultMessage = error.message;
-        if (!_.isEmpty(error.parameters)) {
-          defaultMessage += ' (';
-          let first = true;
-          for (const parameterKey in error.parameters) {
-            if (!first) {
-              defaultMessage += ', ';
-            } else {
-              first = false;
-            }
-            defaultMessage += `${parameterKey}:${error.parameters[parameterKey]}`;
-          }
-          defaultMessage += ')';
-        }
-        const messageText = LocalizationService.i18n(error.module + ':error.' + error.statusEnum + '.message', this._prepareParams(error.parameters, defaultMessage));
-        //
-        errorMessage = _.merge({}, {
-          key: error.statusEnum,
-          level: (parseInt(error.statusCode, 10) < 500 ? 'warning' : 'error'), // 4xx - warning message, 5xx - error message
-          title: messageTitle,
-          message: messageText,
-        }, message);
+        errorMessage = _.merge({}, this.convertFromResultModel(error), message);
       } else { // system error - only contain message
         errorMessage = _.merge({}, {
           level: 'error',

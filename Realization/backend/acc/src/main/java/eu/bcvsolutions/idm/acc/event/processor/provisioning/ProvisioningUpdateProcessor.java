@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -29,8 +29,9 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
-		super(connectorFacade, systemService, notificationManager, provisioningOperationRepository, ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
+			SysProvisioningOperationService provisioningOperationService) {
+		super(connectorFacade, systemService, provisioningOperationService, 
+				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
 	}
 
 	@Override

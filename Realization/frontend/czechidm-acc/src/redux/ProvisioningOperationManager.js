@@ -74,9 +74,11 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
         }).then(json => {
           dispatch(this.updateBulkAction());
           successIds.push(operationId);
-          successNames.push(this.getNiceLabel(this.getEntity(getState(), operationId)));
-          // new entity to redux trimmed store
-          dispatch(this.receiveEntity(operationId, json));
+          if (!batch) {
+            successNames.push(this.getNiceLabel(this.getEntity(getState(), operationId)));
+            // new entity to redux trimmed store
+            dispatch(this.receiveEntity(operationId, json));
+          }
         }).catch(error => {
           dispatch(this.flashMessagesManager.addErrorMessage({ title: this.i18n(`acc:content.provisioningOperations.action.${bulkActionName}.error`, { name: this.getNiceLabel(this.getEntity(getState(), operationId)) }) }, error));
           throw error;
@@ -87,7 +89,7 @@ export default class ProvisioningOperationManager extends Managers.EntityManager
         // catch is before then - we want execute nex then clausule
       })
       .then(() => {
-        if (successNames.length > 0) {
+        if (successIds.length > 0) {
           dispatch(this.flashMessagesManager.addMessage({
             level: 'info',
             message: this.i18n(`acc:content.provisioningOperations.action.${bulkActionName}.success`, { names: successNames.join(', ') })

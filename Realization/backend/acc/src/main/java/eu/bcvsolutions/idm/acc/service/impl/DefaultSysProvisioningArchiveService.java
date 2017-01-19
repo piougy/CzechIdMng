@@ -30,7 +30,6 @@ public class DefaultSysProvisioningArchiveService
 	public SysProvisioningArchive archive(ProvisioningOperation provisioningOperation) {
 		SysProvisioningArchive archive = new SysProvisioningArchive.Builder(provisioningOperation).build();
 		// preserve original operation creator
-		archive.setCreated(provisioningOperation.getCreated());
 		archive.setCreator(provisioningOperation.getCreator());
 		archive.setCreatorId(provisioningOperation.getCreatorId());
 		archive.setOriginalCreator(provisioningOperation.getOriginalCreator());

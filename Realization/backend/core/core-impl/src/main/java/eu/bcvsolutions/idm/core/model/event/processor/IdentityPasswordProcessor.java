@@ -1,53 +1,41 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Save identity's password
  * 
  * @author Radek Tomiška
+ * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
+
 @Component
 public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
-	private final SecurityService securityService;
-	private final ConfidentialStorage confidentialStorage;
-	private final IdmPasswordPolicyService passwordService;
+	private final IdmIdentityPasswordService identityPasswordService;
 	
 	@Autowired
-	public IdentityPasswordProcessor(
-			SecurityService securityService,
-			ConfidentialStorage confidentialStorage,
-			IdmPasswordPolicyService passwordService) {
+	public IdentityPasswordProcessor(IdmIdentityPasswordService identityPasswordService) {
 		super(IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(securityService);
-		Assert.notNull(confidentialStorage);
+		Assert.notNull(identityPasswordService);
 		//
-		this.securityService = securityService;
-		this.confidentialStorage = confidentialStorage;
-		this.passwordService = passwordService;
+		this.identityPasswordService = identityPasswordService;
 	}
 
 	@Override
@@ -56,35 +44,21 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//		
-		if (!securityService.isAdmin()) {
-			if(passwordChangeDto.getOldPassword() == null) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-			}
-			// previous password check
-			GuardedString idmPassword = confidentialStorage.getGuardedString(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
-			if(!StringUtils.equals(String.valueOf(idmPassword.asString()), passwordChangeDto.getOldPassword().asString())) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
-			}	
-		}
-		
-		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
-			// validate password
-			this.passwordService.validate(passwordChangeDto.getNewPassword().asString());	
-			
-			savePassword(identity, passwordChangeDto.getNewPassword());
+		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password			
+			savePassword(identity, passwordChangeDto);
 		}
 		return new DefaultEventResult<>(event, this);
 	}
 	
 	/**
-	 * Saves identity's password to confidential storage
+	 * Saves identity's password
 	 * 
 	 * @param identity
 	 * @param newPassword
 	 */
-	protected void savePassword(IdmIdentity identity, GuardedString newPassword) {
-		LOG.debug("Saving password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
-		confidentialStorage.save(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD, newPassword.asString());
+	protected void savePassword(IdmIdentity identity, PasswordChangeDto passwordDto) {
+		LOG.debug("Saving password for identity [{}].", identity.getUsername());
+		this.identityPasswordService.save(identity, passwordDto);
 	}
 	
 	/**
@@ -93,7 +67,12 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 * @param identity
 	 */
 	protected void deletePassword(IdmIdentity identity) {
-		LOG.debug("Deleting password for identity [{}] to configental storage under key [{}]", identity.getUsername(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
-		confidentialStorage.delete(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
+		LOG.debug("Deleting password for identity [{}]. ", identity.getUsername());
+		this.identityPasswordService.delete(identity);
+	}
+	
+	@Override
+	public int getOrder() {
+		return super.getOrder() + 100;
 	}
 }

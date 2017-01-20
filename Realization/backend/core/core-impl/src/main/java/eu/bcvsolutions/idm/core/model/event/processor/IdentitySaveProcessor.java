@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
@@ -46,9 +47,11 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 		GuardedString password = identity.getPassword();
 		
 		identity = repository.save(identity);
-		// save password to confidential storage
+		// save password
 		if (password != null) {
-			passwordProcessor.savePassword(identity, password);
+			PasswordChangeDto passwordDto = new PasswordChangeDto();
+			passwordDto.setNewPassword(password);
+			passwordProcessor.savePassword(identity, passwordDto);
 		}
 		// TODO: clone identity - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

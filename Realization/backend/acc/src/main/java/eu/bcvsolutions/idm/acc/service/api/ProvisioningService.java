@@ -75,16 +75,6 @@ public interface ProvisioningService {
 	void doProvisioningForAttribute(String systemEntityUid, AttributeMapping mappedAttribute, Object value, SysSystem system,
 			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity);
 	
-	
-	/**
-	 * Do authenticate check for given identityAccount on target resource. Username for check is get from account (attribute UID) linked in identityAccount.
-	 * 
-	 * @param identityAccount
-	 * @param system
-	 * @return
-	 */
-	IcUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system);
-	
 	/**
 	 * Do authenticate check for given username and password on target resource
 	 * @param username

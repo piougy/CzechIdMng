@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
@@ -48,7 +49,8 @@ public class DefaultGrantedAuthoritiesFactory implements GrantedAuthoritiesFacto
 		this.identityRoleService = identityRoleService;
 		this.securityService = securityService;
 	}
-
+	
+	@Transactional(readOnly = true)
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(String username) {
 		IdmIdentity identity = identityService.getByUsername(username);

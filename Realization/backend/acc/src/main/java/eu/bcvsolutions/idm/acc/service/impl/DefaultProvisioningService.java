@@ -61,7 +61,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -403,17 +402,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));						
 		provisioningExecutor.execute(operationBuilder.build());
-	}
-
-	@Override
-	public IcUidAttribute authenticate(AccIdentityAccount identityAccount, SysSystem system) {
-		GuardedString password = confidentialStorage.getGuardedString(identityAccount.getIdentity(),
-				IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD);
-		if (password == null) {
-			password = new GuardedString(); // TODO: empty password or null?
-		}
-		return authenticate(identityAccount.getAccount().getUid(), password, system,
-				SystemEntityType.IDENTITY);
 	}
 
 	@Override

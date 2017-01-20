@@ -61,11 +61,9 @@ class AuditDetail extends Basic.AbstractContent {
               <Basic.Panel>
                 <Basic.PanelHeader text={<span>{identityManager.getNiceLabel(auditIdentity)} <small> Detail uživatele</small></span>} className="hidden">
                 </Basic.PanelHeader>
-                <div className="tab-vertical clearfix">
-                  <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
-                    <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
-                  </Advanced.TabPanel>
-                </div>
+                <Advanced.TabPanel parentId="profile-audit" params={this.props.params}>
+                  <IdentityDetail identity={auditIdentity} entityId={entityId} readOnly />
+                </Advanced.TabPanel>
               </Basic.Panel>
             </div>
           }

@@ -23,7 +23,7 @@ export default class BasicTabs extends AbstractComponent {
 
     const classNames = classnames(
       {'tab-horizontal': !position || position === 'top'},
-      {'tab-vertical': position && position === 'left'},
+      {'tab-vertical': position && position === 'left'}, // TODO: not implemened
       className
     );
 

@@ -42,7 +42,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -101,9 +100,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	DataSource dataSource;
-	
-	@Autowired
-	private ConfidentialStorage confidentialStorage;
 	
 	// Only for call method createTestSystem
 	@Autowired
@@ -192,7 +188,8 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSystem system = accountIdentityOne.getAccount().getSystem();
 
 		// Check empty password
-		provisioningService.authenticate(accountIdentityOne, system);
+		provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(), system, SystemEntityType.IDENTITY);
+
 
 		// Create new password one
 		PasswordChangeDto passwordChange = new PasswordChangeDto();
@@ -205,23 +202,22 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		accountIdentityOne = identityAccoutnService.get(accountIdentityOne.getId());
 
 		// Check correct password One
-		provisioningService.authenticate(accountIdentityOne, system);
+		provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(IDENTITY_PASSWORD_ONE), system, SystemEntityType.IDENTITY);
 
 		// Check incorrect password
 		try {
-			confidentialStorage.save(accountIdentityOne.getIdentity(), IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD, IDENTITY_PASSWORD_TWO);
-			provisioningService.authenticate(accountIdentityOne, system);
+			provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(IDENTITY_PASSWORD_TWO), system, SystemEntityType.IDENTITY);
 			fail("Bad credentials exception is expected here!");
 		} catch (ResultCodeException ex) {
 			//
 		}
 		// Do change of password for selected accounts
+		passwordChange.setNewPassword(new GuardedString(IDENTITY_PASSWORD_TWO));
 		idmIdentityService.passwordChange(accountIdentityOne.getIdentity(), passwordChange);
 
 		// Check correct password Two
 		accountIdentityOne = identityAccoutnService.get(accountIdentityOne.getId());
-		provisioningService.authenticate(accountIdentityOne, system);
-
+		provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(IDENTITY_PASSWORD_TWO), system, SystemEntityType.IDENTITY);
 	}
 	
 	@Test

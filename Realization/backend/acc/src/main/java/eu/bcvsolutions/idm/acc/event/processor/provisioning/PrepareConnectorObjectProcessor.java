@@ -39,6 +39,7 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -139,13 +140,18 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					provisioningOperation.getSystemEntityUid(),
 					objectClass.getType());
 			return new DefaultEventResult<>(event, this);
-		} catch (Exception ex) {
-			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
+		} catch (Exception ex) {	
+			ResultModel resultModel;
+			if (ex instanceof ResultCodeException) {
+				resultModel = ((ResultCodeException) ex).getError().getError();
+			} else {
+				resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED, 
 					ImmutableMap.of(
 							"name", provisioningOperation.getSystemEntityUid(), 
 							"system", system.getName(),
 							"operationType", provisioningOperation.getOperationType(),
 							"objectClass", objectClass.getType()));
+			}
 			LOG.error(resultModel.toString(), ex);
 			provisioningOperation.getRequest().setResult(
 					new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
@@ -171,14 +177,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
-		if (provisioningContext.getAccountObject() != null) {
+		Map<UUID, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
+		if (fullAccountObject != null) {
+			connectorObject.getAttributes().clear();
 			for (AttributeMapping attributeHandling : findAttributeMappings(system, provisioningOperation.getEntityType())) {
-				if (!provisioningContext.getAccountObject().containsKey(attributeHandling.getSchemaAttribute().getId())) {
+				if (!fullAccountObject.containsKey(attributeHandling.getSchemaAttribute().getId())) {
 					continue;
 				}
 				IcAttribute createdAttribute = createAttribute( 
 						attributeHandling,
-						provisioningContext.getAccountObject().get(attributeHandling.getSchemaAttribute().getId()));
+						fullAccountObject.get(attributeHandling.getSchemaAttribute().getId()));
 				if (createdAttribute != null) {
 					connectorObject.getAttributes().add(createdAttribute);
 				}

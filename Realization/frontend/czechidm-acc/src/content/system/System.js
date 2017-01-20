@@ -27,13 +27,9 @@ class System extends Basic.AbstractContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('acc:content.system.detail.edit.header', { name: manager.getNiceLabel(entity) }) }}/>
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="sys-systems" params={this.props.params}>
-              {this.props.children}
-            </Advanced.TabPanel>
-          </div>
-        </Basic.Panel>
+        <Advanced.TabPanel parentId="sys-systems" params={this.props.params}>
+          {this.props.children}
+        </Advanced.TabPanel>
       </div>
     );
   }

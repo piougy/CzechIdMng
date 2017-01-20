@@ -30,13 +30,9 @@ class Role extends Basic.AbstractContent {
           {manager.getNiceLabel(entity)} <small> {this.i18n('content.roles.edit.header')}</small>
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="roles" params={this.props.params}>
-              {this.props.children}
-            </Advanced.TabPanel>
-          </div>
-        </Basic.Panel>
+        <Advanced.TabPanel parentId="roles" params={this.props.params}>
+          {this.props.children}
+        </Advanced.TabPanel>
       </div>
     );
   }

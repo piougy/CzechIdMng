@@ -42,13 +42,9 @@ class IdentityContent extends Basic.AbstractContent {
           {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <div className="tab-vertical clearfix">
-            <Advanced.TabPanel parentId="identity-profile" params={this.props.params}>
-              {this.props.children}
-            </Advanced.TabPanel>
-          </div>
-        </Basic.Panel>
+        <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params}>
+          {this.props.children}
+        </Advanced.TabPanel>
       </div>
     );
   }

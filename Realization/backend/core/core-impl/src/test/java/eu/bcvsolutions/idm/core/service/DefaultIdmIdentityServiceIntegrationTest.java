@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -23,6 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -51,9 +51,9 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
-	private ConfidentialStorage confidentialStorage;
-	@Autowired
 	private IdmRoleGuaranteeRepository roleGuaranteeRepository;
+	@Autowired
+	private IdmIdentityPasswordService identityPasswordService;
 	
 	
 	@Before
@@ -110,7 +110,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		contractGuarantee = identityContractService.save(contractGuarantee);
 		
 		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(confidentialStorage.get(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD));
+		assertNotNull(identityPasswordService.get(identity));
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
@@ -120,7 +120,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityService.delete(identity);
 		
 		assertNull(identityService.getByUsername(username));
-		assertNull(confidentialStorage.get(identity, IdmIdentityService.CONFIDENTIAL_PROPERTY_PASSWORD));
+		assertNull(identityPasswordService.get(identity));
 		assertEquals(0, formService.getValues(identity).size());
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());

@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -99,7 +99,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy, IdmIdentityPassword oldPassword) {
+	public boolean validate(String password, IdmPasswordPolicy passwordPolicy, IdmPassword oldPassword) {
 		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
 		passwordPolicyList.add(passwordPolicy);
 		
@@ -107,7 +107,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public boolean validate(String password, IdmIdentityPassword oldPassword) {
+	public boolean validate(String password, IdmPassword oldPassword) {
 		return this.validate(password, new ArrayList<>(), oldPassword);
 	}
 	
@@ -122,7 +122,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmIdentityPassword oldPassword) {
+	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmPassword oldPassword) {
 		Assert.notNull(passwordPolicyList);
 		
 		// if list is empty, get default password policy

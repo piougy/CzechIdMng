@@ -2,12 +2,12 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityPasswordFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
-public interface IdmIdentityPasswordService  extends ReadWriteEntityService<IdmIdentityPassword, IdentityPasswordFilter> {
+public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword, PasswordFilter> {
 	
 	/**
 	 * Save password to identity. This method not validate password.
@@ -16,7 +16,7 @@ public interface IdmIdentityPasswordService  extends ReadWriteEntityService<IdmI
 	 * @param entity
 	 * @return
 	 */
-	public IdmIdentityPassword save(IdmIdentity identity, PasswordChangeDto passwordDto);
+	public IdmPassword save(IdmIdentity identity, PasswordChangeDto passwordDto);
 	
 	/**
 	 * Delete password by given identity
@@ -31,7 +31,7 @@ public interface IdmIdentityPasswordService  extends ReadWriteEntityService<IdmI
 	 * @param identity
 	 * @return
 	 */
-	public IdmIdentityPassword get(IdmIdentity identity);
+	public IdmPassword get(IdmIdentity identity);
 	
 	/**
 	 * Check password matches a passwordToCheck
@@ -40,7 +40,7 @@ public interface IdmIdentityPasswordService  extends ReadWriteEntityService<IdmI
 	 * @param password
 	 * @return true if matches
 	 */
-	public boolean checkPassword(GuardedString passwordToCheck, IdmIdentityPassword password);
+	public boolean checkPassword(GuardedString passwordToCheck, IdmPassword password);
 	
 	/**
 	 * Method generate password and return hash

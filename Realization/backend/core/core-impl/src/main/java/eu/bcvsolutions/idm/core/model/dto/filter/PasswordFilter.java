@@ -7,7 +7,7 @@ import org.joda.time.LocalDate;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
-public class IdentityPasswordFilter extends QuickFilter {
+public class PasswordFilter extends QuickFilter {
 	
 	private String password;
 	

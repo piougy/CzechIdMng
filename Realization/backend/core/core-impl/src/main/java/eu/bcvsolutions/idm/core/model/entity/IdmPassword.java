@@ -23,14 +23,14 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  */
 
 @Entity
-@Table(name = "idm_identity_password", indexes = {
-		@Index(name = "idx_idm_identity_password_identity", columnList = "identity_id")
+@Table(name = "idm_password", indexes = {
+		@Index(name = "idx_idm_password_identity", columnList = "identity_id")
 })
-public class IdmIdentityPassword extends AbstractEntity implements ValidableEntity {
+public class IdmPassword extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = -8101492061266251152L;
 	
-	public IdmIdentityPassword() {
+	public IdmPassword() {
 		// Auto-generated constructor
 	}
 	

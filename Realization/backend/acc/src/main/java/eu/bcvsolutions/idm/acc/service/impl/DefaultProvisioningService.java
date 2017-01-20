@@ -60,9 +60,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
 import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.eav.service.api.FormService;
@@ -101,7 +99,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 	private final SysSystemEntityService systemEntityService;
 	private final AccAccountService accountService;
 	private final ProvisioningExecutor provisioningExecutor;
-	private final IdmIdentityPasswordService identityPasswordService;
 
 	@Autowired
 	public DefaultProvisioningService(SysSystemMappingService systemMappingService,
@@ -110,8 +107,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 			SysRoleSystemService roleSystemService, AccAccountManagementService accountManagementService,
 			SysRoleSystemAttributeService roleSystemAttributeService, SysSystemEntityService systemEntityService,
 			AccAccountService accountService, AccIdentityAccountService identityAccountService,
-			ProvisioningExecutor provisioningExecutor,
-			IdmIdentityPasswordService identityPasswordService) {
+			ProvisioningExecutor provisioningExecutor) {
 
 		Assert.notNull(systemMappingService);
 		Assert.notNull(attributeMappingService);
@@ -126,7 +122,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(accountService);
 		Assert.notNull(identityAccountService);
 		Assert.notNull(provisioningExecutor);
-		Assert.notNull(identityPasswordService);
 		//
 		this.systemMappingService = systemMappingService;
 		this.attributeMappingService = attributeMappingService;
@@ -141,7 +136,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		this.accountService = accountService;
 		this.identityAccountService = identityAccountService;
 		this.provisioningExecutor = provisioningExecutor;
-		this.identityPasswordService = identityPasswordService;
 	}
 
 	@Override

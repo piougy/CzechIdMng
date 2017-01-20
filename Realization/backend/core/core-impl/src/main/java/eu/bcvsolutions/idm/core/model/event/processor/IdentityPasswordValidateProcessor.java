@@ -12,9 +12,9 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
@@ -31,20 +31,20 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
 	private final SecurityService securityService;
-	private final IdmIdentityPasswordService identityPasswordService;
+	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
 
 	@Autowired
 	public IdentityPasswordValidateProcessor(SecurityService securityService,
-			IdmIdentityPasswordService identityPasswordService, IdmPasswordPolicyService passwordPolicyService) {
+			IdmPasswordService passwordService, IdmPasswordPolicyService passwordPolicyService) {
 		super(IdentityEventType.PASSWORD);
 		//
 		Assert.notNull(securityService);
 		Assert.notNull(passwordPolicyService);
-		Assert.notNull(identityPasswordService);
+		Assert.notNull(passwordService);
 		//
 		this.securityService = securityService;
-		this.identityPasswordService = identityPasswordService;
+		this.passwordService = passwordService;
 		this.passwordPolicyService = passwordPolicyService;
 	}
 
@@ -60,8 +60,8 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 			// previous password check
-			IdmIdentityPassword idmPassword = identityPasswordService.get(identity);
-			if (!identityPasswordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
+			IdmPassword idmPassword = passwordService.get(identity);
+			if (!passwordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
 			// can change password, minimal age for change

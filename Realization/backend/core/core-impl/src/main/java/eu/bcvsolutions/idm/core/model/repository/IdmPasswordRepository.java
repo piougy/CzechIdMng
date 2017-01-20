@@ -7,20 +7,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.IdentityPasswordFilter;
+import eu.bcvsolutions.idm.core.model.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityPassword;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 
 @RepositoryRestResource(
-		collectionResourceRel = "identityPasswords",
-		itemResourceRel = "identityPassword",
+		collectionResourceRel = "passwords",
+		itemResourceRel = "password",
 		exported = false
 	)
-public interface IdmIdentityPasswordRepository extends AbstractEntityRepository<IdmIdentityPassword, IdentityPasswordFilter>{
+public interface IdmPasswordRepository extends AbstractEntityRepository<IdmPassword, PasswordFilter>{
 	
 	@Override
 	@Query(value = ""
-			+ "SELECT e FROM IdmIdentityPassword e"
+			+ "SELECT e FROM IdmPassword e"
 	        + " WHERE "
 	        + "(?#{[0].password} is null or e.password = ?#{[0].password}) "
 	        + "AND "
@@ -31,7 +31,7 @@ public interface IdmIdentityPasswordRepository extends AbstractEntityRepository<
 	        + "(?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId}) "
 	        + "AND "
 	        + "(?#{[0].mustChange} is null or e.mustChange = ?#{[0].mustChange}) ")
-	Page<IdmIdentityPassword> find(IdentityPasswordFilter filter, Pageable pageable);
+	Page<IdmPassword> find(PasswordFilter filter, Pageable pageable);
 	
-	IdmIdentityPassword findOneByIdentity(@Param("identity") IdmIdentity identity);
+	IdmPassword findOneByIdentity(@Param("identity") IdmIdentity identity);
 }

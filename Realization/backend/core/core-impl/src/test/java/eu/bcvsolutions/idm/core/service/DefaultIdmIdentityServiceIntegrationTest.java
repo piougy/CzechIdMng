@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -53,7 +53,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 	@Autowired
 	private IdmRoleGuaranteeRepository roleGuaranteeRepository;
 	@Autowired
-	private IdmIdentityPasswordService identityPasswordService;
+	private IdmPasswordService passwordService;
 	
 	
 	@Before
@@ -110,7 +110,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		contractGuarantee = identityContractService.save(contractGuarantee);
 		
 		assertNotNull(identityService.getByUsername(username));
-		assertNotNull(identityPasswordService.get(identity));
+		assertNotNull(passwordService.get(identity));
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
@@ -120,7 +120,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		identityService.delete(identity);
 		
 		assertNull(identityService.getByUsername(username));
-		assertNull(identityPasswordService.get(identity));
+		assertNull(passwordService.get(identity));
 		assertEquals(0, formService.getValues(identity).size());
 		assertEquals(0, roleGuaranteeRepository.findAllByRole(role).size());
 		assertEquals(0, identityRoleService.find(identityRolefilter, null).getTotalElements());

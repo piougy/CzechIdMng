@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityPasswordService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
@@ -27,15 +27,15 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
-	private final IdmIdentityPasswordService identityPasswordService;
+	private final IdmPasswordService passwordService;
 	
 	@Autowired
-	public IdentityPasswordProcessor(IdmIdentityPasswordService identityPasswordService) {
+	public IdentityPasswordProcessor(IdmPasswordService passwordService) {
 		super(IdentityEventType.PASSWORD);
 		//
-		Assert.notNull(identityPasswordService);
+		Assert.notNull(passwordService);
 		//
-		this.identityPasswordService = identityPasswordService;
+		this.passwordService = passwordService;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 */
 	protected void savePassword(IdmIdentity identity, PasswordChangeDto passwordDto) {
 		LOG.debug("Saving password for identity [{}].", identity.getUsername());
-		this.identityPasswordService.save(identity, passwordDto);
+		this.passwordService.save(identity, passwordDto);
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 	 */
 	protected void deletePassword(IdmIdentity identity) {
 		LOG.debug("Deleting password for identity [{}]. ", identity.getUsername());
-		this.identityPasswordService.delete(identity);
+		this.passwordService.delete(identity);
 	}
 	
 	@Override

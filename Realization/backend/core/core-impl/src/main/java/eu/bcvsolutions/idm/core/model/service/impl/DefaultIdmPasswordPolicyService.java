@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
@@ -97,26 +99,39 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 
 	@Override
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy) {
+	public boolean validate(String password, IdmPasswordPolicy passwordPolicy, IdmPassword oldPassword) {
 		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
 		passwordPolicyList.add(passwordPolicy);
 		
-		return this.validate(password, passwordPolicyList);
+		return this.validate(password, passwordPolicyList, oldPassword);
 	}
 
+	@Override
+	public boolean validate(String password, IdmPassword oldPassword) {
+		return this.validate(password, new ArrayList<>(), oldPassword);
+	}
+	
 	@Override
 	public boolean validate(String password) {
-		return this.validate(password, new ArrayList<>());
+		return this.validate(password, new ArrayList<>(), null);
+	}
+	
+	@Override
+	public boolean validate(String password, IdmPasswordPolicy passwordPolicy) {
+		return this.validate(password, passwordPolicy, null);
 	}
 
 	@Override
-	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList) {
+	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmPassword oldPassword) {
 		Assert.notNull(passwordPolicyList);
 		
+		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty()) {
 			IdmPasswordPolicy defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			passwordPolicyList.add(defaultPolicy);
 		}
+		
+		DateTime now = new DateTime();
 		
 		Map<String, Object> errors = new HashMap<>();
 		Set<Character> prohibitedChar = new HashSet<>();
@@ -124,6 +139,14 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		
 		for (IdmPasswordPolicy passwordPolicy : passwordPolicyList) {
 			boolean validateNotSuccess = false;
+			
+			// check if can change password for minimal age for change
+			if (oldPassword != null) {
+				if (oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) > 1) {
+					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE,
+							ImmutableMap.of(("date"), oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
+				}
+			}
 			
 			if (passwordPolicy.getMaxPasswordLength() != 0 && password.length() > passwordPolicy.getMaxPasswordLength()) {
 				if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
@@ -234,6 +257,29 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		}
 		
 		return this.generatePassword(list.get(0));
+	}
+	
+	@Override
+	public Integer getMaxPasswordAge(List<IdmPasswordPolicy> policyList) {
+		Assert.notNull(policyList);
+		//
+		if (policyList.isEmpty()) {
+			return null;
+		}
+		//
+		Integer passwordAge = new Integer(Integer.MIN_VALUE);
+		for (IdmPasswordPolicy idmPasswordPolicy : policyList) {
+			if (idmPasswordPolicy.getMaxPasswordAge() != 0 && 
+					idmPasswordPolicy.getMaxPasswordAge() > passwordAge) {
+				passwordAge = idmPasswordPolicy.getMaxPasswordAge();
+			}
+		}
+		//
+		if (passwordAge.equals(Integer.MIN_VALUE)) {
+			return null;
+		} 
+		//
+		return passwordAge;
 	}
 	
 	/**

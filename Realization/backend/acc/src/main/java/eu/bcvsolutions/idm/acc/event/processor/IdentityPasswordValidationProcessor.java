@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.event.processor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -71,7 +72,7 @@ public class IdentityPasswordValidationProcessor extends AbstractEntityEventProc
 		//
 		// get default password policy
 		IdmPasswordPolicy defaultPasswordPolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
-		
+		//
 		if (passwordChangeDto.isIdm()) {
 			passwordPolicyList.add(defaultPasswordPolicy);
 		}
@@ -92,7 +93,18 @@ public class IdentityPasswordValidationProcessor extends AbstractEntityEventProc
 		});
 		//
 		// validate TODO: validate for admin?
-		this.passwordPolicyService.validate(passwordChangeDto.getNewPassword().asString(), passwordPolicyList);
+		this.passwordPolicyService.validate(passwordChangeDto.getNewPassword().asString(), passwordPolicyList, null);
+		//
+		// if change password for idm iterate by all policies and get min attribute of
+		// max password age and set it into DTO, for save password processor
+		if (passwordChangeDto.isIdm()) {
+			Integer maxAgeInt = this.passwordPolicyService.getMaxPasswordAge(passwordPolicyList);
+			if (maxAgeInt != null) {
+				DateTime maxPasswordAge = new DateTime();
+				// set into DTO, in identity password save processor was add into IdmIdentityPassword
+				passwordChangeDto.setMaxPasswordAge(maxPasswordAge.plusDays(maxAgeInt));
+			}
+		}
 		//
 		return new DefaultEventResult<>(event, this);
 	}

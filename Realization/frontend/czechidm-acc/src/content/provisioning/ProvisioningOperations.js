@@ -139,12 +139,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
     if (detail.entity && detail.entity.provisioningContext.connectorObject) {
       const connectorObject = detail.entity.provisioningContext.connectorObject;
       connectorObject.attributes.forEach(attribute => {
-        let name = attribute.name;
-        if (!name && attribute.password) {
-          name = '__PASSWORD__';
-        }
         connectorData.push({
-          property: name,
+          property: attribute.name,
           value: attribute.values.join(', ')
         });
       });

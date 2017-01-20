@@ -13,7 +13,7 @@ import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -34,19 +34,19 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ReadonlySystemProcessor.class);
 	private final NotificationManager notificationManager;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
+	private final SysProvisioningOperationService provisioningOperationService;
 	
 	@Autowired
 	public ReadonlySystemProcessor(
 			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
+			SysProvisioningOperationService provisioningOperationService) {
 		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE);
 		//
 		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationRepository);
+		Assert.notNull(provisioningOperationService);
 		//
 		this.notificationManager = notificationManager;
-		this.provisioningOperationRepository = provisioningOperationRepository;
+		this.provisioningOperationService = provisioningOperationService;
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 			provisioningOperation.getRequest().setResult(
 					new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			provisioningOperationRepository.save(provisioningOperation);
+			provisioningOperationService.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
 			notificationManager.send(

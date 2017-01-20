@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
@@ -29,7 +30,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  */
 public abstract class AbstractProvisioningProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareAccountProcessor.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractProvisioningProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
 	private final SysProvisioningOperationService provisioningOperationService;
@@ -62,10 +63,11 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * Prepare provisioning operation execution
 	 */
 	@Override
-	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {		
+	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {				
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		SysSystem system = provisioningOperation.getSystem();
-		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
+		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
+		IcObjectClass objectClass = connectorObject.getObjectClass();
 		LOG.debug("Start provisioning operation [{}] for object with uid [{}] and connector object [{}]", 
 				provisioningOperation.getOperationType(),
 				provisioningOperation.getSystemEntityUid(),
@@ -84,6 +86,9 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		}
 		//
 		try {
+			// convert confidential string to guarded strings before provisioning realization
+			connectorObject = provisioningOperationService.getFullConnectorObject(provisioningOperation);
+			//
 			processInternal(provisioningOperation, connectorConfig);
 			provisioningOperationService.handleSuccessful(provisioningOperation);
 		} catch (Exception ex) {			

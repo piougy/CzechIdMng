@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,8 +16,9 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
  */
 @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
 @org.codehaus.jackson.map.annotate.JsonSerialize(include=org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPTY)
-public class ResultModels {
+public class ResultModels implements Serializable {
 	
+	private static final long serialVersionUID = 130622622063070662L;
 	private final List<ErrorModel> errors = Lists.newArrayList();
 	private final List<ResultModel> infos = Lists.newArrayList();
 

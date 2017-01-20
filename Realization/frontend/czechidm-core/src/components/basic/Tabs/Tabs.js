@@ -11,6 +11,10 @@ import AbstractComponent from '../AbstractComponent/AbstractComponent';
  */
 export default class BasicTabs extends AbstractComponent {
 
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     const { rendered, position, className, ...others } = this.props;
     if (!rendered) {

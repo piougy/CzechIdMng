@@ -48,6 +48,10 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@NotNull
 	@Column(name = "running", nullable = false)
 	private boolean running = false;
+	
+	@NotNull
+	@Column(name = "contains_error", nullable = false)
+	private boolean containsError = false;
 
 	@Column(name = "started")
 	private LocalDateTime started;
@@ -118,6 +122,14 @@ public class SysSynchronizationLog extends AbstractEntity {
 
 	public void setSyncActionLogs(List<SysSyncActionLog> syncActionLogs) {
 		this.syncActionLogs = syncActionLogs;
+	}
+
+	public boolean isContainsError() {
+		return containsError;
+	}
+
+	public void setContainsError(boolean containsError) {
+		this.containsError = containsError;
 	}
 
 	public String getLog() {

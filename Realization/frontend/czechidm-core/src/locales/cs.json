@@ -1748,11 +1748,11 @@
       "title": "Nadřazený prvek nelze přiřadit",
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
-    "GROVY_SCRIPT_VALIDATION": {
+    "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy skript obsahuje kompilační chyby",
       "message": ""
     },
-    "GROVY_SCRIPT_SECURITY_VALIDATION": {
+    "GROOVY_SCRIPT_SECURITY_VALIDATION": {
       "title": "Groovy skript neprošel bezpečností kontrolou!",
       "message": "Příčina: {{message}}"
     },

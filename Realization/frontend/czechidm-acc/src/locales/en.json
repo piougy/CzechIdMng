@@ -120,6 +120,9 @@
         },
         "save": {
           "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        },
+        "button": {
+          "saveAndStartSynchronization": "Uložit a spustit synchronizaci"
         }
       },
       "systemSynchronizationLogDetail": {
@@ -311,25 +314,39 @@
       "action": {
         "retry": {
           "action": "Opakovat operaci",
+          "button": {
+            "selected": "Opakovat pouze vybrané",
+            "batch": "Opakovat celou dávku"
+          },
           "header_1": "Opakovat operaci pro provisioning",
           "header_2": "Opakovat operace pro provisioning",
           "header_5": "$t(acc:content.provisioningOperations.action.retry.header_2)",
-          "message_1": "Opravdu chcete spustit vybranou operaci <strong>{{name}}</strong>?",
-          "message_2": "Opravdu chcete spustit <strong>{{count}}</strong> vybrané operace?",
-          "message_5": "Opravdu chcete spustit <strong>{{count}}</strong> vybraných operací?",
+          "message_1": "Opakovat pouze vybranou operaci <strong>{{name}}</strong>. Bude spuštěna pouze vybraná operace bez ohledu na ostatní záznamy pro danou entitu na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "message_2": "Opakovat pouze <strong>{{count}}</strong> vybrané operace. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "message_5": "Opakovat pouze <strong>{{count}}</strong> vybraných operací. Budou spuštěny pouze vybrané operace bez ohledu na ostatní záznamy pro dané entity na systému ve frontě. Nemusí být zachována posloupnost operací (některé mohou být vynechány).",
+          "batchMessage_1": "Opakovat všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově. Budou spuštěny všechny operace pro danou entitu na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entity na koncovém systému.",
+          "batchMessage_2": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
+          "batchMessage_5": "Opakovat všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově. Budou spuštěny všechny operace pro dané entity na koncovém systému v čase, jakém byly zaznamenány do fronty. Bude zachována posloupnost operací a tím i výsledný stav entit na koncovém systému.",
           "error": "Při opakování operace {{name}} nastala chyba",
-          "success": "Operace pro provisioning [{{names}}] byly znovu spuštěny."
+          "success": "Operace pro provisioning byly znovu spuštěny."
         },
         "cancel": {
           "action": "Zrušit operaci",
+          "button": {
+            "selected": "Zrušit pouze vybrané",
+            "batch": "Zrušit celou dávku"
+          },
           "header_1": "Zrušit operaci pro provisioning",
           "header_2": "Zrušit operace pro provisioning",
           "header_5": "$t(acc:content.provisioningOperations.action.cancel.header_2)",
-          "message_1": "Opravdu chcete zrušit vybranou operaci <strong>{{name}}</strong>?",
-          "message_2": "Opravdu chcete zrušit <strong>{{count}}</strong> vybrané operace?",
-          "message_5": "Opravdu chcete zrušit <strong>{{count}}</strong> vybraných operací?",
+          "message_1": "Nebo chcete zrušit pouze vybranou operaci <strong>{{name}}</strong>?",
+          "message_2": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybrané operace?",
+          "message_5": "Nebo chcete zrušit pouze <strong>{{count}}</strong> vybraných operací?",
+          "batchMessage_1": "Chcete zrušit všechny operace pro vybranou entitu <strong>{{name}}</strong> umístěné ve frontě dávkově?",
+          "batchMessage_2": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
+          "batchMessage_5": "Chcete zrušit všechny operace pro entity dle <strong>{{count}}</strong> vybraných operací umístěných ve frontě dávkově?",
           "error": "Při rušení operace {{name}} nastala chyba",
-          "success": "Operace pro provisioning [{{names}}] byly zrušeny."
+          "success": "Operace pro provisioning byly zrušeny."
         }
       },
       "tabs": {
@@ -356,6 +373,7 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
+      "passwordPolicy": "Politika hesel",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
@@ -479,9 +497,21 @@
       "description": "Popis",
       "runOnServer": "Spustit na serveru",
       "reconciliation": "Reconciliace",
-      "customFilter": "Použít vlastní filtr",
+      "customFilter" :{
+        "label": "Použít vlastní filtr",
+        "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
+      },
+      "filterAttribute" :{
+        "label": "Filtrovat dle atributu",
+        "help": "Tento atribut (spolu s typem filtrovací operace) bude použit jako výchozí filtrovací kritérium pro synchronizaci. Další kritéria je motné definovat ve filtrovacím skriptu."
+      },
+      "tokenAttribute" :{
+        "label": "Token je v tomto atributu",
+        "help": "Určuje, kde se v synchronizovaném objektu nachází token."
+      },
       "token": "Token",
       "timestamp": "Časová značka",
+      "filterOperation": "Filtrovací operace",
       "customFilterScript": {
         "label": "Vlastní filtr",
         "help": "V tomto Groovy skriptu můžete definovat vlastní filtr, dle kterého bude provedeno vyhledání účtů na koncovém systému a následná synchronizace."
@@ -499,6 +529,7 @@
       "ended": "Ukončena",
       "token": "Token",
       "results": "Výsledky",
+      "containsError": "Obsahuje chyby",
       "actions": {
         "SUCCESS": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -596,6 +627,14 @@
       "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
+    "IcFilterOperationTypeEnum": {
+      "EQUAL_TO": "Ekvivalentní",
+      "CONTAINS": "Obsahuje",
+      "GREATER_THAN": "Je větší než",
+      "LESS_THAN": "Je menší než",
+      "ENDS_WITH": "Končí na",
+      "STARTS_WITH": "Začíná na"
+    },
     "SynchronizationActionTypeEnum": {
       "CREATE_ENTITY": "Vytvoření nové entity",
       "UPDATE_ENTITY": "Aktualizace entity",
@@ -652,6 +691,26 @@
     "PROVISIONING_SYSTEM_READONLY": {
       "title": "Provisioning účtu [{{name}}] neproběhl",
       "message": "Provisioning účtu [{{name}}] na systém [{{system}}] nebyl proveden. Systém je v readonly režimu."
+    },
+    "PROVISIONING_PREPARE_ACCOUNT_ATTRIBUTES_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_FAILED": {
+      "title": "Provisioning účtu [{{name}}] neproběhl",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] selhal."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Proběhl provisioning účtu [{{name}}]",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_SUCCEED": {
+      "title": "Proběhl provisioning účtu [{{name}}]",
+      "message": "Provisioning účtu [{{name}}] na systém [{{system}}] úspěšně proběhl."
+    },
+    "PROVISIONING_IS_IN_QUEUE": {
+      "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
+      "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
     }
   }
 }

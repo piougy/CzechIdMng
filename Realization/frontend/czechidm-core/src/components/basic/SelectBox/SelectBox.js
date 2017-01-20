@@ -355,29 +355,29 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getSelectComponent() {
-    const { placeholder, fieldLabel, multiSelect, clearable } = this.props;
+    const { placeholder, fieldLabel, multiSelect, clearable} = this.props;
     const { isLoading, options, readOnly, disabled, value } = this.state;
     //
     return (
-      <Select
-        ref="selectComponent"
-        isLoading={isLoading}
-        value={value}
-        onChange={this.onChange}
-        disabled={readOnly || disabled}
-        ignoreCase
-        ignoreAccents={false}
-        multi={multiSelect}
-        onValueClick={this.gotoContributor}
-        valueKey={ITEM_FULL_KEY}
-        labelKey={fieldLabel}
-        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-        placeholder={this.getPlaceholder(placeholder)}
-        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        clearable={clearable}
-        onInputChange={this.onInputChange.bind(this)}
-        options={options}/>
+        <Select
+          ref="selectComponent"
+          isLoading={isLoading}
+          value={value}
+          onChange={this.onChange}
+          disabled={readOnly || disabled}
+          ignoreCase
+          ignoreAccents={false}
+          multi={multiSelect}
+          onValueClick={this.gotoContributor}
+          valueKey={ITEM_FULL_KEY}
+          labelKey={fieldLabel}
+          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+          placeholder={this.getPlaceholder(placeholder)}
+          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+          clearable={clearable}
+          onInputChange={this.onInputChange.bind(this)}
+          options={options}/>
     );
   }
 }

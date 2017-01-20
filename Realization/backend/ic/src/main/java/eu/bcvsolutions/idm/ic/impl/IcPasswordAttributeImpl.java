@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.ic.impl;
 import java.util.ArrayList;
 
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
+import eu.bcvsolutions.idm.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 
@@ -11,8 +12,9 @@ public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswo
 	private static final long serialVersionUID = -4667649003440978002L;
 	private boolean password = false;
 
-	public IcPasswordAttributeImpl(GuardedString value) {
+	public IcPasswordAttributeImpl(String name, GuardedString value) {
 		super();
+		this.name = name;
 		this.values = new ArrayList<>();
 		if (value != null) {
 			this.values.add(value);
@@ -37,6 +39,9 @@ public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswo
 		}
 		if (this.values == null || this.values.isEmpty()) {
 			return null;
+		}
+		if (this.values.get(0) instanceof ConfidentialString) {
+			return new GuardedString(GuardedString.SECRED_PROXY_STRING);
 		}
 		if (!(this.values.get(0) instanceof GuardedString)) {
 			throw new IllegalArgumentException("Must be a GuardedString value.");

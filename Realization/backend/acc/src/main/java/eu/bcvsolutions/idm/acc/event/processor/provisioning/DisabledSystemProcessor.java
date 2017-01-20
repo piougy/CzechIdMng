@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -36,19 +36,19 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DisabledSystemProcessor.class);
 	private final NotificationManager notificationManager;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
+	private final SysProvisioningOperationService provisioningOperationService;
 	
 	@Autowired
 	public DisabledSystemProcessor(
 			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository) {
+			SysProvisioningOperationService provisioningOperationService) {
 		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE);
 		//
 		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationRepository);
+		Assert.notNull(provisioningOperationService);
 		//
 		this.notificationManager = notificationManager;
-		this.provisioningOperationRepository = provisioningOperationRepository;
+		this.provisioningOperationService = provisioningOperationService;
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
 			request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
 			//
-			provisioningOperationRepository.save(provisioningOperation);
+			provisioningOperationService.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
 			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());

@@ -263,7 +263,7 @@ public class ConnIdIcConvertUtil {
 				password = new eu.bcvsolutions.idm.security.api.domain.GuardedString(
 						((GuardedString) value.get(0)).toString());
 			}
-			return new IcPasswordAttributeImpl(password);
+			return new IcPasswordAttributeImpl(attribute.getName(), password);
 		}
 		if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
 			Boolean enabled = Boolean.FALSE;

@@ -248,7 +248,7 @@ public class DefaultSysSystemAttributeMappingService
 		IcAttribute icAttributeForUpdate = null;
 		if (IcConnectorFacade.PASSWORD_ATTRIBUTE_NAME.equals(schemaAttribute.getName())) {
 			// Attribute is password type
-			icAttributeForUpdate = new IcPasswordAttributeImpl((GuardedString) idmValue);
+			icAttributeForUpdate = new IcPasswordAttributeImpl(schemaAttribute.getName(), (GuardedString) idmValue);
 
 		} else {
 			if(idmValue instanceof List){

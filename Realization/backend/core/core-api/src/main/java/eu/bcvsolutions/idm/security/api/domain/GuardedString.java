@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.security.api.domain;
 
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -18,9 +17,8 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
  *
  */
 @JsonSerialize(using = GuardedStringSerializer.class)
-public final class GuardedString implements Serializable {
-
-	private static final long serialVersionUID = 2213684064638411076L;
+public final class GuardedString {
+	
 	/**
 	 * Proxy string will be shown instead target string value
 	 */

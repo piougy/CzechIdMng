@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -75,8 +76,13 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 		if (passwordDto.getMaxPasswordAge() != null) {
 			passwordEntity.setValidTill(passwordDto.getMaxPasswordAge().toLocalDate());
 		}
+		// set valid from now
+		passwordEntity.setValidFrom(new LocalDate());
 		//
 		passwordEntity.setPassword(this.generateHash(password, getSalt(identity)));
+		//
+		// set must change password to false
+		passwordEntity.setMustChange(false);
 		//
 		return identityPasswordRepository.save(passwordEntity);
 	}

@@ -12,7 +12,6 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Save identity's password

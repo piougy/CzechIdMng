@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
@@ -121,6 +125,14 @@ public class DefaultLoginService implements LoginService {
 		if (idmPassword == null) {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;
+		}
+		// check if user must change password
+		if (idmPassword.isMustChange()) {
+			throw new ResultCodeException(CoreResultCode.MUST_CHANGE_IDM_PASSWORD, ImmutableMap.of("user", identity.getUsername()));
+		}
+		// check if password expired
+		if (idmPassword.getValidTill().isAfter(new LocalDate())) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
 		return passwordService.checkPassword(password, idmPassword);
 	}

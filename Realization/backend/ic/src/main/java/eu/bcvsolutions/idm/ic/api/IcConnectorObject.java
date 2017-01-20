@@ -27,4 +27,9 @@ public interface IcConnectorObject extends Serializable {
 	 */
 	List<IcAttribute> getAttributes();
 
+	 /**
+     * Get an attribute by if it exists else null.
+     */
+	IcAttribute getAttributeByName(String name);
+
 }

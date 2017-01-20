@@ -91,6 +91,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     const formEntity = this.refs.form.getData();
     formEntity.systemMapping = systemMappingManager.getSelfLink(formEntity.systemMapping);
     formEntity.correlationAttribute = systemAttributeMappingManager.getSelfLink(formEntity.correlationAttribute);
+    formEntity.tokenAttribute = systemAttributeMappingManager.getSelfLink(formEntity.tokenAttribute);
+    formEntity.filterAttribute = systemAttributeMappingManager.getSelfLink(formEntity.filterAttribute);
     if (formEntity.id === undefined) {
       this.context.store.dispatch(synchronizationConfigManager.createEntity(formEntity, `${uiKey}-detail`, (createdEntity, error) => {
         this.afterSave(createdEntity, error);
@@ -133,6 +135,10 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     }, () => {
       // clear selected correlationAttribute
       this.refs.correlationAttribute.setValue(null);
+      // clear selected tokenAttribute
+      this.refs.tokenAttribute.setValue(null);
+      // clear selected filterAttribute
+      this.refs.filterAttribute.setValue(null);
     });
   }
 
@@ -160,14 +166,16 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _synchronizationConfig} = this.props;
-    const {attributeMappingId} = this.state;
+    const {systemMappingId} = this.state;
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const isNew = this._getIsNew();
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
-    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.attributeMapping ? synchronizationConfig.attributeMapping : null;
-    const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('entityHandlingId', attributeMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
+    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
+    const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
+    const isCustomFilterMode = synchronizationConfig && synchronizationConfig.customFilter;
+
 
     return (
       <div>
@@ -210,7 +218,20 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                 required/>
               <Basic.Checkbox
                 ref="customFilter"
-                label={this.i18n('acc:entity.SynchronizationConfig.customFilter')}/>
+                label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}
+                helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilter.help')}/>
+              <Basic.SelectBox
+                ref="filterAttribute"
+                manager={systemAttributeMappingManager}
+                forceSearchParameters={forceSearchCorrelationAttribute}
+                label={this.i18n('acc:entity.SynchronizationConfig.filterAttribute.label')}
+                tooltip={this.i18n('acc:entity.SynchronizationConfig.filterAttribute.help')}/>
+              <Basic.SelectBox
+                ref="tokenAttribute"
+                manager={systemAttributeMappingManager}
+                forceSearchParameters={forceSearchCorrelationAttribute}
+                label={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.label')}
+                helpBlock={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.help')}/>
               <Basic.ScriptArea
                 ref="customFilterScript"
                 helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
@@ -356,10 +377,10 @@ SystemSynchronizationConfigDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.params.configId);
   if (entity) {
-    const correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute.id : null;
-    entity.correlationAttribute = correlationAttribute;
-    const systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
-    entity.systemMapping = systemMapping;
+    entity.correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute.id : null;
+    entity.tokenAttribute = entity._embedded && entity._embedded.tokenAttribute ? entity._embedded.tokenAttribute.id : null;
+    entity.filterAttribute = entity._embedded && entity._embedded.filterAttribute ? entity._embedded.filterAttribute.id : null;
+    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
   }
   return {
     _synchronizationConfig: entity,

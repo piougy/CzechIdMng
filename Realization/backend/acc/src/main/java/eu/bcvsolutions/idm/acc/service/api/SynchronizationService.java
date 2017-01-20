@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.service.impl;
+package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
 
@@ -11,7 +11,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.api.IcSyncDelta;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
 
 public interface SynchronizationService {

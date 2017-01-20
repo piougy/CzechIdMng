@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 
 /**
@@ -26,4 +27,19 @@ public interface ProvisioningExecutor {
 	 * @param provisioningOperation executed operation
 	 */
 	SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation);
+	
+	/**
+	 *  Executes operations in given batch.
+	 * 
+	 * @param batch executed batch
+	 * @return
+	 */
+	void execute(SysProvisioningBatch batch);
+	
+	/**
+	 * Cancel operations in batch.
+	 * 
+	 * @param batch executed batch
+	 */
+	void cancel(SysProvisioningBatch batch);
 }

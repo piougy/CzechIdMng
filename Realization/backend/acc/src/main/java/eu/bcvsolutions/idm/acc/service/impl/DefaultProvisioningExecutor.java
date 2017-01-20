@@ -4,19 +4,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningBatchRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Entry point to all provisioning operations.
@@ -27,44 +36,68 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 @Service
 public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningExecutor.class);
 	private final EntityEventManager entityEventManager;
 	private final SysProvisioningOperationService sysProvisioningOperationService;
-	@Autowired
-	private SysProvisioningBatchRepository batchRepository;
+	private final SysProvisioningBatchService batchService;
+	private final NotificationManager notificationManager;
 
 	@Autowired
 	public DefaultProvisioningExecutor(
 			SysProvisioningOperationRepository repository,
 			EntityEventManager entityEventManager,
-			SysProvisioningOperationService sysProvisioningOperationService) {
+			SysProvisioningOperationService sysProvisioningOperationService,
+			SysProvisioningBatchService batchService,
+			NotificationManager notificationManager) {
 		Assert.notNull(entityEventManager);
 		Assert.notNull(sysProvisioningOperationService);
+		Assert.notNull(batchService);
+		Assert.notNull(notificationManager);
 		//
 		this.entityEventManager = entityEventManager;
 		this.sysProvisioningOperationService = sysProvisioningOperationService;
+		this.batchService = batchService;
+		this.notificationManager = notificationManager;
 	}
 
 	@Override
 	public SysProvisioningOperation execute(SysProvisioningOperation provisioningOperation) {
 		Assert.notNull(provisioningOperation);
+		Assert.notNull(provisioningOperation.getSystem());
+		Assert.notNull(provisioningOperation.getProvisioningContext());
 		//
 		if (provisioningOperation.getId() == null) {
 			// save new operation to provisioning log / queue
+			SysProvisioningBatch batch = batchService.findBatch(provisioningOperation);
 			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
-			request.setResult(new SysProvisioningResult.Builder(ResultState.CREATED).build());
-			SysProvisioningBatch batch = batchRepository.findBatch(provisioningOperation);
 			if (batch == null) {
-				batch = batchRepository.save(new SysProvisioningBatch());
+				batch = batchService.save(new SysProvisioningBatch());
+				request.setResult(new SysProvisioningResult.Builder(ResultState.CREATED).build());
 			} else {
 				// put to queue
+				// TODO: maybe putting into queue has to run after disable and readonly system
+				ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_IS_IN_QUEUE, 
+						ImmutableMap.of(
+								"name", provisioningOperation.getSystemEntityUid(), 
+								"system", provisioningOperation.getSystem().getName(),
+								"operationType", provisioningOperation.getOperationType(),
+								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
+				LOG.debug(resultModel.toString());				
+				request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
 			}
 			request.setBatch(batch);
 			provisioningOperation.setRequest(request);
 			//
 			provisioningOperation = sysProvisioningOperationService.save(provisioningOperation);
+			if (ResultState.NOT_EXECUTED.equals(request.getResult().getState())) {
+				notificationManager.send(
+						AccModuleDescriptor.TOPIC_PROVISIONING, 
+						new IdmMessage.Builder(NotificationLevel.INFO).setModel(request.getResult().getModel()).build());
+				return provisioningOperation;
+			}
 		}
 		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(provisioningOperation.getOperationType(), provisioningOperation);
-		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
+		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);		
 		return context.getContent();
 	}
 	
@@ -76,4 +109,25 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		return context.getContent();
 	}
 
+	@Override
+	public void execute(SysProvisioningBatch batch) {
+		Assert.notNull(batch);
+		//
+		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
+			SysProvisioningOperation operation = execute(request.getOperation());
+			if (operation.getRequest() != null && !ResultState.EXECUTED.equals(operation.getResultState())) {
+				return;
+			}
+			batch.removeRequest(request);
+		}
+	}
+
+	@Override
+	public void cancel(SysProvisioningBatch batch) {
+		Assert.notNull(batch);
+		//
+		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
+			cancel(request.getOperation());
+		}
+	}
 }

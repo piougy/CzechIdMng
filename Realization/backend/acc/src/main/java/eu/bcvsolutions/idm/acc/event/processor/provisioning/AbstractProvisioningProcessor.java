@@ -4,19 +4,14 @@ import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
-import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
-import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -25,8 +20,6 @@ import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Execute provisioning
@@ -39,26 +32,22 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareAccountProcessor.class);
 	protected final IcConnectorFacade connectorFacade;
 	protected final SysSystemService systemService;
-	private final NotificationManager notificationManager;
-	private final SysProvisioningOperationRepository provisioningOperationRepository;
+	private final SysProvisioningOperationService provisioningOperationService;
 	
 	public AbstractProvisioningProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
-			NotificationManager notificationManager,
-			SysProvisioningOperationRepository provisioningOperationRepository,
+			SysProvisioningOperationService provisioningOperationService,
 			ProvisioningOperationType... provisioningOperationType) {
 		super(provisioningOperationType);
 		//
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
-		Assert.notNull(notificationManager);
-		Assert.notNull(provisioningOperationRepository);
+		Assert.notNull(provisioningOperationService);
 		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
-		this.notificationManager = notificationManager;
-		this.provisioningOperationRepository = provisioningOperationRepository;
+		this.provisioningOperationService = provisioningOperationService;
 	}
 	
 	/**
@@ -94,39 +83,11 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 					ImmutableMap.of("system", system.getName()));
 		}
 		//
-		
 		try {
 			processInternal(provisioningOperation, connectorConfig);
-			//
-			ResultModel resultModel = new DefaultResultModel(
-					AccResultCode.PROVISIONING_SUCCEED, 
-					ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
-							"system", system.getName(),
-							"operationType", provisioningOperation.getOperationType(),
-							"objectClass", objectClass.getType()));
-			provisioningOperation.getRequest().setResult(new SysProvisioningResult.Builder(ResultState.EXECUTED).setModel(resultModel).build()); // TODO: code
-			provisioningOperationRepository.save(provisioningOperation);
-			//
-			LOG.debug(resultModel.toString());
-			//
-			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());
-		} catch (Exception ex) {
-			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_FAILED, 
-					ImmutableMap.of(
-							"name", provisioningOperation.getSystemEntityUid(), 
-							"system", system.getName(),
-							"operationType", provisioningOperation.getOperationType(),
-							"objectClass", objectClass.getType()));			
-			LOG.error(resultModel.toString(), ex);
-			provisioningOperation.getRequest().setResult(
-					new SysProvisioningResult.Builder(ResultState.EXCEPTION).setModel(resultModel).setCause(ex).build());
-			//
-			provisioningOperationRepository.save(provisioningOperation);
-			//
-			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING, 
-					new IdmMessage.Builder().setModel(resultModel).build());
+			provisioningOperationService.handleSuccessful(provisioningOperation);
+		} catch (Exception ex) {			
+			provisioningOperationService.handleFailed(provisioningOperation, ex);
 		}
 		return new DefaultEventResult<>(event, this);
 	}

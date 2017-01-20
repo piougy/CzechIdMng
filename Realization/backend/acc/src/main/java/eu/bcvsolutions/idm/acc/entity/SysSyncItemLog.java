@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
+
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -28,7 +30,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 public class SysSyncItemLog extends AbstractEntity {
 
 	private static final long serialVersionUID = -5447620157233410338L;
-	private static final String LOG_SEPARATOR = "-------------------------";
+	public static final String LOG_SEPARATOR = "-------------------------";
 
 	@NotNull
 	@ManyToOne(optional = false, cascade = { CascadeType.ALL })
@@ -55,7 +57,7 @@ public class SysSyncItemLog extends AbstractEntity {
 	@Column(name = "type", length = DefaultFieldLengths.NAME, nullable = true)
 	private String type;
 
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "log")
 	private String log;
 

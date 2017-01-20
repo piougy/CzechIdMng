@@ -23,6 +23,11 @@ class ProvisioningOperations extends Basic.AbstractContent {
       detail: {
         show: false,
         entity: null
+      },
+      retryDialog: {
+        show: false,
+        bulkActionValue: null,
+        ids: []
       }
     };
   }
@@ -39,19 +44,42 @@ class ProvisioningOperations extends Basic.AbstractContent {
     this.selectNavigationItems(['audit', 'provisioning-operations']);
   }
 
-  onRetry(bulkActionValue, ids) {
-    this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`action.${bulkActionValue}.message`, { count: ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), ids[0])) }),
-      this.i18n(`action.${bulkActionValue}.header`, { count: ids.length})
-    ).then(() => {
-      this.context.store.dispatch(manager.retry(ids, bulkActionValue, () => {
-        // clear selected rows and reload
-        this.refs.table.getWrappedInstance().clearSelectedRows();
-        this.refs.table.getWrappedInstance().reload();
-        this.refs.archiveTable.getWrappedInstance().reload();
-      }));
-    }, () => {
-      // nothing
+  /**
+   * Shows retry dialog
+   *
+   * @return {[type]} [description]
+   */
+  showRetryDialog(bulkActionValue, ids) {
+    this.setState({
+      retryDialog: {
+        show: true,
+        bulkActionValue,
+        ids
+      }
+    });
+  }
+
+  onRetry(batch = true) {
+    const { retryDialog } = this.state;
+    this.closeRetryDialog();
+    this.context.store.dispatch(manager.retry(retryDialog.ids, retryDialog.bulkActionValue, batch, () => {
+      // clear selected rows and reload
+      this.refs.table.getWrappedInstance().clearSelectedRows();
+      this.refs.table.getWrappedInstance().reload();
+      this.refs.archiveTable.getWrappedInstance().reload();
+    }));
+  }
+
+  /**
+   * Close modal retry dialog
+   */
+  closeRetryDialog() {
+    this.setState({
+      retryDialog: {
+        show: false,
+        bulkActionValue: null,
+        ids: []
+      }
     });
   }
 
@@ -83,7 +111,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   render() {
-    const { detail } = this.state;
+    const { detail, retryDialog } = this.state;
     // accountObject to table
     const accountData = [];
     if (detail.entity && detail.entity.provisioningContext.accountObject) {
@@ -125,8 +153,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Confirm ref="confirm-cancel" level="danger"/>
-        <Basic.Confirm ref="confirm-retry"/>
 
         <Basic.ContentHeader>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
@@ -142,8 +168,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])}
               actions={
                 [
-                  { value: 'retry', niceLabel: this.i18n('action.retry.action'), action: this.onRetry.bind(this) },
-                  { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.onRetry.bind(this) }
+                  { value: 'retry', niceLabel: this.i18n('action.retry.action'), action: this.showRetryDialog.bind(this) },
+                  { value: 'cancel', niceLabel: this.i18n('action.cancel.action'), action: this.showRetryDialog.bind(this) }
                 ]
               }/>
           </Basic.Tab>
@@ -254,6 +280,39 @@ class ProvisioningOperations extends Basic.AbstractContent {
               level="link"
               onClick={this.closeDetail.bind(this)}>
               {this.i18n('button.close')}
+            </Basic.Button>
+          </Basic.Modal.Footer>
+        </Basic.Modal>
+
+        <Basic.Modal
+          show={retryDialog.show}
+          onHide={this.closeRetryDialog.bind(this)}
+          backdrop="static">
+          <Basic.Modal.Header closeButton text={this.i18n(`action.${retryDialog.bulkActionValue}.header`, { count: retryDialog.ids.length})}/>
+          <Basic.Modal.Body>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.batchMessage`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+          </Basic.Modal.Body>
+
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="success"
+              onClick={this.onRetry.bind(this, true)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.batch`)}
+            </Basic.Button>
+          </Basic.Modal.Footer>
+          <Basic.Modal.Body>
+            <span dangerouslySetInnerHTML={{__html: this.i18n(`action.${retryDialog.bulkActionValue}.message`, { count: retryDialog.ids.length, name: manager.getNiceLabel(manager.getEntity(this.context.store.getState(), retryDialog.ids[0])) })}}/>
+          </Basic.Modal.Body>
+          <Basic.Modal.Footer>
+            <Basic.Button
+              level="link"
+              onClick={this.closeRetryDialog.bind(this)}>
+              {this.i18n('button.close')}
+            </Basic.Button>
+            <Basic.Button
+              level="warning"
+              onClick={this.onRetry.bind(this, false)}>
+              {this.i18n(`action.${retryDialog.bulkActionValue}.button.selected`)}
             </Basic.Button>
           </Basic.Modal.Footer>
         </Basic.Modal>

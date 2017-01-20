@@ -12,4 +12,18 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  */
 public interface SysProvisioningOperationService extends ReadWriteEntityService<SysProvisioningOperation, EmptyFilter> {
 
+	/**
+	 * Handles failed operation (plans next attempt etc.)
+	 * 
+	 * @param operation
+	 * @param ex
+	 */
+	void handleFailed(SysProvisioningOperation operation, Exception ex);
+	
+	/**
+	 * Called when operation succeeded. 
+	 * 
+	 * @param operation
+	 */
+	void handleSuccessful(SysProvisioningOperation operation);
 }

@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.ic.connid.domain;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,17 @@ import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.AndFilter;
+import org.identityconnectors.framework.common.objects.filter.ContainsAllValuesFilter;
+import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
+import org.identityconnectors.framework.common.objects.filter.EndsWithFilter;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.common.objects.filter.GreaterThanFilter;
+import org.identityconnectors.framework.common.objects.filter.LessThanFilter;
+import org.identityconnectors.framework.common.objects.filter.NotFilter;
+import org.identityconnectors.framework.common.objects.filter.OrFilter;
+import org.identityconnectors.framework.common.objects.filter.StartsWithFilter;
 import org.identityconnectors.framework.impl.api.APIConfigurationImpl;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.util.Assert;
@@ -44,6 +56,18 @@ import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.api.IcSyncDelta;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcAttributeFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcContainsAllValuesFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcContainsFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcEndsWithFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcEqualsFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcGreaterThanFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcLessThanFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcNotFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcStartsWithFilter;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
@@ -406,5 +430,69 @@ public class ConnIdIcConvertUtil {
 		}
 
 		return new SyncToken(token.getValue());
+	}
+
+	public static Filter convertIcFilter(IcFilter filter) {
+		if (filter == null) {
+			return null;
+		}
+		if(filter instanceof IcAndFilter){
+			List<IcFilter> subFilters = (List<IcFilter>) ((IcAndFilter) filter).getFilters();
+			LinkedList<Filter> subFiltersConnId = new LinkedList<>();
+			
+			if(!subFilters.isEmpty()){
+				subFilters.forEach(subFilter -> {
+					subFiltersConnId.add(ConnIdIcConvertUtil.convertIcFilter(subFilter));
+				});
+			}
+			return new AndFilter(subFiltersConnId);
+		}
+		
+		if(filter instanceof IcOrFilter){
+			List<IcFilter> subFilters = (List<IcFilter>) ((IcOrFilter) filter).getFilters();
+			LinkedList<Filter> subFiltersConnId = new LinkedList<>();
+			
+			if(!subFilters.isEmpty()){
+				subFilters.forEach(subFilter -> {
+					subFiltersConnId.add(ConnIdIcConvertUtil.convertIcFilter(subFilter));
+				});
+			}
+			return new OrFilter(subFiltersConnId);
+		}
+		
+		if(filter instanceof IcNotFilter){
+			return new NotFilter(ConnIdIcConvertUtil.convertIcFilter(((IcNotFilter) filter).getFilter()));
+		}
+		
+		if(filter instanceof IcAttributeFilter){
+			
+			Attribute attr = ConnIdIcConvertUtil.convertIcAttribute(((IcAttributeFilter) filter).getAttribute());
+			if(filter instanceof IcEqualsFilter){
+				return new EqualsFilter(attr);
+			}
+			if(filter instanceof IcContainsFilter){
+				return new ContainsFilter(attr);
+			}
+			if(filter instanceof IcEndsWithFilter){
+				return new EndsWithFilter(attr);
+			}
+			if(filter instanceof IcContainsAllValuesFilter){
+				return new ContainsAllValuesFilter(attr);
+			}
+			if(filter instanceof IcStartsWithFilter){
+				return new StartsWithFilter(attr);
+			}
+			if(filter instanceof IcGreaterThanFilter){
+				return new GreaterThanFilter(attr);
+			}
+			if(filter instanceof IcLessThanFilter){
+				return new LessThanFilter(attr);
+			}
+		}
+		
+		
+		
+		return null;
+		
 	}
 }

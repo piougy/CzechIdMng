@@ -31,12 +31,20 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 	@Override
 	public Object evaluate(String script, Map<String, Object> variables) {
+		return evaluate(script, variables, null);
+	}
+	
+	@Override
+	public Object evaluate(String script, Map<String, Object> variables, List<Class<?>> extraAllowedClasses) {
 		Assert.notNull(script);
 
 		Binding binding = new Binding(variables);
 		GroovyShell shell = new GroovyShell(binding,
 				new CompilerConfiguration().addCompilationCustomizers(new SandboxTransformer()));
 		List<Class<?>> allowedVariableClass = resolveCustomAllowTypes(variables);
+		if(extraAllowedClasses != null){
+			allowedVariableClass.addAll(extraAllowedClasses);
+		}
 
 		GroovySandboxFilter sandboxFilter = new GroovySandboxFilter(allowedVariableClass);
 		try {

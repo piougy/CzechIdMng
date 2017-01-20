@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * Persisted "active" provisioning operation 
+ * Persisted "active" provisioning operation. Any operation has request and batch.
  * 
  * @author Radek Tomiška
  *
@@ -73,6 +73,7 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@Column(name = "system_entity_uid")
 	private String systemEntityUid; // account uid, etc.
 	
+	@NotNull
 	@OneToOne(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )

@@ -140,6 +140,27 @@ export default class FlashMessagesManager {
     });
   }
 
+  /**
+   * Converts message from BE message
+   *
+   * @param  {IdmMessage} notificationMessage
+   * @return {FlashMessage}
+   */
+  convertFromWebsocketMessage(notificationMessage) {
+    if (!notificationMessage.model) {
+      return notificationMessage;
+    }
+    //
+    const message = this.convertFromResultModel(notificationMessage.model);
+    if (notificationMessage.position) {
+      message.position = notificationMessage.position;
+    }
+    if (notificationMessage.level) {
+      message.level = notificationMessage.level;
+    }
+    return message;
+  }
+
   addErrorMessage(message, error) {
     return (dispatch, getState) => {
       if (DEBUG) {

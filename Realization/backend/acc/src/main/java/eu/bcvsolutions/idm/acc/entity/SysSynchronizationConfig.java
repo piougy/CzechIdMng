@@ -7,11 +7,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDateTime;
@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
  * <i>SysSynchronizationConfig</i> is responsible for keep informations about
@@ -68,7 +69,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private boolean customFilter = false;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "token")
 	private String token;
 
@@ -77,7 +78,7 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	private LocalDateTime timestamp;
 
 	@Audited
-	@Lob
+	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "custom_filter_script")
 	private String customFilterScript;
 
@@ -89,6 +90,28 @@ public class SysSynchronizationConfig extends AbstractEntity {
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
 	private SysSystemAttributeMapping correlationAttribute;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "token_attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private SysSystemAttributeMapping tokenAttribute;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "filter_attribute_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
+										// hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	private SysSystemAttributeMapping filterAttribute;
+	
+	@Audited
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "filter_operation", nullable = false)
+	private IcFilterOperationType filterOperation = IcFilterOperationType.GREATER_THAN;
 	
 	@Audited
 	@NotNull
@@ -241,6 +264,30 @@ public class SysSynchronizationConfig extends AbstractEntity {
 
 	public void setMissingAccountAction(ReconciliationMissingAccountActionType missingAccountAction) {
 		this.missingAccountAction = missingAccountAction;
+	}
+
+	public SysSystemAttributeMapping getTokenAttribute() {
+		return tokenAttribute;
+	}
+
+	public void setTokenAttribute(SysSystemAttributeMapping tokenAttribute) {
+		this.tokenAttribute = tokenAttribute;
+	}
+
+	public SysSystemAttributeMapping getFilterAttribute() {
+		return filterAttribute;
+	}
+
+	public void setFilterAttribute(SysSystemAttributeMapping filterAttribute) {
+		this.filterAttribute = filterAttribute;
+	}
+
+	public IcFilterOperationType getFilterOperation() {
+		return filterOperation;
+	}
+
+	public void setFilterOperation(IcFilterOperationType filterOperation) {
+		this.filterOperation = filterOperation;
 	}
 
 }

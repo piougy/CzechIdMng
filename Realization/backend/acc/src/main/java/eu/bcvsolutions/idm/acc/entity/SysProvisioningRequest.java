@@ -20,7 +20,7 @@ import com.sun.istack.NotNull;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * Single provisioning request
+ * Single provisioning request. Any operation has request and batch.
  * 
  * @author Filip Mestanek
  * @author Radek Tomiška
@@ -49,6 +49,7 @@ public class SysProvisioningRequest extends AbstractEntity {
 	@Embedded
 	private SysProvisioningResult result;
 
+	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "provisioning_batch_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

@@ -97,7 +97,7 @@ public class IcConnectorConfigurationImpl implements IcConnectorConfiguration {
 	}
 
 	// /**
-	// * Get the configuration of the ResultsHandler chain of the Search
+	// * Get the configuration of the IcResultsHandler chain of the Search
 	// * operation.
 	// */
 	// ResultsHandlerConfiguration getResultsHandlerConfiguration();

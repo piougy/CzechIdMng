@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -52,6 +53,17 @@ public class IcConnectorObjectImpl implements IcConnectorObject {
 	public IcObjectClass getObjectClass() {
 		return objectClass;
 	}
+	
+	 /**
+     * Get an attribute by if it exists else null.
+     */
+	@Override
+    public IcAttribute getAttributeByName(String name) {
+    	Optional<IcAttribute> optionalAttr = this.getAttributes().stream().filter(attribute -> {
+        	return name.equals(attribute.getName());
+        }).findFirst();
+        return optionalAttr.isPresent() ? optionalAttr.get() : null;
+    }
 
 	public void setObjectClass(IcObjectClass objectClass) {
 		this.objectClass = objectClass;

@@ -5,61 +5,41 @@ import java.util.List;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
 public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> {
 	
 	/**
 	 * Method validate password by password policy,
-	 * {@link validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmIdentityPassword oldPassword)}}.
+	 * {@link validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList)}}.
 	 * 
-	 * @param password
+	 * @param passwordValidationDto
 	 * @param passwordPolicy
-	 * @param oldPassword
 	 * @return true if password is valid or throw exception
 	 */
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy, IdmPassword oldPassword);
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy);
 	
 	/**
-	 * Validate password by given password policy 
+	 * Method validate password by default validation policy. (Default IDM policy, must exist)
 	 * 
-	 * @param password
-	 * @param passwordPolicy
-	 * @return
+	 * @param passwordValidationDto
+	 * @return true if password is valid by default policy, or throw exception
 	 */
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy);
-	
-	/**
-	 * Validate password by default password policy
-	 * 
-	 * @param password
-	 * @return
-	 */
-	public boolean validate(String password);
-	
-	/**
-	 * Validate password by default validation password policy.
-	 * 
-	 * @param password
-	 * @param oldPassword
-	 * @return true if password is valid or throw exception
-	 */
-	public boolean validate(String password, IdmPassword oldPassword);
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto);
 	
 	/**
 	 * Validate password by list of password policies. Validate trought all polocies,
 	 * if found some error throw exception.
-	 * When isn't @param oldPassword null, validate for password age trought policies
+	 * When isn't oldPassword null, validate for password age trought policies
 	 * minimal age
 	 * 
-	 * @param password
+	 * @param passwordValidationDto
 	 * @param passwordPolicyList
-	 * @param oldPassword
 	 * @return true if password is valid or throw exception
 	 */
-	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmPassword oldPassword);
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList);
 	
 	/**
 	 * Method return default password policy, by given type, @see {@link IdmPasswordPolicyType}

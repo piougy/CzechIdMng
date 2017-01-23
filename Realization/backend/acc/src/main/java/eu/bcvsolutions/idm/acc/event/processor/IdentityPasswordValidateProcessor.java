@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
@@ -101,7 +102,10 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		});
 		//
 		// validate TODO: validate for admin?
-		this.passwordPolicyService.validate(passwordChangeDto.getNewPassword().asString(), passwordPolicyList, null);
+		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+		passwordValidationDto.setIdentity(identity);
+		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
+		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
 		//
 		// if change password for idm iterate by all policies and get min attribute of
 		// max password age and set it into DTO, for save password processor

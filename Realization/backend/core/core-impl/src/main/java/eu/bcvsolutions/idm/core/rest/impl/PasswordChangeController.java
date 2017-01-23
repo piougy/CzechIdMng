@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.security.dto.LoginDto;
 import eu.bcvsolutions.idm.security.service.LoginService;
 
 /**
@@ -66,7 +67,11 @@ public class PasswordChangeController {
 			@RequestBody @Valid PasswordChangeDto passwordChangeDto) {
 		// we need to login as identity, if no one is logged in
 		if (!securityService.isAuthenticated()) {
-			loginService.login(identityId, passwordChangeDto.getOldPassword());
+			LoginDto loginDto = new LoginDto();
+			loginDto.setSkipMustChange(true);
+			loginDto.setUsername(identityId);
+			loginDto.setPassword(passwordChangeDto.getOldPassword());
+			loginService.login(loginDto);
 		}
 		//
 		IdmIdentity identity = (IdmIdentity) entityLookupService.lookup(IdmIdentity.class, identityId);

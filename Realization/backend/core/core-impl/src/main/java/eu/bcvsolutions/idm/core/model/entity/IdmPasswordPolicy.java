@@ -44,6 +44,10 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	private String name;
 	
 	@Audited
+	@Column(name = "description")
+	private String description;
+
+	@Audited
 	@Column(name = "disabled", nullable = false)
 	private boolean disabled = false;
 
@@ -154,6 +158,10 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	@Audited
 	@Column(name = "maxHistorySimilar")
 	private int maxHistorySimilar;
+	
+	@Audited
+	@Column(name = "identityAttributeCheck")
+	private String identityAttributeCheck;
 	
 	public int getMaxHistorySimilar() {
 		return maxHistorySimilar;
@@ -401,6 +409,22 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 		if (!lowerCharBase.equals(PasswordGenerator.LOWER_CHARACTERS)) {
 			this.lowerCharBase = lowerCharBase;
 		}
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getIdentityAttributeCheck() {
+		return identityAttributeCheck;
+	}
+
+	public void setIdentityAttributeCheck(String identityAttributeCheck) {
+		this.identityAttributeCheck = identityAttributeCheck;
 	}
 
 	@Override

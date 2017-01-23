@@ -11,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
@@ -70,12 +71,14 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (!passwordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
-			// can change password, minimal age for change
 		}
 
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			// validate password
-			this.passwordPolicyService.validate(passwordChangeDto.getNewPassword().asString());
+			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
+			passwordValidationDto.setIdentity(identity);
+			this.passwordPolicyService.validate(passwordValidationDto);
 		}
 		return new DefaultEventResult<>(event, this);
 	}

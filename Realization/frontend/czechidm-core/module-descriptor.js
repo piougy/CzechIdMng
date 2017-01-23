@@ -368,6 +368,35 @@ module.exports = {
             'order': 45,
             'path': '/password-policies',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+            'items': [
+              {
+                'id': 'password-policies-basic',
+                'labelKey': 'content.passwordPolicies.basic.title',
+                'order': 10,
+                'path': '/password-policies/:entityId',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              },
+              {
+                'id': 'password-policies-advanced',
+                'labelKey': 'content.passwordPolicies.advanced.title',
+                'order': 15,
+                'path': '/password-policies/:entityId/advanced',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              },
+              {
+                'id': 'password-policies-characters',
+                'labelKey': 'content.passwordPolicies.characters.title',
+                'order': 20,
+                'path': '/password-policies/:entityId/characters',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              },
+            ]
           },
           {
             'id': 'rules',

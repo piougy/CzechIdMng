@@ -24,6 +24,7 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    this.selectNavigationItems(['system', 'password-policies']);
     const { passwordPolicyManager, uiKey } = this.props;
     const searchParameters = passwordPolicyManager.getService().getDefaultSearchParameters();
     this.context.store.dispatch(passwordPolicyManager.fetchEntities(searchParameters, uiKey));

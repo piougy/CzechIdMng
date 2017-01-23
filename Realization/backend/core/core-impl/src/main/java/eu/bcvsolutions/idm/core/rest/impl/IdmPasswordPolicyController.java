@@ -30,7 +30,6 @@ import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.security.dto.LoginDto;
 
 /**
  * Default controller for password policy
@@ -106,7 +105,8 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	@RequestMapping(value = "/{entityId}/validate", method = RequestMethod.POST)
 	public ResourceWrapper<IdmPasswordValidationDto> validate(@Valid @RequestBody(required = true) IdmPasswordValidationDto password, @PathVariable String entityId) {
 		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(entityId);
-		if (this.passwordPolicyService.validate(password.toString(), passwordPolicy)) {
+		
+		if (this.passwordPolicyService.validate(password, passwordPolicy)) {
 			password.setValid(true);
 		}
 		return new ResourceWrapper<IdmPasswordValidationDto>(password);
@@ -119,7 +119,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 */
 	@RequestMapping(value = "/validate", method = RequestMethod.POST)
 	public ResourceWrapper<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
-		if (this.passwordPolicyService.validate(password.toString())) {
+		if (this.passwordPolicyService.validate(password)) {
 			password.setValid(true);
 		}
 		return new ResourceWrapper<IdmPasswordValidationDto>(password);

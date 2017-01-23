@@ -43,6 +43,12 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		}
 	}
 	
+	public AbstractEntityEventProcessor(EnabledEvaluator enabledEvaluator, ConfigurationService configurationService, EventType... types) {
+		this(types);
+		this.enabledEvaluator = enabledEvaluator;
+		this.configurationService = configurationService;
+	}
+	
 	@Override
 	public String getModule() {
 		return this.getClass().getCanonicalName().split("\\.")[3];

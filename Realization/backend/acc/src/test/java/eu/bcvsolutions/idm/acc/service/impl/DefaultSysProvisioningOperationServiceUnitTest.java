@@ -88,7 +88,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 		accoutObject.put(normal, normalValue);
 		UUID guarded = UUID.randomUUID();
 		GuardedString guardedValue = new GuardedString("one");
-		accoutObject.put(guarded, guardedValue);		
+		accoutObject.put(guarded, guardedValue);
 		//
 		// run
 		Map<String, Serializable> confidentiaValues =  service.replaceGuardedStrings(context);

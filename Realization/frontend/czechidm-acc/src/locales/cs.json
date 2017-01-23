@@ -111,6 +111,7 @@
         "header": "Detail synchronizace",
         "title": "Detail synchronizace",
         "synchronizationLogsHeader": "Logy synchronizace",
+        "situations": "Akce pro konkrétní situace",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -120,6 +121,20 @@
         },
         "save": {
           "success": "Konfigurace synchronizace [{{name}}] byla úspěšně uložena"
+        },
+        "button": {
+          "saveAndStartSynchronization": "Uložit a spustit synchronizaci"
+        },
+        "tabs": {
+          "basicConfiguration": {
+            "label": "Základní konfigurace"
+          },
+          "filterConfiguration": {
+            "label": "Filtr"
+          },
+          "logs": {
+            "label": "Logy"
+          }
         }
       },
       "systemSynchronizationLogDetail": {
@@ -493,7 +508,6 @@
       "name": "Název",
       "description": "Popis",
       "runOnServer": "Spustit na serveru",
-      "reconciliation": "Reconciliace",
       "customFilter" :{
         "label": "Použít vlastní filtr",
         "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
@@ -508,9 +522,14 @@
       },
       "token": "Token",
       "timestamp": "Časová značka",
+      "filterOperation": "Filtrovací operace",
       "customFilterScript": {
         "label": "Vlastní filtr",
         "help": "V tomto Groovy skriptu můžete definovat vlastní filtr, dle kterého bude provedeno vyhledání účtů na koncovém systému a následná synchronizace."
+      },
+      "reconciliation": {
+        "label": "Reconciliace",
+        "help": "Pokud je zaškrtnuto, bude provedena plná reconciliace (namísto synchronizace). To znamená, že bude provedena synchronizace pro všechny účty (nastavení filtru nebude bráno v potaz) a dále vyhledání chybějících účtů (proti všem příslušným entitám v IdM)."
       },
       "correlationAttribute": "Korelační atribut",
       "systemMapping": "Sada mapovaných atributů",
@@ -525,6 +544,7 @@
       "ended": "Ukončena",
       "token": "Token",
       "results": "Výsledky",
+      "containsError": "Obsahuje chyby",
       "actions": {
         "SUCCESS": {
           "CREATE_ENTITY": "Vytvořeno entit",
@@ -621,6 +641,14 @@
       "LINK": "Vytvořit vazbu",
       "LINK_AND_UPDATE_ACCOUNT": "Vytvořit vazbu a aktualizovat účet",
       "IGNORE": "Ignorovat"
+    },
+    "IcFilterOperationTypeEnum": {
+      "EQUAL_TO": "Ekvivalentní",
+      "CONTAINS": "Obsahuje",
+      "GREATER_THAN": "Je větší než",
+      "LESS_THAN": "Je menší než",
+      "ENDS_WITH": "Končí na",
+      "STARTS_WITH": "Začíná na"
     },
     "SynchronizationActionTypeEnum": {
       "CREATE_ENTITY": "Vytvoření nové entity",

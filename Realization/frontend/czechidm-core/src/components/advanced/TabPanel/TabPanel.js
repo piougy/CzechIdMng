@@ -77,17 +77,36 @@ class TabPanel extends Basic.AbstractContextComponent {
   }
 
   render() {
+    const { position } = this.props;
     const navigationItems = this.getNavigationItems();
 
-    return (
-      <div ref="tabPanel" className="tab-panel clearfix">
-        <ul ref="tabPanelSidebar" className="tab-panel-sidebar nav nav-pills nav-stacked">
-          {navigationItems}
-        </ul>
-        <div ref="tabPanelContent" className="tab-panel-content tab-content">
-          {this.props.children}
+    if (position === 'top') {
+      return (
+        <div className="tab-horizontal">
+          <ul className="nav nav-tabs">
+            { navigationItems }
+          </ul>
+          <div className="tab-content">
+            <div className="tab-pane active" style={{ padding: '0px 15px' }}>
+              { this.props.children }
+            </div>
+          </div>
         </div>
-      </div>
+      );
+    }
+    //
+    // left
+    return (
+      <Basic.Panel className="clearfix">
+        <div ref="tabPanel" className="tab-panel tab-vertical clearfix">
+          <ul ref="tabPanelSidebar" className="tab-panel-sidebar nav nav-pills nav-stacked">
+            {navigationItems}
+          </ul>
+          <div ref="tabPanelContent" className="tab-panel-content tab-content">
+            {this.props.children}
+          </div>
+        </div>
+      </Basic.Panel>
     );
   }
 }
@@ -98,11 +117,20 @@ TabPanel.propTypes = {
   /**
    * which navigation parent wil be rendered - sub menus to render
    */
-  parentId: PropTypes.string
+  parentId: PropTypes.string,
+  /**
+   * Tabs position
+   *
+   * @param  {[type]} ['left' [description]
+   * @param  {[type]} 'top']  [description]
+   * @return {[type]}         [description]
+   */
+  position: PropTypes.oneOf(['left', 'top'])
 };
 TabPanel.defaultProps = {
   navigation: null,
-  userContext: null
+  userContext: null,
+  position: 'left'
 };
 
 function select(state) {

@@ -14,7 +14,7 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
     const { className, to, active, icon, iconColor, ...others } = this.props;
     const itemClassNames = classnames(
       { 'list-group-item': false },
-      { active },
+      { 'active': active === true },
       className
     );
     return (

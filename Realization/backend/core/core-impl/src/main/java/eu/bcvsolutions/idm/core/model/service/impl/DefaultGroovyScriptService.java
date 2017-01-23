@@ -52,7 +52,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 
 			return shell.evaluate(script);
 		} catch (SecurityException ex) {
-			throw new IdmSecurityException(CoreResultCode.GROVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
+			throw new IdmSecurityException(CoreResultCode.GROOVY_SCRIPT_SECURITY_VALIDATION, ImmutableMap.of("message", ex.getLocalizedMessage()), ex);
 		} finally {
 			sandboxFilter.unregister();
 		}
@@ -93,7 +93,7 @@ public class DefaultGroovyScriptService implements GroovyScriptService {
 			GroovyShell shell = new GroovyShell();
 			return shell.parse(script);
 		} catch (CompilationFailedException ex) {
-			throw new ResultCodeException(CoreResultCode.GROVY_SCRIPT_VALIDATION, ex);
+			throw new ResultCodeException(CoreResultCode.GROOVY_SCRIPT_VALIDATION, ex);
 		}
 	}
 

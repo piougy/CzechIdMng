@@ -16,19 +16,19 @@ export default class BasicTabs extends AbstractComponent {
   }
 
   render() {
-    const { rendered, position, className, ...others } = this.props;
+    const { rendered, position, activeKey, onSelect, className, ...others } = this.props;
     if (!rendered) {
       return null;
     }
 
     const classNames = classnames(
       {'tab-horizontal': !position || position === 'top'},
-      {'tab-vertical': position && position === 'left'},
+      {'tab-vertical': position && position === 'left'}, // TODO: not implemened
       className
     );
 
     return (
-      <Tabs position={position} className={classNames} {...others}>
+      <Tabs position={position} onSelect={onSelect} activeKey={activeKey} className={classNames} {...others}>
         {this.props.children}
       </Tabs>
     );

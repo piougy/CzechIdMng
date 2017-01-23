@@ -78,8 +78,11 @@ import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncDelta;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
+import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
+import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
@@ -295,12 +298,13 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				startReconciliation(entityType, systemAccountsMap, config, system, log, actionsLog);
 			}
 
-			log.addToLog(MessageFormat.format("Synchronization was standard ended in {0}.", LocalDateTime.now()));
+			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
 			return synchronizationConfigService.save(config);
 
 		} catch (Exception e) {
 			String message = "Error during synchronization";
 			log.addToLog(message);
+			log.setContainsError(true);
 			log.addToLog(Throwables.getStackTraceAsString(e));
 			LOG.error(message, e);
 		} finally {
@@ -330,7 +334,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				return;
 			}
 			String uid = account.getRealUid();
-			if (!systemAccountsMap.containsKey(account.getRealUid())) {
+			if (!systemAccountsMap.containsKey(uid)) {
 				SysSyncItemLog itemLog = new SysSyncItemLog();
 				try {
 
@@ -419,12 +423,17 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 
 	private IcFilter resolveSynchronizationFilter(SysSynchronizationConfig config) {
+		// If is reconciliation, then is filter null
+		if (config.isReconciliation()){
+			return null;
+		}
 		IcFilter filter = null;
 		AttributeMapping filterAttributeMapping = config.getFilterAttribute();
 		String configToken = config.getToken();
 		if (filterAttributeMapping == null && configToken == null) {
 			return null;
 		}
+
 		if (filterAttributeMapping != null) {
 			Object transformedValue = attributeHandlingService.transformValueToResource(configToken,
 					filterAttributeMapping, config);
@@ -435,6 +444,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 			IcAttributeImpl filterAttribute = new IcAttributeImpl(filterAttributeMapping.getSchemaAttribute().getName(),
 					transformedValue);
+			
 			switch (config.getFilterOperation()) {
 			case GREATER_THAN:
 				filter = IcFilterBuilder.greaterThan(filterAttribute);
@@ -466,7 +476,14 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			Map<String, Object> variables = new HashMap<>();
 			variables.put("filter", filter);
 			variables.put("token", configToken);
+
 			List<Class<?>> allowTypes = new ArrayList<>();
+			// Allow all IC filter operator
+			for(IcFilterOperationType operation : IcFilterOperationType.values()){
+				allowTypes.add(operation.getImplementation());
+			}
+			allowTypes.add(IcAndFilter.class);
+			allowTypes.add(IcOrFilter.class);
 			allowTypes.add(IcFilterBuilder.class);
 			allowTypes.add(IcAttributeImpl.class);
 			allowTypes.add(IcAttribute.class);
@@ -905,6 +922,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs, String uid, Exception e) {
 		String message = MessageFormat.format("Synchronization - exception during {0} for UID {1}",
 				synchronizationActionType, uid);
+		log.setContainsError(true);
 		logItem.setMessage(message);
 		logItem.addToLog(Throwables.getStackTraceAsString(e));
 		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);

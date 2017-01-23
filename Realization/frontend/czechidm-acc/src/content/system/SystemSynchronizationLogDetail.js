@@ -78,6 +78,9 @@ class SystemSynchronizationLogDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="running"
                 label={this.i18n('acc:entity.SynchronizationLog.running')}/>
+              <Basic.Checkbox
+                ref="containsError"
+                label={this.i18n('acc:entity.SynchronizationLog.containsError')}/>
               <Basic.DateTimePicker
                 ref="started"
                 label={this.i18n('acc:entity.SynchronizationLog.started')}/>

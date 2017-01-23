@@ -305,18 +305,40 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
-            'id': 'fe-modules',
-            'labelKey': 'content.system.fe-modules.title',
+            'id': 'modules',
+            'labelKey': 'content.system.modules.title',
             'order': 30,
-            'path': '/fe-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-          },
-          {
-            'id': 'be-modules',
-            'labelKey': 'content.system.be-modules.title',
-            'order': 30,
-            'path': '/be-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+            'path': '/modules/fe-modules',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+            'items': [
+              {
+                'id': 'fe-modules',
+                'labelKey': 'content.system.fe-modules.title',
+                'order': 10,
+                'path': '/modules/fe-modules',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              },
+              {
+                'id': 'be-modules',
+                'labelKey': 'content.system.be-modules.title',
+                'order': 20,
+                'path': '/modules/be-modules',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+              },
+              {
+                'id': 'entity-event-processors',
+                'labelKey': 'content.system.entity-event-processors.title',
+                'order': 30,
+                'path': '/modules/entity-event-processors',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+              }
+            ]
           },
           {
             'id': 'workflow-definitions',

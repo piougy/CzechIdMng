@@ -21,6 +21,7 @@ import RuleManager from './RuleManager';
 import NotificationConfigurationManager from './NotificationConfigurationManager';
 import WebsocketManager from './WebsocketManager';
 import PasswordPolicyManager from './PasswordPolicyManager';
+import EntityEventProcessorManager from './EntityEventProcessorManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -45,7 +46,8 @@ const ManagerRoot = {
   RuleManager,
   NotificationConfigurationManager,
   WebsocketManager,
-  PasswordPolicyManager
+  PasswordPolicyManager,
+  EntityEventProcessorManager
 };
 
 ManagerRoot.version = '0.0.1';

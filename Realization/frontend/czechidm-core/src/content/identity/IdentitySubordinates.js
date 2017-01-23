@@ -29,7 +29,7 @@ class IdentitySubordinates extends Basic.AbstractContent {
   render() {
     const forceSearchParameters = new SearchParameters().setFilter('subordinatesFor', this.props.params.entityId);
     return (
-      <div>
+      <div className="tab-pane-table-body">
         <Helmet title={this.i18n('title')} />
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>

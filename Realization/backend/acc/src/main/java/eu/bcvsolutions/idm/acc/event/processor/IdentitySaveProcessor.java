@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -25,8 +26,10 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  */
 @Component("accIdentitySaveProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Executes provisioing after identity is saved.")
 public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
+	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentitySaveProcessor.class);
 	private ProvisioningService provisioningService;
 	private final ApplicationContext applicationContext;
@@ -38,6 +41,11 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 		Assert.notNull(applicationContext);
 		//
 		this.applicationContext = applicationContext;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

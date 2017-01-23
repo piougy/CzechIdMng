@@ -11,16 +11,21 @@ export default class TabPanelItem extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { className, to, active, icon, iconColor, ...others } = this.props;
+    const { className, to, active, icon, iconColor, showLoading, ...others } = this.props;
     const itemClassNames = classnames(
       { 'list-group-item': false },
       { 'active': active === true },
       className
     );
+    let _icon = ( icon === undefined || icon === null ? 'fa:circle-o' : icon );
+    if (showLoading) {
+      _icon = 'refresh';
+    }
+
     return (
       <li className={itemClassNames}>
         <Link to={to}>
-          <Basic.Icon value={ icon || 'fa:circle-o' } color={ iconColor }/>
+          <Basic.Icon value={_icon} color={ iconColor }/>
           {this.props.children}
         </Link>
       </li>

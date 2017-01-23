@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -15,26 +15,31 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
- * Processor for only create user, for now is there only validate password
+ * Processor for validatin password, when identity is created
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
-@Order(-10)
 @Component
-public class IdentityCreateProcessor extends CoreEventProcessor<IdmIdentity>{
+@Description("Validates identity's password before identity is created.")
+public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<IdmIdentity>{
 	
-private final IdmPasswordPolicyService passwordPolicyService;
+	public static final String PROCESSOR_NAME = "identity-create-validate-password-processor";
+	private final IdmPasswordPolicyService passwordPolicyService;
 	
 	@Autowired
-	public IdentityCreateProcessor(
+	public IdentityCreatePasswordValidateProcessor(
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(IdentityEventType.CREATE);
 		//
 		Assert.notNull(passwordPolicyService);
 		//
 		this.passwordPolicyService = passwordPolicyService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 	
 	@Override
@@ -49,5 +54,10 @@ private final IdmPasswordPolicyService passwordPolicyService;
 		
 		return new DefaultEventResult<>(event, this);
 	}
-
+	
+	@Override
+	public int getOrder() {
+		// before identity is saved
+		return -10;
+	}
 }

@@ -9,6 +9,8 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
 
 /**
@@ -28,6 +30,9 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	@Autowired(required = false)
 	private EnabledEvaluator enabledEvaluator; // optional internal dependency - checks for module is enabled
 	
+	@Autowired(required = false)
+	private ConfigurationService configurationService; // optional internal dependency - checks for processor is enabled
+	
 	@SuppressWarnings({"unchecked"})
 	public AbstractEntityEventProcessor(EventType... types) {
 		this.entityClass = (Class<E>)GenericTypeResolver.resolveTypeArgument(getClass(), EntityEventProcessor.class);
@@ -36,6 +41,16 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 				this.types.add(type.name());
 			}
 		}
+	}
+	
+	@Override
+	public String getModule() {
+		return this.getClass().getCanonicalName().split("\\.")[3];
+	}
+	
+	@Override
+	public Class<E> getEntityClass() {
+		return entityClass;
 	}
 	
 	@Override
@@ -70,6 +85,10 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		if (enabledEvaluator != null && !enabledEvaluator.isEnabled(this.getClass())) {
 			return;
 		}
+		// check for processor is enabled
+		if (isDisabled()) {
+			return;
+		}
 		//
 		if (!supports(event)) {
 			// event is not supported with this processor
@@ -88,6 +107,27 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	
 	@Override
 	public boolean isClosable() {
+		return false;
+	}
+	
+	@Override
+	public boolean isDisableable() {
+		return true;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		// check for processor is enabled, if configuration service is given
+		if (configurationService != null) {
+			return configurationService.getBooleanValue(
+					ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
+					+ getModule()
+					+ ConfigurationService.PROPERTY_SEPARATOR
+					+ getName()
+					+ ConfigurationService.PROPERTY_SEPARATOR
+					+ ModuleService.PROPERTY_ENABLED, false);
+		}
+		// enabled by default
 		return false;
 	}
 }

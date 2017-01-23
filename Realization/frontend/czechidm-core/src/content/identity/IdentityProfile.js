@@ -37,7 +37,9 @@ class Profile extends Basic.AbstractContent {
     const { identity } = this.props;
     const { entityId } = this.props.params;
     return (
-      <IdentityDetail identity={identity} entityId={entityId} />
+      <div className="tab-pane-text-body">
+        <IdentityDetail identity={identity} entityId={entityId} />
+      </div>
     );
   }
 }

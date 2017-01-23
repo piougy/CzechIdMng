@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,8 +25,10 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Executes account management and provisioing before identity role is deleted.")
 public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
+	public static final String PROCESSOR_NAME = "identity-role-delete-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleDeleteProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
@@ -41,6 +44,11 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

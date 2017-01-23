@@ -22,7 +22,7 @@ public class IdentityEvent extends CoreEvent<IdmIdentity> {
 	 *
 	 */
 	public enum IdentityEventType implements EventType {
-		DELETE, PASSWORD, UPDATE, CREATE
+		CREATE, UPDATE, DELETE, PASSWORD
 	}
 	
 	public IdentityEvent(IdentityEventType operation, IdmIdentity content) {

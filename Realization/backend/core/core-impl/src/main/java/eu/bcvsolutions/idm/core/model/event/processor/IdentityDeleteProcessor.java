@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,8 +25,10 @@ import eu.bcvsolutions.idm.notification.repository.IdmNotificationRecipientRepos
  *
  */
 @Component
+@Description("Deletes identity.")
 public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 
+	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final IdmIdentityRepository repository;
 	private final FormService formService;
 	private final IdentityPasswordProcessor passwordProcessor;
@@ -61,6 +64,11 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		this.identityContractRepository = identityContractRepository;
 		this.notificationRecipientRepository = notificationRecipientRepository;
 	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
 
 	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
@@ -84,5 +92,10 @@ public class IdentityDeleteProcessor extends CoreEventProcessor<IdmIdentity> {
 		repository.delete(identity);
 		//
 		return new DefaultEventResult<>(event, this);
+	}
+	
+	@Override
+	public boolean isDisableable() {
+		return false;
 	}
 }

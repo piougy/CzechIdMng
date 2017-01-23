@@ -27,9 +27,12 @@ AdvancedColumn.propTypes = {
    */
   property: PropTypes.string.isRequired,
   /**
-   * Pixel or percent width of table.
+   * Pixel or percent width of table. If number is given, then pixels is used.
    */
-  width: PropTypes.string,
+  width: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
   /**
    * column sorting
    */

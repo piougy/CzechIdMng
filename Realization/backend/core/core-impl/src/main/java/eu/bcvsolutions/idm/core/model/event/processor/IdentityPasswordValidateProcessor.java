@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -25,11 +26,11 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Component
+@Description("Validates identity's password, when password is changed.")
 public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentity> {
 
-	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
+	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private final SecurityService securityService;
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
@@ -49,10 +50,15 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	}
 
 	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
+	
+	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdmIdentity identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
-				.get(PROPERTY_PASSWORD_CHANGE_DTO);
+				.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//
 		if (!securityService.isAdmin()) {
@@ -78,5 +84,4 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	public int getOrder() {
 		return super.getOrder() - 100;
 	}
-
 }

@@ -1156,6 +1156,10 @@
       "title": "Audit"
     },
     "system": {
+      "modules": {
+        "header": "Aplikační moduly a komponenty",
+        "title": "Moduly"
+      },
       "fe-modules": {
         "header": "Aplikační moduly a komponenty",
         "title": "Moduly (frontend)",
@@ -1170,6 +1174,10 @@
       "be-modules": {
         "header": "Moduly <small>backend</small>",
         "title": "Moduly (backend)"
+      },
+      "entity-event-processors": {
+        "header": "Processory",
+        "title": "Processory"
       }
     },
     "notifications": {
@@ -1633,6 +1641,18 @@
       "version": "Verze",
       "description": "Popis",
       "disabled": "Neaktivní"
+    },
+    "EntityEventProcessor": {
+      "id": "Id",
+      "name": "Název",
+      "module": "Modul",
+      "description": "Popis",
+      "entityType": "Typ entity",
+      "eventTypes": "Typy událostí",
+      "order": "Pořadí",
+      "disabled": "Neaktivní",
+      "disableable": "Nelze vypnout",
+      "closeable": "Uzavírá zpracování"
     }
   },
   "error": {

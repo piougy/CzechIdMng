@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
  * Disabled system provisioning - only saves provisioning operations
@@ -32,8 +33,11 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  *
  */
 @Component
+@Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Checks disabled system before provisioning is called.")
 public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
+	public static final String PROCESSOR_NAME = "disabled-system-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DisabledSystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
@@ -49,6 +53,11 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 	
 	@Override
@@ -80,6 +89,6 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	@Override
 	public int getOrder() {
 		// before all
-		return Ordered.HIGHEST_PRECEDENCE;
+		return -5000;
 	}
 }

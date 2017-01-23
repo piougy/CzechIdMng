@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -19,10 +19,11 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Component
+@Description("Deletes identity role from repository.")
 public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityRole> {
 
+	public static final String PROCESSOR_NAME = "identity-role-delete-processor";
 	private final IdmIdentityRoleRepository repository;
 	
 	@Autowired
@@ -33,6 +34,11 @@ public class IdentityRoleDeleteProcessor extends CoreEventProcessor<IdmIdentityR
 		Assert.notNull(repository);
 		//
 		this.repository = repository;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

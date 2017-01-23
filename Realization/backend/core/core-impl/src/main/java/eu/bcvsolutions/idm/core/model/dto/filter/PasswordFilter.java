@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 
 public class PasswordFilter extends QuickFilter {
 	

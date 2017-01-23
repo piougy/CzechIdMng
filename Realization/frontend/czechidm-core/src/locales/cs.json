@@ -362,6 +362,12 @@
       "RANDOM": "Náhodné",
       "PASSPHRASE": "Passphrase"
     },
+    "PasswordPolicyIdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno",
+      "LASTNAME": "Jméno",
+      "FIRSTNAME": "Přijmení",
+      "EMAIL": "Email"
+    },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
       "INFO": "INFO",
@@ -545,7 +551,13 @@
         "prohibited": "Heslo obsahuje zakázané znaky: ",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo přes tyto politiky: "
+        "policiesNames": "Heslo neprošlo přes tyto politiky: ",
+        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
+        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujícíh pravidel: ",
+        "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
+        "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
+        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
+        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: "
       },
       "save": {
         "success": "Politika byla úspěšně uložena."
@@ -1602,8 +1614,11 @@
     "PasswordPolicy": {
       "type": "Typ",
       "name": "Jméno",
+      "basic": "Základní údaje",
+      "bases": "Znaky",
       "generateType": "Typ generování",
       "disabled": "Neaktivní",
+      "description": "Popis",
       "defaultPolicy": "Standardní politika",
       "passwordLengthRequired": "Povinná délka hesla",
       "minPasswordLength": "Minimální délka",
@@ -1624,7 +1639,11 @@
       "minPasswordAge": "Minimální doba pro změnu hesla",
       "enchancedControl": "Rozšířená kontrola hesla",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
-      "maxHistorySimilar": "Počet zpětně kontrolovaných heselna shodu"
+      "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
+      "lowerCharBase": "Povolené malé znaky",
+      "upperCharBase": "Povolené velké znaky",
+      "numberBase": "Povolené číslice",
+      "specialCharBase": "Povolené speciální znaky"
     },
     "Module": {
       "id": "Id",

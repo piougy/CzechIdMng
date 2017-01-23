@@ -6,6 +6,8 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
 
@@ -24,6 +26,10 @@ public class IdmPasswordValidationDto implements Serializable {
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private GuardedString password;
 	
+	private IdmPassword oldPassword;
+	
+	private IdmIdentity identity;
+	
 	private boolean valid;
 
 	public GuardedString getPassword() {
@@ -34,9 +40,8 @@ public class IdmPasswordValidationDto implements Serializable {
 		this.password = password;
 	}
 	
-	@Override
-	public String toString() {
-		return this.password.asString();
+	public void setPassword(String password) {
+		this.password = new GuardedString(password);
 	}
 
 	public boolean isValid() {
@@ -45,5 +50,21 @@ public class IdmPasswordValidationDto implements Serializable {
 
 	public void setValid(boolean valid) {
 		this.valid = valid;
+	}
+
+	public IdmIdentity getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(IdmIdentity identity) {
+		this.identity = identity;
+	}
+
+	public IdmPassword getOldPassword() {
+		return oldPassword;
+	}
+
+	public void setOldPassword(IdmPassword oldPassword) {
+		this.oldPassword = oldPassword;
 	}
 }

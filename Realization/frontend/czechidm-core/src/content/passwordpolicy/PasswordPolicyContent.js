@@ -27,8 +27,13 @@ class PasswordPolicyContent extends Basic.AbstractContent {
     const { entityId } = this.props.params;
 
     if (this._getIsNew()) {
+      // if entity is new, set default required rules
       this.context.store.dispatch(passwordPolicyManager.receiveEntity(entityId, {
-        type: AbstractEnum.findKeyBySymbol(PasswordPolicyTypeEnum, PasswordPolicyTypeEnum.VALIDATE)
+        type: AbstractEnum.findKeyBySymbol(PasswordPolicyTypeEnum, PasswordPolicyTypeEnum.VALIDATE),
+        passwordLengthRequired: true,
+        upperCharRequired: true,
+        lowerCharRequired: true,
+        numberRequired: true
       }));
     } else {
       this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);

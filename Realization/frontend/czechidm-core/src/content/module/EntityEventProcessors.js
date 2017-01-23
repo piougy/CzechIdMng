@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
-import { EntityEventProcessorManager, DataManager, SecurityManager } from '../../redux';
+import { EntityEventProcessorManager, DataManager } from '../../redux';
 import * as Utils from '../../utils';
 
 class EntityEventProcessors extends Basic.AbstractContent {
@@ -48,7 +48,6 @@ class EntityEventProcessors extends Basic.AbstractContent {
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
-
         {
           _registeredProcessors.map((processors, entityType) => {
             processors.sort((one, two) => {
@@ -81,7 +80,7 @@ class EntityEventProcessors extends Basic.AbstractContent {
                   <Basic.Column property="order" header={this.i18n('entity.EntityEventProcessor.order')} width={100}/>
                   <Basic.Column
                     property="disabled"
-                    header={<Basic.Cell className="column-face-bool">{this.i18n('entity.Module.disabled')}</Basic.Cell>}
+                    header={<Basic.Cell className="column-face-bool">{this.i18n('entity.EntityEventProcessor.disabled')}</Basic.Cell>}
                     cell={<Basic.BooleanCell className="column-face-bool"/>}
                     width="100px"/>
                 </Basic.Table>
@@ -89,7 +88,6 @@ class EntityEventProcessors extends Basic.AbstractContent {
             );
           })
         }
-
       </div>
     );
   }
@@ -103,7 +101,7 @@ EntityEventProcessors.propTypes = {
 EntityEventProcessors.defaultProps = {
   userContext: null,
   showLoading: true,
-  registeredProcessors: null,
+  registeredProcessors: null
 };
 
 function select(state) {

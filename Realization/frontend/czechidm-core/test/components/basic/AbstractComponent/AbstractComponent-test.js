@@ -60,9 +60,9 @@ describe('Basic AbstractComponent', function abstractComponent() {
             const ComponentType = componentLibrary[component];
             const shallowRenderer = TestUtils.createRenderer();
             // fill some commons properties to ensure more component types wil be rendered
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading={false}/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading={false}/>);
             const renderedComponent = shallowRenderer.getRenderOutput();
-            shallowRenderer.render(<ComponentType title="Title" icon="user" show value="empty" text="Text" label="label" showLoading/>);
+            shallowRenderer.render(<ComponentType title="Title" icon="user" value="empty" text="Text" label="label" showLoading/>);
             const renderedComponentWithShowLoading = shallowRenderer.getRenderOutput();
             /*
             if(component === 'Label') {

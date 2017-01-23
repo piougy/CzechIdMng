@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.acc.service.api;
 import java.util.Map;
 import java.util.UUID;
 
+import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
  * @author Radek Tomiška
  *
  */
-public interface SysProvisioningOperationService extends ReadWriteEntityService<SysProvisioningOperation, EmptyFilter> {
+public interface SysProvisioningOperationService extends ReadWriteEntityService<SysProvisioningOperation, ProvisioningOperationFilter> {
 
 	/**
 	 * Returns fully loaded AccountObject with guarded string.

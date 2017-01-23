@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
+import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  */
 @Service
 public class DefaultSysProvisioningArchiveService
-		extends AbstractReadWriteEntityService<SysProvisioningArchive, EmptyFilter> implements SysProvisioningArchiveService {
+		extends AbstractReadWriteEntityService<SysProvisioningArchive, ProvisioningOperationFilter> implements SysProvisioningArchiveService {
 
 	@Autowired
 	public DefaultSysProvisioningArchiveService(

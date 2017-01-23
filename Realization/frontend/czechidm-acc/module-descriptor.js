@@ -82,6 +82,15 @@ module.exports = {
             'order': 60,
             'path': '/system/:entityId/synchronization-configs',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-provisioning-operations',
+            'type': 'TAB',
+            'labelKey': 'acc:content.provisioningOperations.label',
+            'titleKey': 'acc:content.provisioningOperations.title',
+            'order': 70,
+            'path': '/system/:entityId/provisioning',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           }
         ]
       },

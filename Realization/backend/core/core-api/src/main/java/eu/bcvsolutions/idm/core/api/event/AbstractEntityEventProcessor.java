@@ -119,13 +119,13 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	public boolean isDisabled() {
 		// check for processor is enabled, if configuration service is given
 		if (configurationService != null) {
-			return configurationService.getBooleanValue(
+			return !configurationService.getBooleanValue(
 					ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX
 					+ getModule()
 					+ ConfigurationService.PROPERTY_SEPARATOR
 					+ getName()
 					+ ConfigurationService.PROPERTY_SEPARATOR
-					+ ModuleService.PROPERTY_ENABLED, false);
+					+ ModuleService.PROPERTY_ENABLED, true);
 		}
 		// enabled by default
 		return false;

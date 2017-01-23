@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -24,8 +25,10 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Executes account management and provisioing after identity role is saved.")
 public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentityRole> {
 
+	public static final String PROCESSOR_NAME = "identity-role-save-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityRoleSaveProvisioningProcessor.class);
 	private final AccAccountManagementService accountManagementService;
 	private final ProvisioningService provisioningService;
@@ -34,13 +37,18 @@ public class IdentityRoleSaveProvisioningProcessor extends AbstractEntityEventPr
 	public IdentityRoleSaveProvisioningProcessor(
 			AccAccountManagementService accountManagementService,
 			ProvisioningService provisioningService) {
-		super(IdentityRoleEventType.SAVE);
+		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(accountManagementService);
 		Assert.notNull(provisioningService);
 		//
 		this.accountManagementService = accountManagementService;
 		this.provisioningService = provisioningService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

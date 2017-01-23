@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -25,8 +26,10 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  */
 @Component
 @Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Identity's and all selected systems password provisioning.")
 public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 
+	public static final String PROCESSOR_NAME = "identity-password-provisioning-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProvisioningProcessor.class);
 	private final ProvisioningService provisioningService;
 	
@@ -37,6 +40,11 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		Assert.notNull(provisioningService);
 		//
 		this.provisioningService = provisioningService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

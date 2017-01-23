@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
@@ -22,7 +23,10 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Component
+@Description("Executes provisioning operation on connector facade.")
 public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
+	
+	public static final String PROCESSOR_NAME = "provisioning-delete-processor";
 	
 	@Autowired
 	public ProvisioningDeleteProcessor(
@@ -30,6 +34,11 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 			SysSystemService systemService,
 			SysProvisioningOperationService provisioningOperationService) {
 		super(connectorFacade, systemService, provisioningOperationService, ProvisioningOperationType.DELETE);
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

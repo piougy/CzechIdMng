@@ -23,6 +23,7 @@ import RuleService from './RuleService';
 import NotificationConfigurationService from './NotificationConfigurationService';
 import WebsocketService from './WebsocketService';
 import PasswordPolicyService from './PasswordPolicyService';
+import EntityEventProcessorService from './EntityEventProcessorService';
 
 const ServiceRoot = {
   RestApiService,
@@ -49,7 +50,8 @@ const ServiceRoot = {
   RuleService,
   NotificationConfigurationService,
   WebsocketService,
-  PasswordPolicyService
+  PasswordPolicyService,
+  EntityEventProcessorService
 };
 
 ServiceRoot.version = '0.0.1';

@@ -62,7 +62,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		accIdentityAccountRepository.deleteByAccount(account);
 		//
 		super.delete(account);
-		// TODO move to asynchronouse queue
+		// TODO: move to event
 		if (deleteTargetAccount) {
 			if (provisioningService == null) {
 				provisioningService = applicationContext.getBean(ProvisioningService.class);

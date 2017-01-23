@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -23,8 +24,10 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Component
+@Description("Executes provisioning operation on connector facade. Depends on [" + PrepareConnectorObjectProcessor.PROCESSOR_NAME + "] result operation type [CREATE].")
 public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 
+	public static final String PROCESSOR_NAME = "provisioning-create-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
 	private final SysSystemEntityService systemEntityService;
 	
@@ -40,6 +43,11 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		Assert.notNull(systemEntityService);
 		//
 		this.systemEntityService = systemEntityService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

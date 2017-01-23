@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -19,20 +19,26 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Component
+@Description("Persists identity role.")
 public class IdentityRoleSaveProcessor extends CoreEventProcessor<IdmIdentityRole> {
 
+	public static final String PROCESSOR_NAME = "identity-role-save-processor";
 	private final IdmIdentityRoleRepository repository;
 	
 	@Autowired
 	public IdentityRoleSaveProcessor(
 			IdmIdentityRoleRepository repository) {
-		super(IdentityRoleEventType.SAVE);
+		super(IdentityRoleEventType.CREATE, IdentityRoleEventType.UPDATE);
 		//
 		Assert.notNull(repository);
 		//
 		this.repository = repository;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

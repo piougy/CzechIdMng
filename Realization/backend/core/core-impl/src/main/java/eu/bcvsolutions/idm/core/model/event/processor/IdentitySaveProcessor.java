@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -21,10 +21,11 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  * @author Radek Tomiška
  *
  */
-@Order(0)
 @Component
+@Description("Persists identity.")
 public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 
+	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private final IdmIdentityRepository repository;
 	private final IdentityPasswordProcessor passwordProcessor;
 	
@@ -39,6 +40,11 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 		//
 		this.repository = repository;
 		this.passwordProcessor = passwordProcessor;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

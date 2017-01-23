@@ -77,9 +77,12 @@ Column.propTypes = {
     PropTypes.func
   ]),
   /**
-   * Pixel or percent width of table.
+   * Pixel or percent width of table. If number is given, then pixels is used.
    */
-  width: PropTypes.string,
+  width: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
   /**
    * If component is rendered on page
    */

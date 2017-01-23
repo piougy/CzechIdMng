@@ -70,6 +70,11 @@ public class EntityEventManagerUnitTest extends AbstractUnitTest {
 			return 1;
 		}
 
+		@Override
+		public String getName() {
+			return "one";
+		}
+
 	}
 	
 	private class EventProcessorRole extends AbstractEntityEventProcessor<IdmRole> {
@@ -86,6 +91,11 @@ public class EntityEventManagerUnitTest extends AbstractUnitTest {
 		@Override
 		public int getOrder() {
 			return 1;
+		}
+
+		@Override
+		public String getName() {
+			return "two";
 		}
 
 	}

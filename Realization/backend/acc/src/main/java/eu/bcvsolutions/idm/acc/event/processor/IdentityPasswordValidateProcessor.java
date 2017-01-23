@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -35,16 +36,18 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
  *
  */
 
-@Component
+@Component("accIdentityPasswordValidateProcessor")
 @Enabled(AccModuleDescriptor.MODULE_ID)
-public class IdentityPasswordValidationProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
+@Description("Validates identity's and all selected systems password, when password is changed.")
+public class IdentityPasswordValidateProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordValidationProcessor.class);
+	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordValidateProcessor.class);
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final AccIdentityAccountService identityAccountService; 
 	
 	@Autowired
-	public IdentityPasswordValidationProcessor(IdmPasswordPolicyService passwordPolicyService,
+	public IdentityPasswordValidateProcessor(IdmPasswordPolicyService passwordPolicyService,
 			AccIdentityAccountService identityAccountService) {
 		super(IdentityEventType.PASSWORD);
 		//
@@ -52,6 +55,11 @@ public class IdentityPasswordValidationProcessor extends AbstractEntityEventProc
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.identityAccountService = identityAccountService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 	
 	@Override

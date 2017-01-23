@@ -22,7 +22,7 @@ public class IdentityRoleEvent extends CoreEvent<IdmIdentityRole> {
 	 *
 	 */
 	public enum IdentityRoleEventType implements EventType {
-		SAVE, DELETE // TODO: split SAVE to UPDATE / CREATE?
+		CREATE, UPDATE, DELETE
 	}
 	
 	public IdentityRoleEvent(IdentityRoleEventType operation, IdmIdentityRole content) {

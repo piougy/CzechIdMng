@@ -87,7 +87,7 @@ class TabPanel extends Basic.AbstractContextComponent {
             { navigationItems }
           </ul>
           <div className="tab-content">
-            <div className="tab-pane active" style={{ padding: '0px 15px' }}>
+            <div className="tab-pane active">
               { this.props.children }
             </div>
           </div>

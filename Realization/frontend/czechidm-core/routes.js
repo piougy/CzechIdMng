@@ -164,14 +164,26 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
-      path: 'fe-modules',
-      component: require('./src/content/module/FrontendModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-    },
-    {
-      path: 'be-modules',
-      component: require('./src/content/module/BackendModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+      path: 'modules',
+      component: require('./src/content/module/ModuleRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'fe-modules',
+          component: require('./src/content/module/FrontendModules'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        },
+        {
+          path: 'be-modules',
+          component: require('./src/content/module/BackendModules'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+        },
+        {
+          path: 'entity-event-processors',
+          component: require('./src/content/module/EntityEventProcessors'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+        }
+      ]
     },
     {
       path: 'workflow',

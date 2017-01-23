@@ -16,6 +16,7 @@ public class LoginDto {
 	private GuardedString password;
 	private String token;
 	private IdmJwtAuthenticationDto authentication;
+	private boolean skipMustChange = false;
 
 	public String getUsername() {
 		return username;
@@ -47,6 +48,14 @@ public class LoginDto {
 
 	public IdmJwtAuthenticationDto getAuthentication() {
 		return this.authentication;
+	}
+
+	public boolean isSkipMustChange() {
+		return skipMustChange;
+	}
+
+	public void setSkipMustChange(boolean skipMustChange) {
+		this.skipMustChange = skipMustChange;
 	}
 
 }

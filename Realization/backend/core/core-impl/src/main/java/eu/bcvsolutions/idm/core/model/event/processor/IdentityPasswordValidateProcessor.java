@@ -64,7 +64,6 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (!passwordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
-			// can change password, minimal age for change
 		}
 
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password

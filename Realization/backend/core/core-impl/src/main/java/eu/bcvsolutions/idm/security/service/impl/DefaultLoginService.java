@@ -20,7 +20,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
@@ -64,7 +63,8 @@ public class DefaultLoginService implements LoginService {
 	private IdmPasswordService passwordService;
 
 	@Override
-	public LoginDto login(String username, GuardedString password) {
+	public LoginDto login(LoginDto loginDto) {
+		String username = loginDto.getUsername();
 		LOG.info("Identity with username [{}] authenticating", username);
 		
 		IdmIdentity identity = identityService.getByUsername(username);
@@ -73,7 +73,7 @@ public class DefaultLoginService implements LoginService {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] either doesn't exist or is deleted.", username));
 		}
 		// validate identity
-		if (!validate(identity, password)) {
+		if (!validate(identity, loginDto)) {
 			LOG.debug("Username or password for identity [{}] is not correct!", username);			
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity password: Failed for identity {0} because the password digests differ.", username));
 		}
@@ -93,7 +93,6 @@ public class DefaultLoginService implements LoginService {
 		IdmJwtAuthenticationDto authenticationDto = jwtTokenMapper.toDto(authentication);
 	
 		try {
-			LoginDto loginDto = new LoginDto();
 			loginDto.setUsername(username);
 			loginDto.setAuthentication(authenticationDto);
 			loginDto.setToken(jwtTokenMapper.writeToken(authenticationDto));
@@ -101,8 +100,6 @@ public class DefaultLoginService implements LoginService {
 		} catch (IOException ex) {
 			throw new IdmAuthenticationException(ex.getMessage(), ex);
 		}
-
-		
 	}
 
 	/**
@@ -112,7 +109,7 @@ public class DefaultLoginService implements LoginService {
 	 * @param password
 	 * @return
 	 */
-	private boolean validate(IdmIdentity identity, GuardedString password) {
+	private boolean validate(IdmIdentity identity, LoginDto loginDto) {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
 		}
@@ -126,15 +123,14 @@ public class DefaultLoginService implements LoginService {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());
 			return false;
 		}
-		// check if user must change password
-		if (idmPassword.isMustChange()) {
+		// check if user must change password, skip this check if loginDto contains flag
+		if (idmPassword.isMustChange() && loginDto.isSkipMustChange()) {
 			throw new ResultCodeException(CoreResultCode.MUST_CHANGE_IDM_PASSWORD, ImmutableMap.of("user", identity.getUsername()));
 		}
 		// check if password expired
-		if (idmPassword.getValidTill().isAfter(new LocalDate())) {
+		if (idmPassword.getValidTill().isBefore(new LocalDate())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
-		return passwordService.checkPassword(password, idmPassword);
+		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);
 	}
-
 }

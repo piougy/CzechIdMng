@@ -225,9 +225,26 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
     },
     {
-      path: 'password-policies/:entityId',
-      component: require('./src/content/passwordpolicy/PasswordPolicyContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+      path: 'password-policies/',
+      component: require('./src/content/passwordpolicy/PasswordPolicyRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId',
+          component: require('./src/content/passwordpolicy/PasswordPolicyBasic'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        },
+        {
+          path: ':entityId/advanced',
+          component: require('./src/content/passwordpolicy/PasswordPolicyAdvanced'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        },
+        {
+          path: ':entityId/characters',
+          component: require('./src/content/passwordpolicy/PasswordPolicyCharacters'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        }
+      ]
     },
     {
       path: 'audit/',

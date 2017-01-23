@@ -537,10 +537,23 @@
       "header": "Politiky hesel",
       "title": "Politiky hesel",
       "edit": {
-        "header": "detail konfigurace politiky hesel",
+        "header": "Detail konfigurace politiky hesel",
         "title": "Detail konfigurace politiky hesel"
       },
+      "basic": {
+        "header": "Základní informace",
+        "title": "Základní informace"
+      },
+      "advanced": {
+        "header": "Rozšířená kontrola hesla",
+        "title": "Rozšířená kontrola hesla"
+      },
+      "characters": {
+        "header": "Znaky",
+        "title": "Znaky"
+      },
       "create": {
+        "title": "Nová konfigurace politiky hesel",
         "header": "Nová konfigurace politiky hesel"
       },
       "validation": {
@@ -1651,7 +1664,8 @@
       "lowerCharBase": "Povolené malé znaky",
       "upperCharBase": "Povolené velké znaky",
       "numberBase": "Povolené číslice",
-      "specialCharBase": "Povolené speciální znaky"
+      "specialCharBase": "Povolené speciální znaky",
+      "identityAttributeCheck": "Atributy identity pro kontrolu"
     },
     "Module": {
       "id": "Id",

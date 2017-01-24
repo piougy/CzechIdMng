@@ -1,11 +1,11 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
-class RuleService extends AbstractService {
+class ScriptService extends AbstractService {
 
   const
   getApiPath() {
-    return '/rules';
+    return '/scripts';
   }
 
   getNiceLabel(entity) {
@@ -16,7 +16,7 @@ class RuleService extends AbstractService {
   }
 
   /**
-   * Returns default searchParameters for rules
+   * Returns default searchParameters for scripts
    *
    * @return {object} searchParameters
    */
@@ -25,4 +25,4 @@ class RuleService extends AbstractService {
   }
 }
 
-export default RuleService;
+export default ScriptService;

@@ -17,7 +17,7 @@ import EmailManager from './EmailManager';
 import BackendModuleManager from './BackendModuleManager';
 import RoleCatalogueManager from './RoleCatalogueManager';
 import AuditManager from './AuditManager';
-import RuleManager from './RuleManager';
+import ScriptManager from './ScriptManager';
 import NotificationConfigurationManager from './NotificationConfigurationManager';
 import WebsocketManager from './WebsocketManager';
 import PasswordPolicyManager from './PasswordPolicyManager';
@@ -43,7 +43,7 @@ const ManagerRoot = {
   BackendModuleManager,
   RoleCatalogueManager,
   AuditManager,
-  RuleManager,
+  ScriptManager,
   NotificationConfigurationManager,
   WebsocketManager,
   PasswordPolicyManager,

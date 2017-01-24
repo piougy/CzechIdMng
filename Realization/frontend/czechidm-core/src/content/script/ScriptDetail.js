@@ -1,35 +1,35 @@
 import React, { PropTypes } from 'react';
 import * as Basic from '../../components/basic';
-import { RuleManager, SecurityManager } from '../../redux';
-import RuleCategoryEnum from '../../enums/RuleCategoryEnum';
+import { ScriptManager, SecurityManager } from '../../redux';
+import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
 import EntityUtils from '../../utils/EntityUtils';
 import AbstractEnum from '../../enums/AbstractEnum';
 
 /**
- * Detail for rules
+ * Detail for sript
  * * name
  * * description
  * * script area
  * * category
  *
  */
-export default class RuleDetail extends Basic.AbstractContent {
+export default class ScriptDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.ruleManager = new RuleManager();
+    this.scriptManager = new ScriptManager();
     this.state = {
       showLoading: false
     };
   }
 
   getContentKey() {
-    return 'content.rules';
+    return 'content.scripts';
   }
 
   componentDidMount() {
     const { entity } = this.props;
-    this.selectNavigationItem('rules');
+    this.selectNavigationItem('scripts');
     this._initForm(entity);
   }
 
@@ -50,7 +50,7 @@ export default class RuleDetail extends Basic.AbstractContent {
     if (entity !== undefined) {
       if (EntityUtils.isNew(entity)) {
         entity.description = '';
-        entity.category = AbstractEnum.findKeyBySymbol(RuleCategoryEnum, RuleCategoryEnum.DEFAULT);
+        entity.category = AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, ScriptCategoryEnum.DEFAULT);
         this.refs.name.focus();
       }
       this.refs.form.setData(entity);
@@ -76,11 +76,11 @@ export default class RuleDetail extends Basic.AbstractContent {
 
     const entity = this.refs.form.getData();
     if (entity.id === undefined) {
-      this.context.store.dispatch(this.ruleManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
+      this.context.store.dispatch(this.scriptManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
       }));
     } else {
-      this.context.store.dispatch(this.ruleManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
+      this.context.store.dispatch(this.scriptManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this)));
     }
   }
 
@@ -108,24 +108,24 @@ export default class RuleDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('RULE_WRITE')} >
+            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('SCRIPT_WRITE')} >
               <Basic.TextField
                 ref="name"
-                label={this.i18n('entity.Rule.name')}
+                label={this.i18n('entity.Script.name')}
                 required
                 max={255}/>
               <Basic.EnumSelectBox
                 ref="category"
-                label={this.i18n('entity.Rule.category')}
-                enum={RuleCategoryEnum}
+                label={this.i18n('entity.Script.category')}
+                enum={ScriptCategoryEnum}
                 required/>
-              <Basic.RichTextArea ref="description" label={this.i18n('entity.Rule.description')} />
+              <Basic.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
               <Basic.ScriptArea
                 ref="script"
                 mode="groovy"
                 height="25em"
-                helpBlock={this.i18n('entity.Rule.script.help')}
-                label={this.i18n('entity.Rule.script.label')}/>
+                helpBlock={this.i18n('entity.Script.script.help')}
+                label={this.i18n('entity.Script.script.label')}/>
             </Basic.AbstractForm>
 
             <Basic.PanelFooter showLoading={showLoading} >
@@ -135,7 +135,7 @@ export default class RuleDetail extends Basic.AbstractContent {
                 level="success"
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('RULE_WRITE')}>
+                rendered={SecurityManager.hasAuthority('SCRIPT_WRITE')}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.PanelFooter>
@@ -145,9 +145,9 @@ export default class RuleDetail extends Basic.AbstractContent {
   }
 }
 
-RuleDetail.propTypes = {
+ScriptDetail.propTypes = {
   entity: PropTypes.object,
   uiKey: PropTypes.string.isRequired,
 };
-RuleDetail.defaultProps = {
+ScriptDetail.defaultProps = {
 };

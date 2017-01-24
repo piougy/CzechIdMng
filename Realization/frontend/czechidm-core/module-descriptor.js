@@ -399,14 +399,14 @@ module.exports = {
             ]
           },
           {
-            'id': 'rules',
-            'labelKey': 'content.rules.header',
-            'titleKey': 'content.rules.title',
+            'id': 'scripts',
+            'labelKey': 'content.scripts.header',
+            'titleKey': 'content.scripts.title',
             'icon': 'fa:clone',
             'iconColor': '#272fd8',
             'order': 26,
-            'path': '/rules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ],
+            'path': '/scripts',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
           }
         ]
       },

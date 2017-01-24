@@ -210,14 +210,14 @@ module.exports = {
       component: require('./src/content/workflow/HistoricProcessInstanceDetail')
     },
     {
-      path: 'rules',
-      component: require('./src/content/rule/Rules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+      path: 'scripts',
+      component: require('./src/content/script/Scripts'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
-      path: 'rules/:entityId',
-      component: require('./src/content/rule/RuleContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+      path: 'scripts/:entityId',
+      component: require('./src/content/script/ScriptContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
       path: 'password-policies',

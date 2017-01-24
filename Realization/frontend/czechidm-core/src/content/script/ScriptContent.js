@@ -2,34 +2,34 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
-import { RuleManager } from '../../redux';
-import RuleDetail from './RuleDetail';
+import { ScriptManager } from '../../redux';
+import ScriptDetail from './ScriptDetail';
 
-const ruleManager = new RuleManager();
+const scriptManager = new ScriptManager();
 
 /**
- * Rule detail content, there is difference between create new rule and edit.
+ * Script detail content, there is difference between create new script and edit.
  * If set params new is new :-).
  */
-class RuleContent extends Basic.AbstractContent {
+class ScriptContent extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
   }
 
   getContentKey() {
-    return 'content.rules';
+    return 'content.scripts';
   }
 
   componentDidMount() {
-    this.selectNavigationItem('rules');
+    this.selectNavigationItem('scripts');
     const { entityId } = this.props.params;
 
     if (this._getIsNew()) {
-      this.context.store.dispatch(ruleManager.receiveEntity(entityId, { }));
+      this.context.store.dispatch(scriptManager.receiveEntity(entityId, { }));
     } else {
       this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
-      this.context.store.dispatch(ruleManager.fetchEntity(entityId));
+      this.context.store.dispatch(scriptManager.fetchEntity(entityId));
     }
   }
 
@@ -74,7 +74,7 @@ class RuleContent extends Basic.AbstractContent {
           {
             !entity
             ||
-            <RuleDetail entity={entity} />
+            <ScriptDetail entity={entity} />
           }
         </Basic.Panel>
 
@@ -83,19 +83,19 @@ class RuleContent extends Basic.AbstractContent {
   }
 }
 
-RuleDetail.propTypes = {
+ScriptDetail.propTypes = {
   showLoading: PropTypes.bool
 };
-RuleDetail.defaultProps = {
+ScriptDetail.defaultProps = {
 };
 
 function select(state, component) {
   const { entityId } = component.params;
   //
   return {
-    entity: ruleManager.getEntity(state, entityId),
-    showLoading: ruleManager.isShowLoading(state, null, entityId)
+    entity: scriptManager.getEntity(state, entityId),
+    showLoading: scriptManager.isShowLoading(state, null, entityId)
   };
 }
 
-export default connect(select)(RuleContent);
+export default connect(select)(ScriptContent);

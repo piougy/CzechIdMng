@@ -19,7 +19,7 @@ import EmailService from './EmailService';
 import BackendModuleService from './BackendModuleService';
 import RoleCatalogueService from './RoleCatalogueService';
 import AuditService from './AuditService';
-import RuleService from './RuleService';
+import ScriptService from './ScriptService';
 import NotificationConfigurationService from './NotificationConfigurationService';
 import WebsocketService from './WebsocketService';
 import PasswordPolicyService from './PasswordPolicyService';
@@ -47,7 +47,7 @@ const ServiceRoot = {
   BackendModuleService,
   RoleCatalogueService,
   AuditService,
-  RuleService,
+  ScriptService,
   NotificationConfigurationService,
   WebsocketService,
   PasswordPolicyService,

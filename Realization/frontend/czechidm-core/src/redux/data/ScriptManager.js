@@ -1,11 +1,11 @@
 import EntityManager from './EntityManager';
-import { RuleService } from '../../services';
+import { ScriptService } from '../../services';
 
 export default class TreeTypeManager extends EntityManager {
 
   constructor() {
     super();
-    this.service = new RuleService();
+    this.service = new ScriptService();
   }
 
   getService() {
@@ -13,10 +13,10 @@ export default class TreeTypeManager extends EntityManager {
   }
 
   getEntityType() {
-    return 'Rule';
+    return 'Script';
   }
 
   getCollectionType() {
-    return 'rules';
+    return 'scripts';
   }
 }

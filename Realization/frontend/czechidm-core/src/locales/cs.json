@@ -282,7 +282,7 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
-    "RuleCategoryEnum": {
+    "ScriptCategoryEnum": {
       "DEFAULT": "Standardní",
       "TRANSFORM_FROM": "Transformace z",
       "TRANSFORM_TO": "Transformace do",
@@ -399,7 +399,7 @@
       "ROLE": "Role",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
-      "RULE": "Pravidla"
+      "SCRIPT": "Pravidla"
     }
   },
   "content": {
@@ -839,7 +839,7 @@
       "reloadTree": "Obnov strom katalogu rolí",
       "addRoleCatalogue": "Přidat novou složku"
     },
-    "rules": {
+    "scripts": {
       "header": "Definice pravidel",
       "title": "Definice pravidel",
       "edit": {
@@ -1431,7 +1431,7 @@
       }
 
     },
-    "Rule": {
+    "Script": {
       "name": "Název pravidla",
       "category": "Kategorie",
       "script": {

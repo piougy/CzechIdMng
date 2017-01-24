@@ -17,29 +17,29 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
-import eu.bcvsolutions.idm.core.model.dto.filter.RuleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRule;
+import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
+import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript;
 
 /**
- * Default controller for rules, basic methods.
+ * Default controller for scripts, basic methods.
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
 @RepositoryRestController
-@RequestMapping(value = BaseEntityController.BASE_PATH + "/rules")
-public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule, RuleFilter> {
+@RequestMapping(value = BaseEntityController.BASE_PATH + "/scripts")
+public class IdmScriptController extends DefaultReadWriteEntityController<IdmScript, ScriptFilter> {
 
 	@Autowired
-	public IdmRuleController(EntityLookupService entityLookupService) {
+	public IdmScriptController(EntityLookupService entityLookupService) {
 		super(entityLookupService);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		return super.create(nativeRequest, assembler);
@@ -47,14 +47,14 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.update(backendId, nativeRequest, assembler);
@@ -62,17 +62,17 @@ public class IdmRuleController extends DefaultReadWriteEntityController<IdmRule,
 
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.RULE_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCRIPT_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 
 	@Override
-	protected RuleFilter toFilter(MultiValueMap<String, Object> parameters) {
-		RuleFilter filter = new RuleFilter();
+	protected ScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
+		ScriptFilter filter = new ScriptFilter();
 		filter.setText(getParameterConverter().toString(parameters, "name"));
-		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmRuleCategory.class));
+		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
 		filter.setDescription(getParameterConverter().toString(parameters, "description"));
 		return filter;
 	}

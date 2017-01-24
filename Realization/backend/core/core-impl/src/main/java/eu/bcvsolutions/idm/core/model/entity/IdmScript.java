@@ -15,10 +15,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
+import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 
 /**
- * Default entity for Rules
+ * Default entity for Script
  * * Name
  * * Category
  * * Groovy script (string)
@@ -29,11 +29,11 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
  */
 
 @Entity
-@Table(name = "idm_rule", indexes = { 
-		@Index(name = "ux_rule_name", columnList = "name", unique = true), 
-		@Index(name = "ux_rule_category", columnList = "category") 
+@Table(name = "idm_script", indexes = { 
+		@Index(name = "ux_script_name", columnList = "name", unique = true), 
+		@Index(name = "ux_script_category", columnList = "category") 
 		})
-public class IdmRule extends AbstractEntity implements IdentifiableByName {
+public class IdmScript extends AbstractEntity implements IdentifiableByName {
 
 	private static final long serialVersionUID = -3827618803196757060L;
 
@@ -51,7 +51,7 @@ public class IdmRule extends AbstractEntity implements IdentifiableByName {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "category", nullable = false)
-	private IdmRuleCategory category = IdmRuleCategory.DEFAULT;
+	private IdmScriptCategory category = IdmScriptCategory.DEFAULT;
 	
 	@Audited
 	@Column(name = "description")
@@ -74,11 +74,11 @@ public class IdmRule extends AbstractEntity implements IdentifiableByName {
 		this.name = name;
 	}
 
-	public IdmRuleCategory getCategory() {
+	public IdmScriptCategory getCategory() {
 		return category;
 	}
 
-	public void setCategory(IdmRuleCategory category) {
+	public void setCategory(IdmScriptCategory category) {
 		this.category = category;
 	}
 

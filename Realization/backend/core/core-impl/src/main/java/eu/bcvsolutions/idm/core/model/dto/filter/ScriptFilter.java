@@ -1,10 +1,10 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
-import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
+import eu.bcvsolutions.idm.core.model.domain.IdmScriptCategory;
 
 /**
- * Filter for search in rules. Attributes:
+ * Filter for search in scripts. Attributes:
  * * text(from quick filter) - name
  * * category
  * * description
@@ -13,11 +13,11 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRuleCategory;
  *
  */
 
-public class RuleFilter extends QuickFilter {
+public class ScriptFilter extends QuickFilter {
 	
 	private String description;
 	
-	private IdmRuleCategory category;
+	private IdmScriptCategory category;
 
 	public String getDescription() {
 		return description;
@@ -27,11 +27,11 @@ public class RuleFilter extends QuickFilter {
 		this.description = description;
 	}
 
-	public IdmRuleCategory getCategory() {
+	public IdmScriptCategory getCategory() {
 		return category;
 	}
 
-	public void setCategory(IdmRuleCategory category) {
+	public void setCategory(IdmScriptCategory category) {
 		this.category = category;
 	}
 }

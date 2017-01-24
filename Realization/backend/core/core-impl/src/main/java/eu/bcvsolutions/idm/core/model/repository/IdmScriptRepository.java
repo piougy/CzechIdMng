@@ -7,31 +7,31 @@ import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
-import eu.bcvsolutions.idm.core.model.dto.filter.RuleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRule;
-import eu.bcvsolutions.idm.core.rest.projection.IdmRuleExcerpt;
+import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.rest.projection.IdmScriptExcerpt;
 
 /**
- * Repository for rules.
- * @see {@link IdmRule}
- * @see {@link RuleFilter}
+ * Repository for scripts.
+ * @see {@link IdmScript}
+ * @see {@link ScriptFilter}
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
 @RepositoryRestResource(
-		collectionResourceRel = "rules",
-		itemResourceRel = "rules",
-		collectionResourceDescription = @Description("Rules"),
-		itemResourceDescription = @Description("Rules"),
-		excerptProjection = IdmRuleExcerpt.class,
+		collectionResourceRel = "scripts",
+		itemResourceRel = "scripts",
+		collectionResourceDescription = @Description("Scripts"),
+		itemResourceDescription = @Description("Scripts"),
+		excerptProjection = IdmScriptExcerpt.class,
 		exported = false
 	)
-public interface IdmRuleRepository extends AbstractEntityRepository<IdmRule, RuleFilter> {
+public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript, ScriptFilter> {
 
 	@Override
-	@Query(value = "select e from IdmRule e" +
+	@Query(value = "select e from IdmScript e" +
 	        " where"
 	        + " ("
 		        + " ?#{[0].text} is null"
@@ -47,5 +47,5 @@ public interface IdmRuleRepository extends AbstractEntityRepository<IdmRule, Rul
 	        	+ " ?#{[0].category} is null"
 	        	+ " or e.category = ?#{[0].category}" 
 	        + " )")
-	Page<IdmRule> find(RuleFilter filter, Pageable pageable);
+	Page<IdmScript> find(ScriptFilter filter, Pageable pageable);
 }

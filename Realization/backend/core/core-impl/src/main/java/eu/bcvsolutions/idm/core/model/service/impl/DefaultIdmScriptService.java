@@ -6,29 +6,29 @@ import org.springframework.stereotype.Service;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.core.model.dto.filter.RuleFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmRule;
-import eu.bcvsolutions.idm.core.model.service.api.IdmRuleService;
+import eu.bcvsolutions.idm.core.model.dto.filter.ScriptFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmScript;
+import eu.bcvsolutions.idm.core.model.service.api.IdmScriptService;
 
 @Service
-public class DefaultIdmRuleService extends AbstractReadWriteEntityService<IdmRule, RuleFilter> implements IdmRuleService {
+public class DefaultIdmScriptService extends AbstractReadWriteEntityService<IdmScript, ScriptFilter> implements IdmScriptService {
 	
 	private final GroovyScriptService groovyScriptService;
 	
 	@Autowired
-	public DefaultIdmRuleService(AbstractEntityRepository<IdmRule, RuleFilter> repository, GroovyScriptService groovyScriptService) {
+	public DefaultIdmScriptService(AbstractEntityRepository<IdmScript, ScriptFilter> repository, GroovyScriptService groovyScriptService) {
 		super(repository);
 		
 		this.groovyScriptService = groovyScriptService;
 	}
 	
 	@Override
-	public void delete(IdmRule entity) {
+	public void delete(IdmScript entity) {
 		super.delete(entity);
 	}
 	
 	@Override
-	public IdmRule save(IdmRule entity) {
+	public IdmScript save(IdmScript entity) {
 		if (entity.getScript() != null) {
 			groovyScriptService.validateScript(entity.getScript());
 		}

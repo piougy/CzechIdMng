@@ -16,10 +16,6 @@ class PasswordPolicySystems extends Basic.AbstractContent {
     this.systemManager = new SystemManager();
   }
 
-  getContentKey() {
-    return 'content.passwordPolicies';
-  }
-
   componentDidMount() {
     this.selectNavigationItems(['system', 'password-policies', 'password-policies-systems']);
   }
@@ -35,7 +31,7 @@ class PasswordPolicySystems extends Basic.AbstractContent {
       <div className="tab-pane-panel-body">
           <Basic.PanelHeader>
             <h2>
-              <span>ABCD <small>{this.i18n('content.passwordPolicies.characters.title')}</small></span>
+              <span>{this.i18n('acc:content.passwordPolicy.system.title')}</span>
             </h2>
             <div className="clearfix"></div>
           </Basic.PanelHeader>

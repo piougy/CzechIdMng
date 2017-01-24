@@ -389,7 +389,8 @@
     },
     "passwordPolicy": {
       "system": {
-        "title": "Navázané politiky"
+        "tab": "Navázané systémy",
+        "title": "Navázané systémy na tuto politiku"
       }
     }
   },

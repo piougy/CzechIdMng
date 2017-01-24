@@ -108,7 +108,7 @@ module.exports = {
         'id': 'password-policies-systems',
         'parentId': 'password-policies',
         'type': 'TAB',
-        'labelKey': 'acc:content.passwordPolicy.system.title',
+        'labelKey': 'acc:content.passwordPolicy.system.tab',
         'order': 100,
         'priority': 0,
         'path': '/password-policies/:entityId/systems',

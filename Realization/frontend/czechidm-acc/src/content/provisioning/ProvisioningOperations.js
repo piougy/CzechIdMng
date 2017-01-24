@@ -60,9 +60,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
     this.closeRetryDialog();
     this.context.store.dispatch(manager.retry(retryDialog.ids, retryDialog.bulkActionValue, batch, () => {
       // clear selected rows and reload
-      this.refs.table.getWrappedInstance().clearSelectedRows();
-      this.refs.table.getWrappedInstance().reload();
-      this.refs.archiveTable.getWrappedInstance().reload();
+      this.refs.table.clearSelectedRows();
+      this.refs.table.reload();
+      this.refs.archiveTable.reload();
     }));
   }
 

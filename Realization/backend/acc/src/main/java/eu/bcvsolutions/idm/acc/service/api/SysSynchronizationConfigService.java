@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.dto.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 

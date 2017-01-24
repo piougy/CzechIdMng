@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.dto;
+package eu.bcvsolutions.idm.acc.dto.filter;
 
 import java.util.UUID;
 

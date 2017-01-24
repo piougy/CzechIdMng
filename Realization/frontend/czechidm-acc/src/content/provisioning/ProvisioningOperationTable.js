@@ -1,16 +1,22 @@
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import { Basic, Advanced } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
 import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
 import EntityInfo from '../../components/EntityInfo';
+import { SystemManager } from '../../redux';
 
-export class ProvisioningOperationTable extends Basic.AbstractContent {
+const systemManager = new SystemManager();
+
+export default class ProvisioningOperationTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      filterOpened: this.props.filterOpened,
+    };
   }
 
   getContentKey() {
@@ -25,8 +31,23 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
     this.refs.table.getWrappedInstance().reload();
   }
 
+  useFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
+  }
+
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+  }
+
   render() {
-    const { uiKey, manager, showRowSelection, actions, showDetail } = this.props;
+    const { uiKey, manager, showRowSelection, actions, showDetail, forceSearchParameters, columns } = this.props;
+    const { filterOpened } = this.state;
     //
     return (
       <Advanced.Table
@@ -34,7 +55,81 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
         uiKey={uiKey}
         manager={manager}
         showRowSelection={showRowSelection}
-        actions={actions}>
+        actions={actions}
+        forceSearchParameters={forceSearchParameters}
+        filterOpened={filterOpened}
+        filter={
+          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Advanced.Filter.DateTimePicker
+                    mode="date"
+                    ref="from"
+                    placeholder={this.i18n('filter.dateFrom.placeholder')}
+                    label={this.i18n('filter.dateFrom.label')}/>
+                </div>
+                <div className="col-lg-4">
+                  <Advanced.Filter.DateTimePicker
+                    mode="date"
+                    ref="till"
+                    placeholder={this.i18n('filter.dateTill.placeholder')}
+                    label={this.i18n('filter.dateTill.label')}/>
+                </div>
+                <div className="col-lg-4 text-right">
+                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                </div>
+              </Basic.Row>
+
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Advanced.Filter.EnumSelectBox
+                    ref="resultState"
+                    label={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+                    enum={ProvisioningResultStateEnum}/>
+                </div>
+                <div className="col-lg-4">
+                  <Advanced.Filter.EnumSelectBox
+                    ref="operationType"
+                    label={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+                    enum={ProvisioningOperationTypeEnum}/>
+                </div>
+                <div className="col-lg-4">
+                  {
+                    !_.includes(columns, 'system')
+                    ||
+                    <Advanced.Filter.SelectBox
+                      ref="systemId"
+                      label={this.i18n('acc:entity.System._type')}
+                      multiSelect={false}
+                      manager={systemManager}/>
+                  }
+                </div>
+              </Basic.Row>
+
+              <Basic.Row className="last">
+                <div className="col-lg-4">
+                  <Advanced.Filter.EnumSelectBox
+                    ref="entityType"
+                    label={this.i18n('acc:entity.SystemEntity.entityType')}
+                    enum={SystemEntityTypeEnum}/>
+                </div>
+                <div className="col-lg-4">
+                  <Advanced.Filter.TextField
+                    ref="entityIdentifier"
+                    placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}
+                    label={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
+                </div>
+                <div className="col-lg-4">
+                  <Advanced.Filter.TextField
+                    ref="systemEntityUid"
+                    placeholder={this.i18n('acc:entity.SystemEntity.uid')}
+                    label={this.i18n('acc:entity.SystemEntity.uid')}/>
+                </div>
+              </Basic.Row>
+            </Basic.AbstractForm>
+          </Advanced.Filter>
+        }>
         {
           !showDetail
           ||
@@ -70,10 +165,25 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
                 </Basic.Tooltip>
               );
             }
-          }/>
-        <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" />
-        <Advanced.Column property="operationType" width="75px" header={this.i18n('acc:entity.ProvisioningOperation.operationType')} sort face="enum" enumClass={ProvisioningOperationTypeEnum}/>
-        <Advanced.Column property="entityType" width="75px" header={this.i18n('acc:entity.SystemEntity.entityType')} sort face="enum" enumClass={SystemEntityTypeEnum} />
+          }
+          rendered={_.includes(columns, 'resultState')}/>
+        <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" rendered={_.includes(columns, 'created')}/>
+        <Advanced.Column
+          property="operationType"
+          width="75px"
+          header={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+          sort
+          face="enum"
+          enumClass={ProvisioningOperationTypeEnum}
+          rendered={_.includes(columns, 'operationType')}/>
+        <Advanced.Column
+          property="entityType"
+          width={75}
+          header={this.i18n('acc:entity.SystemEntity.entityType')}
+          sort
+          face="enum"
+          enumClass={SystemEntityTypeEnum}
+          rendered={_.includes(columns, 'entityType')} />
         <Advanced.Column
           property="entityIdentifier"
           header={this.i18n('acc:entity.ProvisioningOperation.entity')}
@@ -86,14 +196,21 @@ export class ProvisioningOperationTable extends Basic.AbstractContent {
                 <EntityInfo entityType={entity.entityType} entityIdentifier={entity.entityIdentifier} face="link"/>
               );
             }
-          }/>
+          }
+          rendered={_.includes(columns, 'entityIdentifier')}/>
         <Advanced.ColumnLink
           to="/system/:_target/detail"
           target="_embedded.system.id"
           access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
           property="_embedded.system.name"
-          header={this.i18n('acc:entity.System.name')} />
-        <Advanced.Column property="systemEntityUid" header={this.i18n('acc:entity.SystemEntity.uid')} sort face="text" />
+          header={this.i18n('acc:entity.System.name')}
+          rendered={_.includes(columns, 'system')} />
+        <Advanced.Column
+          property="systemEntityUid"
+          header={this.i18n('acc:entity.SystemEntity.uid')}
+          sort
+          face="text"
+          rendered={_.includes(columns, 'systemEntityUid')}/>
       </Advanced.Table>
     );
   }
@@ -113,17 +230,19 @@ ProvisioningOperationTable.propTypes = {
   /**
    * Detail  callback
    */
-  showDetail: PropTypes.func
+  showDetail: PropTypes.func,
+  /**
+   * "Hard filters"
+   */
+  forceSearchParameters: PropTypes.object,
+  /**
+   * Rendered columns
+   */
+  columns: PropTypes.arrayOf(PropTypes.string),
 };
 ProvisioningOperationTable.defaultProps = {
   showRowSelection: false,
-  actions: []
+  actions: [],
+  forceSearchParameters: null,
+  columns: ['resultState', 'created', 'operationType', 'entityType', 'entityIdentifier', 'system', 'systemEntityUid']
 };
-
-function select() {
-  return {
-  };
-}
-
-
-export default connect(select, null, null, { withRef: true })(ProvisioningOperationTable);

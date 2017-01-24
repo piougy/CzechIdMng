@@ -375,6 +375,16 @@
         "accountObject": "Idm atributy",
         "connectorObject": "Atributy pro provisioning",
         "resultCode": "Kód"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        }
       }
     }
   },

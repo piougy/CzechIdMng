@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Managers } from 'czechidm-core';
+import { Basic, Advanced, Managers, Domain } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
@@ -38,10 +38,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
   getContentKey() {
     return 'acc:content.provisioningOperations';
-  }
-
-  componentDidMount() {
-    this.selectNavigationItems(['audit', 'provisioning-operations']);
   }
 
   /**
@@ -92,9 +88,6 @@ class ProvisioningOperations extends Basic.AbstractContent {
         show: true,
         entity
       }
-    }, () => {
-      this.context.router.replace(`/provisioning?id=${entity.id}`);
-      // TODO: back link could open modal window
     });
   }
 
@@ -111,6 +104,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
   }
 
   render() {
+    const { systemId } = this.props;
     const { detail, retryDialog } = this.state;
     // accountObject to table
     const accountData = [];
@@ -145,14 +139,16 @@ class ProvisioningOperations extends Basic.AbstractContent {
         });
       });
     }
+    let forceSearchParameters = new Domain.SearchParameters();
+    let columns = ProvisioningOperationTable.defaultProps.columns;
+    if (systemId) {
+      forceSearchParameters = forceSearchParameters.setFilter('systemId', systemId);
+      columns = _.difference(columns, ['system']);
+    }
     //
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        <Basic.ContentHeader>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
 
         <Basic.Tabs>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.active.label')}>
@@ -162,6 +158,8 @@ class ProvisioningOperations extends Basic.AbstractContent {
               manager={manager}
               showDetail={this.showDetail.bind(this)}
               showRowSelection={Managers.SecurityManager.hasAnyAuthority(['APP_ADMIN'])}
+              forceSearchParameters={forceSearchParameters}
+              columns={columns}
               actions={
                 [
                   { value: 'retry', niceLabel: this.i18n('action.retry.action'), action: this.showRetryDialog.bind(this) },
@@ -175,7 +173,9 @@ class ProvisioningOperations extends Basic.AbstractContent {
               ref="archiveTable"
               uiKey="provisioning-archive-table"
               manager={archiveManager}
-              showDetail={this.showDetail.bind(this)}/>
+              showDetail={this.showDetail.bind(this)}
+              forceSearchParameters={forceSearchParameters}
+              columns={columns}/>
           </Basic.Tab>
         </Basic.Tabs>
 
@@ -319,8 +319,13 @@ class ProvisioningOperations extends Basic.AbstractContent {
 }
 
 ProvisioningOperations.propTypes = {
+  /**
+   * Force searchparameters - system id
+   */
+  systemId: PropTypes.string
 };
 ProvisioningOperations.defaultProps = {
+  systemId: null
 };
 
 function select() {

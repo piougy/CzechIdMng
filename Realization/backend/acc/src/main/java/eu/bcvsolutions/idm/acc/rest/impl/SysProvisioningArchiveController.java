@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-archives")
-public class SysProvisioningArchiveController extends AbstractReadEntityController<SysProvisioningArchive, EmptyFilter> {
+public class SysProvisioningArchiveController extends AbstractReadEntityController<SysProvisioningArchive, ProvisioningOperationFilter> {
 
 	@Autowired
 	public SysProvisioningArchiveController(EntityLookupService entityLookupService) {

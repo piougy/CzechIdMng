@@ -395,7 +395,7 @@ module.exports = {
                 'icon': '',
                 'type': 'TAB',
                 'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
-              },
+              }
             ]
           },
           {

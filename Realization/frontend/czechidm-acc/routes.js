@@ -135,6 +135,18 @@ module.exports = {
       ]
     },
     {
+      path: 'password-policies/',
+      component: require('czechidm-core/src/content/passwordpolicy/PasswordPolicyRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/systems',
+          component: require('./src/content/passwordpolicy/PasswordPolicySystems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        }
+      ]
+    },
+    {
       path: 'role/:entityId/',
       component: require('czechidm-core/src/content/role/Role'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],

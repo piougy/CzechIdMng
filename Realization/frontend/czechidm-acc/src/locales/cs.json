@@ -386,6 +386,11 @@
           "placeholder": "Datum do"
         }
       }
+    },
+    "passwordPolicy": {
+      "system": {
+        "title": "Navázané politiky"
+      }
     }
   },
   "entity": {

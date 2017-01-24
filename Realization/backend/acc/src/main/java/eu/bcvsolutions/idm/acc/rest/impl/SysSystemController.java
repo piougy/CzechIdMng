@@ -30,11 +30,11 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -54,7 +54,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/systems")
-public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, QuickFilter> {
+public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, SysSystemFilter> {
 
 	private final SysSystemService systemService;
 	private final FormService formService;
@@ -152,9 +152,11 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 
 	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
+	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
+		SysSystemFilter filter = new SysSystemFilter();
 		filter.setText((String) parameters.toSingleValueMap().get("text"));
+		filter.setPasswordPolicyId(getParameterConverter().toUuid(parameters, "passwordPolicyId"));
+
 		return filter;
 	}
 	

@@ -105,6 +105,16 @@ module.exports = {
         'icon': 'fa:external-link'
       },
       {
+        'id': 'password-policies-systems',
+        'parentId': 'password-policies',
+        'type': 'TAB',
+        'labelKey': 'acc:content.passwordPolicy.system.title',
+        'order': 100,
+        'priority': 0,
+        'path': '/password-policies/:entityId/systems',
+        'icon': ''
+      },
+      {
         'id': 'role-systems',
         'type': 'TAB',
         'parentId': 'roles',

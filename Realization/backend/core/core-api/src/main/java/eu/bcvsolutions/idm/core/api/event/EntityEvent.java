@@ -10,8 +10,6 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 /**
  * Event state holder (content + metadata)
  * 
- * TODO: Split event and context!
- * 
  * @author Radek Tomiška
  *
  * @param <E> {@link BaseEntity} type

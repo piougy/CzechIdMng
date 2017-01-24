@@ -852,6 +852,9 @@
       },
       "save": {
         "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+      },
+      "filter": {
+        "text": "Název / Popis"
       }
     },
     "roles": {

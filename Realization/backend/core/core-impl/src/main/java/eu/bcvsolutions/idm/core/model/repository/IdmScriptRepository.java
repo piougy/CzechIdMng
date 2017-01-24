@@ -22,9 +22,9 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmScriptExcerpt;
 
 @RepositoryRestResource(
 		collectionResourceRel = "scripts",
-		itemResourceRel = "scripts",
+		itemResourceRel = "script",
 		collectionResourceDescription = @Description("Scripts"),
-		itemResourceDescription = @Description("Scripts"),
+		itemResourceDescription = @Description("Script"),
 		excerptProjection = IdmScriptExcerpt.class,
 		exported = false
 	)
@@ -35,7 +35,8 @@ public interface IdmScriptRepository extends AbstractEntityRepository<IdmScript,
 	        " where"
 	        + " ("
 		        + " ?#{[0].text} is null"
-		        + " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
+		        + " or (lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
+		        + " or (lower(e.description) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 	        + " ) "
 	        + "AND "
 	        + " ("

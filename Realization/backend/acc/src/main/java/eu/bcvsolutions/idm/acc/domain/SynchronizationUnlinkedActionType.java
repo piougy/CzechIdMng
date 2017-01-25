@@ -8,7 +8,17 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum SynchronizationUnlinkedActionType {
 
-	LINK,
-	LINK_AND_UPDATE_ACCOUNT, // create link and produce entity save event (call provisioning)
-	IGNORE;
+	LINK(SynchronizationActionType.CREATE_ENTITY),
+	LINK_AND_UPDATE_ACCOUNT(SynchronizationActionType.LINK_AND_UPDATE_ACCOUNT), // create link and produce entity save event (call provisioning)
+	IGNORE(SynchronizationActionType.IGNORE);
+	
+	private SynchronizationActionType action;
+
+	private SynchronizationUnlinkedActionType(SynchronizationActionType action) {
+		this.action = action;
+	}
+
+	public SynchronizationActionType getAction() {
+		return this.action;
+	}
 }

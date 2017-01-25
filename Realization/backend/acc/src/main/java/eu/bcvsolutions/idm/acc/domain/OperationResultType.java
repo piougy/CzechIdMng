@@ -9,6 +9,8 @@ public enum OperationResultType {
 
 	SUCCESS,
 	ERROR,
-	WARNING
+	WARNING,
+	IGNORE,
+	WF
 
 }

@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import * as Basic from '../../../components/basic';
-import { AuditManager } from '../../../redux';
+import * as Basic from '../../components/basic';
+import { AuditManager } from '../../redux';
 
 const auditManager = new AuditManager();
 

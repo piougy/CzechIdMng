@@ -2,11 +2,11 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import * as Utils from '../../../utils';
-import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
-import { AuditManager } from '../../../redux';
-import AuditModificationEnum from '../../../enums/AuditModificationEnum';
+import * as Utils from '../../utils';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
+import { AuditManager } from '../../redux';
+import AuditModificationEnum from '../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();
 
@@ -153,6 +153,18 @@ export class AuditTable extends Basic.AbstractContent {
               </div>
             }
           </Basic.Row>
+          <Basic.Row>
+            {
+              !_.includes(columns, 'entityId')
+              ||
+              <div className="col-lg-4">
+                <Advanced.Filter.TextField
+                  ref="entityIdLike"
+                  label={this.i18n('entity.Audit.entityId')}
+                  placeholder={this.i18n('entity.Audit.entityId')}/>
+              </div>
+            }
+          </Basic.Row>
         </Basic.AbstractForm>
       </Advanced.Filter>
     );
@@ -265,7 +277,7 @@ AuditTable.propTypes = {
 };
 
 AuditTable.defaultProps = {
-  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'changedAttributes'],
+  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId', 'changedAttributes'],
   isDetail: false,
   tableUiKey: 'audit-table'
 };

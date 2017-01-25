@@ -1370,6 +1370,7 @@
       "pickRevision": "Vyberte revizi",
       "detail": "detail",
       "id": "ID",
+      "noPreviousRevision": "Neexistují žádné předchozí revize",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
@@ -1381,6 +1382,7 @@
         "revisionDate": "Datum revize",
         "deleted": "Entita byla odstraněna",
         "created": "Entita byla vytvořena",
+        "entityId": "ID entity",
         "modificationType": {
           "ADD": "Vytvoření",
           "MOD": "Modifikace",
@@ -1633,7 +1635,8 @@
       "changedAttributes": "Změněné atributy",
       "type": "Typ entity",
       "key": "Atribut",
-      "value": "Hodnota"
+      "value": "Hodnota",
+      "entityId": "Id entity"
     },
     "PasswordPolicy": {
       "type": "Typ",

@@ -43,6 +43,9 @@ export default class SynchronizationActionTypeEnum extends Enums.AbstractEnum {
       case this.UNLINK: {
         return 'warning';
       }
+      case this.RESOLVE_WITH_WF: {
+        return 'warning';
+      }
       case this.UNLINK_AND_REMOVE_ROLE: {
         return 'danger';
       }
@@ -51,6 +54,18 @@ export default class SynchronizationActionTypeEnum extends Enums.AbstractEnum {
       }
       case this.DELETE_ENTITY: {
         return 'danger';
+      }
+      case this.LINKED: {
+        return 'primary';
+      }
+      case this.MISSING_ENTITY: {
+        return 'primary';
+      }
+      case this.UNLINKED: {
+        return 'primary';
+      }
+      case this.MISSING_ACCOUNT: {
+        return 'primary';
       }
       case this.IGNORE: {
         return 'primary';
@@ -71,4 +86,8 @@ SynchronizationActionTypeEnum.UNLINK_AND_REMOVE_ROLE = Symbol('UNLINK_AND_REMOVE
 SynchronizationActionTypeEnum.UNLINK = Symbol('UNLINK');
 SynchronizationActionTypeEnum.CREATE_ACCOUNT = Symbol('CREATE_ACCOUNT');
 SynchronizationActionTypeEnum.UPDATE_ACCOUNT = Symbol('UPDATE_ACCOUNT');
+SynchronizationActionTypeEnum.LINKED = Symbol('LINKED');
+SynchronizationActionTypeEnum.MISSING_ENTITY = Symbol('MISSING_ENTITY');
+SynchronizationActionTypeEnum.UNLINKED = Symbol('UNLINKED');
+SynchronizationActionTypeEnum.MISSING_ACCOUNT = Symbol('MISSING_ACCOUNT');
 SynchronizationActionTypeEnum.IGNORE = Symbol('IGNORE');

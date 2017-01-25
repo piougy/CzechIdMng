@@ -1635,7 +1635,8 @@
       "changedAttributes": "Změněné atributy",
       "type": "Typ entity",
       "key": "Atribut",
-      "value": "Hodnota"
+      "value": "Hodnota",
+      "entityId": "Id entity"
     },
     "PasswordPolicy": {
       "type": "Typ",

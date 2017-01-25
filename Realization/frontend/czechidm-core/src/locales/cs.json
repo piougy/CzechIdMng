@@ -1819,6 +1819,10 @@
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",
       "message": "Revize musí být stejného typu a od stejné entity."
+    },
+    "BAD_FILTER": {
+      "title": "Filter není validní",
+      "message": "Zkontrolujte vyplněné hodnoty filtru."
     }
   },
   "validationError": {

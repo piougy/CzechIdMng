@@ -145,6 +145,28 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "missing_account_action", nullable = false)
 	private ReconciliationMissingAccountActionType missingAccountAction = ReconciliationMissingAccountActionType.IGNORE;
+	
+	@Audited
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "linked_action_wf", length = DefaultFieldLengths.NAME)
+	private String linkedActionWfKey;
+	
+	@Audited
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "unlinked_action_wf", length = DefaultFieldLengths.NAME)
+	private String unlinkedActionWfKey;
+	
+	@Audited
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "missing_entity_action_wf", length = DefaultFieldLengths.NAME)
+	private String missingEntityActionWfKey;
+	
+	@Audited
+	@Size(min = 1, max = DefaultFieldLengths.NAME)
+	@Column(name = "missing_account_action_wf", length = DefaultFieldLengths.NAME)
+	private String missingAccountActionWfKey;
+	
+
 
 	public boolean isEnabled() {
 		return enabled;
@@ -288,6 +310,38 @@ public class SysSynchronizationConfig extends AbstractEntity {
 
 	public void setFilterOperation(IcFilterOperationType filterOperation) {
 		this.filterOperation = filterOperation;
+	}
+
+	public String getLinkedActionWfKey() {
+		return linkedActionWfKey;
+	}
+
+	public void setLinkedActionWfKey(String linkedActionWfKey) {
+		this.linkedActionWfKey = linkedActionWfKey;
+	}
+
+	public String getUnlinkedActionWfKey() {
+		return unlinkedActionWfKey;
+	}
+
+	public void setUnlinkedActionWfKey(String unlinkedActionWfKey) {
+		this.unlinkedActionWfKey = unlinkedActionWfKey;
+	}
+
+	public String getMissingEntityActionWfKey() {
+		return missingEntityActionWfKey;
+	}
+
+	public void setMissingEntityActionWfKey(String missingEntityActionWfKey) {
+		this.missingEntityActionWfKey = missingEntityActionWfKey;
+	}
+
+	public String getMissingAccountActionWfKey() {
+		return missingAccountActionWfKey;
+	}
+
+	public void setMissingAccountActionWfKey(String missingAccountActionWfKey) {
+		this.missingAccountActionWfKey = missingAccountActionWfKey;
 	}
 
 }

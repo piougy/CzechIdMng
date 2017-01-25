@@ -48,7 +48,7 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
           ?
           <PasswordPolicyBasic params={this.props.params} isNew />
           :
-          <Advanced.TabPanel position="top" parentId="password-policies" params={this.props.params}>
+          <Advanced.TabPanel position="left" parentId="password-policies" params={this.props.params}>
             {this.props.children}
           </Advanced.TabPanel>
         }

@@ -52,7 +52,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private static final String MIN_NUMBER = "minNumber";
 	private static final String MIN_SPECIAL_CHAR = "minSpecialChar";
 	private static final String COINTAIN_PROHIBITED = "prohibited";
-	private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
+	// private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
 	private static final String MIN_RULES_TO_FULFILL = "minRulesToFulfill";
 	private static final String MIN_RULES_TO_FULFILL_COUNT = "minRulesToFulfillCount";
 	private static final String POLICY_NAME = "policiesNames";

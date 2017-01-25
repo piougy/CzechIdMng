@@ -28,19 +28,17 @@ class PasswordPolicySystems extends Basic.AbstractContent {
   render() {
     const { entityId } = this.props.params;
     return (
-      <div className="tab-pane-panel-body">
-          <Basic.PanelHeader>
-            <h2>
-              <span>{this.i18n('acc:content.passwordPolicy.system.title')}</span>
-            </h2>
-            <div className="clearfix"></div>
-          </Basic.PanelHeader>
+      <div className="tab-pane-table-body">
+        <Basic.ContentHeader text={this.i18n('acc:content.passwordPolicy.system.title')} style={{ marginBottom: 0 }}/>
+
+        <Basic.Panel className="no-border last">
           <SystemTable uiKey="password_policy_system_table"
             columns={['name', 'description', 'disabled', 'readonly']}
             manager={this.systemManager}
             forceSearchParameters={new Domain.SearchParameters().setFilter('passwordPolicyId', entityId)}
             showAddButton={false}
             filterOpened={false}/>
+        </Basic.Panel>
       </div>
     );
   }

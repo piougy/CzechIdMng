@@ -98,7 +98,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				passValidate.setName("DEFAULT_VALIDATE_POLICY");
 				passValidate.setDefaultPolicy(true);
 				passValidate.setType(IdmPasswordPolicyType.VALIDATE);
-				passwordPolicyService.save(passValidate);
+				//passwordPolicyService.save(passValidate);
 			}
 			//
 			// create default password policy for generate
@@ -119,7 +119,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				passGenerate.setMinUpperChar(2);
 				passGenerate.setMinPasswordLength(8);
 				passGenerate.setMaxPasswordLength(12);
-				passwordPolicyService.save(passGenerate);
+				//passwordPolicyService.save(passGenerate);
 			}
 			//
 			// create super admin role

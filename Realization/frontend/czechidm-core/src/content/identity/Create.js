@@ -177,8 +177,6 @@ class Profile extends Basic.AbstractContent {
         generatePassword: false
       });
     });
-    // TODO: rest service for password generate
-    // this.setNewPassword(AuthenticateService.generatePassword());
   }
 
   canEditMap() {

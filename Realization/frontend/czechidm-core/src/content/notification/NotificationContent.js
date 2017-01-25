@@ -63,8 +63,7 @@ class NotificationContent extends Basic.AbstractContent {
           }
         </Basic.PageHeader>
 
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
+        <Basic.Panel showLoading={showLoading} >
           {
             !notification
             ||

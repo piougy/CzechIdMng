@@ -26,8 +26,8 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmPasswordPolicyExcerpt;
 
 @RepositoryRestResource(
 		collectionResourceRel = "passwordPolicies",
-		itemResourceRel = "passwordPolicies",
-		collectionResourceDescription = @Description("Password policy"),
+		itemResourceRel = "passwordPolicy",
+		collectionResourceDescription = @Description("Password policies"),
 		itemResourceDescription = @Description("Password policy"),
 		excerptProjection = IdmPasswordPolicyExcerpt.class,
 		exported = false

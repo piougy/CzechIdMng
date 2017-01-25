@@ -127,7 +127,11 @@ class NotificationDetail extends Basic.AbstractContent {
           <Basic.LabelWrapper hidden={isNew || !notification.message.level}
               label={this.i18n('entity.Notification.message.level')}>
               <div style={{ margin: '7px 0' }}>
-                <Basic.EnumValue value={notification.message.level} enum={NotificationLevelEnum} />
+                {
+                  !notification.message
+                  ||
+                  <Basic.EnumValue value={notification.message.level} enum={NotificationLevelEnum} />
+                }
               </div>
           </Basic.LabelWrapper>
 
@@ -178,7 +182,11 @@ class NotificationDetail extends Basic.AbstractContent {
 
           <Basic.LabelWrapper hidden={isNew || !notification.message.model}
             label={this.i18n('entity.Notification.message.model')}>
-            <Basic.FlashMessage level={notification.message.level} message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
+            {
+              !notification.message
+              ||
+              <Basic.FlashMessage level={notification.message.level} message={this.getFlashManager().convertFromResultModel(notification.message.model)} style={{ margin: '7px 0' }}/>
+            }
           </Basic.LabelWrapper>
 
           <Basic.TextArea ref="sentLog" label={this.i18n('entity.Notification.sentLog')} readOnly hidden={isNew || !notification.sentLog} max={2000} />

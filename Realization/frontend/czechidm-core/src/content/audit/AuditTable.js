@@ -2,11 +2,11 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import * as Utils from '../../../utils';
-import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
-import { AuditManager } from '../../../redux';
-import AuditModificationEnum from '../../../enums/AuditModificationEnum';
+import * as Utils from '../../utils';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
+import { AuditManager } from '../../redux';
+import AuditModificationEnum from '../../enums/AuditModificationEnum';
 
 const auditManager = new AuditManager();
 

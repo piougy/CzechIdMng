@@ -47,9 +47,27 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
   * Method for basic initial form
   */
   _initForm(entity) {
-    if (entity !== undefined && this.refs.form) {
-      this.refs.form.setData(entity);
+    if (entity && this.refs.form) {
+      const loadedEntity = _.merge({}, entity);
+      loadedEntity.identityAttributeCheck = this._transformAttributeToCheck(entity.identityAttributeCheck);
+      this.refs.form.setData(loadedEntity);
     }
+  }
+
+  /**
+   * Method tranform password policy attribute to check to
+   * enum
+   */
+  _transformAttributeToCheck(identityAttributeCheck) {
+    // transform identityAttributeCheck
+    const identityAttributeCheckFinal = [];
+    const attrs = _.split(identityAttributeCheck, ', ');
+    for (const attribute in attrs) {
+      if (attrs.hasOwnProperty(attribute)) {
+        identityAttributeCheckFinal.push(PasswordPolicyIdentityAttributeEnum.findSymbolByKey(attrs[attribute]));
+      }
+    }
+    return identityAttributeCheckFinal;
   }
 
   /**
@@ -83,7 +101,9 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     identityAttributeCheck = _.join(identityAttributeCheck, ', ');
     entity.identityAttributeCheck = identityAttributeCheck;
 
-    this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this, entity, null, editContinue)));
+    this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+      this._afterSave(entity, error, editContinue);
+    }));
   }
 
   /**
@@ -112,58 +132,47 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     return (
-      <div className="tab-pane-panel-body">
-        {
-          showLoading || entity === null
-          ?
-          <Basic.Loading isStatic showLoading/>
-          :
-          <Basic.PanelHeader>
-            <h2>
-              <span>{entity.name} <small>{this.i18n('content.passwordPolicies.advanced.title')}</small></span>
-            </h2>
-            <div className="clearfix"></div>
-          </Basic.PanelHeader>
-        }
+      <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
-            <Basic.Checkbox ref="enchancedControl" label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
+          <Basic.Panel className="no-border last">
+            <Basic.PanelHeader text={this.i18n('content.passwordPolicies.advanced.title')} />
+            <Basic.PanelBody>
+              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+                <Basic.Checkbox ref="enchancedControl" label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
 
-            <Basic.Checkbox ref="passwordLengthRequired"
-              label={this.i18n('entity.PasswordPolicy.passwordLengthRequired')}/>
+                <Basic.Checkbox ref="passwordLengthRequired"
+                  label={this.i18n('entity.PasswordPolicy.passwordLengthRequired')}/>
 
-            <Basic.Checkbox ref="upperCharRequired"
-              label={this.i18n('entity.PasswordPolicy.upperCharRequired')}/>
+                <Basic.Checkbox ref="upperCharRequired"
+                  label={this.i18n('entity.PasswordPolicy.upperCharRequired')}/>
 
-            <Basic.Checkbox ref="lowerCharRequired"
-              label={this.i18n('entity.PasswordPolicy.lowerCharRequired')}/>
+                <Basic.Checkbox ref="lowerCharRequired"
+                  label={this.i18n('entity.PasswordPolicy.lowerCharRequired')}/>
 
-            <Basic.Checkbox ref="numberRequired"
-              label={this.i18n('entity.PasswordPolicy.numberRequired')}/>
+                <Basic.Checkbox ref="numberRequired"
+                  label={this.i18n('entity.PasswordPolicy.numberRequired')}/>
 
-            <Basic.Checkbox ref="specialCharRequired"
-              label={this.i18n('entity.PasswordPolicy.specialCharRequired')}/>
+                <Basic.Checkbox ref="specialCharRequired"
+                  label={this.i18n('entity.PasswordPolicy.specialCharRequired')}/>
 
-            <Basic.TextField ref="minRulesToFulfill" label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
+                <Basic.TextField ref="minRulesToFulfill" label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
-            <Basic.TextField ref="maxPasswordAge" label={this.i18n('entity.PasswordPolicy.maxPasswordAge')} />
-            <Basic.TextField ref="minPasswordAge" label={this.i18n('entity.PasswordPolicy.minPasswordAge')} />
-
-            <Basic.TextField ref="maxHistorySimilar" label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
-            <Basic.EnumSelectBox ref="identityAttributeCheck"
-              enum={PasswordPolicyIdentityAttributeEnum}
-              multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')} />
-          </Basic.AbstractForm>
-
-          <Basic.PanelFooter showLoading={showLoading} >
-            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-            <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
-              onClick={this.save.bind(this, 'SAVE_CONTINUE')}
-              rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
-              showLoading={showLoading} pullRight dropup>
-              <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-            </Basic.SplitButton>
-          </Basic.PanelFooter>
+                <Basic.TextField ref="maxHistorySimilar" label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
+                <Basic.EnumSelectBox ref="identityAttributeCheck"
+                  enum={PasswordPolicyIdentityAttributeEnum}
+                  multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')} />
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={showLoading} >
+              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
+                onClick={this.save.bind(this, 'SAVE_CONTINUE')}
+                rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
+                showLoading={showLoading} pullRight dropup>
+                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              </Basic.SplitButton>
+            </Basic.PanelFooter>
+          </Basic.Panel>
         </form>
       </div>
     );

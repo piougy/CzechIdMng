@@ -9,6 +9,7 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import { IdentityService } from '../../services';
 import { SecurityManager, IdentityManager, ConfigurationManager } from '../../redux';
+import ValidationMessage from './ValidationMessage';
 
 const RESOURCE_IDM = '0:CzechIdM';
 
@@ -87,8 +88,8 @@ class PasswordChangeForm extends Basic.AbstractContent {
     //
     const requestData = {
       identity: entityId,
-      oldPassword: btoa(formData.oldPassword),  // base64
-      newPassword: btoa(formData.newPassword),  // base64
+      oldPassword: formData.oldPassword,
+      newPassword: formData.newPassword,
       accounts: []
     };
     formData.accounts.map(resourceValue => {
@@ -140,7 +141,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
         message: this.i18n('message.success', { accounts, username: entityId })
       });
       this.setState({
-        validationMessage: null
+        validationError: null
       });
       // new token has to be set to security to prevent user logout
       this.context.store.dispatch(securityManager.reloadToken());
@@ -233,7 +234,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
               }
             </Basic.Panel>
             <Basic.Panel className="col-lg-5 no-border last">
-              <Basic.ValidationMessage error={validationError} />
+              <ValidationMessage error={validationError} />
             </Basic.Panel>
           </Basic.Row>
         </form>

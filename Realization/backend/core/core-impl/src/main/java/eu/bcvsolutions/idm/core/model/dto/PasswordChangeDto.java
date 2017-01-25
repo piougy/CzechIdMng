@@ -11,7 +11,7 @@ import org.joda.time.DateTime;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Dto for password change
@@ -22,10 +22,10 @@ public class PasswordChangeDto implements Serializable {
 
 	private static final long serialVersionUID = 8418885222359043739L;
 	private String identity;
-	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private GuardedString oldPassword;
 	@NotNull
-	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private GuardedString newPassword;
 	private boolean idm = false; // change in idm
 	private boolean all = false; // all - idm and all accounts - has higher priority

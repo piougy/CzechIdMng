@@ -537,7 +537,7 @@
       "header": "Politiky hesel",
       "title": "Politiky hesel",
       "edit": {
-        "header": "Detail konfigurace politiky hesel",
+        "header": "detail konfigurace politiky hesel",
         "title": "Detail konfigurace politiky hesel"
       },
       "basic": {
@@ -545,8 +545,8 @@
         "title": "Základní informace"
       },
       "advanced": {
-        "header": "Rozšířená kontrola hesla",
-        "title": "Rozšířená kontrola hesla"
+        "header": "Rozšířená kontrola",
+        "title": "Rozšířená kontrola"
       },
       "characters": {
         "header": "Znaky",
@@ -573,7 +573,7 @@
         "passwordSimilarLastName": "Heslo je příliš podobné příjmení: "
       },
       "save": {
-        "success": "Politika byla úspěšně uložena."
+        "success": "Politika [{{name}}] byla úspěšně uložena."
       }
     },
     "configuration": {
@@ -1664,7 +1664,7 @@
       "passphraseWords": "Počet slov pro passphrase",
       "maxPasswordAge": "Maximální doba pro změnu hesla",
       "minPasswordAge": "Minimální doba pro změnu hesla",
-      "enchancedControl": "Rozšířená kontrola hesla",
+      "enchancedControl": "Rozšířená kontrola",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
       "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
       "lowerCharBase": "Povolené malé znaky",

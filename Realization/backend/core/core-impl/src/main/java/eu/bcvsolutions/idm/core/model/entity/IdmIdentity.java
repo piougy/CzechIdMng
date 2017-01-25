@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringAsByteDeserializer;
+import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Identity
@@ -50,7 +50,7 @@ public class IdmIdentity extends AbstractEntity implements IdentifiableByName, F
 
 	@Transient // passwords are saved to confidental storage
 	@JsonProperty(access = Access.WRITE_ONLY)
-	@JsonDeserialize(using = GuardedStringAsByteDeserializer.class)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
 	private transient GuardedString password;
 
 	@Audited

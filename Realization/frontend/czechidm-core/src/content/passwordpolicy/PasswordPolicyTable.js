@@ -4,6 +4,7 @@ import uuid from 'uuid';
 //
 import { SecurityManager } from '../../redux';
 import PasswordPolicyTypeEnum from '../../enums/PasswordPolicyTypeEnum';
+import PasswordPolicyGenerateTypeEnum from '../../enums/PasswordPolicyGenerateTypeEnum';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
@@ -159,16 +160,29 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
+            <Advanced.Column property="type" sort
+              face="enum" width="75px"
+              enumClass={PasswordPolicyTypeEnum}/>
             <Advanced.Column property="name" sort
               cell={
                 ({ rowIndex, data }) => {
-                  // TODO: defautl?
+                  let name = data[rowIndex].name;
+                  if (data[rowIndex].defaultPolicy) {
+                    name += '<small> (' + this.i18n('entity.PasswordPolicy.defaultPolicy') + ') </small>';
+                  }
                   return (
-                      data[rowIndex].name
+                    <span dangerouslySetInnerHTML={{
+                      __html: name}}
+                    />
                   );
                 }
               }/>
-            <Advanced.Column property="type" sort face="enum" enumClass={PasswordPolicyTypeEnum}/>
+            <Advanced.Column property="generateType" sort
+              face="enum" width="75px"
+              enumClass={PasswordPolicyGenerateTypeEnum}/>
+            <Advanced.Column property="enchancedControl" face="bool" sort />
+            <Advanced.Column property="minPasswordLength" sort />
+            <Advanced.Column property="maxPasswordLength" sort />
           </Advanced.Table>
         </div>
       </Basic.Row>

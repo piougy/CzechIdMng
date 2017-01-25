@@ -9,6 +9,13 @@ import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 
+/**
+ * Service for valdiate password by password policy, also generate password.
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> {
 	
 	/**
@@ -19,7 +26,7 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @param passwordPolicy
 	 * @return true if password is valid or throw exception
 	 */
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy);
+	boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy);
 	
 	/**
 	 * Method validate password by default validation policy. (Default IDM policy, must exist)
@@ -27,7 +34,7 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @param passwordValidationDto
 	 * @return true if password is valid by default policy, or throw exception
 	 */
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto);
+	boolean validate(IdmPasswordValidationDto passwordValidationDto);
 	
 	/**
 	 * Validate password by list of password policies. Validate trought all polocies,
@@ -39,14 +46,14 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @param passwordPolicyList
 	 * @return true if password is valid or throw exception
 	 */
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList);
+	boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList);
 	
 	/**
 	 * Method return default password policy, by given type, @see {@link IdmPasswordPolicyType}
 	 * 
 	 * @return
 	 */
-	public IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type);
+	IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type);
 
 	
 	/**
@@ -55,14 +62,14 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @param passwordPolicy
 	 * @return
 	 */
-	public String generatePassword(IdmPasswordPolicy passwordPolicy);
+	String generatePassword(IdmPasswordPolicy passwordPolicy);
 	
 	/**
 	 * Return instance of password generator, @see {@link PasswordGenerator}
 	 * 
 	 * @return
 	 */
-	public PasswordGenerator getPasswordGenerator();
+	PasswordGenerator getPasswordGenerator();
 	
 	/**
 	 * Generate password by default password policy with type {@link IdmPasswordPolicyType.GENERATE},
@@ -70,7 +77,7 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * 
 	 * @return new password
 	 */
-	public String generatePasswordByDefault();
+	String generatePasswordByDefault();
 	
 	/**
 	 * Return max password age through list of password policies
@@ -78,5 +85,5 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @param policyList
 	 * @return
 	 */
-	public Integer getMaxPasswordAge(List<IdmPasswordPolicy> policyList);
+	Integer getMaxPasswordAge(List<IdmPasswordPolicy> policyList);
 }

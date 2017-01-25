@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
+import * as Utils from '../../utils';
 import { PasswordPolicyManager, SecurityManager } from '../../redux';
 import PasswordPolicyTypeEnum from '../../enums/PasswordPolicyTypeEnum';
 import PasswordPolicyGenerateTypeEnum from '../../enums/PasswordPolicyGenerateTypeEnum';
@@ -23,6 +24,11 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     this.state = {
       showLoading: false
     };
+    if (this._getIsNew()) {
+      this.state = {
+        validateType: true
+      };
+    }
   }
 
   getContentKey() {
@@ -64,9 +70,28 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   * Method for basic initial form
   */
   _initForm(entity) {
-    if (entity !== undefined && this.refs.form) {
-      this.refs.form.setData(entity);
+    if (entity && this.refs.form) {
+      this._changeType(entity.type);
+      const loadedEntity = _.merge({}, entity);
+      loadedEntity.identityAttributeCheck = this._transformAttributeToCheck(entity.identityAttributeCheck);
+      this.refs.form.setData(loadedEntity);
     }
+  }
+
+  /**
+   * Method tranform password policy attribute to check to
+   * enum
+   */
+  _transformAttributeToCheck(identityAttributeCheck) {
+    // transform identityAttributeCheck
+    const identityAttributeCheckFinal = [];
+    const attrs = _.split(identityAttributeCheck, ', ');
+    for (const attribute in attrs) {
+      if (attrs.hasOwnProperty(attribute)) {
+        identityAttributeCheckFinal.push(PasswordPolicyIdentityAttributeEnum.findSymbolByKey(attrs[attribute]));
+      }
+    }
+    return identityAttributeCheckFinal;
   }
 
   /**
@@ -105,7 +130,9 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         this._afterSave(createdEntity, error, editContinue);
       }));
     } else {
-      this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, this._afterSave.bind(this, entity, null, editContinue)));
+      this.context.store.dispatch(this.passwordPolicyManager.patchEntity(entity, `${uiKey}-detail`, (savedEntity, error) => {
+        this._afterSave(entity, error, editContinue);
+      }));
     }
   }
 
@@ -133,71 +160,75 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     }
   }
 
+  _changeType(value) {
+    if (value && PasswordPolicyTypeEnum.findSymbolByKey(value.value) === PasswordPolicyTypeEnum.VALIDATE ||
+            PasswordPolicyTypeEnum.findSymbolByKey(value) === PasswordPolicyTypeEnum.VALIDATE) {
+      this.setState({
+        validateType: true
+      });
+    } else {
+      this.setState({
+        validateType: false
+      });
+    }
+  }
+
   render() {
     const { uiKey, entity, isNew } = this.props;
-    const { showLoading } = this.state;
+    const { showLoading, validateType } = this.state;
     return (
-      <Basic.Panel className={isNew ? '' : 'no-border last'}>
-      <div className="tab-pane-panel-body">
-        {
-          showLoading || entity === null
-          ?
-          <Basic.Loading isStatic showLoading/>
-          :
-          <Basic.PanelHeader style={{ paddingLeft: 15 }}>
-            <h2>
-              {
-                isNew
-                ?
-                <span>{this.i18n('content.passwordPolicies.basic.title')}</span>
-                :
-                <span>{entity.name} <small>{this.i18n('content.passwordPolicies.basic.title')}</small></span>
-              }
-            </h2>
-            <div className="clearfix"></div>
-          </Basic.PanelHeader>
-        }
-        <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm ref="form" data={entity} uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
-            <Basic.EnumSelectBox
-              ref="type"
-              required
-              enum={PasswordPolicyTypeEnum}
-              label={this.i18n('entity.PasswordPolicy.type')}/>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.PasswordPolicy.name')}
-              required
-              max={255}/>
-            <Basic.EnumSelectBox
-              ref="generateType"
-              enum={PasswordPolicyGenerateTypeEnum}
-              label={this.i18n('entity.PasswordPolicy.generateType')}/>
-            <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled')}/>
+      <form onSubmit={this.save.bind(this)}>
+        <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
+          <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
+          <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.AbstractForm ref="form" data={entity} uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+              <Basic.EnumSelectBox
+                ref="type" onChange={this._changeType.bind(this)}
+                required readOnly={!Utils.Entity.isNew(entity)}
+                enum={PasswordPolicyTypeEnum}
+                label={this.i18n('entity.PasswordPolicy.type')}/>
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('entity.PasswordPolicy.name')}
+                required
+                max={255}/>
+              <Basic.EnumSelectBox
+                ref="generateType" required={!validateType} hidden={validateType}
+                enum={PasswordPolicyGenerateTypeEnum}
+                label={this.i18n('entity.PasswordPolicy.generateType')}/>
 
-            <Basic.Checkbox ref="defaultPolicy" label={this.i18n('entity.PasswordPolicy.defaultPolicy')}/>
+              <Basic.TextField ref="passphraseWords"
+                hidden={validateType}
+                label={this.i18n('entity.PasswordPolicy.passphraseWords')} />
 
-            <Basic.TextArea ref="description" label={this.i18n('entity.PasswordPolicy.description')}/>
+              <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled')}/>
 
-            <Basic.TextField ref="minPasswordLength"
-              label={this.i18n('entity.PasswordPolicy.minPasswordLength')} />
-            <Basic.TextField ref="maxPasswordLength"
-              label={this.i18n('entity.PasswordPolicy.maxPasswordLength')} />
+              <Basic.Checkbox ref="defaultPolicy" label={this.i18n('entity.PasswordPolicy.defaultPolicy')}/>
 
-            <Basic.TextField ref="minUpperChar"
-              label={this.i18n('entity.PasswordPolicy.minUpperChar')} />
+              <Basic.TextArea ref="description" label={this.i18n('entity.PasswordPolicy.description')}/>
 
-            <Basic.TextField ref="minLowerChar"
-              label={this.i18n('entity.PasswordPolicy.minLowerChar')} />
+              <Basic.TextField ref="minPasswordLength"
+                label={this.i18n('entity.PasswordPolicy.minPasswordLength')} />
+              <Basic.TextField ref="maxPasswordLength"
+                label={this.i18n('entity.PasswordPolicy.maxPasswordLength')} />
 
-            <Basic.TextField ref="minNumber"
-              label={this.i18n('entity.PasswordPolicy.minNumber')} />
+              <Basic.TextField ref="minUpperChar"
+                label={this.i18n('entity.PasswordPolicy.minUpperChar')} />
 
-            <Basic.TextField ref="minSpecialChar"
-              label={this.i18n('entity.PasswordPolicy.minSpecialChar')} />
-            <Basic.TextField ref="passphraseWords" label={this.i18n('entity.PasswordPolicy.passphraseWords')} />
-          </Basic.AbstractForm>
+              <Basic.TextField ref="minLowerChar"
+                label={this.i18n('entity.PasswordPolicy.minLowerChar')} />
 
+              <Basic.TextField ref="minNumber"
+                label={this.i18n('entity.PasswordPolicy.minNumber')} />
+
+              <Basic.TextField ref="minSpecialChar"
+                label={this.i18n('entity.PasswordPolicy.minSpecialChar')} />
+
+              <Basic.TextField ref="maxPasswordAge" label={this.i18n('entity.PasswordPolicy.maxPasswordAge')} />
+
+              <Basic.TextField ref="minPasswordAge" label={this.i18n('entity.PasswordPolicy.minPasswordAge')} />
+            </Basic.AbstractForm>
+          </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} className="noBorder">
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
             {
@@ -218,9 +249,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
               </Basic.SplitButton>
             }
           </Basic.PanelFooter>
-        </form>
-      </div>
-    </Basic.Panel>
+        </Basic.Panel>
+      </form>
     );
   }
 }

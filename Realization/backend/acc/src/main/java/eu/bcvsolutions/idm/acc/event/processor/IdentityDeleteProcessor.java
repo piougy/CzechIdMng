@@ -1,10 +1,11 @@
 package eu.bcvsolutions.idm.acc.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
@@ -21,8 +22,10 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
  *
  */
 @Component("accIdentityDeleteProcessor")
+@Description("Ensures referential integrity. Could not be disabled.")
 public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIdentity> {
 	
+	public static final String PROCESSOR_NAME = "identity-delete-processor";
 	private final AccIdentityAccountService identityAccountService;
 	
 	@Autowired
@@ -32,6 +35,11 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 		Assert.notNull(identityAccountService);
 		//
 		this.identityAccountService = identityAccountService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override
@@ -48,5 +56,10 @@ public class IdentityDeleteProcessor extends AbstractEntityEventProcessor<IdmIde
 	public int getOrder() {
 		// right now before identity delete
 		return CoreEvent.DEFAULT_ORDER - 1;
+	}
+	
+	@Override
+	public boolean isDisableable() {
+		return false;
 	}
 }

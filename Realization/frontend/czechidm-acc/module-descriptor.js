@@ -82,6 +82,15 @@ module.exports = {
             'order': 60,
             'path': '/system/:entityId/synchronization-configs',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+          },
+          {
+            'id': 'system-provisioning-operations',
+            'type': 'TAB',
+            'labelKey': 'acc:content.provisioningOperations.label',
+            'titleKey': 'acc:content.provisioningOperations.title',
+            'order': 70,
+            'path': '/system/:entityId/provisioning',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           }
         ]
       },
@@ -94,6 +103,16 @@ module.exports = {
         'priority': 0,
         'path': '/identity/:entityId/accounts',
         'icon': 'fa:external-link'
+      },
+      {
+        'id': 'password-policies-systems',
+        'parentId': 'password-policies',
+        'type': 'TAB',
+        'labelKey': 'acc:content.passwordPolicy.system.tab',
+        'order': 100,
+        'priority': 0,
+        'path': '/password-policies/:entityId/systems',
+        'icon': ''
       },
       {
         'id': 'role-systems',

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -50,16 +51,20 @@ import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
- * Prepare provisioning - resolve account properties and resolve create or update operations
+ * Prepare provisioning - resolve connector object properties from account and resolve create or update operations
  * 
  * @author Radek Tomiška
  *
  */
 @Component
+@Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Prepares connector object from account properties. Resolves create or update provisioning operation (reads object from target system).")
 public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 
+	public static final String PROCESSOR_NAME = "prepare-connector-object-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PrepareConnectorObjectProcessor.class);
 	private final SysSystemMappingService systemMappingService;
 	private final SysSystemAttributeMappingService attributeMappingService;
@@ -95,6 +100,11 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		this.provisioningOperationService = provisioningOperationService;
 	}
 	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
+	
 	/**
 	 * Prepare provisioning operation execution
 	 */
@@ -121,7 +131,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		//
 		try {
-			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);	
+			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 			IcConnectorObject existsConnectorObject = connectorFacade.readObject(
 					provisioningOperation.getSystem().getConnectorKey(), 
 					connectorConfig, 

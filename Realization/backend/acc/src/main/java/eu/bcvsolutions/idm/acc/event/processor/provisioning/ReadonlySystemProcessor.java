@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -22,6 +23,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
  * Readonly system provisioning - only saves provisioning operations
@@ -30,8 +32,11 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  *
  */
 @Component
+@Enabled(AccModuleDescriptor.MODULE_ID)
+@Description("Checks readonly system before provisioning is called.")
 public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
+	public static final String PROCESSOR_NAME = "readonly-system-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ReadonlySystemProcessor.class);
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
@@ -47,6 +52,11 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 		//
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 	
 	@Override

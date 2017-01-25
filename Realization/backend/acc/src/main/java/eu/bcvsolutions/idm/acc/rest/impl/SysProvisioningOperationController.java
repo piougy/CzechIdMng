@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
+import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
@@ -37,7 +37,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/provisioning-operations")
 public class SysProvisioningOperationController
-		extends AbstractReadEntityController<SysProvisioningOperation, EmptyFilter> {
+		extends AbstractReadEntityController<SysProvisioningOperation, ProvisioningOperationFilter> {
 
 	private final ProvisioningExecutor provisioningExecutor;
 

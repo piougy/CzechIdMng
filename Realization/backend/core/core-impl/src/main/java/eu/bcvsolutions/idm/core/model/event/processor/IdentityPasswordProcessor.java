@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -20,10 +21,11 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Component
+@Description("Persist identity's password.")
 public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 
+	public static final String PROCESSOR_NAME = "identity-password-processor";
 	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto"; 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordProcessor.class);
 	private final IdmPasswordService passwordService;
@@ -35,6 +37,11 @@ public class IdentityPasswordProcessor extends CoreEventProcessor<IdmIdentity> {
 		Assert.notNull(passwordService);
 		//
 		this.passwordService = passwordService;
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

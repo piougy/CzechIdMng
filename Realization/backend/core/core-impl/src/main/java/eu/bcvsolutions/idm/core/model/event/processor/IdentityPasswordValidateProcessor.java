@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.model.event.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -10,6 +11,7 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
@@ -25,11 +27,11 @@ import eu.bcvsolutions.idm.security.api.service.SecurityService;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 @Component
+@Description("Validates identity's password, when password is changed.")
 public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIdentity> {
 
-	public static final String PROPERTY_PASSWORD_CHANGE_DTO = "idm:password-change-dto";
+	public static final String PROCESSOR_NAME = "identity-password-validate-processor";
 	private final SecurityService securityService;
 	private final IdmPasswordService passwordService;
 	private final IdmPasswordPolicyService passwordPolicyService;
@@ -49,10 +51,15 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	}
 
 	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
+	}
+	
+	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		IdmIdentity identity = event.getContent();
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties()
-				.get(PROPERTY_PASSWORD_CHANGE_DTO);
+				.get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//
 		if (!securityService.isAdmin()) {
@@ -64,12 +71,14 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 			if (!passwordService.checkPassword(passwordChangeDto.getOldPassword(), idmPassword)) {
 				throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_CURRENT_FAILED_IDM);
 			}
-			// can change password, minimal age for change
 		}
 
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			// validate password
-			this.passwordPolicyService.validate(passwordChangeDto.getNewPassword().asString());
+			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
+			passwordValidationDto.setIdentity(identity);
+			this.passwordPolicyService.validate(passwordValidationDto);
 		}
 		return new DefaultEventResult<>(event, this);
 	}
@@ -78,5 +87,4 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 	public int getOrder() {
 		return super.getOrder() - 100;
 	}
-
 }

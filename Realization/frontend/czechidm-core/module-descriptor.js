@@ -305,18 +305,40 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
           },
           {
-            'id': 'fe-modules',
-            'labelKey': 'content.system.fe-modules.title',
+            'id': 'modules',
+            'labelKey': 'content.system.modules.title',
             'order': 30,
-            'path': '/fe-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-          },
-          {
-            'id': 'be-modules',
-            'labelKey': 'content.system.be-modules.title',
-            'order': 30,
-            'path': '/be-modules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+            'path': '/modules/fe-modules',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+            'items': [
+              {
+                'id': 'fe-modules',
+                'labelKey': 'content.system.fe-modules.title',
+                'order': 10,
+                'path': '/modules/fe-modules',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              },
+              {
+                'id': 'be-modules',
+                'labelKey': 'content.system.be-modules.title',
+                'order': 20,
+                'path': '/modules/be-modules',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+              },
+              {
+                'id': 'entity-event-processors',
+                'labelKey': 'content.system.entity-event-processors.title',
+                'order': 30,
+                'path': '/modules/entity-event-processors',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+              }
+            ]
           },
           {
             'id': 'workflow-definitions',
@@ -346,16 +368,45 @@ module.exports = {
             'order': 45,
             'path': '/password-policies',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+            'items': [
+              {
+                'id': 'password-policies-basic',
+                'labelKey': 'content.passwordPolicies.basic.title',
+                'order': 10,
+                'path': '/password-policies/:entityId',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              },
+              {
+                'id': 'password-policies-advanced',
+                'labelKey': 'content.passwordPolicies.advanced.title',
+                'order': 15,
+                'path': '/password-policies/:entityId/advanced',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              },
+              {
+                'id': 'password-policies-characters',
+                'labelKey': 'content.passwordPolicies.characters.title',
+                'order': 20,
+                'path': '/password-policies/:entityId/characters',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+              }
+            ]
           },
           {
-            'id': 'rules',
-            'labelKey': 'content.rules.header',
-            'titleKey': 'content.rules.title',
+            'id': 'scripts',
+            'labelKey': 'content.scripts.header',
+            'titleKey': 'content.scripts.title',
             'icon': 'fa:clone',
             'iconColor': '#272fd8',
             'order': 26,
-            'path': '/rules',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ],
+            'path': '/scripts',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ],
           }
         ]
       },

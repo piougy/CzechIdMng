@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,8 +24,11 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyIdentityAttributes;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
@@ -48,8 +52,14 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private static final String MIN_NUMBER = "minNumber";
 	private static final String MIN_SPECIAL_CHAR = "minSpecialChar";
 	private static final String COINTAIN_PROHIBITED = "prohibited";
-	private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
+	// private static final String CONTAIN_WEAK_PASS = "weakPass"; // TODO
+	private static final String MIN_RULES_TO_FULFILL = "minRulesToFulfill";
+	private static final String MIN_RULES_TO_FULFILL_COUNT = "minRulesToFulfillCount";
 	private static final String POLICY_NAME = "policiesNames";
+	private static final String PASSWORD_SIMILAR_USERNAME = "passwordSimilarUsername";
+	private static final String PASSWORD_SIMILAR_EMAIL = "passwordSimilarEmail";
+	private static final String PASSWORD_SIMILAR_FIRSTNAME = "passwordSimilarFirstName";
+	private static final String PASSWORD_SIMILAR_LASTNAME = "passwordSimilarLastName";
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository passwordPolicyRepository;
@@ -97,39 +107,33 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			return false;
 		}
 	}
-
+	
 	@Override
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy, IdmPassword oldPassword) {
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto) {
+		return this.validate(passwordValidationDto, this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE));
+	}
+	
+	@Override
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy) {
 		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
 		passwordPolicyList.add(passwordPolicy);
 		
-		return this.validate(password, passwordPolicyList, oldPassword);
+		return this.validate(passwordValidationDto, passwordPolicyList);
 	}
 
 	@Override
-	public boolean validate(String password, IdmPassword oldPassword) {
-		return this.validate(password, new ArrayList<>(), oldPassword);
-	}
-	
-	@Override
-	public boolean validate(String password) {
-		return this.validate(password, new ArrayList<>(), null);
-	}
-	
-	@Override
-	public boolean validate(String password, IdmPasswordPolicy passwordPolicy) {
-		return this.validate(password, passwordPolicy, null);
-	}
-
-	@Override
-	public boolean validate(String password, List<IdmPasswordPolicy> passwordPolicyList, IdmPassword oldPassword) {
+	public boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList) {
 		Assert.notNull(passwordPolicyList);
+		Assert.notNull(passwordValidationDto);
 		
 		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty()) {
 			IdmPasswordPolicy defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 			passwordPolicyList.add(defaultPolicy);
 		}
+		
+		IdmPassword oldPassword = passwordValidationDto.getOldPassword();
+		String password = passwordValidationDto.getPassword().asString();
 		
 		DateTime now = new DateTime();
 		
@@ -148,18 +152,29 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				}
 			}
 			
+			// minimum rules to fulfill
+			Map<String, Object> notPassRules = new HashMap<>();
+			int minRulesToFulfill = passwordPolicy.getMinRulesToFulfill();
+			
+			// check to max password length
 			if (passwordPolicy.getMaxPasswordLength() != 0 && password.length() > passwordPolicy.getMaxPasswordLength()) {
-				if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
+				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MAX_LENGTH, Math.max(convertToInt(errors.get(MAX_LENGTH)), passwordPolicy.getMaxPasswordLength()));
+				} else if (!(errors.containsKey(MAX_LENGTH) && compareInt(errors.get(MAX_LENGTH), passwordPolicy.getMaxPasswordLength()))) {
 					errors.put(MAX_LENGTH, passwordPolicy.getMaxPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
+			// check to minimal password length
 			if (passwordPolicy.getMinPasswordLength() != 0 && password.length() < passwordPolicy.getMinPasswordLength()) {
-				if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
+				if (!passwordPolicy.isPasswordLengthRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_LENGTH, Math.max(convertToInt(errors.get(MIN_LENGTH)), passwordPolicy.getMinPasswordLength()));
+				} else if (!(errors.containsKey(MIN_LENGTH) && compareInt(errors.get(MIN_LENGTH), passwordPolicy.getMinPasswordLength()))) {
 					errors.put(MIN_LENGTH, passwordPolicy.getMinPasswordLength());
 				}
 				validateNotSuccess = true;
 			}
+			// check to prohibited characters
 			if (!Strings.isNullOrEmpty(passwordPolicy.getProhibitedCharacters()) && !password.matches("[^" + passwordPolicy.getProhibitedCharacters() + "]*")) {
 				for (char character : passwordPolicy.getProhibitedCharacters().toCharArray()) {
 					if (password.indexOf(character) >= 0) {
@@ -168,32 +183,76 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				}
 				validateNotSuccess = true;
 			}
+			// check to minimal numbers
 			if (passwordPolicy.getMinNumber() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getNumberBase()) + "].*){" + passwordPolicy.getMinNumber() + ",}")) {
-				if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
+				if (!passwordPolicy.isNumberRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_NUMBER, Math.max(convertToInt(errors.get(MIN_NUMBER)), passwordPolicy.getMinNumber()));
+				} else if (!(errors.containsKey(MIN_NUMBER) && compareInt(errors.get(MIN_NUMBER), passwordPolicy.getMinNumber()))) {
 					errors.put(MIN_NUMBER, passwordPolicy.getMinNumber());
 				}
 				validateNotSuccess = true;
 			}
+			// check to minimal lower characters
 			if (passwordPolicy.getMinLowerChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getLowerCharBase()) + "].*){" + passwordPolicy.getMinLowerChar() + ",}")) {
-				if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
+				if (!passwordPolicy.isLowerCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_LOWER_CHAR, Math.max(convertToInt(errors.get(MIN_LOWER_CHAR)), passwordPolicy.getMinLowerChar()));
+				} else if (!(errors.containsKey(MIN_LOWER_CHAR) && compareInt(errors.get(MIN_LOWER_CHAR), passwordPolicy.getMinLowerChar()))) {
 					errors.put(MIN_LOWER_CHAR, passwordPolicy.getMinLowerChar());
 				}
 				validateNotSuccess = true;
 			}
+			// check to minimal upper character
 			if (passwordPolicy.getMinUpperChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getUpperCharBase()) + "].*){" + passwordPolicy.getMinUpperChar() + ",}")) {
-				if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
+				if (!passwordPolicy.isUpperCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_UPPER_CHAR, Math.max(convertToInt(errors.get(MIN_UPPER_CHAR)), passwordPolicy.getMinUpperChar()));
+				} else if (!(errors.containsKey(MIN_UPPER_CHAR) && compareInt(errors.get(MIN_UPPER_CHAR), passwordPolicy.getMinUpperChar()))) {
 					errors.put(MIN_UPPER_CHAR, passwordPolicy.getMinUpperChar());
 				}
 			}
+			// check to minimal special character
 			if (passwordPolicy.getMinSpecialChar() != 0 && !password.matches("(.*[" + Pattern.quote(passwordPolicy.getSpecialCharBase()) + "].*){" + passwordPolicy.getMinSpecialChar() + ",}")) {
-				if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
+				if (!passwordPolicy.isSpecialCharRequired() && passwordPolicy.isEnchancedControl()) {
+					notPassRules.put(MIN_SPECIAL_CHAR, Math.max(convertToInt(errors.get(MIN_SPECIAL_CHAR)), passwordPolicy.getMinSpecialChar()));
+				} else if (!(errors.containsKey(MIN_SPECIAL_CHAR) && compareInt(errors.get(MIN_SPECIAL_CHAR), passwordPolicy.getMinSpecialChar()))) {
 					errors.put(MIN_SPECIAL_CHAR, passwordPolicy.getMinSpecialChar());
 				}
 				validateNotSuccess = true;
 			}
 			
+			// if not success we want password policy name
 			if (validateNotSuccess) {
 				policyNames.add(passwordPolicy.getName());
+			}
+			
+			// check how many required rules is not filled
+			if (notPassRules.size() > minRulesToFulfill) {
+				errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill);
+				errors.put(MIN_RULES_TO_FULFILL, notPassRules);
+			}
+			
+			// check to similar identity attributes, enchanced control
+			if (passwordPolicy.isEnchancedControl()) {
+				String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
+				IdmIdentity identity = passwordValidationDto.getIdentity();
+				for (int index = 0; index < attributes.length; index++) {
+					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
+						if (identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+							errors.put(PASSWORD_SIMILAR_EMAIL, identity.getEmail());
+						}
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
+						if (identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+							errors.put(PASSWORD_SIMILAR_FIRSTNAME, identity.getFirstName());
+						}
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
+						if (identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+							errors.put(PASSWORD_SIMILAR_LASTNAME, identity.getLastName());
+						}
+					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
+						if (identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+							errors.put(PASSWORD_SIMILAR_USERNAME, identity.getUsername());
+						}
+					}
+				}
 			}
 			
 			// TODO: weak words
@@ -294,5 +353,19 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		Integer i2 = Integer.parseInt(o2.toString());
 		
 		return i1 > i2;
+	}
+	
+	/**
+	 * Convert integer value in object to int. If Object is null,
+	 * return 0.
+	 * 
+	 * @param object
+	 * @return
+	 */
+	private int convertToInt(Object object) {
+		if (object == null) {
+			return 0;
+		}
+		return NumberUtils.toInt(object.toString());
 	}
 }

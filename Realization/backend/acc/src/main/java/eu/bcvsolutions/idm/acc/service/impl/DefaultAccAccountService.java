@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.AccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
 import eu.bcvsolutions.idm.acc.repository.AccIdentityAccountRepository;
@@ -62,7 +62,7 @@ public class DefaultAccAccountService extends AbstractReadWriteEntityService<Acc
 		accIdentityAccountRepository.deleteByAccount(account);
 		//
 		super.delete(account);
-		// TODO move to asynchronouse queue
+		// TODO: move to event
 		if (deleteTargetAccount) {
 			if (provisioningService == null) {
 				provisioningService = applicationContext.getBean(ProvisioningService.class);

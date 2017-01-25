@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
-import eu.bcvsolutions.idm.acc.dto.RoleSystemAttributeFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 

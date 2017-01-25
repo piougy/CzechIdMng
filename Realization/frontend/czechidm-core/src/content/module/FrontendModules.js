@@ -25,7 +25,7 @@ class FrontendModules extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectNavigationItem('fe-modules');
+    this.selectNavigationItems(['system', 'modules', 'fe-modules']);
     this.context.store.dispatch(this.backendModuleManager.fetchInstalledModules());
   }
 
@@ -58,12 +58,10 @@ class FrontendModules extends Basic.AbstractContent {
     const { _showLoading } = this.state;
     //
     return (
-      <div>
+      <div className="tab-pane-panel-body">
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-deactivate" level="warning"/>
         <Basic.Confirm ref="confirm-activate" level="success"/>
-
-        <Basic.PageHeader text={this.i18n('header')}/>
 
         {
           showLoading || _showLoading

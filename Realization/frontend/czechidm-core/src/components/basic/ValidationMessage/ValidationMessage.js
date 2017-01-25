@@ -9,6 +9,19 @@ import Alert from '../Alert/Alert';
  */
 const PASSWORD_POLICIES_NAMES = 'policiesNames';
 
+/**
+ * Enchanced control, minimal rules to fulfill.
+ * Value of parameter MIN_RULES_TO_FULFILL is map with rules
+ * @type {String}
+ */
+const MIN_RULES_TO_FULFILL = 'minRulesToFulfill';
+
+/**
+ * Enchanced control, count with minimal rules to fulfill
+ * @type {String}
+ */
+const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
+
 export default class ValidationMessage extends AbstractFormComponent {
 
   constructor(props) {
@@ -36,13 +49,32 @@ export default class ValidationMessage extends AbstractFormComponent {
     const validationMessage = [];
     let policies = '';
 
+    // iterate over all parameters in error
     for (const key in error.parameters) {
       if (error.parameters.hasOwnProperty(key)) {
-        if (key !== PASSWORD_POLICIES_NAMES) {
+        // enchanced control special message, minimal rules to fulfill
+        if (key === MIN_RULES_TO_FULFILL) {
+          // fill rules with not required messages
+          let rules = '<ul style="padding-left: 20px">';
+          for (const ruleKey in error.parameters[key]) {
+            if (error.parameters[key].hasOwnProperty(ruleKey)) {
+              rules += '<span><li>' + this.i18n('content.passwordPolicies.validation.' + ruleKey) + error.parameters[key][ruleKey] + '</li>';
+            }
+          }
+          rules += '</ul></span>';
+          validationMessage.push(
+            <Alert level="warning" >
+              <span dangerouslySetInnerHTML={{
+                __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
+              />
+            </Alert>);
+        } else if (key !== PASSWORD_POLICIES_NAMES) {
+          // other validation messages
           validationMessage.push(<Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Alert>);
         }
       }
     }
+    // last message is password policies names
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
       validationMessage.push(<Alert level="warning" >{policies}</Alert>);

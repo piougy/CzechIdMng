@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
@@ -22,7 +23,10 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  *
  */
 @Component
+@Description("Executes provisioning operation on connector facade. Depends on [" + PrepareConnectorObjectProcessor.PROCESSOR_NAME + "] result operation type [UPDATE].")
 public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
+	
+	public static final String PROCESSOR_NAME = "provisioning-update-processor";
 	
 	@Autowired
 	public ProvisioningUpdateProcessor(
@@ -32,6 +36,11 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 			SysProvisioningOperationService provisioningOperationService) {
 		super(connectorFacade, systemService, provisioningOperationService, 
 				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
+	}
+	
+	@Override
+	public String getName() {
+		return PROCESSOR_NAME;
 	}
 
 	@Override

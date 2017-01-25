@@ -23,7 +23,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	CONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.WRITE, IdmBasePermission.DELETE), // read configuration is public operation
 	CONFIGURATIONSECURED(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	PASSWORDPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	RULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
 	
@@ -54,9 +54,9 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String PASSWORDPOLICY_WRITE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "WRITE";
 	public static final String PASSWORDPOLICY_DELETE = "PASSWORDPOLICY" + BasePermission.SEPARATOR + "DELETE";
 	//
-	public static final String RULE_READ = "RULE" + BasePermission.SEPARATOR + "READ";
-	public static final String RULE_WRITE = "RULE" + BasePermission.SEPARATOR + "WRITE";
-	public static final String RULE_DELETE = "RULE" + BasePermission.SEPARATOR + "DELETE";
+	public static final String SCRIPT_READ = "SCRIPT" + BasePermission.SEPARATOR + "READ";
+	public static final String SCRIPT_WRITE = "SCRIPT" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SCRIPT_DELETE = "SCRIPT" + BasePermission.SEPARATOR + "DELETE";
 	//
 	public static final String AUDIT_READ = "AUDIT" + BasePermission.SEPARATOR + "READ";
 	//

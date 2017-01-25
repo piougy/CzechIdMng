@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
+import { Basic, Advanced, Utils, Managers, Domain } from 'czechidm-core';
 //
 import uuid from 'uuid';
 
@@ -66,7 +66,7 @@ export class SystemTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, manager, columns } = this.props;
+    const { uiKey, manager, columns, forceSearchParameters, showAddButton } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -79,6 +79,7 @@ export class SystemTable extends Basic.AbstractContent {
           manager={manager}
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
+          forceSearchParameters={forceSearchParameters}
           showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE')}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -111,7 +112,7 @@ export class SystemTable extends Basic.AbstractContent {
                 key="add_button"
                 className="btn-xs"
                 onClick={this.showDetail.bind(this, { })}
-                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}>
+                rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE') && showAddButton}>
                 <Basic.Icon type="fa" icon="plus"/>
                 {' '}
                 {this.i18n('button.add')}
@@ -136,7 +137,7 @@ export class SystemTable extends Basic.AbstractContent {
           <Advanced.ColumnLink to="system/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
           <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
           <Advanced.Column property="readonly" header={this.i18n('acc:entity.System.readonly.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'readonly')}/>
-          <Advanced.Column property="queue" header={this.i18n('acc:entity.System.queue.label')} sort face="bool" width="75px" rendered={_.includes(columns, 'queue')}/>
+          <Advanced.Column property="queue" header={this.i18n('acc:entity.System.queue.label')} sort face="bool" width="75px" rendered={false && _.includes(columns, 'queue')}/>
           <Advanced.Column property="disabled" sort face="bool" width="75px" rendered={_.includes(columns, 'disabled')}/>
         </Advanced.Table>
       </div>
@@ -148,13 +149,17 @@ SystemTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   manager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  forceSearchParameters: PropTypes.object,
+  showAddButton: PropTypes.bool
 };
 
 SystemTable.defaultProps = {
   columns: ['name', 'description', 'disabled', 'virtual', 'readonly', 'queue'],
   filterOpened: false,
-  _showLoading: false
+  _showLoading: false,
+  forceSearchParameters: new Domain.SearchParameters(),
+  showAddButton: true
 };
 
 function select(state, component) {

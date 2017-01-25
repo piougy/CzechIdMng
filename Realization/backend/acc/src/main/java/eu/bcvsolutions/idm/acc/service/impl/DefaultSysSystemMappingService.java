@@ -10,8 +10,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
-import eu.bcvsolutions.idm.acc.dto.SystemAttributeMappingFilter;
-import eu.bcvsolutions.idm.acc.dto.SystemMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;

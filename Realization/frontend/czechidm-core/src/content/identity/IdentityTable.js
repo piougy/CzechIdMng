@@ -239,6 +239,9 @@ export class IdentityTable extends Basic.AbstractTableContent {
 IdentityTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityManager: PropTypes.object.isRequired,
+  /**
+   * Rendered columns
+   */
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool,
   /**

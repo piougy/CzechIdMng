@@ -8,7 +8,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 
 /**
- * Table with definitions of rules
+ * Table with definitions of password policies
  */
 export class PasswordPolicyTable extends Basic.AbstractContent {
 
@@ -24,6 +24,7 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
+    this.selectNavigationItems(['system', 'password-policies']);
     const { passwordPolicyManager, uiKey } = this.props;
     const searchParameters = passwordPolicyManager.getService().getDefaultSearchParameters();
     this.context.store.dispatch(passwordPolicyManager.fetchEntities(searchParameters, uiKey));
@@ -99,7 +100,7 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
             ref="table"
             uiKey={uiKey}
             manager={passwordPolicyManager}
-            showRowSelection={SecurityManager.hasAuthority('RULE_DELETE')}
+            showRowSelection={SecurityManager.hasAuthority('PASSWORDPOLICY_DELETE')}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
@@ -138,7 +139,7 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
               [
                 <Basic.Button level="success" key="add_button" className="btn-xs"
                         onClick={this.showDetail.bind(this, {})}
-                        rendered={SecurityManager.hasAuthority('RULE_WRITE')}>
+                        rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}>
                   <Basic.Icon type="fa" icon="plus"/>
                   {' '}
                   {this.i18n('button.add')}

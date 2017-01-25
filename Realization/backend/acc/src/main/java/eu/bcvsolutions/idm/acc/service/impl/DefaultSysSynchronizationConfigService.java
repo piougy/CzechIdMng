@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.acc.dto.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.dto.SynchronizationLogFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
 import eu.bcvsolutions.idm.acc.repository.SysSynchronizationConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;

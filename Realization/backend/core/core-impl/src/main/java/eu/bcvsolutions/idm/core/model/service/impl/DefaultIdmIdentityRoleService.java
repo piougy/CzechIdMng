@@ -67,7 +67,8 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		Assert.notNull(entity.getIdentity());
 		//
 		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		return entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.SAVE, entity)).getContent();
+		return entityEventProcessorService.process(
+				new IdentityRoleEvent(entity.getId() == null ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, entity)).getContent();
 	}
 
 	@Override

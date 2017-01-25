@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
+import eu.bcvsolutions.idm.core.model.dto.IdmPasswordValidationDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -255,34 +258,50 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		policy.setMaxPasswordLength(10);
 		policy.setMinPasswordLength(5);
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("12345", policy);
-			this.passwordPolicyService.validate("123456", policy);
-			this.passwordPolicyService.validate("1234567", policy);
-			this.passwordPolicyService.validate("12345678", policy);
-			this.passwordPolicyService.validate("123456789", policy);
-			this.passwordPolicyService.validate("1234567890", policy);
+			password.setPassword("12345");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("123456");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("1234567");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("12345678");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("123456789");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("1234567890");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password validation length.");
 		}
 		
 		
 		try {
-			this.passwordPolicyService.validate("1234", policy);
+			password.setPassword("1234");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation length.");
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("", policy);
+			password.setPassword("");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation length.");
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("123456789123", policy);
+			password.setPassword("123456789123");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation length.");
 		} catch (Exception e) {
 			// nothing, success
@@ -299,30 +318,40 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		policy.setMinPasswordLength(1);
 		policy.setMinNumber(2);
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("123", policy);
-			this.passwordPolicyService.validate("12", policy);
-			this.passwordPolicyService.validate("12a", policy);
+			password.setPassword("123");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("12");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("12a");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password validation numbers. " + e.getMessage());
 		}
 		
 		try {
-			this.passwordPolicyService.validate("1", policy);
+			password.setPassword("1");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation numbers. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("1234", policy);
+			password.setPassword("1234");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation numbers. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("test", policy);
+			password.setPassword("test");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation numbers. " + policy);
 		} catch (Exception e) {
 			// nothing, success
@@ -339,30 +368,40 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		policy.setMinPasswordLength(1);
 		policy.setMinSpecialChar(2);
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("!@", policy);
-			this.passwordPolicyService.validate("!@#", policy);
-			this.passwordPolicyService.validate("!@a", policy);
+			password.setPassword("!@");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("!@#");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("!@a");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password validation special chars. " + e.getMessage());
 		}
 		
 		try {
-			this.passwordPolicyService.validate("!", policy);
+			password.setPassword("!");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation special chars. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("!@#$", policy);
+			password.setPassword("!@#$");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation special chars. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("test", policy);
+			password.setPassword("test");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validation special chars. " + policy);
 		} catch (Exception e) {
 			// nothing, success
@@ -379,36 +418,45 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		policy.setMinPasswordLength(1);
 		policy.setProhibitedCharacters("12abcDEF!@");
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("test", policy);
-			this.passwordPolicyService.validate("ABde", policy);
+			password.setPassword("test");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("ABde");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password validate prohibited characters. " + policy);
 		}
 		
 		try {
-			this.passwordPolicyService.validate("tEst", policy);
-			fail("Password validate prohibited characters. " + policy);
-		} catch (Exception e) {
-			// nothing, success
-		}
-		
-		try {
-			this.passwordPolicyService.validate("eddD", policy);
-			fail("Password validate prohibited characters. " + policy);
-		} catch (Exception e) {
-			// nothing, success
-		}
-		
-		try {
-			this.passwordPolicyService.validate("5416", policy);
+			password.setPassword("tEst");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validate prohibited characters. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("test!", policy);
+			password.setPassword("eddD");
+			this.passwordPolicyService.validate(password, policy);
+			fail("Password validate prohibited characters. " + policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+		
+		try {
+			password.setPassword("5416");
+			this.passwordPolicyService.validate(password, policy);
+			fail("Password validate prohibited characters. " + policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+		
+		try {
+			password.setPassword("test!");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password validate prohibited characters. " + policy);
 		} catch (Exception e) {
 			// nothing, success
@@ -426,23 +474,32 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		policy.setNumberBase("123");
 		policy.setMinNumber(3);
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("123", policy);
-			this.passwordPolicyService.validate("1234", policy);
-			this.passwordPolicyService.validate("111", policy);
+			password.setPassword("123");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("1234");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("111");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password base validation. " + policy);
 		}
 		
 		try {
-			this.passwordPolicyService.validate("124", policy);
+			password.setPassword("124");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password base validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("456", policy);
+			password.setPassword("456");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password base validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
@@ -468,58 +525,72 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		
 		policy.setProhibitedCharacters("*/^mn");
 		
+		IdmPasswordValidationDto password = new IdmPasswordValidationDto();
+		
 		try {
-			this.passwordPolicyService.validate("000abc@@@DEF", policy);
-			this.passwordPolicyService.validate("F0a@0Ec0b@@D", policy);
-			this.passwordPolicyService.validate("#3aBb@C3A1#0c00", policy);
+			password.setPassword("000abc@@@DEF");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("F0a@0Ec0b@@D");
+			this.passwordPolicyService.validate(password, policy);
+			
+			password.setPassword("#3aBb@C3A1#0c00");
+			this.passwordPolicyService.validate(password, policy);
 		} catch (Exception e) {
 			fail("Password complex validation. " + policy);
 		}
 		
 		try {
-			this.passwordPolicyService.validate("001abc@@@DEF", policy);
-			fail("Password complex validation. " + policy);
-		} catch (Exception e) {
-			// nothing, success
-		}
-		
-		try {
-			this.passwordPolicyService.validate("000abc##$DEF", policy);
-			fail("Password complex validation. " + policy);
-		} catch (Exception e) {
-			// nothing, success
-		}
-		
-		try {
-			this.passwordPolicyService.validate("000abc)()DEF", policy);
+			password.setPassword("001abc@@@DEF");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password complex validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("#3aBb@C3A1#0c00idheff", policy);
+			password.setPassword("000abc##$DEF");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password complex validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("#3aBmb@C3A1#0c00", policy);
+			password.setPassword("000abc)()DEF");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password complex validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("#3aBb@C3A1n#0c00", policy);
+			password.setPassword("#3aBb@C3A1#0c00idheff");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password complex validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success
 		}
 		
 		try {
-			this.passwordPolicyService.validate("#3mBb*@C3A1n#0c00", policy);
+			password.setPassword("#3aBmb@C3A1#0c00");
+			this.passwordPolicyService.validate(password, policy);
+			fail("Password complex validation. " + policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+		
+		try {
+			password.setPassword("#3aBb@C3A1n#0c00");
+			this.passwordPolicyService.validate(password, policy);
+			fail("Password complex validation. " + policy);
+		} catch (Exception e) {
+			// nothing, success
+		}
+		
+		try {
+			password.setPassword("#3mBb*@C3A1n#0c00");
+			this.passwordPolicyService.validate(password, policy);
 			fail("Password complex validation. " + policy);
 		} catch (Exception e) {
 			// nothing, success

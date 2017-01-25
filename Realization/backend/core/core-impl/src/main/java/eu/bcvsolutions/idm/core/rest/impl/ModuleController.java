@@ -39,7 +39,6 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 public class ModuleController {
 
 	private final ModuleService moduleService;
-	
 	private final RequestResourceResolver requestResourceResolver;
 
 	@Autowired

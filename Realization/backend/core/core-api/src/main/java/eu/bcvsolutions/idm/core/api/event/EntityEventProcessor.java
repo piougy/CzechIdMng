@@ -4,7 +4,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -16,9 +15,30 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  *
  * @see {@link ApplicationListener}
  * @see {@link Ordered}
- * @param <E> {@link AbstractEntity} type
+ * @param <E> {@link BaseEntity} type
  */
 public interface EntityEventProcessor<E extends BaseEntity> extends Ordered {
+	
+	/**
+	 * Unique (module scope) entity event processor identifier. Could be used in configuration etc.
+	 * 
+	 * @return
+	 */
+	String getName();
+	
+	/**
+	 * Module identifier
+	 * 
+	 * @return
+	 */
+	String getModule();
+	
+	/**
+	 * Returns entity class, which supports this processor
+	 * 
+	 * @return
+	 */
+	Class<E> getEntityClass();
 	
 	/**
 	 * Returns event types, which supports this processor
@@ -58,5 +78,19 @@ public interface EntityEventProcessor<E extends BaseEntity> extends Ordered {
 	 * @return
 	 */
 	boolean isClosable();
+	
+	/**
+	 * Returns true, when processor could be disabled
+	 * 
+	 * @return
+	 */
+	boolean isDisableable();
+	
+	/**
+	 * Returns true, when processor is disabled
+	 * 
+	 * @return
+	 */
+	boolean isDisabled();
 
 }

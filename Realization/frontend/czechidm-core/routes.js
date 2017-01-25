@@ -164,14 +164,26 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['CONFIGURATION_WRITE', 'CONFIGURATIONSECURED_READ'] } ]
     },
     {
-      path: 'fe-modules',
-      component: require('./src/content/module/FrontendModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
-    },
-    {
-      path: 'be-modules',
-      component: require('./src/content/module/BackendModules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+      path: 'modules',
+      component: require('./src/content/module/ModuleRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ],
+      childRoutes: [
+        {
+          path: 'fe-modules',
+          component: require('./src/content/module/FrontendModules'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        },
+        {
+          path: 'be-modules',
+          component: require('./src/content/module/BackendModules'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+        },
+        {
+          path: 'entity-event-processors',
+          component: require('./src/content/module/EntityEventProcessors'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['MODULE_READ'] } ]
+        }
+      ]
     },
     {
       path: 'workflow',
@@ -198,14 +210,14 @@ module.exports = {
       component: require('./src/content/workflow/HistoricProcessInstanceDetail')
     },
     {
-      path: 'rules',
-      component: require('./src/content/rule/Rules'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+      path: 'scripts',
+      component: require('./src/content/script/Scripts'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
-      path: 'rules/:entityId',
-      component: require('./src/content/rule/RuleContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['RULE_READ'] } ]
+      path: 'scripts/:entityId',
+      component: require('./src/content/script/ScriptContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCRIPT_READ'] } ]
     },
     {
       path: 'password-policies',
@@ -213,9 +225,26 @@ module.exports = {
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
     },
     {
-      path: 'password-policies/:entityId',
-      component: require('./src/content/passwordpolicy/PasswordPolicyContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+      path: 'password-policies/',
+      component: require('./src/content/passwordpolicy/PasswordPolicyRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId',
+          component: require('./src/content/passwordpolicy/PasswordPolicyBasic'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        },
+        {
+          path: ':entityId/advanced',
+          component: require('./src/content/passwordpolicy/PasswordPolicyAdvanced'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        },
+        {
+          path: ':entityId/characters',
+          component: require('./src/content/passwordpolicy/PasswordPolicyCharacters'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
+        }
+      ]
     },
     {
       path: 'audit/',
@@ -223,17 +252,17 @@ module.exports = {
       childRoutes: [
         {
           path: 'entities',
-          component: require('./src/content/audit/audit/AuditContent'),
+          component: require('./src/content/audit/AuditContent'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['AUDIT_READ'] } ]
         },
         {
           path: 'entities/:entityId/diff/:revID',
-          component: require('./src/content/audit/audit/AuditDetail'),
+          component: require('./src/content/audit/AuditDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         },
         {
           path: 'entities/:entityId/diff',
-          component: require('./src/content/audit/audit/AuditDetail'),
+          component: require('./src/content/audit/AuditDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATION_READ'] } ]
         }
       ]

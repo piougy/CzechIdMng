@@ -282,7 +282,7 @@
       "TECHNICAL": "Technická",
       "LOGIN": "Přihlašovací"
     },
-    "RuleCategoryEnum": {
+    "ScriptCategoryEnum": {
       "DEFAULT": "Standardní",
       "TRANSFORM_FROM": "Transformace z",
       "TRANSFORM_TO": "Transformace do",
@@ -362,6 +362,12 @@
       "RANDOM": "Náhodné",
       "PASSPHRASE": "Passphrase"
     },
+    "PasswordPolicyIdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno",
+      "LASTNAME": "Jméno",
+      "FIRSTNAME": "Přijmení",
+      "EMAIL": "Email"
+    },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
       "INFO": "INFO",
@@ -393,7 +399,7 @@
       "ROLE": "Role",
       "TREENODE": "Prvky struktur",
       "TREETYPE": "Typy struktur",
-      "RULE": "Pravidla"
+      "SCRIPT": "Pravidla"
     }
   },
   "content": {
@@ -531,10 +537,23 @@
       "header": "Politiky hesel",
       "title": "Politiky hesel",
       "edit": {
-        "header": "detail konfigurace politiky hesel",
+        "header": "Detail konfigurace politiky hesel",
         "title": "Detail konfigurace politiky hesel"
       },
+      "basic": {
+        "header": "Základní informace",
+        "title": "Základní informace"
+      },
+      "advanced": {
+        "header": "Rozšířená kontrola hesla",
+        "title": "Rozšířená kontrola hesla"
+      },
+      "characters": {
+        "header": "Znaky",
+        "title": "Znaky"
+      },
       "create": {
+        "title": "Nová konfigurace politiky hesel",
         "header": "Nová konfigurace politiky hesel"
       },
       "validation": {
@@ -545,7 +564,13 @@
         "prohibited": "Heslo obsahuje zakázané znaky: ",
         "minLowerChar": "Minimální počet malých znaků: {{0}}",
         "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo přes tyto politiky: "
+        "policiesNames": "Heslo neprošlo přes tyto politiky: ",
+        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
+        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujícíh pravidel: ",
+        "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
+        "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
+        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
+        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: "
       },
       "save": {
         "success": "Politika byla úspěšně uložena."
@@ -814,7 +839,7 @@
       "reloadTree": "Obnov strom katalogu rolí",
       "addRoleCatalogue": "Přidat novou složku"
     },
-    "rules": {
+    "scripts": {
       "header": "Definice pravidel",
       "title": "Definice pravidel",
       "edit": {
@@ -827,6 +852,9 @@
       },
       "save": {
         "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+      },
+      "filter": {
+        "text": "Název / Popis"
       }
     },
     "roles": {
@@ -1156,6 +1184,10 @@
       "title": "Audit"
     },
     "system": {
+      "modules": {
+        "header": "Aplikační moduly a komponenty",
+        "title": "Moduly"
+      },
       "fe-modules": {
         "header": "Aplikační moduly a komponenty",
         "title": "Moduly (frontend)",
@@ -1170,6 +1202,10 @@
       "be-modules": {
         "header": "Moduly <small>backend</small>",
         "title": "Moduly (backend)"
+      },
+      "entity-event-processors": {
+        "header": "Processory",
+        "title": "Processory"
       }
     },
     "notifications": {
@@ -1334,6 +1370,7 @@
       "pickRevision": "Vyberte revizi",
       "detail": "detail",
       "id": "ID",
+      "noPreviousRevision": "Neexistují žádné předchozí revize",
       "profile": {
         "userDetail": "{{revision}}. revize, {{name}}, {{date}}"
       },
@@ -1345,6 +1382,7 @@
         "revisionDate": "Datum revize",
         "deleted": "Entita byla odstraněna",
         "created": "Entita byla vytvořena",
+        "entityId": "ID entity",
         "modificationType": {
           "ADD": "Vytvoření",
           "MOD": "Modifikace",
@@ -1398,7 +1436,7 @@
       }
 
     },
-    "Rule": {
+    "Script": {
       "name": "Název pravidla",
       "category": "Kategorie",
       "script": {
@@ -1597,13 +1635,17 @@
       "changedAttributes": "Změněné atributy",
       "type": "Typ entity",
       "key": "Atribut",
-      "value": "Hodnota"
+      "value": "Hodnota",
+      "entityId": "Id entity"
     },
     "PasswordPolicy": {
       "type": "Typ",
       "name": "Jméno",
+      "basic": "Základní údaje",
+      "bases": "Znaky",
       "generateType": "Typ generování",
       "disabled": "Neaktivní",
+      "description": "Popis",
       "defaultPolicy": "Standardní politika",
       "passwordLengthRequired": "Povinná délka hesla",
       "minPasswordLength": "Minimální délka",
@@ -1624,7 +1666,12 @@
       "minPasswordAge": "Minimální doba pro změnu hesla",
       "enchancedControl": "Rozšířená kontrola hesla",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
-      "maxHistorySimilar": "Počet zpětně kontrolovaných heselna shodu"
+      "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
+      "lowerCharBase": "Povolené malé znaky",
+      "upperCharBase": "Povolené velké znaky",
+      "numberBase": "Povolené číslice",
+      "specialCharBase": "Povolené speciální znaky",
+      "identityAttributeCheck": "Atributy identity pro kontrolu"
     },
     "Module": {
       "id": "Id",
@@ -1633,6 +1680,18 @@
       "version": "Verze",
       "description": "Popis",
       "disabled": "Neaktivní"
+    },
+    "EntityEventProcessor": {
+      "id": "Id",
+      "name": "Název",
+      "module": "Modul",
+      "description": "Popis",
+      "entityType": "Typ entity",
+      "eventTypes": "Typy událostí",
+      "order": "Pořadí",
+      "disabled": "Neaktivní",
+      "disableable": "Nelze vypnout",
+      "closeable": "Uzavírá zpracování"
     }
   },
   "error": {
@@ -1763,6 +1822,10 @@
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",
       "message": "Revize musí být stejného typu a od stejné entity."
+    },
+    "BAD_FILTER": {
+      "title": "Filter není validní",
+      "message": "Zkontrolujte vyplněné hodnoty filtru."
     }
   },
   "validationError": {

@@ -22,7 +22,7 @@ Table of records, features
 | property | string | Json property name. Nested properties can be used e.g. `identityManager.name` | |
 | header | string, node or function | Header cell value | by property |
 | cell | string, node or function | Body cell value |   |
-| width | string | Column width in pixel or percent |   | |
+| width | oneOfType([string,number]) | Pixel or percent width of table. If number is given, then pixels is used. | |
 
 # Pagination Component
 

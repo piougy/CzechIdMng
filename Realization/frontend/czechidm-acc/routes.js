@@ -111,6 +111,11 @@ module.exports = {
           path: 'synchronization-item-logs/:logItemId/detail',
           component: require('./src/content/system/SystemSyncItemLogDetail'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ'] } ]
+        },
+        {
+          path: 'provisioning',
+          component: require('./src/content/system/SystemProvisioningOperations'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
         }
       ]
     },
@@ -126,6 +131,18 @@ module.exports = {
         {
           path: 'accounts',
           component: require('./src/content/identity/IdentityAccounts')
+        }
+      ]
+    },
+    {
+      path: 'password-policies/',
+      component: require('czechidm-core/src/content/passwordpolicy/PasswordPolicyRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
+      childRoutes: [
+        {
+          path: ':entityId/systems',
+          component: require('./src/content/passwordpolicy/PasswordPolicySystems'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ]
         }
       ]
     },
@@ -163,7 +180,7 @@ module.exports = {
     },
     {
       path: 'provisioning',
-      component: require('./src/content/provisioning/ProvisioningOperations'),
+      component: require('./src/content/provisioning/AuditProvisioningOperations'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
     }
   ]

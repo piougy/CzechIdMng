@@ -33,7 +33,7 @@ public class LoginController {
 		if(loginDto == null || loginDto.getUsername() == null || loginDto.getPassword() == null){
 			throw new ResultCodeException(CoreResultCode.AUTH_FAILED, "Username and password must be filled");
 		}
-		return new ResourceWrapper<LoginDto>(loginService.login(loginDto.getUsername(), loginDto.getPassword()));
+		return new ResourceWrapper<LoginDto>(loginService.login(loginDto));
 	}
 	
 }

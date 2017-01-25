@@ -21,6 +21,7 @@ public enum CoreResultCode implements ResultCode {
 	NULL_ATTRIBUTE(HttpStatus.BAD_REQUEST, "Attribute '%s' is NULL."),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found."),
 	WF_WARNING(HttpStatus.BAD_REQUEST, "Warning occured during workflow execution: %s"),
+	BAD_FILTER(HttpStatus.BAD_REQUEST, "The filter is wrong!"),
 	// http
 	ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "The given endpoint doesn't exist!"),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method is not allowed!"),

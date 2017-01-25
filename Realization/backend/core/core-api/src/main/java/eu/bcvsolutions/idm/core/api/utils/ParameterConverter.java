@@ -50,7 +50,11 @@ public class ParameterConverter {
 		if (mapper == null || parameters.isEmpty() || EmptyFilter.class.equals(filterClass)) {
 			return null;
 		}
-		return mapper.convertValue(parameters.toSingleValueMap(), filterClass);
+		try {
+			return mapper.convertValue(parameters.toSingleValueMap(), filterClass);
+		} catch (IllegalArgumentException ex) {
+			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
+		}
 	}
 	
 	/**

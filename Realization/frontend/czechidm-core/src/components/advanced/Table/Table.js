@@ -86,7 +86,6 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error) => {
       if (error) {
         this.addErrorMessage({
-          level: 'error',
           key: 'error-' + manager.getEntityType() + '-load'
         }, error);
       // remove selection for unpresent records

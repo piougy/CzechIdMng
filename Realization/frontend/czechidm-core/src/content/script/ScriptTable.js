@@ -44,11 +44,7 @@ export class ScriptTable extends Basic.AbstractContent {
     if (event) {
       event.preventDefault();
     }
-    const data = {
-      name: this.refs.filterForm.getData().name,
-      category: AbstractEnum.findKeyBySymbol(ScriptCategoryEnum, this.refs.filterForm.getData().category)
-    };
-    this.refs.table.getWrappedInstance().useFilterData(data);
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
   cancelFilter(event) {
@@ -120,9 +116,9 @@ export class ScriptTable extends Basic.AbstractContent {
                   <Basic.Row>
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
-                        ref="name"
-                        placeholder={this.i18n('entity.Script.name')}
-                        label={this.i18n('entity.Script.name')}/>
+                        ref="text"
+                        placeholder={this.i18n('filter.text')}
+                        label={this.i18n('filter.text')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

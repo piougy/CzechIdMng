@@ -71,7 +71,7 @@ public class IdmScriptController extends DefaultReadWriteEntityController<IdmScr
 	@Override
 	protected ScriptFilter toFilter(MultiValueMap<String, Object> parameters) {
 		ScriptFilter filter = new ScriptFilter();
-		filter.setText(getParameterConverter().toString(parameters, "name"));
+		filter.setText(getParameterConverter().toString(parameters, "text"));
 		filter.setCategory(getParameterConverter().toEnum(parameters, "category", IdmScriptCategory.class));
 		filter.setDescription(getParameterConverter().toString(parameters, "description"));
 		return filter;

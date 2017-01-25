@@ -23,7 +23,6 @@
 package eu.bcvsolutions.idm.ic.filter.impl;
 
 import org.identityconnectors.common.CollectionUtil;
-import org.identityconnectors.framework.common.objects.Attribute;
 
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;

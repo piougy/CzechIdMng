@@ -171,7 +171,8 @@ class SystemDetail extends Basic.AbstractContent {
                 <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}
-                  helpBlock={this.i18n('acc:entity.System.queue.help')}/>
+                  helpBlock={this.i18n('acc:entity.System.queue.help')}
+                  hidden/>
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>

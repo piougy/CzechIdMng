@@ -106,6 +106,24 @@ class SystemSyncActionLogDetail extends Basic.AbstractTableContent {
             uiKey={uiKeyLogs}
             manager={syncItemLogManager}
             forceSearchParameters={forceSearchParameters}
+            filter={
+              <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                  <Basic.Row className="last">
+                    <div className="col-lg-6">
+                      <Advanced.Filter.TextField
+                        ref="displayName"
+                        label={this.i18n('filter.displayName.label')}
+                        placeholder={this.i18n('filter.displayName.placeholder')}/>
+                    </div>
+                    <div className="col-lg-2"/>
+                    <div className="col-lg-4 text-right">
+                      <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                </Basic.AbstractForm>
+              </Advanced.Filter>
+            }
             >
             <Advanced.Column
               property=""

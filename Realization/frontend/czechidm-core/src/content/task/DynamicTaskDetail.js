@@ -20,13 +20,6 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     this.state = {showLoading: props.showLoading, readOnly: true};
   }
 
-  componentDidMount() {
-    const { task} = this.props;
-    this.refs.form.setData(task);
-    const formDataValues = this._toFormDataValues(task.formData);
-    this.refs.formData.setData(formDataValues);
-  }
-
   getContentKey() {
     return 'content.task.instance';
   }
@@ -178,7 +171,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
     const {task, taskManager} = this.props;
     const { showLoading} = this.state;
     const showLoadingInternal = task ? showLoading : true;
-
+    const formDataValues = this._toFormDataValues(task.formData);
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -189,14 +182,14 @@ class DynamicTaskDetail extends Basic.AbstractContent {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form" className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={task} className="form-horizontal">
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
+            <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
             </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
-          <Basic.AbstractForm ref="formData" className="form-horizontal">
+          <Basic.AbstractForm ref="formData" data={formDataValues} className="form-horizontal">
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>

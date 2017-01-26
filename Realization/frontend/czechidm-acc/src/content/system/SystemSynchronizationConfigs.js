@@ -60,14 +60,18 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
           this.setState({
             showLoading: false
           });
-          this.refs.table.getWrappedInstance().reload();
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
           this.addMessage({ message: this.i18n('action.startSynchronization.success', { name: json.name }) });
         }).catch(ex => {
           this.setState({
             showLoading: false
           });
           this.addError(ex);
-          this.refs.table.getWrappedInstance().reload();
+          if (this.refs.table) {
+            this.refs.table.getWrappedInstance().reload();
+          }
         });
       }
     }, () => {
@@ -140,19 +144,14 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
               header={this.i18n('acc:entity.SynchronizationConfig.name')}
               sort/>
             <Advanced.Column
+              property="reconciliation"
+              face="boolean"
+              header={this.i18n('acc:entity.SynchronizationConfig.reconciliation.label')}
+              sort/>
+            <Advanced.Column
               property="enabled"
               face="boolean"
               header={this.i18n('acc:entity.SynchronizationConfig.enabled')}
-              sort/>
-            <Advanced.Column
-              property="reconciliation"
-              face="boolean"
-              header={this.i18n('acc:entity.SynchronizationConfig.reconciliation')}
-              sort/>
-            <Advanced.Column
-              property="timestamp"
-              face="dateTime"
-              header={this.i18n('acc:entity.SynchronizationConfig.timestamp')}
               sort/>
           </Advanced.Table>
         </Basic.Panel>

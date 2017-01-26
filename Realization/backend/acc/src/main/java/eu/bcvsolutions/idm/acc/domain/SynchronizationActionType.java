@@ -17,5 +17,10 @@ public enum SynchronizationActionType {
 	UNLINK_AND_REMOVE_ROLE,
 	CREATE_ACCOUNT, // produce only entity save event (call provisioning)
 	UPDATE_ACCOUNT, // produce only entity save event (call provisioning)
+	LINKED, // situation (for IGNORE and WF sort)
+	MISSING_ENTITY, // situation (for IGNORE and WF sort)
+	UNLINKED, // situation (for IGNORE and WF sort)
+	MISSING_ACCOUNT, // situation (for IGNORE and WF sort)
 	IGNORE;
+
 }

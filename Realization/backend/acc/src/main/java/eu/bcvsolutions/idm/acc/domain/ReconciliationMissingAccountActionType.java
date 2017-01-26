@@ -8,9 +8,19 @@ package eu.bcvsolutions.idm.acc.domain;
  */
 public enum ReconciliationMissingAccountActionType {
 
-	CREATE_ACCOUNT, // produce only entity save event (call provisioning)
-	DELETE_ENTITY,
-	UNLINK,
-	UNLINK_AND_REMOVE_ROLE,
-	IGNORE;
+	CREATE_ACCOUNT(SynchronizationActionType.CREATE_ACCOUNT), // produce only entity save event (call provisioning)
+	DELETE_ENTITY(SynchronizationActionType.DELETE_ENTITY),
+	UNLINK(SynchronizationActionType.UNLINK),
+	UNLINK_AND_REMOVE_ROLE(SynchronizationActionType.UNLINK_AND_REMOVE_ROLE),
+	IGNORE(SynchronizationActionType.IGNORE);
+	
+	private SynchronizationActionType action;
+
+	private ReconciliationMissingAccountActionType(SynchronizationActionType action) {
+		this.action = action;
+	}
+
+	public SynchronizationActionType getAction() {
+		return this.action;
+	}
 }

@@ -111,7 +111,9 @@
         "header": "Detail synchronizace",
         "title": "Detail synchronizace",
         "synchronizationLogsHeader": "Logy synchronizace",
-        "situations": "Akce pro konkrétní situace",
+        "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je monžé ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
+        "situationAction": "Akce",
+        "situationActionWf": "Workflow",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -572,6 +574,10 @@
           "UNLINK": "Odstraněno vazeb",
           "CREATE_ACCOUNT": "Vytvořeno účtů",
           "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
           "IGNORE": "Ignorováno"
         },
         "WARNING": {
@@ -584,6 +590,42 @@
           "UNLINK": "Odstraněno vazeb",
           "CREATE_ACCOUNT": "Vytvořeno účtů",
           "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno"
+        },
+        "WF": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
+          "IGNORE": "Ignorováno"
+        },
+        "IGNORE": {
+          "CREATE_ENTITY": "Vytvořeno entit",
+          "UPDATE_ENTITY": "Aktualizováno entit",
+          "DELETE_ENTITY": "Smazáno entit",
+          "LINK_AND_UPDATE_ACCOUNT": "Vytvořeno a upraveno účtů",
+          "UNLINK_AND_REMOVE_ROLE": "Odstraněno vazeb a navázaných rolí",
+          "LINK": "Vytvořeno vazeb",
+          "UNLINK": "Odstraněno vazeb",
+          "CREATE_ACCOUNT": "Vytvořeno účtů",
+          "UPDATE_ACCOUNT": "Aktualizováno účtů",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
           "IGNORE": "Ignorováno"
         },
         "ERROR": {
@@ -595,7 +637,11 @@
           "UNLINK": "Neúspěšně odstraněno vazeb",
           "UNLINK_AND_REMOVE_ROLE": "Neúspěšně odstraněno vazeb a navázaných rolí",
           "CREATE_ACCOUNT": "Neúspěšně vytvořeno účtů",
-          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",
+          "UPDATE_ACCOUNT": "Neúspěšně aktualizováno účtů",  "LINKED": "Vazba existuje",
+          "LINKED": "Vazba existuje",
+          "MISSING_ENTITY": "Entita neexistuje",
+          "UNLINKED": "Vazba neexistuje",
+          "MISSING_ACCOUNT": "Účet neexistuje",
           "IGNORE": "Neúspěšně ignorováno"
         }
       }
@@ -638,14 +684,15 @@
     "ReconciliationMissingAccountActionTypeEnum": {
       "CREATE_ACCOUNT": "Vytvořit účet",
       "UNLINK": "Odstranit vazbu",
-      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazby a navázané role",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazbu a navázané role",
+      "UNLINK_AND_UPDATE_ACCOUNT": "Odstranit vazbu a aktualizovat účet",
       "DELETE_ENTITY": "Smazat entitu",
       "IGNORE": "Ignorovat"
     },
     "SynchronizationLinkedActionTypeEnum": {
       "UPDATE_ENTITY": "Aktualizovat entitu",
       "UNLINK": "Odstranit vazbu",
-      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazby a navázané role",
+      "UNLINK_AND_REMOVE_ROLE": "Odstranit vazbu a navázané role",
       "UPDATE_ACCOUNT": "Aktualizovat účet",
       "IGNORE": "Ignorovat"
     },
@@ -676,11 +723,17 @@
       "UNLINK": "Odstranění vazby",
       "CREATE_ACCOUNT": "Vytvoření účtu",
       "UPDATE_ACCOUNT": "Aktualizace účtu",
+      "LINKED": "Vazba existuje",
+      "MISSING_ENTITY": "Entita neexistuje",
+      "UNLINKED": "Vazba neexistuje",
+      "MISSING_ACCOUNT": "Účet neexistuje",
       "IGNORE": "Ignorováno"
     },
     "OperationResultTypeEnum": {
       "SUCCESS": "Úspěšné",
       "ERROR": "Neúspěšné",
+      "WF": "Spuštěno workflow",
+      "IGNORE": "Ignorováno",
       "WARNING": "Varování"
     },
     "ProvisioningOperationTypeEnum": {

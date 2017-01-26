@@ -34,6 +34,12 @@ export default class OperationResultTypeEnum extends Enums.AbstractEnum {
       case this.WARNING: {
         return 'warning';
       }
+      case this.WF: {
+        return 'warning';
+      }
+      case this.IGNORE: {
+        return 'primary';
+      }
       default: {
         return 'default';
       }
@@ -44,3 +50,5 @@ export default class OperationResultTypeEnum extends Enums.AbstractEnum {
 OperationResultTypeEnum.SUCCESS = Symbol('SUCCESS');
 OperationResultTypeEnum.ERROR = Symbol('ERROR');
 OperationResultTypeEnum.WARNING = Symbol('WARNING');
+OperationResultTypeEnum.WF = Symbol('WF');
+OperationResultTypeEnum.IGNORE = Symbol('IGNORE');

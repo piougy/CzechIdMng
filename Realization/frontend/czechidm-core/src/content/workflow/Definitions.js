@@ -106,8 +106,8 @@ class Definitions extends Basic.AbstractContent {
         <Basic.Panel>
           <Advanced.Table
             ref="table"
+            uiKey="workflow-definitions-agenda"
             manager={this.getManager()}
-            searchParameters={this.getManager().getDefaultSearchParameters()}
             showLoading={showLoading}
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             noData={this.i18n('component.basic.Table.noData')}>

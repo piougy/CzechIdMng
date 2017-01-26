@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 //
 import { Basic, Domain, Managers, Utils, Advanced } from 'czechidm-core';
 import { SynchronizationConfigManager, SynchronizationLogManager, SystemMappingManager, SystemAttributeMappingManager} from '../../redux';
@@ -13,10 +12,12 @@ import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
+const syncActionWfKey = 'eu.bcvsolutions.sync.action';
 const synchronizationLogManager = new SynchronizationLogManager();
 const synchronizationConfigManager = new SynchronizationConfigManager();
 const systemMappingManager = new SystemMappingManager();
 const systemAttributeMappingManager = new SystemAttributeMappingManager();
+const workflowProcessDefinitionManager = new Managers.WorkflowProcessDefinitionManager();
 
 class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
 
@@ -175,7 +176,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.refs.table.getWrappedInstance().reload();
         this.addMessage({ message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.success', { name: json.name }) });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       }).catch(ex => {
@@ -183,7 +183,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
           showLoading: false
         });
         this.addError(ex);
-        this.refs.table.getWrappedInstance().reload();
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       });
     }, () => {
@@ -231,6 +230,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       if (action.operationResult === 'WARNING') {
         level = 'warning';
       }
+      if (action.operationResult === 'WF') {
+        level = 'warning';
+      }
+      if (action.operationResult === 'IGNORE') {
+        level = 'primary';
+      }
       actions.push(
         <div>
             <Basic.Label style={{marginRight: '5px'}} level={level} text={action.operationCount}/>
@@ -251,12 +256,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
+    const forceSearchSyncActionWfKey = new Domain.SearchParameters().setFilter('category', syncActionWfKey);
     const isNew = this._getIsNew();
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
-    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping : null;
+    const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
-    const isCustomFilterMode = synchronizationConfig && synchronizationConfig.customFilter;
-
+    const tabLogShow = activeKey === 3;
 
     return (
       <div>
@@ -303,32 +308,65 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                   <Basic.TextField
                     ref="token"
                     label={this.i18n('acc:entity.SynchronizationConfig.token')}/>
-
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('situations') }</h3>
-
-                  <Basic.EnumSelectBox
-                    ref="linkedAction"
-                    enum={SynchronizationLinkedActionTypeEnum}
-                    label={this.i18n('acc:entity.SynchronizationConfig.linkedAction')}
-                    required/>
-                  <Basic.EnumSelectBox
-                    ref="unlinkedAction"
-                    enum={SynchronizationUnlinkedActionTypeEnum}
-                    label={this.i18n('acc:entity.SynchronizationConfig.unlinkedAction')}
-                    required/>
-                  <Basic.EnumSelectBox
-                    ref="missingEntityAction"
-                    enum={SynchronizationMissingEntityActionTypeEnum}
-                    label={this.i18n('acc:entity.SynchronizationConfig.missingEntityAction')}
-                    required/>
-                  <Basic.EnumSelectBox
-                    ref="missingAccountAction"
-                    enum={ReconciliationMissingAccountActionTypeEnum}
-                    label={this.i18n('acc:entity.SynchronizationConfig.missingAccountAction')}
-                    required/>
                   <Basic.TextArea
                     ref="description"
                     label={this.i18n('acc:entity.SynchronizationConfig.description')}/>
+                  <Basic.LabelWrapper label=" ">
+                    <Basic.Alert
+                       key="situationActionsAndWfInfo"
+                       icon="exclamation-sign"
+                       className="no-margin"
+                       text={this.i18n('situationActionsAndWf')}/>
+                  </Basic.LabelWrapper>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.linkedAction') }</h3>
+                    <Basic.EnumSelectBox
+                      className=""
+                      ref="linkedAction"
+                      enum={SynchronizationLinkedActionTypeEnum}
+                      label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="linkedActionWfKey"
+                      label={this.i18n('situationActionWf')}
+                      forceSearchParameters={forceSearchSyncActionWfKey}
+                      multiSelect={false}
+                      manager={workflowProcessDefinitionManager}/>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.unlinkedAction') }</h3>
+                    <Basic.EnumSelectBox
+                      ref="unlinkedAction"
+                      enum={SynchronizationUnlinkedActionTypeEnum}
+                      label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="unlinkedActionWfKey"
+                      label={this.i18n('situationActionWf')}
+                      forceSearchParameters={forceSearchSyncActionWfKey}
+                      multiSelect={false}
+                      manager={workflowProcessDefinitionManager}/>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.missingEntityAction') }</h3>
+                    <Basic.EnumSelectBox
+                      ref="missingEntityAction"
+                      enum={SynchronizationMissingEntityActionTypeEnum}
+                      label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="missingEntityActionWfKey"
+                      label={this.i18n('situationActionWf')}
+                      forceSearchParameters={forceSearchSyncActionWfKey}
+                      multiSelect={false}
+                      manager={workflowProcessDefinitionManager}/>
+                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.missingAccountAction') }</h3>
+                    <Basic.EnumSelectBox
+                      ref="missingAccountAction"
+                      enum={ReconciliationMissingAccountActionTypeEnum}
+                      label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="missingAccountActionWfKey"
+                      label={this.i18n('situationActionWf')}
+                      forceSearchParameters={forceSearchSyncActionWfKey}
+                      multiSelect={false}
+                      manager={workflowProcessDefinitionManager}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
@@ -386,6 +424,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.tokenAttribute.help')}/>
                   <Basic.ScriptArea
                     ref="customFilterScript"
+                    height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}/>
                 </Basic.AbstractForm>
@@ -423,7 +462,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
               {' '}
               <span dangerouslySetInnerHTML={{ __html: this.i18n('synchronizationLogsHeader') }}/>
             </Basic.ContentHeader>
-            <Basic.Panel rendered={synchronizationConfig && !isNew} className="no-border">
+            <Basic.Panel rendered={tabLogShow && synchronizationConfig && !isNew} className="no-border">
               <Advanced.Table
                 ref="table"
                 uiKey={uiKeyLogs}
@@ -516,10 +555,10 @@ SystemSynchronizationConfigDetail.defaultProps = {
 function select(state, component) {
   const entity = Utils.Entity.getEntity(state, synchronizationConfigManager.getEntityType(), component.params.configId);
   if (entity) {
-    entity.correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute.id : null;
-    entity.tokenAttribute = entity._embedded && entity._embedded.tokenAttribute ? entity._embedded.tokenAttribute.id : null;
-    entity.filterAttribute = entity._embedded && entity._embedded.filterAttribute ? entity._embedded.filterAttribute.id : null;
-    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping.id : null;
+    entity.correlationAttribute = entity._embedded && entity._embedded.correlationAttribute ? entity._embedded.correlationAttribute : null;
+    entity.tokenAttribute = entity._embedded && entity._embedded.tokenAttribute ? entity._embedded.tokenAttribute : null;
+    entity.filterAttribute = entity._embedded && entity._embedded.filterAttribute ? entity._embedded.filterAttribute : null;
+    entity.systemMapping = entity._embedded && entity._embedded.systemMapping ? entity._embedded.systemMapping : null;
   }
   return {
     _synchronizationConfig: entity,

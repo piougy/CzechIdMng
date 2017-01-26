@@ -1,6 +1,7 @@
 import React from 'react';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 
 /**
  * Parameters in errors. Contain names of not success policies
@@ -20,6 +21,12 @@ const MIN_RULES_TO_FULFILL = 'minRulesToFulfill';
  * @type {String}
  */
 const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
+
+/**
+ * Error message with date, date is format by local
+ * @type {String}
+ */
+const DATE = 'date';
 
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
@@ -68,8 +75,13 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
               />
             </Basic.Alert>);
         } else if (key !== PASSWORD_POLICIES_NAMES) {
-          // other validation messages
-          validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+          // validation message with date
+          if (key === DATE) {
+            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+          } else {
+            // other validation messages
+            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+          }
         }
       }
     }
@@ -84,7 +96,6 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
   render() {
     const { rendered, error } = this.props;
-console.log(error);
     if (!rendered || !error) {
       return null;
     }

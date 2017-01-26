@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.springframework.util.Assert;
+
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
 
 /**
@@ -44,7 +46,7 @@ public class PasswordGenerator {
 	private Map<Integer, Long> filePosition;
 	
 	public String generatePassphrase(PasswordGenerate policy) {
-		notNull(policy, "Password policy can't be null.");
+		Assert.notNull(policy, "Password policy can't be null.");
 		List<String> password = new ArrayList<>();
 		
 		for (int index = 0; index < policy.getPassphraseWords(); index++) {
@@ -66,9 +68,9 @@ public class PasswordGenerator {
 	 * @return
 	 */
 	public String generateRandom(PasswordGenerate policy) {
-		notNull(policy, "Password policy can't be null.");
-		notNull(policy.getMinPasswordLength(), "Parameter: minLength can't be null!");
-		notNull(policy.getMaxPasswordLength(), "Parameter: maxLength can't be null!");
+		Assert.notNull(policy, "Password policy can't be null.");
+		Assert.notNull(policy.getMinPasswordLength(), "Parameter: minLength can't be null!");
+		Assert.notNull(policy.getMaxPasswordLength(), "Parameter: maxLength can't be null!");
 		if (policy.getMaxPasswordLength() < policy.getMinPasswordLength()) {
 			throw new IllegalArgumentException("Parameter: maxLength can't be lower than parameter: minLength");
 		}
@@ -127,19 +129,19 @@ public class PasswordGenerator {
 	
 	/**
 	 * Generate default password:
-	 * 4 characters from lower,
-	 * 4 characters from upper,
-	 * 4 characters from special,
-	 * 4 characters from number
+	 * 5 characters from lower,
+	 * 1 characters from upper,
+	 * 1 characters from special,
+	 * 1 characters from number
 	 * For generating will be use character base defined by this class.
 	 * @return
 	 */
 	public String generateRandom() {
 		StringBuilder password = new StringBuilder();
-		password.append(getRandomNumbers(4));
-		password.append(getRandomSpecialCharacters(4));
-		password.append(getRandomLowerCharacters(4));
-		password.append(getRandomUpperCharacters(4));
+		password.append(getRandomNumbers(1));
+		password.append(getRandomSpecialCharacters(1));
+		password.append(getRandomLowerCharacters(5));
+		password.append(getRandomUpperCharacters(1));
 		return shuffle(password).toString();
 	}
 	
@@ -367,12 +369,6 @@ public class PasswordGenerator {
 			 string.trim();
 		}
 		return string;
-	}
-	
-	private void notNull(Object object, String message) {
-		if (object == null) {
-			throw new IllegalArgumentException(message);
-		}
 	}
 	
 	private int getRandomNumber(int min, int max) {

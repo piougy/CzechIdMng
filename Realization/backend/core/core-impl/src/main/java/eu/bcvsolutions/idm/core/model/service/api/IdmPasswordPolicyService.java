@@ -86,4 +86,12 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	 * @return
 	 */
 	Integer getMaxPasswordAge(List<IdmPasswordPolicy> policyList);
+	
+	/**
+	 * Find one password policy by name
+	 * 
+	 * @param name
+	 * @return
+	 */
+	IdmPasswordPolicy findOneByName(String name);
 }

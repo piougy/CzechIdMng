@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -30,6 +31,7 @@ public class IdmPasswordValidationDto implements Serializable {
 	
 	private IdmIdentity identity;
 	
+	@JsonIgnore
 	private boolean valid;
 
 	public GuardedString getPassword() {

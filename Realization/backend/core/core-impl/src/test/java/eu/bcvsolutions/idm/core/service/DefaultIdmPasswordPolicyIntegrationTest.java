@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrationTest {
+public class DefaultIdmPasswordPolicyIntegrationTest extends AbstractIntegrationTest {
 	
 	private static final int ATTEMPTS = 20;
 	
@@ -595,5 +595,57 @@ public class DefaultIdmPasswordPolicyIntegrationService extends AbstractIntegrat
 		} catch (Exception e) {
 			// nothing, success
 		}
+	}
+	
+	@Test
+	public void testCreateAndFoundPasswordPolicy() {
+		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		policy.setName("test_17_saved");
+		policy.setType(IdmPasswordPolicyType.GENERATE);
+		policy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		policy.setDefaultPolicy(false);
+		policy.setMaxPasswordLength(20);
+		policy.setMinPasswordLength(6);
+		
+		this.passwordPolicyService.save(policy);
+		
+		IdmPasswordPolicy foundPolicyByName = this.passwordPolicyService.findOneByName("test_17_saved");
+		assertEquals(policy.getName(), foundPolicyByName.getName());
+		assertEquals(policy.getType(), foundPolicyByName.getType());
+		assertEquals(policy.getMaxPasswordLength(), foundPolicyByName.getMaxPasswordLength());
+		assertEquals(policy.getMinPasswordLength(), foundPolicyByName.getMinPasswordLength());
+		
+		IdmPasswordPolicy foundPolicyById = this.passwordPolicyService.get(policy.getId());
+		assertEquals(policy.getName(), foundPolicyById.getName());
+		assertEquals(policy.getType(), foundPolicyById.getType());
+		assertEquals(policy.getMaxPasswordLength(), foundPolicyById.getMaxPasswordLength());
+		assertEquals(policy.getMinPasswordLength(), foundPolicyById.getMinPasswordLength());
+	}
+	
+	@Test
+	public void testCreateTwoDefaultPolicy() {
+		IdmPasswordPolicy policy = new IdmPasswordPolicy();
+		policy.setName("test_18_default");
+		policy.setType(IdmPasswordPolicyType.VALIDATE);
+		policy.setDefaultPolicy(true);
+		
+		saveInTransaction(policy, passwordPolicyService);
+		
+		IdmPasswordPolicy defaultValidatePolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+		assertEquals(policy.getId(), defaultValidatePolicy.getId());
+		assertEquals(policy.getName(), defaultValidatePolicy.getName());
+		assertEquals(policy.getType(), defaultValidatePolicy.getType());
+		
+		IdmPasswordPolicy policyNew = new IdmPasswordPolicy();
+		policyNew.setName("test_19_default");
+		policyNew.setType(IdmPasswordPolicyType.VALIDATE);
+		policyNew.setDefaultPolicy(true);
+		
+		saveInTransaction(policyNew, passwordPolicyService);
+		
+		defaultValidatePolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
+		assertEquals(policyNew.getId(), defaultValidatePolicy.getId());
+		assertEquals(policyNew.getName(), defaultValidatePolicy.getName());
+		assertEquals(policyNew.getType(), defaultValidatePolicy.getType());
 	}
 }

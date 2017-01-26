@@ -141,6 +141,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                 <Basic.Checkbox ref="enchancedControl" label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
 
                 <Basic.Checkbox ref="passwordLengthRequired"
+                  helpBlock={this.i18n('acc:entity.SystemAttributeMapping.name.help')}
                   label={this.i18n('entity.PasswordPolicy.passwordLengthRequired')}/>
 
                 <Basic.Checkbox ref="upperCharRequired"

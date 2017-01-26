@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import org.joda.time.DateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
@@ -30,6 +31,7 @@ public class PasswordChangeDto implements Serializable {
 	private boolean idm = false; // change in idm
 	private boolean all = false; // all - idm and all accounts - has higher priority
 	private List<String> accounts; // selected accounts
+	@JsonIgnore
 	private DateTime maxPasswordAge = null; // max password age for new password, get by password policy
 
 	public String getIdentity() {

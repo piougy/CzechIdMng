@@ -117,7 +117,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/validate", method = RequestMethod.POST)
+	@RequestMapping(value = "/validate/default", method = RequestMethod.POST)
 	public ResourceWrapper<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
 		if (this.passwordPolicyService.validate(password)) {
 			password.setValid(true);
@@ -133,7 +133,7 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/generate", method = RequestMethod.GET)
+	@RequestMapping(value = "/generate/default", method = RequestMethod.GET)
 	public String generateByDefaultPolicy() {
 		return passwordPolicyService.generatePasswordByDefault();
 	}

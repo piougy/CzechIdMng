@@ -15,7 +15,7 @@ class AuditContent extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('audit-entities');
+    this.selectNavigationItems(['audit', 'audit-entities']);
   }
 
   render() {

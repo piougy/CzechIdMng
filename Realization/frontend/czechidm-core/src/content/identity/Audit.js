@@ -26,7 +26,7 @@ class Audit extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    this.selectSidebarItem('profile-audit');
+    this.selectNavigationItems(['identities', 'profile-audit']);
     this.context.store.dispatch(identityManager.fetchEntity(entityId));
   }
 

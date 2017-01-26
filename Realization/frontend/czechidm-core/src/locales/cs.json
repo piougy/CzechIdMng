@@ -537,7 +537,7 @@
       "header": "Politiky hesel",
       "title": "Politiky hesel",
       "edit": {
-        "header": "Detail konfigurace politiky hesel",
+        "header": "detail konfigurace politiky hesel",
         "title": "Detail konfigurace politiky hesel"
       },
       "basic": {
@@ -545,8 +545,8 @@
         "title": "Základní informace"
       },
       "advanced": {
-        "header": "Rozšířená kontrola hesla",
-        "title": "Rozšířená kontrola hesla"
+        "header": "Rozšířená kontrola",
+        "title": "Rozšířená kontrola"
       },
       "characters": {
         "header": "Znaky",
@@ -570,10 +570,11 @@
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
-        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: "
+        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
+        "date": "Heslo není možné nyní změnit, zkuste to znovu: "
       },
       "save": {
-        "success": "Politika byla úspěšně uložena."
+        "success": "Politika [{{name}}] byla úspěšně uložena."
       }
     },
     "configuration": {
@@ -1664,14 +1665,28 @@
       "passphraseWords": "Počet slov pro passphrase",
       "maxPasswordAge": "Maximální doba pro změnu hesla",
       "minPasswordAge": "Minimální doba pro změnu hesla",
-      "enchancedControl": "Rozšířená kontrola hesla",
+      "enchancedControl": "Rozšířená kontrola",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
       "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
       "lowerCharBase": "Povolené malé znaky",
       "upperCharBase": "Povolené velké znaky",
       "numberBase": "Povolené číslice",
       "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu"
+      "identityAttributeCheck": "Atributy identity pro kontrolu",
+      "help": {
+        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
+        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
+        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelské attributy. Také je možnost nastavit povinná pouze některá pravidla.",
+        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
+        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
+        "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
+        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
+        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
+        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
+        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
+        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
+      }
     },
     "Module": {
       "id": "Id",
@@ -1741,7 +1756,35 @@
     },
     "PASSWORD_CANNOT_CHANGE": {
       "title": "Heslo nebylo změněno",
-      "message": "Zkuste to znovu po {{0}}."
+      "message": "Zkuste to znovu po {{date}}."
+    },
+    "PASSWORD_POLICY_MAX_LENGTH_LOWER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Maximální délka nesmí být menší než minimální délka."
+    },
+    "PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Součet všech minimálních délek je větší než maximální délka."
+    },
+    "PASSWORD_POLICY_MAX_AGE_LOWER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Maximální doba pro změnu hesla nesmí být menší než minimální."
+    },
+    "PASSWORD_POLICY_DEFAULT_TYPE": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Standardní politika již existuje."
+    },
+    "PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Neexistuje standardní politika."
+    },
+    "PASSWORD_POLICY_BAD_TYPE": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
+    },
+    "PASSWORD_POLICY_VALIDATION": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Problém s validací politiky."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",
@@ -1767,6 +1810,10 @@
     },
     "CONFLICT": {
       "title": "Záznam koliduje s jiným unikátním záznamem"
+    },
+    "NAME_CONFLICT": {
+      "title": "Konflikt se jménem entity",
+      "message": "Záznam s tímto jménem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identita [{{identity}}] neexistuje"

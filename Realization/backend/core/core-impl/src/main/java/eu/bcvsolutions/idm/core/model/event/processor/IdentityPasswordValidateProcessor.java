@@ -76,6 +76,8 @@ public class IdentityPasswordValidateProcessor extends CoreEventProcessor<IdmIde
 		if (passwordChangeDto.isAll() || passwordChangeDto.isIdm()) { // change identity's password
 			// validate password
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+			// set old password for validation - valid till, from and history check
+			passwordValidationDto.setOldPassword(this.passwordService.get(identity));
 			passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 			passwordValidationDto.setIdentity(identity);
 			this.passwordPolicyService.validate(passwordValidationDto);

@@ -7,6 +7,7 @@ import * as Advanced from '../components/advanced';
 import * as Utils from '../utils';
 import { SecurityManager, IdentityManager } from '../redux';
 import help from './PasswordChange_cs.md';
+import ValidationMessage from './identity/ValidationMessage';
 
 const identityManager = new IdentityManager();
 const securityManager = new SecurityManager();
@@ -62,8 +63,8 @@ class PasswordChange extends Basic.AbstractContent {
 
     identityManager.getService().passwordChange(username, {
       identity: username,
-      oldPassword: btoa(oldPassword),  // base64
-      newPassword: btoa(password),  // base64
+      oldPassword,
+      newPassword: password,
       all: true, // change in idm and in all accounts
       resources: []
     }, false)
@@ -92,6 +93,9 @@ class PasswordChange extends Basic.AbstractContent {
       return json;
     })
     .then(() => {
+      this.setState({
+        validationError: null
+      });
       this.login(username, password);
       this.addMessage({ title: this.i18n('message.passwordChange.success.title'), message: this.i18n('message.passwordChange.success.message') });
     })
@@ -171,7 +175,7 @@ class PasswordChange extends Basic.AbstractContent {
                     componentSpan="col-md-8"/>
                 </Basic.AbstractForm>
                 <Basic.Panel className="no-border last">
-                  <Basic.ValidationMessage error={validationError} />
+                  <ValidationMessage error={validationError} />
                 </Basic.Panel>
                 <Basic.PanelFooter>
                   <Basic.Button level="link" onClick={this.cancel.bind(this)}>

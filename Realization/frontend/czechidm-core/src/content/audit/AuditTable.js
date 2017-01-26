@@ -24,7 +24,6 @@ export class AuditTable extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('audit-entities');
     this.context.store.dispatch(auditManager.fetchEntities(auditManager.getAuditedEntitiesNames(), null, (entities) => {
       if (entities !== null) {
         const auditedEntities = entities._embedded.resources.map(item => { return {value: item, niceLabel: item }; });

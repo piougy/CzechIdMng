@@ -66,7 +66,7 @@ export class SystemTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, manager, columns, forceSearchParameters, showAddButton } = this.props;
+    const { uiKey, manager, columns, forceSearchParameters, showAddButton, showRowSelection } = this.props;
     const { filterOpened } = this.state;
 
     return (
@@ -80,7 +80,7 @@ export class SystemTable extends Basic.AbstractContent {
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filterOpened={filterOpened}
           forceSearchParameters={forceSearchParameters}
-          showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE')}
+          showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
               <Basic.AbstractForm ref="filterForm" className="form-horizontal">
@@ -151,7 +151,8 @@ SystemTable.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.string),
   filterOpened: PropTypes.bool,
   forceSearchParameters: PropTypes.object,
-  showAddButton: PropTypes.bool
+  showAddButton: PropTypes.bool,
+  showRowSelection: PropTypes.bool
 };
 
 SystemTable.defaultProps = {
@@ -159,7 +160,8 @@ SystemTable.defaultProps = {
   filterOpened: false,
   _showLoading: false,
   forceSearchParameters: new Domain.SearchParameters(),
-  showAddButton: true
+  showAddButton: true,
+  showRowSelection: true
 };
 
 function select(state, component) {

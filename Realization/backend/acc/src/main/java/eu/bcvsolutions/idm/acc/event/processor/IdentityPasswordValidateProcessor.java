@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
@@ -45,16 +46,21 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdentityPasswordValidateProcessor.class);
 	private final IdmPasswordPolicyService passwordPolicyService;
 	private final AccIdentityAccountService identityAccountService; 
+	private final IdmPasswordService passwordService;
 	
 	@Autowired
 	public IdentityPasswordValidateProcessor(IdmPasswordPolicyService passwordPolicyService,
-			AccIdentityAccountService identityAccountService) {
+			AccIdentityAccountService identityAccountService,
+			IdmPasswordService passwordService) {
 		super(IdentityEventType.PASSWORD);
 		//
+		Assert.notNull(identityAccountService);
 		Assert.notNull(passwordPolicyService);
+		Assert.notNull(passwordService);
 		//
 		this.passwordPolicyService = passwordPolicyService;
 		this.identityAccountService = identityAccountService;
+		this.passwordService = passwordService;
 	}
 	
 	@Override
@@ -82,7 +88,7 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 		// get default password policy
 		IdmPasswordPolicy defaultPasswordPolicy = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
 		//
-		if (passwordChangeDto.isIdm()) {
+		if (passwordChangeDto.isIdm() && defaultPasswordPolicy != null) {
 			passwordPolicyList.add(defaultPasswordPolicy);
 		}
 		//
@@ -96,20 +102,22 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 			if (passwordPolicy == null) {
 				passwordPolicy = defaultPasswordPolicy;
 			}
-			if (!passwordPolicyList.contains(passwordPolicy)) {
+			if (!passwordPolicyList.contains(passwordPolicy) && passwordPolicy != null) {
 				passwordPolicyList.add(passwordPolicy);
 			}
 		});
 		//
 		// validate TODO: validate for admin?
 		IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
+		// get old password for validation - til, from and password history
+		passwordValidationDto.setOldPassword(this.passwordService.get(identity));
 		passwordValidationDto.setIdentity(identity);
 		passwordValidationDto.setPassword(passwordChangeDto.getNewPassword());
 		this.passwordPolicyService.validate(passwordValidationDto, passwordPolicyList);
 		//
 		// if change password for idm iterate by all policies and get min attribute of
 		// max password age and set it into DTO, for save password processor
-		if (passwordChangeDto.isIdm()) {
+		if (passwordChangeDto.isIdm() && !passwordPolicyList.isEmpty()) {
 			Integer maxAgeInt = this.passwordPolicyService.getMaxPasswordAge(passwordPolicyList);
 			if (maxAgeInt != null) {
 				DateTime maxPasswordAge = new DateTime();

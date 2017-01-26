@@ -4,7 +4,6 @@ import uuid from 'uuid';
 //
 import { SecurityManager } from '../../redux';
 import ScriptCategoryEnum from '../../enums/ScriptCategoryEnum';
-import AbstractEnum from '../../enums/AbstractEnum';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 

@@ -89,9 +89,9 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		
 		Object revision = null;
 		try {
-			revision = auditService.getVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.parseLong(audit.getId().toString()));
+			revision = auditService.getVersion(Class.forName(audit.getType()), audit.getEntityId(), Long.valueOf(audit.getId().toString()));
 		} catch (NumberFormatException | ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", audit));
+			throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", audit), e);
 		}
 		
 		revisionValues = auditService.getValuesFromVersion(revision);
@@ -115,7 +115,7 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 		
 		try {
 			IdmAuditDto dto = null;
-			previousAudit = auditService.getPreviousRevision(Long.parseLong(currentAudit.getId().toString()));
+			previousAudit = auditService.getPreviousRevision(Long.valueOf(currentAudit.getId().toString()));
 			
 			// previous version dost'n exist
 			if (previousAudit != null) {
@@ -125,14 +125,14 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 								auditService.getPreviousVersion(
 										Class.forName(previousAudit.getType()),
 										previousAudit.getEntityId(),
-										Long.parseLong(previousAudit.getId().toString()))));
+										Long.valueOf(previousAudit.getId().toString()))));
 				resource = new ResponseEntity<IdmAuditDto>(dto, HttpStatus.OK);
 			} else {
 				resource = new ResponseEntity<IdmAuditDto>(HttpStatus.NOT_FOUND);
 			}
 			
 		} catch (ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", currentAudit.getType()));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", currentAudit.getType()), e);
 		}
 		
 		return resource;
@@ -143,9 +143,9 @@ public class IdmAuditController extends AbstractReadEntityController<IdmAudit, A
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.AUDIT_READ + "')")
 	public ResponseEntity<?> diff(@PathVariable @NotNull String firstRevId, @PathVariable String secondRevId, PersistentEntityResourceAssembler assembler) {
 		IdmAuditDiffDto dto = new IdmAuditDiffDto();
-		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.parseLong(firstRevId), Long.parseLong(secondRevId)));
-		dto.setIdFirstRevision(Long.parseLong(firstRevId));
-		dto.setIdSecondRevision(Long.parseLong(secondRevId));
+		dto.setDiffValues(auditService.getDiffBetweenVersion(Long.parseLong(firstRevId), Long.valueOf(secondRevId)));
+		dto.setIdFirstRevision(Long.valueOf(firstRevId));
+		dto.setIdSecondRevision(Long.valueOf(secondRevId));
 		
 		ResponseEntity<IdmAuditDiffDto> resource = new ResponseEntity<IdmAuditDiffDto>(dto, HttpStatus.OK);
 		return resource;

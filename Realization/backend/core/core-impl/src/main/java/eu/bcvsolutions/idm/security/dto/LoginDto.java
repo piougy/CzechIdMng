@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -16,6 +17,7 @@ public class LoginDto {
 	private GuardedString password;
 	private String token;
 	private IdmJwtAuthenticationDto authentication;
+	@JsonIgnore
 	private boolean skipMustChange = false;
 
 	public String getUsername() {

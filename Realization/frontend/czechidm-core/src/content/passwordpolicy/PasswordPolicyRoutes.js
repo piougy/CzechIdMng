@@ -5,6 +5,9 @@ import Helmet from 'react-helmet';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import PasswordPolicyBasic from './PasswordPolicyBasic';
+import { PasswordPolicyManager } from '../../redux';
+
+const passwordPolicyManager = new PasswordPolicyManager();
 
 /**
  * Default content (routes diff) for password policies
@@ -16,15 +19,28 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
     return 'content.passwordPolicies';
   }
 
+  componentDidMount() {
+    const { entityId } = this.props.params;
+    if (!this._getIsNew()) {
+      this.getLogger().debug(`[TypeContent] loading entity detail [id:${entityId}]`);
+      this.context.store.dispatch(passwordPolicyManager.fetchEntity(entityId));
+    }
+  }
+
   /**
    * Method check if exist params new
    */
   _getIsNew() {
     const { query } = this.props.location;
-    return (query) ? query.new : null;
+    if (query) {
+      return query.new ? true : false;
+    }
+    return false;
   }
 
   render() {
+    const { entity } = this.props;
+
     return (
       <div>
         {
@@ -34,15 +50,15 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
           :
           <Helmet title={this.i18n('edit.title')} />
         }
-        <Basic.PageHeader>
-          {
-            this._getIsNew()
-            ?
-            this.i18n('create.header')
-            :
-            this.i18n('edit.header')
-          }
-        </Basic.PageHeader>
+        {
+          this._getIsNew()
+          ||
+          <Basic.ContentHeader showLoading={!entity} text={
+              <div>
+                {passwordPolicyManager.getNiceLabel(entity)} <small> {this.i18n('edit.header')}</small>
+              </div>
+            }/>
+        }
         {
           this._getIsNew()
           ?
@@ -62,8 +78,11 @@ PasswordPolicyRoutes.propTypes = {
 PasswordPolicyRoutes.defaultProps = {
 };
 
-function select() {
+function select(state, component) {
+  const { entityId } = component.params;
+  //
   return {
+    entity: passwordPolicyManager.getEntity(state, entityId)
   };
 }
 

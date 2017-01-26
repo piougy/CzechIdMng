@@ -40,7 +40,7 @@ class AuditDetail extends Basic.AbstractContent {
   }
 
   componentDidMount() {
-    this.selectSidebarItem('audit-entities');
+    this.selectNavigationItems(['audit', 'audit-entities']);
     this._reloadComponent(this.props);
   }
 

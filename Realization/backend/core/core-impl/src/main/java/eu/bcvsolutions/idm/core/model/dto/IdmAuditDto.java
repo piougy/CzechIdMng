@@ -54,8 +54,8 @@ public class IdmAuditDto {
 	 * @param audit
 	 */
 	public IdmAuditDto(IdmAudit audit) {
-		this.setId(Long.parseLong(audit.getId().toString()));
-		this.setModifierId(audit.getModifierId());
+		this.id = Long.valueOf(audit.getId().toString());
+		this.modifierId = audit.getModifierId();
 		this.changedAttributes = audit.getChangedAttributes();
 		this.entityId = audit.getEntityId();
 		this.modification = audit.getModification();

@@ -93,6 +93,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			} catch (ResultCodeException e) {
 				// nothing, password policy for validate not exist
 			}
+			// default password policy not exist, try to found by name
+			if (passValidate == null) {
+				passValidate = this.passwordPolicyService.findOneByName("DEFAULT_VALIDATE_POLICY");
+			}
+			// if password policy still not exist create default password policy
 			if (passValidate == null) {
 				passValidate = new IdmPasswordPolicy();
 				passValidate.setName("DEFAULT_VALIDATE_POLICY");
@@ -108,6 +113,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			} catch (ResultCodeException e) {
 				// nothing, password policy for generate password not exist
 			}
+			// try to found password policy by name
+			if (passGenerate == null) {
+				passGenerate = this.passwordPolicyService.findOneByName("DEFAULT_GENERATE_POLICY");
+			}
+			// if still not exist create default generate password policy
 			if (passGenerate == null) {
 				passGenerate = new IdmPasswordPolicy();
 				passGenerate.setName("DEFAULT_GENERATE_POLICY");

@@ -1672,7 +1672,20 @@
       "upperCharBase": "Povolené velké znaky",
       "numberBase": "Povolené číslice",
       "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu"
+      "identityAttributeCheck": "Atributy identity pro kontrolu",
+      "help": {
+        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
+        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
+        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelské attributy. Také je možnost nastavit povinná pouze některá pravidla.",
+        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
+        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
+        "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
+        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
+        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
+        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
+        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0."
+      }
     },
     "Module": {
       "id": "Id",

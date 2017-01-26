@@ -74,6 +74,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
       this._changeType(entity.type);
       const loadedEntity = _.merge({}, entity);
       loadedEntity.identityAttributeCheck = this._transformAttributeToCheck(entity.identityAttributeCheck);
+
       this.refs.form.setData(loadedEntity);
     }
   }
@@ -176,12 +177,13 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   render() {
     const { uiKey, entity, isNew } = this.props;
     const { showLoading, validateType } = this.state;
+
     return (
       <form onSubmit={this.save.bind(this)}>
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-            <Basic.AbstractForm ref="form" data={entity} uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
               <Basic.EnumSelectBox
                 ref="type" onChange={this._changeType.bind(this)} required
                 enum={PasswordPolicyTypeEnum}
@@ -197,14 +199,25 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 label={this.i18n('entity.PasswordPolicy.generateType')}/>
 
               <Basic.TextField ref="passphraseWords"
+                helpBlock={this.i18n('entity.PasswordPolicy.help.passphraseWords')}
                 hidden={validateType}
                 label={this.i18n('entity.PasswordPolicy.passphraseWords')} />
 
               <Basic.Checkbox ref="disabled" label={this.i18n('entity.PasswordPolicy.disabled')}/>
 
-              <Basic.Checkbox ref="defaultPolicy" label={this.i18n('entity.PasswordPolicy.defaultPolicy')}/>
+              <Basic.Checkbox ref="defaultPolicy"
+                helpBlock={this.i18n('entity.PasswordPolicy.help.defaultPolicy')}
+                label={this.i18n('entity.PasswordPolicy.defaultPolicy')}/>
 
               <Basic.TextArea ref="description" label={this.i18n('entity.PasswordPolicy.description')}/>
+
+              <Basic.LabelWrapper label=" ">
+                <Basic.Alert
+                  className="no-margin"
+                  icon="exclamation-sign"
+                  key="situationActionsAndWfInfo"
+                  text={this.i18n('entity.PasswordPolicy.help.emptyValues')} />
+              </Basic.LabelWrapper>
 
               <Basic.TextField ref="minPasswordLength"
                 label={this.i18n('entity.PasswordPolicy.minPasswordLength')} />
@@ -223,9 +236,13 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
               <Basic.TextField ref="minSpecialChar"
                 label={this.i18n('entity.PasswordPolicy.minSpecialChar')} />
 
-              <Basic.TextField ref="maxPasswordAge" label={this.i18n('entity.PasswordPolicy.maxPasswordAge')} />
+              <Basic.TextField ref="maxPasswordAge"
+                helpBlock={this.i18n('entity.PasswordPolicy.help.maxPasswordAge')}
+                label={this.i18n('entity.PasswordPolicy.maxPasswordAge')} />
 
-              <Basic.TextField ref="minPasswordAge" label={this.i18n('entity.PasswordPolicy.minPasswordAge')} />
+              <Basic.TextField ref="minPasswordAge"
+                helpBlock={this.i18n('entity.PasswordPolicy.help.minPasswordAge')}
+                label={this.i18n('entity.PasswordPolicy.minPasswordAge')} />
             </Basic.AbstractForm>
           </Basic.PanelBody>
           <Basic.PanelFooter showLoading={showLoading} className="noBorder">

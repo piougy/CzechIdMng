@@ -140,12 +140,21 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
           <Basic.PanelBody>
           <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
             <Basic.TextField ref="prohibitedCharacters"
+              helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
               label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
 
             <Basic.Checkbox ref="weakPassRequired"
               label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
             <Basic.TextField ref="weakPass"
               label={this.i18n('entity.PasswordPolicy.weakPass')} />
+
+            <Basic.LabelWrapper label=" ">
+              <Basic.Alert
+                className="no-margin"
+                icon="exclamation-sign"
+                key="situationActionsAndWfInfo"
+                text={this.i18n('entity.PasswordPolicy.help.bases')} />
+            </Basic.LabelWrapper>
 
             <Basic.TextField ref="lowerCharBase"
               label={this.i18n('entity.PasswordPolicy.lowerCharBase')} />

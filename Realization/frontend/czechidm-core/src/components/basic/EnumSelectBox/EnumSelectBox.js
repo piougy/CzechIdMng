@@ -227,28 +227,35 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable, helpBlock } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
-      <Select.Async
-        ref="selectComponent"
-        title={"title"}
-        value={value}
-        onChange={this.onChange}
-        disabled={readOnly || disabled}
-        ignoreCase
-        ignoreAccents={false}
-        multi={multiSelect}
-        onValueClick={this.gotoContributor}
-        valueKey={SelectBox.ITEM_VALUE}
-        labelKey={fieldLabel}
-        noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
-        placeholder={this.getPlaceholder(placeholder)}
-        searchingText={this.i18n('component.basic.SelectBox.searchingText')}
-        searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
-        loadOptions={this.getOptions}
-        searchable={searchable}/>
+      <span>
+        <Select.Async
+          ref="selectComponent"
+          title={"title"}
+          value={value}
+          onChange={this.onChange}
+          disabled={readOnly || disabled}
+          ignoreCase
+          ignoreAccents={false}
+          multi={multiSelect}
+          onValueClick={this.gotoContributor}
+          valueKey={SelectBox.ITEM_VALUE}
+          labelKey={fieldLabel}
+          noResultsText={this.i18n('component.basic.SelectBox.noResultsText')}
+          placeholder={this.getPlaceholder(placeholder)}
+          searchingText={this.i18n('component.basic.SelectBox.searchingText')}
+          searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
+          loadOptions={this.getOptions}
+          searchable={searchable}/>
+        {
+          !helpBlock
+          ||
+          <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+        }
+      </span>
     );
   }
 }

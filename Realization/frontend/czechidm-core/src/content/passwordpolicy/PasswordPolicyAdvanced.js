@@ -50,6 +50,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     if (entity && this.refs.form) {
       const loadedEntity = _.merge({}, entity);
       loadedEntity.identityAttributeCheck = this._transformAttributeToCheck(entity.identityAttributeCheck);
+
       this.refs.form.setData(loadedEntity);
     }
   }
@@ -138,10 +139,17 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
             <Basic.PanelHeader text={this.i18n('content.passwordPolicies.advanced.title')} />
             <Basic.PanelBody>
               <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
-                <Basic.Checkbox ref="enchancedControl" label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
-
+                <Basic.Checkbox ref="enchancedControl"
+                  helpBlock={this.i18n('entity.PasswordPolicy.help.enchancedControl')}
+                  label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>
+                <Basic.LabelWrapper label=" ">
+                  <Basic.Alert
+                    className="no-margin"
+                    icon="exclamation-sign"
+                    key="situationActionsAndWfInfo"
+                    text={this.i18n('entity.PasswordPolicy.help.rules')} />
+                </Basic.LabelWrapper>
                 <Basic.Checkbox ref="passwordLengthRequired"
-                  helpBlock={this.i18n('acc:entity.SystemAttributeMapping.name.help')}
                   label={this.i18n('entity.PasswordPolicy.passwordLengthRequired')}/>
 
                 <Basic.Checkbox ref="upperCharRequired"
@@ -156,10 +164,16 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                 <Basic.Checkbox ref="specialCharRequired"
                   label={this.i18n('entity.PasswordPolicy.specialCharRequired')}/>
 
-                <Basic.TextField ref="minRulesToFulfill" label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
+                <Basic.TextField ref="minRulesToFulfill"
+                  helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
+                  label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
-                <Basic.TextField ref="maxHistorySimilar" label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
+                <Basic.TextField ref="maxHistorySimilar"
+                  helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
+                  label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
+
                 <Basic.EnumSelectBox ref="identityAttributeCheck"
+                  helpBlock={this.i18n('entity.PasswordPolicy.help.identityAttributeCheck')}
                   enum={PasswordPolicyIdentityAttributeEnum}
                   multiSelect label={this.i18n('entity.PasswordPolicy.identityAttributeCheck')} />
               </Basic.AbstractForm>

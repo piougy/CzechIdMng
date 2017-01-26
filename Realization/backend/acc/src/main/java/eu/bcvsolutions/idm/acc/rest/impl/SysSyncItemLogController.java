@@ -111,6 +111,7 @@ public class SysSyncItemLogController
 	protected SyncItemLogFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SyncItemLogFilter filter = new SyncItemLogFilter();
 		filter.setSyncActionLogId(getParameterConverter().toUuid(parameters, "syncActionLogId"));
+		filter.setDisplayName(getParameterConverter().toString(parameters, "displayName"));
 		return filter;
 	}
 }

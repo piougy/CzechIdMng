@@ -28,7 +28,9 @@ public interface SysSyncItemLogRepository extends AbstractEntityRepository<SysSy
 	@Override
 	@Query(value = "select e from SysSyncItemLog e"+ 
 			" where" +
-	        " (?#{[0].syncActionLogId} is null or e.syncActionLog.id = ?#{[0].syncActionLogId})"
+	        " (?#{[0].syncActionLogId} is null or e.syncActionLog.id = ?#{[0].syncActionLogId})" +
+	        " and" +
+	        " (lower(e.displayName) like ?#{[0].displayName == null ? '%' : '%'.concat([0].displayName.toLowerCase()).concat('%')})"
 			)
 	Page<SysSyncItemLog> find(SyncItemLogFilter filter, Pageable pageable);
 }

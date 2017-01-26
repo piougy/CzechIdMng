@@ -297,7 +297,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	public String generatePassword(IdmPasswordPolicy passwordPolicy) {
 		Assert.notNull(passwordPolicy);
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
-		if (passwordPolicy.getGenerateType().equals(IdmPasswordPolicyGenerateType.PASSPHRASE)) {
+		if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PASSPHRASE) {
 			return this.getPasswordGenerator().generatePassphrase(passwordPolicy);
 		}
 		// TODO: use random generate?
@@ -356,8 +356,8 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	 * @return
 	 */
 	private boolean compareInt(Object o1, Object o2) {
-		Integer i1 = Integer.parseInt(o1.toString());
-		Integer i2 = Integer.parseInt(o2.toString());
+		Integer i1 = Integer.valueOf(o1.toString());
+		Integer i2 = Integer.valueOf(o2.toString());
 		
 		return i1 > i2;
 	}

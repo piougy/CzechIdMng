@@ -88,7 +88,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	    IdmAudit previousRevision = this.getPreviousRevision(currentRevId);
 
 	    if (previousRevision != null) {
-	        return (T) this.find(entity.getClass(), (UUID)((BaseEntity) entity).getId(), Long.parseLong(previousRevision.getId().toString()));
+	        return (T) this.find(entity.getClass(), (UUID)((BaseEntity) entity).getId(), Long.valueOf(previousRevision.getId().toString()));
 	    } else {
 	        return null;
 	    }
@@ -108,7 +108,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	    IdmAudit previousRevision = this.getPreviousRevision(currentRevisionId);
 
 	    if (previousRevision != null) {
-	        return this.find(entityClass, entityId, Long.parseLong(previousRevision.getId().toString()));
+	        return this.find(entityClass, entityId, Long.valueOf(previousRevision.getId().toString()));
 	    } else {
 	    	return this.find(entityClass, entityId, currentRevisionId);
 	    }
@@ -125,10 +125,10 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			previousRevision = this.getPreviousRevision(currentRevisionId);
 			
 			if (previousRevision != null) {
-				result = this.find(Class.forName(previousRevision.getType()), previousRevision.getEntityId(), Long.parseLong(previousRevision.getId().toString()));
+				result = this.find(Class.forName(previousRevision.getType()), previousRevision.getEntityId(), Long.valueOf(previousRevision.getId().toString()));
 		    }
 		} catch (ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("class", revision.getType()));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("class", revision.getType()), e);
 		}
 		return result;
 	}
@@ -241,7 +241,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	public IdmAudit get(Serializable id) {
 		Assert.notNull(id, "Id is required");
 		AuditFilter filter = new AuditFilter();
-		filter.setId(Long.parseLong(id.toString()));
+		filter.setId(Long.valueOf(id.toString()));
 		List<IdmAudit> audits = this.find(filter, null).getContent();
 		
 		// number founds audits must be exactly 1
@@ -269,11 +269,11 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		
 		if (secondRevId == null) {
 			try {
-				secondRevision = (IdmAudit)this.getPreviousVersion(Class.forName(clazz), firstRevision.getEntityId(), Long.parseLong(firstRevision.getId().toString()));
+				secondRevision = (IdmAudit)this.getPreviousVersion(Class.forName(clazz), firstRevision.getEntityId(), Long.valueOf(firstRevision.getId().toString()));
 			} catch (NumberFormatException e) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", firstRevision.getId()));
+				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of("audit", firstRevision.getId()), e);
 			} catch (ClassNotFoundException e) {
-				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz));
+				throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz), e);
 			}
 		} else {
 			secondRevision = this.get(secondRevId);
@@ -311,20 +311,20 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				secondValues = this.getValuesFromVersion(secondVersion, auditedClass);
 			}
 			
-			Set<String> keySet = firstValues.keySet();
+			Set<String> keys = firstValues.keySet();
 			
-			if (keySet.isEmpty()) {
-				keySet = secondValues.keySet();
+			if (keys.isEmpty()) {
+				keys = secondValues.keySet();
 			}
 			
-			for (String key : keySet) {
+			for (String key : keys) {
 				if (!compareObject(firstValues.get(key), secondValues.get(key))) {
 					result.put(key, secondValues.get(key));
 				}
 			}
 			
 		} catch (ClassNotFoundException e) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz));
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("audit class", clazz), e);
 		}
 		
 		return result;
@@ -376,14 +376,14 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				
 				// we want only primitive date types
 				String className = value.getClass().getSimpleName();
-				if (className.indexOf("_", 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf("_", 0)))) {
+				if (className.indexOf('_', 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf('_', 0)))) {
 					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
 				} else {
 					revisionValues.put(field.getName(), value);
 				}
 				
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-				throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("field", field.getName()));
+				throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("field", field.getName()), e);
 			}
 		}
 		return revisionValues;
@@ -397,7 +397,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			return null;
 		}
 		
-		List<IdmAudit> results = this.auditRepository.getPreviousVersion(revision.getEntityId(), Long.parseLong(revision.getId().toString()), new PageRequest(0, 1)).getContent();
+		List<IdmAudit> results = this.auditRepository.getPreviousVersion(revision.getEntityId(), Long.valueOf(revision.getId().toString()), new PageRequest(0, 1)).getContent();
 		if (!results.isEmpty() && results.size() == 1) {
 			return results.get(0);
 		} else {

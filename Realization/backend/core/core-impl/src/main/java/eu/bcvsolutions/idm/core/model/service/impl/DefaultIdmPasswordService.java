@@ -40,13 +40,13 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 @Service
 public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<IdmPassword, PasswordFilter> implements IdmPasswordService {
 	
+	private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
+	
+	private static final int ITERATION_COUNT = 512;
+	
+	private static final int DERIVED_KEY_LENGTH = 256;
+	
 	private IdmPasswordRepository identityPasswordRepository;
-	
-	private final String ALGORITHM = "PBKDF2WithHmacSHA512";
-	
-	private final int ITERATION_COUNT = 512;
-	
-	private final int DERIVED_KEY_LENGTH = 256;
 	
 	@Autowired
 	public DefaultIdmPasswordService(
@@ -114,7 +114,7 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 			SecretKey key = factory.generateSecret(keySpec);
 			return key.getEncoded();
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("error", e.getMessage()));
+			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("error", e.getMessage()), e);
 		}
 	}
 	

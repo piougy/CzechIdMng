@@ -366,7 +366,7 @@ public class PasswordGenerator {
 			 for (Character character : prohibited.toCharArray()) {
 				 string = string.replaceAll(character.toString(), "");
 			 }
-			 string.trim();
+			 string = string.trim();
 		}
 		return string;
 	}
@@ -394,13 +394,13 @@ public class PasswordGenerator {
 			long offset = randFile.getFilePointer();
 			while((line = randFile.readLine()) != null) {
 				String[] splitLine = line.split(" ", 2);
-				filePosition.put(Integer.parseInt(splitLine[0]), offset);
+				filePosition.put(Integer.valueOf(splitLine[0]), offset);
 				offset = randFile.getFilePointer();
 			}
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage());
+			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
 		}
 	}
 	
@@ -417,7 +417,7 @@ public class PasswordGenerator {
             }
 			outputStream.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage());
+			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
 		}
         return newFile;
 	}
@@ -440,7 +440,7 @@ public class PasswordGenerator {
 			
 			randFile.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("[diceware] " + e.getMessage());
+			throw new IllegalArgumentException("[diceware] " + e.getMessage(), e);
 		}
 
 		return word;

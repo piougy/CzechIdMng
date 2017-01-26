@@ -1684,7 +1684,8 @@
         "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
         "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
         "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
-        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0."
+        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
+        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
       }
     },
     "Module": {
@@ -1809,6 +1810,10 @@
     },
     "CONFLICT": {
       "title": "Záznam koliduje s jiným unikátním záznamem"
+    },
+    "NAME_CONFLICT": {
+      "title": "Konflikt se jménem entity",
+      "message": "Záznam s tímto jménem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identita [{{identity}}] neexistuje"

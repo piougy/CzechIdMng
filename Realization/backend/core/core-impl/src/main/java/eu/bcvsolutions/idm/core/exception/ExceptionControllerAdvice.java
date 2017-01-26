@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.core.RepositoryConstraintViolationException;
 import org.springframework.http.HttpHeaders;
@@ -94,8 +95,19 @@ public class ExceptionControllerAdvice {
     }
 	
 	@ExceptionHandler(DataIntegrityViolationException.class)
-	ResponseEntity<ResultModels> handle(DataIntegrityViolationException ex) {		
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMessage());
+	ResponseEntity<ResultModels> handle(DataIntegrityViolationException ex) {
+		ErrorModel errorModel = null;
+		//
+		if (ex.getCause() != null && ex.getCause() instanceof ConstraintViolationException){
+			ConstraintViolationException constraintEx = (ConstraintViolationException) ex.getCause();
+			if (constraintEx.getConstraintName().contains("name")) {
+				errorModel = new DefaultErrorModel(CoreResultCode.NAME_CONFLICT);
+			} else {
+				errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ImmutableMap.of("name", constraintEx.getConstraintName()));
+			}
+		} else {
+			errorModel = new DefaultErrorModel(CoreResultCode.CONFLICT, ex.getMostSpecificCause().getMessage());
+		}
 		log.error("[" + errorModel.getId() + "] ", ex);
 		return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }

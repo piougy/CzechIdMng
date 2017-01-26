@@ -32,7 +32,10 @@ class PasswordPolicyRoutes extends Basic.AbstractContent {
    */
   _getIsNew() {
     const { query } = this.props.location;
-    return (query) ? query.new : null;
+    if (query) {
+      return query.new ? true : false;
+    }
+    return false;
   }
 
   render() {

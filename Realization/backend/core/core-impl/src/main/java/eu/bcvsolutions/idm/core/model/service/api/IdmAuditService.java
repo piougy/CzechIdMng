@@ -86,13 +86,13 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	<T> T getVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
 	/**
-	 * Return last version number id.
+	 * Return last revizion number id.
 	 * 
 	 * @param entityClass
 	 * @param entityId
 	 * @return
 	 */
-	<T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId);
+	<T> Number getLastRevisionNumber(Class<T> entityClass, UUID entityId);
 	
 	/**
 	 * Return names of changed columns with annotation @Audited. Diff is realized by previous revision and actual entity.

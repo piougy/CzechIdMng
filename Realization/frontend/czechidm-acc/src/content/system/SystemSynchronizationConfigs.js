@@ -55,6 +55,7 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
         this.setState({
           showLoading: true
         });
+        this.addMessage({ message: this.i18n('action.startSynchronization.started')});
         const promise = this.getManager().getService().startSynchronization(id);
         promise.then((json) => {
           this.setState({

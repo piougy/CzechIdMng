@@ -103,7 +103,8 @@
           "startSynchronization": {
             "message": "<b>Opravdu chcete ručně spustit všechny vybrané synchronizace?</b>",
             "header": "Ruční spuštění synchronizací",
-            "success": "Spuštění synchronizace '{{name}}' proběhlo v pořádku."
+            "started": "Synchronizace/reconciliace byla spuštěna a běží.",
+            "success": "Synchronizace/reconciliace '{{name}}' byla dokončena."
           }
         }
       },
@@ -147,7 +148,13 @@
       "systemSyncActionLogDetail": {
         "header": "Detail logu akce",
         "title": "Detail logu akce",
-        "syncItemLogsHeader": "Logy položek synchronizace"
+        "syncItemLogsHeader": "Logy položek synchronizace",
+        "filter": {
+          "displayName": {
+            "label": "Název",
+            "placeholder": "Najde logy, které obsahují hodnotu v názvu."
+          }
+        }
       },
       "SystemSyncItemLogDetail": {
         "header": "Detail logu položky",

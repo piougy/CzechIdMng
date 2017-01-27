@@ -491,24 +491,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                       {this.i18n('button.add')}
                     </Basic.Button>
                   ]
-                }
-                filter={
-                  <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                    <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                      <Basic.Row className="last">
-                        <div className="col-lg-6">
-                          <Advanced.Filter.TextField
-                            ref="idmPropertyName"
-                            label={this.i18n('filter.idmPropertyName.label')}
-                            placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
-                        </div>
-                        <div className="col-lg-2"/>
-                        <div className="col-lg-4 text-right">
-                          <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                        </div>
-                      </Basic.Row>
-                    </Basic.AbstractForm>
-                  </Advanced.Filter>
                 }>
                 <Advanced.Column
                   property=""

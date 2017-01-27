@@ -146,7 +146,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		T previousEntity = null;
 		
 		if (currentRevId == null) {
-			currentRevId = this.getLastVersionNumber(entityClass, entityId).longValue();
+			currentRevId = this.getLastRevisionNumber(entityClass, entityId).longValue();
 		}
 		previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
 		
@@ -223,7 +223,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	}
 
 	@Override
-	public <T> Number getLastVersionNumber(Class<T> entityClass, UUID entityId) {
+	public <T> Number getLastRevisionNumber(Class<T> entityClass, UUID entityId) {
 		return (Number) this.getAuditReader().createQuery()
 			    .forRevisionsOfEntity(entityClass, false, true)
 			    .addProjection(AuditEntity.revisionNumber().max())

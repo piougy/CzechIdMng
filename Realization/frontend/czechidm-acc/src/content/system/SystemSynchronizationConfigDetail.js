@@ -288,22 +288,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="name"
                     label={this.i18n('acc:entity.SynchronizationConfig.name')}
                     required/>
-                  <Basic.TextField
-                    ref="runOnServer"
-                    label={this.i18n('acc:entity.SynchronizationConfig.runOnServer')}
-                    readOnly/>
                   <Basic.SelectBox
                     ref="systemMapping"
                     manager={systemMappingManager}
                     forceSearchParameters={forceSearchMappingAttributes}
                     onChange={this._onChangeSystemMapping.bind(this)}
                     label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="correlationAttribute"
-                    manager={systemAttributeMappingManager}
-                    forceSearchParameters={forceSearchCorrelationAttribute}
-                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                     required/>
                   <Basic.TextField
                     ref="token"
@@ -336,6 +326,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                       ref="unlinkedAction"
                       enum={SynchronizationUnlinkedActionTypeEnum}
                       label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="correlationAttribute"
+                      manager={systemAttributeMappingManager}
+                      forceSearchParameters={forceSearchCorrelationAttribute}
+                      label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                       required/>
                     <Basic.SelectBox
                       ref="unlinkedActionWfKey"

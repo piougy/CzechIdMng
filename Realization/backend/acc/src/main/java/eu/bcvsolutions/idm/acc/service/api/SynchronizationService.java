@@ -30,15 +30,6 @@ public interface SynchronizationService {
 
 	SysSynchronizationConfig synchronization(SysSynchronizationConfig config);
 
-	boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs);
-
-	void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
-			ReconciliationMissingAccountActionType action, SysSystem system, SysSynchronizationLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs);
-
 	SysSyncItemLog resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<IcAttribute> icAttributes, UUID configId, String actionType);
 
@@ -50,5 +41,10 @@ public interface SynchronizationService {
 
 	SysSyncItemLog resolveMissingAccountSituation(String uid, SystemEntityType entityType, UUID accountId,
 			UUID configId, String actionType);
+
+	boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
+			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
+			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs);
 
 }

@@ -269,7 +269,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						// Find token by token attribute
 						// For Reconciliation can be token attribute null
 						Object tokenObj = null;
-						if(tokenAttribute != null){
+						if (tokenAttribute != null) {
 							tokenObj = getValueByMappedAttribute(tokenAttribute, connectorObject.getAttributes());
 						}
 						String token = tokenObj != null ? tokenObj.toString() : null;
@@ -387,10 +387,16 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			// Do synchronization for one item
 			// Start in new Transaction
 			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
-					entityType, mappedAttributes, log, itemLog, actionsLog);
+					entityType, mappedAttributes, null, log, itemLog, actionsLog);
 
 			if (!log.isRunning()) {
-				return false;
+				result = false;
+			}
+			if (!result) {
+				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
+				addToItemLog(itemLog, "Canceled!");
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+						actionsLog);
 			}
 			return result;
 		} catch (Exception ex) {
@@ -404,13 +410,16 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			return true;
 		} finally {
 			synchronizationConfigService.save(config);
-			synchronizationLogService.save(log);
 			if (itemLog.getSyncActionLog() == null) {
-				// Default action log (for unexpected situation)
-				initMissingActionLog(uid, itemLog, log);
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+						actionsLog);
 			}
+			synchronizationLogService.save(log);
 			syncActionLogService.saveAll(actionsLog);
-			syncItemLogService.save(itemLog);
+			if (itemLog.getSyncActionLog() != null) {
+				syncItemLogService.save(itemLog);
+			}
 
 		}
 	}
@@ -419,8 +428,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
 			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs) {
+			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		SynchronizationActionType actionType = null;
 		try {
 
@@ -428,7 +437,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
 
 			// Find acc account for uid or system entity
-			AccAccount account = findAccount(uid, entityType, systemEntity, system, logItem);
+			if (account == null) {
+				account = findAccount(uid, entityType, systemEntity, system, logItem);
+			}
 
 			if (IcSyncDeltaTypeEnum.CREATE == type || IcSyncDeltaTypeEnum.UPDATE == type
 					|| IcSyncDeltaTypeEnum.CREATE_OR_UPDATE == type) {
@@ -498,6 +509,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				}
 
 			} else if (IcSyncDeltaTypeEnum.DELETE == type) {
+				// Missing account situation, can be call from connector
+				// (support delete account event) and from reconciliation
+
 				actionType = config.getMissingAccountAction().getAction();
 				SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ACCOUNT;
 				if (StringUtils.hasLength(config.getMissingAccountActionWfKey())) {
@@ -510,8 +524,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 				} else {
 					// Resolve missing account situation for one item
-					findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
-							entityType, config.getMissingAccountAction(), system, log, logItem, actionLogs);
+					this.resolveMissingAccountSituation(account.getRealUid(), account, entityType,
+							config.getMissingAccountAction(), system, log, logItem, actionLogs);
 				}
 			}
 			return true;
@@ -519,9 +533,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			loggingException(actionType, log, logItem, actionLogs, uid, e);
 			throw e;
 		} finally {
-			// Call hard hibernate session clear
+			// Call hard hibernate session flush and clear
 			if (getHibernateSession().isOpen()) {
-				// getHibernateSession().flush();
+				getHibernateSession().flush();
 				getHibernateSession().clear();
 			}
 		}
@@ -619,7 +633,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		SysSystem system = mapping.getSystem();
 		SysSyncItemLog itemLog = new SysSyncItemLog();
 
-		this.findSynchronizationService().resolveMissingAccountSituation(uid, account, entityType,
+		this.resolveMissingAccountSituation(uid, account, entityType,
 				ReconciliationMissingAccountActionType.valueOf(actionType), system, null, itemLog, null);
 		return itemLog;
 	}
@@ -640,7 +654,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
-		accountService.find(accountFilter, null).forEach(account -> {
+		List<AccAccount> accounts = accountService.find(accountFilter, null).getContent();
+		
+		for(AccAccount account : accounts){
 			if (!log.isRunning()) {
 				return;
 			}
@@ -654,20 +670,21 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					itemLog.setDisplayName(uid);
 					itemLog.setType(entityType.getEntityType().getSimpleName());
 
-					SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ACCOUNT;
-					if (StringUtils.hasLength(config.getMissingAccountActionWfKey())) {
-						ReconciliationMissingAccountActionType missingAccountActionType = config
-								.getMissingAccountAction();
-						SynchronizationActionType action = missingAccountActionType.getAction();
-
-						// We will start specific workflow
-						startWorkflow(config.getMissingAccountActionWfKey(), account.getRealUid(), situation, action,
-								null, null, account, entityType, config, log, itemLog, actionsLog);
-
-					} else {
-						// Resolve missing account situation for one item
-						findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
-								entityType, config.getMissingAccountAction(), system, log, itemLog, actionsLog);
+					// Do reconciliation for one item
+					// Start in new Transaction
+					boolean result = findSynchronizationService().doItemSynchronization(uid, null,
+							IcSyncDeltaTypeEnum.DELETE, config, system, entityType, null, account, log, itemLog,
+							actionsLog);
+					
+					if (!log.isRunning()) {
+						result = false;
+					}
+					if (!result) {
+						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
+						addToItemLog(itemLog, "Canceled!");
+						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+								actionsLog);
+						return;
 					}
 
 				} catch (Exception ex) {
@@ -677,15 +694,19 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					LOG.error(message, ex);
 				} finally {
 					synchronizationConfigService.save(config);
-					synchronizationLogService.save(log);
 					if (itemLog.getSyncActionLog() == null) {
-						// Default action log (for unexpected situation)
-						initMissingActionLog(uid, itemLog, log);
+						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+								actionsLog);
 					}
-					syncItemLogService.save(itemLog);
+					synchronizationLogService.save(log);
+					syncActionLogService.saveAll(actionsLog);
+					if (itemLog.getSyncActionLog() != null) {
+						syncItemLogService.save(itemLog);
+					}
 				}
 			}
-		});
+		}
 	}
 
 	private IcFilter resolveSynchronizationFilter(SysSynchronizationConfig config) {
@@ -857,9 +878,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
+	private void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
 			ReconciliationMissingAccountActionType action, SysSystem system, SysSynchronizationLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem,

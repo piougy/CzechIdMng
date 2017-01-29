@@ -49,7 +49,7 @@
 			<id>fullApp</id>
 			<modules>
 				<module>../example</module>
-				<module>../icf</module>
+				<module>../ic</module>
 				<module>../acc</module>
 			</modules>
 		</profile>

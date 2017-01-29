@@ -8,8 +8,8 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -19,8 +19,6 @@ import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
-import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
@@ -31,7 +29,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_sync_log")
+@Table(name = "sys_sync_log", indexes = {
+		@Index(name = "idx_sys_s_l_config", columnList = "synchronization_config_id")})
 public class SysSynchronizationLog extends AbstractEntity {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSynchronizationLog.class);

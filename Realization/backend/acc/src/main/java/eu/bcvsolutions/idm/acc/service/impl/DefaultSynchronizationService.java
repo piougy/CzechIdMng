@@ -14,9 +14,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.activiti.engine.delegate.VariableScope;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,7 @@ import eu.bcvsolutions.idm.acc.domain.SynchronizationUnlinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.dto.filter.AccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
+import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
@@ -61,6 +65,7 @@ import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
@@ -107,42 +112,44 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 public class DefaultSynchronizationService implements SynchronizationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
+	private final IdmIdentityService identityService;
+	private final IdmIdentityRoleService identityRoleService;
+	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private final SysSystemAttributeMappingService attributeHandlingService;
 	private final SysSynchronizationConfigService synchronizationConfigService;
 	private final SysSynchronizationLogService synchronizationLogService;
-	private final AccAccountService accountService;
+	private final SysSyncItemLogService syncItemLogService;
+	private final SysSyncActionLogService syncActionLogService;
 	private final SysSystemEntityService systemEntityService;
+	private final AccAccountService accountService;
+	private final AccIdentityAccountService identityAccoutnService;
+	private final GroovyScriptService groovyScriptService;
 	private final ConfidentialStorage confidentialStorage;
 	private final FormService formService;
-	private final IdmIdentityService identityService;
-	private final AccIdentityAccountService identityAccoutnService;
-	private final IdmIdentityRoleService identityRoleService;
-	private final SysSyncItemLogService syncItemLogService;
 	private final EntityEventManager entityEventProcessorService;
-	private final GroovyScriptService groovyScriptService;
-	private final WorkflowProcessInstanceService workflowProcessInstanceService;
-
-	@Autowired(required = false)
-	private ApplicationContext applicationContext;
+	private final EntityManager entityManager;
+	private final ApplicationContext applicationContext;
 	private SynchronizationService synchronizationService;
 
 	@Autowired
 	public DefaultSynchronizationService(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
 			SysSynchronizationConfigService synchronizationConfigService,
-			SysSynchronizationLogService synchronizationLogService, AccAccountService accountService,
-			SysSystemEntityService systemEntityService, ConfidentialStorage confidentialStorage,
-			FormService formService, IdmIdentityService identityService,
+			SysSynchronizationLogService synchronizationLogService, SysSyncActionLogService syncActionLogService,
+			AccAccountService accountService, SysSystemEntityService systemEntityService,
+			ConfidentialStorage confidentialStorage, FormService formService, IdmIdentityService identityService,
 			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
 			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventProcessorService,
-			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService) {
+			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
+			EntityManager entityManager, ApplicationContext applicationContext) {
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(attributeHandlingService);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(synchronizationLogService);
+		Assert.notNull(syncActionLogService);
 		Assert.notNull(accountService);
 		Assert.notNull(systemEntityService);
 		Assert.notNull(confidentialStorage);
@@ -154,6 +161,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(entityEventProcessorService);
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(workflowProcessInstanceService);
+		Assert.notNull(entityManager);
+		Assert.notNull(applicationContext);
 
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
@@ -171,6 +180,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		this.entityEventProcessorService = entityEventProcessorService;
 		this.groovyScriptService = groovyScriptService;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
+		this.entityManager = entityManager;
+		this.applicationContext = applicationContext;
+		this.syncActionLogService = syncActionLogService;
 	}
 
 	@Override
@@ -237,36 +249,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			synchronizationLogService.save(log);
 			List<SysSyncActionLog> actionsLog = new ArrayList<>();
 
-			if (!config.isCustomFilter()) {
-				log.addToLog("Synchronization will use inner connector synchronization implementation.");
-				IcSyncResultsHandler icSyncResultsHandler = new IcSyncResultsHandler() {
+			if (config.isCustomFilter() || config.isReconciliation()) {
 
-					@Override
-					public boolean handle(IcSyncDelta delta) {
-						SysSyncItemLog itemLog = new SysSyncItemLog();
-						Assert.notNull(delta);
-						Assert.notNull(delta.getUid());
-						String uid = delta.getUid().getUidValue();
-						IcSyncDeltaTypeEnum type = delta.getDeltaType();
-						IcConnectorObject icObject = delta.getObject();
-						IcSyncToken token = delta.getToken();
-						String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
-						// Save token
-						log.setToken(tokenObject);
-						config.setToken(tokenObject);
-
-						return startItemSynchronization(uid, icObject, type, entityType, itemLog, config, system,
-								mappedAttributes, log, systemAccountsList, actionsLog);
-					}
-				};
-
-				connectorFacade.synchronization(connectorKey, connectorConfig, objectClass, lastIcToken,
-						icSyncResultsHandler);
-
-			} else {
 				log.addToLog("Synchronization will use custom filter (not synchronization implemented in connector).");
 				AttributeMapping tokenAttribute = config.getTokenAttribute();
-				if (tokenAttribute == null) {
+				if (tokenAttribute == null && !config.isReconciliation()) {
 					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND);
 				}
 
@@ -280,7 +267,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						String uid = connectorObject.getUidValue();
 
 						// Find token by token attribute
-						Object tokenObj = getValueByMappedAttribute(tokenAttribute, connectorObject.getAttributes());
+						// For Reconciliation can be token attribute null
+						Object tokenObj = null;
+						if (tokenAttribute != null) {
+							tokenObj = getValueByMappedAttribute(tokenAttribute, connectorObject.getAttributes());
+						}
 						String token = tokenObj != null ? tokenObj.toString() : null;
 
 						// In custom filter mode, we don't have token. We find
@@ -299,7 +290,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						// event
 						IcSyncDeltaTypeEnum type = IcSyncDeltaTypeEnum.CREATE_OR_UPDATE;
 						return startItemSynchronization(uid, connectorObject, type, entityType, itemLog, config, system,
-								mappedAttributes, log, systemAccountsList, actionsLog);
+								mappedAttributes, log, systemAccountsList);
 
 					}
 				};
@@ -308,6 +299,31 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter));
 
 				connectorFacade.search(connectorKey, connectorConfig, objectClass, filter, resultHandler);
+			} else {
+				log.addToLog("Synchronization will use inner connector synchronization implementation.");
+				IcSyncResultsHandler icSyncResultsHandler = new IcSyncResultsHandler() {
+
+					@Override
+					public boolean handle(IcSyncDelta delta) {
+						SysSyncItemLog itemLog = new SysSyncItemLog();
+						Assert.notNull(delta);
+						Assert.notNull(delta.getUid());
+						String uid = delta.getUid().getUidValue();
+						IcSyncDeltaTypeEnum type = delta.getDeltaType();
+						IcConnectorObject icObject = delta.getObject();
+						IcSyncToken token = delta.getToken();
+						String tokenObject = token.getValue() != null ? token.getValue().toString() : null;
+						// Save token
+						log.setToken(tokenObject);
+						config.setToken(tokenObject);
+
+						return startItemSynchronization(uid, icObject, type, entityType, itemLog, config, system,
+								mappedAttributes, log, systemAccountsList);
+					}
+				};
+
+				connectorFacade.synchronization(connectorKey, connectorConfig, objectClass, lastIcToken,
+						icSyncResultsHandler);
 			}
 			// We do reconciliation (find missing account)
 			if (config.isReconciliation()) {
@@ -331,35 +347,115 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return config;
 	}
 
+	/**
+	 * Main method for synchronization item. This method is call form "custom
+	 * filter" and "connector sync" mode.
+	 * 
+	 * @param uid
+	 * @param icObject
+	 * @param type
+	 * @param entityType
+	 * @param itemLog
+	 * @param config
+	 * @param system
+	 * @param mappedAttributes
+	 * @param log
+	 * @param systemAccountsList
+	 * @param actionsLog
+	 * @return
+	 */
+	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
+			SystemEntityType entityType, SysSyncItemLog itemLog, SysSynchronizationConfig config, SysSystem system,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log,
+			List<String> systemAccountsList) {
+
+		List<SysSyncActionLog> actionsLog = new ArrayList<>();
+		try {
+			if (config.isReconciliation()) {
+				systemAccountsList.add(uid);
+			}
+
+			SyncActionLogFilter actionFilter = new SyncActionLogFilter();
+			actionFilter.setSynchronizationLogId(log.getId());
+			actionsLog.addAll(syncActionLogService.find(actionFilter, null).getContent());
+
+			// Default setting for log item
+			itemLog.setIdentification(uid);
+			itemLog.setDisplayName(uid);
+			itemLog.setType(entityType.getEntityType().getSimpleName());
+
+			// Do synchronization for one item
+			// Start in new Transaction
+			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
+					entityType, mappedAttributes, null, log, itemLog, actionsLog);
+
+			if (!log.isRunning()) {
+				result = false;
+			}
+			if (!result) {
+				log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
+				addToItemLog(itemLog, "Canceled!");
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+						actionsLog);
+			}
+			return result;
+		} catch (Exception ex) {
+			if (itemLog.getSyncActionLog() != null) {
+				// We have to decrement count and log as error
+				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
+				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
+			} else {
+				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
+			}
+			return true;
+		} finally {
+			synchronizationConfigService.save(config);
+			if (itemLog.getSyncActionLog() == null) {
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+						actionsLog);
+			}
+			synchronizationLogService.save(log);
+			syncActionLogService.saveAll(actionsLog);
+			if (itemLog.getSyncActionLog() != null) {
+				syncItemLogService.save(itemLog);
+			}
+
+		}
+	}
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
 			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log, SysSyncItemLog logItem,
-			List<SysSyncActionLog> actionLogs) {
+			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
+			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+		SynchronizationActionType actionType = null;
+		try {
 
-		// Find system entity for uid
-		SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
+			// Find system entity for uid
+			SysSystemEntity systemEntity = findSystemEntity(uid, system, entityType);
 
-		// Find acc account for uid or system entity
-		AccAccount account = findAccount(uid, entityType, systemEntity, system, logItem);
-
-		if (IcSyncDeltaTypeEnum.CREATE == type || IcSyncDeltaTypeEnum.UPDATE == type
-				|| IcSyncDeltaTypeEnum.CREATE_OR_UPDATE == type) {
-			// Update or create
-			Assert.notNull(icObject);
-			List<IcAttribute> icAttributes = icObject.getAttributes();
-
+			// Find acc account for uid or system entity
 			if (account == null) {
-				// Account not exist in IDM
-				addToItemLog(logItem, "Account not exist in IDM");
+				account = findAccount(uid, entityType, systemEntity, system, logItem);
+			}
 
-				AbstractEntity entity = findEntityByCorrelationAttribute(config.getCorrelationAttribute(), entityType,
-						icAttributes);
-				if (entity != null) {
-					try {
+			if (IcSyncDeltaTypeEnum.CREATE == type || IcSyncDeltaTypeEnum.UPDATE == type
+					|| IcSyncDeltaTypeEnum.CREATE_OR_UPDATE == type) {
+				// Update or create
+				Assert.notNull(icObject);
+				List<IcAttribute> icAttributes = icObject.getAttributes();
+
+				if (account == null) {
+					// Account not exist in IDM
+					addToItemLog(logItem, "Account not exist in IDM");
+					AbstractEntity entity = findEntityByCorrelationAttribute(config.getCorrelationAttribute(),
+							entityType, icAttributes);
+					if (entity != null) {
 						// Account not exist but, entity by correlation was
 						// found (UNLINKED)
+						actionType = config.getUnlinkedAction().getAction();
 						SynchronizationSituationType situation = SynchronizationSituationType.UNLINKED;
 						if (StringUtils.hasLength(config.getUnlinkedActionWfKey())) {
 							SynchronizationUnlinkedActionType unlinkedActionType = config.getUnlinkedAction();
@@ -373,15 +469,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							resolveUnlinkedSituation(uid, entity, entityType, systemEntity, config.getUnlinkedAction(),
 									system, log, logItem, actionLogs);
 						}
-						return true;
-					} catch (Exception e) {
-						loggingException(SynchronizationActionType.valueOf(config.getUnlinkedAction().name()), log,
-								logItem, actionLogs, uid, e);
-						throw e;
-					}
-				} else {
-					try {
+					} else {
 						// Account not exist and entity too (UNMATCHED)
+						actionType = config.getMissingEntityAction().getAction();
 						SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ENTITY;
 						if (StringUtils.hasLength(config.getMissingEntityActionWfKey())) {
 							SynchronizationMissingEntityActionType missingEntityAction = config
@@ -396,17 +486,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							resolveMissingEntitySituation(uid, entityType, mappedAttributes, system,
 									config.getMissingEntityAction(), log, logItem, actionLogs, icAttributes);
 						}
-						return true;
-					} catch (Exception e) {
-						loggingException(SynchronizationActionType.valueOf(config.getMissingEntityAction().name()), log,
-								logItem, actionLogs, uid, e);
-						throw e;
 					}
-				}
 
-			} else {
-				try {
+				} else {
 					// Account exist in IdM (LINKED)
+					actionType = config.getLinkedAction().getAction();
 					SynchronizationSituationType situation = SynchronizationSituationType.LINKED;
 					if (StringUtils.hasLength(config.getLinkedActionWfKey())) {
 						SynchronizationLinkedActionType linkedAction = config.getLinkedAction();
@@ -421,32 +505,40 @@ public class DefaultSynchronizationService implements SynchronizationService {
 								config.getLinkedAction(), log, logItem, actionLogs);
 					}
 					addToItemLog(logItem, "Account exist in IdM (LINKED) - ended");
-					return true;
-				} catch (Exception e) {
-					loggingException(SynchronizationActionType.valueOf(config.getLinkedAction().name()), log, logItem,
-							actionLogs, uid, e);
-					throw e;
+
+				}
+
+			} else if (IcSyncDeltaTypeEnum.DELETE == type) {
+				// Missing account situation, can be call from connector
+				// (support delete account event) and from reconciliation
+
+				actionType = config.getMissingAccountAction().getAction();
+				SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ACCOUNT;
+				if (StringUtils.hasLength(config.getMissingAccountActionWfKey())) {
+					ReconciliationMissingAccountActionType missingAccountActionType = config.getMissingAccountAction();
+					SynchronizationActionType action = missingAccountActionType.getAction();
+
+					// We will start specific workflow
+					startWorkflow(config.getMissingAccountActionWfKey(), account.getRealUid(), situation, action, null,
+							null, account, entityType, config, log, logItem, actionLogs);
+
+				} else {
+					// Resolve missing account situation for one item
+					this.resolveMissingAccountSituation(account.getRealUid(), account, entityType,
+							config.getMissingAccountAction(), system, log, logItem, actionLogs);
 				}
 			}
-
-		} else if (IcSyncDeltaTypeEnum.DELETE == type) {
-			SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ACCOUNT;
-			if (StringUtils.hasLength(config.getMissingAccountActionWfKey())) {
-				ReconciliationMissingAccountActionType missingAccountActionType = config.getMissingAccountAction();
-				SynchronizationActionType action = missingAccountActionType.getAction();
-
-				// We will start specific workflow
-				startWorkflow(config.getMissingAccountActionWfKey(), account.getRealUid(), situation, action, null,
-						null, account, entityType, config, log, logItem, actionLogs);
-
-			} else {
-				// Resolve missing account situation for one item
-				findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account, entityType,
-						config.getMissingAccountAction(), system, log, logItem, actionLogs);
+			return true;
+		} catch (Exception e) {
+			loggingException(actionType, log, logItem, actionLogs, uid, e);
+			throw e;
+		} finally {
+			// Call hard hibernate session flush and clear
+			if (getHibernateSession().isOpen()) {
+				getHibernateSession().flush();
+				getHibernateSession().clear();
 			}
 		}
-		addToItemLog(logItem, "doItemSynchronization - ended");
-		return true;
 	}
 
 	@Override
@@ -541,7 +633,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		SysSystem system = mapping.getSystem();
 		SysSyncItemLog itemLog = new SysSyncItemLog();
 
-		this.findSynchronizationService().resolveMissingAccountSituation(uid, account, entityType,
+		this.resolveMissingAccountSituation(uid, account, entityType,
 				ReconciliationMissingAccountActionType.valueOf(actionType), system, null, itemLog, null);
 		return itemLog;
 	}
@@ -562,7 +654,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
-		accountService.find(accountFilter, null).forEach(account -> {
+		List<AccAccount> accounts = accountService.find(accountFilter, null).getContent();
+
+		for (AccAccount account : accounts) {
 			if (!log.isRunning()) {
 				return;
 			}
@@ -576,20 +670,21 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					itemLog.setDisplayName(uid);
 					itemLog.setType(entityType.getEntityType().getSimpleName());
 
-					SynchronizationSituationType situation = SynchronizationSituationType.MISSING_ACCOUNT;
-					if (StringUtils.hasLength(config.getMissingAccountActionWfKey())) {
-						ReconciliationMissingAccountActionType missingAccountActionType = config
-								.getMissingAccountAction();
-						SynchronizationActionType action = missingAccountActionType.getAction();
+					// Do reconciliation for one item
+					// Start in new Transaction
+					boolean result = findSynchronizationService().doItemSynchronization(uid, null,
+							IcSyncDeltaTypeEnum.DELETE, config, system, entityType, null, account, log, itemLog,
+							actionsLog);
 
-						// We will start specific workflow
-						startWorkflow(config.getMissingAccountActionWfKey(), account.getRealUid(), situation, action,
-								null, null, account, entityType, config, log, itemLog, actionsLog);
-
-					} else {
-						// Resolve missing account situation for one item
-						findSynchronizationService().resolveMissingAccountSituation(account.getRealUid(), account,
-								entityType, config.getMissingAccountAction(), system, log, itemLog, actionsLog);
+					if (!log.isRunning()) {
+						result = false;
+					}
+					if (!result) {
+						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
+						addToItemLog(itemLog, "Canceled!");
+						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
+								actionsLog);
+						return;
 					}
 
 				} catch (Exception ex) {
@@ -599,73 +694,18 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					LOG.error(message, ex);
 				} finally {
 					synchronizationConfigService.save(config);
-					synchronizationLogService.save(log);
 					if (itemLog.getSyncActionLog() == null) {
-						// Default action log (for unexpected situation)
-						initMissingActionLog(uid, itemLog, log);
+						addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+								actionsLog);
 					}
-					syncItemLogService.save(itemLog);
+					synchronizationLogService.save(log);
+					syncActionLogService.saveAll(actionsLog);
+					if (itemLog.getSyncActionLog() != null) {
+						syncItemLogService.save(itemLog);
+					}
 				}
 			}
-		});
-	}
-
-	/**
-	 * Main method for synchronization item. This method is call form "custom
-	 * filter" and "connector sync" mode.
-	 * 
-	 * @param uid
-	 * @param icObject
-	 * @param type
-	 * @param entityType
-	 * @param itemLog
-	 * @param config
-	 * @param system
-	 * @param mappedAttributes
-	 * @param log
-	 * @param systemAccountsList
-	 * @param actionsLog
-	 * @return
-	 */
-	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SystemEntityType entityType, SysSyncItemLog itemLog, SysSynchronizationConfig config, SysSystem system,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log,
-			List<String> systemAccountsList, List<SysSyncActionLog> actionsLog) {
-		try {
-			if (config.isReconciliation()) {
-				systemAccountsList.add(uid);
-			}
-
-			// Default setting for log item
-			itemLog.setIdentification(uid);
-			itemLog.setDisplayName(uid);
-			itemLog.setType(entityType.getEntityType().getSimpleName());
-
-			// Do synchronization for one item
-			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
-					entityType, mappedAttributes, log, itemLog, actionsLog);
-
-			if (!log.isRunning()) {
-				return false;
-			}
-			return result;
-		} catch (Exception ex) {
-			if (itemLog.getSyncActionLog() != null) {
-				// We have to decrement count and log as error
-				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
-				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
-			} else {
-				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
-			}
-			return true;
-		} finally {
-			synchronizationConfigService.save(config);
-			synchronizationLogService.save(log);
-			if (itemLog.getSyncActionLog() == null) {
-				// Default action log (for unexpected situation)
-				initMissingActionLog(uid, itemLog, log);
-			}
-			syncItemLogService.save(itemLog);
 		}
 	}
 
@@ -838,9 +878,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
+	private void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
 			ReconciliationMissingAccountActionType action, SysSystem system, SysSynchronizationLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem,
@@ -877,6 +915,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Call provisioning for given account
+	 * 
 	 * @param account
 	 * @param entityType
 	 * @param log
@@ -902,6 +941,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Delete entity linked with given account
+	 * 
 	 * @param account
 	 * @param entityType
 	 * @param log
@@ -927,6 +967,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Create account and relation on him
+	 * 
 	 * @param uid
 	 * @param callProvisioning
 	 * @param entity
@@ -977,6 +1018,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Call provisioning for given account
+	 * 
 	 * @param entity
 	 * @param entityType
 	 * @param logItem
@@ -996,6 +1038,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Create new instance of ACC account
+	 * 
 	 * @param uid
 	 * @param system
 	 * @return
@@ -1010,6 +1053,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Create and persist new entity by data from IC attributes
+	 * 
 	 * @param entityType
 	 * @param mappedAttributes
 	 * @param logItem
@@ -1027,6 +1071,10 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
 			// Create new Identity
 			identityService.save(identity);
+			// Update extended attribute (entity must be persisted first)
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+			// Update confidential attribute (entity must be persisted first)
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
 
 			// Create new Identity account relation
 			AccIdentityAccount identityAccount = new AccIdentityAccount();
@@ -1047,6 +1095,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Fill data from IC attributes to entity (EAV and confidential storage too)
+	 * 
 	 * @param account
 	 * @param entityType
 	 * @param uid
@@ -1067,13 +1116,17 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				// Update identity
 				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
 				identityService.save(identity);
+				// Update extended attribute (entity must be persisted first)
+				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+				// Update confidential attribute (entity must be persisted first)
+				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
 
 				// Identity Updated
 				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
 				logItem.setDisplayName(identity.getUsername());
 
 				return;
-			}else {
+			} else {
 				addToItemLog(logItem, "Identity account relation (with ownership = true) was not found!");
 				initSyncActionLog(SynchronizationActionType.UPDATE_ENTITY, OperationResultType.WARNING, logItem, log,
 						actionLogs);
@@ -1104,12 +1157,13 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			LOG.info(text);
 		} else {
 			logItem.addToLog(text);
-			LOG.debug(text);
+			LOG.info(text);
 		}
 	}
 
 	/**
 	 * Operation remove IdentityAccount relations and linked roles
+	 * 
 	 * @param account
 	 * @param removeIdentityRole
 	 * @param log
@@ -1154,6 +1208,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Find identity by account
+	 * 
 	 * @param account
 	 * @param log
 	 * @param logItem
@@ -1178,6 +1233,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Log exception to SyncLog and SyncItemLog, do init syncActionLog
+	 * 
 	 * @param synchronizationActionType
 	 * @param log
 	 * @param logItem
@@ -1196,46 +1252,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		LOG.error(message, e);
 	}
 
-	/**
-	 * Init sync action log
-	 * @param actionType
-	 * @param resultType
-	 * @param logItem
-	 * @param log
-	 * @param actionLogs
-	 */
-	private void initSyncActionLog(SynchronizationActionType actionType, OperationResultType resultType,
-			SysSyncItemLog logItem, SysSynchronizationLog log, List<SysSyncActionLog> actionLogs) {
-
-		if (logItem == null || actionLogs == null) {
-			// If is logItem null, then we have nothing for init.
-			// We probably call this outside standard sync cycle (workflow
-			// maybe)
-			return;
-		}
-
-		if (logItem.getSyncActionLog() != null && !(OperationResultType.ERROR == resultType)) {
-			// Log is already initialized, but if is new result type ERROR, then
-			// have priority
-			return;
-		}
-		SysSyncActionLog actionLog = null;
-		Optional<SysSyncActionLog> optionalActionLog = actionLogs.stream().filter(al -> {
-			return actionType == al.getSyncAction() && resultType == al.getOperationResult();
-		}).findFirst();
-		if (optionalActionLog.isPresent()) {
-			actionLog = optionalActionLog.get();
-		} else {
-			actionLog = new SysSyncActionLog();
-			actionLog.setOperationResult(resultType);
-			actionLog.setSyncAction(actionType);
-			actionLog.setSyncLog(log);
-			actionLogs.add(actionLog);
-		}
-		logItem.setSyncActionLog(actionLog);
-		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
-	}
-
 	private SynchronizationService findSynchronizationService() {
 		if (this.synchronizationService == null) {
 			this.synchronizationService = applicationContext.getBean(SynchronizationService.class);
@@ -1245,6 +1261,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Find entity by correlation attribute
+	 * 
 	 * @param attribute
 	 * @param entityType
 	 * @param icAttributes
@@ -1287,6 +1304,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	/**
 	 * Get value from given entity field
+	 * 
 	 * @param entity
 	 * @param propertyName
 	 * @param value
@@ -1311,11 +1329,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
-	 * Fill entity with attributes from IC module (by mapped attributes). If is
-	 * mapped attribute confidential or extended attribute, then will be new
-	 * value save immediately in this method.
+	 * Fill entity with attributes from IC module (by mapped attributes).
 	 * 
 	 * @param mappedAttributes
 	 * @param uid
@@ -1327,70 +1342,115 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			List<IcAttribute> icAttributes, AbstractEntity entity) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
-			return !attribute.isDisabledAttribute();
+			// Skip extended attributes (we need update/ create entity first)
+			// Skip confidential attributes (we need update/ create entity
+			// first)
+			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+					&& !attribute.isConfidentialAttribute();
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if (attribute.isEntityAttribute()) {
-				if (attribute.isConfidentialAttribute()) {
-					// If is attribute confidential, then we will set
-					// value to
-					// secured storage
-					if (!(transformedValue == null || transformedValue instanceof GuardedString)) {
-						throw new ProvisioningException(AccResultCode.CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING,
-								ImmutableMap.of("property", attributeProperty, "class",
-										transformedValue.getClass().getName()));
-					}
-
-					confidentialStorage.saveGuardedString(entity, attribute.getIdmPropertyName(),
-							(GuardedString) transformedValue);
-
-				} else {
-					// Set transformed value from target system to identity
-					try {
-						setEntityValue(entity, attributeProperty, transformedValue);
-					} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException | ProvisioningException e) {
-						throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-								ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-					}
-				}
-			} else if (attribute.isExtendedAttribute()) {
-				// Save to extended attribute
-
-				if (!(entity instanceof FormableEntity)) {
-					String message = MessageFormat.format("Entity [{0}] is not instance of fromable entity!",
-							entity.getId());
-					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-							ImmutableMap.of("uid", uid, "message", message));
-				}
-				IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
-						.getMappedAttributeByName(attributeProperty);
-				if (defAttribute == null) {
-					// eav definition could be changed
-					String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",
-							attributeProperty);
-					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-							ImmutableMap.of("uid", uid, "message", message));
-				}
-				if (transformedValue instanceof List<?>) {
-					((List<?>) transformedValue).stream().forEach(value -> {
-						if (value != null && !(value instanceof Serializable)) {
-							String message = MessageFormat.format(
-									"Value is not serializable [{0}] for attribute [{1}] and UID [{2}]!", value,
-									attribute, uid);
-							throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-									ImmutableMap.of("uid", uid, "message", message));
-						}
-					});
-					formService.saveValues((FormableEntity) entity, defAttribute,
-							(List<Serializable>) transformedValue);
-				} else {
-					formService.saveValues((FormableEntity) entity, defAttribute,
-							Lists.newArrayList((Serializable) transformedValue));
-				}
+			// Set transformed value from target system to identity
+			try {
+				setEntityValue(entity, attributeProperty, transformedValue);
+			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | ProvisioningException e) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
 			}
+
+		});
+		return entity;
+	}
+
+	/**
+	 * Update extended attribute for given entity. Entity must be persisted
+	 * first.
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @return
+	 */
+	private AbstractEntity updateExtendedAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, AbstractEntity entity) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Only for extended attributes
+			return !attribute.isDisabledAttribute() && attribute.isExtendedAttribute();
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
+			// Save to extended attribute
+
+			if (!(entity instanceof FormableEntity)) {
+				String message = MessageFormat.format("Entity [{0}] is not instance of fromable entity!",
+						entity.getId());
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+						ImmutableMap.of("uid", uid, "message", message));
+			}
+			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
+					.getMappedAttributeByName(attributeProperty);
+			if (defAttribute == null) {
+				// eav definition could be changed
+				String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",
+						attributeProperty);
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+						ImmutableMap.of("uid", uid, "message", message));
+			}
+			if (transformedValue instanceof List<?>) {
+				((List<?>) transformedValue).stream().forEach(value -> {
+					if (value != null && !(value instanceof Serializable)) {
+						String message = MessageFormat.format(
+								"Value is not serializable [{0}] for attribute [{1}] and UID [{2}]!", value, attribute,
+								uid);
+						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+								ImmutableMap.of("uid", uid, "message", message));
+					}
+				});
+				formService.saveValues((FormableEntity) entity, defAttribute, (List<Serializable>) transformedValue);
+			} else {
+				formService.saveValues((FormableEntity) entity, defAttribute,
+						Lists.newArrayList((Serializable) transformedValue));
+			}
+		});
+		return entity;
+	}
+
+	/**
+	 * Update confidential attribute for given entity. Entity must be persisted
+	 * first.
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @return
+	 */
+	private AbstractEntity updateConfidentialAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, AbstractEntity entity) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Only for confidential attribute
+			return !attribute.isDisabledAttribute() && attribute.isConfidentialAttribute();
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
+			// If is attribute confidential, then we will set
+			// value to
+			// secured storage
+			if (!(transformedValue == null || transformedValue instanceof GuardedString)) {
+				throw new ProvisioningException(AccResultCode.CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING,
+						ImmutableMap.of("property", attributeProperty, "class", transformedValue.getClass().getName()));
+			}
+
+			confidentialStorage.saveGuardedString(entity, attribute.getIdmPropertyName(),
+					(GuardedString) transformedValue);
+
 		});
 		return entity;
 	}
@@ -1455,7 +1515,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return account;
 	}
 
-	
 	private SysSystemEntity findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {
 		SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
 		systemEntityFilter.setEntityType(entityType);
@@ -1514,22 +1573,51 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
+	private Session getHibernateSession() {
+		return (Session) this.entityManager.getDelegate();
+	}
+
 	/**
-	 * Init action log
-	 * @param uid
-	 * @param itemLog
+	 * Init sync action log
+	 * 
+	 * @param actionType
+	 * @param resultType
+	 * @param logItem
 	 * @param log
+	 * @param actionLogs
 	 */
-	private void initMissingActionLog(String uid, SysSyncItemLog itemLog, SysSynchronizationLog log) {
-		String message = MessageFormat.format("Missing syncActionLog for uid {0}", uid);
-		LOG.warn(message);
-		SysSyncActionLog actionLogDefault = new SysSyncActionLog();
-		actionLogDefault.setSyncLog(log);
-		actionLogDefault.setOperationCount(1);
-		actionLogDefault.setOperationResult(OperationResultType.ERROR);
-		actionLogDefault.setSyncAction(SynchronizationActionType.IGNORE);
-		itemLog.addToLog(message);
-		itemLog.setSyncActionLog(actionLogDefault);
+	private void initSyncActionLog(SynchronizationActionType actionType, OperationResultType resultType,
+			SysSyncItemLog logItem, SysSynchronizationLog log, List<SysSyncActionLog> actionLogs) {
+
+		if (logItem == null || actionLogs == null) {
+			// If is logItem null, then we have nothing for init.
+			// We probably call this outside standard sync cycle (workflow
+			// maybe)
+			return;
+		}
+
+		if (logItem.getSyncActionLog() != null && !(OperationResultType.ERROR == resultType)) {
+			// Log is already initialized, but if is new result type ERROR, then
+			// have priority
+			return;
+		}
+		SysSyncActionLog actionLog = null;
+		Optional<SysSyncActionLog> optionalActionLog = actionLogs.stream().filter(al -> {
+			return actionType == al.getSyncAction() && resultType == al.getOperationResult();
+		}).findFirst();
+		if (optionalActionLog.isPresent()) {
+			actionLog = optionalActionLog.get();
+		} else {
+			actionLog = new SysSyncActionLog();
+			actionLog.setOperationResult(resultType);
+			actionLog.setSyncAction(actionType);
+			actionLog.setSyncLog(log);
+			actionLogs.add(actionLog);
+		}
+		logItem.setSyncActionLog(actionLog);
+		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
+		addToItemLog(logItem, MessageFormat.format("Operation count for [{0}] is [{1}]", actionLog.getSyncAction(),
+				actionLog.getOperationCount()));
 	}
 
 }

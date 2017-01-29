@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -26,14 +27,15 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  *
  */
 @Entity
-@Table(name = "sys_sync_item_log")
+@Table(name = "sys_sync_item_log", indexes = {
+		@Index(name = "idx_sys_s_i_l_action", columnList = "sync_action_log_id")})
 public class SysSyncItemLog extends AbstractEntity {
 
 	private static final long serialVersionUID = -5447620157233410338L;
 	public static final String LOG_SEPARATOR = "-------------------------";
 
 	@NotNull
-	@ManyToOne(optional = false, cascade = { CascadeType.ALL })
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "sync_action_log_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4

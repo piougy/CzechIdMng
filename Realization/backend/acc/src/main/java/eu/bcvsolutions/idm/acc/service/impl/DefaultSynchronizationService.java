@@ -655,8 +655,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
 		List<AccAccount> accounts = accountService.find(accountFilter, null).getContent();
-		
-		for(AccAccount account : accounts){
+
+		for (AccAccount account : accounts) {
 			if (!log.isRunning()) {
 				return;
 			}
@@ -675,7 +675,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					boolean result = findSynchronizationService().doItemSynchronization(uid, null,
 							IcSyncDeltaTypeEnum.DELETE, config, system, entityType, null, account, log, itemLog,
 							actionsLog);
-					
+
 					if (!log.isRunning()) {
 						result = false;
 					}
@@ -1071,6 +1071,10 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
 			// Create new Identity
 			identityService.save(identity);
+			// Update extended attribute (entity must be persisted first)
+			updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+			// Update confidential attribute (entity must be persisted first)
+			updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
 
 			// Create new Identity account relation
 			AccIdentityAccount identityAccount = new AccIdentityAccount();
@@ -1112,6 +1116,10 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				// Update identity
 				identity = (IdmIdentity) fillEntity(mappedAttributes, uid, icAttributes, identity);
 				identityService.save(identity);
+				// Update extended attribute (entity must be persisted first)
+				updateExtendedAttributes(mappedAttributes, uid, icAttributes, identity);
+				// Update confidential attribute (entity must be persisted first)
+				updateConfidentialAttributes(mappedAttributes, uid, icAttributes, identity);
 
 				// Identity Updated
 				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
@@ -1321,11 +1329,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return propertyDescriptor.getWriteMethod().invoke(entity, value);
 	}
 
-	@SuppressWarnings("unchecked")
 	/**
-	 * Fill entity with attributes from IC module (by mapped attributes). If is
-	 * mapped attribute confidential or extended attribute, then will be new
-	 * value save immediately in this method.
+	 * Fill entity with attributes from IC module (by mapped attributes).
 	 * 
 	 * @param mappedAttributes
 	 * @param uid
@@ -1337,70 +1342,115 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			List<IcAttribute> icAttributes, AbstractEntity entity) {
 		mappedAttributes.stream().filter(attribute -> {
 			// Skip disabled attributes
-			return !attribute.isDisabledAttribute();
+			// Skip extended attributes (we need update/ create entity first)
+			// Skip confidential attributes (we need update/ create entity
+			// first)
+			return !attribute.isDisabledAttribute() && attribute.isEntityAttribute()
+					&& !attribute.isConfidentialAttribute();
 
 		}).forEach(attribute -> {
 			String attributeProperty = attribute.getIdmPropertyName();
 			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
-			if (attribute.isEntityAttribute()) {
-				if (attribute.isConfidentialAttribute()) {
-					// If is attribute confidential, then we will set
-					// value to
-					// secured storage
-					if (!(transformedValue == null || transformedValue instanceof GuardedString)) {
-						throw new ProvisioningException(AccResultCode.CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING,
-								ImmutableMap.of("property", attributeProperty, "class",
-										transformedValue.getClass().getName()));
-					}
-
-					confidentialStorage.saveGuardedString(entity, attribute.getIdmPropertyName(),
-							(GuardedString) transformedValue);
-
-				} else {
-					// Set transformed value from target system to identity
-					try {
-						setEntityValue(entity, attributeProperty, transformedValue);
-					} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException | ProvisioningException e) {
-						throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
-								ImmutableMap.of("property", attributeProperty, "uid", uid), e);
-					}
-				}
-			} else if (attribute.isExtendedAttribute()) {
-				// Save to extended attribute
-
-				if (!(entity instanceof FormableEntity)) {
-					String message = MessageFormat.format("Entity [{0}] is not instance of fromable entity!",
-							entity.getId());
-					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-							ImmutableMap.of("uid", uid, "message", message));
-				}
-				IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
-						.getMappedAttributeByName(attributeProperty);
-				if (defAttribute == null) {
-					// eav definition could be changed
-					String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",
-							attributeProperty);
-					throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-							ImmutableMap.of("uid", uid, "message", message));
-				}
-				if (transformedValue instanceof List<?>) {
-					((List<?>) transformedValue).stream().forEach(value -> {
-						if (value != null && !(value instanceof Serializable)) {
-							String message = MessageFormat.format(
-									"Value is not serializable [{0}] for attribute [{1}] and UID [{2}]!", value,
-									attribute, uid);
-							throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
-									ImmutableMap.of("uid", uid, "message", message));
-						}
-					});
-					formService.saveValues((FormableEntity) entity, defAttribute,
-							(List<Serializable>) transformedValue);
-				} else {
-					formService.saveValues((FormableEntity) entity, defAttribute,
-							Lists.newArrayList((Serializable) transformedValue));
-				}
+			// Set transformed value from target system to identity
+			try {
+				setEntityValue(entity, attributeProperty, transformedValue);
+			} catch (IntrospectionException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | ProvisioningException e) {
+				throw new ProvisioningException(AccResultCode.PROVISIONING_IDM_FIELD_NOT_FOUND,
+						ImmutableMap.of("property", attributeProperty, "uid", uid), e);
 			}
+
+		});
+		return entity;
+	}
+
+	/**
+	 * Update extended attribute for given entity. Entity must be persisted
+	 * first.
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @return
+	 */
+	private AbstractEntity updateExtendedAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, AbstractEntity entity) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Only for extended attributes
+			return !attribute.isDisabledAttribute() && attribute.isExtendedAttribute();
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
+			// Save to extended attribute
+
+			if (!(entity instanceof FormableEntity)) {
+				String message = MessageFormat.format("Entity [{0}] is not instance of fromable entity!",
+						entity.getId());
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+						ImmutableMap.of("uid", uid, "message", message));
+			}
+			IdmFormAttribute defAttribute = formService.getDefinition(((FormableEntity) entity).getClass())
+					.getMappedAttributeByName(attributeProperty);
+			if (defAttribute == null) {
+				// eav definition could be changed
+				String message = MessageFormat.format("Form attribute defininion [{0}] was not found!",
+						attributeProperty);
+				throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+						ImmutableMap.of("uid", uid, "message", message));
+			}
+			if (transformedValue instanceof List<?>) {
+				((List<?>) transformedValue).stream().forEach(value -> {
+					if (value != null && !(value instanceof Serializable)) {
+						String message = MessageFormat.format(
+								"Value is not serializable [{0}] for attribute [{1}] and UID [{2}]!", value, attribute,
+								uid);
+						throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM,
+								ImmutableMap.of("uid", uid, "message", message));
+					}
+				});
+				formService.saveValues((FormableEntity) entity, defAttribute, (List<Serializable>) transformedValue);
+			} else {
+				formService.saveValues((FormableEntity) entity, defAttribute,
+						Lists.newArrayList((Serializable) transformedValue));
+			}
+		});
+		return entity;
+	}
+
+	/**
+	 * Update confidential attribute for given entity. Entity must be persisted
+	 * first.
+	 * 
+	 * @param mappedAttributes
+	 * @param uid
+	 * @param icAttributes
+	 * @param entity
+	 * @return
+	 */
+	private AbstractEntity updateConfidentialAttributes(List<SysSystemAttributeMapping> mappedAttributes, String uid,
+			List<IcAttribute> icAttributes, AbstractEntity entity) {
+		mappedAttributes.stream().filter(attribute -> {
+			// Skip disabled attributes
+			// Only for confidential attribute
+			return !attribute.isDisabledAttribute() && attribute.isConfidentialAttribute();
+
+		}).forEach(attribute -> {
+			String attributeProperty = attribute.getIdmPropertyName();
+			Object transformedValue = getValueByMappedAttribute(attribute, icAttributes);
+			// If is attribute confidential, then we will set
+			// value to
+			// secured storage
+			if (!(transformedValue == null || transformedValue instanceof GuardedString)) {
+				throw new ProvisioningException(AccResultCode.CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING,
+						ImmutableMap.of("property", attributeProperty, "class", transformedValue.getClass().getName()));
+			}
+
+			confidentialStorage.saveGuardedString(entity, attribute.getIdmPropertyName(),
+					(GuardedString) transformedValue);
+
 		});
 		return entity;
 	}
@@ -1525,25 +1575,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	private Session getHibernateSession() {
 		return (Session) this.entityManager.getDelegate();
-	}
-
-	/**
-	 * Init action log
-	 * 
-	 * @param uid
-	 * @param itemLog
-	 * @param log
-	 */
-	private void initMissingActionLog(String uid, SysSyncItemLog itemLog, SysSynchronizationLog log) {
-		String message = MessageFormat.format("Missing syncActionLog for uid {0}", uid);
-		LOG.warn(message);
-		SysSyncActionLog actionLogDefault = new SysSyncActionLog();
-		actionLogDefault.setSyncLog(log);
-		actionLogDefault.setOperationCount(1);
-		actionLogDefault.setOperationResult(OperationResultType.ERROR);
-		actionLogDefault.setSyncAction(SynchronizationActionType.IGNORE);
-		itemLog.addToLog(message);
-		itemLog.setSyncActionLog(actionLogDefault);
 	}
 
 	/**

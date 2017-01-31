@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
@@ -28,6 +29,16 @@ const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
  */
 const DATE = 'date';
 
+/**
+ * Array with all validation message parameters, when you add some validation warrning into BE,
+ * you also must add this parameters into this arrray.
+ * @type {Array}
+ */
+const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
+'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
+'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName'];
+
 export default class ValidationMessage extends Basic.AbstractFormComponent {
 
   constructor(props) {
@@ -47,6 +58,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
     }
   }
 
+  /**
+   * Method prepare error from password validation.
+   * Only validation message is required, other will be skiped.
+   */
   _prepareValidationMessage(error) {
     if (!error || !error.parameters) {
       return null;
@@ -57,7 +72,8 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
-      if (error.parameters.hasOwnProperty(key)) {
+      // error prameters must contain key and VALIDATION_WARNINGS must also contain key
+      if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
         if (key === MIN_RULES_TO_FULFILL) {
           // fill rules with not required messages

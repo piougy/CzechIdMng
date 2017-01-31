@@ -36,6 +36,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
   _completeTask(decision) {
     const formDataValues = this.refs.formData.getData();
     const task = this.refs.form.getData();
+
     const conceptTable = this.refs.identityRoleConceptTable;
     const addedIdentityRoles = conceptTable.getAddedIdentityRoles();
     const removedIdentityRoles = conceptTable.getRemovedIdentityRolesIds();

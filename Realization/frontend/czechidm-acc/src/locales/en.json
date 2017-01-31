@@ -101,11 +101,20 @@
         },
         "action": {
           "startSynchronization": {
-            "message": "<b>Opravdu chcete ručně spustit všechny vybrané synchronizace?</b>",
-            "header": "Ruční spuštění synchronizací",
-            "started": "Synchronizace/reconciliace byla spuštěna a běží.",
+            "message": "<b>Opravdu chcete ručně spustit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "header": "Ruční spuštění synchronizace",
+            "started": "Synchronizace/reconciliace '{{name}}' byla spuštěna a běží.",
             "success": "Synchronizace/reconciliace '{{name}}' byla dokončena."
+          },
+          "cancelSynchronization": {
+            "message": "<b>Opravdu chcete zastavit synchronizaci/reconciliaci '{{name}}'?</b>",
+            "header": "Ruční zastavení synchronizace",
+            "canceled": "Synchronizace/reconciliace '{{name}}' byla zastavena."
           }
+        },
+        "button": {
+            "start": "Spustit synchronizaci/reconciliaci",
+            "cancel": "Zastavit synchronizaci/reconciliaci"
         }
       },
       "systemSynchronizationConfigDetail": {
@@ -529,10 +538,11 @@
       "role": "Přiřazen dle role"
     },
     "SynchronizationConfig": {
-      "enabled": "Synchronizace je povolena",
+      "enabled": "Povolena",
       "name": "Název",
       "description": "Popis",
       "runOnServer": "Spustit na serveru",
+      "running": "Běží",
       "customFilter" :{
         "label": "Použít vlastní filtr",
         "help": "Pokud je zaškrtnuto, tak se bude synchronizace řídit filtrem definovaným níže. Pokud není zaškrtnuto, tak se využije synchronizační mechanizmus konektoru."
@@ -802,6 +812,90 @@
     "PROVISIONING_IS_IN_QUEUE": {
       "title": "Provisioning účtu [{{name}}] byl zařazen do fronty",
       "message": "Ve frontě jsou pro stejný účet nezpracované požadavky na provisioning, proto byl nový poždavek na provisioning účtu [{{name}}] na systém [{{system}}] zařazen do fronty."
+    },
+    "PROVISIONING_IDM_FIELD_NOT_FOUND": {
+      "title": "Položka pro provisioning nenalezena",
+      "message": "IDM položka [{{field}}] pro entitu [{{entity}}] nebyla nalezena!"
+    },
+    "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
+      "title": "Mapovací atribut hesla nenalezen",
+      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{entity}}] nalezen!"
+    },
+    "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
+      "title": "Provisioning - atribut není upravitelný",
+      "message": "Atribut schéma [{{attribute}}] pro entitu [{{entity}}] není 'updateable'!"
+    },
+    "PROVISIONING_RESOURCE_ATTRIBUTE_NOT_FOUND": {
+      "title": "Provisioning - atribut nebyl nalzen na koncovém systému",
+      "message": "Atribut [{{attribute}}] pro entitu [{{entity}}] nebyl na koncovém systému nalezen!"
+    },
+    "PROVISIONING_PASSWORD_WRONG_TYPE": {
+      "title": "Provisioning - atribut hesla musí být GuardedString",
+      "message": "Atribut hesla musí být GuardedString!"
+    },
+    "PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE": {
+      "title": "Provisioning - hodnota atributu není správného typu",
+      "message": "Schéma atributu [{{attribute}}] definuje typ [{{schemaAttributeType}}]. Hodnota je ovšem typu [{{valueType}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND": {
+      "title": "Provisioning - hodnotu atributu nebylo možné načíst",
+      "message": "Schéma atributu [{{attribute}}] definuje typ [{{schemaAttributeType}}]. Tento typ ovšem nebylo možné načíst!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_IS_NOT_STRING": {
+      "title": "Provisioning - hodnota UID atributu není String",
+      "message": "Hodnota UID atributu musí být String, ale je typu [{{uid}}]!"
+    },
+    "PROVISIONING_ATTRIBUTE_UID_NOT_FOUND": {
+      "title": "Provisioning - UID atribut nebyl nalezen",
+      "message": "UID atribut nebyl nalezen na systému [{{system}}]. UID atribut je pro provisioning povinný!"
+    },
+    "PROVISIONING_DUPLICATE_ROLE_MAPPING": {
+      "title": "Provisioning - Více definic atributu pro stejný UID a stejnou roli",
+      "message": "Bylo nalezeno více definic atributů pro stejný UID a stejnou roli  [{{role}}], systém  [{{system}}] a typ entity  [{{entityType}}]!"
+    },
+    "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
+      "title": "Provisioning - UID atribut nebyl nalezen",
+      "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
+    },
+    "SYNCHRONIZATION_IS_NOT_ENABLED": {
+      "title": "Synchronizace není povolená",
+      "message": "Synchronizace [{{name}}] není povolená!"
+    },
+    "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
+      "title": "Tajný atributu není GuardedString",
+      "message": "Tajný atributu [{{property}}] není GuardedString, ale je typu [{{class}}]!"
+    },
+    "SYNCHRONIZATION_CORRELATION_TO_MANY_RESULTS": {
+      "title": "Synchronizace - bylo nalezeno příliš monoho entit dle korelačního atributu",
+      "message": "Bylo nalezeno příliš mnoho entit dle korelačního atributu [{{correlationAttribute}}] pro hodnotu [{{value}}]!"
+    },
+    "SYNCHRONIZATION_TOKEN_ATTRIBUTE_NOT_FOUND": {
+      "title": "Synchronizace - pro synchronizaci dle vlastního atributu je Token atribut povinný!",
+      "message": "Pro synchronizaci dle vlastního atributu je Token atribut povinný!"
+    },
+    "SYNCHRONIZATION_IS_RUNNING": {
+      "title": "Synchronizace je již spuštěná",
+      "message": "Synchronizace [{{name}}] je již spuštěná."
+    },
+    "SYNCHRONIZATION_IS_NOT_RUNNING": {
+      "title": "Synchronizace není spuštěná",
+      "message": "Synchronizace [{{name}}] není spuštěná."
+    },
+    "SYNCHRONIZATION_TO_MANY_SYSTEM_ENTITY": {
+      "title": "Synchronizace - nalezeno více jak jeden záznam 'System entity'",
+      "message": "Bylo nalezeno více jak jeden záznam 'System entity' pro stejný UID [{{uid}}]!"
+    },
+    "SYNCHRONIZATION_FILTER_VALUE_WRONG_TYPE": {
+      "title": "Synchronizace - filtr pro synchronizaci musí být typu 'IcFilter'",
+      "message": "Filtr pro synchronizaci musí být typu 'IcFilter', hodnota je ovšem typu [{{type}}]!"
+    },
+    "SYNCHRONIZATION_ERROR_DURING_SYNC_ITEM": {
+      "title": "Synchronizace - během synchronizace nastala chyba",
+      "message": "Během synchronizace položky s UID [{{uid}}], nastala neočekávaná chyba!"
+    },
+    "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
+      "title": "Synchronizace - nalezeno více jak jeden záznam 'AccAccount'",
+      "message": "Bylo nalezeno více jak jeden záznam 'AccAccount' pro stejný UID [{{uid}}]!"
     }
   }
 }

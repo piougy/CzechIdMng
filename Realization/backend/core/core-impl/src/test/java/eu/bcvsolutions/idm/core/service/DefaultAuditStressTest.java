@@ -32,7 +32,16 @@ public class DefaultAuditStressTest extends AbstractIntegrationTest {
 	
 	private static final String TEST_IDENTITY = "audit_test_identity";
 	
-	private static final long MAX_UPDATE = 1000;
+	/**
+	 * Maximum updates of entity
+	 */
+	private static final long MAX_UPDATE = 1000000;
+	
+	/**
+	 * For each {@value PRINT_PROGRESS} print some information about progres
+	 * and save average
+	 */
+	private static final long PRINT_PROGRESS = 100;
 	
 	private Random r = new Random();
 	
@@ -57,25 +66,57 @@ public class DefaultAuditStressTest extends AbstractIntegrationTest {
 	@Test
 	@Ignore
 	public void createAndUpdateIdentitySimple() {
+		List<Result> averageList = new ArrayList<Result>();
+		
 		// create identity
-		List<Result> results = new ArrayList<Result>();
 		IdmIdentity identity = this.createTestIdentity();
 		
+		LOG.info("Start update identity");
+		
 		long startTime = System.currentTimeMillis();
+		
+		long startTimeAverage = System.currentTimeMillis();
+		
 		for (long index = 0; index < MAX_UPDATE; index++) {
-			Result result = new Result(index);
-			long start = System.currentTimeMillis();
+			// create one update
 			identity = updatetestIdenityComplex(identity, index);
-			result.setDuration(start, System.currentTimeMillis());
-			results.add(result);
+			
+			// print some info about progress
+			// and set average for PRINT_PROGRESS
+			if (index % PRINT_PROGRESS == 0) {
+				if (index == 0) {continue;}
+				Result resultAverage = new Result(index);
+				resultAverage.setDuration(startTimeAverage, System.currentTimeMillis());
+				Double percent = (Double.valueOf(index) / Double.valueOf(MAX_UPDATE)) * 100d;
+				double average = resultAverage.duration / index;
+				LOG.info("Status [{}](%), index [{}] average time for save one entity is [{}]ms" , String.valueOf(percent), index, String.valueOf(average));
+				averageList.add(resultAverage);
+				
+				startTimeAverage = System.currentTimeMillis();
+			}
 		}
 		long finishTime = System.currentTimeMillis();
+		
+		LOG.info("Finish update identity");
 		
 		int auditSize = auditService.findRevisions(IdmIdentity.class, identity.getId()).size();
 		
 		LOG.info("Time of execute [{}]", finishTime - startTime);
 		LOG.info("Average time for one entity update [{}]", (finishTime - startTime) / MAX_UPDATE);
 		LOG.info("Audit counts [{}]", auditSize);
+		
+		
+		LOG.info("1. record [{}]", averageList.get(0).toString());
+		LOG.info("100 000. record [{}]", averageList.get(100).toString());
+		LOG.info("200 000. record [{}]", averageList.get(200).toString());
+		LOG.info("300 000. record [{}]", averageList.get(300).toString());
+		LOG.info("400 000. record [{}]", averageList.get(400).toString());
+		LOG.info("500 000. record [{}]", averageList.get(500).toString());
+		LOG.info("600 000. record [{}]", averageList.get(600).toString());
+		LOG.info("700 000. record [{}]", averageList.get(700).toString());
+		LOG.info("800 000. record [{}]", averageList.get(800).toString());
+		LOG.info("900 000. record [{}]", averageList.get(900).toString());
+		LOG.info("1 000 000. record [{}]", averageList.get(999).toString());
 	}
 	
 	/**
@@ -130,6 +171,11 @@ public class DefaultAuditStressTest extends AbstractIntegrationTest {
 		
 		private void setDuration(long start, long finish) {
 			this.duration = finish - start;
+		}
+		
+		@Override
+		public String toString() {
+			return "ID: " + id + ", duration: " + duration + ", average: " + duration / id;
 		}
 	}
 }

@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Password policy service.
@@ -63,12 +64,15 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository passwordPolicyRepository;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
-			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository, IdmPasswordPolicyRepository passwordPolicyRepository) {
+			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository, IdmPasswordPolicyRepository passwordPolicyRepository,
+			SecurityService securityService) {
 		super(repository);
 		this.passwordPolicyRepository = passwordPolicyRepository;
+		this.securityService = securityService;
 	}
 	
 	@Override
@@ -156,7 +160,8 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			boolean validateNotSuccess = false;
 			
 			// check if can change password for minimal age for change
-			if (oldPassword != null) {
+			// if loged user is admin, skip this
+			if (oldPassword != null && !securityService.isAdmin()) {
 				if (oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE,
 							ImmutableMap.of(("date"), oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));

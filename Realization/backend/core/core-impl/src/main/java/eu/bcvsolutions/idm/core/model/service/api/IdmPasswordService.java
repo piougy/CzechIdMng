@@ -56,7 +56,7 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param password
 	 * @return
 	 */
-	byte[] generateHash(GuardedString password, byte[] salt);
+	String generateHash(GuardedString password, String salt);
 	
 	/**
 	 * Get salt for identity
@@ -64,5 +64,5 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param identity
 	 * @return
 	 */
-	byte[] getSalt(IdmIdentity identity);
+	String getSalt(IdmIdentity identity);
 }

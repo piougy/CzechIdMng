@@ -1,25 +1,11 @@
 package eu.bcvsolutions.idm.core.model.service.impl;
 
-
-import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.UUID;
-
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.ImmutableMap;
-
-import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordFilter;
@@ -34,17 +20,10 @@ import eu.bcvsolutions.idm.security.api.domain.GuardedString;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  * 
- * TODO: password valid till and valid from!!
  */
 
 @Service
 public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<IdmPassword, PasswordFilter> implements IdmPasswordService {
-	
-	private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
-	
-	private static final int ITERATION_COUNT = 512;
-	
-	private static final int DERIVED_KEY_LENGTH = 256;
 	
 	private IdmPasswordRepository identityPasswordRepository;
 	
@@ -102,26 +81,17 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 	
 	@Override
 	public boolean checkPassword(GuardedString passwordToCheck, IdmPassword password) {
-		byte[] newPassword = generateHash(passwordToCheck, this.getSalt(password.getIdentity()));
-		return Arrays.equals(newPassword, password.getPassword());
+		return BCrypt.checkpw(passwordToCheck.asString(), password.getPassword());
 	}
 
 	@Override
-	public byte[] generateHash(GuardedString password, byte[] salt) {
-		try {
-			SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
-			PBEKeySpec keySpec = new PBEKeySpec(password.asString().toCharArray(), salt, ITERATION_COUNT, DERIVED_KEY_LENGTH);
-			SecretKey key = factory.generateSecret(keySpec);
-			return key.getEncoded();
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_CHANGE_FAILED, ImmutableMap.of("error", e.getMessage()), e);
-		}
+	public String generateHash(GuardedString password, String salt) {
+		return BCrypt.hashpw(password.asString(), salt);
 	}
 	
 	@Override
-	public byte[] getSalt(IdmIdentity identity) {
-		UUID id = identity.getId();
-		return ByteBuffer.allocate(16).putLong(id.getMostSignificantBits()).putLong(id.getLeastSignificantBits()).array();
+	public String getSalt(IdmIdentity identity) {
+		return BCrypt.gensalt(12);
 	}
 	
 	/**

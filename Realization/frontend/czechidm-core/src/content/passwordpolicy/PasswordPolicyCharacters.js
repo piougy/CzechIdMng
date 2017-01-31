@@ -145,7 +145,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
 
             <Basic.Checkbox ref="weakPassRequired"
               label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
-            <Basic.TextField ref="weakPass"
+            <Basic.TextField ref="weakPass" hidden
               label={this.i18n('entity.PasswordPolicy.weakPass')} />
 
             <Basic.LabelWrapper label=" ">

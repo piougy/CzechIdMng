@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.acc.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
@@ -32,4 +33,7 @@ public interface SysSynchronizationConfigRepository extends AbstractEntityReposi
 	        " (?#{[0].systemId} is null or e.systemMapping.objectClass.system.id = ?#{[0].systemId})"
 			)
 	Page<SysSynchronizationConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
+	
+	@Query("select count(e) from SysSynchronizationLog e where e.synchronizationConfig = :config and e.running = TRUE")
+	int runningCount(@Param("config") SysSynchronizationConfig config);
 }

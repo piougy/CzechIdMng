@@ -14,6 +14,7 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
+    this.state = {configs: []};
   }
 
   getManager() {
@@ -57,6 +58,9 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
         });
         this.addMessage({ message: this.i18n('action.startSynchronization.started')});
         const promise = this.getManager().getService().startSynchronization(id);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
         promise.then((json) => {
           this.setState({
             showLoading: false
@@ -81,13 +85,61 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
     return;
   }
 
+  _cancelSynchronization(id) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.refs[`confirm-delete`].show(
+      this.i18n(`action.cancelSynchronization.message`),
+      this.i18n(`action.cancelSynchronization.header`)
+    ).then(() => {
+      this.setState({
+        showLoading: true
+      });
+      const promise = this.getManager().getService().cancelSynchronization(id);
+      promise.then((json) => {
+        this.setState({
+          showLoading: false
+        });
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+        this.addMessage({ message: this.i18n('action.cancelSynchronization.canceled', { name: json.name }) });
+      }).catch(ex => {
+        this.setState({
+          showLoading: false
+        });
+        this.addError(ex);
+        if (this.refs.table) {
+          this.refs.table.getWrappedInstance().reload();
+        }
+      });
+    }, () => {
+      // Rejected
+    });
+    return;
+  }
+
+  _isRunning(id) {
+    const promise = this.getManager().getService().isSynchronizationRunning(id);
+    promise.then((json) => {
+      const configs = this.state.configs;
+      if (configs && configs[id] === json) {
+        return;
+      }
+      configs[id] = json;
+      this.setState({configs});
+      return;
+    }).catch(ex => {
+      this.addError(ex);
+    });
+    return;
+  }
+
   _getBulkActions() {
     const actions = [];
     if (Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])) {
       actions.push({ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false });
-    }
-    if (Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE'])) {
-      actions.push({ value: 'start', niceLabel: this.i18n('startSynchronization'), action: this._startSynchronization.bind(this), disabled: false });
     }
     return actions;
   }
@@ -135,7 +187,31 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
                   return (
                     <Advanced.DetailButton
                       title={this.i18n('button.detail')}
+                      style={{marginRight: '2px'}}
                       onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+
+                  );
+                }
+              }/>
+            <Advanced.Column
+              property=""
+              header={this.i18n('acc:entity.SynchronizationConfig.running')}
+              cell={
+                ({ rowIndex, data }) => {
+                  this._isRunning(data[rowIndex].id);
+                  const configs = this.state.configs;
+                  const running = configs[data[rowIndex].id] !== null ? configs[data[rowIndex].id] : '';
+                  let result;
+                  if (running === true) {
+                    result = <Basic.Icon value="fa:check-square-o" disabled/>;
+                  }
+                  if (running === false) {
+                    result = <Basic.Icon value="fa:square-o" disabled/>;
+                  }
+                  return (
+                    <span>
+                    {result}
+                    </span>
                   );
                 }
               }/>
@@ -154,6 +230,45 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
               face="boolean"
               header={this.i18n('acc:entity.SynchronizationConfig.enabled')}
               sort/>
+              <Advanced.Column
+                property=""
+                header=""
+                width="55px"
+                className="detail-button"
+                cell={
+                  ({ rowIndex, data }) => {
+                    const configs = this.state.configs;
+                    const running = configs && configs[data[rowIndex].id] !== null ? configs[data[rowIndex].id] : '';
+                    return (
+                      <span>
+                        <Basic.Button
+                          ref="startButton"
+                          type="button"
+                          level="success"
+                          rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && !running}
+                          style={{marginRight: '2px'}}
+                          title={this.i18n('button.start')}
+                          titlePlacement="bottom"
+                          onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
+                          className="btn-xs">
+                          <Basic.Icon type="fa" icon="play"/>
+                        </Basic.Button>
+                        <Basic.Button
+                          ref="cancelButton"
+                          type="button"
+                          level="danger"
+                          rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && running}
+                          style={{marginRight: '2px'}}
+                          title={this.i18n('button.cancel')}
+                          titlePlacement="bottom"
+                          onClick={this._cancelSynchronization.bind(this, data[rowIndex].id)}
+                          className="btn-xs">
+                          <Basic.Icon type="fa" icon="remove"/>
+                        </Basic.Button>
+                      </span>
+                    );
+                  }
+                }/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

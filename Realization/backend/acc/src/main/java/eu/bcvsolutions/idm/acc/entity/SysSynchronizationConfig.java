@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -171,7 +172,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "missing_account_action_wf", length = DefaultFieldLengths.NAME)
 	private String missingAccountActionWfKey;
-	
 
 
 	public boolean isEnabled() {

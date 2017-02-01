@@ -31,5 +31,7 @@ public interface SysSystemExcerpt extends AbstractDtoProjection {
 	
 	SysConnectorKey getConnectorKey();
 	
-	IdmPasswordPolicy getPasswordPolicy();
+	IdmPasswordPolicy getPasswordPolicyValidate();
+	
+	IdmPasswordPolicy getPasswordPolicyGenerate();
 }

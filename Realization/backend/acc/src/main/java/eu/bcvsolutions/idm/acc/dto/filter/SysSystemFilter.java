@@ -13,13 +13,23 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class SysSystemFilter extends QuickFilter {
 	
-	private UUID passwordPolicyId;
+	private UUID passwordPolicyValidationId;
 
-	public UUID getPasswordPolicyId() {
-		return passwordPolicyId;
+	private UUID passwordPolicyGenerationId;
+
+	public UUID getPasswordPolicyValidationId() {
+		return passwordPolicyValidationId;
 	}
 
-	public void setPasswordPolicyId(UUID passwordPolicyId) {
-		this.passwordPolicyId = passwordPolicyId;
+	public void setPasswordPolicyValidationId(UUID passwordPolicyValidationId) {
+		this.passwordPolicyValidationId = passwordPolicyValidationId;
+	}
+
+	public UUID getPasswordPolicyGenerationId() {
+		return passwordPolicyGenerationId;
+	}
+
+	public void setPasswordPolicyGenerationId(UUID passwordPolicyGenerationId) {
+		this.passwordPolicyGenerationId = passwordPolicyGenerationId;
 	}
 }

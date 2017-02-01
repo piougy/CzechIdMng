@@ -32,7 +32,9 @@ public interface SysSystemRepository extends AbstractEntityRepository<SysSystem,
 	        " where" +
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "
 	        + "and "
-	        + "(?#{[0].passwordPolicyId} is null or e.passwordPolicy.id = ?#{[0].passwordPolicyId})")
+	        + "(?#{[0].passwordPolicyValidationId} is null or e.passwordPolicyValidate.id = ?#{[0].passwordPolicyValidationId})"
+	        + "and "
+	        + "(?#{[0].passwordPolicyGenerationId} is null or e.passwordPolicyGenerate.id = ?#{[0].passwordPolicyGenerationId})")
 	Page<SysSystem> find(SysSystemFilter filter, Pageable pageable);
 	
 }

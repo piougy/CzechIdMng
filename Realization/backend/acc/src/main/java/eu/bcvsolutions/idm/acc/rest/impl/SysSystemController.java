@@ -155,7 +155,8 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	protected SysSystemFilter toFilter(MultiValueMap<String, Object> parameters) {
 		SysSystemFilter filter = new SysSystemFilter();
 		filter.setText((String) parameters.toSingleValueMap().get("text"));
-		filter.setPasswordPolicyId(getParameterConverter().toUuid(parameters, "passwordPolicyId"));
+		// TODO: diff between validate and generate policy
+		filter.setPasswordPolicyValidationId(getParameterConverter().toUuid(parameters, "passwordPolicyId"));
 
 		return filter;
 	}

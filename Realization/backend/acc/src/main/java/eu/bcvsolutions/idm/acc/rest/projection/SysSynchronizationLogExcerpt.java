@@ -6,7 +6,7 @@ import org.joda.time.LocalDateTime;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 
 /**
@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
  * @author Svanda
  *
  */
-@Projection(name = "excerpt", types = SysSynchronizationLog.class)
+@Projection(name = "excerpt", types = SysSyncLog.class)
 public interface SysSynchronizationLogExcerpt extends AbstractDtoProjection {
 
 	public boolean isRunning();

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-synchronization-configs")
 public class SysSynchronizationConfigController
-		extends AbstractReadWriteEntityController<SysSynchronizationConfig, SynchronizationConfigFilter> {
+		extends AbstractReadWriteEntityController<SysSyncConfig, SynchronizationConfigFilter> {
 
 	private final SynchronizationService synchronizationService;
 	

@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
- * <i>SysSynchronizationConfig</i> is responsible for keep informations about
+ * <i>SysSyncConfig</i> is responsible for keep informations about
  * synchronization configuration
  * 
  * @author svandav
@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 		@Index(name = "idx_sys_s_config_token", columnList = "token_attribute_id"),
 		@Index(name = "idx_sys_s_config_filter", columnList = "filter_attribute_id")
 		})
-public class SysSynchronizationConfig extends AbstractEntity {
+public class SysSyncConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;
 

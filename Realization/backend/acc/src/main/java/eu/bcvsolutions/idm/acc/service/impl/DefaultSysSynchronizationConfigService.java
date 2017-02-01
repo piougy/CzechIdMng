@@ -50,5 +50,14 @@ public class DefaultSysSynchronizationConfigService
 		//
 		super.delete(synchronizationConfig);
 	}
+	
+	@Override
+	public boolean isRunning(SysSynchronizationConfig config){
+		if(config == null){
+			return false;
+		}
+		int count = ((SysSynchronizationConfigRepository)this.getRepository()).runningCount(config);
+		return count > 0;
+	}
 
 }

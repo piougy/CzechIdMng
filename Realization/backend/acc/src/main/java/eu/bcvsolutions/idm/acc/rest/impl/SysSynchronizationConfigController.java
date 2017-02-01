@@ -126,7 +126,37 @@ public class SysSynchronizationConfigController
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.POST)
 	public ResponseEntity<?> startSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		return new ResponseEntity<>(toResource(this.synchronizationService.synchronization(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(this.synchronizationService.startSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+	}
+	
+	/**
+	 * Cancel synchronization
+	 * @param backendId
+	 * @return
+	 * @throws HttpMessageNotReadableException
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.POST)
+	public ResponseEntity<?> cancelSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		return new ResponseEntity<>(toResource(this.synchronizationService.stopSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+	}
+	
+	/**
+	 * Is synchronization running
+	 * @param backendId
+	 * @return
+	 * @throws HttpMessageNotReadableException
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/isRunning", method = RequestMethod.POST)
+	public ResponseEntity<?> isRunningSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		
+		boolean running = ((SysSynchronizationConfigService)this.getEntityService()).isRunning(this.getEntityService().get(backendId));
+		return new ResponseEntity<>(running, HttpStatus.OK);
 	}
 
 	@Override

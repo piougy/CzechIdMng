@@ -11,4 +11,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  */
 public interface SysSynchronizationConfigService extends ReadWriteEntityService<SysSynchronizationConfig, SynchronizationConfigFilter> {
 
+	boolean isRunning(SysSynchronizationConfig config);
+
 }

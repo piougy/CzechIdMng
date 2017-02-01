@@ -41,6 +41,7 @@ import eu.bcvsolutions.idm.acc.domain.OperationResultType;
 import eu.bcvsolutions.idm.acc.domain.ReconciliationMissingAccountActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationLinkedActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationMissingEntityActionType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationSituationType;
@@ -75,6 +76,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
+import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
@@ -316,7 +318,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 					}
 				};
-
+				
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
 
@@ -447,10 +449,18 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			itemLog.setDisplayName(uid);
 			itemLog.setType(entityType.getEntityType().getSimpleName());
 
-			// Do synchronization for one item
+			// Do synchronization for one item (produces item)
 			// Start in new Transaction
-			boolean result = findSynchronizationService().doItemSynchronization(uid, icObject, type, config, system,
+			SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, icObject, type, config, system,
 					entityType, mappedAttributes, null, log, itemLog, actionsLog);
+			
+			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
+			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
+			EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
+			boolean result = false;
+			if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
+				result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
+			}
 
 			return result;
 		} catch (Exception ex) {
@@ -478,12 +488,24 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
+	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-	public boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+	public boolean doItemSynchronization(SynchronizationItemWrapper wrapper) {
+		Assert.notNull(wrapper);
+		
+		String uid = wrapper.getUid();
+		IcConnectorObject icObject = wrapper.getIcObject();
+		IcSyncDeltaTypeEnum type = wrapper.getType();
+		SysSynchronizationConfig config = wrapper.getConfig();
+		SysSystem system = wrapper.getSystem();
+		SystemEntityType entityType = wrapper.getEntityType();
+		List<SysSystemAttributeMapping> mappedAttributes = wrapper.getMappedAttributes();
+		AccAccount account = wrapper.getAccount();
+		SysSynchronizationLog log = wrapper.getLog();
+		SysSyncItemLog logItem = wrapper.getLogItem();
+		List<SysSyncActionLog> actionLogs = wrapper.getActionLogs();
+		
 		SynchronizationActionType actionType = null;
 		try {
 
@@ -724,21 +746,30 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					itemLog.setDisplayName(uid);
 					itemLog.setType(entityType.getEntityType().getSimpleName());
 
-					// Do reconciliation for one item
+					// Do reconciliation for one item (produces event)
 					// Start in new Transaction
-					boolean result = findSynchronizationService().doItemSynchronization(uid, null,
+					SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, null,
 							IcSyncDeltaTypeEnum.DELETE, config, system, entityType, null, account, log, itemLog,
 							actionsLog);
+					CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
+					event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
+					EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
+					boolean result = false;
+					if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
+						result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
+					}
 
+					// We reload log (maybe was synchronization canceled) 
+					log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
 					if (!log.isRunning()) {
 						result = false;
 					}
 					if (!result) {
+						log.setRunning(false);
 						log.addToLog(MessageFormat.format("Synchronization canceled during resolve UID [{0}]", uid));
 						addToItemLog(itemLog, "Canceled!");
 						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.WARNING, itemLog, log,
 								actionsLog);
-						return;
 					}
 
 				} catch (Exception ex) {
@@ -1254,7 +1285,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		identityAccounts.stream().forEach(identityAccount -> {
 			// We will remove identity account, but without delete connected
 			// account
-			identityAccoutnService.delete(identityAccount, false);
+			identityAccoutnService.delete(identityAccount, true);
 			addToItemLog(logItem,
 					MessageFormat.format(
 							"Identity-account relation deleted (without call delete provisioning) (username: {0}, id: {1})",

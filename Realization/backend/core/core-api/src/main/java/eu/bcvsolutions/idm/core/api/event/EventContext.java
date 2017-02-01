@@ -40,4 +40,11 @@ public interface EventContext<E extends BaseEntity> {
 	 * @return
 	 */
 	boolean isClosed();
+
+	/**
+	 * Returns last event result, or null, if no event was processed.
+	 * 
+	 * @return
+	 */
+	EventResult<E> getLastResult();
 }

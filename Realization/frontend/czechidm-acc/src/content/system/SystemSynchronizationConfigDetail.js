@@ -9,6 +9,7 @@ import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLin
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
+import help from './SyncConfigFilterHelp_cs.md';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
@@ -394,6 +395,13 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="customFilter"
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilter.help')}/>
+                  <Basic.LabelWrapper label=" ">
+                    <Basic.Alert
+                       key="customFilterInfo"
+                       icon="exclamation-sign"
+                       className="no-margin"
+                       text={this.i18n('customFilterInfo')}/>
+                  </Basic.LabelWrapper>
                   <Basic.SelectBox
                     ref="filterAttribute"
                     manager={systemAttributeMappingManager}
@@ -416,7 +424,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="customFilterScript"
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
-                    label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}/>
+                    label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
+                    help={help}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"

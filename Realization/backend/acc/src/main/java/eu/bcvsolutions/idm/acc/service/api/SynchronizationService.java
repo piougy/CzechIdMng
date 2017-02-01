@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
+import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
@@ -34,6 +35,8 @@ public interface SynchronizationService {
 	public static final String WF_VARIABLE_KEY_ENTITY_ID = "entityId";
 	public static final String WF_VARIABLE_KEY_ACC_ACCOUNT_ID = "accountId";
 	public static final String WF_VARIABLE_KEY_LOG_ITEM = "logItem";
+	public static final String WRAPPER_SYNC_ITEM = "wrapper_sync_item";
+	public static final String RESULT_SYNC_ITEM = "result_sync_item";
 
 	/**
 	 * Main method for start synchronization by given configuration.
@@ -71,23 +74,10 @@ public interface SynchronizationService {
 	 * Basic method for item synchronization. Item is obtained from target resource (searched). This method
 	 * is called for synchronization and for reconciliation too.
 	 * Every call this method starts new transaction. 
-	 * @param uid Identification of item on target resource
-	 * @param icObject Object from target resource
-	 * @param type Type of synchronization (Create, Update, Delete)
-	 * @param config Configuration of synchronization
-	 * @param system Idm system for synchronization
-	 * @param entityType Type of entity (Identity, Groupe, ...)
-	 * @param mappedAttributes Mapped attribute for this IDM system
-	 * @param account AccAccount
-	 * @param log Log for full synchronization
-	 * @param logItem Log for this item
-	 * @param actionLogs Relations between item log and full log and action.
+	 * @param wrapper for easier handling required attributes for item synchronization
 	 * @return If is true, then well be synchronization continued, if is false, then will be cancel.
 	 */
-	boolean doItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
-			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs);
+	boolean doItemSynchronization(SynchronizationItemWrapper wrapper);
 	
 	/**
 	 * Public method for resolve missing entity situation for one item.

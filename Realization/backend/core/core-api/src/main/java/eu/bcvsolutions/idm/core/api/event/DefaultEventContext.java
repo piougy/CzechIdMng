@@ -43,7 +43,17 @@ public class DefaultEventContext<E extends BaseEntity> implements EventContext<E
 		if(processed.isEmpty()) {
 			return null;
 		}
-		return processed.get(processed.size() - 1).getEvent().getContent();
+		return getLastResult().getEvent().getContent();
+	}
+	
+	/**
+	 * Returns last event result, or null, if no event was processed.
+	 * 
+	 * @return
+	 */
+	@Override
+	public EventResult<E> getLastResult(){
+		return processed.get(processed.size() - 1);
 	}
 	
 	/**
@@ -56,6 +66,6 @@ public class DefaultEventContext<E extends BaseEntity> implements EventContext<E
 		if(processed.isEmpty()) {
 			return false;
 		}
-		return processed.get(processed.size() - 1).isClosed();
+		return getLastResult().isClosed();
 	}
 }

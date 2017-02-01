@@ -124,6 +124,7 @@
         "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je monžé ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
+        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a přísulšné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },

@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -60,10 +59,6 @@ public class SysSyncConfig extends AbstractEntity {
 	@Audited
 	@Column(name = "description")
 	private String description;
-
-	@Audited
-	@Column(name = "run_on_server")
-	private String runOnServer;
 
 	@Audited
 	@NotNull
@@ -196,14 +191,6 @@ public class SysSyncConfig extends AbstractEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getRunOnServer() {
-		return runOnServer;
-	}
-
-	public void setRunOnServer(String runOnServer) {
-		this.runOnServer = runOnServer;
 	}
 
 	public boolean isReconciliation() {

@@ -56,8 +56,8 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
-import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
@@ -604,16 +604,15 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							config.getMissingAccountAction(), system, log, logItem, actionLogs);
 				}
 			}
-			return true;
-		} catch (Exception e) {
-			loggingException(actionType, log, logItem, actionLogs, uid, e);
-			throw e;
-		} finally {
 			// Call hard hibernate session flush and clear
 			if (getHibernateSession().isOpen()) {
 				getHibernateSession().flush();
 				getHibernateSession().clear();
 			}
+			return true;
+		} catch (Exception e) {
+			loggingException(actionType, log, logItem, actionLogs, uid, e);
+			throw e;
 		}
 	}
 

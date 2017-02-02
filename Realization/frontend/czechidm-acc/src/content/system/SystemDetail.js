@@ -37,7 +37,7 @@ class SystemDetail extends Basic.AbstractContent {
         connector: entity.connectorKey.fullName
       };
     }
-    if (entity._embedded && entity._embedded.passwordPolicy) {
+    if (entity && entity._embedded && entity._embedded.passwordPolicy) {
       data = {
         ...data,
         passwordPolicy: entity._embedded.passwordPolicy

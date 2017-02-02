@@ -143,7 +143,7 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
               helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
               label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
 
-            <Basic.Checkbox ref="weakPassRequired"
+            <Basic.Checkbox ref="weakPassRequired" hidden
               label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
             <Basic.TextField ref="weakPass" hidden
               label={this.i18n('entity.PasswordPolicy.weakPass')} />

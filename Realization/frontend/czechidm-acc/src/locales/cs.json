@@ -420,7 +420,8 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
-      "passwordPolicy": "Politika hesel",
+      "passwordPolicyValidate": "Politika hesel pro validaci",
+      "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."

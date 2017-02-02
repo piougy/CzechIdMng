@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSynchronizationConfigExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -25,15 +25,17 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )
-public interface SysSynchronizationConfigRepository extends AbstractEntityRepository<SysSynchronizationConfig, SynchronizationConfigFilter> {
+public interface SysSynchronizationConfigRepository extends AbstractEntityRepository<SysSyncConfig, SynchronizationConfigFilter> {
 
 	@Override
-	@Query(value = "select e from SysSynchronizationConfig e"+ 
+	@Query(value = "select e from SysSyncConfig e"+ 
 			" where" +
-	        " (?#{[0].systemId} is null or e.systemMapping.objectClass.system.id = ?#{[0].systemId})"
+	        " (?#{[0].systemId} is null or e.systemMapping.objectClass.system.id = ?#{[0].systemId})"+
+			" and"+
+			 " (?#{[0].name} is null or e.name = ?#{[0].name})"
 			)
-	Page<SysSynchronizationConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
+	Page<SysSyncConfig> find(SynchronizationConfigFilter filter, Pageable pageable);
 	
-	@Query("select count(e) from SysSynchronizationLog e where e.synchronizationConfig = :config and e.running = TRUE")
-	int runningCount(@Param("config") SysSynchronizationConfig config);
+	@Query("select count(e) from SysSyncLog e where e.synchronizationConfig = :config and e.running = TRUE")
+	int runningCount(@Param("config") SysSyncConfig config);
 }

@@ -56,9 +56,9 @@ import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
@@ -190,14 +190,14 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 	
 	@Override
-	public SysSynchronizationConfig startSynchronizationEvent(SysSynchronizationConfig config) {
-		CoreEvent<SysSynchronizationConfig> event = new CoreEvent<SysSynchronizationConfig>(SynchronizationEventType.START, config);
-		return (SysSynchronizationConfig) entityEventProcessorService.process(event).getContent(); 
+	public SysSyncConfig startSynchronizationEvent(SysSyncConfig config) {
+		CoreEvent<SysSyncConfig> event = new CoreEvent<SysSyncConfig>(SynchronizationEventType.START, config);
+		return (SysSyncConfig) entityEventProcessorService.process(event).getContent(); 
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
-	public SysSynchronizationConfig startSynchronization(SysSynchronizationConfig config) {
+	public SysSyncConfig startSynchronization(SysSyncConfig config) {
 		Assert.notNull(config);
 		// Synchronization must be enabled
 		if (!config.isEnabled()) {
@@ -245,7 +245,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		IcSyncToken lastIcToken = lastToken != null ? new IcSyncTokenImpl(lastToken) : null;
 
 		// Create basic synchronization log
-		SysSynchronizationLog log = new SysSynchronizationLog();
+		SysSyncLog log = new SysSyncLog();
 		log.setSynchronizationConfig(config);
 		log.setStarted(LocalDateTime.now());
 		log.setRunning(true);
@@ -386,19 +386,19 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 	
 	@Override
-	public SysSynchronizationConfig stopSynchronizationEvent(SysSynchronizationConfig config) {
-		CoreEvent<SysSynchronizationConfig> event = new CoreEvent<SysSynchronizationConfig>(SynchronizationEventType.CANCEL, config);
-		return (SysSynchronizationConfig) entityEventProcessorService.process(event).getContent(); 
+	public SysSyncConfig stopSynchronizationEvent(SysSyncConfig config) {
+		CoreEvent<SysSyncConfig> event = new CoreEvent<SysSyncConfig>(SynchronizationEventType.CANCEL, config);
+		return (SysSyncConfig) entityEventProcessorService.process(event).getContent(); 
 	}
 	
 	@Override
-	public SysSynchronizationConfig stopSynchronization(SysSynchronizationConfig config){
+	public SysSyncConfig stopSynchronization(SysSyncConfig config){
 		Assert.notNull(config);
 		// Synchronization must be running
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(config.getId());
 		logFilter.setRunning(Boolean.TRUE);
-		List<SysSynchronizationLog> logs  = synchronizationLogService.find(logFilter, null).getContent();
+		List<SysSyncLog> logs  = synchronizationLogService.find(logFilter, null).getContent();
 		
 		if (logs.isEmpty()) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_NOT_RUNNING,
@@ -430,8 +430,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @return
 	 */
 	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SystemEntityType entityType, SysSyncItemLog itemLog, SysSynchronizationConfig config, SysSystem system,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log,
+			SystemEntityType entityType, SysSyncItemLog itemLog, SysSyncConfig config, SysSystem system,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			List<String> systemAccountsList) {
 
 		List<SysSyncActionLog> actionsLog = new ArrayList<>();
@@ -497,12 +497,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		String uid = wrapper.getUid();
 		IcConnectorObject icObject = wrapper.getIcObject();
 		IcSyncDeltaTypeEnum type = wrapper.getType();
-		SysSynchronizationConfig config = wrapper.getConfig();
+		SysSyncConfig config = wrapper.getConfig();
 		SysSystem system = wrapper.getSystem();
 		SystemEntityType entityType = wrapper.getEntityType();
 		List<SysSystemAttributeMapping> mappedAttributes = wrapper.getMappedAttributes();
 		AccAccount account = wrapper.getAccount();
-		SysSynchronizationLog log = wrapper.getLog();
+		SysSyncLog log = wrapper.getLog();
 		SysSyncItemLog logItem = wrapper.getLogItem();
 		List<SysSyncActionLog> actionLogs = wrapper.getActionLogs();
 		
@@ -604,16 +604,15 @@ public class DefaultSynchronizationService implements SynchronizationService {
 							config.getMissingAccountAction(), system, log, logItem, actionLogs);
 				}
 			}
-			return true;
-		} catch (Exception e) {
-			loggingException(actionType, log, logItem, actionLogs, uid, e);
-			throw e;
-		} finally {
 			// Call hard hibernate session flush and clear
 			if (getHibernateSession().isOpen()) {
 				getHibernateSession().flush();
 				getHibernateSession().clear();
 			}
+			return true;
+		} catch (Exception e) {
+			loggingException(actionType, log, logItem, actionLogs, uid, e);
+			throw e;
 		}
 	}
 
@@ -626,7 +625,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(configId);
 		Assert.notNull(actionType);
 
-		SysSynchronizationConfig config = synchronizationConfigService.get(configId);
+		SysSyncConfig config = synchronizationConfigService.get(configId);
 		SysSystemMapping mapping = config.getSystemMapping();
 		SysSystem system = mapping.getSystem();
 
@@ -653,7 +652,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 		SysSyncItemLog itemLog = new SysSyncItemLog();
 
-		SysSynchronizationConfig config = synchronizationConfigService.get(configId);
+		SysSyncConfig config = synchronizationConfigService.get(configId);
 		SysSystemMapping mapping = config.getSystemMapping();
 		AccAccount account = accountService.get(accountId);
 
@@ -676,7 +675,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(actionType);
 		Assert.notNull(entityId);
 
-		SysSynchronizationConfig config = synchronizationConfigService.get(configId);
+		SysSyncConfig config = synchronizationConfigService.get(configId);
 		SysSystemMapping mapping = config.getSystemMapping();
 		AbstractEntity entity = null;
 		if (SystemEntityType.IDENTITY == entityType) {
@@ -703,7 +702,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(actionType);
 		Assert.notNull(accountId);
 
-		SysSynchronizationConfig config = synchronizationConfigService.get(configId);
+		SysSyncConfig config = synchronizationConfigService.get(configId);
 		SysSystemMapping mapping = config.getSystemMapping();
 		AccAccount account = accountService.get(accountId);
 		SysSystem system = mapping.getSystem();
@@ -726,7 +725,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param actionsLog
 	 */
 	private void startReconciliation(SystemEntityType entityType, List<String> systemAccountsList,
-			SysSynchronizationConfig config, SysSystem system, SysSynchronizationLog log,
+			SysSyncConfig config, SysSystem system, SysSyncLog log,
 			List<SysSyncActionLog> actionsLog) {
 		AccountFilter accountFilter = new AccountFilter();
 		accountFilter.setSystemId(system.getId());
@@ -794,7 +793,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
-	private IcFilter resolveSynchronizationFilter(SysSynchronizationConfig config) {
+	private IcFilter resolveSynchronizationFilter(SysSyncConfig config) {
 		// If is reconciliation, then is filter null
 		if (config.isReconciliation()) {
 			return null;
@@ -874,7 +873,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 */
 	private void resolveLinkedSituation(String uid, SystemEntityType entityType, List<IcAttribute> icAttributes,
 			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account,
-			SynchronizationLinkedActionType action, SysSynchronizationLog log, SysSyncItemLog logItem,
+			SynchronizationLinkedActionType action, SysSyncLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs) {
 
 		addToItemLog(logItem, MessageFormat.format("IdM Account ({0}) exist in IDM (LINKED)", account.getUid()));
@@ -920,7 +919,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 */
 	private void resolveMissingEntitySituation(String uid, SystemEntityType entityType,
 			List<SysSystemAttributeMapping> mappedAttributes, SysSystem system,
-			SynchronizationMissingEntityActionType actionType, SysSynchronizationLog log, SysSyncItemLog logItem,
+			SynchronizationMissingEntityActionType actionType, SysSyncLog log, SysSyncItemLog logItem,
 			List<SysSyncActionLog> actionLogs, List<IcAttribute> icAttributes) {
 		addToItemLog(logItem, "Account not exist and entity too (missing entity).");
 
@@ -949,7 +948,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 */
 	private void resolveUnlinkedSituation(String uid, AbstractEntity entity, SystemEntityType entityType,
 			SysSystemEntity systemEntity, SynchronizationUnlinkedActionType action, SysSystem system,
-			SysSynchronizationLog log, SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
+			SysSyncLog log, SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem, "Account not exist but, entity by correlation was found (entity unlinked).");
 		addToItemLog(logItem, MessageFormat.format("Unlinked action is {0}", action));
 		switch (action) {
@@ -976,7 +975,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * Method for resolve missing account situation for one item.
 	 */
 	private void resolveMissingAccountSituation(String uid, AccAccount account, SystemEntityType entityType,
-			ReconciliationMissingAccountActionType action, SysSystem system, SysSynchronizationLog log,
+			ReconciliationMissingAccountActionType action, SysSystem system, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		addToItemLog(logItem,
 				"Account on target system not exist but, account in IdM was found (missing account situation).");
@@ -1019,7 +1018,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	private void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSynchronizationLog log,
+	private void doUpdateAccount(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
 			IdmIdentity identity = getIdentityByAccount(account);
@@ -1045,7 +1044,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	private void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSynchronizationLog log,
+	private void doDeleteEntity(AccAccount account, SystemEntityType entityType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
 			IdmIdentity identity = getIdentityByAccount(account);
@@ -1203,7 +1202,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param actionLogs
 	 */
 	private void doUpdateEntity(AccAccount account, SystemEntityType entityType, String uid,
-			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSynchronizationLog log,
+			List<IcAttribute> icAttributes, List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		if (SystemEntityType.IDENTITY == entityType) {
 			IdmIdentity identity = null;
@@ -1220,7 +1219,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 				// Identity Updated
 				addToItemLog(logItem, MessageFormat.format("Identity with id {0} was updated", identity.getId()));
-				logItem.setDisplayName(identity.getUsername());
+				if (logItem != null) {
+					logItem.setDisplayName(identity.getUsername());
+				}
 
 				return;
 			} else {
@@ -1267,7 +1268,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param logItem
 	 * @param actionLogs
 	 */
-	private void doUnlink(AccAccount account, boolean removeIdentityRole, SysSynchronizationLog log,
+	private void doUnlink(AccAccount account, boolean removeIdentityRole, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 
 		IdentityAccountFilter identityAccountFilter = new IdentityAccountFilter();
@@ -1285,7 +1286,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		identityAccounts.stream().forEach(identityAccount -> {
 			// We will remove identity account, but without delete connected
 			// account
-			identityAccoutnService.delete(identityAccount, true);
+			identityAccoutnService.delete(identityAccount, false);
 			addToItemLog(logItem,
 					MessageFormat.format(
 							"Identity-account relation deleted (without call delete provisioning) (username: {0}, id: {1})",
@@ -1338,7 +1339,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param uid
 	 * @param e
 	 */
-	private void loggingException(SynchronizationActionType synchronizationActionType, SysSynchronizationLog log,
+	private void loggingException(SynchronizationActionType synchronizationActionType, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs, String uid, Exception e) {
 		String message = MessageFormat.format("Synchronization - exception during {0} for UID {1}",
 				synchronizationActionType, uid);
@@ -1347,13 +1348,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		addToItemLog(logItem, Throwables.getStackTraceAsString(e));
 		initSyncActionLog(synchronizationActionType, OperationResultType.ERROR, logItem, log, actionLogs);
 		LOG.error(message, e);
-	}
-
-	private SynchronizationService findSynchronizationService() {
-		if (this.synchronizationService == null) {
-			this.synchronizationService = applicationContext.getBean(SynchronizationService.class);
-		}
-		return this.synchronizationService;
 	}
 
 	/**
@@ -1630,7 +1624,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 
 	private void startWorkflow(String wfDefinitionKey, String uid, SynchronizationSituationType situation,
 			SynchronizationActionType action, List<IcAttribute> icAttributes, AbstractEntity entity, AccAccount account,
-			SystemEntityType entityType, SysSynchronizationConfig config, SysSynchronizationLog log,
+			SystemEntityType entityType, SysSyncConfig config, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 
 		addToItemLog(logItem,
@@ -1647,7 +1641,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		variables.put(SynchronizationService.WF_VARIABLE_KEY_SYNC_CONFIG_ID, config.getId());
 
 		ProcessInstance processInstance = workflowProcessInstanceService.startProcess(wfDefinitionKey,
-				SysSynchronizationConfig.class.getSimpleName(), uid, config.getId().toString(), variables);
+				SysSyncConfig.class.getSimpleName(), uid, config.getId().toString(), variables);
 
 		if (processInstance instanceof VariableScope) {
 			Object logItemObj = ((VariableScope) processInstance)
@@ -1685,7 +1679,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	 * @param actionLogs
 	 */
 	private void initSyncActionLog(SynchronizationActionType actionType, OperationResultType resultType,
-			SysSyncItemLog logItem, SysSynchronizationLog log, List<SysSyncActionLog> actionLogs) {
+			SysSyncItemLog logItem, SysSyncLog log, List<SysSyncActionLog> actionLogs) {
 
 		if (logItem == null || actionLogs == null) {
 			// If is logItem null, then we have nothing for init.

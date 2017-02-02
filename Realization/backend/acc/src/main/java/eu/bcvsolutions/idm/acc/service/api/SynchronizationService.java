@@ -6,18 +6,11 @@ import java.util.UUID;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
-import eu.bcvsolutions.idm.acc.entity.AccAccount;
-import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
-import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationStartProcessor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
-import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
-import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
 
 /**
  * Service for do synchronization and reconciliation
@@ -44,7 +37,7 @@ public interface SynchronizationService {
 	 * @param config
 	 * @return
 	 */
-	SysSynchronizationConfig startSynchronizationEvent(SysSynchronizationConfig config);
+	SysSyncConfig startSynchronizationEvent(SysSyncConfig config);
 	
 	/**
 	 * Main method for cancel running synchronization by given configuration.
@@ -52,7 +45,7 @@ public interface SynchronizationService {
 	 * @param config
 	 * @return
 	 */
-	SysSynchronizationConfig stopSynchronizationEvent(SysSynchronizationConfig config);
+	SysSyncConfig stopSynchronizationEvent(SysSyncConfig config);
 	
 	/**
 	 * Default implementation of synchronization. By default is call from {@link SynchronizationStartProcessor}
@@ -60,7 +53,7 @@ public interface SynchronizationService {
 	 * @param config
 	 * @return
 	 */
-	SysSynchronizationConfig startSynchronization(SysSynchronizationConfig config);
+	SysSyncConfig startSynchronization(SysSyncConfig config);
 	
 	/**
 	 * Default implementation cancel running synchronization. By default is call from {@link SynchronizationCancelProcessor}
@@ -68,7 +61,7 @@ public interface SynchronizationService {
 	 * @param config
 	 * @return
 	 */
-	SysSynchronizationConfig stopSynchronization(SysSynchronizationConfig config);
+	SysSyncConfig stopSynchronization(SysSyncConfig config);
 
 	/**
 	 * Basic method for item synchronization. Item is obtained from target resource (searched). This method
@@ -85,7 +78,7 @@ public interface SynchronizationService {
 	 * @param uid Item identification
 	 * @param entityType Type of resolve entity
 	 * @param icAttributes List of attributes given from target resource
-	 * @param configId Id of {@link SysSynchronizationConfig}
+	 * @param configId Id of {@link SysSyncConfig}
 	 * @param actionType Action for this situation.
 	 * @return
 	 */
@@ -98,7 +91,7 @@ public interface SynchronizationService {
 	 * @param uid Item identification
 	 * @param entityType Type of resolve entity
 	 * @param icAttributes List of attributes given from target resource
-	 * @param configId Id of {@link SysSynchronizationConfig}
+	 * @param configId Id of {@link SysSyncConfig}
 	 * @param actionType Action for this situation.
 	 * @return
 	 */
@@ -111,7 +104,7 @@ public interface SynchronizationService {
 	 * @param uid Item identification
 	 * @param entityType Type of resolve entity
 	 * @param icAttributes List of attributes given from target resource
-	 * @param configId Id of {@link SysSynchronizationConfig}
+	 * @param configId Id of {@link SysSyncConfig}
 	 * @param actionType Action for this situation.
 	 * @return
 	 */
@@ -124,7 +117,7 @@ public interface SynchronizationService {
 	 * @param uid Item identification
 	 * @param entityType Type of resolve entity
 	 * @param icAttributes List of attributes given from target resource
-	 * @param configId Id of {@link SysSynchronizationConfig}
+	 * @param configId Id of {@link SysSyncConfig}
 	 * @param actionType Action for this situation.
 	 * @return
 	 */

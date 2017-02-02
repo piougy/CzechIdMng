@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -29,7 +28,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
- * <i>SysSynchronizationConfig</i> is responsible for keep informations about
+ * <i>SysSyncConfig</i> is responsible for keep informations about
  * synchronization configuration
  * 
  * @author svandav
@@ -42,7 +41,7 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 		@Index(name = "idx_sys_s_config_token", columnList = "token_attribute_id"),
 		@Index(name = "idx_sys_s_config_filter", columnList = "filter_attribute_id")
 		})
-public class SysSynchronizationConfig extends AbstractEntity {
+public class SysSyncConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;
 
@@ -60,10 +59,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Audited
 	@Column(name = "description")
 	private String description;
-
-	@Audited
-	@Column(name = "run_on_server")
-	private String runOnServer;
 
 	@Audited
 	@NotNull
@@ -196,14 +191,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getRunOnServer() {
-		return runOnServer;
-	}
-
-	public void setRunOnServer(String runOnServer) {
-		this.runOnServer = runOnServer;
 	}
 
 	public boolean isReconciliation() {

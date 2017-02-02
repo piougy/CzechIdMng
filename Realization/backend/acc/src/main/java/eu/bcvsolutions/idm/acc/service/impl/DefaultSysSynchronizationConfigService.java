@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.repository.SysSynchronizationConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  */
 @Service
 public class DefaultSysSynchronizationConfigService
-		extends AbstractReadWriteEntityService<SysSynchronizationConfig, SynchronizationConfigFilter>
+		extends AbstractReadWriteEntityService<SysSyncConfig, SynchronizationConfigFilter>
 		implements SysSynchronizationConfigService {
 
 	private final SysSynchronizationLogService synchronizationLogService;
@@ -38,7 +38,7 @@ public class DefaultSysSynchronizationConfigService
 
 	@Override
 	@Transactional
-	public void delete(SysSynchronizationConfig synchronizationConfig) {
+	public void delete(SysSyncConfig synchronizationConfig) {
 		Assert.notNull(synchronizationConfig);
 		//
 		// remove all synchronization logs
@@ -52,7 +52,7 @@ public class DefaultSysSynchronizationConfigService
 	}
 	
 	@Override
-	public boolean isRunning(SysSynchronizationConfig config){
+	public boolean isRunning(SysSyncConfig config){
 		if(config == null){
 			return false;
 		}

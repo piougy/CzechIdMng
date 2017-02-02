@@ -5,9 +5,9 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysSyncActionLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationLog;
+import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -37,18 +37,18 @@ public class SynchronizationItemWrapper implements Serializable {
 	private String uid;
 	private IcConnectorObject icObject;
 	private IcSyncDeltaTypeEnum type;
-	private SysSynchronizationConfig config;
+	private SysSyncConfig config;
 	private SysSystem system;
 	private SystemEntityType entityType;
 	private List<SysSystemAttributeMapping> mappedAttributes;
 	private AccAccount account;
-	private SysSynchronizationLog log;
+	private SysSyncLog log;
 	private SysSyncItemLog logItem;
 	private List<SysSyncActionLog> actionLogs;
 	
 	public SynchronizationItemWrapper(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SysSynchronizationConfig config, SysSystem system, SystemEntityType entityType,
-			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSynchronizationLog log,
+			SysSyncConfig config, SysSystem system, SystemEntityType entityType,
+			List<SysSystemAttributeMapping> mappedAttributes, AccAccount account, SysSyncLog log,
 			SysSyncItemLog logItem, List<SysSyncActionLog> actionLogs) {
 		super();
 		this.uid = uid;
@@ -82,10 +82,10 @@ public class SynchronizationItemWrapper implements Serializable {
 	public void setType(IcSyncDeltaTypeEnum type) {
 		this.type = type;
 	}
-	public SysSynchronizationConfig getConfig() {
+	public SysSyncConfig getConfig() {
 		return config;
 	}
-	public void setConfig(SysSynchronizationConfig config) {
+	public void setConfig(SysSyncConfig config) {
 		this.config = config;
 	}
 	public SysSystem getSystem() {
@@ -112,10 +112,10 @@ public class SynchronizationItemWrapper implements Serializable {
 	public void setAccount(AccAccount account) {
 		this.account = account;
 	}
-	public SysSynchronizationLog getLog() {
+	public SysSyncLog getLog() {
 		return log;
 	}
-	public void setLog(SysSynchronizationLog log) {
+	public void setLog(SysSyncLog log) {
 		this.log = log;
 	}
 	public SysSyncItemLog getLogItem() {

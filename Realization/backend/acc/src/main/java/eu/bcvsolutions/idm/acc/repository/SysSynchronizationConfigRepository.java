@@ -8,6 +8,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSynchronizationConfigExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
@@ -38,4 +40,12 @@ public interface SysSynchronizationConfigRepository extends AbstractEntityReposi
 	
 	@Query("select count(e) from SysSyncLog e where e.synchronizationConfig = :config and e.running = TRUE")
 	int runningCount(@Param("config") SysSyncConfig config);
+	
+	Long countByCorrelationAttribute(@Param("correlationAttribute") SysSystemAttributeMapping entity);	
+	
+	Long countByTokenAttribute(@Param("tokenAttribute") SysSystemAttributeMapping entity);	
+	
+	Long countByFilterAttribute(@Param("filterAttribute") SysSystemAttributeMapping entity);	
+	
+	Long countBySystemMapping(@Param("systemMapping") SysSystemMapping entity);	
 }

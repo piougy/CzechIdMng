@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.EntityType;
 
@@ -203,7 +204,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		if (this.allAuditedEntititesNames != null) {
 			return this.allAuditedEntititesNames;
 		}
-		
+		//
 		List<String> result = new ArrayList<>();
 		Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
 		for (EntityType<?> entityType : entities) {
@@ -218,6 +219,9 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				}
 			}
 		}
+		// sort entities by name
+		Collections.sort(result);
+		//
 		this.allAuditedEntititesNames = result;
 		return result;
 	}
@@ -374,10 +378,19 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 					continue;
 				}
 				
-				// we want only primitive date types
+				// we have all audited class, then some not audited class (binding) and others primitive types
 				String className = value.getClass().getSimpleName();
 				if (className.indexOf('_', 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf('_', 0)))) {
 					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
+				} else if (value instanceof AbstractEntity) {
+					// not audited class it not must exits
+					try {
+						revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
+					} catch (EntityNotFoundException e) {
+						revisionValues.put(field.getName(), null);
+					} catch (Exception e) {
+						throw e;
+					}
 				} else {
 					revisionValues.put(field.getName(), value);
 				}

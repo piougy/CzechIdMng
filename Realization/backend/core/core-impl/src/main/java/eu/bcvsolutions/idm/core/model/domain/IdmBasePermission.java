@@ -1,7 +1,7 @@
 package eu.bcvsolutions.idm.core.model.domain;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
 
 public enum IdmBasePermission implements BasePermission {
 	

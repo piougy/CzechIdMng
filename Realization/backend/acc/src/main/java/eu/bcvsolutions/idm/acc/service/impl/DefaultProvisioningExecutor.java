@@ -23,9 +23,9 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
 /**
  * Entry point to all provisioning operations.

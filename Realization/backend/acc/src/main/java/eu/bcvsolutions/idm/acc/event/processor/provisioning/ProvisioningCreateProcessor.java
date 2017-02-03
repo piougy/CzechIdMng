@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.acc.service.impl.DefaultProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
@@ -23,7 +24,6 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Provisioning - create operation

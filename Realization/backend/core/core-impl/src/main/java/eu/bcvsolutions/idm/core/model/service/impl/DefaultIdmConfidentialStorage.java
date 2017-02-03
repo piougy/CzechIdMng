@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfidentialStorageValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfidentialStorageValueRepository;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * "Naive" confidential storage. Values are persisted in standard database.

@@ -35,6 +35,9 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
@@ -50,15 +53,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
-import eu.bcvsolutions.idm.security.service.GrantedAuthoritiesFactory;
 
 /**
  * Rest methods for IdmIdentity resource

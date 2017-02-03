@@ -9,14 +9,14 @@ import eu.bcvsolutions.idm.core.api.event.CoreEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.notification.repository.IdmNotificationRecipientRepository;
+import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationRecipientRepository;
 
 /**
  * Delete identity - ensures referential integrity

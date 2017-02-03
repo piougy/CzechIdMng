@@ -32,11 +32,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowProcessInstanceDto;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Default implementation of workflow process instance service

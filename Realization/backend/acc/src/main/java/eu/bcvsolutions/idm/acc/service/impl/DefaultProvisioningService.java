@@ -58,12 +58,13 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
@@ -73,7 +74,6 @@ import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Service for do provisioning or synchronisation or reconciliation

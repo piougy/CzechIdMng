@@ -258,9 +258,9 @@ public class ConnIdIcConvertUtil {
 			return new IcLoginAttributeImpl(Name.NAME, (String) attribute.getValue().get(0));
 		}
 		if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
-			eu.bcvsolutions.idm.security.api.domain.GuardedString password = null;
+			eu.bcvsolutions.idm.core.security.api.domain.GuardedString password = null;
 			if (value != null && value.size() == 1 && value.get(0) instanceof GuardedString) {
-				password = new eu.bcvsolutions.idm.security.api.domain.GuardedString(
+				password = new eu.bcvsolutions.idm.core.security.api.domain.GuardedString(
 						((GuardedString) value.get(0)).toString());
 			}
 			return new IcPasswordAttributeImpl(attribute.getName(), password);
@@ -385,7 +385,7 @@ public class ConnIdIcConvertUtil {
 			if (GuardedString.class.isAssignableFrom(attribute.getType())) {
 				// We do converse between BCV GuardedString and ConnId
 				// GuardedString
-				icAttribute.setClassType(eu.bcvsolutions.idm.security.api.domain.GuardedString.class.getName());
+				icAttribute.setClassType(eu.bcvsolutions.idm.core.security.api.domain.GuardedString.class.getName());
 			} else {
 				icAttribute.setClassType(attribute.getType().getName());
 			}

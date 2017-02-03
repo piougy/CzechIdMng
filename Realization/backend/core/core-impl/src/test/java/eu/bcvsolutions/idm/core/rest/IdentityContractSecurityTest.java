@@ -30,8 +30,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
 
 /**

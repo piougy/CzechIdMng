@@ -15,8 +15,8 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.security.domain.GroovySandboxFilter;
-import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
+import eu.bcvsolutions.idm.core.security.domain.GroovySandboxFilter;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 

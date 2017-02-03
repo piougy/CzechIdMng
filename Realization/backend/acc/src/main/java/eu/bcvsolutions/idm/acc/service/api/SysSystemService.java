@@ -7,7 +7,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 

@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
-import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Single entity event processor

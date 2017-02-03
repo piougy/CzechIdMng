@@ -7,9 +7,9 @@ import java.util.Set;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertyImpl;
 

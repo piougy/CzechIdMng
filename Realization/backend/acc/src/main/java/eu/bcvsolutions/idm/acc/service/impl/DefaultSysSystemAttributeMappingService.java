@@ -29,16 +29,16 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default schema attributes handling

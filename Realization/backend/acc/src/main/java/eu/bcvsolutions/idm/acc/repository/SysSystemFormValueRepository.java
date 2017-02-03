@@ -4,7 +4,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
-import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
+import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
 
 /**
  * Extended attributes for target system configuration

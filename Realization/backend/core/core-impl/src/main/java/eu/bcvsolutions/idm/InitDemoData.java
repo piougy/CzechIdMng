@@ -14,6 +14,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -28,12 +32,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
-import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Initialize demo data for application

@@ -34,16 +34,16 @@ import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
-import eu.bcvsolutions.idm.security.api.domain.ConfidentialString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Persists provisioning operations

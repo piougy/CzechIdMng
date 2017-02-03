@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Password policy service.

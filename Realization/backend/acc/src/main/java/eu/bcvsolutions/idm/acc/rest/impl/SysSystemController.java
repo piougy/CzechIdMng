@@ -39,11 +39,11 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Target system setting controller

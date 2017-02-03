@@ -21,7 +21,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
-import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Entity processing based on event publishing.

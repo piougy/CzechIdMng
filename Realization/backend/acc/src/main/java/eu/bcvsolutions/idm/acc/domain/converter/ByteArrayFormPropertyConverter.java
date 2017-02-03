@@ -11,9 +11,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.eav.api.domain.PersistentType;
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 
 /**

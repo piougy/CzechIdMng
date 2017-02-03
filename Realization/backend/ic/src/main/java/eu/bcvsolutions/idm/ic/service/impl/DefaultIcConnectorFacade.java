@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
@@ -23,7 +24,6 @@ import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Service for do active operations on all IC implementations

@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
-import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 
 /**
  * Role privileges

@@ -9,12 +9,12 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 /**
  * Provisioning - update operation

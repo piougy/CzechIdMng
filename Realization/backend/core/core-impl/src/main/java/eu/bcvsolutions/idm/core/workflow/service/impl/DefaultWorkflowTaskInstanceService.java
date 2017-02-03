@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.workflow.domain.formtype.DecisionFormType;
 import eu.bcvsolutions.idm.core.workflow.model.dto.DecisionFormTypeDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.FormDataDto;
@@ -28,7 +29,6 @@ import eu.bcvsolutions.idm.core.workflow.service.WorkflowHistoricTaskInstanceSer
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskDefinitionService;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowTaskInstanceService;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Default workflow task instance service

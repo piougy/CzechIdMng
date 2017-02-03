@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { LongRunningTaskManager } from '../../redux';
+import { LongRunningTaskManager, ConfigurationManager } from '../../redux';
 
 const UIKEY = 'active-long-running-task-table';
 const manager = new LongRunningTaskManager();
@@ -66,7 +66,7 @@ class RunningTasks extends Basic.AbstractContent {
   }
 
   render() {
-    const { _entities, _showLoading } = this.props;
+    const { _entities, _showLoading, instanceId } = this.props;
     //
     if (_showLoading) {
       return (
@@ -82,14 +82,14 @@ class RunningTasks extends Basic.AbstractContent {
         {
           (!_entities || _entities.length === 0)
           ?
-          <Basic.Alert text="Nenalezeny žádné běžící úlohy"/>
+          <Basic.Alert text={this.i18n('empty')}/>
           :
           <div>
             {
               _entities.map(entity => {
                 return (
                   <Basic.Panel>
-                    <Basic.PanelHeader text={<span>{entity.taskType.split('.').pop(-1)} <small>{entity.taskDescription}</small></span>} />
+                    <Basic.PanelHeader text={<span>{entity.taskType.split('.').pop(-1)} <small>{entity.taskDescription} ({entity.instanceId})</small></span>} />
                     <Basic.PanelBody>
                       <Basic.ProgressBar
                         min={0}
@@ -103,7 +103,8 @@ class RunningTasks extends Basic.AbstractContent {
                       <Basic.Button
                         onClick={this.onInterrupt.bind(this, entity)}
                         level="danger"
-                        style={{ marginRight: 5 }}>
+                        style={{ marginRight: 5 }}
+                        rendered={entity.instanceId === instanceId}>
                         {this.i18n('button.interrupt')}
                       </Basic.Button>
                       <Basic.Button
@@ -124,16 +125,19 @@ class RunningTasks extends Basic.AbstractContent {
 }
 
 RunningTasks.propTypes = {
+  instanceId: PropTypes.string,
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object)
 };
 RunningTasks.defaultProps = {
+  instanceId: null,
   _showLoading: true,
   _entities: []
 };
 
 function select(state) {
   return {
+    instanceId: ConfigurationManager.getPublicValue(state, 'idm.pub.app.instanceId'),
     _showLoading: Utils.Ui.isShowLoading(state, UIKEY),
     _entities: Utils.Ui.getEntities(state, UIKEY)
   };

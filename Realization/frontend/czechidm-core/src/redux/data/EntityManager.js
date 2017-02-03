@@ -220,7 +220,7 @@ export default class EntityManager {
         uiKey
       });
       if (cb) {
-        cb(json, null);
+        cb(json, null, uiKey);
       }
     };
   }

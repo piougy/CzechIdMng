@@ -74,11 +74,25 @@ class SelectBox extends AbstractFormComponent {
   getOptions(input, forceSearchParameters) {
     const { manager } = this.props;
     const searchParameters = this._createSearchParameters(input, forceSearchParameters);
+    const timeInMs = Date.now();
+    // We create uniqu key for this call and save it to component state
+    const uiKey = `${manager.getEntityType()}_${(timeInMs)}`;
     this.setState({
-      isLoading: true
+      isLoading: true,
+      uiKeyCurrent: uiKey
     }, () => {
-      this.context.store.dispatch(manager.fetchEntities(searchParameters, null, (json, error) => {
+      this.context.store.dispatch(manager.fetchEntities(searchParameters, uiKey, (json, error, resultUiKey) => {
         if (!error) {
+          // We confirm if is uiKey in result same as uiKey saved in component state
+          // If is key different, then is result older and we don`t want him.
+          if (resultUiKey !== this.state.uiKeyCurrent) {
+            this.getLogger().debug(`[SelectBox]: Recieved data is too old, we will throw out data! [${resultUiKey}|${this.state.uiKeyCurrent}]`);
+            this.setState({
+              isLoading: false
+            });
+            return;
+          }
+
           const result = json;
           let data = null;
           const results = result._embedded[manager.getCollectionType()];

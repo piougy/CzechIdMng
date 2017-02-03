@@ -205,11 +205,15 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                       {manager.getProcessedCount(detail.entity)}
                     </div>
                   </Basic.LabelWrapper>
-                  <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
-                    <div style={{ margin: '7px 0' }}>
-                      { moment.duration(moment(detail.entity.created).diff(moment(detail.entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
-                    </div>
-                  </Basic.LabelWrapper>
+                  {
+                    !detail.entity.modified
+                    ||
+                    <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.duration')}>
+                      <div style={{ margin: '7px 0' }}>
+                        { moment.duration(moment(detail.entity.created).diff(moment(detail.entity.modified))).locale(LocalizationService.getCurrentLanguage()).humanize() }
+                      </div>
+                    </Basic.LabelWrapper>
+                  }
                 </Basic.AbstractForm>
                 <br />
 

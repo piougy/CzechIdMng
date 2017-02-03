@@ -243,6 +243,14 @@ class ScheduleTasks extends Basic.AbstractTableContent {
         });
       });
     }
+    const entityParameterNames = [];
+    if (detail.entity.parameters) {
+      _.keys(detail.entity.parameters).forEach(parameterName => {
+        if (parameterName.lastIndexOf('core:', 0) !== 0) {
+          entityParameterNames.push(parameterName);
+        }
+      });
+    }
     //
     return (
       <div>
@@ -414,7 +422,7 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                   helpBlock={this.i18n('entity.ScheduleTask.instanceId.help')}
                   required/>
                 {
-                  (detail.entity.id === undefined && taskType && taskType.parameters)
+                  (detail.entity.id === undefined && taskType && taskType.parameters && _.keys(taskType.parameters).length > 0)
                   ?
                   <div>
                     <Basic.ContentHeader text={this.i18n('action.task-edit.parameters')} />
@@ -433,15 +441,12 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                   :
                   <div>
                     {
-                      !detail.entity.parameters
+                      entityParameterNames.length === 0
                       ||
                       <div>
                         <Basic.ContentHeader text={this.i18n('action.task-edit.parameters')} />
                           {
-                            _.keys(detail.entity.parameters).map(parameterName => {
-                              if (parameterName.lastIndexOf('core:', 0) === 0) {
-                                return null;
-                              }
+                            entityParameterNames.map(parameterName => {
                               return (
                                 <Basic.TextField
                                   label={parameterName}

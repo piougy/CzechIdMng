@@ -118,6 +118,7 @@ export default class ScriptDetail extends Basic.AbstractContent {
                 ref="category"
                 label={this.i18n('entity.Script.category')}
                 enum={ScriptCategoryEnum}
+                max={255}
                 required/>
               <Basic.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
               <Basic.ScriptArea

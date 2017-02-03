@@ -8,8 +8,8 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.SysSystemFormValueRepository;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.eav.service.impl.AbstractFormValueService;
+import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 
 /**
  * Form values for system entity

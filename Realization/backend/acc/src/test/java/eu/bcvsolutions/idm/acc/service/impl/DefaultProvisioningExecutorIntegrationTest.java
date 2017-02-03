@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
@@ -37,8 +36,11 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -46,8 +48,6 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcUidAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -257,7 +257,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
 		//
-		assertEquals(ResultState.NOT_EXECUTED, operation.getResultState());
+		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_DISABLED.name(), operation.getResult().getModel().getStatusEnum());
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
@@ -325,7 +325,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
 		//
-		assertEquals(ResultState.NOT_EXECUTED, operation.getResultState());
+		assertEquals(OperationState.NOT_EXECUTED, operation.getResultState());
 		assertEquals(AccResultCode.PROVISIONING_SYSTEM_READONLY.name(), operation.getResult().getModel().getStatusEnum());
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);

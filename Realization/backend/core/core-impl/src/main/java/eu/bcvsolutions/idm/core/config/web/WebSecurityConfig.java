@@ -16,8 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.security.rest.filter.OAuthAuthenticationFilter;
-import eu.bcvsolutions.idm.security.service.impl.OAuthAuthenticationManager;
+import eu.bcvsolutions.idm.core.security.rest.filter.OAuthAuthenticationFilter;
+import eu.bcvsolutions.idm.core.security.service.impl.OAuthAuthenticationManager;
 
 /**
  * Web security configuration
@@ -51,7 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				BaseEntityController.BASE_PATH + "/authentication", // login / out
 				"/error/**",
 				BaseEntityController.BASE_PATH + "/doc", // documentation is public
-				BaseEntityController.BASE_PATH + "/doc/**"
+				BaseEntityController.BASE_PATH + "/doc/**",
+				BaseEntityController.BASE_PATH + "/status" // status page
 			);
 	}
 

@@ -17,6 +17,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -28,8 +30,6 @@ import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.eav.service.impl.AbstractFormableService;
 
 /**
  * Operations with IdmIdentity

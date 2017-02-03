@@ -10,20 +10,20 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Readonly system provisioning - only saves provisioning operations
@@ -68,7 +68,7 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 			ResultModel resultModel = new DefaultResultModel(AccResultCode.PROVISIONING_SYSTEM_READONLY, 
 					ImmutableMap.of("name", provisioningOperation.getSystemEntityUid(), "system", system.getName()));
 			provisioningOperation.getRequest().setResult(
-					new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
+					new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			//
 			provisioningOperationService.save(provisioningOperation);
 			//

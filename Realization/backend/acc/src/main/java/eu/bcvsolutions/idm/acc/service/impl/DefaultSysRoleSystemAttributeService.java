@@ -25,8 +25,8 @@ import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 
 /**
  * Mapping attribute to system for role

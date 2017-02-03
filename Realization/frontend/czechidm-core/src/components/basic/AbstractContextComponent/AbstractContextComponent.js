@@ -8,6 +8,8 @@ import { i18n } from '../../../services/LocalizationService';
  * Automatically injects redux context (store) to component context,
  * localization,
  * add message to context.
+ *
+ * @author Radek Tomiška
  */
 class AbstractContextComponent extends AbstractComponent {
 
@@ -131,6 +133,11 @@ class AbstractContextComponent extends AbstractComponent {
     return this.context.store.getState().logger;
   }
 
+  /**
+   * Returns initialized flash message manager
+   *
+   * @return {FlashMessageManager}
+   */
   getFlashManager() {
     return this.flashMessagesManager;
   }

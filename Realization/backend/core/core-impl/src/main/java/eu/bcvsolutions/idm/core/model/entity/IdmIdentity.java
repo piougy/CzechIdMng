@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Identity

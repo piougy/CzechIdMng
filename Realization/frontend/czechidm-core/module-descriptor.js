@@ -341,6 +341,42 @@ module.exports = {
             ]
           },
           {
+            'id': 'scheduler',
+            'labelKey': 'content.scheduler.title',
+            'order': 35,
+            'path': '/scheduler/running-tasks',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+            'items': [
+              {
+                'id': 'scheduler-running-tasks',
+                'labelKey': 'content.scheduler.running-tasks.title',
+                'order': 10,
+                'path': '/scheduler/running-tasks',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              },
+              {
+                'id': 'scheduler-schedule-tasks',
+                'labelKey': 'content.scheduler.schedule-tasks.title',
+                'order': 20,
+                'path': '/scheduler/schedule-tasks',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              },
+              {
+                'id': 'scheduler-all-tasks',
+                'labelKey': 'content.scheduler.all-tasks.title',
+                'order': 30,
+                'path': '/scheduler/all-tasks',
+                'icon': '',
+                'type': 'TAB',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+              }
+            ]
+          },
+          {
             'id': 'workflow-definitions',
             'labelKey': 'navigation.menu.workflow.definitions',
             'icon': 'fa:sitemap',

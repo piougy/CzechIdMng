@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
@@ -28,10 +27,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
-import eu.bcvsolutions.idm.notification.service.api.IdmNotificationConfigurationService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Initialize required application data:
@@ -80,9 +78,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	}
 
 	protected void init() {
-		// TODO: runAs
-		securityService.setAuthentication(
-				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
+		securityService.setSystemAuthentication();
+		//
 		// TODO: could be moved to flyway install dump
 		try {
 			//

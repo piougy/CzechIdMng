@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
-import eu.bcvsolutions.idm.notification.api.dto.NotificationConfigurationDto;
-import eu.bcvsolutions.idm.notification.entity.IdmWebsocketLog;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Account management module descriptor

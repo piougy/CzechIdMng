@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.ic.service.api;
 import java.util.List;
 import java.util.Map;
 
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
@@ -13,7 +14,6 @@ import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 public interface IcConnectorFacade {
 	

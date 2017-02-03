@@ -5,7 +5,7 @@ import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.PasswordFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Service for working with password.

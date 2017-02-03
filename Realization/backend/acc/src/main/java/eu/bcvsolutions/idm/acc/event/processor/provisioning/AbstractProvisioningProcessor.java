@@ -18,11 +18,11 @@ import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
 
 /**
  * Execute provisioning

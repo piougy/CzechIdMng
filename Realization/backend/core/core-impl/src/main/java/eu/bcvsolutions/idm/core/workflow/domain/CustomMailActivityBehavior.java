@@ -13,11 +13,11 @@ import org.springframework.util.ObjectUtils;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.notification.entity.IdmEmailLog;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.notification.entity.IdmNotificationRecipient;
-import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 
 /**
  * Custom Mail implementation

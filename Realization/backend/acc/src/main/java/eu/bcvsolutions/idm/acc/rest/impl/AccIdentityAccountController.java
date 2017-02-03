@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Identity accounts on target system

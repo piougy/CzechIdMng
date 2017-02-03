@@ -29,7 +29,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**

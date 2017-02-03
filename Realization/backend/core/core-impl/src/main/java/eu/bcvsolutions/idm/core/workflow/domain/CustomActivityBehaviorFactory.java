@@ -10,7 +10,7 @@ import org.activiti.engine.impl.bpmn.parser.factory.DefaultActivityBehaviorFacto
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.notification.service.api.EmailNotificationSender;
+import eu.bcvsolutions.idm.core.notification.service.api.EmailNotificationSender;
 
 /**
  * 

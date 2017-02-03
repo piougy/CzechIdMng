@@ -2,6 +2,8 @@ import AbstractContent from './AbstractContent';
 
 /**
 * Basic table content with entity CRUD methods
+*
+* @author Radek Tomiška
 */
 export default class AbstractTableContent extends AbstractContent {
 

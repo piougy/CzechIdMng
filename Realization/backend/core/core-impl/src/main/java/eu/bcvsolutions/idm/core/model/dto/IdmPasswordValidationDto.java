@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Simple DTO for password validation

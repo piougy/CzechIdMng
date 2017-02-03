@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -21,7 +20,8 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.security.api.service.EnabledEvaluator;
+import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
  * Entity processing based on event publishing.
@@ -85,9 +85,7 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			dto.setDisableable(processor.isDisableable());
 			dto.setOrder(processor.getOrder());
 			// resolve documentation
-			if (context instanceof ConfigurableApplicationContext) {
-				dto.setDescription(((ConfigurableApplicationContext)context).getBeanFactory().getBeanDefinition(dto.getId()).getDescription());
-			}
+			dto.setDescription(AutowireHelper.getBeanDescription(dto.getId()));
 			dtos.add(dto);
 		};
 		LOG.debug("Returning [{}] registered entity event processors", dtos.size());

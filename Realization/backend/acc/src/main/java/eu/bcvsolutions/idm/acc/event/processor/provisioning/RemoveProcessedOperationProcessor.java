@@ -7,15 +7,15 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Archives processed provisioning operations.
@@ -51,7 +51,7 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		if (ResultState.EXECUTED.equals(provisioningOperation.getResultState()) 
+		if (OperationState.EXECUTED.equals(provisioningOperation.getResultState()) 
 				|| ProvisioningOperationType.CANCEL.equals(event.getType())) {
 			provisioningOperationService.delete(provisioningOperation);
 			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());

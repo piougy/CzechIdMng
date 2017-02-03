@@ -11,8 +11,8 @@ import org.joda.time.DateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 
 /**
  * Dto for password change

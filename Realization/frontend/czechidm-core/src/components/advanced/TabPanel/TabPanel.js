@@ -45,8 +45,17 @@ class TabPanel extends Basic.AbstractContextComponent {
 
     const params = { revID, entityId };
     return getNavigationItems(navigation, parentId, null, userContext, params).map(item => {
+      // reslve label
       const labelParams = resolveNavigationParameters(userContext, params);
       labelParams.defaultValue = item.label;
+      let label = item.label;
+      if (item.labelKey) {
+        label = (<span>{this.i18n(item.labelKey, labelParams)}</span>);
+      } else if (item.titleKey) {
+        // label from title
+        label = (<span>{this.i18n(item.titleKey, { defaultValue: item.title })}</span>);
+      }
+      //
       switch (item.type) {
         case 'TAB':
         case 'DYNAMIC': {
@@ -59,13 +68,7 @@ class TabPanel extends Basic.AbstractContextComponent {
               iconColor={item.iconColor}
               title={this.i18n(item.titleKey, { defaultValue: item.title })}
               active={_.includes(selectedNavigationItems, item.id)}>
-              {
-                (item.labelKey || item.label)
-                ?
-                <span>{this.i18n(item.labelKey, labelParams)}</span>
-                :
-                <span>{this.i18n(item.titleKey, { defaultValue: item.title })}</span>
-              }
+              { label }
             </TabPanelItem>
           );
         }

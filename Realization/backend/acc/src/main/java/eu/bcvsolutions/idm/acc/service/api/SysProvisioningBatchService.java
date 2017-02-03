@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -31,4 +33,13 @@ public interface SysProvisioningBatchService extends ReadWriteEntityService<SysP
 	 * @return Date of the next attempt. Null if there should be no next attempt 
 	 */
 	DateTime calculateNextAttempt(SysProvisioningRequest request);
+	
+	/**
+	 * Gets batches to retry
+	 * 
+	 * @param date
+	 * @param pageable
+	 * @return
+	 */
+	Page<SysProvisioningBatch> findBatchesToRetry(DateTime date, Pageable pageable);
 }

@@ -10,8 +10,8 @@ import javax.persistence.Table;
 
 import org.hibernate.envers.Audited;
 
-import eu.bcvsolutions.idm.eav.entity.AbstractFormValue;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 
 /**
  * System extended attributes (system connector configuration, etc).

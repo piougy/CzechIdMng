@@ -5,12 +5,9 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -19,7 +16,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptorAdapter;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -27,8 +23,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.service.impl.JwtAuthenticationMapper;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
  * Websocket configuration
@@ -50,19 +46,6 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 	@Autowired
 	@Qualifier("objectMapper")
 	private ObjectMapper mapper;
-
-	/**
-	 * Workaround for Activiti - websocket TaskExecutor collision
-	 * 
-	 * @return
-	 */
-	@Primary
-	@Bean
-	public TaskExecutor primaryTaskExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		// add necessary properties to the executor
-		return executor;
-	}
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {

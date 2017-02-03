@@ -18,10 +18,10 @@ import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
-import eu.bcvsolutions.idm.notification.entity.IdmMessage;
-import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 
 @Component
 @Description("After success provisioning send notification to identity with new generate password.")

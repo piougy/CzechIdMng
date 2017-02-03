@@ -22,6 +22,8 @@ export const STOP_BULK_ACTION = 'STOP_BULK_ACTION';
 
 /**
  * Encapsulate redux action for entity type
+ *
+ * @author Radek Tomiška
  */
 export default class EntityManager {
 

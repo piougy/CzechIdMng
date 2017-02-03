@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityFormValueRepository;
-import eu.bcvsolutions.idm.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.eav.service.impl.AbstractFormValueService;
 
 /**
  * Form values for identity

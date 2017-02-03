@@ -3,8 +3,8 @@ package eu.bcvsolutions.idm.core.api.domain;
 import java.util.Collections;
 import java.util.List;
 
-import eu.bcvsolutions.idm.notification.api.dto.NotificationConfigurationDto;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Add default methods implementaton for {@link ModuleDescriptor}.

@@ -23,22 +23,24 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSynchronizationConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
-import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
-import eu.bcvsolutions.idm.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.eav.service.api.FormService;
-import eu.bcvsolutions.idm.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
+import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Default schema attributes handling
@@ -60,6 +62,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final IdmFormAttributeService formAttributeService;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
+	private final SysSynchronizationConfigRepository syncConfigRepository;
 	
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(
@@ -68,7 +71,8 @@ public class DefaultSysSystemAttributeMappingService
 			FormService formService,
 			IdmFormAttributeService formAttributeService, 
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
-			FormPropertyManager formPropertyManager) {
+			FormPropertyManager formPropertyManager,
+			SysSynchronizationConfigRepository syncConfigRepository) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);
@@ -76,6 +80,7 @@ public class DefaultSysSystemAttributeMappingService
 		Assert.notNull(formAttributeService);
 		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(formPropertyManager);
+		Assert.notNull(syncConfigRepository);
 		//
 		this.formService = formService;
 		this.repository = repository;
@@ -83,6 +88,7 @@ public class DefaultSysSystemAttributeMappingService
 		this.formAttributeService = formAttributeService;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.formPropertyManager = formPropertyManager;
+		this.syncConfigRepository = syncConfigRepository;
 		
 	}
 
@@ -201,6 +207,16 @@ public class DefaultSysSystemAttributeMappingService
 	@Transactional
 	public void delete(SysSystemAttributeMapping entity) {
 		Assert.notNull(entity);
+		
+		if (syncConfigRepository.countByCorrelationAttribute(entity) > 0) {
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", entity.getName()));
+		}
+		if (syncConfigRepository.countByFilterAttribute(entity) > 0) {
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", entity.getName()));
+		}
+		if (syncConfigRepository.countByTokenAttribute(entity) > 0) {
+			throw new ResultCodeException(AccResultCode.ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC, ImmutableMap.of("attribute", entity.getName()));
+		}
 		// delete attributes
 		roleSystemAttributeRepository.deleteBySystemAttributeMapping(entity);
 		//

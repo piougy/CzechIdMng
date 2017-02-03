@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Default implementation finds configuration in database, if configuration for

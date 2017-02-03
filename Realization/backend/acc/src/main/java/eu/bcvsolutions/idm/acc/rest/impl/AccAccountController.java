@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 
 /**
  * Accounts on target system

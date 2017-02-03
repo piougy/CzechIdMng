@@ -9,6 +9,8 @@ import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '
 /**
 * Basic content = page representation
 * Requires store and router context
+*
+* @author Radek Tomiška
 */
 export default class AbstractContent extends AbstractContextComponent {
 

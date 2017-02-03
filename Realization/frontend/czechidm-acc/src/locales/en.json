@@ -124,6 +124,7 @@
         "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je monžé ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
+        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a přísulšné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -419,7 +420,8 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
-      "passwordPolicy": "Politika hesel",
+      "passwordPolicyValidate": "Politika hesel pro validaci",
+      "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
@@ -757,13 +759,6 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
-    },
-    "ProvisioningResultStateEnum":{
-      "CREATED": "Vytvořeno",
-    	"EXECUTED": "Provedeno",
-    	"EXCEPTION": "Chyba",
-    	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {
@@ -896,6 +891,14 @@
     "SYNCHRONIZATION_TO_MANY_ACC_ACCOUNT": {
       "title": "Synchronizace - nalezeno více jak jeden záznam 'AccAccount'",
       "message": "Bylo nalezeno více jak jeden záznam 'AccAccount' pro stejný UID [{{uid}}]!"
+    },
+    "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Mapování systému [{{mapping}}] nemůže být smazáno.",
+      "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
+    },
+    "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
+      "title": "Atribut [{{attribute}}] nemůže být smazán.",
+      "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na stejném systému!"
     }
   }
 }

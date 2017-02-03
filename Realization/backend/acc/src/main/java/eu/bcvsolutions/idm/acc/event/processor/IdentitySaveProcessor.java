@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Run provisioning after identity was saved.

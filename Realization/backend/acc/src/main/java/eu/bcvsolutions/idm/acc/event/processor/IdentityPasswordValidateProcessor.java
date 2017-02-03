@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 
 /**
  * Processor with password validation.

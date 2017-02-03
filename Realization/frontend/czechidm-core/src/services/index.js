@@ -24,6 +24,8 @@ import NotificationConfigurationService from './NotificationConfigurationService
 import WebsocketService from './WebsocketService';
 import PasswordPolicyService from './PasswordPolicyService';
 import EntityEventProcessorService from './EntityEventProcessorService';
+import LongRunningTaskService from './LongRunningTaskService';
+import SchedulerService from './SchedulerService';
 
 const ServiceRoot = {
   RestApiService,
@@ -51,7 +53,9 @@ const ServiceRoot = {
   NotificationConfigurationService,
   WebsocketService,
   PasswordPolicyService,
-  EntityEventProcessorService
+  EntityEventProcessorService,
+  LongRunningTaskService,
+  SchedulerService
 };
 
 ServiceRoot.version = '0.0.1';

@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 
 /**
@@ -22,7 +22,7 @@ public class ProvisioningOperationFilter implements BaseFilter {
 	private UUID systemId;
 	private ProvisioningOperationType operationType;
 	private SystemEntityType entityType;
-	private ResultState resultState;
+	private OperationState resultState;
 	private UUID entityIdentifier;
 	private String systemEntityUid;
 
@@ -66,11 +66,11 @@ public class ProvisioningOperationFilter implements BaseFilter {
 		this.entityType = entityType;
 	}
 
-	public ResultState getResultState() {
+	public OperationState getResultState() {
 		return resultState;
 	}
 
-	public void setResultState(ResultState resultState) {
+	public void setResultState(OperationState resultState) {
 		this.resultState = resultState;
 	}
 

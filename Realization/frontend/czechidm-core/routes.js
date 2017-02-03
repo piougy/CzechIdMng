@@ -186,6 +186,28 @@ module.exports = {
       ]
     },
     {
+      path: 'scheduler',
+      component: require('./src/content/scheduler/SchedulerRoutes'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+      childRoutes: [
+        {
+          path: 'running-tasks',
+          component: require('./src/content/scheduler/RunningTasks'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        },
+        {
+          path: 'schedule-tasks',
+          component: require('./src/content/scheduler/ScheduleTasks'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        },
+        {
+          path: 'all-tasks',
+          component: require('./src/content/scheduler/AllTasks'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+        }
+      ]
+    },
+    {
       path: 'workflow',
       component: 'div',
       childRoutes: [

@@ -16,6 +16,8 @@ const CELL = 'cell';
 
 /**
  * Table component with header and columns.
+ *
+ * @author Radek Tomiška
  */
 class Table extends AbstractComponent {
 

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.rest;
+package eu.bcvsolutions.idm.security.rest.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -188,7 +188,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		SysSystem system = accountIdentityOne.getAccount().getSystem();
 
 		// Check empty password
-		provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(), system, SystemEntityType.IDENTITY);
+		// provisioningService.authenticate(accountIdentityOne.getAccount().getUid(), new GuardedString(), system, SystemEntityType.IDENTITY);
 
 
 		// Create new password one

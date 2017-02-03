@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.api.utils;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +29,10 @@ public final class AutowireHelper implements ApplicationContextAware {
 	 *            {#classToAutowire}
 	 */
 	public static void autowire(Object classToAutowire, Object... beansToAutowireInClass) {
+		if(beansToAutowireInClass == null || beansToAutowireInClass.length == 0) {
+			applicationContext.getAutowireCapableBeanFactory().autowireBean(classToAutowire);
+			return;
+		}
 		for (Object bean : beansToAutowireInClass) {
 			if (bean == null && applicationContext != null) {
 				applicationContext.getAutowireCapableBeanFactory().autowireBean(classToAutowire);
@@ -73,5 +78,31 @@ public final class AutowireHelper implements ApplicationContextAware {
 	public static AutowireHelper getInstance() {
 		return INSTANCE;
 	}
-
+	
+	/**
+	 * Returns bean description
+	 * 
+	 * @param beanName
+	 * @return
+	 */
+	public static String getBeanDescription(String beanName) {
+		if (applicationContext instanceof ConfigurableApplicationContext) {
+			return ((ConfigurableApplicationContext)applicationContext).getBeanFactory().getBeanDefinition(beanName).getDescription();
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns bean description 
+	 * 
+	 * @param beanClass
+	 * @return
+	 */
+	public static String getBeanDescription(Class<?> beanClass) {
+		String[] beanNames =  applicationContext.getBeanNamesForType(beanClass);
+		if (beanNames.length != 1) {
+			return null;
+		}
+		return getBeanDescription(beanNames[0]);
+	}
 }

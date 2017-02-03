@@ -14,10 +14,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.security.domain.DefaultGrantedAuthority;
 
@@ -47,6 +49,11 @@ public class DefaultSecurityService implements SecurityService {
 	}
 	
 	@Override
+	public void setSystemAuthentication() {
+		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAllAvailableAuthorities()));
+	}
+	
+	@Override
 	public AbstractAuthentication getAuthentication() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// TODO: support different authentications?
@@ -69,7 +76,7 @@ public class DefaultSecurityService implements SecurityService {
 	public String getUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (!isAuthenticated()) {
-			return "[GUEST]"; // TODO: configure guest access
+			return GUEST_NAME;
 		}
 		return authentication.getName();
 	}

@@ -1,0 +1,84 @@
+package eu.bcvsolutions.idm.scheduler.dto;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import eu.bcvsolutions.idm.scheduler.service.api.SchedulableTaskExecutor;
+
+/**
+ * Scheduled task with unique id 
+ * * could be scheduled 
+ * * could run manually through long running task service
+ * 
+ * @author Radek Tomiška
+ *
+ */
+public class Task {
+
+	private String id; // job name
+	private String module;
+	@NotEmpty
+	private String instanceId;
+	private Class<? extends SchedulableTaskExecutor> taskType; // task executor class
+	private String description;	
+	private List<AbstractTaskTrigger> triggers;
+	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
+
+	public Task() {
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getModule() {
+		return module;
+	}
+	
+	public void setModule(String module) {
+		this.module = module;
+	}
+	
+	public Class<? extends SchedulableTaskExecutor> getTaskType() {
+		return taskType;
+	}
+	
+	public void setTaskType(Class<? extends SchedulableTaskExecutor> taskType) {
+		this.taskType = taskType;
+	}
+
+	public List<AbstractTaskTrigger> getTriggers() {
+		return triggers;
+	}
+
+	public void setTriggers(List<AbstractTaskTrigger> triggers) {
+		this.triggers = triggers;
+	}
+
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getInstanceId() {
+		return instanceId;
+	}
+	
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+}

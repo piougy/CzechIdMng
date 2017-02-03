@@ -1,14 +1,23 @@
+import FlashMessagesManager from '../flash/FlashMessagesManager';
 /**
  * action types
  */
 export const REQUEST_DATA = 'REQUEST_DATA';
+export const STOP_REQUEST = 'STOP_REQUEST';
 export const RECEIVE_DATA = 'RECEIVE_DATA';
 export const CLEAR_DATA = 'CLEAR_DATA';
+export const RECEIVE_ERROR = 'RECEIVE_ERROR';
 
 /**
  * Encapsulate redux action for form data (create, edit) etc.
+ *
+ * @author Radek Tomiška
  */
 export default class DataManager {
+
+  constructor() {
+    this.flashMessagesManager = new FlashMessagesManager();
+  }
 
   /**
    * Request data from store - simply sets loading flag fot given uiKey
@@ -24,9 +33,23 @@ export default class DataManager {
     };
   }
 
+  /**
+   * Stops request
+   *
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {object} error - received error
+   * @return {action}
+   */
+  stopRequest(uiKey, error = null) {
+    return {
+      type: STOP_REQUEST,
+      uiKey,
+      error
+    };
+  }
 
   /**
-   * Add data to store - data can be read by other components
+   * Add data to store - data can be read by other components (receiveData alias)
    *
    * @param  {string} uiKey - access ui key
    * @param  {any} data - stored data
@@ -61,6 +84,33 @@ export default class DataManager {
     return {
       type: CLEAR_DATA,
       uiKey
+    };
+  }
+
+  /**
+   * Receive error from server call
+   *
+   * @param  {string|number} id - entity identifier (could be null)
+   * @param  {object} entity - received entity
+   * @param  {string} uiKey - ui key for loading indicator etc
+   * @param  {object} error - received error
+   * @return {object} - action
+   */
+  receiveError(data, uiKey, error = null, cb = null) {
+    return (dispatch) => {
+      if (cb) {
+        cb(null, error);
+      } else {
+        dispatch(this.flashMessagesManager.addErrorMessage({
+          level: 'error',
+          key: 'error-' + uiKey
+        }, error));
+      }
+      dispatch({
+        type: RECEIVE_ERROR,
+        uiKey,
+        error
+      });
     };
   }
 

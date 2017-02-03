@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
  * @author Radek Tomiška
  *
  */
-@Component("notificationService")
+@Component("notificationManager")
 public class DefaultNotificationManager extends AbstractNotificationSender<IdmNotificationLog> implements NotificationManager {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultNotificationManager.class);

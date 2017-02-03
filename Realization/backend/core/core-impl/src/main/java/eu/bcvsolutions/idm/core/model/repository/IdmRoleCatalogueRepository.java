@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmRoleCatalogueExcerpt;
 @RepositoryRestResource( //
 		collectionResourceRel = "roleCatalogues", // 
 		path = "role-catalogues", //
-		itemResourceRel = "roleCatalogues", //
+		itemResourceRel = "roleCatalogue", //
 		excerptProjection = IdmRoleCatalogueExcerpt.class,
 		exported = false,
 		collectionResourceDescription = @Description("Role catalogues"))

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Single provisioning request. Any operation has request and batch.
@@ -47,7 +48,7 @@ public class SysProvisioningRequest extends AbstractEntity {
 	private SysProvisioningOperation operation;
 
 	@Embedded
-	private SysProvisioningResult result;
+	private OperationResult result;
 
 	@NotNull
 	@ManyToOne
@@ -108,11 +109,11 @@ public class SysProvisioningRequest extends AbstractEntity {
 		batch.addRequest(this);
 	}
 	
-	public SysProvisioningResult getResult() {
+	public OperationResult getResult() {
 		return result;
 	}
 	
-	public void setResult(SysProvisioningResult result) {
+	public void setResult(OperationResult result) {
 		this.result = result;
 	}
 	

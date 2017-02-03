@@ -293,7 +293,7 @@ class SelectBox extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, required } = this.props;
+    const { labelSpan, label, componentSpan, required, helpBlock } = this.props;
     const labelClassName = classNames(labelSpan, 'control-label');
     const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
     let showAsterix = false;
@@ -341,6 +341,11 @@ class SelectBox extends AbstractFormComponent {
             </Tooltip>
           }
           {this.props.children}
+          {
+            !helpBlock
+            ||
+            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+          }
         </div>
       </div>
     );

@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
 //
-import { Basic, Advanced, Managers, Domain } from 'czechidm-core';
+import { Basic, Advanced, Managers, Domain, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
 import SchemaAttributeInfo from '../../components/SchemaAttributeInfo';
 import EntityInfo from '../../components/EntityInfo';
 
@@ -215,7 +214,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
 
                 <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('detail.result') }</h3>
                 <div style={{ marginBottom: 15 }}>
-                  <Basic.EnumValue value={detail.entity.resultState} enum={ProvisioningResultStateEnum}/>
+                  <Basic.EnumValue value={detail.entity.resultState} enum={Enums.OperationStateEnum}/>
                   {
                     (!detail.entity.result || !detail.entity.result.code)
                     ||

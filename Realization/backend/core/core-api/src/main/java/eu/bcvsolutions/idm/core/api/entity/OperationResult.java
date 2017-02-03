@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.entity;
+package eu.bcvsolutions.idm.core.api.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -8,23 +8,23 @@ import javax.persistence.Enumerated;
 import com.google.common.base.Throwables;
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 
 /**
- * Provisioning operation result
+ * Universal operation result
  * 
  * @author Radek Tomiška
  *
  */
 @Embeddable
-public class SysProvisioningResult {
+public class OperationResult {
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "result_state", nullable = false, length = 45)
-	private ResultState state = ResultState.CREATED;
+	private OperationState state = OperationState.CREATED;
 	
 	@Column(name = "result_code", length = DefaultFieldLengths.NAME)
 	private String code;
@@ -35,14 +35,14 @@ public class SysProvisioningResult {
 	@Column(name = "result_cause", length = Integer.MAX_VALUE)
 	private Throwable cause;
 	
-	public SysProvisioningResult() {
+	public OperationResult() {
 	}
 	
-	public SysProvisioningResult(ResultState state) {
+	public OperationResult(OperationState state) {
 		this.state = state;
 	}
 	
-	private SysProvisioningResult(Builder builder) {
+	private OperationResult(Builder builder) {
 		state = builder.state;
 		code = builder.code;
 		cause = builder.cause;
@@ -65,11 +65,11 @@ public class SysProvisioningResult {
 		this.cause = cause;
 	}
 
-	public ResultState getState() {
+	public OperationState getState() {
 		return state;
 	}
 
-	public void setState(ResultState state) {
+	public void setState(OperationState state) {
 		this.state = state;
 	}
 	
@@ -89,20 +89,20 @@ public class SysProvisioningResult {
 	}
 	
 	/**
-	 * {@link SysProvisioningResult} builder
+	 * {@link OperationResult} builder
 	 * 
 	 * @author Radek Tomiška
 	 *
 	 */
 	public static class Builder {
 		// required
-		private final ResultState state;
+		private final OperationState state;
 		// optional	
 		private String code;
 		private Throwable cause;
 		private ResultModel model;
 		
-		public Builder(ResultState state) {
+		public Builder(OperationState state) {
 			this.state = state;
 		}
 
@@ -124,8 +124,8 @@ public class SysProvisioningResult {
 			return this;
 		}
 		
-		public SysProvisioningResult build() {
-			return new SysProvisioningResult(this);
+		public OperationResult build() {
+			return new OperationResult(this);
 		}
 	}
 	

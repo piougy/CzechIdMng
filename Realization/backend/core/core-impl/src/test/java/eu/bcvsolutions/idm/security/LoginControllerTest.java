@@ -14,7 +14,7 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
-import eu.bcvsolutions.idm.security.rest.LoginController;
+import eu.bcvsolutions.idm.security.rest.impl.LoginController;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**

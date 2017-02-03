@@ -97,7 +97,8 @@ public class IdentityPasswordValidateProcessor extends AbstractEntityEventProces
 			return identityAccount.isOwnership() && (passwordChangeDto.isAll()
 					|| passwordChangeDto.getAccounts().contains(identityAccount.getId().toString()));
 		}).forEach(identityAccount -> {
-			IdmPasswordPolicy passwordPolicy = identityAccount.getAccount().getSystem().getPasswordPolicy();
+			// get validate password policy from system
+			IdmPasswordPolicy passwordPolicy = identityAccount.getAccount().getSystem().getPasswordPolicyValidate();
 			// if passwordPolicy is null use default password policy for validate
 			if (passwordPolicy == null) {
 				passwordPolicy = defaultPasswordPolicy;

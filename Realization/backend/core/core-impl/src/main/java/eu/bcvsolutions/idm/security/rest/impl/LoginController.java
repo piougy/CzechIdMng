@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.security.rest;
+package eu.bcvsolutions.idm.security.rest.impl;
 
 import javax.validation.Valid;
 

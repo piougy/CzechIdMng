@@ -420,7 +420,8 @@
       "disabled": "Neaktivní",
       "description": "Popis",
       "virtual": "Virtuální",
-      "passwordPolicy": "Politika hesel",
+      "passwordPolicyValidate": "Politika hesel pro validaci",
+      "passwordPolicyGenerate": "Politika hesel pro generování",
       "readonly": {
         "label": "Readonly",
         "help": "Aktivní operace provisioningu (vytvoření, úprava, smazání) nebudou na systému spuštěny."
@@ -758,13 +759,6 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
-    },
-    "ProvisioningResultStateEnum":{
-      "CREATED": "Vytvořeno",
-    	"EXECUTED": "Provedeno",
-    	"EXCEPTION": "Chyba",
-    	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {

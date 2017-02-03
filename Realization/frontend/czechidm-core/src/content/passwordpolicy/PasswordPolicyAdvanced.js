@@ -168,7 +168,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
                   helpBlock={this.i18n('entity.PasswordPolicy.help.minRulesToFulfill')}
                   label={this.i18n('entity.PasswordPolicy.minRulesToFulfill')} />
 
-                <Basic.TextField ref="maxHistorySimilar"
+                <Basic.TextField ref="maxHistorySimilar" hidden
                   helpBlock={this.i18n('entity.PasswordPolicy.help.maxHistorySimilar')}
                   label={this.i18n('entity.PasswordPolicy.maxHistorySimilar')} />
 

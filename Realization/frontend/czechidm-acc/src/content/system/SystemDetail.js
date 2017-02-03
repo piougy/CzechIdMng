@@ -37,10 +37,17 @@ class SystemDetail extends Basic.AbstractContent {
         connector: entity.connectorKey.fullName
       };
     }
-    if (entity && entity._embedded && entity._embedded.passwordPolicy) {
+
+    if (entity && entity._embedded && entity._embedded.passwordPolicyGenerate) {
       data = {
         ...data,
-        passwordPolicy: entity._embedded.passwordPolicy
+        passwordPolicyGenerate: entity._embedded.passwordPolicyGenerate
+      };
+    }
+    if (entity && entity._embedded && entity._embedded.passwordPolicyValidate) {
+      data = {
+        ...data,
+        passwordPolicyValidate: entity._embedded.passwordPolicyValidate
       };
     }
     data.host = 'local';
@@ -64,8 +71,12 @@ class SystemDetail extends Basic.AbstractContent {
     }, () => {
       const entity = this.refs.form.getData();
       const connector = availableFrameworks.get(entity.connector.split(':')[0]).get(entity.connector);
-      if (entity.passwordPolicy) {
-        entity.passwordPolicy = this.passwordPolicyManager.getSelfLink(entity.passwordPolicy);
+      // transform password policies
+      if (entity.passwordPolicyGenerate) {
+        entity.passwordPolicyGenerate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyGenerate);
+      }
+      if (entity.passwordPolicyValidate) {
+        entity.passwordPolicyValidate = this.passwordPolicyManager.getSelfLink(entity.passwordPolicyValidate);
       }
       const saveEntity = {
         ...entity,
@@ -150,12 +161,19 @@ class SystemDetail extends Basic.AbstractContent {
                   options={_availableConnectors}
                   required/>
                 <Basic.SelectBox
-                  ref="passwordPolicy"
-                  label={this.i18n('acc:entity.System.passwordPolicy')}
-                  placeholder={this.i18n('acc:entity.System.passwordPolicy')}
+                  ref="passwordPolicyValidate"
+                  label={this.i18n('acc:entity.System.passwordPolicyValidate')}
+                  placeholder={this.i18n('acc:entity.System.passwordPolicyValidate')}
                   manager={this.passwordPolicyManager}
                   forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
                     .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.VALIDATE))}/>
+                <Basic.SelectBox
+                  ref="passwordPolicyGenerate"
+                  label={this.i18n('acc:entity.System.passwordPolicyGenerate')}
+                  placeholder={this.i18n('acc:entity.System.passwordPolicyGenerate')}
+                  manager={this.passwordPolicyManager}
+                  forceSearchParameters={this.passwordPolicyManager.getDefaultSearchParameters()
+                    .setFilter('type', Enums.PasswordPolicyTypeEnum.findKeyBySymbol(Enums.PasswordPolicyTypeEnum.GENERATE))}/>
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('acc:entity.System.description')}

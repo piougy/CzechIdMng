@@ -29,6 +29,12 @@ import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
 
+/**
+ * Handles application exceptions and translate them to result codes
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @ControllerAdvice
 public class ExceptionControllerAdvice {
 

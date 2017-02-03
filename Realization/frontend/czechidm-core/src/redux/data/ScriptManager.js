@@ -1,7 +1,7 @@
 import EntityManager from './EntityManager';
 import { ScriptService } from '../../services';
 
-export default class TreeTypeManager extends EntityManager {
+export default class ScriptManager extends EntityManager {
 
   constructor() {
     super();

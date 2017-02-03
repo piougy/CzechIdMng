@@ -101,10 +101,10 @@ export default class ValidationMessage extends Basic.AbstractFormComponent {
         }
       }
     }
-    // last message is password policies names
+    // first message is password policies names, with danger class
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
-      validationMessage.push(<Basic.Alert level="warning" >{policies}</Basic.Alert>);
+      validationMessage.unshift(<Basic.Alert level="danger" >{policies}</Basic.Alert>);
     }
 
     return validationMessage;

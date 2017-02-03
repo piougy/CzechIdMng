@@ -31,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 
 @Entity
 @Table(name = "idm_password_policy", indexes = {
-		@Index(name = "ux_pass_policy_name", columnList = "name", unique = true)
+		@Index(name = "ux_idm_pass_policy_name", columnList = "name", unique = true)
 		})
 public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByName, PasswordGenerate {
 
@@ -52,71 +52,71 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	private boolean disabled = false;
 
 	@Audited
-	@Column(name = "passwordLengthRequired", nullable = false)
+	@Column(name = "password_length_required", nullable = false)
 	private boolean passwordLengthRequired = true;
 	
 	@Audited
-	@Column(name = "minPasswordLength")
+	@Column(name = "min_password_length")
 	private int minPasswordLength;
 	
 	@Audited
-	@Column(name = "maxPasswordLength")
+	@Column(name = "max_password_length")
 	private int maxPasswordLength;
 
 	@Audited
-	@Column(name = "upperCharRequired", nullable = false)
+	@Column(name = "upper_char_required", nullable = false)
 	private boolean upperCharRequired = true;
 	
 	@Audited
-	@Column(name = "minUpperChar")
+	@Column(name = "min_upper_char")
 	private int minUpperChar;
 	
 	@Audited
-	@Column(name = "lowerCharRequired", nullable = false)
+	@Column(name = "lower_char_required", nullable = false)
 	private boolean lowerCharRequired = true;
 
 	@Audited
-	@Column(name = "minLowerChar")
+	@Column(name = "min_lower_char")
 	private int minLowerChar;
 	
 	@Audited
-	@Column(name = "numberRequired", nullable = false)
+	@Column(name = "number_required", nullable = false)
 	private boolean numberRequired = true;
 	
 	@Audited
-	@Column(name = "minNumber")
+	@Column(name = "min_number")
 	private int minNumber;
 	
 	@Audited
-	@Column(name = "specialCharRequired", nullable = false)
+	@Column(name = "special_char_required", nullable = false)
 	private boolean specialCharRequired = true;
 	
 	@Audited
-	@Column(name = "minSpecialChar")
+	@Column(name = "min_special_char")
 	private int minSpecialChar;
 	
 	@Audited
-	@Column(name = "weakPassRequired", nullable = false)
+	@Column(name = "weak_pass_required", nullable = false)
 	private boolean weakPassRequired = true;
 	
 	@Audited
-	@Column(name = "weakPass")
+	@Column(name = "weak_pass")
 	private String weakPass;
 	
 	@Audited
-	@Column(name = "maxPasswordAge")
+	@Column(name = "max_password_age")
 	private int maxPasswordAge;
 	
 	@Audited
-	@Column(name = "minPasswordAge")
+	@Column(name = "min_password_age")
 	private int minPasswordAge;
 	
 	@Audited
-	@Column(name = "enchancedControl", nullable = false)
+	@Column(name = "enchanced_control", nullable = false)
 	private boolean enchancedControl = false;
 	
 	@Audited
-	@Column(name = "minRulesToFulfill")
+	@Column(name = "min_rules_to_fulfill")
 	private int minRulesToFulfill;
 	
 	@Audited
@@ -124,43 +124,43 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	private IdmPasswordPolicyType type = IdmPasswordPolicyType.VALIDATE;
 	
 	@Audited
-	@Column(name = "generateType")
+	@Column(name = "generate_type")
 	private IdmPasswordPolicyGenerateType generateType = IdmPasswordPolicyGenerateType.RANDOM;
 	
 	@Audited
-	@Column(name = "passphraseWords")
+	@Column(name = "passphrase_words")
 	private int passphraseWords;
 
 	@Audited
-	@Column(name = "prohibitedCharacters")
+	@Column(name = "prohibited_characters")
 	private String prohibitedCharacters;
 
 	@Audited
-	@Column(name = "defaultPolicy", nullable = false)
+	@Column(name = "default_policy", nullable = false)
 	private boolean defaultPolicy = false;
 	
 	@Audited
-	@Column(name = "specialCharBase")
+	@Column(name = "special_char_base")
 	private String specialCharBase;
 	
 	@Audited
-	@Column(name = "upperCharBase")
+	@Column(name = "upper_char_base")
 	private String upperCharBase;
 	
 	@Audited
-	@Column(name = "numberBase")
+	@Column(name = "number_base")
 	private String numberBase;
 	
 	@Audited
-	@Column(name = "lowerCharBase")
+	@Column(name = "lower_char_base")
 	private String lowerCharBase;
 	
 	@Audited
-	@Column(name = "maxHistorySimilar")
+	@Column(name = "max_history_similar")
 	private int maxHistorySimilar;
 	
 	@Audited
-	@Column(name = "identityAttributeCheck")
+	@Column(name = "identity_attribute_check")
 	private String identityAttributeCheck;
 	
 	public int getMaxHistorySimilar() {

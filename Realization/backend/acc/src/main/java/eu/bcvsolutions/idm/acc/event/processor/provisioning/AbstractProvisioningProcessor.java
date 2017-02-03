@@ -91,6 +91,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 		try {
 			// convert confidential string to guarded strings before provisioning realization
 			connectorObject = provisioningOperationService.getFullConnectorObject(provisioningOperation);
+			provisioningOperation.getProvisioningContext().setConnectorObject(connectorObject);
 			//
 			processInternal(provisioningOperation, connectorConfig);
 			provisioningOperationService.handleSuccessful(provisioningOperation);

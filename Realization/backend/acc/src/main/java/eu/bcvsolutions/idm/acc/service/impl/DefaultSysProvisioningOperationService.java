@@ -36,6 +36,10 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
+import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.security.api.domain.ConfidentialString;
@@ -198,16 +202,26 @@ public class DefaultSysProvisioningOperationService
 				|| provisioningOperation.getProvisioningContext().getConnectorObject() == null) {
 			return null;
 		}
+		List<IcAttribute> attributes = new ArrayList<>();
+		//
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
 		connectorObject.getAttributes().forEach(attribute -> {
-			for(int j = 0; j < attribute.getValues().size(); j++) {
-				Object attributeValue = attribute.getValues().get(j);
-				if (attributeValue != null && (attributeValue instanceof ConfidentialString)) {						
-					attribute.getValues().set(j, confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString) attributeValue).getKey()));
-				}
+			IcAttribute attributeCopy = null;
+			if (attribute.isMultiValue()) {
+				List<Object> values = (List<Object>)attribute.getValues();
+				attributeCopy = new IcAttributeImpl(attribute.getName(), values, true);
+			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
+				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString) attribute.getValue()).getKey()));
+			} else if (attribute instanceof IcPasswordAttribute && attribute.getValue() == null) {
+				attributeCopy = new IcPasswordAttributeImpl(attribute.getName(), (GuardedString) null);
+			} else {
+				attributeCopy = new IcAttributeImpl(attribute.getName(), attribute.getValue());
 			}
+			attributes.add(attributeCopy);
 		});
-		return connectorObject;
+		
+		IcConnectorObject newConnectorObject = new IcConnectorObjectImpl(connectorObject.getUidValue(), connectorObject.getObjectClass(), attributes);
+		return newConnectorObject;
 	}
 	
 	@Override

@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 public class SyncItemLogFilter implements BaseFilter {
 
 	private UUID syncActionLogId;
+	private String displayName; //Search with like
 
 	public UUID getSyncActionLogId() {
 		return syncActionLogId;
@@ -20,6 +21,14 @@ public class SyncItemLogFilter implements BaseFilter {
 
 	public void setSyncActionLogId(UUID syncActionLogId) {
 		this.syncActionLogId = syncActionLogId;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 }

@@ -31,7 +31,7 @@ class PasswordPolicyService extends AbstractService {
    * @return {Promise}
    */
   generatePassword() {
-    return RestApiService.get(this.getApiPath() + `/generate`);
+    return RestApiService.get(this.getApiPath() + `/generate/default`);
   }
 }
 

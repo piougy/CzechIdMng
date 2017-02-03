@@ -381,6 +381,10 @@
     	"EXCEPTION": "Chyba",
     	"NOT_EXECUTED": "Neprovedeno",
     	"CANCELED": "Zrušeno"
+    },
+    "TriggerTypeEnum": {
+      "SIMPLE": "Jednorázové spuštění",
+      "CRON": "Cron"
     }
   },
   "dashboard": {
@@ -545,7 +549,7 @@
       "header": "Politiky hesel",
       "title": "Politiky hesel",
       "edit": {
-        "header": "Detail konfigurace politiky hesel",
+        "header": "detail konfigurace politiky hesel",
         "title": "Detail konfigurace politiky hesel"
       },
       "basic": {
@@ -553,8 +557,8 @@
         "title": "Základní informace"
       },
       "advanced": {
-        "header": "Rozšířená kontrola hesla",
-        "title": "Rozšířená kontrola hesla"
+        "header": "Rozšířená kontrola",
+        "title": "Rozšířená kontrola"
       },
       "characters": {
         "header": "Znaky",
@@ -578,10 +582,11 @@
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
         "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
         "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
-        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: "
+        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
+        "date": "Heslo není možné nyní změnit, zkuste to znovu: "
       },
       "save": {
-        "success": "Politika byla úspěšně uložena."
+        "success": "Politika [{{name}}] byla úspěšně uložena."
       }
     },
     "configuration": {
@@ -1221,15 +1226,87 @@
       "title": "Plánovač úloh",
       "running-tasks": {
         "header": "Běžící úlohy",
-        "title": "Běžící úlohy"
+        "title": "Běžící úlohy",
+        "button": {
+          "cancel": "Ukončit úlohu",
+          "interrupt": "Killnout úlohu"
+        },
+        "action": {
+          "task-cancel": {
+            "header": "Ukončit spuštěnou úlohu",
+            "message": "Opravdu chcete ukončit úlohu [<strong>{{record}}</strong>]?",
+            "success": "Bylo požádáno o ukončení úlohy [{{record}}]. Úloha se sama ukončí po dokončení aktuálně zpracovávaného záznamu."
+          },
+          "task-interrupt": {
+            "header": "Killnout spuštěnou úlohu",
+            "message": "Opravdu chcete ukončit úlohu [<strong>{{record}}</strong>]?",
+            "success": "Úloha [{{record}}] byla ukončena."
+          }
+        }
       },
       "schedule-tasks": {
         "header": "Naplánované úlohy",
-        "title": "Naplánované úlohy"
+        "title": "Naplánované úlohy",
+        "button": {
+          "run": "Spustit ručně"
+        },
+        "action": {
+          "trigger-delete": {
+            "header": "Odebrat plánované spuštění",
+            "message": "Opravdu chcete odebrat plánované spuštení [<strong>{{record}}</strong>]?",
+            "success": "Plánované spuštení [{{record}}] bylo úspěšně odebráno."
+          },
+          "trigger-create": {
+            "header": "Nové plánované spuštění",
+            "success": "Plánované spuštení bylo úspěšně přidáno."
+          },
+          "task-create": {
+            "header": "Nová úloha",
+            "success": "Nová úloha [{{record}}] byla úspěšně vytvořena."
+          },
+          "task-edit": {
+            "header": "Detail úlohy",
+            "success": "Úloha [{{record}}] byla úspěšně upravena.",
+            "parameters": "Parametry úlohy"
+          },
+          "task-run": {
+            "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+          },
+          "task-delete": {
+            "header": "Odebrat úlohu",
+            "message": "Opravdu chcete odebrat úlohu [<strong>{{record}}</strong>]?",
+            "success": "Úloha [{{record}}] byla úspěšně odebrána."
+          },
+          "save": {
+            "success": "Uložení úlohy [{{record}}] úspěšně proběhlo."
+          }
+        }
       },
       "all-tasks": {
         "header": "Všechny úlohy",
-        "title": "Všechny úlohy"
+        "title": "Všechny úlohy",
+        "filter": {
+          "dateFrom": {
+            "label": "Od",
+            "placeholder": "Datum od"
+          },
+          "dateTill": {
+            "label": "Do",
+            "placeholder": "Datum do"
+          },
+          "text": {
+            "label": "Klíč / Typ",
+            "placeholder": "Klíč nebo typ úlohy"
+          },
+          "text": {
+            "label": "Typ / Popis",
+            "placeholder": "Typ nebo popis úlohy"
+          },
+          "operationState": {
+            "label": "Stav",
+            "placeholder": "Stav úlohy"
+          }
+        }
       }
     },
     "notifications": {
@@ -1688,14 +1765,28 @@
       "passphraseWords": "Počet slov pro passphrase",
       "maxPasswordAge": "Maximální doba pro změnu hesla",
       "minPasswordAge": "Minimální doba pro změnu hesla",
-      "enchancedControl": "Rozšířená kontrola hesla",
+      "enchancedControl": "Rozšířená kontrola",
       "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
       "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
       "lowerCharBase": "Povolené malé znaky",
       "upperCharBase": "Povolené velké znaky",
       "numberBase": "Povolené číslice",
       "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu"
+      "identityAttributeCheck": "Atributy identity pro kontrolu",
+      "help": {
+        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
+        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
+        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
+        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelské attributy. Také je možnost nastavit povinná pouze některá pravidla.",
+        "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
+        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
+        "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
+        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
+        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
+        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
+        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
+        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
+      }
     },
     "Module": {
       "id": "Id",
@@ -1718,12 +1809,34 @@
       "closeable": "Uzavírá zpracování"
     },
     "LongRunningTask": {
-      "taskKey": "Klíč",
-      "taksType": "Typ úlohy",
+      "taskId": "Id úlohy",
+      "taskType": "Typ úlohy",
+      "taskDescription": "Popis",
       "count": "Počet",
       "counter": "Zpracováno",
       "result": {
         "state": "Stav"
+      }
+    },
+    "ScheduleTask": {
+      "id": "Identifikátor",
+      "taskType": "Typ úlohy",
+      "instanceId": {
+        "label": "Instance",
+        "help": "Spustit na serveru (identifikátor instance)"
+      },
+      "description": "Popis",
+      "triggers": "Plánovaná spuštění",
+      "trigger": {
+        "_type": {
+          "label": "Typ",
+          "help": "Typ plánovaného spuštění"
+        },
+        "fireTime": "Datum spuštění",
+        "cron": {
+          "label": "Cron výraz",
+          "help": "Quartz cron <a href=\"http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html\" target=\"_blank\">výraz</a>."
+        }
       }
     }
   },
@@ -1774,7 +1887,35 @@
     },
     "PASSWORD_CANNOT_CHANGE": {
       "title": "Heslo nebylo změněno",
-      "message": "Zkuste to znovu po {{0}}."
+      "message": "Zkuste to znovu po {{date}}."
+    },
+    "PASSWORD_POLICY_MAX_LENGTH_LOWER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Maximální délka nesmí být menší než minimální délka."
+    },
+    "PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Součet všech minimálních délek je větší než maximální délka."
+    },
+    "PASSWORD_POLICY_MAX_AGE_LOWER": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Maximální doba pro změnu hesla nesmí být menší než minimální."
+    },
+    "PASSWORD_POLICY_DEFAULT_TYPE": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Standardní politika již existuje."
+    },
+    "PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Neexistuje standardní politika."
+    },
+    "PASSWORD_POLICY_BAD_TYPE": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
+    },
+    "PASSWORD_POLICY_VALIDATION": {
+      "title": "Politika hesel nebyla uložena",
+      "message": "Problém s validací politiky."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",
@@ -1800,6 +1941,10 @@
     },
     "CONFLICT": {
       "title": "Záznam koliduje s jiným unikátním záznamem"
+    },
+    "NAME_CONFLICT": {
+      "title": "Konflikt se jménem entity",
+      "message": "Záznam s tímto jménem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
       "message": "Identita [{{identity}}] neexistuje"

@@ -28,7 +28,7 @@ class PasswordPolicySystems extends Basic.AbstractContent {
   render() {
     const { entityId } = this.props.params;
     return (
-      <div className="tab-pane-table-body">
+      <div>
         <Basic.ContentHeader text={this.i18n('acc:content.passwordPolicy.system.title')} style={{ marginBottom: 0 }}/>
 
         <Basic.Panel className="no-border last">
@@ -36,6 +36,7 @@ class PasswordPolicySystems extends Basic.AbstractContent {
             columns={['name', 'description', 'disabled', 'readonly']}
             manager={this.systemManager}
             forceSearchParameters={new Domain.SearchParameters().setFilter('passwordPolicyId', entityId)}
+            showRowSelection={false}
             showAddButton={false}
             filterOpened={false}/>
         </Basic.Panel>

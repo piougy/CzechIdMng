@@ -36,7 +36,8 @@ import eu.bcvsolutions.idm.eav.api.entity.FormableEntity;
 @Entity
 @Table(name = "sys_system", indexes = {
 		@Index(name = "ux_system_name", columnList = "name", unique = true),
-		@Index(name = "idx_idm_password_policy", columnList = "password_policy_id")})
+		@Index(name = "idx_idm_password_pol_gen", columnList = "password_pol_val_id"),
+		@Index(name = "idx_idm_password_pol_val", columnList = "password_pol_gen_id")})
 public class SysSystem extends AbstractEntity implements IdentifiableByName, FormableEntity {
 
 	private static final long serialVersionUID = -8276147852371288351L;
@@ -87,10 +88,17 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	
 	@Audited
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "password_policy_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "password_pol_val_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmPasswordPolicy passwordPolicy;
+	private IdmPasswordPolicy passwordPolicyValidate;
+	
+	@Audited
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "password_pol_gen_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmPasswordPolicy passwordPolicyGenerate;
 
 	@Override
 	public String getName() {
@@ -101,12 +109,20 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 		this.name = name;
 	}
 
-	public IdmPasswordPolicy getPasswordPolicy() {
-		return passwordPolicy;
+	public IdmPasswordPolicy getPasswordPolicyValidate() {
+		return passwordPolicyValidate;
 	}
 
-	public void setPasswordPolicy(IdmPasswordPolicy passwordPolicy) {
-		this.passwordPolicy = passwordPolicy;
+	public void setPasswordPolicyValidate(IdmPasswordPolicy passwordPolicyValidate) {
+		this.passwordPolicyValidate = passwordPolicyValidate;
+	}
+
+	public IdmPasswordPolicy getPasswordPolicyGenerate() {
+		return passwordPolicyGenerate;
+	}
+
+	public void setPasswordPolicyGenerate(IdmPasswordPolicy passwordPolicyGenerate) {
+		this.passwordPolicyGenerate = passwordPolicyGenerate;
 	}
 
 	public boolean isDisabled() {

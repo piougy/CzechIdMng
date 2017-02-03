@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
  * Password policy service.
@@ -63,17 +64,24 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository passwordPolicyRepository;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
-			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository, IdmPasswordPolicyRepository passwordPolicyRepository) {
+			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository, IdmPasswordPolicyRepository passwordPolicyRepository,
+			SecurityService securityService) {
 		super(repository);
 		this.passwordPolicyRepository = passwordPolicyRepository;
+		this.securityService = securityService;
 	}
 	
 	@Override
+	@Transactional
 	public IdmPasswordPolicy save(IdmPasswordPolicy entity) {
-		if (canSaveEntity(entity)) {
+		if (validatePasswordPolicyAttributes(entity)) {
+			if (entity.isDefaultPolicy()) {
+				this.passwordPolicyRepository.updateDefaultPolicyByType(entity.getType(), entity.getId());
+			}
 			return super.save(entity);
 		} else {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE, ImmutableMap.of("name", entity.getName()));
@@ -81,31 +89,24 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	/**
-	 * method check if dont exist another default type of same type
+	 * Method check attributes of password policy
+	 * TODO: send all error message at once?
 	 * 
 	 * @param entity
-	 * @return false if there is any another default type 
-	 * and entity can be save. True if entity can't be save
+	 * @return true, if password policy attribute are valid, otherwise throw error
 	 */
-	private boolean canSaveEntity(IdmPasswordPolicy entity) {
-		if (!entity.isDefaultPolicy()) {
-			return true;
+	private boolean validatePasswordPolicyAttributes(IdmPasswordPolicy entity) {
+		if (entity.getMaxPasswordLength() < entity.getMinPasswordLength()) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_LENGTH_LOWER);
 		}
-		// create filter and found default password policy
-		PasswordPolicyFilter filter = new PasswordPolicyFilter();
-		filter.setDefaultPolicy(true);
-		filter.setType(entity.getType());
-		List<IdmPasswordPolicy> result = this.find(filter, null).getContent();
-		
-		if (result.isEmpty()) {
-			return true;
+		if (entity.getMinLowerChar() + entity.getMinNumber() + entity.getMinSpecialChar() + entity.getMinUpperChar() > 
+				entity.getMaxPasswordLength()) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER);
 		}
-		
-		if (result.get(0).getId().equals(entity.getId())) {
-			return true;
-		} else {
-			return false;
+		if (entity.getMaxPasswordAge() < entity.getMinPasswordAge()) {
+			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_AGE_LOWER);
 		}
+		return true;
 	}
 	
 	@Override
@@ -116,7 +117,10 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	@Override
 	public boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy) {
 		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
-		passwordPolicyList.add(passwordPolicy);
+		
+		if (passwordPolicy != null) {
+			passwordPolicyList.add(passwordPolicy);
+		}
 		
 		return this.validate(passwordValidationDto, passwordPolicyList);
 	}
@@ -129,7 +133,15 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		// if list is empty, get default password policy
 		if (passwordPolicyList.isEmpty()) {
 			IdmPasswordPolicy defaultPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
-			passwordPolicyList.add(defaultPolicy);
+			if (defaultPolicy != null) {
+				passwordPolicyList.add(defaultPolicy);
+			}
+		}
+		
+		// if list with password policies is empty, validate is always true
+		if (passwordPolicyList.isEmpty()) {
+			// this state means that system idm hasn't default password policy
+			return true;
 		}
 		
 		IdmPassword oldPassword = passwordValidationDto.getOldPassword();
@@ -142,11 +154,15 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		List<String> policyNames = new ArrayList<String>();
 		
 		for (IdmPasswordPolicy passwordPolicy : passwordPolicyList) {
+			if (passwordPolicy.isDisabled()) {
+				continue;
+			}
 			boolean validateNotSuccess = false;
 			
 			// check if can change password for minimal age for change
-			if (oldPassword != null) {
-				if (oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) > 1) {
+			// if loged user is admin, skip this
+			if (oldPassword != null && !securityService.isAdmin()) {
+				if (oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge()).compareTo(now.toLocalDate()) >= 1) {
 					throw new ResultCodeException(CoreResultCode.PASSWORD_CANNOT_CHANGE,
 							ImmutableMap.of(("date"), oldPassword.getValidFrom().plusDays(passwordPolicy.getMinPasswordAge())));
 				}
@@ -225,12 +241,12 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			}
 			
 			// check how many required rules is not filled
-			if (notPassRules.size() > minRulesToFulfill) {
+			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl() && notPassRules.size() >= minRulesToFulfill) {
 				errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill);
 				errors.put(MIN_RULES_TO_FULFILL, notPassRules);
 			}
 			
-			// check to similar identity attributes, enchanced control
+			// check to similar identity attributes, enhanced control
 			if (passwordPolicy.isEnchancedControl()) {
 				String[] attributes = passwordPolicy.getIdentityAttributeCheck().split(", ");
 				IdmIdentity identity = passwordValidationDto.getIdentity();
@@ -278,18 +294,15 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public IdmPasswordPolicy getDefaultPasswordPolicy(IdmPasswordPolicyType type) {
-		List<IdmPasswordPolicy> policiesList = passwordPolicyRepository.findDefaultType(type, new PageRequest(0, 1));
-		if (policiesList.isEmpty()) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST);
-		}
-		return policiesList.get(0);
+		IdmPasswordPolicy defaultPolicy = passwordPolicyRepository.findOneDefaultType(type);
+		return defaultPolicy;
 	}
 
 	@Override
 	public String generatePassword(IdmPasswordPolicy passwordPolicy) {
 		Assert.notNull(passwordPolicy);
 		Assert.doesNotContain(passwordPolicy.getType().name(), IdmPasswordPolicyType.VALIDATE.name(), "Bad type.");
-		if (passwordPolicy.getGenerateType().equals(IdmPasswordPolicyGenerateType.PASSPHRASE)) {
+		if (passwordPolicy.getGenerateType() == IdmPasswordPolicyGenerateType.PASSPHRASE) {
 			return this.getPasswordGenerator().generatePassphrase(passwordPolicy);
 		}
 		// TODO: use random generate?
@@ -306,16 +319,15 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 
 	@Override
 	public String generatePasswordByDefault() {
-		PasswordPolicyFilter filter = new PasswordPolicyFilter();
-		filter.setDefaultPolicy(true);
-		filter.setType(IdmPasswordPolicyType.GENERATE);
-		List<IdmPasswordPolicy> list = this.find(filter, null).getContent();
+		IdmPasswordPolicy defaultPasswordPolicy = this.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
 		
-		if (list.isEmpty() || list.size() > 1) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST);
+		// if default password policy for generating not exist
+		// generate random string
+		if (defaultPasswordPolicy == null) {
+			return this.getPasswordGenerator().generateRandom();
 		}
 		
-		return this.generatePassword(list.get(0));
+		return this.generatePassword(defaultPasswordPolicy);
 	}
 	
 	@Override
@@ -349,8 +361,8 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	 * @return
 	 */
 	private boolean compareInt(Object o1, Object o2) {
-		Integer i1 = Integer.parseInt(o1.toString());
-		Integer i2 = Integer.parseInt(o2.toString());
+		Integer i1 = Integer.valueOf(o1.toString());
+		Integer i2 = Integer.valueOf(o2.toString());
 		
 		return i1 > i2;
 	}
@@ -367,5 +379,10 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			return 0;
 		}
 		return NumberUtils.toInt(object.toString());
+	}
+
+	@Override
+	public IdmPasswordPolicy findOneByName(String name) {
+		return this.passwordPolicyRepository.findOneByName(name);
 	}
 }

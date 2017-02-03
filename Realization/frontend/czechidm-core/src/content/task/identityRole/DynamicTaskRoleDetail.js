@@ -36,6 +36,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
   _completeTask(decision) {
     const formDataValues = this.refs.formData.getData();
     const task = this.refs.form.getData();
+
     const conceptTable = this.refs.identityRoleConceptTable;
     const addedIdentityRoles = conceptTable.getAddedIdentityRoles();
     const removedIdentityRoles = conceptTable.getRemovedIdentityRolesIds();
@@ -69,7 +70,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form" className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={task} className="form-horizontal">
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>

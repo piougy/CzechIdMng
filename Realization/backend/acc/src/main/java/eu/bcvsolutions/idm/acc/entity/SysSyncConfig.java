@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,15 +28,20 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 
 /**
- * <i>SysSynchronizationConfig</i> is responsible for keep informations about
+ * <i>SysSyncConfig</i> is responsible for keep informations about
  * synchronization configuration
  * 
  * @author svandav
  *
  */
 @Entity
-@Table(name = "sys_sync_config")
-public class SysSynchronizationConfig extends AbstractEntity {
+@Table(name = "sys_sync_config", indexes = {
+		@Index(name = "idx_sys_s_config_mapping", columnList = "system_mapping_id"),
+		@Index(name = "idx_sys_s_config_correl", columnList = "correlation_attribute_id"),
+		@Index(name = "idx_sys_s_config_token", columnList = "token_attribute_id"),
+		@Index(name = "idx_sys_s_config_filter", columnList = "filter_attribute_id")
+		})
+public class SysSyncConfig extends AbstractEntity {
 
 	private static final long serialVersionUID = 6852881356003914520L;
 
@@ -53,10 +59,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Audited
 	@Column(name = "description")
 	private String description;
-
-	@Audited
-	@Column(name = "run_on_server")
-	private String runOnServer;
 
 	@Audited
 	@NotNull
@@ -165,7 +167,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "missing_account_action_wf", length = DefaultFieldLengths.NAME)
 	private String missingAccountActionWfKey;
-	
 
 
 	public boolean isEnabled() {
@@ -190,14 +191,6 @@ public class SysSynchronizationConfig extends AbstractEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getRunOnServer() {
-		return runOnServer;
-	}
-
-	public void setRunOnServer(String runOnServer) {
-		this.runOnServer = runOnServer;
 	}
 
 	public boolean isReconciliation() {

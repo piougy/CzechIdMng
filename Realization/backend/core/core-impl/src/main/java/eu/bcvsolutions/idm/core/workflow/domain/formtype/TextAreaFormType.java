@@ -31,6 +31,9 @@ public class TextAreaFormType extends AbstractComponentFormType {
 		if (modelValue == null) {
 			return null;
 		}
+		if(!(modelValue instanceof String)){
+			return modelValue.toString();
+		}
 		return (String) modelValue;
 	}
 

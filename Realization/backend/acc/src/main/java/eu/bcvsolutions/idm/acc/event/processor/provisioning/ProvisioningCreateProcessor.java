@@ -7,15 +7,23 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultProvisioningService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
+import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
+import eu.bcvsolutions.idm.ic.impl.IcPasswordAttributeImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
+import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 /**
  * Provisioning - create operation
@@ -30,19 +38,25 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	public static final String PROCESSOR_NAME = "provisioning-create-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningCreateProcessor.class);
 	private final SysSystemEntityService systemEntityService;
+	private final IdmPasswordPolicyService passwordPolicyService;
+	private final SysProvisioningOperationService provisioningOperationService;
 	
 	@Autowired
 	public ProvisioningCreateProcessor(
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysSystemEntityService systemEntityService,
-			SysProvisioningOperationService provisioningOperationService) {
+			SysProvisioningOperationService provisioningOperationService,
+			IdmPasswordPolicyService passwordPolicyService) {
 		super(connectorFacade, systemService, provisioningOperationService, 
 				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
+		Assert.notNull(provisioningOperationService);
 		//
+		this.passwordPolicyService = passwordPolicyService;
 		this.systemEntityService = systemEntityService;
+		this.provisioningOperationService = provisioningOperationService;
 	}
 	
 	@Override
@@ -51,12 +65,32 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {		
+	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		// execute provisioning
-		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
+		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
+		//		
+		for (IcAttribute attribute : connectorObject.getAttributes()) {
+			// if attribute is password and his value is empty, generate new password
+			if(attribute instanceof IcPasswordAttribute 
+					&& ((IcPasswordAttribute) attribute).getPasswordValue() == null) {
+				IdmPasswordPolicy passwordPolicy = provisioningOperation.getSystem().getPasswordPolicyGenerate();
+				//
+				String password = null;
+				if (passwordPolicy == null) {
+					password = passwordPolicyService.generatePasswordByDefault();
+				} else {
+					password = passwordPolicyService.generatePassword(passwordPolicy);
+				}
+				//
+				connectorObject.getAttributes().remove(attribute);
+				connectorObject.getAttributes().add(new IcPasswordAttributeImpl(DefaultProvisioningService.PASSWORD_SCHEMA_PROPERTY_NAME, new GuardedString(password)));
+				break;
+			}
+		}
+		//
 		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
-		//
+		provisioningOperationService.save(((SysProvisioningOperation)provisioningOperation));
 		// update system entity, when identifier on target system differs
 		if (icUid != null && icUid.getUidValue() != null) {
 			SysSystemEntity systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(

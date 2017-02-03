@@ -9,6 +9,7 @@ import SynchronizationLinkedActionTypeEnum from '../../domain/SynchronizationLin
 import SynchronizationMissingEntityActionTypeEnum from '../../domain/SynchronizationMissingEntityActionTypeEnum';
 import SynchronizationUnlinkedActionTypeEnum from '../../domain/SynchronizationUnlinkedActionTypeEnum';
 import IcFilterOperationTypeEnum from '../../domain/IcFilterOperationTypeEnum';
+import help from './SyncConfigFilterHelp_cs.md';
 
 const uiKey = 'system-synchronization-config';
 const uiKeyLogs = 'system-synchronization-logs';
@@ -73,7 +74,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         linkedAction: SynchronizationLinkedActionTypeEnum.findKeyBySymbol(SynchronizationLinkedActionTypeEnum.UPDATE_ENTITY),
         unlinkedAction: SynchronizationUnlinkedActionTypeEnum.findKeyBySymbol(SynchronizationUnlinkedActionTypeEnum.LINK_AND_UPDATE_ACCOUNT),
         missingEntityAction: SynchronizationMissingEntityActionTypeEnum.findKeyBySymbol(SynchronizationMissingEntityActionTypeEnum.CREATE_ENTITY),
-        missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE)
+        missingAccountAction: ReconciliationMissingAccountActionTypeEnum.findKeyBySymbol(ReconciliationMissingAccountActionTypeEnum.IGNORE),
+        filterOperation: IcFilterOperationTypeEnum.findKeyBySymbol(IcFilterOperationTypeEnum.GREATER_THAN)
       }});
     } else {
       this.context.store.dispatch(synchronizationConfigManager.fetchEntity(configId));
@@ -88,7 +90,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-
     const formValid = this.refs.form.isFormValid();
     const formFilterValid = this.refs.formFilter.isFormValid();
     if (!formValid) {
@@ -99,6 +100,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       this.setState({activeKey: 2});
       return;
     }
+    this.setState({showLoading: true});
     const formEntity = this.refs.form.getData();
     // Merge filter data to form.
     const formFilter = this.refs.formFilter.getData();
@@ -136,12 +138,13 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       } else {
         this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
       }
-      // const { entityId } = this.props.params;
-      // this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
+      const { entityId } = this.props.params;
+      this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
     } else {
       this.addError(error);
     }
     super.afterSave();
+    this.setState({showLoading: false});
   }
 
   afterSaveAndStartSynchronization(entity, error) {
@@ -252,12 +255,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   render() {
     const { _showLoading, _synchronizationConfig} = this.props;
     const {systemMappingId, showLoading, activeKey} = this.state;
-    const innerShowLoading = _showLoading || showLoading;
+    const isNew = this._getIsNew();
+    const innerShowLoading = isNew ? showLoading : (_showLoading || showLoading);
     const systemId = this.props.params.entityId;
     const forceSearchParameters = new Domain.SearchParameters().setFilter('synchronizationConfigId', _synchronizationConfig ? _synchronizationConfig.id : Domain.SearchParameters.BLANK_UUID);
     const forceSearchMappingAttributes = new Domain.SearchParameters().setFilter('systemId', systemId || Domain.SearchParameters.BLANK_UUID);
     const forceSearchSyncActionWfKey = new Domain.SearchParameters().setFilter('category', syncActionWfKey);
-    const isNew = this._getIsNew();
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
@@ -288,22 +291,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="name"
                     label={this.i18n('acc:entity.SynchronizationConfig.name')}
                     required/>
-                  <Basic.TextField
-                    ref="runOnServer"
-                    label={this.i18n('acc:entity.SynchronizationConfig.runOnServer')}
-                    readOnly/>
                   <Basic.SelectBox
                     ref="systemMapping"
                     manager={systemMappingManager}
                     forceSearchParameters={forceSearchMappingAttributes}
                     onChange={this._onChangeSystemMapping.bind(this)}
                     label={this.i18n('acc:entity.SynchronizationConfig.systemMapping')}
-                    required/>
-                  <Basic.SelectBox
-                    ref="correlationAttribute"
-                    manager={systemAttributeMappingManager}
-                    forceSearchParameters={forceSearchCorrelationAttribute}
-                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                     required/>
                   <Basic.TextField
                     ref="token"
@@ -336,6 +329,12 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                       ref="unlinkedAction"
                       enum={SynchronizationUnlinkedActionTypeEnum}
                       label={this.i18n('situationAction')}
+                      required/>
+                    <Basic.SelectBox
+                      ref="correlationAttribute"
+                      manager={systemAttributeMappingManager}
+                      forceSearchParameters={forceSearchCorrelationAttribute}
+                      label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
                       required/>
                     <Basic.SelectBox
                       ref="unlinkedActionWfKey"
@@ -374,24 +373,16 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
-                  <Basic.SplitButton
+                  <Basic.Button
                     level="success"
-                    title={this.i18n('button.saveAndContinue')}
                     onClick={this.save.bind(this, false)}
                     showLoading={innerShowLoading}
                     type="submit"
                     showLoadingIcon
                     showLoadingText={this.i18n('button.saving')}
-                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
-                    pullRight
-                    dropup>
-                    <Basic.MenuItem
-                      eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE', 'SYNCHRONIZATION_WRITE')}
-                      onClick={this.save.bind(this, true)}>
-                      {this.i18n('button.saveAndStartSynchronization')}
-                    </Basic.MenuItem>
-                  </Basic.SplitButton>
+                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}t>
+                    {this.i18n('button.save')}
+                  </Basic.Button>
                 </Basic.PanelFooter>
               </Basic.Panel>
             </form>
@@ -404,6 +395,13 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="customFilter"
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilter.help')}/>
+                  <Basic.LabelWrapper label=" ">
+                    <Basic.Alert
+                       key="customFilterInfo"
+                       icon="exclamation-sign"
+                       className="no-margin"
+                       text={this.i18n('customFilterInfo')}/>
+                  </Basic.LabelWrapper>
                   <Basic.SelectBox
                     ref="filterAttribute"
                     manager={systemAttributeMappingManager}
@@ -426,7 +424,8 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     ref="customFilterScript"
                     height="20em"
                     helpBlock={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.help')}
-                    label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}/>
+                    label={this.i18n('acc:entity.SynchronizationConfig.customFilterScript.label')}
+                    help={help}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
@@ -447,7 +446,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE', 'SYNCHRONIZATION_WRITE')}
+                      rendered={!isNew && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
                       onClick={this.save.bind(this, true)}>
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
@@ -491,24 +490,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                       {this.i18n('button.add')}
                     </Basic.Button>
                   ]
-                }
-                filter={
-                  <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                    <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                      <Basic.Row className="last">
-                        <div className="col-lg-6">
-                          <Advanced.Filter.TextField
-                            ref="idmPropertyName"
-                            label={this.i18n('filter.idmPropertyName.label')}
-                            placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
-                        </div>
-                        <div className="col-lg-2"/>
-                        <div className="col-lg-4 text-right">
-                          <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                        </div>
-                      </Basic.Row>
-                    </Basic.AbstractForm>
-                  </Advanced.Filter>
                 }>
                 <Advanced.Column
                   property=""
@@ -562,7 +543,7 @@ function select(state, component) {
   }
   return {
     _synchronizationConfig: entity,
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-detail`),
+    _showLoading: entity ? false : true,
   };
 }
 

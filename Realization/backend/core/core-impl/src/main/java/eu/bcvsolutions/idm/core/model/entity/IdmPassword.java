@@ -30,13 +30,9 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = -8101492061266251152L;
 	
-	public IdmPassword() {
-		// Auto-generated constructor
-	}
-	
 	// @NotEmpty // TODO: ?
 	@Column(name = "password")
-	private byte[] password;
+	private String password;
 	
 	@OneToOne(optional = false)
 	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -52,12 +48,16 @@ public class IdmPassword extends AbstractEntity implements ValidableEntity {
 	
 	@Column(name = "must_change")
 	private boolean mustChange = false;
+	
+	public IdmPassword() {
+		// Auto-generated constructor
+	}
 
-	public byte[] getPassword() {
+	public String getPassword() {
 		return password;
 	}
 
-	public void setPassword(byte[] password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 	

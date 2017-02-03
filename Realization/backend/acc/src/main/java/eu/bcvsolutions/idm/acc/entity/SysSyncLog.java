@@ -8,8 +8,8 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -19,22 +19,21 @@ import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
-import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
 /**
- * <i>SysSynchronizationLog</i> is responsible for keep log informations about
+ * <i>SysSyncLog</i> is responsible for keep log informations about
  * synchronization.
  * 
  * @author svandav
  *
  */
 @Entity
-@Table(name = "sys_sync_log")
-public class SysSynchronizationLog extends AbstractEntity {
+@Table(name = "sys_sync_log", indexes = {
+		@Index(name = "idx_sys_s_l_config", columnList = "synchronization_config_id")})
+public class SysSyncLog extends AbstractEntity {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSynchronizationLog.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(SysSyncLog.class);
 	private static final long serialVersionUID = -5447620157233410338L;
 
 	@NotNull
@@ -43,7 +42,7 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSynchronizationConfig synchronizationConfig;
+	private SysSyncConfig synchronizationConfig;
 
 	@NotNull
 	@Column(name = "running", nullable = false)
@@ -73,11 +72,11 @@ public class SysSynchronizationLog extends AbstractEntity {
 	@Column(name = "log")
 	private String log;
 
-	public SysSynchronizationConfig getSynchronizationConfig() {
+	public SysSyncConfig getSynchronizationConfig() {
 		return synchronizationConfig;
 	}
 
-	public void setSynchronizationConfig(SysSynchronizationConfig synchronizationConfig) {
+	public void setSynchronizationConfig(SysSyncConfig synchronizationConfig) {
 		this.synchronizationConfig = synchronizationConfig;
 	}
 

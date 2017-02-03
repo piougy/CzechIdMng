@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
-import eu.bcvsolutions.idm.acc.entity.SysSynchronizationConfig;
+import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
@@ -42,7 +42,7 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-synchronization-configs")
 public class SysSynchronizationConfigController
-		extends AbstractReadWriteEntityController<SysSynchronizationConfig, SynchronizationConfigFilter> {
+		extends AbstractReadWriteEntityController<SysSyncConfig, SynchronizationConfigFilter> {
 
 	private final SynchronizationService synchronizationService;
 	
@@ -126,7 +126,37 @@ public class SysSynchronizationConfigController
 	@RequestMapping(value = "/{backendId}/start", method = RequestMethod.POST)
 	public ResponseEntity<?> startSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		return new ResponseEntity<>(toResource(this.synchronizationService.synchronization(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+		return new ResponseEntity<>(toResource(this.synchronizationService.startSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+	}
+	
+	/**
+	 * Cancel synchronization
+	 * @param backendId
+	 * @return
+	 * @throws HttpMessageNotReadableException
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYNCHRONIZATION_WRITE + "')")
+	@RequestMapping(value = "/{backendId}/cancel", method = RequestMethod.POST)
+	public ResponseEntity<?> cancelSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		return new ResponseEntity<>(toResource(this.synchronizationService.stopSynchronizationEvent(this.getEntityService().get(backendId)), assembler), HttpStatus.OK);
+	}
+	
+	/**
+	 * Is synchronization running
+	 * @param backendId
+	 * @return
+	 * @throws HttpMessageNotReadableException
+	 */
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/isRunning", method = RequestMethod.POST)
+	public ResponseEntity<?> isRunningSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
+			throws HttpMessageNotReadableException {
+		
+		boolean running = ((SysSynchronizationConfigService)this.getEntityService()).isRunning(this.getEntityService().get(backendId));
+		return new ResponseEntity<>(running, HttpStatus.OK);
 	}
 
 	@Override

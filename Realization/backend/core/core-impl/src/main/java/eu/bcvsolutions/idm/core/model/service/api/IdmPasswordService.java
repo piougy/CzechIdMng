@@ -7,6 +7,14 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
+/**
+ * Service for working with password.
+ * Now is password connect only to entity IdmIdentity.
+ * 
+ * @author Ondrej Kopr <kopr@xyxy.cz>
+ *
+ */
+
 public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword, PasswordFilter> {
 	
 	/**
@@ -16,14 +24,14 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param entity
 	 * @return
 	 */
-	public IdmPassword save(IdmIdentity identity, PasswordChangeDto passwordDto);
+	IdmPassword save(IdmIdentity identity, PasswordChangeDto passwordDto);
 	
 	/**
 	 * Delete password by given identity
 	 * 
 	 * @param identity
 	 */
-	public void delete(IdmIdentity identity);
+	void delete(IdmIdentity identity);
 	
 	/**
 	 * Return password for given identity
@@ -31,7 +39,7 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param identity
 	 * @return
 	 */
-	public IdmPassword get(IdmIdentity identity);
+	IdmPassword get(IdmIdentity identity);
 	
 	/**
 	 * Check password matches a passwordToCheck
@@ -40,7 +48,7 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param password
 	 * @return true if matches
 	 */
-	public boolean checkPassword(GuardedString passwordToCheck, IdmPassword password);
+	boolean checkPassword(GuardedString passwordToCheck, IdmPassword password);
 	
 	/**
 	 * Method generate password and return hash
@@ -48,13 +56,13 @@ public interface IdmPasswordService  extends ReadWriteEntityService<IdmPassword,
 	 * @param password
 	 * @return
 	 */
-	public byte[] generateHash(GuardedString password, byte[] salt);
+	String generateHash(GuardedString password, String salt);
 	
 	/**
-	 * Get salt for idenitity
+	 * Get salt for identity
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	public byte[] getSalt(IdmIdentity identity);
+	String getSalt(IdmIdentity identity);
 }

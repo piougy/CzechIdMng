@@ -8,6 +8,7 @@ import Immutable from 'immutable';
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import { IdentityManager } from '../../redux';
+import ValidationMessage from './ValidationMessage';
 
 const identityManager = new IdentityManager();
 
@@ -68,7 +69,7 @@ class Profile extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const result = _.merge({}, formData, {
-      password: btoa(formData.password) // base64
+      password: formData.password
     });
     delete result.passwordAgain;
     delete result.generatePassword;
@@ -76,7 +77,8 @@ class Profile extends Basic.AbstractContent {
     identityManager.getService().create(result)
     .then(json => {
       this.setState({
-        showLoading: false
+        showLoading: false,
+        validationError: null
       }, () => {
         this.refs.form.processEnded();
         this.addMessage({
@@ -233,7 +235,7 @@ class Profile extends Basic.AbstractContent {
                       newPasswordAgain={passwordAgain}/>
                   </div>
                   <Basic.Panel className="col-lg-5 no-border">
-                    <Basic.ValidationMessage error={validationError} />
+                    <ValidationMessage error={validationError} />
                   </Basic.Panel>
                 </Basic.AbstractForm>
               </Basic.PanelBody>

@@ -35,7 +35,7 @@ public class SysSyncActionLog extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
 										// hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private SysSynchronizationLog syncLog;
+	private SysSyncLog syncLog;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "sync_action", nullable = false)
@@ -49,11 +49,11 @@ public class SysSyncActionLog extends AbstractEntity {
 	@Column(name = "result", nullable = false)
 	private OperationResultType operationResult;
 
-	public SysSynchronizationLog getSyncLog() {
+	public SysSyncLog getSyncLog() {
 		return syncLog;
 	}
 
-	public void setSyncLog(SysSynchronizationLog syncLog) {
+	public void setSyncLog(SysSyncLog syncLog) {
 		this.syncLog = syncLog;
 	}
 

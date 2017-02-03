@@ -1,7 +1,8 @@
 import React from 'react';
+import _ from 'lodash';
 //
-import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import Alert from '../Alert/Alert';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 
 /**
  * Parameters in errors. Contain names of not success policies
@@ -22,7 +23,23 @@ const MIN_RULES_TO_FULFILL = 'minRulesToFulfill';
  */
 const MIN_RULES_TO_FULFILL_COUNT = 'minRulesToFulfillCount';
 
-export default class ValidationMessage extends AbstractFormComponent {
+/**
+ * Error message with date, date is format by local
+ * @type {String}
+ */
+const DATE = 'date';
+
+/**
+ * Array with all validation message parameters, when you add some validation warrning into BE,
+ * you also must add this parameters into this arrray.
+ * @type {Array}
+ */
+const VALIDATION_WARNINGS = ['minLength', 'maxLength', 'minUpperChar',
+'minLowerChar', 'minNumber', 'minSpecialChar', 'prohibited', 'weakPass',
+'minRulesToFulfill', 'minRulesToFulfillCount', 'policiesNames',
+'passwordSimilarUsername', 'passwordSimilarEmail', 'passwordSimilarFirstName', 'passwordSimilarLastName'];
+
+export default class ValidationMessage extends Basic.AbstractFormComponent {
 
   constructor(props) {
     super(props);
@@ -41,6 +58,10 @@ export default class ValidationMessage extends AbstractFormComponent {
     }
   }
 
+  /**
+   * Method prepare error from password validation.
+   * Only validation message is required, other will be skiped.
+   */
   _prepareValidationMessage(error) {
     if (!error || !error.parameters) {
       return null;
@@ -51,7 +72,8 @@ export default class ValidationMessage extends AbstractFormComponent {
 
     // iterate over all parameters in error
     for (const key in error.parameters) {
-      if (error.parameters.hasOwnProperty(key)) {
+      // error prameters must contain key and VALIDATION_WARNINGS must also contain key
+      if (error.parameters.hasOwnProperty(key) && _.indexOf(VALIDATION_WARNINGS, key) !== -1) {
         // enchanced control special message, minimal rules to fulfill
         if (key === MIN_RULES_TO_FULFILL) {
           // fill rules with not required messages
@@ -63,21 +85,26 @@ export default class ValidationMessage extends AbstractFormComponent {
           }
           rules += '</ul></span>';
           validationMessage.push(
-            <Alert level="warning" >
+            <Basic.Alert level="warning" >
               <span dangerouslySetInnerHTML={{
                 __html: this.i18n('content.passwordPolicies.validation.' + MIN_RULES_TO_FULFILL, {'count': error.parameters[MIN_RULES_TO_FULFILL_COUNT]} ) + ' ' + rules}}
               />
-            </Alert>);
+            </Basic.Alert>);
         } else if (key !== PASSWORD_POLICIES_NAMES) {
-          // other validation messages
-          validationMessage.push(<Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Alert>);
+          // validation message with date
+          if (key === DATE) {
+            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key)} <Advanced.DateValue value={error.parameters[key]} /> </Basic.Alert>);
+          } else {
+            // other validation messages
+            validationMessage.push(<Basic.Alert level="warning" >{this.i18n('content.passwordPolicies.validation.' + key) + error.parameters[key]}</Basic.Alert>);
+          }
         }
       }
     }
-    // last message is password policies names
+    // first message is password policies names, with danger class
     if (error.parameters.hasOwnProperty(PASSWORD_POLICIES_NAMES)) {
       policies = this.i18n('content.passwordPolicies.validation.' + PASSWORD_POLICIES_NAMES) + error.parameters[PASSWORD_POLICIES_NAMES];
-      validationMessage.push(<Alert level="warning" >{policies}</Alert>);
+      validationMessage.unshift(<Basic.Alert level="danger" >{policies}</Basic.Alert>);
     }
 
     return validationMessage;
@@ -85,7 +112,6 @@ export default class ValidationMessage extends AbstractFormComponent {
 
   render() {
     const { rendered, error } = this.props;
-
     if (!rendered || !error) {
       return null;
     }
@@ -101,10 +127,10 @@ export default class ValidationMessage extends AbstractFormComponent {
 }
 
 ValidationMessage.propTypes = {
-  ...AbstractFormComponent.propTypes,
+  ...Basic.AbstractFormComponent.propTypes,
   error: React.PropTypes.object
 };
 
 ValidationMessage.defaultProps = {
-  ...AbstractFormComponent.defaultProps
+  ...Basic.AbstractFormComponent.defaultProps
 };

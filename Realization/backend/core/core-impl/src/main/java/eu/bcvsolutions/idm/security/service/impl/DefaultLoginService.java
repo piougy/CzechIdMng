@@ -122,7 +122,7 @@ public class DefaultLoginService implements LoginService {
 			throw new ResultCodeException(CoreResultCode.MUST_CHANGE_IDM_PASSWORD, ImmutableMap.of("user", identity.getUsername()));
 		}
 		// check if password expired
-		if (idmPassword.getValidTill().isBefore(new LocalDate())) {
+		if (idmPassword.getValidTill() != null && idmPassword.getValidTill().isBefore(new LocalDate())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_EXPIRED);
 		}
 		return passwordService.checkPassword(loginDto.getPassword(), idmPassword);

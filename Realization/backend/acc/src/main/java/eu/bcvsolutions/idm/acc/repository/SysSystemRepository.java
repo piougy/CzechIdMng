@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.rest.projection.SysSystemExcerpt;
@@ -32,7 +33,9 @@ public interface SysSystemRepository extends AbstractEntityRepository<SysSystem,
 	        " where" +
 	        "(?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}) "
 	        + "and "
-	        + "(?#{[0].passwordPolicyId} is null or e.passwordPolicy.id = ?#{[0].passwordPolicyId})")
+	        + "(?#{[0].passwordPolicyValidationId} is null or e.passwordPolicyValidate.id = ?#{[0].passwordPolicyValidationId})"
+	        + "and "
+	        + "(?#{[0].passwordPolicyGenerationId} is null or e.passwordPolicyGenerate.id = ?#{[0].passwordPolicyGenerationId})")
 	Page<SysSystem> find(SysSystemFilter filter, Pageable pageable);
 	
 }

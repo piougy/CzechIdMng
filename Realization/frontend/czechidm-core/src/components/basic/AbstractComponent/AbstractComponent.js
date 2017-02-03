@@ -5,6 +5,8 @@ const PROPERTY_SHOW_LOADING = 'showLoading';
 
 /**
  * Super class for all components in application.
+ *
+ * @author Radek Tomiška
  */
 export default class AbstractComponent extends React.Component {
 

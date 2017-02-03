@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +69,21 @@ public class ParameterConverter {
 		Assert.notNull(parameters);
 	    Assert.notNull(parameterName);
 	    //
-		return (String)parameters.toSingleValueMap().get(parameterName);
+		return toString(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Reads {@code String} parameter from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public String toString(Map<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    Assert.notNull(parameterName);
+	    //
+		return (String)parameters.get(parameterName);
 	}
 	
 	/**
@@ -94,6 +109,19 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Long toLong(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+		//
+		return toLong(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code Long} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public Long toLong(Map<String, Object> parameters, String parameterName) {
 		String valueAsString = toString(parameters, parameterName);
 		if(StringUtils.isNotEmpty(valueAsString)) {
 			try {

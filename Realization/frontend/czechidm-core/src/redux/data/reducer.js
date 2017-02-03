@@ -22,6 +22,7 @@ import {
 
 import {
   REQUEST_DATA,
+  STOP_REQUEST,
   RECEIVE_DATA,
   CLEAR_DATA
 } from './DataManager';
@@ -134,6 +135,18 @@ export function data(state = INITIAL_STATE, action) {
           showLoading: true,
           id: action.id,
           error: null
+        })
+      });
+      return merge({}, state, {
+        ui: merge({}, state.ui, ui)
+      });
+    }
+    case STOP_REQUEST: {
+      const ui = merge({}, state.ui, {
+        [uiKey]: merge({}, state.ui[uiKey], {
+          showLoading: false,
+          id: action.id,
+          error: action.error
         })
       });
       return merge({}, state, {

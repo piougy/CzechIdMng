@@ -19,9 +19,10 @@ import com.sun.istack.NotNull;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Persisted archived provisioning operation 
@@ -70,7 +71,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	private String systemEntityUid; // account uid, etc.
 	
 	@Embedded
-	private SysProvisioningResult result;
+	private OperationResult result;
 	
 	/**
 	 * Provisioning operation type
@@ -143,27 +144,27 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	}
 	
 	@Override
-	public ResultState getResultState() {
+	public OperationState getResultState() {
 		if (result != null) {
 			return result.getState();
 		}
 		return null;
 	}
 	
-	public void setResultState(ResultState resultState) {
+	public void setResultState(OperationState resultState) {
 		if (result == null) {
-			result = new SysProvisioningResult(resultState);
+			result = new OperationResult(resultState);
 		} else {
 			result.setState(resultState);
 		}
 	}
 	
 	@Override
-	public SysProvisioningResult getResult() {
+	public OperationResult getResult() {
 		return result;
 	}
 	
-	public void setResult(SysProvisioningResult result) {
+	public void setResult(OperationResult result) {
 		this.result = result;
 	}
 	
@@ -189,7 +190,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 		private SystemEntityType entityType;
 		private UUID entityIdentifier;
 		private String systemEntityUid;
-		private SysProvisioningResult result;
+		private OperationResult result;
 		
 		public Builder() {
 		}
@@ -234,7 +235,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 			return this;
 		}
 		
-		public Builder setResult(SysProvisioningResult result) {
+		public Builder setResult(OperationResult result) {
 			this.result = result;
 			return this;
 		}

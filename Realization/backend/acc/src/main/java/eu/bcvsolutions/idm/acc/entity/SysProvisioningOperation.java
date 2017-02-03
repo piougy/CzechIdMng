@@ -23,9 +23,10 @@ import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
 /**
  * Persisted "active" provisioning operation. Any operation has request and batch.
@@ -143,17 +144,17 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getResultState()
 	 */
 	@Override
-	public ResultState getResultState() {
+	public OperationState getResultState() {
 		if (request != null && request.getResult() != null) {
 			return request.getResult().getState();
 		}
 		return null;
 	}
 	
-	public void setResultState(ResultState resultState) {
+	public void setResultState(OperationState resultState) {
 		if (request != null) {
 			if (request.getResult() == null) {
-				request.setResult(new SysProvisioningResult(resultState));
+				request.setResult(new OperationResult(resultState));
 			} else {
 				request.getResult().setState(resultState);
 			}
@@ -164,7 +165,7 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getResult()
 	 */
 	@Override
-	public SysProvisioningResult getResult() {
+	public OperationResult getResult() {
 		if (request != null) {
 			return request.getResult();
 		}

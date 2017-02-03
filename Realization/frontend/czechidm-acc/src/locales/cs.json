@@ -740,13 +740,6 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
-    },
-    "ProvisioningResultStateEnum":{
-      "CREATED": "Vytvořeno",
-    	"EXECUTED": "Provedeno",
-    	"EXCEPTION": "Chyba",
-    	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {

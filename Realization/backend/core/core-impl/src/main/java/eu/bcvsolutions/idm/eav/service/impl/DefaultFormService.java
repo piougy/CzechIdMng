@@ -229,6 +229,7 @@ public class DefaultFormService implements FormService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName,
 			List<Serializable> persistentValues) {
 		return saveValues(owner, null, attributeName, persistentValues);
@@ -238,6 +239,7 @@ public class DefaultFormService implements FormService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner,
 			IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");

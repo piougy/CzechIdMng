@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
@@ -27,7 +26,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.security.api.domain.GuardedString;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.service.SecurityService;
 
 /**
@@ -87,9 +85,8 @@ public class InitTestData implements ApplicationListener<ContextRefreshedEvent> 
 		// we need to be ensured admin and and admin role exists.
 		initApplicationData.init();
 		//
-		// TODO: runAs
-		securityService.setAuthentication(
-				new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities()));
+		securityService.setSystemAuthentication();
+		//
 		try {
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmTreeNode rootOrganization = treeNodeService.findRoots(null, new PageRequest(0, 1)).getContent().get(0);

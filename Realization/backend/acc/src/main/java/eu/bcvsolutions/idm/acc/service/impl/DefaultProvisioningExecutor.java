@@ -9,17 +9,17 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
-import eu.bcvsolutions.idm.acc.domain.ResultState;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
-import eu.bcvsolutions.idm.acc.entity.SysProvisioningResult;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
+import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
@@ -72,7 +72,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
 			if (batch == null) {
 				batch = batchService.save(new SysProvisioningBatch());
-				request.setResult(new SysProvisioningResult.Builder(ResultState.CREATED).build());
+				request.setResult(new OperationResult.Builder(OperationState.CREATED).build());
 			} else {
 				// put to queue
 				// TODO: maybe putting into queue has to run after disable and readonly system
@@ -83,13 +83,13 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 								"operationType", provisioningOperation.getOperationType(),
 								"objectClass", provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass()));
 				LOG.debug(resultModel.toString());				
-				request.setResult(new SysProvisioningResult.Builder(ResultState.NOT_EXECUTED).setModel(resultModel).build());
+				request.setResult(new OperationResult.Builder(OperationState.NOT_EXECUTED).setModel(resultModel).build());
 			}
 			request.setBatch(batch);
 			provisioningOperation.setRequest(request);
 			//
 			provisioningOperation = sysProvisioningOperationService.save(provisioningOperation);
-			if (ResultState.NOT_EXECUTED.equals(request.getResult().getState())) {
+			if (OperationState.NOT_EXECUTED.equals(request.getResult().getState())) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING, 
 						new IdmMessage.Builder(NotificationLevel.INFO).setModel(request.getResult().getModel()).build());
@@ -112,10 +112,11 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	public void execute(SysProvisioningBatch batch) {
 		Assert.notNull(batch);
+		batch = batchService.get(batch.getId());
 		//
 		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
 			SysProvisioningOperation operation = execute(request.getOperation());
-			if (operation.getRequest() != null && !ResultState.EXECUTED.equals(operation.getResultState())) {
+			if (operation.getRequest() != null && !OperationState.EXECUTED.equals(operation.getResultState())) {
 				return;
 			}
 			batch.removeRequest(request);

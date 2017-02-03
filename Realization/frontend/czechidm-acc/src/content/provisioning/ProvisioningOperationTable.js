@@ -1,10 +1,9 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 //
-import { Basic, Advanced } from 'czechidm-core';
+import { Basic, Advanced, Enums } from 'czechidm-core';
 import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import ProvisioningResultStateEnum from '../../domain/ProvisioningResultStateEnum';
 import EntityInfo from '../../components/EntityInfo';
 import { SystemManager } from '../../redux';
 
@@ -86,7 +85,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                   <Advanced.Filter.EnumSelectBox
                     ref="resultState"
                     label={this.i18n('acc:entity.ProvisioningOperation.resultState')}
-                    enum={ProvisioningResultStateEnum}/>
+                    enum={Enums.OperationStateEnum}/>
                 </div>
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
@@ -149,13 +148,13 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
         }
         <Advanced.Column
           property="resultState"
-          width="75px"
+          width={75}
           header={this.i18n('acc:entity.ProvisioningOperation.resultState')}
           face="text"
           cell={
             ({ rowIndex, data }) => {
               const entity = data[rowIndex];
-              const content = (<Basic.EnumValue value={entity.resultState} enum={ProvisioningResultStateEnum}/>);
+              const content = (<Basic.EnumValue value={entity.resultState} enum={Enums.OperationStateEnum}/>);
               if (!entity.result || !entity.result.code) {
                 return content;
               }
@@ -170,7 +169,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
         <Advanced.Column property="created" width="125px" header={this.i18n('entity.created')} sort face="datetime" rendered={_.includes(columns, 'created')}/>
         <Advanced.Column
           property="operationType"
-          width="75px"
+          width={75}
           header={this.i18n('acc:entity.ProvisioningOperation.operationType')}
           sort
           face="enum"

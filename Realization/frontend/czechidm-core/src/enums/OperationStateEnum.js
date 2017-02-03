@@ -1,12 +1,14 @@
-import { Enums } from 'czechidm-core';
+import AbstractEnum from '../enums/AbstractEnum';
 
 /**
- * OperationType for adit operation etc.
+ * Universal operation state
+ *
+ * @author Radek Tomiška
  */
-export default class ProvisioningResultStateEnum extends Enums.AbstractEnum {
+export default class OperationStateEnum extends AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`acc:enums.ProvisioningResultStateEnum.${key}`);
+    return super.getNiceLabel(`enums.OperationStateEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {
@@ -25,7 +27,8 @@ export default class ProvisioningResultStateEnum extends Enums.AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CREATED: {
+      case this.CREATED:
+      case this.RUNNING: {
         return 'info';
       }
       case this.EXECUTED: {
@@ -54,7 +57,8 @@ export default class ProvisioningResultStateEnum extends Enums.AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.CREATED: {
+      case this.CREATED:
+      case this.RUNNING: {
         return 'fa:circle-o';
       }
       case this.EXECUTED: {
@@ -76,8 +80,9 @@ export default class ProvisioningResultStateEnum extends Enums.AbstractEnum {
   }
 }
 
-ProvisioningResultStateEnum.CREATED = Symbol('CREATED');
-ProvisioningResultStateEnum.EXECUTED = Symbol('EXECUTED');
-ProvisioningResultStateEnum.EXCEPTION = Symbol('EXCEPTION');
-ProvisioningResultStateEnum.NOT_EXECUTED = Symbol('NOT_EXECUTED');
-ProvisioningResultStateEnum.CANCELED = Symbol('CANCELED');
+OperationStateEnum.CREATED = Symbol('CREATED');
+OperationStateEnum.RUNNING = Symbol('RUNNING');
+OperationStateEnum.EXECUTED = Symbol('EXECUTED');
+OperationStateEnum.EXCEPTION = Symbol('EXCEPTION');
+OperationStateEnum.NOT_EXECUTED = Symbol('NOT_EXECUTED');
+OperationStateEnum.CANCELED = Symbol('CANCELED');

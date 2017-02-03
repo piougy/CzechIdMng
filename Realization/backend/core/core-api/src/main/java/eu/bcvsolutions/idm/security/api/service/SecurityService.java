@@ -16,6 +16,12 @@ import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
 public interface SecurityService {
 	
 	/**
+	 * Name which is used as current/original username
+	 */
+	public static final String SYSTEM_NAME = "[SYSTEM]";
+	public static final String GUEST_NAME = "[GUEST]";
+	
+	/**
 	 * Changes the currently authenticated principal, or removes the authentication
 	 * information.
 	 *
@@ -23,6 +29,11 @@ public interface SecurityService {
 	 * <code>null</code> if no further authentication information should be stored
 	 */
 	void setAuthentication(AbstractAuthentication authentication);
+	
+	/**
+	 * Login as system (in scheduler etc.)
+	 */
+	void setSystemAuthentication();
 
 	/**
 	 * Obtains the currently authenticated principal, or an authentication request token.

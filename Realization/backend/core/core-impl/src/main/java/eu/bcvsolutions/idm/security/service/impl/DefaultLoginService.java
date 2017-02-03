@@ -6,10 +6,8 @@ import java.util.Date;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -18,8 +16,8 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordService;
 import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.security.api.dto.IdmJwtAuthenticationDto;
 import eu.bcvsolutions.idm.security.dto.LoginDto;
@@ -42,10 +40,6 @@ public class DefaultLoginService implements LoginService {
 
 	@Autowired
 	private IdmIdentityService identityService;
-
-	@Autowired
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
 	
 	@Autowired
 	private ConfigurationService configurationService;

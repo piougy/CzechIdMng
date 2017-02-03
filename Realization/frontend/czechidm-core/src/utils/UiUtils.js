@@ -2,6 +2,8 @@ import EntityUtils from './EntityUtils';
 
 /**
  * Helper methods for ui state
+ *
+ * @author Radek Tomiška
  */
 export default class UiUtils {
 
@@ -84,5 +86,34 @@ export default class UiUtils {
       return 'disabled';
     }
     return '';
+  }
+
+  /**
+   * Returns random css level
+   *
+   * @return {string}
+   */
+  static getRandomLevel() {
+    const min = Math.ceil(0);
+    const max = Math.floor(6);
+    const levelNumber = Math.floor(Math.random() * (max - min)) + min;
+
+    switch (levelNumber) {
+      case 5: {
+        return 'danger';
+      }
+      case 4: {
+        return 'warning';
+      }
+      case 3: {
+        return 'info';
+      }
+      case 2: {
+        return 'success';
+      }
+      default: {
+        return 'primary';
+      }
+    }
   }
 }

@@ -2,6 +2,8 @@ import moment from 'moment';
 
 /**
  * Helper methods for entities
+ *
+ * @author Radek Tomiška
  */
 export default class EntityUtils {
 

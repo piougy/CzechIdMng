@@ -24,6 +24,10 @@ public interface ConfigurationService {
 	static final String IDM_PROPERTY_PREFIX = "idm" + PROPERTY_SEPARATOR;
 	static final String IDM_PUBLIC_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "pub" + PROPERTY_SEPARATOR;
 	static final String IDM_PRIVATE_PROPERTY_PREFIX = IDM_PROPERTY_PREFIX + "sec" + PROPERTY_SEPARATOR;
+	//
+	static final String PROPERTY_APP_INSTANCE_ID = IDM_PUBLIC_PROPERTY_PREFIX + "app.instanceId";
+	static final String DEFAULT_PROPERTY_APP_INSTANCE_ID = "main";
+	
 
 	/**
 	 * Returns configured value for given key. If no value for given key is configured, then returns {@code null}.

@@ -1,11 +1,14 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,15 @@ public class DefaultSysProvisioningBatchService
 	
 	@Override
 	@Transactional(readOnly = true)
+	public SysProvisioningBatch get(Serializable id) {
+		SysProvisioningBatch batch = super.get(id);
+		// TODO: remove batch requests list
+		batch.getRequests().size();
+		return batch;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public SysProvisioningBatch findBatch(SysProvisioningOperation operation) {
 		return repository.findBatch(operation);
 	}
@@ -64,4 +76,10 @@ public class DefaultSysProvisioningBatchService
 		
 		return new DateTime(calendar.getTime());
 	}	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<SysProvisioningBatch> findBatchesToRetry(DateTime date, Pageable pageable) {
+		return repository.findByNextAttemptLessThanEqual(date, pageable);
+	}
 }

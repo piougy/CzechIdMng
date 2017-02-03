@@ -51,7 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				BaseEntityController.BASE_PATH + "/authentication", // login / out
 				"/error/**",
 				BaseEntityController.BASE_PATH + "/doc", // documentation is public
-				BaseEntityController.BASE_PATH + "/doc/**"
+				BaseEntityController.BASE_PATH + "/doc/**",
+				BaseEntityController.BASE_PATH + "/status" // status page
 			);
 	}
 

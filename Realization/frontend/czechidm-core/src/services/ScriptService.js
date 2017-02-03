@@ -3,7 +3,6 @@ import SearchParameters from '../domain/SearchParameters';
 
 class ScriptService extends AbstractService {
 
-  const
   getApiPath() {
     return '/scripts';
   }

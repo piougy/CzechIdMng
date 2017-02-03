@@ -1,5 +1,3 @@
-
-
 import AbstractService from './AbstractService';
 import RestApiService from './RestApiService';
 import SearchParameters from '../domain/SearchParameters';

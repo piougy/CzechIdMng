@@ -1,8 +1,10 @@
 package eu.bcvsolutions.idm.acc.repository;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
@@ -39,6 +41,20 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 * @return
 	 */
 	@Query(value = "select distinct(r.batch) from SysProvisioningRequest r join r.operation o"
-			+ " where o.system = ?#{[0].system} and o.entityIdentifier = ?#{[0].entityIdentifier} and o.systemEntityUid = ?#{[0].systemEntityUid}")
+			+ " where"
+			+ " o.system = ?#{[0].system}"
+			+ " and"
+			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
+			+ " and"
+			+ " o.systemEntityUid = ?#{[0].systemEntityUid}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
+	
+	/**
+	 * Returns unprocessed planned batches
+	 * 
+	 * @param date
+	 * @param pageable
+	 * @return
+	 */
+	Page<SysProvisioningBatch> findByNextAttemptLessThanEqual(@Param("nextAttempt") DateTime date, Pageable pageable);
 }

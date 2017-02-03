@@ -377,6 +377,22 @@
         "accountObject": "Idm atributy",
         "connectorObject": "Atributy pro provisioning",
         "resultCode": "Kód"
+      },
+      "filter": {
+        "dateFrom": {
+          "label": "Od",
+          "placeholder": "Datum od"
+        },
+        "dateTill": {
+          "label": "Do",
+          "placeholder": "Datum do"
+        }
+      }
+    },
+    "passwordPolicy": {
+      "system": {
+        "tab": "Navázané systémy",
+        "title": "Navázané systémy na tuto politiku"
       }
     }
   },
@@ -724,13 +740,6 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
-    },
-    "ProvisioningResultStateEnum":{
-      "CREATED": "Vytvořeno",
-    	"EXECUTED": "Provedeno",
-    	"EXCEPTION": "Chyba",
-    	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
     }
   },
   "permission": {

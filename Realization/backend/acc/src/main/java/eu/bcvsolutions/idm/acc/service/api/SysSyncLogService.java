@@ -9,6 +9,6 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author svandav
  *
  */
-public interface SysSynchronizationLogService extends ReadWriteEntityService<SysSyncLog, SynchronizationLogFilter> {
+public interface SysSyncLogService extends ReadWriteEntityService<SysSyncLog, SynchronizationLogFilter> {
 
 }

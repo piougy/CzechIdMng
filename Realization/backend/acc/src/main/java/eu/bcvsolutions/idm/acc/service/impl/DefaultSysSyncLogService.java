@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.repository.SysSynchronizationLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 
 /**
@@ -20,14 +20,14 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
  *
  */
 @Service
-public class DefaultSysSynchronizationLogService
+public class DefaultSysSyncLogService
 		extends AbstractReadWriteEntityService<SysSyncLog, SynchronizationLogFilter>
-		implements SysSynchronizationLogService {
+		implements SysSyncLogService {
 
 	private final SysSyncActionLogService syncActionLogService;
 	
 	@Autowired
-	public DefaultSysSynchronizationLogService(SysSynchronizationLogRepository repository,
+	public DefaultSysSyncLogService(SysSynchronizationLogRepository repository,
 			SysSyncActionLogService syncActionLogService) {
 		super(repository);
 		Assert.notNull(syncActionLogService);

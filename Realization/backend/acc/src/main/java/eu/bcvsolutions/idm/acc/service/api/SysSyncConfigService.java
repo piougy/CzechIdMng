@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
  * @author svandav
  *
  */
-public interface SysSynchronizationConfigService extends ReadWriteEntityService<SysSyncConfig, SynchronizationConfigFilter> {
+public interface SysSyncConfigService extends ReadWriteEntityService<SysSyncConfig, SynchronizationConfigFilter> {
 
 	boolean isRunning(SysSyncConfig config);
 

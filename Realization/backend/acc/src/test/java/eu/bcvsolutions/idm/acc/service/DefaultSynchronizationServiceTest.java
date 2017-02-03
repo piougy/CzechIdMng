@@ -54,8 +54,8 @@ import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -122,10 +122,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private SysSchemaAttributeService schemaAttributeService;
 
 	@Autowired
-	private SysSynchronizationConfigService syncConfigService;
+	private SysSyncConfigService syncConfigService;
 
 	@Autowired
-	private SysSynchronizationLogService syncLogService;
+	private SysSyncLogService syncLogService;
 
 	@Autowired
 	private SysSyncItemLogService syncItemLogService;

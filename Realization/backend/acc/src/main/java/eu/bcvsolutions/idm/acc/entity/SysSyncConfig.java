@@ -36,6 +36,7 @@ import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
  */
 @Entity
 @Table(name = "sys_sync_config", indexes = {
+		@Index(name = "ux_sys_s_config_name", columnList = "name,system_mapping_id", unique = true),
 		@Index(name = "idx_sys_s_config_mapping", columnList = "system_mapping_id"),
 		@Index(name = "idx_sys_s_config_correl", columnList = "correlation_attribute_id"),
 		@Index(name = "idx_sys_s_config_token", columnList = "token_attribute_id"),
@@ -53,7 +54,7 @@ public class SysSyncConfig extends AbstractEntity {
 	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false, unique = true)
+	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 
 	@Audited

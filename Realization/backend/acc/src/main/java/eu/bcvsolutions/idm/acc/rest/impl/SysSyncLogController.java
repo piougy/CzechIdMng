@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -38,12 +38,12 @@ import eu.bcvsolutions.idm.security.api.domain.Enabled;;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-synchronization-logs")
-public class SysSynchronizationLogController
+public class SysSyncLogController
 		extends AbstractReadWriteEntityController<SysSyncLog, SynchronizationLogFilter> {
 
 	@Autowired
-	public SysSynchronizationLogController(EntityLookupService entityLookupService,
-			SysSynchronizationLogService service) {
+	public SysSyncLogController(EntityLookupService entityLookupService,
+			SysSyncLogService service) {
 		super(entityLookupService, service);
 	}
 

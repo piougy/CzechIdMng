@@ -33,7 +33,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "sys_system_mapping", indexes = {
-		@Index(name = "ux_sys_s_mapping_name", columnList = "name", unique = true),
+		@Index(name = "ux_sys_s_mapping_name", columnList = "name, object_class_id", unique = true),
 		@Index(name = "idx_sys_s_mapping_o_c_id", columnList = "object_class_id"),
 		@Index(name = "idx_sys_s_mapping_o_type", columnList = "operation_type"),
 		@Index(name = "idx_sys_s_mapping_e_type", columnList = "entity_type")

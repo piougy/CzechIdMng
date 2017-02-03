@@ -42,12 +42,16 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -67,6 +71,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_USERNAME = "provisioningTestUser";
 	private static final String IDENTITY_EXT_PASSWORD = "passwordExt";
 	private static final String IDENTITY_CHANGED_FIRST_NAME = "changed first name";
+	private static final String PASSWORD_POLICY = "passwordPolicy";
 
 	@Autowired
 	private SysSystemService sysSystemService;
@@ -97,6 +102,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private EntityManager entityManager;
+	
+	@Autowired
+	private IdmPasswordPolicyService passwordPolicyService;
 
 	@Autowired
 	DataSource dataSource;
@@ -269,6 +277,20 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		TestResource resourceAccoutn = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
 		Assert.assertEquals(IDENTITY_PASSWORD_THREE, resourceAccoutn.getFirstname());;
 	}
+	
+	@Test
+	public void doIdentityProvisioningAndPasswordCheck() {
+		IdmIdentity existIdentity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(existIdentity.getId());
+		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		
+		TestResource createdAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
+		
+		Assert.assertNotNull(createdAccount);
+		// password must be exactly two 'a' characters, see setting for password policy
+		Assert.assertEquals("aa", createdAccount.getPassword());
+	}
 
 	private void initData() {
 		IdmIdentity identity;
@@ -278,7 +300,20 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		// create test system
 		system = defaultSysAccountManagementServiceTest.createTestSystem();
-
+		
+		// set default generate password policy for system
+		IdmPasswordPolicy passwordPolicy = new IdmPasswordPolicy();
+		passwordPolicy.setName(PASSWORD_POLICY);
+		passwordPolicy.setType(IdmPasswordPolicyType.GENERATE);
+		passwordPolicy.setGenerateType(IdmPasswordPolicyGenerateType.RANDOM);
+		passwordPolicy.setLowerCharBase("a");
+		passwordPolicy.setMinPasswordLength(2);
+		passwordPolicy.setMaxPasswordLength(2);
+		passwordPolicy.setMinLowerChar(2);
+		passwordPolicyService.save(passwordPolicy);
+		system.setPasswordPolicyGenerate(passwordPolicy);
+		sysSystemService.save(system);
+		
 		// generate schema for system
 		 List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
 
@@ -318,7 +353,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setUid(true);
 				attributeHandlingName.setEntityAttribute(false);
-				attributeHandlingName.setTransformToResourceScript("return \""+"x" + IDENTITY_USERNAME+"\";");
+				attributeHandlingName.setTransformToResourceScript("return \""+"x" + IDENTITY_USERNAME +"\";");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemMapping(entityHandlingResult);

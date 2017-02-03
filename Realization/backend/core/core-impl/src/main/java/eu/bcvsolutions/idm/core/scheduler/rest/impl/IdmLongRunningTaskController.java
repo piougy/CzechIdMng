@@ -12,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +23,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
-import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Default controller for scripts, basic methods.
@@ -37,9 +38,17 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 @RequestMapping(value = BaseController.BASE_PATH + "/long-running-tasks")
 public class IdmLongRunningTaskController extends AbstractReadWriteEntityController<IdmLongRunningTask, LongRunningTaskFilter> {
 	
+	private final LongRunningTaskManager longRunningTaskManager;
+	
 	@Autowired
-	public IdmLongRunningTaskController(EntityLookupService entityLookupService) {
+	public IdmLongRunningTaskController(
+			EntityLookupService entityLookupService,
+			LongRunningTaskManager longRunningTaskManager) {
 		super(entityLookupService);
+		//
+		Assert.notNull(longRunningTaskManager);
+		//
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 
 	/**
@@ -89,7 +98,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/cancel")
 	public ResponseEntity<?> cancel(@PathVariable UUID backendId) {
-		entityLookupService.getEntityService(IdmLongRunningTask.class, IdmLongRunningTaskService.class).cancel(backendId);
+		longRunningTaskManager.cancel(backendId);
 		//
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
@@ -103,7 +112,7 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.PUT, value = "/{backendId}/interrupt")
 	public ResponseEntity<?> interrupt(@PathVariable UUID backendId) {
-		entityLookupService.getEntityService(IdmLongRunningTask.class, IdmLongRunningTaskService.class).interrupt(backendId);
+		longRunningTaskManager.interrupt(backendId);
 		//
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}

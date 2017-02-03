@@ -13,4 +13,14 @@ public enum OperationState {
 	EXCEPTION, // There was an exception during execution
 	NOT_EXECUTED, // The operation was not executed because of some reason (in queue, readonly system ... etc)
 	CANCELED; // canceled by some reason (administrator etc.) 
+	
+	/**
+	 * Returns true, when task could ran
+	 * 
+	 * @param state
+	 * @return
+	 */
+	public static boolean isRunnable(OperationState state) {
+		return CREATED.equals(state) || RUNNING.equals(state);
+	}
 }

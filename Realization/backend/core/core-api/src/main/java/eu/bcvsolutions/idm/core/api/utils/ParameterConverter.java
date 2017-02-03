@@ -34,7 +34,6 @@ public class ParameterConverter {
 			EntityLookupService entityLookupService,
 			ObjectMapper mapper) {
 		Assert.notNull(entityLookupService);
-		Assert.notNull(mapper);
 		//
 		this.entityLookupService = entityLookupService;
 		this.mapper = mapper;

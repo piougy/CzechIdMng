@@ -1,46 +1,33 @@
 package eu.bcvsolutions.idm.core.scheduler.service.api;
 
-import java.util.UUID;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 
 /**
- * Long running task administation
+ * Persists Long running task
  * 
  * @author Radek Tomiška
  *
  */
 @Service
 public interface IdmLongRunningTaskService extends ReadWriteEntityService<IdmLongRunningTask, LongRunningTaskFilter> {
-	
-	/**
-	 * Executes given task asynchronously
-	 *  
-	 * @param executor
-	 */
-	void execute(LongRunningTaskExecutor taskExecutor);
-	
-	/**
-	 * Cancels given task. Task flag will be set only and task needs to interact with this state and stop in next iteration.
-	 * 
-	 * @param taskId
-	 */
-	void cancel(UUID longRunningTaskId);
-	
-	/**
-	 * Interrupts given task (thread interruption).
-	 * 
-	 * @param taskId
-	 */
-	void interrupt(UUID longRunningTaskId);
-	
-	/**
-	 * Executes prepared task from long running task queue
-	 */
-	void processCreated();
 
+	/**
+	 * Returns task for given instance id (server) and state
+	 * 
+	 * @param instanceId - server id 
+	 * @param state
+	 * @return
+	 * 
+	 * @see ConfigurationService
+	 */
+	List<IdmLongRunningTask> getTasks(String instanceId, OperationState state);
+	
 }

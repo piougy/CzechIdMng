@@ -1,9 +1,9 @@
-package eu.bcvsolutions.idm.core.scheduler.service.api;
+package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
-import eu.bcvsolutions.idm.core.scheduler.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 
 /**
  * Interface for scheduler service.
@@ -11,7 +11,7 @@ import eu.bcvsolutions.idm.core.scheduler.dto.Task;
  * @author Radek Tomiška
  *
  */
-public interface SchedulerService {
+public interface SchedulerManager {
 
 	/**
 	 * Returns registered task definitions

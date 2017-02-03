@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler.dto;
+package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -6,8 +6,7 @@ import java.util.Map;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
-import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 
 /**
  * Scheduled task with unique id 

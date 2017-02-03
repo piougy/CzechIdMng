@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 
@@ -58,11 +59,16 @@ public class IdmLongRunningTask extends AbstractEntity {
 	@Column(name = "thread_id", nullable = false)
 	private long threadId;
 	
-	@Column(name = "thread_name", length = DefaultFieldLengths.NAME )
+	@Column(name = "thread_name", length = DefaultFieldLengths.NAME)
 	private String threadName;
 	
 	@Embedded
 	private OperationResult result;
+	
+	// TODO: optimistic lock for secure task canceling etc.
+//	@Version
+//	@JsonIgnore
+//	private Long version; // Optimistic lock
 
 	public String getTaskType() {
 		return taskType;
@@ -86,6 +92,13 @@ public class IdmLongRunningTask extends AbstractEntity {
 
 	public void setCounter(Long counter) {
 		this.counter = counter;
+	}
+	
+	public OperationState getState() {
+		if (result == null) {
+			return null;
+		}
+		return result.getState();
 	}
 
 	public OperationResult getResult() {

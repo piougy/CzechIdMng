@@ -18,8 +18,8 @@ import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
-import eu.bcvsolutions.idm.core.scheduler.dto.Task;
-import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulerService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 
 /**
  * Scheduler administration
@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulerService;
 public class SchedulerController implements BaseController {
 
 	@Autowired
-	private SchedulerService schedulerService;
+	private SchedulerManager schedulerService;
 	
 	/**
 	 * Returns all registered tasks

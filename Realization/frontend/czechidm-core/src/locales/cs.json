@@ -1227,6 +1227,7 @@
       "running-tasks": {
         "header": "Běžící úlohy",
         "title": "Běžící úlohy",
+        "empty": "Nenalezeny žádné běžící úlohy",
         "button": {
           "cancel": "Ukončit úlohu",
           "interrupt": "Killnout úlohu"

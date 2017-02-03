@@ -29,9 +29,17 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
   }
 
   componentWillReceiveProps(nextProps) {
+    const {_attribute} = nextProps;
     const { attributeId} = nextProps.params;
     if (attributeId && attributeId !== this.props.params.attributeId) {
       this._initComponent(nextProps);
+    }
+    if (_attribute && _attribute !== this.props._attribute) {
+      if (_attribute && this.refs.form) {
+        this.setState({disabledAttribute: _attribute.disabledAttribute});
+        this.setState({entityAttribute: _attribute.entityAttribute});
+        this.setState({extendedAttribute: _attribute.extendedAttribute});
+      }
     }
   }
 
@@ -90,30 +98,15 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
     this.refs.form.processEnded();
   }
 
-  _uidChanged(event) {
+  _checkboxChanged(key, uncheckKey, event) {
     const checked = event.currentTarget.checked;
-    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
-    this.refs.uid.setState({value: checked}, () => {
-      this.forceUpdate();
-    });
-  }
-
-  _disabledChanged(key, event) {
-    const checked = event.currentTarget.checked;
-    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
-    this.refs[key].setState({value: checked}, () => {
-      this.forceUpdate();
-    });
-  }
-
-  _checkboxChanged(key, disableKey, event) {
-    const checked = event.currentTarget.checked;
-    // I need set value direct to checkbox (this event is run befor state is set, but I need him in render mothod now)
-    if (checked) {
-      this.refs[disableKey].setState({value: false});
-    }
-    this.refs[key].setState({value: checked}, () => {
-      this.forceUpdate();
+    this.setState({[key]: checked}, ()=>{
+      if (checked && uncheckKey !== null) {
+        this.setState({[uncheckKey]: false});
+        this.refs[uncheckKey].setState({value: false}, () => {
+          this.forceUpdate();
+        });
+      }
     });
   }
 
@@ -125,13 +118,14 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
 
   render() {
     const { _showLoading, _attribute} = this.props;
+    const { disabledAttribute, entityAttribute, extendedAttribute} = this.state;
     const isNew = this._getIsNew();
     const attribute = isNew ? this.state.attribute : _attribute;
-    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId', attribute && attribute.objectClassId ? attribute.objectClassId : Domain.SearchParameters.BLANK_UUID);
-
-    const _isDisabled = this.refs.disabledAttribute ? this.refs.disabledAttribute.getValue() : false;
-    const _isEntityAttribute = this.refs.entityAttribute ? this.refs.entityAttribute.getValue() : false;
-    const _isExtendedAttribute = this.refs.extendedAttribute ? this.refs.extendedAttribute.getValue() : false;
+    const forceSearchParameters = new Domain.SearchParameters().setFilter('objectClassId',
+     attribute && attribute.objectClassId ? attribute.objectClassId : Domain.SearchParameters.BLANK_UUID);
+    const _isDisabled = disabledAttribute;
+    const _isEntityAttribute = entityAttribute;
+    const _isExtendedAttribute = extendedAttribute;
     const _showNoRepositoryAlert = (!_isExtendedAttribute && !_isEntityAttribute);
 
     const _isRequiredIdmField = (_isEntityAttribute || _isExtendedAttribute) && !_isDisabled;
@@ -151,7 +145,7 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
             <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
               <Basic.Checkbox
                 ref="disabledAttribute"
-                onChange={this._disabledChanged.bind(this, 'disabledAttribute')}
+                onChange={this._checkboxChanged.bind(this, 'disabledAttribute', null)}
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.disabledAttribute.label')}/>
               <Basic.SelectBox
@@ -175,7 +169,7 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
                 max={255}/>
               <Basic.Checkbox
                 ref="uid"
-                onChange={this._uidChanged.bind(this)}
+                onChange={this._checkboxChanged.bind(this, 'uid', null)}
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}
                 readOnly = {_isDisabled}/>

@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
-import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Sets auditable properties

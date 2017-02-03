@@ -7,8 +7,8 @@ import org.activiti.engine.repository.Deployment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.idm.workflow.api.dto.WorkflowDeploymentDto;
-import eu.bcvsolutions.idm.workflow.api.service.WorkflowDeploymentService;
+import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
+import eu.bcvsolutions.idm.core.workflow.api.service.WorkflowDeploymentService;
 
 @Service
 public class DefaultWorkflowDeploymentService implements WorkflowDeploymentService {

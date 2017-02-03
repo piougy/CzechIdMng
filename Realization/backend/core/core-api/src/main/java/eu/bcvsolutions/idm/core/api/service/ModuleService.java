@@ -6,7 +6,7 @@ import org.springframework.plugin.core.Plugin;
 import org.springframework.plugin.core.PluginRegistry;
 
 import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Application modules administrative. Plugin can be register by {@link ModuleDescriptor}.

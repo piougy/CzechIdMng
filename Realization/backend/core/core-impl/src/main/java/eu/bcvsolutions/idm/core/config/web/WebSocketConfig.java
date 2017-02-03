@@ -23,8 +23,8 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
-import eu.bcvsolutions.idm.security.api.domain.IdmJwtAuthentication;
-import eu.bcvsolutions.idm.security.service.impl.JwtAuthenticationMapper;
+import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
+import eu.bcvsolutions.idm.core.security.service.impl.JwtAuthenticationMapper;
 
 /**
  * Websocket configuration

@@ -13,8 +13,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
-import eu.bcvsolutions.idm.security.api.domain.AbstractAuthentication;
-import eu.bcvsolutions.idm.security.api.service.SecurityService;
+import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Sets {@link Auditable} properties

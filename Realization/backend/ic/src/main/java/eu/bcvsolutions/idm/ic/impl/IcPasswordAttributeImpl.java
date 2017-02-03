@@ -2,9 +2,9 @@ package eu.bcvsolutions.idm.ic.impl;
 
 import java.util.ArrayList;
 
+import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
-import eu.bcvsolutions.idm.security.api.domain.ConfidentialString;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
 
 
 public class IcPasswordAttributeImpl extends IcAttributeImpl implements IcPasswordAttribute {

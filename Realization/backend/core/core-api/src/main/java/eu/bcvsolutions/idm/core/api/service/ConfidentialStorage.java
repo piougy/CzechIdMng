@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.io.Serializable;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Persists abstract entity's confidential informations (passwords, token etc.)

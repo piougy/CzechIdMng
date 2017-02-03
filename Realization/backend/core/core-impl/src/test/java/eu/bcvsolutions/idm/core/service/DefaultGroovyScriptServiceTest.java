@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
-import eu.bcvsolutions.idm.security.exception.IdmSecurityException;
+import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
 import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
 import groovy.lang.MissingPropertyException;
 

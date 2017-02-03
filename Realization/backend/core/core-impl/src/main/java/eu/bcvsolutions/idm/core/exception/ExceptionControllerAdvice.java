@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.exception.DefaultErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ErrorModel;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.security.exception.IdmAuthenticationException;
+import eu.bcvsolutions.idm.core.security.exception.IdmAuthenticationException;
 
 /**
  * Handles application exceptions and translate them to result codes

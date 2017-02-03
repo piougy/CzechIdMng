@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.notification.domain.NotificationGroupPermission;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Core module descriptor - required module

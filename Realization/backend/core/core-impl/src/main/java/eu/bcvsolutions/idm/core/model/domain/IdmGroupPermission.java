@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.CoreModuleDescriptor;
-import eu.bcvsolutions.idm.security.api.domain.BasePermission;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.BasePermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Aggregate base permission. Name can't contain character '_' - its used for joining to authority name.

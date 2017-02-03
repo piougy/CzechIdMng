@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.core.api.domain.ModuleDescriptor;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.exception.ModuleNotDisableableException;
-import eu.bcvsolutions.idm.security.api.domain.GroupPermission;
+import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
 /**
  * Default implementation for {@link ModuleDescriptor} administrative.

@@ -17,12 +17,12 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.IcModuleDescriptor;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
-import eu.bcvsolutions.idm.ic.service.impl.DefaultIcConfigurationFacade;
-import eu.bcvsolutions.idm.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.ic.service.impl.DefaultIcConfigurationFacade;;
 
 /**
  * Rest endpoint provides available connectors and their configuration

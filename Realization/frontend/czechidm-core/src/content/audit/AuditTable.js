@@ -39,10 +39,6 @@ export class AuditTable extends Basic.AbstractContent {
     }));
   }
 
-  componentWillUnmount() {
-    this.cancelFilter();
-  }
-
   getContentKey() {
     return 'content.audit';
   }

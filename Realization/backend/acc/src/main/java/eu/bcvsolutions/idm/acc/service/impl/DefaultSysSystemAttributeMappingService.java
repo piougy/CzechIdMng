@@ -201,6 +201,7 @@ public class DefaultSysSystemAttributeMappingService
 	@Transactional
 	public void delete(SysSystemAttributeMapping entity) {
 		Assert.notNull(entity);
+		
 		// delete attributes
 		roleSystemAttributeRepository.deleteBySystemAttributeMapping(entity);
 		//

@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -41,14 +41,14 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
 @RepositoryRestController
 @Enabled(AccModuleDescriptor.MODULE_ID)
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/system-synchronization-configs")
-public class SysSynchronizationConfigController
+public class SysSyncConfigController
 		extends AbstractReadWriteEntityController<SysSyncConfig, SynchronizationConfigFilter> {
 
 	private final SynchronizationService synchronizationService;
 	
 	@Autowired
-	public SysSynchronizationConfigController(EntityLookupService entityLookupService,
-			SysSynchronizationConfigService service, SynchronizationService synchronizationService) {
+	public SysSyncConfigController(EntityLookupService entityLookupService,
+			SysSyncConfigService service, SynchronizationService synchronizationService) {
 		super(entityLookupService, service);
 		Assert.notNull(synchronizationService);
 		
@@ -155,7 +155,7 @@ public class SysSynchronizationConfigController
 	public ResponseEntity<?> isRunningSynchronization(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
 		
-		boolean running = ((SysSynchronizationConfigService)this.getEntityService()).isRunning(this.getEntityService().get(backendId));
+		boolean running = ((SysSyncConfigService)this.getEntityService()).isRunning(this.getEntityService().get(backendId));
 		return new ResponseEntity<>(running, HttpStatus.OK);
 	}
 

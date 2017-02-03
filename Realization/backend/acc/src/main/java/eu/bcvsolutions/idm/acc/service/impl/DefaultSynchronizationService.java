@@ -69,8 +69,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationLogService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -122,8 +122,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private final IcConnectorFacade connectorFacade;
 	private final SysSystemService systemService;
 	private final SysSystemAttributeMappingService attributeHandlingService;
-	private final SysSynchronizationConfigService synchronizationConfigService;
-	private final SysSynchronizationLogService synchronizationLogService;
+	private final SysSyncConfigService synchronizationConfigService;
+	private final SysSyncLogService synchronizationLogService;
 	private final SysSyncItemLogService syncItemLogService;
 	private final SysSyncActionLogService syncActionLogService;
 	private final SysSystemEntityService systemEntityService;
@@ -140,8 +140,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	@Autowired
 	public DefaultSynchronizationService(IcConnectorFacade connectorFacade, SysSystemService systemService,
 			SysSystemAttributeMappingService attributeHandlingService,
-			SysSynchronizationConfigService synchronizationConfigService,
-			SysSynchronizationLogService synchronizationLogService, SysSyncActionLogService syncActionLogService,
+			SysSyncConfigService synchronizationConfigService,
+			SysSyncLogService synchronizationLogService, SysSyncActionLogService syncActionLogService,
 			AccAccountService accountService, SysSystemEntityService systemEntityService,
 			ConfidentialStorage confidentialStorage, FormService formService, IdmIdentityService identityService,
 			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
@@ -1548,18 +1548,17 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	}
 
 	private Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
+		Object icValue = null;
 		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
 			return attribute.getSchemaAttribute().getName().equals(icAttribute.getName());
 		}).findFirst();
-		if (!optionalIcAttribute.isPresent()) {
-			return null;
-		}
-		IcAttribute icAttribute = optionalIcAttribute.get();
-		Object icValue = null;
-		if (icAttribute.isMultiValue()) {
-			icValue = icAttribute.getValues();
-		} else {
-			icValue = icAttribute.getValue();
+		if (optionalIcAttribute.isPresent()) {
+			IcAttribute icAttribute = optionalIcAttribute.get();
+			if (icAttribute.isMultiValue()) {
+				icValue = icAttribute.getValues();
+			} else {
+				icValue = icAttribute.getValue();
+			}
 		}
 
 		Object transformedValue = attributeHandlingService.transformValueFromResource(icValue, attribute, icAttributes);

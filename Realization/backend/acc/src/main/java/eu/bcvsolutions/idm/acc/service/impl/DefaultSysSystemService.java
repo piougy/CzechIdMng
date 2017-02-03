@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
-import eu.bcvsolutions.idm.acc.service.api.SysSynchronizationConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
@@ -69,7 +69,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysRoleSystemService roleSystemService;
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
-	private final SysSynchronizationConfigService synchronizationConfigService;
+	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
 
 	@Autowired
@@ -82,7 +82,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
-			SysSynchronizationConfigService synchronizationConfigService,
+			SysSyncConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager) {
 		super(systemRepository, formService);
 		//

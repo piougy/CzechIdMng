@@ -53,7 +53,7 @@ export class SchemaAttributeInfo extends Basic.AbstractContextComponent {
         <Basic.Icon value="refresh" showLoading/>
       );
     }
-    if (!_entity) {
+    if (!_entity || !_entity._embedded) {
       return null;
     }
     //

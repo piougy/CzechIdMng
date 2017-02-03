@@ -6,7 +6,6 @@ import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { LongRunningTaskManager } from '../../redux';
-import OperationStateEnum from '../../enums/OperationStateEnum';
 
 const UIKEY = 'active-long-running-task-table';
 const manager = new LongRunningTaskManager();
@@ -33,7 +32,7 @@ class RunningTasks extends Basic.AbstractContent {
   }
 
   _fetchRunningTasks() {
-    const forceSearchParameters = new SearchParameters().setFilter('operationState', OperationStateEnum.findKeyBySymbol(OperationStateEnum.RUNNING)).setSort('created', 'desc');
+    const forceSearchParameters = new SearchParameters().setFilter('running', true).setSort('created', 'desc');
     this.context.store.dispatch(manager.fetchEntities(forceSearchParameters, UIKEY));
   }
 

@@ -283,6 +283,11 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 				.collect(Collectors.toList());
 	}
 	
+	@Override
+	public String getInstanceId() {
+		return getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
+	}
+	
 	private static ConfigurationDto toConfigurationDto(String key, Object value) {
 		String stringValue = value == null ? null : value.toString();
 		ConfigurationDto configuration = new ConfigurationDto(key, stringValue);

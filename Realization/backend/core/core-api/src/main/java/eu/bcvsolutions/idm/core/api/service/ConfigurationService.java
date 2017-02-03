@@ -136,4 +136,11 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	GuardedString getGuardedValue(String key, String defaultValue);
+	
+	/**
+	 * Returns server instance id
+	 * 
+	 * @return
+	 */
+	String getInstanceId();
 }

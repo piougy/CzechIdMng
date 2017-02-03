@@ -36,14 +36,14 @@ import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
-import eu.bcvsolutions.idm.core.scheduler.dto.Task;
-import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulableTaskExecutor;
-import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulerService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
 
 /**
- * Default implementation of {@link SchedulerService}. 
+ * Default implementation of {@link SchedulerManager}. 
  * This implementation adds long running task to queue and not execute them directly.
  * It is needed for choose server instance id, where task will be physically executed (more instances can read one database).
  * 
@@ -51,7 +51,7 @@ import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
  */
 @Service
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
-public class DefaultSchedulerService implements SchedulerService {
+public class DefaultSchedulerManager implements SchedulerManager {
 
 	/**
 	 * Name of task group
@@ -62,7 +62,7 @@ public class DefaultSchedulerService implements SchedulerService {
 	private final Scheduler scheduler;
 	
 	@Autowired
-	public DefaultSchedulerService(
+	public DefaultSchedulerManager(
 			ApplicationContext context,
 			Scheduler scheduler) {
 		Assert.notNull(context);

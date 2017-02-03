@@ -1,21 +1,19 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
-import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.LongRunningTaskExecutor;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
@@ -26,17 +24,12 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.LongRunningTaskExecutor;
 public abstract class AbstractLongRunningTaskExecutor implements LongRunningTaskExecutor {
 
 	@Autowired
-	private IdmLongRunningTaskService longRunningTaskService;
-	@Autowired
-	private ConfigurationService configurationService;
+	private IdmLongRunningTaskService service;
 	@Autowired
 	private EntityLookupService entityLookupService;
-	@Autowired(required = false)
-	@Qualifier("objectMapper")
-	private ObjectMapper mapper;
 	//
 	private ParameterConverter parameterConverter;	
-	private IdmLongRunningTask longRunningTask;	
+	private UUID taskId;	
 	
 	/**
 	 * Default implementation returns module by package conventions.
@@ -56,30 +49,40 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		// load properties from job
 	}
 	
-	protected void start() {
-		if (longRunningTask == null) {
-			longRunningTask = new IdmLongRunningTask();
-			longRunningTask.setTaskType(this.getClass().getCanonicalName());
-			longRunningTask.setTaskDescription(getDescription());
+	protected boolean start() {
+		Assert.notNull(taskId);
+		IdmLongRunningTask task = service.get(taskId);
+		Assert.notNull(task, "Long running task has to be prepared before task is started");
+		//
+		if (task.isRunning()) {
+			// TODO: result code exception
+			return false;
 		}
-		longRunningTask.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		if (!OperationState.isRunnable(task.getState())) {
+			// TODO: result code exception
+			return false;
+		}
+		//
 		Thread currentThread = Thread.currentThread();
-		longRunningTask.setInstanceId(getInstanceId());
-		longRunningTask.setThreadId(currentThread.getId());
-		longRunningTask.setThreadName(currentThread.getName());
+		task.setThreadId(currentThread.getId());
+		task.setThreadName(currentThread.getName());
 		//
-		setStateProperties();
+		setStateProperties(task);
 		//
-		longRunningTask.setRunning(true);
-		longRunningTask = longRunningTaskService.save(longRunningTask);
+		task.setRunning(true);
+		task.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
+		//
+		service.save(task);
+		return true;
 	}
 	
 	
 	@Override
 	public void run() {
-		start();
-		//
 		try {
+			if (!start()) {
+				return;
+			}
 			process();
 			//
 			end(null);
@@ -89,18 +92,20 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	}
 	
 	protected void end(Exception ex) {
-		setStateProperties();
+		Assert.notNull(taskId);
+		IdmLongRunningTask task = service.get(taskId);
+		Assert.notNull(task, "Long running task has to be prepared before task is started");
+		//
+		setStateProperties(task);
 		//
 		if (ex != null) {
-			longRunningTask.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: result code
-		} else if(!longRunningTask.isRunning()) {
-			longRunningTask.setResult(new OperationResult.Builder(OperationState.CANCELED).build()); // TODO: result state canceled standardly
-		} else {
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: result code
+		} else if(OperationState.isRunnable(task.getState())) { 
 			// executed standardly
-			longRunningTask.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
+			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
-		longRunningTask.setRunning(false);
-		longRunningTask = longRunningTaskService.save(longRunningTask);
+		task.setRunning(false);
+		service.save(task);
 	}
 	
 	/**
@@ -121,11 +126,11 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	
 	@Override
 	public boolean updateState() {
-		longRunningTask = longRunningTaskService.get(longRunningTask.getId());
+		IdmLongRunningTask task = service.get(taskId);
 		//
-		setStateProperties();
-		longRunningTask = longRunningTaskService.save(longRunningTask);
-		return longRunningTask.isRunning();
+		setStateProperties(task);
+		task = service.save(task);
+		return task.isRunning() && OperationState.isRunnable(task.getState());
 	}
 	
 	/**
@@ -135,7 +140,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 */
 	protected ParameterConverter getParameterConverter() {
 		if (parameterConverter == null) {
-			parameterConverter = new ParameterConverter(entityLookupService, mapper);
+			parameterConverter = new ParameterConverter(entityLookupService, null);
 		}
 		return parameterConverter;
 	}
@@ -146,30 +151,21 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 * @param longRunningTask
 	 * @param taskExecutor
 	 */
-	private void setStateProperties() {
-		longRunningTask.setCount(getCount());
-		longRunningTask.setCounter(getCounter());
-		if (longRunningTask.getCount() != null && longRunningTask.getCounter() == null) {
-			longRunningTask.setCounter(0L);
+	private void setStateProperties(IdmLongRunningTask task) {
+		task.setCount(getCount());
+		task.setCounter(getCounter());
+		if (task.getCount() != null && task.getCounter() == null) {
+			task.setCounter(0L);
 		}
 	}
 	
 	@Override
-	public IdmLongRunningTask getLongRunningTask() {
-		return longRunningTask;
+	public UUID getLongRunningTaskId() {
+		return taskId;
 	}
 	
 	@Override
-	public void setLongRunningTask(IdmLongRunningTask longRunningTask) {
-		this.longRunningTask = longRunningTask;
-	}
-	
-	/**
-	 * Returns server instance id
-	 * 
-	 * @return
-	 */
-	protected String getInstanceId() {
-		return configurationService.getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
+	public void setLongRunningTaskId(UUID taskId) {
+		this.taskId = taskId;
 	}
 }

@@ -1,8 +1,7 @@
-package eu.bcvsolutions.idm.core.scheduler.service.api;
+package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.Map;
-
-import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import java.util.UUID;
 
 /**
  * Long running task executor
@@ -61,15 +60,16 @@ public interface LongRunningTaskExecutor extends Runnable {
 	boolean updateState();
 	
 	/**
-	 * Gets long running task log
+	 * Gets long running task log id
 	 * 
 	 * @return
 	 */
-	IdmLongRunningTask getLongRunningTask();
+	UUID getLongRunningTaskId();
+	
 	/**
-	 * Sets long running task log
+	 * Sets long running task log id
 	 * 
 	 * @param longRunningTask
 	 */
-	void setLongRunningTask(IdmLongRunningTask longRunningTask);
+	void setLongRunningTaskId(UUID taskId);
 }

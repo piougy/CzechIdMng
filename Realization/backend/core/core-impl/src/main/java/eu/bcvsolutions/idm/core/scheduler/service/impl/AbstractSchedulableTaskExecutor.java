@@ -3,16 +3,15 @@ package eu.bcvsolutions.idm.core.scheduler.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
-import eu.bcvsolutions.idm.core.scheduler.service.api.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -41,13 +40,9 @@ public abstract class AbstractSchedulableTaskExecutor extends AbstractLongRunnin
 		longRunningTask.setTaskDescription(context.getJobDetail().getDescription());
 		longRunningTask.setTaskProperties(context.getMergedJobDataMap());
 		longRunningTask.setResult(new OperationResult.Builder(OperationState.CREATED).build());
-		String instanceId = context.getMergedJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID);
-		if (StringUtils.isEmpty(instanceId)) {
-			instanceId = getInstanceId();
-		}
-		longRunningTask.setInstanceId(instanceId);
+		longRunningTask.setInstanceId(context.getMergedJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 		//
-		longRunningTask = longRunningTaskService.save(longRunningTask);
+		longRunningTaskService.save(longRunningTask);
 	}
 	
 	/**

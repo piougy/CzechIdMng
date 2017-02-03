@@ -23,12 +23,6 @@ public class AuditFilter extends QuickFilter {
 	private String changedAttributes;
 	
 	private UUID entityId;
-	
-	/**
-	 * In this filter must be also string attribute for filtering
-	 * like with entityId.
-	 */
-	private String entityIdLike;
 
 	public String getModifier() {
 		return modifier;
@@ -93,12 +87,4 @@ public class AuditFilter extends QuickFilter {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	public String getEntityIdLike() {
-		return entityIdLike;
-	}
-
-	public void setEntityIdLike(String entityIdLike) {
-		this.entityIdLike = entityIdLike;
-	}	
 }

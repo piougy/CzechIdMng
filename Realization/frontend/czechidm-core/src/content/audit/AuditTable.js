@@ -116,7 +116,7 @@ export class AuditTable extends Basic.AbstractContent {
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row className="last">
+          <Basic.Row>
             {
               !_.includes(columns, 'type')
               ||
@@ -152,13 +152,13 @@ export class AuditTable extends Basic.AbstractContent {
               </div>
             }
           </Basic.Row>
-          <Basic.Row>
+          <Basic.Row className="last">
             {
               !_.includes(columns, 'entityId')
               ||
               <div className="col-lg-4">
                 <Advanced.Filter.TextField
-                  ref="entityIdLike"
+                  ref="entityId"
                   label={this.i18n('entity.Audit.entityId')}
                   placeholder={this.i18n('entity.Audit.entityId')}/>
               </div>

@@ -251,7 +251,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		filter.setModifier("admin");
 		filter.setType(IdmRole.class.getSimpleName());
 
-		Pageable pageable = new PageRequest(1, 10);
+		Pageable pageable = new PageRequest(0, 10);
 
 		List<IdmAudit> result = auditService.find(filter, pageable).getContent();
 

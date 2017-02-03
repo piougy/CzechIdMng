@@ -3,6 +3,7 @@ import i18next from 'i18next';
 import XHR from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Cache from 'i18next-localstorage-cache';
+require('moment/locale/cs');
 
 let i18nextInstance = null;
 // TODO: move to configuration

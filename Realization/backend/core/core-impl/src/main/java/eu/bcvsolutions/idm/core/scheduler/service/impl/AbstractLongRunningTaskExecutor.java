@@ -58,7 +58,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 			// TODO: result code exception
 			return false;
 		}
-		if (!OperationState.isRunnable(task.getState())) {
+		if (!OperationState.isRunnable(task.getResultState())) {
 			// TODO: result code exception
 			return false;
 		}
@@ -100,7 +100,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		//
 		if (ex != null) {
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: result code
-		} else if(OperationState.isRunnable(task.getState())) { 
+		} else if(OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());
 		}
@@ -130,7 +130,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		//
 		setStateProperties(task);
 		task = service.save(task);
-		return task.isRunning() && OperationState.isRunnable(task.getState());
+		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}
 	
 	/**

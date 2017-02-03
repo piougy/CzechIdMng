@@ -94,7 +94,7 @@ public class IdmLongRunningTask extends AbstractEntity {
 		this.counter = counter;
 	}
 	
-	public OperationState getState() {
+	public OperationState getResultState() {
 		if (result == null) {
 			return null;
 		}

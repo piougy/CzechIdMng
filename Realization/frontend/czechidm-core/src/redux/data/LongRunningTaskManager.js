@@ -26,6 +26,19 @@ export default class LongRunningTaskManager extends EntityManager {
   }
 
   /**
+   * Returns nice long running counter / count
+   *
+   * @param  {object} entity
+   * @return {string}
+   */
+  getProcessedCount(entity) {
+    if (!entity) {
+      return null;
+    }
+    return `${entity.counter !== null ? entity.counter : '?'} / ${entity.count !== null ? entity.count : '?'}`;
+  }
+
+  /**
    * Cancel given task manually
    *
    * @param {object} task

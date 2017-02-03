@@ -15,7 +15,8 @@
   "format": {
     "date": "DD.MM.YYYY",
     "time": "HH:mm",
-    "datetime": "DD.MM.YYYY HH:mm:ss"
+    "datetime": "DD.MM.YYYY HH:mm:ss",
+    "times": "HH:mm:ss"
   },
   "message": {
     "success": {
@@ -1307,6 +1308,11 @@
             "label": "Stav",
             "placeholder": "Stav úlohy"
           }
+        },
+        "detail": {
+          "header": "Detail úlohy",
+          "result": "Výsledek",
+          "resultCode": "Kód"
         }
       }
     },
@@ -1817,7 +1823,12 @@
       "counter": "Zpracováno",
       "result": {
         "state": "Stav"
-      }
+      },
+      "instanceId": {
+        "label": "Instance",
+        "help": "Úloha spuštěna na serveru (identifikátor instance)"
+      },
+      "duration": "Trvání úlohy"
     },
     "ScheduleTask": {
       "id": "Identifikátor",

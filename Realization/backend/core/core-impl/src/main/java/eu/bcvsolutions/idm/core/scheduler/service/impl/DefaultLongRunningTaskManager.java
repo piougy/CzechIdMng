@@ -104,7 +104,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				// TODO: result code exception
 				return;
 			}
-			if (!OperationState.isRunnable(task.getState())) {
+			if (!OperationState.isRunnable(task.getResultState())) {
 				// TODO: result code exception
 				return;
 			}

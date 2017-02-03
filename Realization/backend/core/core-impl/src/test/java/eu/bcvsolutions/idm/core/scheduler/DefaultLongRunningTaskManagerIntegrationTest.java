@@ -204,9 +204,9 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		taskOne = service.get(taskOne.getId());
 		taskTwo = service.get(taskTwo.getId());
 		//
-		assertEquals(OperationState.CANCELED, taskOne.getState());
+		assertEquals(OperationState.CANCELED, taskOne.getResultState());
 		assertFalse(taskOne.isRunning());
-		assertEquals(OperationState.RUNNING, taskTwo.getState());
+		assertEquals(OperationState.RUNNING, taskTwo.getResultState());
 		assertTrue(taskTwo.isRunning());
 	}
 	

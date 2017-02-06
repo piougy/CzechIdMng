@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
@@ -36,6 +38,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 @Service
 public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLongRunningTaskManager.class);
 	private final IdmLongRunningTaskService service;
 	private final Executor executor;
 	private final ConfigurationService configurationService;
@@ -62,7 +65,13 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	public void init() {
 		service.getTasks(configurationService.getInstanceId(), OperationState.RUNNING).forEach(task -> {
 			task.setRunning(false);
-			task.setResult(new OperationResult.Builder(OperationState.CANCELED).build()); // TODO: result state canceled by restart
+			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
+					ImmutableMap.of(
+							"taskId", task.getId(), 
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId())); 
+			
+			task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 			service.save(task);
 		});
 	}
@@ -149,14 +158,25 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		for (Thread thread : threadSet) {
 			if (thread.getId() == task.getThreadId()) {
+				ResultModel resultModel = null;
 				Exception ex = null;
 				try {
 					thread.interrupt();
 				} catch(Exception e) {
+					resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INTERRUPT, 
+							ImmutableMap.of(
+									"taskId", task.getId(), 
+									"taskType", task.getTaskType(),
+									"instanceId", task.getInstanceId()));
 					ex = e;
+					LOG.error(resultModel.toString(), e);
 				}
 				task.setRunning(false);
-				task.setResult(new OperationResult.Builder(OperationState.CANCELED).setCause(ex).build()); // TODO: result state canceled standardly
+				if (resultModel == null) {
+					task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+				} else {
+					task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).setCause(ex).build());
+				}				
 				service.save(task);
 				return;
 			}

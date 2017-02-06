@@ -108,9 +108,9 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 					ImmutableMap.of(
 							"taskId", taskId, 
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));			
+							"instanceId", task.getInstanceId()));	
 			LOG.error(resultModel.toString(), ex);
-			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build()); // TODO: result code
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 		} else if(OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
-import { LongRunningTaskManager, ConfigurationManager } from '../../redux';
+import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '../../redux';
 
 const UIKEY = 'active-long-running-task-table';
 const manager = new LongRunningTaskManager();
@@ -104,12 +104,13 @@ class RunningTasks extends Basic.AbstractContent {
                         onClick={this.onInterrupt.bind(this, entity)}
                         level="danger"
                         style={{ marginRight: 5 }}
-                        rendered={entity.instanceId === instanceId}>
+                        rendered={entity.instanceId === instanceId && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
                         {this.i18n('button.interrupt')}
                       </Basic.Button>
                       <Basic.Button
                         level="warning"
-                        onClick={this.onCancel.bind(this, entity)}>
+                        onClick={this.onCancel.bind(this, entity)}
+                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
                         {this.i18n('button.cancel')}
                       </Basic.Button>
                     </Basic.PanelFooter>

@@ -2016,6 +2016,14 @@
     "BAD_FILTER": {
       "title": "Filter není validní",
       "message": "Zkontrolujte vyplněné hodnoty filtru."
+    },
+    "LONG_RUNNING_TASK_FAILED": {
+      "title": "Zpracování úlohy selhalo",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] selhalo."
+    },
+    "SCHEDULER_INVALID_CRON_EXPRESSION": {
+      "title": "Chybný cron výraz",
+      "message": "Zadaný cron výraz [{{cron}}] není validní."
     }
   },
   "validationError": {

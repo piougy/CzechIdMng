@@ -2016,6 +2016,22 @@
     "BAD_FILTER": {
       "title": "Filter není validní",
       "message": "Zkontrolujte vyplněné hodnoty filtru."
+    },
+    "LONG_RUNNING_TASK_FAILED": {
+      "title": "Zpracování úlohy selhalo",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] selhalo."
+    },
+    "SCHEDULER_INVALID_CRON_EXPRESSION": {
+      "title": "Chybný cron výraz",
+      "message": "Zadaný cron výraz [{{cron}}] není validní."
+    },
+    "LONG_RUNNING_TASK_INTERRUPT": {
+      "title": "Zpracování úlohy bylo přerušeno",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno ukončením vlákna."
+    },
+    "LONG_RUNNING_TASK_CANCELED_BY_RESTART": {
+      "title": "Zpracování úlohy bylo přerušeno",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
     }
   },
   "validationError": {

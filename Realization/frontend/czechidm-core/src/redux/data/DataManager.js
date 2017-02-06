@@ -102,7 +102,6 @@ export default class DataManager {
         cb(null, error);
       } else {
         dispatch(this.flashMessagesManager.addErrorMessage({
-          level: 'error',
           key: 'error-' + uiKey
         }, error));
       }

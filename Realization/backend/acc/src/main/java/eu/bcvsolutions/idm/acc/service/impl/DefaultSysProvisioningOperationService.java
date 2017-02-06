@@ -239,7 +239,7 @@ public class DefaultSysProvisioningOperationService
 		request.increaseAttempt();
 		request.setMaxAttempts(6); // TODO: from configuration
 		operation.getRequest().setResult(
-				new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+				new OperationResult.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build());
 		//
 		save(operation);
 		//

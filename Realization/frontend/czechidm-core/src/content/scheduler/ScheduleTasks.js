@@ -6,7 +6,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import { SchedulerManager, DataManager, ConfigurationManager } from '../../redux';
+import { SchedulerManager, DataManager, ConfigurationManager, SecurityManager } from '../../redux';
 import * as Utils from '../../utils';
 import TriggerTypeEnum from '../../enums/TriggerTypeEnum';
 
@@ -267,7 +267,7 @@ class ScheduleTasks extends Basic.AbstractTableContent {
               key="add_button"
               className="btn-xs"
               onClick={ this.showDetail.bind(this, _supportedTasks.length === 0 ? {} : { name: _supportedTasks[0], instanceId }) }
-              rendered={ _supportedTasks.length > 0 }>
+              rendered={ _supportedTasks.length > 0 && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
               <Basic.Icon type="fa" icon="plus"/>
               {' '}
               {this.i18n('button.add')}
@@ -346,7 +346,8 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                             <Basic.Button
                               level="link"
                               className="btn-xs"
-                              onClick={this.onTriggerDelete.bind(this, trigger)}>
+                              onClick={this.onTriggerDelete.bind(this, trigger)}
+                              rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE'])}>
                               <Basic.Icon value="remove" color="red"/>
                               </Basic.Button>
                           </div>
@@ -356,7 +357,8 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                     <Basic.Button
                       level="success"
                       className="btn-xs"
-                      onClick={this.showTriggerDetail.bind(this, { type: triggerType, taskId: data[rowIndex].id })}>
+                      onClick={this.showTriggerDetail.bind(this, { type: triggerType, taskId: data[rowIndex].id })}
+                      rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
                       <Basic.Icon value="plus"/>
                       {' '}
                       { this.i18n('button.add') }
@@ -377,7 +379,8 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                         onClick={this.onDelete.bind(this, data[rowIndex])}
                         className="btn-xs"
                         title={this.i18n('button.delete')}
-                        titlePlacement="bottom">
+                        titlePlacement="bottom"
+                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_DELETE'])}>
                         <Basic.Icon icon="trash"/>
                       </Basic.Button>
                       <Basic.Button
@@ -386,7 +389,8 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                         className="btn-xs"
                         title={this.i18n('button.run')}
                         titlePlacement="bottom"
-                        style={{ marginLeft: 3 }}>
+                        style={{ marginLeft: 3 }}
+                        rendered={SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
                         <Basic.Icon icon="play"/>
                       </Basic.Button>
                     </div>
@@ -475,7 +479,7 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                 showLoading={showLoading}
                 showLoadingIcon
                 showLoadingText={this.i18n('button.saving')}
-                rendered={detail.entity.id === undefined}>
+                rendered={detail.entity.id === undefined && SecurityManager.hasAnyAuthority(['SCHEDULER_WRITE'])}>
                 {this.i18n('button.save')}
               </Basic.Button>
             </Basic.Modal.Footer>

@@ -13,10 +13,8 @@ import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
@@ -31,6 +29,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
@@ -40,6 +41,8 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
+import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
+import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
 
 /**
@@ -101,7 +104,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			}
 
 			return tasks;
-		} catch (SchedulerException ex) {
+		} catch (org.quartz.SchedulerException ex) {
 			throw new CoreException(ex);
 		}
 	}
@@ -121,6 +124,10 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	private Task getTask(JobKey jobKey) {
 		try {
 			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+			if (jobDetail == null) {
+				// job does not exists
+				return null;
+			}
 			Task task = new Task();
 			// task setting
 			task.setId(jobKey.getName());
@@ -145,13 +152,17 @@ public class DefaultSchedulerManager implements SchedulerManager {
 				}
 			}
 			return task;
-		} catch (SchedulerException ex) {
+		} catch (org.quartz.SchedulerException ex) {
 			throw new CoreException(ex);
 		}
 	}
 	
 	@Override
 	public Task createTask(Task task) {
+		Assert.notNull(task);
+		Assert.notNull(task.getInstanceId());
+		Assert.notNull(task.getTaskType());
+		//
 		try {
 			// task id
 			String taskId = Key.createUniqueName(DEFAULT_GROUP_NAME);
@@ -180,8 +191,8 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			LOG.debug("Job '{}' ({}) was created and registered", taskId, task.getTaskType());
 			//
 			return getTask(taskId);
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TASK_FAILED, ex);
 		}
 	}
 
@@ -189,56 +200,58 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	public void deleteTask(String taskId) {		
 		try {
 			scheduler.deleteJob(new JobKey(taskId, DEFAULT_GROUP_NAME));
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TASK_FAILED, ex);
 		}
 	}
 
 	@Override
 	public AbstractTaskTrigger runTask(String taskId) {
-		try {
-			JobKey taskKey = getKey(taskId);
-			for(JobExecutionContext jobContext : scheduler.getCurrentlyExecutingJobs()) {
-				if (jobContext.getJobDetail().getKey().equals(taskKey)) {
-					throw new CoreException("job is already running on this scheduler instance");
-				}
-			}
-			// run job - add simple trigger
-			SimpleTaskTrigger trigger = new SimpleTaskTrigger();
-			trigger.setTaskId(taskId);
-			trigger.setDescription("run manually");
-			trigger.setFireTime(new DateTime());
-			return createTrigger(taskId, trigger);
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
-		}
+		// run job - add simple trigger
+		SimpleTaskTrigger trigger = new SimpleTaskTrigger();
+		trigger.setTaskId(taskId);
+		trigger.setDescription("run manually");
+		trigger.setFireTime(new DateTime());
+		return createTrigger(taskId, trigger);
 	}
 	
 	@Override
 	public boolean interruptTask(String taskId) {
 		try {
 			return scheduler.interrupt(getKey(taskId));
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_INTERRUPT_TASK_FAILED, ex);
 		}
 	}
 
 	@Override
 	public AbstractTaskTrigger createTrigger(String taskId, AbstractTaskTrigger trigger) {
+		Assert.notNull(taskId);
+		Assert.notNull(trigger);
+		//
 		try {
 			String triggerId = Key.createUniqueName(taskId);
 			trigger.setId(triggerId);
-
+			trigger.setTaskId(taskId);
+			//
 			if (trigger instanceof CronTaskTrigger) {
+				CronTaskTrigger cronTaskTrigger = (CronTaskTrigger) trigger;
+				CronScheduleBuilder cronBuilder;
+				try {
+					cronBuilder = CronScheduleBuilder
+							.cronSchedule(cronTaskTrigger.getCron())
+							.withMisfireHandlingInstructionDoNothing()
+							.inTimeZone(TimeZone.getDefault());
+				} catch(RuntimeException ex) {
+					throw new InvalidCronExpressionException(cronTaskTrigger.getCron(), ex);
+				}
+				//
 				scheduler.scheduleJob(
 						TriggerBuilder.newTrigger()
 							.withIdentity(triggerId, taskId)
 							.forJob(getKey(taskId))
-							.withDescription(trigger.getDescription())
-							.withSchedule(CronScheduleBuilder
-									.cronSchedule(((CronTaskTrigger) trigger).getCron())
-									.withMisfireHandlingInstructionDoNothing()
-									.inTimeZone(TimeZone.getDefault()))
+							.withDescription(cronTaskTrigger.getDescription())
+							.withSchedule(cronBuilder)
 							.startNow()
 							.build());
 			} else if (trigger instanceof SimpleTaskTrigger) {
@@ -251,12 +264,12 @@ public class DefaultSchedulerManager implements SchedulerManager {
 							.startAt(((SimpleTaskTrigger) trigger).getFireTime().toDate())
 							.build());
 			} else {
-				throw new CoreException("Unsupported type of task trigger " + trigger);
+				throw new SchedulerException(CoreResultCode.SCHEDULER_UNSUPPORTED_TASK_TRIGGER, ImmutableMap.of("trigger", trigger.getClass()));
 			}
 
 			return trigger;
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_CREATE_TRIGGER_FAILED, ex);
 		}
 	}
 
@@ -264,26 +277,26 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	public void deleteTrigger(String taskId, String triggerId) {
 		try {
 			scheduler.unscheduleJob(new TriggerKey(triggerId, taskId));
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_DELETE_TRIGGER_FAILED, ex);
 		}
 	}
 
 	@Override
-	public void pauseTrigger(String taskName, String triggerId) {
+	public void pauseTrigger(String taskId, String triggerId) {
 		try {
-			scheduler.pauseTrigger(new TriggerKey(triggerId, taskName));
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+			scheduler.pauseTrigger(new TriggerKey(triggerId, taskId));
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_PAUSE_TRIGGER_FAILED, ex);
 		}
 	}
 
 	@Override
-	public void resumeTrigger(String taskName, String triggerId) {
+	public void resumeTrigger(String taskId, String triggerId) {
 		try {
-			scheduler.resumeTrigger(new TriggerKey(triggerId, taskName));
-		} catch (SchedulerException ex) {
-			throw new CoreException(ex);
+			scheduler.resumeTrigger(new TriggerKey(triggerId, taskId));
+		} catch (org.quartz.SchedulerException ex) {
+			throw new SchedulerException(CoreResultCode.SCHEDULER_RESUME_TRIGGER_FAILED, ex);
 		}
 	}
 	

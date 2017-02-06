@@ -25,7 +25,7 @@ public class Task {
 	private Class<? extends SchedulableTaskExecutor> taskType; // task executor class
 	private String description;	
 	private List<AbstractTaskTrigger> triggers;
-	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
+	private Map<String, String> parameters;
 
 	public Task() {
 	}
@@ -63,7 +63,14 @@ public class Task {
 	}
 
 	public Map<String, String> getParameters() {
+		if (parameters == null) {
+			parameters = new LinkedHashMap<String, String>();
+		}
 		return parameters;
+	}
+	
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
 	}
 	
 	public String getDescription() {

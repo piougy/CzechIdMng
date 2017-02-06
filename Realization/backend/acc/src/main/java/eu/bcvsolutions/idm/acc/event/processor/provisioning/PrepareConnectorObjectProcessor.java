@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -187,16 +186,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		IcConnectorObject connectorObject = provisioningContext.getConnectorObject();
 		//
 		// prepare provisioning attributes from account attributes
-		Map<UUID, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
+		Map<String, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
 		if (fullAccountObject != null) {
 			connectorObject.getAttributes().clear();
 			for (AttributeMapping attributeHandling : findAttributeMappings(system, provisioningOperation.getEntityType())) {
-				if (!fullAccountObject.containsKey(attributeHandling.getSchemaAttribute().getId())) {
+				if (!fullAccountObject.containsKey(attributeHandling.getSchemaAttribute().getName())) {
 					continue;
 				}
 				IcAttribute createdAttribute = createAttribute( 
 						attributeHandling,
-						fullAccountObject.get(attributeHandling.getSchemaAttribute().getId()));
+						fullAccountObject.get(attributeHandling.getSchemaAttribute().getName()));
 				if (createdAttribute != null) {
 					connectorObject.getAttributes().add(createdAttribute);
 				}
@@ -216,10 +215,10 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		if (provisioningContext.getAccountObject() == null) {
 			updateConnectorObject = connectorObject;
 		} else {
-			Map<UUID, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
+			Map<String, Object> fullAccountObject = provisioningOperationService.getFullAccountObject(provisioningOperation);
 			updateConnectorObject = new IcConnectorObjectImpl(systemEntityUid, objectClass, null);
 			for (AttributeMapping attributeMapping : findAttributeMappings(system, provisioningOperation.getEntityType())) {
-				if (!fullAccountObject.containsKey(attributeMapping.getSchemaAttribute().getId())) {
+				if (!fullAccountObject.containsKey(attributeMapping.getSchemaAttribute().getName())) {
 					continue;
 				}
 				SysSchemaAttribute schemaAttribute = attributeMapping.getSchemaAttribute();
@@ -232,7 +231,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 						// attribute and mapped value in entity
 						IcAttribute updatedAttribute = updateAttribute(
 								systemEntityUid, 
-								fullAccountObject.get(schemaAttribute.getId()), 
+								fullAccountObject.get(schemaAttribute.getName()), 
 								attributeMapping, 
 								existsConnectorObject);
 						if (updatedAttribute != null) {

@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.Map;
-import java.util.UUID;
 
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -22,7 +21,7 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @param provisioningOperation
 	 * @return
 	 */
-	Map<UUID, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
+	Map<String, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * Returns fully loaded ConnectorObject with guarded strings.

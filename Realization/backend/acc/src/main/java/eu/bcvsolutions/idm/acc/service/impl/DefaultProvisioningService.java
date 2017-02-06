@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -281,13 +280,13 @@ public class DefaultProvisioningService implements ProvisioningService {
 		}
 		//
 		// prepare all mapped attribute values (= account)
-		Map<UUID, Object> accountAttributes = new HashMap<>();
+		Map<String, Object> accountAttributes = new HashMap<>();
 		if (!AccountOperationType.DELETE.equals(operationType)) { // delete - account attributes is not needed
 			for (AttributeMapping attributeHandling : attributes) {
 				if (attributeHandling.isDisabledAttribute()) {
 					continue;
 				}
-				accountAttributes.put(attributeHandling.getSchemaAttribute().getId(), getAttributeValue(entity, attributeHandling));
+				accountAttributes.put(attributeHandling.getSchemaAttribute().getName(), getAttributeValue(entity, attributeHandling));
 			}
 		}
 		// public provisioning event 

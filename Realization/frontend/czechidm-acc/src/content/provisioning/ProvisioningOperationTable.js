@@ -199,9 +199,9 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
           rendered={_.includes(columns, 'entityIdentifier')}/>
         <Advanced.ColumnLink
           to="/system/:_target/detail"
-          target="_embedded.system.id"
+          target="system.id"
           access={{ 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SYSTEM_READ']}}
-          property="_embedded.system.name"
+          property="system.name"
           header={this.i18n('acc:entity.System.name')}
           rendered={_.includes(columns, 'system')} />
         <Advanced.Column

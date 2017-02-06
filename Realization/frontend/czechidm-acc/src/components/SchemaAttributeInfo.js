@@ -28,14 +28,16 @@ export class SchemaAttributeInfo extends Basic.AbstractContextComponent {
   _loadEntityIfNeeded() {
     const { entity, _entity, id } = this.props;
     if (id && !entity && !_entity) {
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), manager.resolveUiKey(null, id))) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(manager.fetchEntityIfNeeded(id));
+      const uiKey = manager.resolveUiKey(null, id);
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
+          && !Utils.Ui.getError(this.context.store.getState(), uiKey)) { // show loading check has to be here - new state is needed
+        this.context.store.dispatch(manager.fetchEntityIfNeeded(id, null, () => {}));
       }
     }
   }
 
   render() {
-    const { rendered, showLoading, className, id, entity, ...others } = this.props;
+    const { rendered, showLoading, className, id, entity, _showLoading } = this.props;
     //
     if (!rendered) {
       return null;
@@ -48,13 +50,13 @@ export class SchemaAttributeInfo extends Basic.AbstractContextComponent {
     const panelClassNames = classNames(
       className
     );
-    if (showLoading || (id && !_entity)) {
+    if (showLoading || (_showLoading && id && !_entity)) {
       return (
         <Basic.Icon value="refresh" showLoading/>
       );
     }
     if (!_entity || !_entity._embedded) {
-      return null;
+      return (<span title={id}>n/a</span>); // deleted mapping
     }
     //
     const systemId = _entity._embedded.objectClass.system.id;
@@ -77,16 +79,19 @@ SchemaAttributeInfo.propTypes = {
   /**
    * Internal identity loaded by given username
    */
-  _entity: PropTypes.object
+  _entity: PropTypes.object,
+  _showLoading: PropTypes.bool
 };
 SchemaAttributeInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
-  entity: null
+  entity: null,
+  _showLoading: true
 };
 
 function select(state, component) {
   return {
-    _entity: manager.getEntity(state, component.id)
+    _entity: manager.getEntity(state, component.id),
+    _showLoading: manager.isShowLoading(state, null, component.id)
   };
 }
 export default connect(select)(SchemaAttributeInfo);

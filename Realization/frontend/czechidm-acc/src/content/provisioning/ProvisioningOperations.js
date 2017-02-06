@@ -8,7 +8,6 @@ import { Basic, Advanced, Managers, Domain, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
 import ProvisioningOperationTable from './ProvisioningOperationTable';
 import ProvisioningOperationTypeEnum from '../../domain/ProvisioningOperationTypeEnum';
-import SchemaAttributeInfo from '../../components/SchemaAttributeInfo';
 import EntityInfo from '../../components/EntityInfo';
 
 const manager = new ProvisioningOperationManager();
@@ -201,7 +200,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
                     <div style={{ margin: '7px 0' }}>
-                      <Link to={`/system/${detail.entity._embedded.system.id}/detail`} >{detail.entity._embedded.system.name}</Link>
+                      <Link to={`/system/${detail.entity.system.id}/detail`} >{detail.entity.system.name}</Link>
                     </div>
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.SystemEntity.uid')}>
@@ -242,16 +241,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
                       data={accountData}
                       noData={this.i18n('component.basic.Table.noData')}
                       className="table-bordered">
-                      <Basic.Column
-                        property="property"
-                        header={this.i18n('label.property')}
-                        cell={
-                          ({rowIndex, data, property}) => {
-                            return (
-                              <SchemaAttributeInfo id={data[rowIndex][property]}/>
-                            );
-                          }
-                        }/>
+                      <Basic.Column property="property" header={this.i18n('label.property')}/>
                       <Basic.Column property="value" header={this.i18n('label.value')}/>
                     </Basic.Table>
                   </div>

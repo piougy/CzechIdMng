@@ -29,6 +29,8 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 @Entity
 @Table(name = "sys_system_entity", indexes = {
 		@Index(name = "ux_system_entity_type_uid", columnList = "entity_type,uid,system_id", unique = true),
+		@Index(name = "idx_sys_system_entity_uid", columnList = "uid"),
+		@Index(name = "idx_sys_system_entity_type", columnList = "entity_type"),
 		@Index(name = "idx_sys_system_entity_system", columnList = "system_id")
 		})
 public class SysSystemEntity extends AbstractEntity {
@@ -51,6 +53,14 @@ public class SysSystemEntity extends AbstractEntity {
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
+	
+	public SysSystemEntity() {
+	}
+	
+	public SysSystemEntity(String uid, SystemEntityType entityType) {
+		this.uid = uid;
+		this.entityType = entityType;
+	}
 
 	public void setUid(String uid) {
 		this.uid = uid;

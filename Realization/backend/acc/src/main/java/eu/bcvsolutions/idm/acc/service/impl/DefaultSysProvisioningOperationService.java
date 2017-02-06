@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -132,16 +131,16 @@ public class DefaultSysProvisioningOperationService
 	 * @return
 	 */
 	@Override
-	public Map<UUID, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation) {
+	public Map<String, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation) {
 		if (provisioningOperation == null 
 				|| provisioningOperation.getProvisioningContext() == null 
 				|| provisioningOperation.getProvisioningContext().getAccountObject() == null) {
 			return null;
 		}
 		//
-		Map<UUID, Object> fullAccountObject = new HashMap<>();
-		Map<UUID, Object> accountObject = provisioningOperation.getProvisioningContext().getAccountObject();
-		for (Entry<UUID, Object> entry : accountObject.entrySet()) {
+		Map<String, Object> fullAccountObject = new HashMap<>();
+		Map<String, Object> accountObject = provisioningOperation.getProvisioningContext().getAccountObject();
+		for (Entry<String, Object> entry : accountObject.entrySet()) {
 			if (entry.getValue() == null) {
 				fullAccountObject.put(entry.getKey(), entry.getValue());
 				continue;
@@ -284,9 +283,9 @@ public class DefaultSysProvisioningOperationService
 			return confidentialValues;
 		}
 		//
-		Map<UUID, Object> accountObject = context.getAccountObject();
+		Map<String, Object> accountObject = context.getAccountObject();
 		if (accountObject != null) {
-			for (Entry<UUID, Object> entry : accountObject.entrySet()) {
+			for (Entry<String, Object> entry : accountObject.entrySet()) {
 				if (entry.getValue() == null) {
 					continue;
 				}
@@ -363,7 +362,7 @@ public class DefaultSysProvisioningOperationService
 	 * @param index
 	 * @return
 	 */
-	protected String createAccountObjectPropertyKey(UUID property, int index) {
+	protected String createAccountObjectPropertyKey(String property, int index) {
 		return String.format(CONFIDENTIAL_KEY_PATTERN, ACCOUNT_OBJECT_PROPERTY_PREFIX, property.toString(), index);
 	}
 	
@@ -391,9 +390,9 @@ public class DefaultSysProvisioningOperationService
 			return;
 		}
 		
-		Map<UUID, Object> accountObject = context.getAccountObject();
+		Map<String, Object> accountObject = context.getAccountObject();
 		if (accountObject != null) {
-			for (Entry<UUID, Object> entry : accountObject.entrySet()) {
+			for (Entry<String, Object> entry : accountObject.entrySet()) {
 				Object idmValue = entry.getValue();
 				if (idmValue == null) {
 					continue;

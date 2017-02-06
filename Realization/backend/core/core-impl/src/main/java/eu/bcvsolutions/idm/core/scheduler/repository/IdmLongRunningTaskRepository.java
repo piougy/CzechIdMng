@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.scheduler.dto.filter.LongRunningTaskFilter;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
+import eu.bcvsolutions.idm.core.scheduler.rest.projection.IdmLongRunningTaskExcerpt;
 
 /**
  * Persists long running tasks
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 		collectionResourceRel = "longRunningTasks", // 
 		path = "long-running-tasks", //
 		itemResourceRel = "longRunningTask", //
+		excerptProjection = IdmLongRunningTaskExcerpt.class, //
 		exported = false)
 public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<IdmLongRunningTask, LongRunningTaskFilter> {
 	

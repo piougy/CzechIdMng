@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -27,6 +29,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  */
 public abstract class AbstractLongRunningTaskExecutor implements LongRunningTaskExecutor {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired
 	private IdmLongRunningTaskService service;
 	@Autowired
@@ -101,7 +104,13 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		setStateProperties(task);
 		//
 		if (ex != null) {
-			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: result code
+			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+					ImmutableMap.of(
+							"taskId", taskId, 
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));			
+			LOG.error(resultModel.toString(), ex);
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode(resultModel.getStatusEnum()).setModel(resultModel).setCause(ex).build()); // TODO: result code
 		} else if(OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());

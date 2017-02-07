@@ -239,6 +239,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		return getConnectorFormValues(backendId, assembler);
 	}
 	
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/check", method = RequestMethod.GET)
+	public ResponseEntity<?> checkSystem(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		systemService.checkSystem(super.getEntity(backendId));
+		return new ResponseEntity<>(true, HttpStatus.OK);
+	}
+	
 	/**
 	 * Returns definition for given system 
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured

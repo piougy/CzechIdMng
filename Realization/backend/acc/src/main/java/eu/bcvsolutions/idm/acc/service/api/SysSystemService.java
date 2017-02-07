@@ -45,10 +45,17 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 */
 	IdmFormDefinition getConnectorFormDefinition(IcConnectorKey connectorKey);
 	
+	/**
+	 * Check if is connector works fine 
+	 * @param system
+	 */
+	void checkSystem(SysSystem system);
+	
 	//
 	// TODO: move to test after FE form implementation
 	@Deprecated
 	IcConnectorKey getTestConnectorKey();
 	@Deprecated
 	SysSystem createTestSystem();
+
 }

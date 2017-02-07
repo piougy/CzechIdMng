@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.repository.SysSynchronizationConfigRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -27,7 +27,7 @@ public class DefaultSysSyncConfigService
 	private final SysSyncLogService synchronizationLogService;
 
 	@Autowired
-	public DefaultSysSyncConfigService(SysSynchronizationConfigRepository repository,
+	public DefaultSysSyncConfigService(SysSyncConfigRepository repository,
 			SysSyncLogService synchronizationLogService) {
 		super(repository);
 		//
@@ -56,7 +56,7 @@ public class DefaultSysSyncConfigService
 		if(config == null){
 			return false;
 		}
-		int count = ((SysSynchronizationConfigRepository)this.getRepository()).runningCount(config);
+		int count = ((SysSyncConfigRepository)this.getRepository()).runningCount(config);
 		return count > 0;
 	}
 

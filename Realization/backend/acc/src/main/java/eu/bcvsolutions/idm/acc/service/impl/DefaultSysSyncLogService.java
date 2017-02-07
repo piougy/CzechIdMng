@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.dto.filter.SyncActionLogFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationLogFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
-import eu.bcvsolutions.idm.acc.repository.SysSynchronizationLogRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSyncLogRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -27,7 +27,7 @@ public class DefaultSysSyncLogService
 	private final SysSyncActionLogService syncActionLogService;
 	
 	@Autowired
-	public DefaultSysSyncLogService(SysSynchronizationLogRepository repository,
+	public DefaultSysSyncLogService(SysSyncLogRepository repository,
 			SysSyncActionLogService syncActionLogService) {
 		super(repository);
 		Assert.notNull(syncActionLogService);

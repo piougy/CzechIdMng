@@ -53,7 +53,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 
 /**
- * Deafult target system configuration service
+ * Default target system configuration service
  * 
  * @author Radek Tomiška
  *
@@ -176,6 +176,29 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			}
 		}
 		return icConf;
+	}
+	
+	@Override
+	@Transactional
+	public void checkSystem(SysSystem system) {
+		Assert.notNull(system);
+
+		// Find connector identification persisted in system
+		IcConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Call IC module 
+		icConfigurationFacade.test(connectorKey, connectorConfig);
 	}
 
 	@Override

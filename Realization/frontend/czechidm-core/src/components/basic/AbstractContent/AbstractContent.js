@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import PageHeader from '../PageHeader/PageHeader';
+import ContentHeader from '../ContentHeader/ContentHeader';
 import Icon from '../Icon/Icon';
 import { selectNavigationItems, selectNavigationItem, getNavigationItem } from '../../../redux/layout/layoutActions';
 
@@ -108,8 +109,26 @@ export default class AbstractContent extends AbstractContextComponent {
         <Helmet title={this.i18n('title')} />
         <Icon value={navigationItem.icon}/>
         {' '}
-        {this.i18n('header')}
+        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
       </PageHeader>
+    );
+  }
+
+  /**
+   * Default content header with title based on navigation item
+   *
+   * @return {element} react element
+   */
+  renderContentHeader() {
+    const navigationItem = this.getNavigationItem() || {};
+    //
+    return (
+      <ContentHeader>
+        <Helmet title={this.i18n('title')} />
+        <Icon value={navigationItem.icon}/>
+        {' '}
+        <span dangerouslySetInnerHTML={{__html: this.i18n('header')}}/>
+      </ContentHeader>
     );
   }
 

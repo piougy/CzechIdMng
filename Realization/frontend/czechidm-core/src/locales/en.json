@@ -1190,6 +1190,10 @@
         "error" : {
           "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
         }
+      },
+      "garanted-roles": {
+        "header": "Garant rolí <small>uživatel garantuje role</small>",
+        "title": "Garant rolí"
       }
     },
     "audit": {
@@ -1784,7 +1788,7 @@
         "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
         "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
         "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
-        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelské attributy. Také je možnost nastavit povinná pouze některá pravidla.",
+        "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
         "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
         "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
         "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
@@ -2024,6 +2028,14 @@
     "SCHEDULER_INVALID_CRON_EXPRESSION": {
       "title": "Chybný cron výraz",
       "message": "Zadaný cron výraz [{{cron}}] není validní."
+    },
+    "LONG_RUNNING_TASK_INTERRUPT": {
+      "title": "Zpracování úlohy bylo přerušeno",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno ukončením vlákna."
+    },
+    "LONG_RUNNING_TASK_CANCELED_BY_RESTART": {
+      "title": "Zpracování úlohy bylo přerušeno",
+      "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
     }
   },
   "validationError": {

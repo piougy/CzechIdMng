@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
@@ -15,8 +14,10 @@ const rootsKey = 'role-catalogue-tree-roots';
 
 /**
 * Table of roles
+*
+* @author Radek Tomiška
 */
-export class RoleTable extends Basic.AbstractContent {
+export default class RoleTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -139,9 +140,9 @@ export class RoleTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey, roleManager, columns } = this.props;
+    const { uiKey, roleManager, columns, showCatalogue, forceSearchParameters } = this.props;
     const { filterOpened, showLoading, rootNodes } = this.state;
-    const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
+    const showTree = showCatalogue && !showLoading && rootNodes && rootNodes.length !== 0;
     return (
       <Basic.Row>
         {
@@ -177,6 +178,7 @@ export class RoleTable extends Basic.AbstractContent {
             manager={roleManager}
             rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
             filterOpened={filterOpened}
+            forceSearchParameters={forceSearchParameters}
             showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
             style={!showTree ? {} : { borderLeft: '1px solid #ddd' }}
             showLoading={showLoading}
@@ -239,7 +241,7 @@ export class RoleTable extends Basic.AbstractContent {
               sort={false}/>
             <Advanced.ColumnLink to="role/:id/detail" property="name" width="15%" sort face="text" rendered={_.includes(columns, 'name')}/>
             <Advanced.Column property="roleType" width="75px" sort face="enum" enumClass={RoleTypeEnum} rendered={_.includes(columns, 'roleType')}/>
-            <Advanced.Column property="roleCatalogue.name" width="75px" sort face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
+            <Advanced.Column property="roleCatalogue.name" width="75px" face="text" rendered={_.includes(columns, 'roleCatalogue')}/>
             <Advanced.Column property="description" sort face="text" rendered={_.includes(columns, 'description')}/>
             <Advanced.Column
               header={this.i18n('entity.Role.approvable')}
@@ -266,17 +268,20 @@ RoleTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   roleManager: PropTypes.object.isRequired,
   columns: PropTypes.arrayOf(PropTypes.string),
-  filterOpened: PropTypes.bool
+  filterOpened: PropTypes.bool,
+  /**
+   * If role catalogue is shown
+   */
+  showCatalogue: PropTypes.bool,
+  /**
+   * "Hard filters"
+   */
+  forceSearchParameters: PropTypes.object,
 };
 
 RoleTable.defaultProps = {
   columns: ['name', 'roleType', 'disabled', 'approvable', 'description', 'roleCatalogue'],
-  filterOpened: false
+  filterOpened: false,
+  showCatalogue: true,
+  forceSearchParameters: null
 };
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(RoleTable);

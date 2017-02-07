@@ -1190,6 +1190,10 @@
         "error" : {
           "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
         }
+      },
+      "garanted-roles": {
+        "header": "Garant rolí <small>uživatel garantuje role</small>",
+        "title": "Garant rolí"
       }
     },
     "audit": {

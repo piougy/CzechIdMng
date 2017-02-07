@@ -15,7 +15,7 @@ class BasicSplitButton extends AbstractComponent {
       return null;
     }
     let _showLoadingText = title;
-    if (showLoadingText !== null) {
+    if (showLoadingText) {
       _showLoadingText = showLoadingText;
     }
     const _title = (

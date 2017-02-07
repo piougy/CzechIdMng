@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
@@ -34,7 +34,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	@Autowired
 	public ProvisioningSendNotificationProcessor(NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService) {
-		super(ProvisioningOperationType.CREATE);
+		super(ProvisioningEventType.CREATE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);

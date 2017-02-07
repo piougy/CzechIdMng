@@ -7,6 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
+import eu.bcvsolutions.idm.acc.rest.projection.SysProvisioningOperationExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "provisioningOperations",
 		path = "provisioning-operations",
 		itemResourceRel = "provisioningOperation",
+		excerptProjection = SysProvisioningOperationExcerpt.class,
 		exported = false
 )
 public interface SysProvisioningOperationRepository extends AbstractEntityRepository<SysProvisioningOperation, ProvisioningOperationFilter> {
@@ -40,11 +42,11 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
         	+ " and "
         	+ " (?#{[0].operationType} is null or e.operationType = ?#{[0].operationType})"
         	+ " and "
-        	+ " (?#{[0].entityType} is null or e.entityType = ?#{[0].entityType})"
+        	+ " (?#{[0].entityType} is null or e.systemEntity.entityType = ?#{[0].entityType})"
         	+ " and "
         	+ " (?#{[0].entityIdentifier} is null or e.entityIdentifier = ?#{[0].entityIdentifier})"
         	+ " and "
-        	+ " (?#{[0].systemEntityUid} is null or e.systemEntityUid = ?#{[0].systemEntityUid})"
+        	+ " (?#{[0].systemEntityUid} is null or e.systemEntity.uid = ?#{[0].systemEntityUid})"
         	+ " and "
         	+ " (?#{[0].resultState} is null or e.request.result.state = ?#{[0].resultState})")
 	Page<SysProvisioningOperation> find(ProvisioningOperationFilter filter, Pageable pageable);

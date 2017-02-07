@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -81,7 +81,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			SysProvisioningOperationService provisioningOperationService,
 			SysSystemMappingService systemMappingService,
 			SysSystemAttributeMappingService attributeMappingService) {
-		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
+		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
 		Assert.notNull(systemMappingService);
@@ -201,7 +201,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				}
 			}
 		}
-		provisioningOperation.setOperationType(ProvisioningOperationType.CREATE);
+		provisioningOperation.setOperationType(ProvisioningEventType.CREATE);
 	}
 	
 	private void processUpdate(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig, IcConnectorObject existsConnectorObject) {
@@ -243,7 +243,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		}
 		//
 		provisioningOperation.getProvisioningContext().setConnectorObject(updateConnectorObject);
-		provisioningOperation.setOperationType(ProvisioningOperationType.UPDATE);
+		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
 	}
 	
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {

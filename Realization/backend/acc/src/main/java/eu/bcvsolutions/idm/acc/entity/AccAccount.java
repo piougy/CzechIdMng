@@ -71,7 +71,7 @@ public class AccAccount extends AbstractEntity {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
-	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig- we dont want lazy lists
+	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig - we dont want lazy lists
 	
 //	@Audited
 //	@NotNull

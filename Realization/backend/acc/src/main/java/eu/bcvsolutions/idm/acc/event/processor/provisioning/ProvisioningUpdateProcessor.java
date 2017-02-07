@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
@@ -35,7 +36,7 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 			NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService) {
 		super(connectorFacade, systemService, provisioningOperationService, 
-				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
+				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 	}
 	
 	@Override
@@ -44,7 +45,7 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();
 		if (!connectorObject.getAttributes().isEmpty()) { // TODO: appropriate message - provisioning is not executed - attributes don't change
@@ -58,6 +59,6 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningOperationType.UPDATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningEventType.UPDATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
 	}
 }

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningArchive;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
 @Projection(name = "excerpt", types = SysProvisioningArchive.class)
 public interface SysProvisioningArchiveExcerpt extends AbstractDtoProjection {
 	
-	ProvisioningOperationType getOperationType();
+	ProvisioningEventType getOperationType();
 
 	SysSystem getSystem();
 

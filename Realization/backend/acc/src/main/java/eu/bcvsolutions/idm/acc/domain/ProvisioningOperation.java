@@ -21,7 +21,7 @@ public interface ProvisioningOperation extends BaseEntity, Auditable {
 	 * 
 	 * @return
 	 */
-	ProvisioningOperationType getOperationType();
+	ProvisioningEventType getOperationType();
 
 	/**
 	 * Target system

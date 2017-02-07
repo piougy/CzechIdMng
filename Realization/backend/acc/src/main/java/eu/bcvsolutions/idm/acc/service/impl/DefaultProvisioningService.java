@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -33,7 +33,6 @@ import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
-import eu.bcvsolutions.idm.acc.dto.filter.SystemEntityFilter;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.AccIdentityAccount;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -166,15 +165,27 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Override
 	public void doDeleteProvisioning(AccAccount account) {
 		Assert.notNull(account);
-		SysSystem system = account.getSystem();
-		SysSystemEntity systemEntity = account.getSystemEntity();
-		doProvisioning(account.getRealUid(), null, AccountOperationType.DELETE, SystemEntityType.IDENTITY, system, null);
-		
-		// We successfully deleted account on target system.
-		// If SysSystemEntity exist, we delete him.
-		if(systemEntity != null){
+		SysSystemEntity systemEntity = getSystemEntity(account);
+		//
+		if (systemEntity != null){
+			doProvisioning(systemEntity, null, ProvisioningOperationType.DELETE, null);
+			// We successfully deleted account on target system.
+			// If SysSystemEntity exist, we delete him.
 			systemEntityService.delete(systemEntity);
 		}
+	}
+	
+	/**
+	 * Returns system entity associated to given account 
+	 * 
+	 * @param account
+	 * @return
+	 */
+	private SysSystemEntity getSystemEntity(AccAccount account) {
+		//
+		// TODO: we can find sysstem entity on target system, if no one existst etc.
+		//
+		return account.getSystemEntity();
 	}
 
 	@Override
@@ -200,59 +211,55 @@ public class DefaultProvisioningService implements ProvisioningService {
 		Assert.notNull(account);
 		Assert.notNull(identity);
 		//
-		AccountOperationType accountOperationType;
+		ProvisioningOperationType operationType;
 		SysSystem system = account.getSystem();
-		if (account.getSystemEntity() == null) {
+		SysSystemEntity systemEntity = getSystemEntity(account);
+		if (systemEntity == null) {
 			// prepare system entity - uid could be changed by provisioning, but we need to link her with account
 			// First we try find system entity with same uid. 
-			SystemEntityFilter systemEntityFilter = new SystemEntityFilter();
-			systemEntityFilter.setSystemId(system.getId());
-			systemEntityFilter.setUidId(account.getRealUid());
-			List<SysSystemEntity> systemEntities = systemEntityService.find(systemEntityFilter, null).getContent();
-			SysSystemEntity systemEntity = null;
-			if (systemEntities.isEmpty()) {
+			systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(system, SystemEntityType.IDENTITY, account.getUid());
+			if (systemEntity == null) {
 				systemEntity = new SysSystemEntity();
 				systemEntity.setEntityType(SystemEntityType.IDENTITY);
 				systemEntity.setSystem(system);
 				systemEntity.setUid(account.getUid());
+				systemEntity.setWish(true);
 				systemEntity = systemEntityService.save(systemEntity);
-			}else {
-				systemEntity = systemEntities.get(0);
 			}
 			account.setSystemEntity(systemEntity);
 			account = accountService.save(account);
-			accountOperationType = AccountOperationType.CREATE; // we wont create account, but after target system call can be switched to UPDATE
+			operationType = ProvisioningOperationType.CREATE; // we wont create account, but after target system call can be switched to UPDATE
 		} else {
-			accountOperationType = AccountOperationType.UPDATE; // we wont update account, but after target system call can be switched to CREATE
+			operationType = ProvisioningOperationType.UPDATE; // we wont update account, but after target system call can be switched to CREATE
 		}
-		SystemEntityType entityType = SystemEntityType.IDENTITY;
 		
-		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, identity, system, entityType);
+		List<AttributeMapping> finalAttributes = resolveMappedAttributes(account.getUid(), account, identity, system, systemEntity.getEntityType());
 		if(CollectionUtils.isEmpty(finalAttributes)){
 			// nothing to do - mapping is empty
 			return;
 		}
-		doProvisioning(account.getRealUid(), identity, accountOperationType, entityType, system, finalAttributes);		
+		doProvisioning(systemEntity, identity, operationType, finalAttributes);		
 	}
 	
 	/**
 	 * Do provisioning on given system for given entity
 	 * 
-	 * @param systemEntityUid
+	 * @param systemEntityU
 	 * @param entity
 	 * @param provisioningType
-	 * @param entityType
-	 * @param system
+	 * @param attributes
 	 */
-	private void doProvisioning(String systemEntityUid, AbstractEntity entity, AccountOperationType operationType, 
-			SystemEntityType entityType, SysSystem system, List<? extends AttributeMapping> attributes) {
-		Assert.notNull(systemEntityUid);
+	private void doProvisioning(SysSystemEntity systemEntity, AbstractEntity entity, ProvisioningOperationType operationType, 
+			List<? extends AttributeMapping> attributes) {
+		Assert.notNull(systemEntity);
+		Assert.notNull(systemEntity.getUid());
+		Assert.notNull(systemEntity.getEntityType());
+		SysSystem system = systemEntity.getSystem();
 		Assert.notNull(system);
-		Assert.notNull(entityType);
-
+		//
 		// If are input attributes null, then we load default mapped attributes
 		if (attributes == null) {
-			attributes = findAttributeMappings(system, entityType);
+			attributes = findAttributeMappings(system, systemEntity.getEntityType());
 		}
 		if (attributes == null || attributes.isEmpty()) {
 			return;
@@ -272,7 +279,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 					ImmutableMap.of("system", system.getName()));
 		}
 		// One IDM object can be mapped to one connector object (= one connector class).
-		SysSystemMapping mapping = getMapping(system, entityType);
+		SysSystemMapping mapping = getMapping(system, systemEntity.getEntityType());
 		if (mapping == null) {
 			// mapping not found - nothing to do
 			// TODO: delete operation 
@@ -281,7 +288,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		//
 		// prepare all mapped attribute values (= account)
 		Map<String, Object> accountAttributes = new HashMap<>();
-		if (!AccountOperationType.DELETE.equals(operationType)) { // delete - account attributes is not needed
+		if (!ProvisioningOperationType.DELETE.equals(operationType)) { // delete - account attributes is not needed
 			for (AttributeMapping attributeHandling : attributes) {
 				if (attributeHandling.isDisabledAttribute()) {
 					continue;
@@ -290,12 +297,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 			}
 		}
 		// public provisioning event 
-		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntityUid, new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(operationType)
 				.setSystem(system)
-				.setSystemEntityUid(systemEntityUid)
-				.setEntityType(entityType)
+				.setSystemEntity(systemEntity)
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
@@ -341,12 +347,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 		accounts.forEach(account -> {
 			// find uid from system entity or from account
 			String uid = account.getUid();
-			String systemUid = account.getRealUid();
 			SysSystem system = account.getSystem();
-			SystemEntityType entityType = SystemEntityType.IDENTITY;
-
+			SysSystemEntity systemEntity = account.getSystemEntity();
+			//
 			// Find mapped attributes (include overloaded attributes)
-			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, identity, system, entityType);
+			List<AttributeMapping> finalAttributes = resolveMappedAttributes(uid, account, identity, system, systemEntity.getEntityType());
 			if (CollectionUtils.isEmpty(finalAttributes)) {
 				return;
 			}
@@ -362,23 +367,24 @@ public class DefaultProvisioningService implements ProvisioningService {
 			}
 			AttributeMapping mappedAttribute = attriubuteHandlingOptional.get();
 
-			doProvisioningForAttribute(systemUid, mappedAttribute, passwordChange.getNewPassword(), account.getSystem(),
-					AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
+			doProvisioningForAttribute(systemEntity, mappedAttribute, passwordChange.getNewPassword(),
+					ProvisioningOperationType.UPDATE, identity);
 		});
 	}
 
 	@Override
-	public void doProvisioningForAttribute(String uid, AttributeMapping attributeMapping, Object value, SysSystem system,
-			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity) {
+	public void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping attributeMapping, Object value,
+			ProvisioningOperationType operationType, AbstractEntity entity) {
 
-		Assert.notNull(uid);
-		Assert.notNull(system);
-		Assert.notNull(entityType);
+		Assert.notNull(systemEntity);
+		Assert.notNull(systemEntity.getSystem());
+		Assert.notNull(systemEntity.getEntityType());
+		Assert.notNull(systemEntity.getUid());
 		Assert.notNull(attributeMapping);
 
 		if (!attributeMapping.getSchemaAttribute().isUpdateable()) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE,
-					ImmutableMap.of("property", attributeMapping.getIdmPropertyName(), "uid", uid));
+					ImmutableMap.of("property", attributeMapping.getIdmPropertyName(), "uid", systemEntity.getUid()));
 		}
 		
 		String objectClassName = attributeMapping.getSchemaAttribute().getObjectClass().getObjectClassName();
@@ -392,12 +398,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 		IcAttribute icAttributeForCreate = attributeMappingService.createIcAttribute(attributeMapping, valueTransformed);
 		//
 		// Call ic modul for update single attribute
-		IcConnectorObject connectorObject = new IcConnectorObjectImpl(uid, new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));		
+		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));		
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
-				.setOperationType(ProvisioningOperationType.UPDATE)
-				.setSystem(system)
-				.setSystemEntityUid(uid)
-				.setEntityType(entityType)
+				.setOperationType(ProvisioningEventType.UPDATE)
+				.setSystem(systemEntity.getSystem())
+				.setSystemEntity(systemEntity)
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));						
 		provisioningExecutor.execute(operationBuilder.build());

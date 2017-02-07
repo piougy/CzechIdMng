@@ -2,12 +2,13 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.List;
 
-import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.AccAccount;
 import eu.bcvsolutions.idm.acc.entity.SysRoleSystemAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -63,16 +64,15 @@ public interface ProvisioningService {
 	/**
 	 * Do provisioning only for single attribute. For example, it is needed to change password
 	 * 
-	 * @param systemEntityUid
+	 * @param systemEntity
 	 * @param mappedAttribute
 	 * @param value
 	 * @param system
 	 * @param operationType
-	 * @param entityType
 	 * @param entity
 	 */
-	void doProvisioningForAttribute(String systemEntityUid, AttributeMapping mappedAttribute, Object value, SysSystem system,
-			AccountOperationType operationType, SystemEntityType entityType, AbstractEntity entity);
+	void doProvisioningForAttribute(SysSystemEntity systemEntity, AttributeMapping mappedAttribute, Object value,
+			ProvisioningOperationType operationType, AbstractEntity entity);
 	
 	/**
 	 * Do authenticate check for given username and password on target resource

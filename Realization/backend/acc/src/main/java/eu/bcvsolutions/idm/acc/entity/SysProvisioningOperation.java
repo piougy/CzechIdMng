@@ -19,10 +19,10 @@ import javax.persistence.Table;
 
 import com.sun.istack.NotNull;
 
-import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -39,9 +39,8 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 		@Index(name = "idx_sys_p_o_created", columnList = "created"),
 		@Index(name = "idx_sys_p_o_operation_type", columnList = "operation_type"),
 		@Index(name = "idx_sys_p_o_system", columnList = "system_id"),
-		@Index(name = "idx_sys_p_o_entity_type", columnList = "entity_type"),
-		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier"),
-		@Index(name = "idx_sys_p_o_uid", columnList = "system_entity_uid")
+		@Index(name = "idx_sys_p_o_entity_sys_e_id", columnList = "system_entity_id"),
+		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier")
 		})
 public class SysProvisioningOperation extends AbstractEntity implements ProvisioningOperation {
 
@@ -50,7 +49,7 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
-	private ProvisioningOperationType operationType;
+	private ProvisioningEventType operationType;
 	
 	@NotNull
 	@ManyToOne(optional = false)
@@ -64,15 +63,14 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	private ProvisioningContext provisioningContext; 
 	
 	@NotNull
-	@Enumerated(EnumType.STRING)
-	@Column(name = "entity_type", nullable = false)
-	private SystemEntityType entityType;
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "system_entity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private SysSystemEntity systemEntity; // account, etc.
 	
 	@Column(name = "entity_identifier")
 	private UUID entityIdentifier;
-	
-	@Column(name = "system_entity_uid")
-	private String systemEntityUid; // account uid, etc.
 	
 	@NotNull
 	@OneToOne(mappedBy = "operation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -80,21 +78,15 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysProvisioningRequest request;
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getOperationType()
-	 */
 	@Override
-	public ProvisioningOperationType getOperationType() {
+	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(ProvisioningOperationType operationType) {
+	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
 
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getSystem()
-	 */
 	@Override
 	public SysSystem getSystem() {
 		return system;
@@ -103,22 +95,31 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	public void setSystem(SysSystem system) {
 		this.system = system;
 	}
+	
+	public SysSystemEntity getSystemEntity() {
+		return systemEntity;
+	}
+	
+	public void setSystemEntity(SysSystemEntity systemEntity) {
+		this.systemEntity = systemEntity;
+	}
 
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getEntityType()
-	 */
 	@Override
 	public SystemEntityType getEntityType() {
-		return entityType;
+		if (systemEntity == null) {
+			return null;
+		}
+		return systemEntity.getEntityType();
+	}	
+	
+	@Override
+	public String getSystemEntityUid() {
+		if (systemEntity == null) {
+			return null;
+		}
+		return systemEntity.getUid();
 	}
 
-	public void setEntityType(SystemEntityType entityType) {
-		this.entityType = entityType;
-	}
-
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getEntityIdentifier()
-	 */
 	@Override
 	public UUID getEntityIdentifier() {
 		return entityIdentifier;
@@ -128,21 +129,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.entityIdentifier = entityIdentifier;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getSystemEntityUid()
-	 */
-	@Override
-	public String getSystemEntityUid() {
-		return systemEntityUid;
-	}
-
-	public void setSystemEntityUid(String systemEntityUid) {
-		this.systemEntityUid = systemEntityUid;
-	}
-	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getResultState()
-	 */
 	@Override
 	public OperationState getResultState() {
 		if (request != null && request.getResult() != null) {
@@ -161,9 +147,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getResult()
-	 */
 	@Override
 	public OperationResult getResult() {
 		if (request != null) {
@@ -180,9 +163,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		return request;
 	}
 	
-	/* (non-Javadoc)
-	 * @see eu.bcvsolutions.idm.acc.entity.ProvisioningOperation#getProvisioningContext()
-	 */
 	@Override
 	public ProvisioningContext getProvisioningContext() {
 		return provisioningContext;
@@ -199,35 +179,34 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	 *
 	 */
 	public static class Builder {
-		private ProvisioningOperationType operationType;
+		private ProvisioningEventType operationType;
 		private SysSystem system;
 		private ProvisioningContext provisioningContext;
-		private SystemEntityType entityType;
 		private UUID entityIdentifier;
-		private String systemEntityUid;
+		private SysSystemEntity systemEntity;
 		
-		public Builder setOperationType(ProvisioningOperationType operationType) {
+		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
 			return this;
 		}
 		
 		/**
-		 * Maps {@linkAccountOperationType} to {@link ProvisioningOperationType}.
+		 * Maps {@linkAccountOperationType} to {@link ProvisioningEventType}.
 		 * @param operationType
 		 * @return
 		 */
-		public Builder setOperationType(AccountOperationType operationType) {
+		public Builder setOperationType(ProvisioningOperationType operationType) {
 			switch (operationType) {
 				case CREATE: {
-					this.operationType = ProvisioningOperationType.CREATE;
+					this.operationType = ProvisioningEventType.CREATE;
 					break;
 				}
 				case UPDATE: {
-					this.operationType = ProvisioningOperationType.UPDATE;
+					this.operationType = ProvisioningEventType.UPDATE;
 					break;
 				}
 				case DELETE: {
-					this.operationType = ProvisioningOperationType.DELETE;
+					this.operationType = ProvisioningEventType.DELETE;
 					break;
 				}
 				default: {
@@ -248,18 +227,14 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 			return this;
 		}
 		
-		public Builder setEntityType(SystemEntityType entityType) {
-			this.entityType = entityType;
-			return this;
-		}
 		
 		public Builder setEntityIdentifier(UUID entityIdentifier) {
 			this.entityIdentifier = entityIdentifier;
 			return this;
 		}
 		
-		public Builder setSystemEntityUid(String systemEntityUid) {
-			this.systemEntityUid = systemEntityUid;
+		public Builder setSystemEntity(SysSystemEntity systemEntity) {
+			this.systemEntity = systemEntity;
 			return this;
 		}
 		
@@ -272,8 +247,7 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
 			provisioningOperation.setOperationType(operationType);
 			provisioningOperation.setSystem(system);
-			provisioningOperation.setSystemEntityUid(systemEntityUid);
-			provisioningOperation.setEntityType(entityType);
+			provisioningOperation.setSystemEntity(systemEntity);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);
 			return provisioningOperation;

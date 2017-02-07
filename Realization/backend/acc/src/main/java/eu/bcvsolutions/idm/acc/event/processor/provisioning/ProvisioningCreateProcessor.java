@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
@@ -49,7 +49,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 			SysProvisioningOperationService provisioningOperationService,
 			IdmPasswordPolicyService passwordPolicyService) {
 		super(connectorFacade, systemService, provisioningOperationService, 
-				ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE);
+				ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE);
 		//
 		Assert.notNull(systemEntityService);
 		Assert.notNull(provisioningOperationService);
@@ -65,10 +65,10 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
+	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {
 		// execute provisioning
 		IcConnectorObject connectorObject = provisioningOperation.getProvisioningContext().getConnectorObject();		
-		//		
+		// 	
 		for (IcAttribute attribute : connectorObject.getAttributes()) {
 			// if attribute is password and his value is empty, generate new password
 			if(attribute instanceof IcPasswordAttribute 
@@ -90,26 +90,19 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		//
 		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
-		provisioningOperationService.save(((SysProvisioningOperation)provisioningOperation));
+		//
 		// update system entity, when identifier on target system differs
 		if (icUid != null && icUid.getUidValue() != null) {
-			SysSystemEntity systemEntity = systemEntityService.getBySystemAndEntityTypeAndUid(
-					provisioningOperation.getSystem(), 
-					provisioningOperation.getEntityType(), 
-					provisioningOperation.getSystemEntityUid());
-			if (systemEntity == null) {
-				systemEntity = new SysSystemEntity();
-				systemEntity.setEntityType(provisioningOperation.getEntityType());
-				systemEntity.setSystem(provisioningOperation.getSystem());
+			SysSystemEntity systemEntity = provisioningOperation.getSystemEntity();
+			if(!systemEntity.getUid().equals(icUid.getUidValue()) || systemEntity.isWish()) {
 				systemEntity.setUid(icUid.getUidValue());
-				systemEntity = systemEntityService.save(systemEntity);
-				LOG.debug("New system entity with uid [{}] was created", systemEntity.getUid());
-			} else if(!systemEntity.getUid().equals(icUid.getUidValue())){
-				systemEntity.setUid(icUid.getUidValue());
+				systemEntity.setWish(false);
 				systemEntity = systemEntityService.save(systemEntity);
 				LOG.debug("New system entity with uid [{}] was updated", systemEntity.getUid());
 			}
 		}
+		//
+		provisioningOperationService.save(provisioningOperation);
 	}
 	
 	@Override
@@ -117,6 +110,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningOperationType.CREATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningEventType.CREATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
 	}
 }

@@ -19,8 +19,8 @@ import org.springframework.data.domain.Page;
 
 import com.google.common.collect.ImmutableList;
 
-import eu.bcvsolutions.idm.acc.domain.AccountOperationType;
 import eu.bcvsolutions.idm.acc.domain.AccountType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
+import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -42,10 +43,10 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
+import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
@@ -169,6 +170,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		filter.setIdentityId(identity.getId());
 		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
 		SysSystem system = accountIdentityOne.getAccount().getSystem();
+		SysSystemEntity systemEntity = accountIdentityOne.getAccount().getSystemEntity();
 		
 		SystemAttributeMappingFilter attributeFilter = new SystemAttributeMappingFilter();
 		attributeFilter.setSystemId(system.getId());
@@ -179,7 +181,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals("Account on target system, must have same firsta name as Identity", IDENTITY_CHANGED_FIRST_NAME,
 				resourceAccount.getFirstname());
 		
-		provisioningService.doProvisioningForAttribute("x" + IDENTITY_USERNAME, schemaAttributeHandlingService.find(attributeFilter, null).getContent().get(0), IDENTITY_USERNAME, system, AccountOperationType.UPDATE, SystemEntityType.IDENTITY, identity);
+		provisioningService.doProvisioningForAttribute(systemEntity, schemaAttributeHandlingService.find(attributeFilter, null).getContent().get(0), IDENTITY_USERNAME, ProvisioningOperationType.UPDATE, identity);
 
 		resourceAccount = entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME);
 		Assert.assertNotNull("Idenitity have to exists on target system (after account management)", resourceAccount);

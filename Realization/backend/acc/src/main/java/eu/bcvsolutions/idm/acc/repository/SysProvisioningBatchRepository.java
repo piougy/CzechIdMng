@@ -46,7 +46,7 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 			+ " and"
 			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
 			+ " and"
-			+ " o.systemEntityUid = ?#{[0].systemEntityUid}")
+			+ " o.systemEntity.uid = ?#{[0].systemEntity.uid}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
 	
 	/**

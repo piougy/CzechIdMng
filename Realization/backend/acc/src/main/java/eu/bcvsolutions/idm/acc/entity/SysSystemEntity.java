@@ -54,6 +54,10 @@ public class SysSystemEntity extends AbstractEntity {
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private SysSystem system;
 	
+	@NotNull
+	@Column(name = "wish", nullable = false)
+	private boolean wish = true; // prepared system entity for provisioning. wish = false, then entity exists on target system
+	
 	public SysSystemEntity() {
 	}
 	
@@ -84,5 +88,13 @@ public class SysSystemEntity extends AbstractEntity {
 
 	public void setSystem(SysSystem system) {
 		this.system = system;
+	}
+	
+	public void setWish(boolean wish) {
+		this.wish = wish;
+	}
+	
+	public boolean isWish() {
+		return wish;
 	}
 }

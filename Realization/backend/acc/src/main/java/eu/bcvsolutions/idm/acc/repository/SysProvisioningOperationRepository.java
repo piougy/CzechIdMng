@@ -33,7 +33,7 @@ public interface SysProvisioningOperationRepository extends AbstractEntityReposi
 	@Query(value = "select e from #{#entityName} e"
 			+ " where"
 			+ " ("
-	        	+ " ?#{[0].systemId} is null or e.system.id = ?#{[0].systemId}"
+	        	+ " ?#{[0].systemId} is null or e.systemEntity.system.id = ?#{[0].systemId}"
 	    	+ " ) "
 	    	+ " and "
         	+ " (?#{[0].from == null ? 'null' : ''} = 'null' or e.created >= ?#{[0].from}) "

@@ -211,7 +211,6 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystem(system)
 				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		provisioningExecutor.execute(operationBuilder.build());
@@ -266,7 +265,6 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystem(system)
 				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());
@@ -337,7 +335,6 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(null, objectClass, null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningOperationType.CREATE)
-				.setSystem(system)
 				.setSystemEntity(systemEntity)
 				.setProvisioningContext(new ProvisioningContext(accoutObject, connectorObject));
 		SysProvisioningOperation operation = provisioningExecutor.execute(operationBuilder.build());

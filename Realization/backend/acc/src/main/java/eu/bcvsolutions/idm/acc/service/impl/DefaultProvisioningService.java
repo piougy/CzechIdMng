@@ -300,7 +300,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(mapping.getObjectClass().getObjectClassName()), null);
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(operationType)
-				.setSystem(system)
 				.setSystemEntity(systemEntity)
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(accountAttributes, connectorObject));
@@ -401,7 +400,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));		
 		SysProvisioningOperation.Builder operationBuilder = new SysProvisioningOperation.Builder()
 				.setOperationType(ProvisioningEventType.UPDATE)
-				.setSystem(systemEntity.getSystem())
 				.setSystemEntity(systemEntity)
 				.setEntityIdentifier(entity == null ? null : entity.getId())
 				.setProvisioningContext(new ProvisioningContext(connectorObject));						

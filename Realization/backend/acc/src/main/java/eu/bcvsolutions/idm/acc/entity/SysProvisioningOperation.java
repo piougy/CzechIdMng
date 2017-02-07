@@ -38,7 +38,6 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 @Table(name = "sys_provisioning_operation", indexes = {
 		@Index(name = "idx_sys_p_o_created", columnList = "created"),
 		@Index(name = "idx_sys_p_o_operation_type", columnList = "operation_type"),
-		@Index(name = "idx_sys_p_o_system", columnList = "system_id"),
 		@Index(name = "idx_sys_p_o_entity_sys_e_id", columnList = "system_entity_id"),
 		@Index(name = "idx_sys_p_o_entity_identifier", columnList = "entity_identifier")
 		})
@@ -50,13 +49,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
 	private ProvisioningEventType operationType;
-	
-	@NotNull
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "system_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private SysSystem system;
 	
 	@NotNull
 	@Column(name = "provisioning_context", length = Integer.MAX_VALUE, nullable = false)
@@ -87,14 +79,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		this.operationType = operationType;
 	}
 
-	@Override
-	public SysSystem getSystem() {
-		return system;
-	}
-
-	public void setSystem(SysSystem system) {
-		this.system = system;
-	}
 	
 	public SysSystemEntity getSystemEntity() {
 		return systemEntity;
@@ -102,6 +86,14 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	
 	public void setSystemEntity(SysSystemEntity systemEntity) {
 		this.systemEntity = systemEntity;
+	}
+	
+	@Override
+	public SysSystem getSystem() {
+		if (systemEntity == null) {
+			return null;
+		}
+		return systemEntity.getSystem();
 	}
 
 	@Override
@@ -180,7 +172,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 	 */
 	public static class Builder {
 		private ProvisioningEventType operationType;
-		private SysSystem system;
 		private ProvisioningContext provisioningContext;
 		private UUID entityIdentifier;
 		private SysSystemEntity systemEntity;
@@ -217,11 +208,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 			return this;
 		}
 		
-		public Builder setSystem(SysSystem system) {
-			this.system = system;
-			return this;
-		}
-		
 		public Builder setProvisioningContext(ProvisioningContext provisioningContext) {
 			this.provisioningContext = provisioningContext;
 			return this;
@@ -246,7 +232,6 @@ public class SysProvisioningOperation extends AbstractEntity implements Provisio
 		public SysProvisioningOperation build() {
 			SysProvisioningOperation provisioningOperation = new SysProvisioningOperation();
 			provisioningOperation.setOperationType(operationType);
-			provisioningOperation.setSystem(system);
 			provisioningOperation.setSystemEntity(systemEntity);
 			provisioningOperation.setEntityIdentifier(entityIdentifier);
 			provisioningOperation.setProvisioningContext(provisioningContext);

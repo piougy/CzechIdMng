@@ -193,10 +193,16 @@
         "header": "Nastavení konektoru",
         "title": "Konfigurace",
         "button": {
-          "showBasicInfo": "Přejít na základní údaje"
+          "showBasicInfo": "Přejít na základní údaje",
+          "checkSystem": "Test konektoru",
+          "checkSystemTooltip": "Provede uložení aktuálního nastavení a zavolání testu na konektoru."
         },
         "save": {
           "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
+        },
+        "checkSystem": {
+          "success": "Test konektoru proběhl v pořádku.",
+          "error": "Test konektoru neproběhl v pořádku!"
         }
       },
       "objectClassDetail": {

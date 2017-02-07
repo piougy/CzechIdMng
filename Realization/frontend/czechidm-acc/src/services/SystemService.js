@@ -122,6 +122,24 @@ class SystemService extends Services.AbstractService {
       });
   }
 
+  checkSystem(id) {
+    return Services.RestApiService.get(this.getApiPath() + `/${id}/check`, null).then(response => {
+      if (response.status === 403) {
+        throw new Error(403);
+      }
+      if (response.status === 404) {
+        throw new Error(404);
+      }
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
   /**
    * Returns all available connectors
    *

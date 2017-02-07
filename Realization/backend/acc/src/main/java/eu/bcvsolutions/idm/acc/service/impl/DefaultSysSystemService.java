@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
@@ -71,6 +72,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final AccAccountRepository accountRepository;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
+	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -83,7 +85,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
 			SysSyncConfigService synchronizationConfigService,
-			FormPropertyManager formPropertyManager) {
+			FormPropertyManager formPropertyManager,
+			SysProvisioningArchiveRepository provisioningArchiveRepository) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -94,6 +97,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(accountRepository);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
+		Assert.notNull(provisioningArchiveRepository);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -104,6 +108,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
+		this.provisioningArchiveRepository = provisioningArchiveRepository;
 	}
 
 	@Override
@@ -135,6 +140,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
 			synchronizationConfigService.delete(config);
 		});
+		// delete archived provisioning operations
+		provisioningArchiveRepository.deleteBySystem(system);
 		//
 		super.delete(system);
 	}

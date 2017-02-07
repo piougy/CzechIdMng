@@ -46,14 +46,21 @@ public class DefaultSysProvisioningBatchService
 	public SysProvisioningBatch get(Serializable id) {
 		SysProvisioningBatch batch = super.get(id);
 		// TODO: remove batch requests list
-		batch.getRequests().size();
+		if(batch != null) {
+			batch.getRequests().size();
+		}
 		return batch;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public SysProvisioningBatch findBatch(SysProvisioningOperation operation) {
-		return repository.findBatch(operation);
+		SysProvisioningBatch batch = repository.findBatch(operation);
+		// TODO: remove batch requests list
+		if(batch != null) {
+			batch.getRequests().size();
+		}
+		return batch;
 	}
 	
 	/**

@@ -704,7 +704,6 @@
       "CREATE_ACCOUNT": "Vytvořit účet",
       "UNLINK": "Odstranit vazbu",
       "UNLINK_AND_REMOVE_ROLE": "Odstranit vazbu a navázané role",
-      "UNLINK_AND_UPDATE_ACCOUNT": "Odstranit vazbu a aktualizovat účet",
       "DELETE_ENTITY": "Smazat entitu",
       "IGNORE": "Ignorovat"
     },
@@ -893,12 +892,24 @@
       "message": "Bylo nalezeno více jak jeden záznam 'AccAccount' pro stejný UID [{{uid}}]!"
     },
     "SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
-      "title": "Mapování systému [{{mapping}}] nemůže být smazáno.",
+      "title": "Mapování systému [{{mapping}}] nemůže být smazáno",
       "message": "Mapování systému [{{mapping}}] nemůže být smazáno. Je použito v synchronizaci na stejném systému!"
     },
     "ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC": {
-      "title": "Atribut [{{attribute}}] nemůže být smazán.",
+      "title": "Atribut [{{attribute}}] nemůže být smazán",
       "message": "Atribut [{{attribute}}] nemůže být smazán. Je použit v synchronizaci na stejném systému!"
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ENTITIES": {
+      "title": "Systém nemůže být smazán",
+      "message": "Systém [{{system}}] nemůže být smazán. Na systému jsou evidovány entity."
+    },
+    "SYSTEM_DELETE_FAILED_HAS_ACCOUNTS": {
+      "title": "Systém nemůže být smazán",
+      "message": "Systém [{{system}}] nemůže být smazán. Na systému jsou evidovány účty."
+    },
+    "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
+      "title": "Entita na systému nemůže být smazána",
+      "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
     }
   }
 }

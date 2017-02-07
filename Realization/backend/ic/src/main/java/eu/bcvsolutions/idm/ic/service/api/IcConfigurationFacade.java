@@ -43,5 +43,19 @@ public interface IcConfigurationFacade {
 	 * @return
 	 */
 	IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	
+	/**
+	 * Check if is connector configuration valid
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 */
+	void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	
+	/**
+	 * Check if is connector works fine
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 */
+	void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
 
 }

@@ -126,6 +126,26 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		}
 		return null;
 	}
+	
+	@Override
+	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration){
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		log.debug("Validate connector - ConnId ({})", key.toString());
+		// Validation is in getConnectorFacade method
+		getConnectorFacade(key, connectorConfiguration);
+				
+	}
+	
+	@Override
+	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration){
+		Assert.notNull(key);
+		Assert.notNull(connectorConfiguration);
+		log.debug("Validate connector - ConnId ({})", key.toString());
+		// Validation is in getConnectorFacade method
+		getConnectorFacade(key, connectorConfiguration).test();
+				
+	}
 
 	@Override
 	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {

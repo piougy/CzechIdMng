@@ -75,9 +75,8 @@ public interface IcConnectorFacade {
 	IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password);
 	
-	
 	/**
-	 * 
+	 * Do synchronization. For every changed item will be call given handler.
 	 * @param key - Identification of connector
 	 * @param connectorConfiguration - Connector configuration
 	 * @param objectClass - Type or category of connector object

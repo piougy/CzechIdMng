@@ -98,6 +98,15 @@ module.exports = {
             'path': '/identity/:entityId/subordinates',
             'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+          },
+          {
+            'id': 'profile-garanted-roles',
+            'type': 'TAB',
+            'labelKey': 'content.identity.garanted-roles.title',
+            'order': 70,
+            'path': '/identity/:entityId/garanted-roles',
+            'icon': 'fa:universal-access',
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           }
         ]
       },

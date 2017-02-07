@@ -59,7 +59,11 @@ module.exports = {
         {
           path: 'eav',
           component: require('./src/content/identity/IdentityEav')
-        }
+        },
+        {
+          path: 'garanted-roles',
+          component: require('./src/content/identity/IdentityGarantedRoles')
+        },
       ]
     },
     {

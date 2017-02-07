@@ -91,6 +91,8 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
+		provisioningOperationService.save(provisioningOperation); // has to be fist - we need to replace guarded strings before systemEntityService.save(systemEntity)
+		//
 		// update system entity, when identifier on target system differs
 		if (icUid != null && icUid.getUidValue() != null) {
 			SysSystemEntity systemEntity = provisioningOperation.getSystemEntity();
@@ -101,8 +103,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 				LOG.debug("New system entity with uid [{}] was updated", systemEntity.getUid());
 			}
 		}
-		//
-		provisioningOperationService.save(provisioningOperation);
 	}
 	
 	@Override

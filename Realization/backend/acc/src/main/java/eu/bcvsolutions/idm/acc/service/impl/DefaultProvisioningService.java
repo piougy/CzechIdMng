@@ -169,9 +169,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 		//
 		if (systemEntity != null){
 			doProvisioning(systemEntity, null, ProvisioningOperationType.DELETE, null);
-			// We successfully deleted account on target system.
-			// If SysSystemEntity exist, we delete him.
-			systemEntityService.delete(systemEntity);
 		}
 	}
 	

@@ -35,10 +35,16 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	 */
 	@Override
 	@Query(value = "select e from IdmRole e" +
-	        " where" +
-	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" +
-	        " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})" +
-	        " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})")
+	        " where"
+	        + " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
+	        + " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})"
+	        + " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})"
+	        + " and"
+	        + "	("
+	        	+ "?#{[0].guarantee} is null"
+	        	+ " or"
+	        	+ " exists (from IdmRoleGuarantee rg where rg.role = e and rg.guarantee = ?#{[0].guarantee})"
+        	+ " )")
 	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
 	
 	IdmRole findOneByName(@Param("name") String name);

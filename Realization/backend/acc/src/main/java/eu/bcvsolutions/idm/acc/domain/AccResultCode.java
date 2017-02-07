@@ -21,6 +21,8 @@ public enum AccResultCode implements ResultCode {
 	// attribute mapping
 	ATTRIBUTE_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "Attribute [%s] cannot be deleted. Is used in synchronization on this system!"),
 	SYSTEM_MAPPING_DELETE_FAILED_USED_IN_SYNC(HttpStatus.BAD_REQUEST, "System mapping [%s] cannot be deleted. Is used in synchronization on this system!"),
+	// system entity
+	SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS(HttpStatus.BAD_REQUEST, "System entity [%s] on system [%s] cannot be deleted. Is used in active provisioning operations!"),
 	//
 	// Provisioning
 	PROVISIONING_IDM_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "IDM field %s for entity %s not found!"),

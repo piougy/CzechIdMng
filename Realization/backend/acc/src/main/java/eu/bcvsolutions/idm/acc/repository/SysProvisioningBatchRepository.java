@@ -42,11 +42,11 @@ public interface SysProvisioningBatchRepository extends AbstractEntityRepository
 	 */
 	@Query(value = "select distinct(r.batch) from SysProvisioningRequest r join r.operation o"
 			+ " where"
-			+ " o.system = ?#{[0].system}"
+			+ " o.systemEntity.system = ?#{[0].systemEntity.system}"
 			+ " and"
 			+ " (o.entityIdentifier = ?#{[0].entityIdentifier} or ?#{[0].entityIdentifier} is null)"
 			+ " and"
-			+ " o.systemEntityUid = ?#{[0].systemEntityUid}")
+			+ " o.systemEntity.uid = ?#{[0].systemEntity.uid}")
 	SysProvisioningBatch findBatch(SysProvisioningOperation operation);
 	
 	/**

@@ -105,6 +105,7 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 		checkIcType(key);
 		icConnectors.get(key.getFramework()).search(key, connectorConfiguration, objectClass, filter, handler);
 	}
+	
 
 	private boolean checkIcType(IcConnectorKey key) {
 		if (!icConnectors.containsKey(key.getFramework())) {
@@ -113,6 +114,7 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 		}
 		return true;
 	}
+
 
 
 }

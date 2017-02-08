@@ -29,8 +29,10 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
   _loadIdentityIfNeeded() {
     const { identity, _identity } = this.props;
     if (this._id() && !identity && !_identity) {
-      if (!Utils.Ui.isShowLoading(this.context.store.getState(), identityManager.resolveUiKey(null, this._id()))) { // show loading check has to be here - new state is needed
-        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id()));
+      const uiKey = identityManager.resolveUiKey(null, this._id());
+      if (!Utils.Ui.isShowLoading(this.context.store.getState(), uiKey)
+          && !Utils.Ui.getError(this.context.store.getState(), uiKey)) { // show loading check has to be here - new state is needed
+        this.context.store.dispatch(identityManager.fetchEntityIfNeeded(this._id(), null, () => {}));
       }
     }
   }
@@ -53,7 +55,7 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
   }
 
   render() {
-    const { rendered, showLoading, className, identity, face, showLink, ...others } = this.props;
+    const { rendered, showLoading, className, identity, face, _showLoading, style } = this.props;
     //
     if (!rendered) {
       return null;
@@ -69,16 +71,16 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       { 'panel-warning': _identity && _identity.disabled },
       className
     );
-    if (showLoading || (this._id() && !_identity)) {
+    if (showLoading || (_showLoading && this._id() && !_identity)) {
       switch (face) {
         case 'link': {
           return (
-            <Basic.Icon value="refresh" showLoading className={panelClassNames} {...others}/>
+            <Basic.Icon value="refresh" showLoading className={panelClassNames} style={style}/>
           );
         }
         default: {
           return (
-            <Basic.Well showLoading className={panelClassNames} {...others}/>
+            <Basic.Well showLoading className={panelClassNames} style={style}/>
           );
         }
       }
@@ -101,7 +103,7 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       }
       default: {
         return (
-          <Basic.Panel className={panelClassNames} {...others}>
+          <Basic.Panel className={panelClassNames} style={style}>
             <Basic.PanelHeader>
               <Basic.Row>
                 <div className="col-lg-2">
@@ -164,18 +166,21 @@ IdentityInfo.propTypes = {
   /**
    * Shows link to full identity detail (if currently logged user has appropriate permission)
    */
-  showLink: PropTypes.bool
+  showLink: PropTypes.bool,
+  _showLoading: PropTypes.bool
 };
 IdentityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   identity: null,
   face: 'FULL',
-  showLink: true
+  showLink: true,
+  _showLoading: true,
 };
 
 function select(state, component) {
   return {
-    _identity: identityManager.getEntity(state, component.id || component.username)
+    _identity: identityManager.getEntity(state, component.id || component.username),
+    _showLoading: identityManager.isShowLoading(state, null, component.id || component.username)
   };
 }
 export default connect(select)(IdentityInfo);

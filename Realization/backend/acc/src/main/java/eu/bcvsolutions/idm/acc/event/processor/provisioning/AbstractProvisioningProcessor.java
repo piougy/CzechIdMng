@@ -6,8 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
@@ -42,7 +41,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysProvisioningOperationService provisioningOperationService,
-			ProvisioningOperationType... provisioningOperationType) {
+			ProvisioningEventType... provisioningOperationType) {
 		super(provisioningOperationType);
 		//
 		Assert.notNull(connectorFacade);
@@ -60,7 +59,7 @@ public abstract class AbstractProvisioningProcessor extends AbstractEntityEventP
 	 * @param provisioningOperation
 	 * @param connectorConfig
 	 */
-	protected abstract void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
+	protected abstract void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig);
 	
 	/**
 	 * Prepare provisioning operation execution

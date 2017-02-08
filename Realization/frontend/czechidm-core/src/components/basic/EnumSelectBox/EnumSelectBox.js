@@ -227,7 +227,7 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable, helpBlock } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
@@ -250,11 +250,6 @@ class EnumSelectBox extends SelectBox {
           searchPromptText={this.i18n('component.basic.SelectBox.searchPromptText')}
           loadOptions={this.getOptions}
           searchable={searchable}/>
-        {
-          !helpBlock
-          ||
-          <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-        }
       </span>
     );
   }

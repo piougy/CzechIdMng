@@ -267,7 +267,8 @@ IdentityTable.defaultProps = {
   filterOpened: false,
   showAddButton: true,
   deleteEnabled: false,
-  showRowSelection: false
+  showRowSelection: false,
+  forceSearchParameters: null
 };
 
 function select(state, component) {

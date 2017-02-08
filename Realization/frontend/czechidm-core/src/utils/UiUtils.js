@@ -37,6 +37,24 @@ export default class UiUtils {
   }
 
   /**
+   * Returns error asigned to given uiKey or null, if no error is found
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {object} error
+   */
+  static getError(state, uiKey) {
+    const uiState = UiUtils.getUiState(state, uiKey);
+    if (!uiState) {
+      return null;
+    }
+    if (!uiState.error) {
+      return null;
+    }
+    return uiState.error;
+  }
+
+  /**
    * Returns search parameters associated with given ui key. If state for given key does not exist, then returns defaultSearchParameters
    *
    * @param  {state} state - application state

@@ -98,6 +98,15 @@ module.exports = {
             'path': '/identity/:entityId/subordinates',
             'icon': 'fa:group',
             'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+          },
+          {
+            'id': 'profile-garanted-roles',
+            'type': 'TAB',
+            'labelKey': 'content.identity.garanted-roles.title',
+            'order': 70,
+            'path': '/identity/:entityId/garanted-roles',
+            'icon': 'fa:universal-access',
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
           }
         ]
       },
@@ -345,7 +354,7 @@ module.exports = {
             'labelKey': 'content.scheduler.title',
             'order': 35,
             'path': '/scheduler/running-tasks',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
             'items': [
               {
                 'id': 'scheduler-running-tasks',
@@ -354,7 +363,7 @@ module.exports = {
                 'path': '/scheduler/running-tasks',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
               },
               {
                 'id': 'scheduler-schedule-tasks',
@@ -363,7 +372,7 @@ module.exports = {
                 'path': '/scheduler/schedule-tasks',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
               },
               {
                 'id': 'scheduler-all-tasks',
@@ -372,7 +381,7 @@ module.exports = {
                 'path': '/scheduler/all-tasks',
                 'icon': '',
                 'type': 'TAB',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
               }
             ]
           },

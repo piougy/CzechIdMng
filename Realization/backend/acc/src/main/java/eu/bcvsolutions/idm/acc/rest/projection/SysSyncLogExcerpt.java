@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
  *
  */
 @Projection(name = "excerpt", types = SysSyncLog.class)
-public interface SysSynchronizationLogExcerpt extends AbstractDtoProjection {
+public interface SysSyncLogExcerpt extends AbstractDtoProjection {
 
 	public boolean isRunning();
 

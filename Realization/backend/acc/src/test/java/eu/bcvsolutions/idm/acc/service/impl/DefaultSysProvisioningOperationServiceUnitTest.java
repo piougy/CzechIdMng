@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +69,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceGuardedStringsInEmptyAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<UUID, Object> accoutObjet = new HashMap<>();
+		Map<String, Object> accoutObjet = new HashMap<>();
 		context.setAccountObject(accoutObjet);		
 		Map<String, Serializable> confidentialValues = service.replaceGuardedStrings(context);		
 		assertEquals(0, confidentialValues.size());
@@ -79,14 +78,14 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceSingleGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<UUID, Object> accoutObject = new HashMap<>();
+		Map<String, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		UUID normal = UUID.randomUUID();
+		String normal = "normal";
 		String normalValue = "one";
 		accoutObject.put(normal, normalValue);
-		UUID guarded = UUID.randomUUID();
+		String guarded = "guarded";
 		GuardedString guardedValue = new GuardedString("one");
 		accoutObject.put(guarded, guardedValue);
 		//
@@ -128,11 +127,11 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceArrayGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<UUID, Object> accoutObject = new HashMap<>();
+		Map<String, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		UUID guarded = UUID.randomUUID();
+		String guarded = "guarded";
 		GuardedString guardedOne = new GuardedString("one");
 		GuardedString guardedTwo = new GuardedString("two");
 		accoutObject.put(guarded, new GuardedString[]{ guardedOne, guardedTwo });
@@ -152,11 +151,11 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceCollectionGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<UUID, Object> accoutObject = new HashMap<>();
+		Map<String, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		UUID guarded = UUID.randomUUID();
+		String guarded = "guarded";
 		GuardedString guardedOne = new GuardedString("one");
 		GuardedString guardedTwo = new GuardedString("two");
 		accoutObject.put(guarded, Lists.newArrayList(guardedOne, guardedTwo));

@@ -34,7 +34,7 @@ export default class ReconciliationMissingAccountActionTypeEnum extends Enums.Ab
       case this.UNLINK: {
         return 'warning';
       }
-      case this.UNLINK_AND_UPDATE_ACCOUNT: {
+      case this.UNLINK_AND_REMOVE_ROLE: {
         return 'danger';
       }
       case this.IGNORE: {
@@ -50,5 +50,5 @@ export default class ReconciliationMissingAccountActionTypeEnum extends Enums.Ab
 ReconciliationMissingAccountActionTypeEnum.CREATE_ACCOUNT = Symbol('CREATE_ACCOUNT');
 ReconciliationMissingAccountActionTypeEnum.DELETE_ENTITY = Symbol('DELETE_ENTITY');
 ReconciliationMissingAccountActionTypeEnum.UNLINK = Symbol('UNLINK');
-ReconciliationMissingAccountActionTypeEnum.UNLINK_AND_UPDATE_ACCOUNT = Symbol('UNLINK_AND_UPDATE_ACCOUNT');
+ReconciliationMissingAccountActionTypeEnum.UNLINK_AND_REMOVE_ROLE = Symbol('UNLINK_AND_REMOVE_ROLE');
 ReconciliationMissingAccountActionTypeEnum.IGNORE = Symbol('IGNORE');

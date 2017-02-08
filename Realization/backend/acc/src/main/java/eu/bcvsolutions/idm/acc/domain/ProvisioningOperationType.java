@@ -1,17 +1,14 @@
 package eu.bcvsolutions.idm.acc.domain;
 
-import eu.bcvsolutions.idm.core.api.event.EventType;
-
 /**
- * Active provisioning operation type
+ * Type of provisioning operation
  * 
- * @author Radek Tomiška
+ * @author Svanda
  *
  */
-public enum ProvisioningOperationType implements EventType {
+public enum ProvisioningOperationType {
 	
 	CREATE,
 	UPDATE,
-	DELETE,
-	CANCEL;
+	DELETE;
 }

@@ -79,12 +79,6 @@ public interface IcConnectorService {
 	IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password);
 
-	/**
-	 * Check if is connector valid
-	 * @param key - Identification of connector
-	 * @param connectorConfiguration - Connector configuration
-	 */
-	void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
 
 	/**
 	 * Do synchronization. For every changed item will be call given handler.

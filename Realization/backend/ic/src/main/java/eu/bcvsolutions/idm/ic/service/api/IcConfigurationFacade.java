@@ -7,7 +7,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
-import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 /**
@@ -53,5 +52,21 @@ public interface IcConfigurationFacade {
 	 * @return
 	 */
 	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance);
+
+	
+	/**
+	 * Check if is connector configuration valid
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 */
+	void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	
+	/**
+	 * Check if is connector works fine
+	 * @param key - Identification of connector
+	 * @param connectorConfiguration - Connector configuration
+	 */
+	void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+
 
 }

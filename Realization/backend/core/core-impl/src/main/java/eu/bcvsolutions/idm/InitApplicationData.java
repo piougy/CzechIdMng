@@ -11,19 +11,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyType;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
@@ -67,9 +63,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	private SecurityService securityService;
 	
 	@Autowired
-	private IdmPasswordPolicyService passwordPolicyService;
-	
-	@Autowired
 	private IdmNotificationConfigurationService notificationConfigurationService;
 
 	@Override
@@ -82,52 +75,6 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 		//
 		// TODO: could be moved to flyway install dump
 		try {
-			//
-			// create default password policy for validate
-			IdmPasswordPolicy passValidate = null;
-			try {
-				passValidate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE);
-			} catch (ResultCodeException e) {
-				// nothing, password policy for validate not exist
-			}
-			// default password policy not exist, try to found by name
-			if (passValidate == null) {
-				passValidate = this.passwordPolicyService.findOneByName("DEFAULT_VALIDATE_POLICY");
-			}
-			// if password policy still not exist create default password policy
-			if (passValidate == null) {
-				passValidate = new IdmPasswordPolicy();
-				passValidate.setName("DEFAULT_VALIDATE_POLICY");
-				passValidate.setDefaultPolicy(true);
-				passValidate.setType(IdmPasswordPolicyType.VALIDATE);
-				passwordPolicyService.save(passValidate);
-			}
-			//
-			// create default password policy for generate
-			IdmPasswordPolicy passGenerate = null;
-			try {
-				passGenerate = this.passwordPolicyService.getDefaultPasswordPolicy(IdmPasswordPolicyType.GENERATE);
-			} catch (ResultCodeException e) {
-				// nothing, password policy for generate password not exist
-			}
-			// try to found password policy by name
-			if (passGenerate == null) {
-				passGenerate = this.passwordPolicyService.findOneByName("DEFAULT_GENERATE_POLICY");
-			}
-			// if still not exist create default generate password policy
-			if (passGenerate == null) {
-				passGenerate = new IdmPasswordPolicy();
-				passGenerate.setName("DEFAULT_GENERATE_POLICY");
-				passGenerate.setDefaultPolicy(true);
-				passGenerate.setType(IdmPasswordPolicyType.GENERATE);
-				passGenerate.setMinLowerChar(2);
-				passGenerate.setMinNumber(2);
-				passGenerate.setMinSpecialChar(2);
-				passGenerate.setMinUpperChar(2);
-				passGenerate.setMinPasswordLength(8);
-				passGenerate.setMaxPasswordLength(12);
-				passwordPolicyService.save(passGenerate);
-			}
 			//
 			// create super admin role
 			IdmRole existsSuperAdminRole = this.roleService.getByName(ADMIN_ROLE);

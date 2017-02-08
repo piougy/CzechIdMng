@@ -248,6 +248,13 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		return getConnectorFormValues(backendId, assembler);
 	}
 	
+	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
+	@RequestMapping(value = "/{backendId}/check", method = RequestMethod.GET)
+	public ResponseEntity<?> checkSystem(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
+		systemService.checkSystem(super.getEntity(backendId));
+		return new ResponseEntity<>(true, HttpStatus.OK);
+	}
+	
 	/**
 	 * Return all local connectors of given framework
 	 * 

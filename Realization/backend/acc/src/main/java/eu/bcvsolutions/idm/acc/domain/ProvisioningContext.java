@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.acc.domain;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.UUID;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
@@ -15,17 +14,17 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 public class ProvisioningContext implements Serializable {
 
 	private static final long serialVersionUID = 778636708338293486L;
-	private Map<UUID, Object> accountObject; // account attributes 	
+	private Map<String, Object> accountObject; // account attributes 	
 	private IcConnectorObject connectorObject; // provisioning attributes 
 	
 	public ProvisioningContext() {
 	}
 	
-	public ProvisioningContext(Map<UUID, Object> accountObject) {
+	public ProvisioningContext(Map<String, Object> accountObject) {
 		this.accountObject = accountObject;
 	}
 	
-	public ProvisioningContext( Map<UUID, Object> accountObject, IcConnectorObject connectorObject) {
+	public ProvisioningContext( Map<String, Object> accountObject, IcConnectorObject connectorObject) {
 		this(accountObject);
 		this.connectorObject = connectorObject;
 	}
@@ -40,11 +39,11 @@ public class ProvisioningContext implements Serializable {
 	 * 
 	 * @return
 	 */
-	public Map<UUID, Object> getAccountObject() {
+	public Map<String, Object> getAccountObject() {
 		return accountObject;
 	}
 	
-	public void setAccountObject(Map<UUID, Object> accountObject) {
+	public void setAccountObject(Map<String, Object> accountObject) {
 		this.accountObject = accountObject;
 	}
 	

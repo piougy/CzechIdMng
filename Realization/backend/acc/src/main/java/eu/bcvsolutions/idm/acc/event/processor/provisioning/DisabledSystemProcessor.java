@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -46,7 +46,7 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 	public DisabledSystemProcessor(
 			NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService) {
-		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE);
+		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);

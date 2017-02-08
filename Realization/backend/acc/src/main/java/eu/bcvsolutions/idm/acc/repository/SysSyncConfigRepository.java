@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.rest.projection.SysSynchronizationConfigExcerpt;
+import eu.bcvsolutions.idm.acc.rest.projection.SysSyncConfigExcerpt;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
@@ -23,11 +23,11 @@ import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 		collectionResourceRel = "synchronizationConfigs", //
 		path = "synchronization-configs", //
 		itemResourceRel = "synchronizationConfig", //
-		excerptProjection = SysSynchronizationConfigExcerpt.class,
+		excerptProjection = SysSyncConfigExcerpt.class,
 		exported = false // we are using repository metadata, but we want expose
 							// rest endpoint manually
 )
-public interface SysSynchronizationConfigRepository extends AbstractEntityRepository<SysSyncConfig, SynchronizationConfigFilter> {
+public interface SysSyncConfigRepository extends AbstractEntityRepository<SysSyncConfig, SynchronizationConfigFilter> {
 
 	@Override
 	@Query(value = "select e from SysSyncConfig e"+ 

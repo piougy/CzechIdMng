@@ -45,7 +45,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     this.context.router.push(`/system/${entityId}/detail`);
   }
 
-  save(event) {
+  save(check = false, event) {
     if (event) {
       event.preventDefault();
     }
@@ -62,16 +62,31 @@ class SystemConnectorContent extends Basic.AbstractContent {
         this.addError(error);
       } else {
         const system = manager.getEntity(this.context.store.getState(), entityId);
-        this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+        if (!check) {
+          this.addMessage({ message: this.i18n('save.success', { name: system.name }) });
+        }
         this.getLogger().debug(`[EavForm]: Form [${this.refs.eav.getFormDefinition().type}|${this.refs.eav.getFormDefinition().name}] saved`);
+
+        // We will call check connector
+        if (check) {
+          this.setState({showLoading: true});
+          const promise = manager.getService().checkSystem(entityId);
+          promise.then(() => {
+            this.addMessage({ message: this.i18n('checkSystem.success')});
+            this.setState({showLoading: false});
+          }).catch(ex => {
+            this.addMessage({ level: 'warning', title: this.i18n('checkSystem.error'), message: ex.message});
+            this.setState({showLoading: false});
+          });
+        }
       }
     }));
   }
 
   render() {
-    const { formInstance, _showLoading } = this.props;
-    const { error } = this.state;
-
+    const { formInstance} = this.props;
+    const { error, showLoading } = this.state;
+    const _showLoading = showLoading || this.props._showLoading;
     let content;
     if (error) {
       // connector is wrong configured
@@ -117,7 +132,19 @@ class SystemConnectorContent extends Basic.AbstractContent {
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
-
+        <Basic.PanelBody>
+          <Basic.Button
+            style={{display: 'block', margin: 'auto'}}
+            level="success"
+            showLoading={_showLoading}
+            onClick={this.save.bind(this, true)}
+            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ')}
+            title={ this.i18n('button.checkSystemTooltip') }>
+            <Basic.Icon type="fa" icon="check-circle"/>
+            {' '}
+            { this.i18n('button.checkSystem') }
+          </Basic.Button>
+        </Basic.PanelBody>
         <Basic.Panel className="no-border last">
           { content }
         </Basic.Panel>

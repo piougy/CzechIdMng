@@ -107,4 +107,14 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 		return null;
 	}
 
+	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+		// TODO Auto-generated method stub
+	}
+
 }

@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningRequest;
@@ -104,7 +104,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	@Override
 	public SysProvisioningOperation cancel(SysProvisioningOperation provisioningOperation) {
 		// Cancel single request
-		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningOperationType.CANCEL, provisioningOperation);
+		CoreEvent<SysProvisioningOperation> event = new CoreEvent<SysProvisioningOperation>(ProvisioningEventType.CANCEL, provisioningOperation);
 		EventContext<SysProvisioningOperation> context = entityEventManager.process(event);
 		return context.getContent();
 	}

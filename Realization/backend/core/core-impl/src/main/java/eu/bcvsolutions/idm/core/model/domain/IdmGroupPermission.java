@@ -25,7 +25,8 @@ public enum IdmGroupPermission implements GroupPermission {
 	PASSWORDPOLICY(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
-	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE);
+	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
+	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -62,6 +63,10 @@ public enum IdmGroupPermission implements GroupPermission {
 	//
 	public static final String MODULE_READ = "MODULE" + BasePermission.SEPARATOR + "READ";
 	public static final String MODULE_WRITE = "MODULE" + BasePermission.SEPARATOR + "WRITE";
+	//
+	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
+	public static final String SCHEDULER_WRITE = "SCHEDULER" + BasePermission.SEPARATOR + "WRITE";
+	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

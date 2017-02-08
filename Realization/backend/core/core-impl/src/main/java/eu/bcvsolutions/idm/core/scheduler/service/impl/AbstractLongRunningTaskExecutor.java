@@ -6,8 +6,14 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
+import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
+import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
@@ -23,6 +29,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  */
 public abstract class AbstractLongRunningTaskExecutor implements LongRunningTaskExecutor {
 
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired
 	private IdmLongRunningTaskService service;
 	@Autowired
@@ -55,12 +62,10 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
 		//
 		if (task.isRunning()) {
-			// TODO: result code exception
-			return false;
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_RUNNING, ImmutableMap.of("taskId", task.getId()));
 		}
 		if (!OperationState.isRunnable(task.getResultState())) {
-			// TODO: result code exception
-			return false;
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_IS_PROCESSED, ImmutableMap.of("taskId", task.getId()));
 		}
 		//
 		Thread currentThread = Thread.currentThread();
@@ -99,7 +104,13 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		setStateProperties(task);
 		//
 		if (ex != null) {
-			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setCode("EX").setCause(ex).build()); // TODO: result code
+			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+					ImmutableMap.of(
+							"taskId", taskId, 
+							"taskType", task.getTaskType(),
+							"instanceId", task.getInstanceId()));	
+			LOG.error(resultModel.toString(), ex);
+			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 		} else if(OperationState.isRunnable(task.getResultState())) { 
 			// executed standardly
 			task.setResult(new OperationResult.Builder(OperationState.EXECUTED).build());

@@ -1,5 +1,4 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
@@ -22,19 +21,15 @@ class IdentitySubordinates extends Basic.AbstractContent {
     return 'content.identity.subordinates';
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('profile-subordinates');
+  getNavigationKey() {
+    return 'profile-subordinates';
   }
 
   render() {
     const forceSearchParameters = new SearchParameters().setFilter('subordinatesFor', this.props.params.entityId);
     return (
       <div className="tab-pane-table-body">
-        <Helmet title={this.i18n('title')} />
-
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
+        { this.renderContentHeader() }
 
         <Basic.Panel className="no-border last">
           <IdentityTable

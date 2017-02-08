@@ -6,10 +6,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
@@ -31,16 +32,20 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	public static final String PROCESSOR_NAME = "remove-processed-operation-processor";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RemoveProcessedOperationProcessor.class);
 	private final SysProvisioningOperationService provisioningOperationService;
+	private final SysSystemEntityService systemEntityService;
 	
 	@Autowired
 	public RemoveProcessedOperationProcessor(
 			SysProvisioningOperationService provisioningOperationService,
-			SysProvisioningArchiveService provisioningArchiveService) {
-		super(ProvisioningOperationType.CREATE, ProvisioningOperationType.UPDATE, ProvisioningOperationType.DELETE, ProvisioningOperationType.CANCEL);
+			SysProvisioningArchiveService provisioningArchiveService,
+			SysSystemEntityService systemEntityService) {
+		super(ProvisioningEventType.CREATE, ProvisioningEventType.UPDATE, ProvisioningEventType.DELETE, ProvisioningEventType.CANCEL);
 		//
 		Assert.notNull(provisioningOperationService);
+		Assert.notNull(systemEntityService);		
 		//
 		this.provisioningOperationService = provisioningOperationService;
+		this.systemEntityService = systemEntityService;
 	}
 	
 	@Override
@@ -52,9 +57,14 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		if (OperationState.EXECUTED.equals(provisioningOperation.getResultState()) 
-				|| ProvisioningOperationType.CANCEL.equals(event.getType())) {
+				|| ProvisioningEventType.CANCEL.equals(event.getType())) {
 			provisioningOperationService.delete(provisioningOperation);
 			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
+			//
+			if (ProvisioningEventType.DELETE.equals(event.getType())) {
+				// We successfully deleted account on target system. We need to delete system entity
+				systemEntityService.delete(provisioningOperation.getSystemEntity());
+			}		
 		}
 		return new DefaultEventResult<>(event, this, isClosable());
 	}

@@ -1,5 +1,3 @@
-import routeActions from 'react-router-redux';
-//
 import { LocalizationService } from '../../services';
 import FlashMessagesManager from '../flash/FlashMessagesManager';
 import DataManager from './DataManager';
@@ -246,16 +244,10 @@ export default class EntityManager {
         dispatch(this.receiveEntity(id, json, uiKey, cb));
       })
       .catch(error => {
-        // 404, 403 simple redirect,
+        // TODO: 404, 403 simple redirect,
         // TODO: overlay to preserve url?
         // TODO: sub error class
-        if (error.message === '403') {
-          dispatch(routeActions.push('/error/403'));
-        } else if (error.message === '404') {
-          dispatch(routeActions.push(`/error/404?id=${id}`));
-        } else {
-          dispatch(this.receiveError(id, uiKey, error, cb));
-        }
+        dispatch(this.receiveError(id, uiKey, error, cb));
       });
     };
   }
@@ -523,7 +515,6 @@ export default class EntityManager {
         cb(null, error);
       } else {
         dispatch(this.flashMessagesManager.addErrorMessage({
-          level: 'error',
           key: 'error-' + this.getEntityType()
         }, error));
       }
@@ -624,6 +615,17 @@ export default class EntityManager {
   }
 
   /**
+   * Returns error asigned to given uiKey or null, if no error is found
+   *
+   * @param  {state} state - application state
+   * @param  {string} uiKey - ui key for loading indicator etc.
+   * @return {objest} - error
+   */
+  getError(state, uiKey = null, id = null) {
+    return Utils.Ui.getError(state, this.resolveUiKey(uiKey, id));
+  }
+
+  /**
    * Returns true, when entity by given id is not contained in state and loading does not processing
    *
    * @param  {state}  state - application state
@@ -635,6 +637,9 @@ export default class EntityManager {
     uiKey = this.resolveUiKey(uiKey. id);
     // entity is saved in state
     if (this.getEntity(state, id)) {
+      return false;
+    }
+    if (this.getError(state, uiKey, id)) {
       return false;
     }
     if (!cb && this.isShowLoading(state, uiKey, id)) { // if callback is given, then loadinig is needed - callback is called after loading

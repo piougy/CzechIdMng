@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
@@ -62,15 +64,12 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertEquals(result, longRunningTask.getTaskDescription());
 		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
 		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
-		
-		while(!result.equals(processed)) {
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
+		//
+		Function<String, Boolean> continueFunction = res -> {
+			return !result.equals(processed);
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		//
 		longRunningTask = service.get(longRunningTask.getId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 	}
@@ -83,13 +82,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		//
 		manager.execute(taskExecutor);
 		//	
-		while(!result.equals(processed)) {
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}		
+		Function<String, Boolean> continueFunction = res -> {
+			return !result.equals(processed);
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
@@ -106,13 +103,11 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		manager.execute(taskExecutor);
 		manager.cancel(taskExecutor.getLongRunningTaskId());
 		//	
-		while(!result.equals(processed)) {
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		Function<String, Boolean> continueFunction = res -> {
+			return !result.equals(processed);
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
@@ -126,29 +121,20 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		LongRunningTaskExecutor taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
 		manager.execute(taskExecutor);
-		IdmLongRunningTask longRunningTask;		
-		while(true) {
-			longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
-			if (longRunningTask.isRunning()) {
-				break;
-			}
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		//
+		Function<String, Boolean> continueFunction = res -> {
+			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
 		//
 		manager.cancel(taskExecutor.getLongRunningTaskId());
-		//	
-		while(!result.equals(processed)) {
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		//
+		continueFunction = res -> {
+			return !result.equals(processed);
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		//
+		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertNotEquals(count, longRunningTask.getCounter());
@@ -161,22 +147,20 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		LongRunningTaskExecutor taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
 		manager.execute(taskExecutor);
-		IdmLongRunningTask longRunningTask;		
-		while(true) {
-			longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
-			if (longRunningTask.isRunning()) {
-				break;
-			}
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		//
+		Function<String, Boolean> continueFunction = res -> {
+			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
 		//
 		manager.interrupt(taskExecutor.getLongRunningTaskId());
 		//
-		longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		continueFunction = res -> {
+			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
+		};
+		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		//
+		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertNotEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertNotEquals(count, longRunningTask.getCounter());
@@ -293,9 +277,9 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 					break;
 				}
 				try {
-					Thread.sleep(300);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+					Thread.sleep(200);
+				} catch (InterruptedException ex) {
+					throw new CoreException(ex);
 				}
 			}			
 			processed = result;

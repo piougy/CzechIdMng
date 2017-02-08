@@ -500,6 +500,10 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				savedFormDefinition.getMappedAttributeByName("enabledStatusValue"));
 		enabledStatusValue.setValue("enabled");
 		values.add(enabledStatusValue);
+		SysSystemFormValue changeLogColumnValue = new SysSystemFormValue(
+				savedFormDefinition.getMappedAttributeByName("changeLogColumn"));
+		changeLogColumnValue.setValue(null);
+		values.add(changeLogColumnValue);
 
 		formService.saveValues(system, savedFormDefinition, values);
 

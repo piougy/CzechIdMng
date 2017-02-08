@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
@@ -33,7 +33,7 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 			IcConnectorFacade connectorFacade,
 			SysSystemService systemService,
 			SysProvisioningOperationService provisioningOperationService) {
-		super(connectorFacade, systemService, provisioningOperationService, ProvisioningOperationType.DELETE);
+		super(connectorFacade, systemService, provisioningOperationService, ProvisioningEventType.DELETE);
 	}
 	
 	@Override
@@ -42,7 +42,7 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 	}
 
 	@Override
-	public void processInternal(ProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
+	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
 		IcConnectorKey connectorKey = provisioningOperation.getSystem().getConnectorKey();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();

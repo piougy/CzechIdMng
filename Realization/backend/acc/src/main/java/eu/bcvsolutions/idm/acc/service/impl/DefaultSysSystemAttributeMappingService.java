@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.repository.SysRoleSystemAttributeRepository;
-import eu.bcvsolutions.idm.acc.repository.SysSynchronizationConfigRepository;
+import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemAttributeMappingRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
@@ -62,7 +62,7 @@ public class DefaultSysSystemAttributeMappingService
 	private final IdmFormAttributeService formAttributeService;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
-	private final SysSynchronizationConfigRepository syncConfigRepository;
+	private final SysSyncConfigRepository syncConfigRepository;
 	
 	@Autowired
 	public DefaultSysSystemAttributeMappingService(
@@ -72,7 +72,7 @@ public class DefaultSysSystemAttributeMappingService
 			IdmFormAttributeService formAttributeService, 
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			FormPropertyManager formPropertyManager,
-			SysSynchronizationConfigRepository syncConfigRepository) {
+			SysSyncConfigRepository syncConfigRepository) {
 		super(repository);
 		//
 		Assert.notNull(groovyScriptService);

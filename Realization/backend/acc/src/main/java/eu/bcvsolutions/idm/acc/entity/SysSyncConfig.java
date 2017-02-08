@@ -77,10 +77,6 @@ public class SysSyncConfig extends AbstractEntity {
 	private String token;
 
 	@Audited
-	@Column(name = "timestamp")
-	private LocalDateTime timestamp;
-
-	@Audited
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "custom_filter_script")
 	private String customFilterScript;
@@ -224,14 +220,6 @@ public class SysSyncConfig extends AbstractEntity {
 
 	public void setCorrelationAttribute(SysSystemAttributeMapping correlationAttribute) {
 		this.correlationAttribute = correlationAttribute;
-	}
-
-	public LocalDateTime getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(LocalDateTime timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public String getCustomFilterScript() {

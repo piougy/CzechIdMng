@@ -59,7 +59,11 @@ module.exports = {
         {
           path: 'eav',
           component: require('./src/content/identity/IdentityEav')
-        }
+        },
+        {
+          path: 'garanted-roles',
+          component: require('./src/content/identity/IdentityGarantedRoles')
+        },
       ]
     },
     {
@@ -188,22 +192,22 @@ module.exports = {
     {
       path: 'scheduler',
       component: require('./src/content/scheduler/SchedulerRoutes'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ],
       childRoutes: [
         {
           path: 'running-tasks',
           component: require('./src/content/scheduler/RunningTasks'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
         },
         {
           path: 'schedule-tasks',
           component: require('./src/content/scheduler/ScheduleTasks'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
         },
         {
           path: 'all-tasks',
           component: require('./src/content/scheduler/AllTasks'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['SCHEDULER_READ'] } ]
         }
       ]
     },

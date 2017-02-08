@@ -18,7 +18,7 @@ import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
-import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
+import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
@@ -46,7 +46,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(name = "operation_type", nullable = false)
-	private ProvisioningOperationType operationType;
+	private ProvisioningEventType operationType;
 	
 	@NotNull
 	@ManyToOne(optional = false)
@@ -79,11 +79,11 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 * @return
 	 */
 	@Override
-	public ProvisioningOperationType getOperationType() {
+	public ProvisioningEventType getOperationType() {
 		return operationType;
 	}
 
-	public void setOperationType(ProvisioningOperationType operationType) {
+	public void setOperationType(ProvisioningEventType operationType) {
 		this.operationType = operationType;
 	}
 
@@ -184,7 +184,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 	 *
 	 */
 	public static class Builder {
-		private ProvisioningOperationType operationType;
+		private ProvisioningEventType operationType;
 		private SysSystem system;
 		private ProvisioningContext provisioningContext;
 		private SystemEntityType entityType;
@@ -205,7 +205,7 @@ public class SysProvisioningArchive extends AbstractEntity implements Provisioni
 			this.result = provisioningOperation.getResult();
 		}
 		
-		public Builder setOperationType(ProvisioningOperationType operationType) {
+		public Builder setOperationType(ProvisioningEventType operationType) {
 			this.operationType = operationType;
 			return this;
 		}

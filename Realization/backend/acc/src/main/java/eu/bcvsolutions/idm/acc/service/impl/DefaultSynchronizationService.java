@@ -112,6 +112,11 @@ import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
 import eu.bcvsolutions.idm.ic.impl.IcSyncTokenImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 
+/**
+ * Service for do synchronization and reconciliation
+ * @author svandav
+ *
+ */
 @Service
 public class DefaultSynchronizationService implements SynchronizationService {
 
@@ -134,8 +139,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private final FormService formService;
 	private final EntityEventManager entityEventProcessorService;
 	private final EntityManager entityManager;
-	private final ApplicationContext applicationContext;
-	private SynchronizationService synchronizationService;
 
 	@Autowired
 	public DefaultSynchronizationService(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -185,7 +188,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		this.groovyScriptService = groovyScriptService;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityManager = entityManager;
-		this.applicationContext = applicationContext;
 		this.syncActionLogService = syncActionLogService;
 	}
 	
@@ -411,83 +413,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		synchronizationLogService.saveAll(logs);
 		return config;
 	}
-
-	/**
-	 * Main method for synchronization item. This method is call form "custom
-	 * filter" and "connector sync" mode.
-	 * 
-	 * @param uid
-	 * @param icObject
-	 * @param type
-	 * @param entityType
-	 * @param itemLog
-	 * @param config
-	 * @param system
-	 * @param mappedAttributes
-	 * @param log
-	 * @param systemAccountsList
-	 * @param actionsLog
-	 * @return
-	 */
-	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
-			SystemEntityType entityType, SysSyncItemLog itemLog, SysSyncConfig config, SysSystem system,
-			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
-			List<String> systemAccountsList) {
-
-		List<SysSyncActionLog> actionsLog = new ArrayList<>();
-		try {
-			if (config.isReconciliation()) {
-				systemAccountsList.add(uid);
-			}
-
-			SyncActionLogFilter actionFilter = new SyncActionLogFilter();
-			actionFilter.setSynchronizationLogId(log.getId());
-			actionsLog.addAll(syncActionLogService.find(actionFilter, null).getContent());
-
-			// Default setting for log item
-			itemLog.setIdentification(uid);
-			itemLog.setDisplayName(uid);
-			itemLog.setType(entityType.getEntityType().getSimpleName());
-
-			// Do synchronization for one item (produces item)
-			// Start in new Transaction
-			SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, icObject, type, config, system,
-					entityType, mappedAttributes, null, log, itemLog, actionsLog);
-			
-			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
-			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
-			EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
-			boolean result = false;
-			if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
-				result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
-			}
-
-			return result;
-		} catch (Exception ex) {
-			if (itemLog.getSyncActionLog() != null) {
-				// We have to decrement count and log as error
-				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
-				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
-			} else {
-				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
-			}
-			return true;
-		} finally {
-			synchronizationConfigService.save(config);
-			if (itemLog.getSyncActionLog() == null) {
-				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
-				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
-						actionsLog);
-			}
-			//synchronizationLogService.save(log);
-			syncActionLogService.saveAll(actionsLog);
-			if (itemLog.getSyncActionLog() != null) {
-				syncItemLogService.save(itemLog);
-			}
-
-		}
-	}
-
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
@@ -712,6 +637,82 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				ReconciliationMissingAccountActionType.valueOf(actionType), system, null, itemLog, null);
 		return itemLog;
 	}
+	
+	/**
+	 * Main method for synchronization item. This method is call form "custom
+	 * filter" and "connector sync" mode.
+	 * 
+	 * @param uid
+	 * @param icObject
+	 * @param type
+	 * @param entityType
+	 * @param itemLog
+	 * @param config
+	 * @param system
+	 * @param mappedAttributes
+	 * @param log
+	 * @param systemAccountsList
+	 * @param actionsLog
+	 * @return
+	 */
+	private boolean startItemSynchronization(String uid, IcConnectorObject icObject, IcSyncDeltaTypeEnum type,
+			SystemEntityType entityType, SysSyncItemLog itemLog, SysSyncConfig config, SysSystem system,
+			List<SysSystemAttributeMapping> mappedAttributes, SysSyncLog log,
+			List<String> systemAccountsList) {
+
+		List<SysSyncActionLog> actionsLog = new ArrayList<>();
+		try {
+			if (config.isReconciliation()) {
+				systemAccountsList.add(uid);
+			}
+
+			SyncActionLogFilter actionFilter = new SyncActionLogFilter();
+			actionFilter.setSynchronizationLogId(log.getId());
+			actionsLog.addAll(syncActionLogService.find(actionFilter, null).getContent());
+
+			// Default setting for log item
+			itemLog.setIdentification(uid);
+			itemLog.setDisplayName(uid);
+			itemLog.setType(entityType.getEntityType().getSimpleName());
+
+			// Do synchronization for one item (produces item)
+			// Start in new Transaction
+			SynchronizationItemWrapper itemWrapper = new SynchronizationItemWrapper(uid, icObject, type, config, system,
+					entityType, mappedAttributes, null, log, itemLog, actionsLog);
+			
+			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
+			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
+			EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
+			boolean result = false;
+			if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
+				result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
+			}
+
+			return result;
+		} catch (Exception ex) {
+			if (itemLog.getSyncActionLog() != null) {
+				// We have to decrement count and log as error
+				itemLog.getSyncActionLog().setOperationCount(itemLog.getSyncActionLog().getOperationCount() - 1);
+				loggingException(itemLog.getSyncActionLog().getSyncAction(), log, itemLog, actionsLog, uid, ex);
+			} else {
+				loggingException(SynchronizationActionType.IGNORE, log, itemLog, actionsLog, uid, ex);
+			}
+			return true;
+		} finally {
+			synchronizationConfigService.save(config);
+			if (itemLog.getSyncActionLog() == null) {
+				addToItemLog(itemLog, MessageFormat.format("Missing action log for UID {0}!", uid));
+				initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
+						actionsLog);
+			}
+			//synchronizationLogService.save(log);
+			syncActionLogService.saveAll(actionsLog);
+			if (itemLog.getSyncActionLog() != null) {
+				syncItemLogService.save(itemLog);
+			}
+
+		}
+	}
 
 	/**
 	 * Start reconciliation. Is call after synchronization. Main purpose is find
@@ -793,6 +794,11 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		}
 	}
 
+	/**
+	 * Compile filter for search from filter attribute and filter script
+	 * @param config
+	 * @return
+	 */
 	private IcFilter resolveSynchronizationFilter(SysSyncConfig config) {
 		// If is reconciliation, then is filter null
 		if (config.isReconciliation()) {
@@ -1546,7 +1552,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		});
 		return entity;
 	}
-
+	
 	private Object getValueByMappedAttribute(AttributeMapping attribute, List<IcAttribute> icAttributes) {
 		Object icValue = null;
 		Optional<IcAttribute> optionalIcAttribute = icAttributes.stream().filter(icAttribute -> {
@@ -1621,6 +1627,23 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		return systemEntity;
 	}
 
+	/**
+	 * Start workflow process by wfDefinitionKey. Create input variables and put them to process.
+	 * If is log variable present after process started, then will be log add to synchronization log.
+	 * 
+	 * @param wfDefinitionKey
+	 * @param uid
+	 * @param situation
+	 * @param action
+	 * @param icAttributes
+	 * @param entity
+	 * @param account
+	 * @param entityType
+	 * @param config
+	 * @param log
+	 * @param logItem
+	 * @param actionLogs
+	 */
 	private void startWorkflow(String wfDefinitionKey, String uid, SynchronizationSituationType situation,
 			SynchronizationActionType action, List<IcAttribute> icAttributes, AbstractEntity entity, AccAccount account,
 			SystemEntityType entityType, SysSyncConfig config, SysSyncLog log,

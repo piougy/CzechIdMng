@@ -63,6 +63,21 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		checkIcType(connectorInstance.getConnectorKey());
 		return icConfigs.get(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance.getConnectorKey(), connectorConfiguration);
 	}
+	
+	@Override
+	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(key);
+		checkIcType(key);
+		icConfigs.get(key.getFramework()).test(key, connectorConfiguration);
+		
+	}
+	
+	@Override
+	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(key);
+		checkIcType(key);
+		icConfigs.get(key.getFramework()).validate(key, connectorConfiguration);
+	}
 
 	private boolean checkIcType(IcConnectorKey key) {
 		if (!icConfigs.containsKey(key.getFramework())) {

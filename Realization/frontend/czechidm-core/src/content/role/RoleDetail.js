@@ -115,8 +115,12 @@ class RoleDetail extends Basic.AbstractContent {
 
   _afterSave(entity, error, afterAction = 'CLOSE') {
     if (error) {
-      this.refs.form.processEnded();
-      this.addError(error);
+      this.setState({
+        _showLoading: false
+      }, () => {
+        this.refs.form.processEnded();
+        this.addError(error);
+      });
       return;
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });

@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.repository.AccAccountRepository;
+import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
@@ -54,7 +55,7 @@ import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 
 /**
- * Deafult target system configuration service
+ * Default target system configuration service
  * 
  * @author Radek Tomiška
  *
@@ -72,6 +73,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final AccAccountRepository accountRepository;
 	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
+	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -84,7 +86,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
 			SysSyncConfigService synchronizationConfigService,
-			FormPropertyManager formPropertyManager) {
+			FormPropertyManager formPropertyManager,
+			SysProvisioningArchiveRepository provisioningArchiveRepository) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -95,6 +98,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(accountRepository);
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
+		Assert.notNull(provisioningArchiveRepository);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -105,6 +109,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
+		this.provisioningArchiveRepository = provisioningArchiveRepository;
 	}
 	
 	@Override
@@ -141,6 +146,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		synchronizationConfigService.find(synchronizationConfigFilter, null).forEach(config -> {
 			synchronizationConfigService.delete(config);
 		});
+		// delete archived provisioning operations
+		provisioningArchiveRepository.deleteBySystem(system);
 		//
 		super.delete(system);
 	}
@@ -184,6 +191,29 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			}
 		}
 		return icConf;
+	}
+	
+	@Override
+	@Transactional
+	public void checkSystem(SysSystem system) {
+		Assert.notNull(system);
+
+		// Find connector identification persisted in system
+		IcConnectorKey connectorKey = system.getConnectorKey();
+		if (connectorKey == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_KEY_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Find connector configuration persisted in system
+		IcConnectorConfiguration connectorConfig = getConnectorConfiguration(system);
+		if (connectorConfig == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND,
+					ImmutableMap.of("system", system.getName()));
+		}
+
+		// Call IC module 
+		icConfigurationFacade.test(connectorKey, connectorConfig);
 	}
 
 	@Override

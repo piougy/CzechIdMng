@@ -60,7 +60,9 @@ public class SysProvisioningBatch extends AbstractEntity {
 	}
 	
 	public void addRequest(SysProvisioningRequest request) {
-		if (requests.contains(request)) return;
+		if (requests.contains(request)) {
+			return;
+		}
 		
 		requests.add(request);
 		request.setBatch(this);

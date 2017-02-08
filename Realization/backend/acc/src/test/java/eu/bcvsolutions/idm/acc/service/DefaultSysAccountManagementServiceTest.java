@@ -450,7 +450,7 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		system.setConnectorKey(new SysConnectorKey(sysSystemService.getTestConnectorKey()));
 		sysSystemService.save(system);
 
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorInstance());
 
 		List<SysSystemFormValue> values = new ArrayList<>();
 

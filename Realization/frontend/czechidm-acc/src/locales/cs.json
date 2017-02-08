@@ -34,6 +34,8 @@
         "save": {
           "success": "Systém [{{name}}] byl úspěšně uložen"
         },
+        "loadRemoteConnectors": "Nahrát konektory ze vzdáleného serveru",
+        "remoteConnectorServer": "Vzdálený konektor server",
         "basic": "Základní informace"
       },
       "entities": {
@@ -437,7 +439,19 @@
         "bundleName": "Bundle konektoru",
         "bundleVersion": "Verze konektoru"
       },
+      "remoteConnector": {
+        "label": "Vzdálený konektor server",
+        "help": "Při zaškrknutí této možnosti budou načteny vzdálené konektory dostupné na serveru. Konektory načtete tlačítkem 'Načíst konektory'."
+      },
       "connectorHost": "Server s konektory"
+    },
+    "ConnectorServer": {
+      "name": "Jméno",
+      "chooseConnectorServer": "Výběr vzdáleného serveru",
+      "host": "Adresa",
+      "port": "Port",
+      "password": "Heslo",
+      "timeout": "Timeout"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",

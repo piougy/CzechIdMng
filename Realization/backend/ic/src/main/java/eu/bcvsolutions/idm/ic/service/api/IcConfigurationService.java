@@ -5,6 +5,7 @@ import java.util.List;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 public interface IcConfigurationService {
@@ -28,6 +29,13 @@ public interface IcConfigurationService {
 	 */
 	IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key);
 	
+	/**
+	 * Return remote connector configuration from server by connector key
+	 * @param server
+	 * @return
+	 */
+	IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorServer server, IcConnectorKey key);
+	
 
 	/**
 	 * Return schema for connector and given configuration. Schema contains list of attribute definitions in object classes.
@@ -36,5 +44,14 @@ public interface IcConfigurationService {
 	 * @return
 	 */
 	IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	
+	/**
+	 * Return available remote connectors
+	 * 
+	 * @param server
+	 * @param framework 
+	 * @return
+	 */
+	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server);
 
 }

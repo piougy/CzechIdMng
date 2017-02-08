@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
@@ -93,6 +94,16 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 
 	@Override
 	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+		return null;
+	}
+
+	@Override
+	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorServer server, IcConnectorKey key) {
+		return null;
+	}
+
+	@Override
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
 		return null;
 	}
 

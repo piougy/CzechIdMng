@@ -12,6 +12,7 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.identityconnectors.framework.api.RemoteFrameworkConnectionInfo;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
@@ -23,6 +24,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -105,12 +107,71 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	@Override
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
 		Assert.notNull(key);
-
+		
 		ConnectorInfo i = getConnIdConnectorInfo(key);
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
 			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 		}
+		return null;
+	}
+	
+	@Override
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
+		Assert.notNull(server);
+		//
+		List<IcConnectorInfo> result = new ArrayList<>();
+		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(server);
+		//
+		List<ConnectorInfo> infos = remoteInfoManager.getConnectorInfos();
+
+		for (ConnectorInfo info : infos) {
+			ConnectorKey key = info.getConnectorKey();
+			if (key == null) {
+				continue;
+			}			
+			// transform
+			IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getImplementationType(), key.getBundleName(),
+					key.getBundleVersion(), key.getConnectorName());
+			IcConnectorInfoImpl infoDto = new IcConnectorInfoImpl(info.getConnectorDisplayName(),
+					info.getConnectorCategory(), keyDto);
+
+			result.add(infoDto);
+		}
+		
+			
+		return result;
+	}
+	
+	@Override
+	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorServer server, IcConnectorKey key) {
+		Assert.notNull(key);
+		Assert.notNull(server);
+		ConnectorInfo info = getRemoteConnIdConnectorInfo(server, key);
+		//
+		if (info != null) {
+			APIConfiguration apiConfiguration = info.createDefaultAPIConfiguration();
+			// TODO: same as local???
+			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConfiguration);
+		}
+		//
+		return null;
+	}
+	
+	private ConnectorInfo getRemoteConnIdConnectorInfo(IcConnectorServer server, IcConnectorKey key) {
+		Assert.notNull(key);
+		Assert.notNull(server);
+		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(server);
+		
+		for (ConnectorInfo info : remoteInfoManager.getConnectorInfos()) {
+			ConnectorKey connectorKey = info.getConnectorKey();
+			if (connectorKey == null) {
+				continue;
+			} else if (connectorKey.getConnectorName().equals(key.getConnectorName())) {
+				return info;
+			}
+		}
+		
 		return null;
 	}
 
@@ -135,6 +196,21 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
 		Schema schema = conn.schema();
 		return ConnIdIcConvertUtil.convertConnIdSchema(schema);
+	}
+	
+	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
+		// TODO: CERTS
+		// get all saved remote connector servers
+		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(
+				server.getHost(), server.getPort(),
+				new org.identityconnectors.common.security.GuardedString(server.getPassword().toCharArray()),
+				server.isUseSsl(), null, server.getTimeout());
+		
+		ConnectorInfoManager manager = ConnectorInfoManagerFactory.getInstance().getRemoteManager(info);
+		
+		// TODO: null & InvalidCredentialException
+		
+		return manager;
 	}
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
@@ -177,5 +253,4 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		conn.validate();
 		return conn;
 	}
-
 }

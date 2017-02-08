@@ -44,6 +44,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcObjectClassInfo;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
@@ -105,6 +106,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
 	}
+	
+	@Override
+	public SysSystem save(SysSystem entity) {
+		return super.save(entity);
+	}
 
 	@Override
 	@Transactional
@@ -153,10 +159,12 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if(system.getConnectorKey() == null){
 			return null;
 		}
-		// load connector properties
-		IcConnectorConfiguration connectorConfig = icConfigurationFacade.getConnectorConfiguration(system.getConnectorKey());
+		IcConnectorConfiguration connectorConfig = null;
+		// load connector properties, different between local and remote
+		connectorConfig = icConfigurationFacade.getConnectorConfiguration(system.getConnectorInstance());
+
 		// load filled form values
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> formValues = getFormService().getValues(system, formDefinition);
 		Map<String, List<AbstractFormValue<SysSystem>>> attributeValues = getFormService().toValueMap(formValues);
 		// fill connector configuration from form values
@@ -199,7 +207,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 		// Call IC module and find schema for given connector key and
 		// configuration
-		IcSchema icSchema = icConfigurationFacade.getSchema(connectorKey, connectorConfig);
+		IcSchema icSchema = icConfigurationFacade.getSchema(system.getConnectorInstance(), connectorConfig);
 		if (icSchema == null) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_SCHEMA_FOR_SYSTEM_NOT_FOUND,
 					ImmutableMap.of("system", system.getName()));
@@ -312,15 +320,16 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 
 	@Override
 	@Transactional
-	public IdmFormDefinition getConnectorFormDefinition(IcConnectorKey connectorKey) {
-		Assert.notNull(connectorKey);
+	public IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		//
 		// if form definition for given key already exists
-		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorKey.getConnectorName(),
-				connectorKey.getFullName());
+		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorInstance.getConnectorKey().getConnectorName(),
+				connectorInstance.getConnectorKey().getFullName());
 		if (formDefinition == null) {
 			// we creates new form definition
-			formDefinition = createConnectorFormDefinition(connectorKey);
+			formDefinition = createConnectorFormDefinition(connectorInstance);
 		}
 		return formDefinition;
 	}
@@ -331,11 +340,11 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	 * @param connectorKey
 	 * @return
 	 */
-	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorKey connectorKey) {
-		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorKey);
+	private synchronized IdmFormDefinition createConnectorFormDefinition(IcConnectorInstance connectorInstance) {
+		IcConnectorConfiguration conf = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 		if (conf == null) {
 			throw new IllegalStateException(MessageFormat.format("Connector with key [{0}] was not found on classpath.",
-					connectorKey.getFullName()));
+					connectorInstance.getConnectorKey().getFullName()));
 		}
 		//
 		List<IdmFormAttribute> formAttributes = new ArrayList<>();
@@ -345,8 +354,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			attribute.setSeq(seq);
 			formAttributes.add(attribute);
 		}
-		return getFormService().createDefinition(connectorKey.getConnectorName(), connectorKey.getFullName(),
-				formAttributes);
+		return getFormService().createDefinition(connectorInstance.getConnectorKey().getConnectorName(),
+				connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
 
 	@Deprecated
@@ -358,7 +367,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		system.setConnectorKey(new SysConnectorKey(getTestConnectorKey()));
 		save(system);
 
-		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = getConnectorFormDefinition(system.getConnectorInstance());
 
 		List<SysSystemFormValue> values = new ArrayList<>();
 		SysSystemFormValue host = new SysSystemFormValue(savedFormDefinition.getMappedAttributeByName("host"));

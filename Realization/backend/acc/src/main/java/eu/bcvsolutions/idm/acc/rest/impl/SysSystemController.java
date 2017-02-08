@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.acc.rest.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -43,7 +45,10 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
-import eu.bcvsolutions.idm.core.security.api.domain.Enabled;;
+import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.domain.IcResultCode;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;;
 
 /**
  * Target system setting controller
@@ -58,6 +63,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 
 	private final SysSystemService systemService;
 	private final FormService formService;
+	private final IcConfigurationFacade icConfiguration;
 	
 	@Autowired 
 	private IdmFormDefinitionController formDefinitionController;
@@ -66,14 +72,17 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	public SysSystemController(
 			EntityLookupService entityLookupService, 
 			SysSystemService systemService, 
-			FormService formService) {
+			FormService formService,
+			IcConfigurationFacade icConfiguration) {
 		super(entityLookupService);
 		//
 		Assert.notNull(systemService);
 		Assert.notNull(formService);
+		Assert.notNull(icConfiguration);
 		//
 		this.systemService = systemService;
 		this.formService = formService;
+		this.icConfiguration = icConfiguration;
 	}
 
 	@Override
@@ -240,6 +249,56 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	}
 	
 	/**
+	 * Return all local connectors of given framework
+	 * 
+	 * @param framework - ic framework
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/search/local")
+	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableLocalConnectors(
+			@RequestParam(required = false) String framework) {
+		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		if (framework != null) {
+			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
+				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
+						ImmutableMap.of("framework", framework));
+			}
+			infos.put(framework, icConfiguration.getIcConfigs().get(framework)
+					.getAvailableLocalConnectors());
+
+		} else {
+			infos = icConfiguration.getAvailableLocalConnectors();
+		}
+		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "{backendId}/search/remote")
+	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableRemoteConnectors(
+			@PathVariable @NotNull String backendId) {
+		SysSystem entity = this.getEntity(backendId);
+		
+		if (entity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		
+		String framework = entity.getConnectorKey().getFramework();
+		
+		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		if (framework != null) {
+			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
+				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
+						ImmutableMap.of("framework", framework));
+			}
+			infos.put(framework, icConfiguration.getIcConfigs().get(framework)
+					.getAvailableRemoteConnectors(entity.getConnectorServer()));
+
+		} else {
+			infos = icConfiguration.getAvailableLocalConnectors();
+		}
+		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+	}
+	
+	/**
 	 * Returns definition for given system 
 	 * or throws exception with code {@code CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND}, when system is wrong configured
 	 * 
@@ -250,7 +309,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		Assert.notNull(system);
 		//
 		try {
-			return systemService.getConnectorFormDefinition(system.getConnectorKey());
+			return systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		} catch(Exception ex) {
 			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND, ImmutableMap.of("system", system.getName()), ex);
 		}

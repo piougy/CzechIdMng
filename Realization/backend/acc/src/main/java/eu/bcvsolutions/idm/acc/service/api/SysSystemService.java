@@ -9,6 +9,7 @@ import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 
 /**
@@ -43,7 +44,7 @@ public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysS
 	 * @param connectorKey
 	 * @return
 	 */
-	IdmFormDefinition getConnectorFormDefinition(IcConnectorKey connectorKey);
+	IdmFormDefinition getConnectorFormDefinition(IcConnectorInstance connectorInstance);
 	
 	//
 	// TODO: move to test after FE form implementation

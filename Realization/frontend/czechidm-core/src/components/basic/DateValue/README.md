@@ -15,7 +15,7 @@ All parameters from AbstractComponent are supported. Added parameters:
 ## Usage
 
 ```html
-<DateValue
+<Basic.DateValue
   value="2016-05-02T00:00:00"
   format="d MMM"
 />

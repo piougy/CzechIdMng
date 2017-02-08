@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import SearchParameters from '../../domain/SearchParameters';
 import { LongRunningTaskManager, ConfigurationManager, SecurityManager } from '../../redux';
@@ -91,12 +92,9 @@ class RunningTasks extends Basic.AbstractContent {
                   <Basic.Panel>
                     <Basic.PanelHeader text={<span>{entity.taskType.split('.').pop(-1)} <small>{entity.taskDescription} ({entity.instanceId})</small></span>} />
                     <Basic.PanelBody>
-                      <Basic.ProgressBar
-                        min={0}
+                      <Advanced.ProgressBar
                         max={entity.count}
                         now={entity.counter}
-                        label={`${this.i18n('component.basic.ProgressBar.processed')} ${entity.counter} / ${entity.count}`}
-                        active
                         style={{ marginBottom: 0 }}/>
                     </Basic.PanelBody>
                     <Basic.PanelFooter>

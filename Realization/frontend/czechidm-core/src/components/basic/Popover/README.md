@@ -1,6 +1,6 @@
 # Popover component
 
-Popover component built on top of Tip. Extended from AbstractComponent.
+Wrapped react bootstrap popover. Extended from AbstractComponent.
 
 ## Parameters
 

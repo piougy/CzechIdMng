@@ -11,6 +11,7 @@ import DetailButton from './Table/DetailButton';
 import ModalProgressBar from './ModalProgressBar/ModalProgressBar';
 import EavForm from './Form/EavForm';
 import PasswordField from './PasswordField/PasswordField';
+import ProgressBar from './ProgressBar/ProgressBar';
 
 const Components = {
   Table,
@@ -23,6 +24,7 @@ const Components = {
   _ToogleButton: Filter.ToogleButton,
   _FilterButtons: Filter.FilterButtons,
   DateValue,
+  ProgressBar,
   ModalProgressBar,
   Tree,
   DetailButton,

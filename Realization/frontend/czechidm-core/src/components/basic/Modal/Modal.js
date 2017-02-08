@@ -15,6 +15,8 @@ const SUPPORTED_SIZES = ['lg', 'large', 'sm', 'small'];
  *
  * https://github.com/react-bootstrap/react-bootstrap/blob/v0.28.3/src/Modal.js
  * https://react-bootstrap.github.io/components.html#modals
+ *
+ * @author Radek Tomiška
  */
 export default class BasicModal extends AbstractComponent {
 

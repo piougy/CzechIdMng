@@ -206,7 +206,8 @@
       },
       "ProgressBar": {
         "start": "Zpracovávám",
-        "processed": "Zpracováno"
+        "processed": "Zpracováno",
+        "label": "$t(component.basic.ProgressBar.processed) {{now}} / {{max}}"
       },
       "Dropzone": {
         "infoText": "Přetáhněte soubory na tuto polochu a nebo na ní klikněte pro výběr souborů."

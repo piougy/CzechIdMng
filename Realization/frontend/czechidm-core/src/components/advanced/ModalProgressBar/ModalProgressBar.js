@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 //
 import * as Basic from '../../basic';
+import ProgressBar from '../ProgressBar/ProgressBar';
 
 export default class ModalProgressBar extends Basic.AbstractContextComponent {
 
@@ -9,12 +10,7 @@ export default class ModalProgressBar extends Basic.AbstractContextComponent {
     if (!rendered) {
       return null;
     }
-
-    let label = (<span style={{color: '#000'}}>{this.i18n('component.basic.ProgressBar.start')}</span>);
-    if (counter > 0) {
-      label = this.i18n('component.basic.ProgressBar.processed') + ' %(now)s / %(max)s';
-    }
-
+    //
     return (
       <Basic.Modal
         show={show}
@@ -24,7 +20,7 @@ export default class ModalProgressBar extends Basic.AbstractContextComponent {
         {...others}>
         <Basic.Modal.Header text={text}/>
         <Basic.Modal.Body>
-          <Basic.ProgressBar min={0} max={count} now={counter} label={label} active style={{ marginBottom: 0}} rendered={!showLoading}/>
+          <ProgressBar max={count} now={counter} style={{ marginBottom: 0}} rendered={!showLoading}/>
         </Basic.Modal.Body>
       </Basic.Modal>
     );

@@ -310,7 +310,8 @@ export default class EavForm extends Basic.AbstractContextComponent {
                 || attribute.persistentType === 'BOOLEAN'
                 || attribute.persistentType === 'DATE'
                 || attribute.persistentType === 'DATETIME'
-                || attribute.persistentType === 'RICHTEXTAREA') {
+                || attribute.persistentType === 'RICHTEXTAREA'
+                || attribute.persistentType === 'BYTEARRAY') {
                 return (
                   <Basic.LabelWrapper label={attribute.displayName} >
                     <Basic.Alert level="warning" className="no-margin">

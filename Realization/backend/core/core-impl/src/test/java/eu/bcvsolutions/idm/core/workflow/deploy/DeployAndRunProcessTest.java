@@ -19,7 +19,7 @@ public class DeployAndRunProcessTest extends AbstractWorkflowIntegrationTest {
 	private static final String PROCESS_KEY = "testDeployAndRun";
 
 	@Test
-	@Deployment(resources = { "eu/bcvsolutions/idm/core/workflow/deploy/testDeployAndRun.bpmn20.xml" })
+	@Deployment(resources = { "eu/bcvsolutions/idm/workflow/deploy/testDeployAndRun.bpmn20.xml" })
 	public void deployAndRunScript() {
 		RuntimeService runtimeService = activitiRule.getRuntimeService();
 		ProcessInstance instance = runtimeService.startProcessInstanceByKey(PROCESS_KEY);

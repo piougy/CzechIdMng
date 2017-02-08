@@ -101,7 +101,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess
-		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/core/workflow/role/approve/approveRoleBySuperAdminRole.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/workflow/role/approve/approveRoleBySuperAdminRole.bpmn20.xml");
 		assertNotNull(deploymentDtoSuperAdmin);
 		//Start subprocesses
 		taskInstanceService.completeTask(approveByManager.getId(), "approve", null, variables);
@@ -163,7 +163,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess
-		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/core/workflow/role/approve/approveRoleBySuperAdminRole.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/workflow/role/approve/approveRoleBySuperAdminRole.bpmn20.xml");
 		assertNotNull(deploymentDtoSuperAdmin);
 		//Start subprocesses
 		taskInstanceService.completeTask(approveByManager.getId(), "approve", null, variables);
@@ -227,7 +227,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess
-		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/core/workflow/role/notapprove/notApproveRoleRealizationUpdate.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/workflow/role/notapprove/notApproveRoleRealizationUpdate.bpmn20.xml");
 		assertNotNull(deploymentDtoSuperAdmin);
 		//Start subprocesses
 		taskInstanceService.completeTask(approveByManager.getId(), "approve", null, variables);
@@ -273,7 +273,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess (without approving)
-		WorkflowDeploymentDto deploymentDtoNotApprove = deployProcess("eu/bcvsolutions/idm/core/workflow/role/notapprove/notApproveRoleRealizationAdd.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoNotApprove = deployProcess("eu/bcvsolutions/idm/workflow/role/notapprove/notApproveRoleRealizationAdd.bpmn20.xml");
 		assertNotNull(deploymentDtoNotApprove);
 		
 		//Start subprocesses
@@ -321,7 +321,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess
-		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/core/workflow/role/approve/approveRemoveRoleBySuperAdminRole.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/workflow/role/approve/approveRemoveRoleBySuperAdminRole.bpmn20.xml");
 		assertNotNull(deploymentDtoSuperAdmin);
 		//Start subprocesses
 		taskInstanceService.completeTask(approveByManager.getId(), "approve", null, variables);
@@ -371,7 +371,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		WorkflowTaskInstanceDto approveByManager = ((List<ResourceWrapper<WorkflowTaskInstanceDto>>)wrappedUserTasksResult.getBody().getResources()).get(0).getResource();
 		
 		//Deploy process for subprocess
-		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/core/workflow/role/notapprove/notApproveRoleRealizationRemove.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDtoSuperAdmin = deployProcess("eu/bcvsolutions/idm/workflow/role/notapprove/notApproveRoleRealizationRemove.bpmn20.xml");
 		assertNotNull(deploymentDtoSuperAdmin);
 		//Start subprocesses
 		taskInstanceService.completeTask(approveByManager.getId(), "approve", null, variables);
@@ -400,7 +400,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 
 	private WorkflowTaskInstanceDto startChangePermissions(String user, String role, boolean mustHaveRole) {
 		//Deploy process
-		WorkflowDeploymentDto deploymentDto = deployProcess("eu/bcvsolutions/idm/core/workflow/role/changeIdentityRoles.bpmn20.xml");
+		WorkflowDeploymentDto deploymentDto = deployProcess("eu/bcvsolutions/idm/workflow/role/changeIdentityRoles.bpmn20.xml");
 		assertNotNull(deploymentDto);
 		
 		//start change role process for TEST_USER_1

@@ -31,6 +31,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.dto.DefaultResultModel;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
+import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
@@ -153,21 +154,23 @@ public class DefaultSysProvisioningOperationService
 			}
 			// array
 			if(idmValue.getClass().isArray()) {
-				Object[] idmValues = (Object[]) idmValue;
-				List<GuardedString> processedValues = new ArrayList<>();
-				for(int j = 0; j < idmValues.length; j++) {
-					Object singleValue = idmValues[j];
-					if (singleValue instanceof ConfidentialString) {
-						processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
+				if (!idmValue.getClass().getComponentType().isPrimitive()) { // objects only, we dont want pto proces byte, boolean etc.
+					Object[] idmValues = (Object[]) idmValue;
+					List<GuardedString> processedValues = new ArrayList<>();
+					for(int j = 0; j < idmValues.length; j++) {
+						Object singleValue = idmValues[j];
+						if (singleValue instanceof ConfidentialString) {
+							processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
+						}
 					}
-				}
-				if (!processedValues.isEmpty()) {
-					fullAccountObject.put(entry.getKey(), processedValues.toArray(new GuardedString[processedValues.size()]));
-					continue;
+					if (!processedValues.isEmpty()) {
+						fullAccountObject.put(entry.getKey(), processedValues.toArray(new GuardedString[processedValues.size()]));
+						continue;
+					}
 				}
 			}
 			// collection
-			if (idmValue instanceof Collection) {
+			else if (idmValue instanceof Collection) {
 				Collection<?> idmValues = (Collection<?>) idmValue;
 				List<GuardedString> processedValues = new ArrayList<>();
 				idmValues.forEach(singleValue -> {
@@ -278,81 +281,87 @@ public class DefaultSysProvisioningOperationService
 	 * @return Returns values (key / value) to store in confidential storage. 
 	 */
 	protected Map<String, Serializable> replaceGuardedStrings(ProvisioningContext context) {
-		Map<String, Serializable> confidentialValues = new HashMap<>();
-		if (context == null) {
-			return confidentialValues;
-		}
-		//
-		Map<String, Object> accountObject = context.getAccountObject();
-		if (accountObject != null) {
-			for (Entry<String, Object> entry : accountObject.entrySet()) {
-				if (entry.getValue() == null) {
-					continue;
-				}
-				Object idmValue = entry.getValue();
-				// single value
-				if (idmValue instanceof GuardedString) {
-					GuardedString guardedString = (GuardedString) entry.getValue();
-					// save value into confidential storage
-					String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), 0);
-					confidentialValues.put(confidentialStorageKey, guardedString.asString());
-					accountObject.put(entry.getKey(), new ConfidentialString(confidentialStorageKey));
-				}
-				// array
-				else if(idmValue.getClass().isArray()) {
-					Object[] idmValues = (Object[]) idmValue;
-					List<ConfidentialString> processedValues = new ArrayList<>();
-					for(int j = 0; j < idmValues.length; j++) {
-						Object singleValue = idmValues[j];
-						if (singleValue instanceof GuardedString) {
-							GuardedString guardedString = (GuardedString) singleValue;
-							// save value into confidential storage
-							String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), j);
-							confidentialValues.put(confidentialStorageKey, guardedString.asString());
-							processedValues.add(new ConfidentialString(confidentialStorageKey));
-						}
-					}
-					if (!processedValues.isEmpty()) {
-						accountObject.put(entry.getKey(), processedValues.toArray(new ConfidentialString[processedValues.size()]));
-					}
-				}
-				// collection
-				else if (idmValue instanceof Collection) {
-					Collection<?> idmValues = (Collection<?>) idmValue;
-					List<ConfidentialString> processedValues = new ArrayList<>();
-					idmValues.forEach(singleValue -> {
-						if (singleValue instanceof GuardedString) {
-							GuardedString guardedString = (GuardedString) singleValue;
-							// save value into confidential storage
-							String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), processedValues.size());
-							confidentialValues.put(confidentialStorageKey, guardedString.asString());							
-							processedValues.add(new ConfidentialString(confidentialStorageKey));
-						}
-					});
-					if (!processedValues.isEmpty()) {
-						accountObject.put(entry.getKey(), processedValues);
-					}
-				}
-				
+		try {
+			Map<String, Serializable> confidentialValues = new HashMap<>();
+			if (context == null) {
+				return confidentialValues;
 			}
-		}
-		//
-		IcConnectorObject connectorObject = context.getConnectorObject();
-		if (connectorObject != null) {
-			for(IcAttribute attribute : connectorObject.getAttributes()) {
-				for(int j = 0; j < attribute.getValues().size(); j++) {
-					Object attributeValue = attribute.getValues().get(j);
-					if (attributeValue instanceof GuardedString) {
-						GuardedString guardedString = (GuardedString) attributeValue;
-						String confidentialStorageKey = createConnectorObjectPropertyKey(attribute, j);
+			//
+			Map<String, Object> accountObject = context.getAccountObject();
+			if (accountObject != null) {
+				for (Entry<String, Object> entry : accountObject.entrySet()) {
+					if (entry.getValue() == null) {
+						continue;
+					}
+					Object idmValue = entry.getValue();
+					// single value
+					if (idmValue instanceof GuardedString) {
+						GuardedString guardedString = (GuardedString) entry.getValue();
+						// save value into confidential storage
+						String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), 0);
 						confidentialValues.put(confidentialStorageKey, guardedString.asString());
-						attribute.getValues().set(j, new ConfidentialString(confidentialStorageKey));
+						accountObject.put(entry.getKey(), new ConfidentialString(confidentialStorageKey));
+					}
+					// array
+					else if(idmValue.getClass().isArray()) {
+						if (!idmValue.getClass().getComponentType().isPrimitive()) {  // objects only, we dont want pto proces byte, boolean etc.
+							Object[] idmValues = (Object[]) idmValue;
+							List<ConfidentialString> processedValues = new ArrayList<>();
+							for(int j = 0; j < idmValues.length; j++) {
+								Object singleValue = idmValues[j];
+								if (singleValue instanceof GuardedString) {
+									GuardedString guardedString = (GuardedString) singleValue;
+									// save value into confidential storage
+									String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), j);
+									confidentialValues.put(confidentialStorageKey, guardedString.asString());
+									processedValues.add(new ConfidentialString(confidentialStorageKey));
+								}
+							}
+							if (!processedValues.isEmpty()) {
+								accountObject.put(entry.getKey(), processedValues.toArray(new ConfidentialString[processedValues.size()]));
+							}
+						}
+					}
+					// collection
+					else if (idmValue instanceof Collection) {
+						Collection<?> idmValues = (Collection<?>) idmValue;
+						List<ConfidentialString> processedValues = new ArrayList<>();
+						idmValues.forEach(singleValue -> {
+							if (singleValue instanceof GuardedString) {
+								GuardedString guardedString = (GuardedString) singleValue;
+								// save value into confidential storage
+								String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), processedValues.size());
+								confidentialValues.put(confidentialStorageKey, guardedString.asString());							
+								processedValues.add(new ConfidentialString(confidentialStorageKey));
+							}
+						});
+						if (!processedValues.isEmpty()) {
+							accountObject.put(entry.getKey(), processedValues);
+						}
+					}
+					
+				}
+			}
+			//
+			IcConnectorObject connectorObject = context.getConnectorObject();
+			if (connectorObject != null) {
+				for(IcAttribute attribute : connectorObject.getAttributes()) {
+					for(int j = 0; j < attribute.getValues().size(); j++) {
+						Object attributeValue = attribute.getValues().get(j);
+						if (attributeValue instanceof GuardedString) {
+							GuardedString guardedString = (GuardedString) attributeValue;
+							String confidentialStorageKey = createConnectorObjectPropertyKey(attribute, j);
+							confidentialValues.put(confidentialStorageKey, guardedString.asString());
+							attribute.getValues().set(j, new ConfidentialString(confidentialStorageKey));
+						}
 					}
 				}
 			}
+			//
+			return confidentialValues;
+		} catch (Exception ex) {
+			throw new CoreException("Replace guarded strings for provisioning operation failed.", ex);
 		}
-		//
-		return confidentialValues;
 	}
 	
 	/**
@@ -403,11 +412,13 @@ public class DefaultSysProvisioningOperationService
 				}
 				// array
 				else if(idmValue.getClass().isArray()) {
-					Object[] idmValues = (Object[]) idmValue;
-					for(int j = 0; j < idmValues.length; j++) {
-						Object singleValue = idmValues[j];
-						if (singleValue instanceof ConfidentialString) {
-							confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
+					if (!idmValue.getClass().getComponentType().isPrimitive()) {
+						Object[] idmValues = (Object[]) idmValue;
+						for(int j = 0; j < idmValues.length; j++) {
+							Object singleValue = idmValues[j];
+							if (singleValue instanceof ConfidentialString) {
+								confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
+							}
 						}
 					}
 				}

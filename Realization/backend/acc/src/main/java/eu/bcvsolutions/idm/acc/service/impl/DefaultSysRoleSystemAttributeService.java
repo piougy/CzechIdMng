@@ -102,10 +102,10 @@ public class DefaultSysRoleSystemAttributeService
 			}
 		});
 		identities.stream().forEach(identity -> {		
-			LOG.debug("Call account management for idnetity [{}]", identity.getUsername());
+			LOG.debug("Call account management for identity [{}]", identity.getUsername());
 			boolean provisioningRequired = getAccountManagementService().resolveIdentityAccounts(identity);
 			if(provisioningRequired){
-				LOG.debug("Call provisioning for idnetity [{}]", identity.getUsername());
+				LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 				getProvisioningService().doProvisioning(identity);
 			}
 		});

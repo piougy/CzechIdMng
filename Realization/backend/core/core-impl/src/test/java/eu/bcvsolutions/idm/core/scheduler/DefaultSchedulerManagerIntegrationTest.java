@@ -156,7 +156,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	
 	protected static void waitForResult(Function<String, Boolean> continueFunction) {
 		int counter = 0;
-		while(continueFunction.apply(null) && (counter < 10)) {
+		while(continueFunction.apply(null) && (counter < 20)) {
 			counter++;
 			try {
 				Thread.sleep(300);

@@ -5,6 +5,8 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.hibernate.annotations.Type;
+
 import com.google.common.base.Throwables;
 import com.sun.istack.NotNull;
 
@@ -32,8 +34,9 @@ public class OperationResult {
 	@Column(name = "result_model", length = Integer.MAX_VALUE)
 	private ResultModel model;
 	
-	@Column(name = "result_cause", length = Integer.MAX_VALUE)
-	private Throwable cause;
+	@Column(name = "result_cause")
+	@Type(type = "org.hibernate.type.StringClobType")
+	private String cause;
 	
 	public OperationResult() {
 	}
@@ -45,7 +48,9 @@ public class OperationResult {
 	private OperationResult(Builder builder) {
 		state = builder.state;
 		code = builder.code;
-		cause = builder.cause;
+		if (builder.cause != null) {
+			cause = Throwables.getStackTraceAsString(builder.cause);
+		}
 		model = builder.model;
 	}
 
@@ -57,11 +62,11 @@ public class OperationResult {
 		this.code = code;
 	}
 
-	public Throwable getCause() {
+	public String getCause() {
 		return cause;
 	}
 
-	public void setCause(Throwable cause) {
+	public void setCause(String cause) {
 		this.cause = cause;
 	}
 
@@ -74,10 +79,7 @@ public class OperationResult {
 	}
 	
 	public String getStackTrace() {
-		if(cause == null) {
-			return null;
-		}
-		return Throwables.getStackTraceAsString(cause);
+		return cause;
 	}
 	
 	public void setModel(ResultModel model) {

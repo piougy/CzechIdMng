@@ -53,7 +53,7 @@ public class IdentityPasswordProvisioningProcessor extends AbstractEntityEventPr
 		PasswordChangeDto passwordChangeDto = (PasswordChangeDto) event.getProperties().get(IdentityPasswordProcessor.PROPERTY_PASSWORD_CHANGE_DTO);
 		Assert.notNull(passwordChangeDto);
 		//
-		LOG.debug("Call provisioning for idnetity password [{}]", event.getContent().getUsername());
+		LOG.debug("Call provisioning for identity password [{}]", event.getContent().getUsername());
 		provisioningService.changePassword(identity, passwordChangeDto);
 		//
 		return new DefaultEventResult<>(event, this);

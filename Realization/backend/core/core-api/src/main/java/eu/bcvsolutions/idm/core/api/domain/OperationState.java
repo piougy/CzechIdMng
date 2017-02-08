@@ -21,6 +21,6 @@ public enum OperationState {
 	 * @return
 	 */
 	public static boolean isRunnable(OperationState state) {
-		return CREATED.equals(state) || RUNNING.equals(state);
+		return CREATED == state || RUNNING == state;
 	}
 }

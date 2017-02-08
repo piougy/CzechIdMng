@@ -89,7 +89,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			provisioningOperation.setRequest(request);
 			//
 			provisioningOperation = sysProvisioningOperationService.save(provisioningOperation);
-			if (OperationState.NOT_EXECUTED.equals(request.getResult().getState())) {
+			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING, 
 						new IdmMessage.Builder(NotificationLevel.INFO).setModel(request.getResult().getModel()).build());
@@ -116,7 +116,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		//
 		for (SysProvisioningRequest request : batch.getRequestsByTimeline()) {
 			SysProvisioningOperation operation = execute(request.getOperation());
-			if (operation.getRequest() != null && !OperationState.EXECUTED.equals(operation.getResultState())) {
+			if (operation.getRequest() != null && OperationState.EXECUTED != operation.getResultState()) {
 				return;
 			}
 			batch.removeRequest(request);

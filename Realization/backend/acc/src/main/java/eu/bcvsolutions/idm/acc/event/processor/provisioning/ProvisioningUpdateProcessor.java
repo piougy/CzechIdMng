@@ -59,6 +59,6 @@ public class ProvisioningUpdateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningEventType.UPDATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningEventType.UPDATE == ((ProvisioningOperation)entityEvent.getContent()).getOperationType();
 	}
 }

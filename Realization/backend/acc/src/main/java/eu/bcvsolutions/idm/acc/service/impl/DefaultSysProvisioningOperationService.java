@@ -157,7 +157,7 @@ public class DefaultSysProvisioningOperationService
 				List<GuardedString> processedValues = new ArrayList<>();
 				for(int j = 0; j < idmValues.length; j++) {
 					Object singleValue = idmValues[j];
-					if (singleValue != null && (singleValue instanceof ConfidentialString)) {
+					if (singleValue instanceof ConfidentialString) {
 						processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
 					}
 				}
@@ -171,7 +171,7 @@ public class DefaultSysProvisioningOperationService
 				Collection<?> idmValues = (Collection<?>) idmValue;
 				List<GuardedString> processedValues = new ArrayList<>();
 				idmValues.forEach(singleValue -> {
-					if (singleValue != null && (singleValue instanceof ConfidentialString)) {													
+					if (singleValue instanceof ConfidentialString) {													
 						processedValues.add(confidentialStorage.getGuardedString(provisioningOperation, ((ConfidentialString)singleValue).getKey()));
 					}
 				});
@@ -304,7 +304,7 @@ public class DefaultSysProvisioningOperationService
 					List<ConfidentialString> processedValues = new ArrayList<>();
 					for(int j = 0; j < idmValues.length; j++) {
 						Object singleValue = idmValues[j];
-						if (singleValue != null && (singleValue instanceof GuardedString)) {
+						if (singleValue instanceof GuardedString) {
 							GuardedString guardedString = (GuardedString) singleValue;
 							// save value into confidential storage
 							String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), j);
@@ -321,7 +321,7 @@ public class DefaultSysProvisioningOperationService
 					Collection<?> idmValues = (Collection<?>) idmValue;
 					List<ConfidentialString> processedValues = new ArrayList<>();
 					idmValues.forEach(singleValue -> {
-						if (singleValue != null && (singleValue instanceof GuardedString)) {
+						if (singleValue instanceof GuardedString) {
 							GuardedString guardedString = (GuardedString) singleValue;
 							// save value into confidential storage
 							String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), processedValues.size());
@@ -342,7 +342,7 @@ public class DefaultSysProvisioningOperationService
 			for(IcAttribute attribute : connectorObject.getAttributes()) {
 				for(int j = 0; j < attribute.getValues().size(); j++) {
 					Object attributeValue = attribute.getValues().get(j);
-					if (attributeValue != null && (attributeValue instanceof GuardedString)) {
+					if (attributeValue instanceof GuardedString) {
 						GuardedString guardedString = (GuardedString) attributeValue;
 						String confidentialStorageKey = createConnectorObjectPropertyKey(attribute, j);
 						confidentialValues.put(confidentialStorageKey, guardedString.asString());
@@ -363,7 +363,7 @@ public class DefaultSysProvisioningOperationService
 	 * @return
 	 */
 	protected String createAccountObjectPropertyKey(String property, int index) {
-		return String.format(CONFIDENTIAL_KEY_PATTERN, ACCOUNT_OBJECT_PROPERTY_PREFIX, property.toString(), index);
+		return String.format(CONFIDENTIAL_KEY_PATTERN, ACCOUNT_OBJECT_PROPERTY_PREFIX, property, index);
 	}
 	
 	/**
@@ -406,7 +406,7 @@ public class DefaultSysProvisioningOperationService
 					Object[] idmValues = (Object[]) idmValue;
 					for(int j = 0; j < idmValues.length; j++) {
 						Object singleValue = idmValues[j];
-						if (singleValue != null && (singleValue instanceof ConfidentialString)) {
+						if (singleValue instanceof ConfidentialString) {
 							confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
 						}
 					}
@@ -415,7 +415,7 @@ public class DefaultSysProvisioningOperationService
 				else if (idmValue instanceof Collection) {
 					Collection<?> idmValues = (Collection<?>) idmValue;
 					idmValues.forEach(singleValue -> {
-						if (singleValue != null && (singleValue instanceof ConfidentialString)) {
+						if (singleValue instanceof ConfidentialString) {
 							confidentialStorage.delete(provisioningOperation, ((ConfidentialString)singleValue).getKey());
 						}
 					});
@@ -427,7 +427,7 @@ public class DefaultSysProvisioningOperationService
 		if (connectorObject != null) {
 			connectorObject.getAttributes().forEach(attribute -> {
 				attribute.getValues().forEach(attributeValue -> {
-					if (attributeValue != null && (attributeValue instanceof ConfidentialString)) {
+					if (attributeValue instanceof ConfidentialString) {
 						confidentialStorage.delete(provisioningOperation, ((ConfidentialString)attributeValue).getKey());
 					}
 				});	

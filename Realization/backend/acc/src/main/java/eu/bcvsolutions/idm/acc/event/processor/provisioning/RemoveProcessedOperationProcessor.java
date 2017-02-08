@@ -56,12 +56,12 @@ public class RemoveProcessedOperationProcessor extends AbstractEntityEventProces
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		if (OperationState.EXECUTED.equals(provisioningOperation.getResultState()) 
-				|| ProvisioningEventType.CANCEL.equals(event.getType())) {
+		if (OperationState.EXECUTED == provisioningOperation.getResultState() 
+				|| ProvisioningEventType.CANCEL == event.getType()) {
 			provisioningOperationService.delete(provisioningOperation);
 			LOG.debug("Executed provisioning operation [{}] was removed from queue.", provisioningOperation.getId());
 			//
-			if (ProvisioningEventType.DELETE.equals(event.getType())) {
+			if (ProvisioningEventType.DELETE == event.getType()) {
 				// We successfully deleted account on target system. We need to delete system entity
 				systemEntityService.delete(provisioningOperation.getSystemEntity());
 			}		

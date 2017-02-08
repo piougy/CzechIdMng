@@ -285,7 +285,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		//
 		// prepare all mapped attribute values (= account)
 		Map<String, Object> accountAttributes = new HashMap<>();
-		if (!ProvisioningOperationType.DELETE.equals(operationType)) { // delete - account attributes is not needed
+		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
 			for (AttributeMapping attributeHandling : attributes) {
 				if (attributeHandling.isDisabledAttribute()) {
 					continue;
@@ -572,7 +572,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 				String roleSystemUID = accountManagementService.generateUID(identity, roleSystem);
 
 				SysSystemMapping systemMapping = roleSystem.getSystemMapping();
-				return (SystemOperationType.PROVISIONING.equals(systemMapping.getOperationType())
+				return (SystemOperationType.PROVISIONING == systemMapping.getOperationType()
 						&& entityType == systemMapping.getEntityType() && roleSystemUID.equals(uid));
 			}).collect(Collectors.toList());
 

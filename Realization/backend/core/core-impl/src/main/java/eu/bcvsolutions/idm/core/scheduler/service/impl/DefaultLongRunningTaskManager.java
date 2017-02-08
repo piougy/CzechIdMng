@@ -150,7 +150,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_DIFFERENT_INSTANCE, 
 					ImmutableMap.of("taskId", longRunningTaskId, "taskInstanceId", task.getInstanceId(), "currentInstanceId", instanceId));
 		}
-		if (!OperationState.RUNNING.equals(task.getResult().getState())) {
+		if (OperationState.RUNNING != task.getResult().getState()) {
 			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, ImmutableMap.of("taskId", longRunningTaskId));
 		}
 		//

@@ -43,7 +43,6 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
 import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
-import eu.bcvsolutions.idm.core.security.service.impl.DefaultLoginService;
 
 /**
  * Default implementation of {@link SchedulerManager}. 
@@ -60,7 +59,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	 * Name of task group
 	 */
 	public static final String DEFAULT_GROUP_NAME = "default";
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSchedulerManager.class);
 	private final ApplicationContext context;
 	private final Scheduler scheduler;
 	

@@ -39,7 +39,7 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 		// 
 		try {
 			for (long i = 1; i <= getCount(); i++) {
-				LOG.warn(".......... Counter: " + i);
+				LOG.warn(".......... Counter: [{}]", i);
 				counter = i;
 				if (!updateState()) {
 					break;

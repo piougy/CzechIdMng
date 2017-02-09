@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import _ from 'lodash';
+import moment from 'moment';
 //
 import { Basic, Advanced, Managers, Domain, Enums } from 'czechidm-core';
 import { ProvisioningOperationManager, ProvisioningArchiveManager } from '../../redux';
@@ -222,6 +223,17 @@ class ProvisioningOperations extends Basic.AbstractContent {
                     </span>
                   }
                   <Basic.FlashMessage message={this.getFlashManager().convertFromResultModel(detail.entity.result.model)} style={{ marginTop: 15 }}/>
+                  {
+                    (!detail.entity.request || !detail.entity.request.nextAttempt)
+                    ||
+                    <div>
+                      <span dangerouslySetInnerHTML={{__html: this.i18n('detail.nextAttempt', {
+                        currentAttempt: detail.entity.request.currentAttempt,
+                        maxAttempts: detail.entity.request.maxAttempts,
+                        nextAttempt: moment(detail.entity.request.nextAttempt).format(this.i18n('format.datetime'))
+                      })}}/>
+                    </div>
+                  }
                 </div>
                 {
                   (!detail.entity.result || !detail.entity.result.stackTrace)

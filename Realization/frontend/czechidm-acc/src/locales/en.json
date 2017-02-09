@@ -399,7 +399,8 @@
         "result": "Výsledek",
         "accountObject": "Idm atributy",
         "connectorObject": "Atributy pro provisioning",
-        "resultCode": "Kód"
+        "resultCode": "Kód",
+        "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
       },
       "filter": {
         "dateFrom": {

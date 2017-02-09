@@ -26,6 +26,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.util.UrlPathHelper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -80,6 +82,27 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 	@Bean
 	public CorsConfiguration corsConfiguration() {
 		return new DynamicCorsConfiguration();
+	}
+	
+	/**
+	 * Whether to use suffix pattern match (".*") when matching patterns to
+	 * requests. If enabled a method mapped to "/users" also matches to "/users.*".
+	 * <p>By default this is set to {@code true}.
+	 * 
+	 * @see #registeredSuffixPatternMatch
+	 */
+	@Override
+	public void configurePathMatch(PathMatchConfigurer configurer) {
+		// enable encoded slash in path parameters
+		UrlPathHelper urlPathHelper = new UrlPathHelper();
+        urlPathHelper.setUrlDecode(false);
+        configurer.setUrlPathHelper(urlPathHelper);
+        //
+		// disable extension suffixes
+		configurer.setUseSuffixPatternMatch(false);
+		//
+		// this will be useful in future ...
+		// configurer.setUseRegisteredSuffixPatternMatch(true);
 	}
 	
 	/**

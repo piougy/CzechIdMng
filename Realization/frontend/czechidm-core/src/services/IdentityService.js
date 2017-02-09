@@ -41,7 +41,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   passwordChange(username, passwordChangeDto, token = null) {
-    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${username}/password-change`), passwordChangeDto, token);
+    return RestApiService.put(RestApiService.getUrl(`/public${this.getApiPath()}/${encodeURIComponent(username)}/password-change`), passwordChangeDto, token);
   }
 
   /**
@@ -52,7 +52,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   passwordReset(username, passwordResetDto) {
-    return RestApiService.put(this.getApiPath() + `/${username}/password/reset`, passwordResetDto);
+    return RestApiService.put(this.getApiPath() + `/${encodeURIComponent(username)}/password/reset`, passwordResetDto);
   }
 
 
@@ -72,7 +72,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   generatePasswordResetToken(username) {
-    return RestApiService.post(this.getApiPath() + `/password/reset/token?name=${username}`);
+    return RestApiService.post(this.getApiPath() + `/password/reset/token?name=${encodeURIComponent(username)}`);
   }
 
   /**
@@ -111,7 +111,7 @@ class IdentityService extends AbstractService {
    */
   getRoles(username, token = null) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/roles`, token)
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/roles`, token)
     .then(response => {
       return response.json();
     })
@@ -159,7 +159,7 @@ class IdentityService extends AbstractService {
    * @return {Promise}
    */
   getAccounts(username) {
-    return RestApiService.get(this.getApiPath() + `/${username}/accounts`);
+    return RestApiService.get(this.getApiPath() + `/${encodeURIComponent(username)}/accounts`);
   }
 
   /**
@@ -171,7 +171,7 @@ class IdentityService extends AbstractService {
    */
   getContracts(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/identity-contracts`)
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/identity-contracts`)
     .then(response => {
       return response.json();
     })
@@ -185,7 +185,7 @@ class IdentityService extends AbstractService {
 
   getAuthorities(username) {
     return RestApiService
-    .get(this.getApiPath() + `/${username}/authorities`)
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/authorities`)
     .then(response => {
       return response.json();
     })
@@ -203,7 +203,7 @@ class IdentityService extends AbstractService {
    * @return Promise  task instance
    */
   changePermissions(id) {
-    return RestApiService.put(this.getApiPath() + `/${id}/change-permissions`, null).then(response => {
+    return RestApiService.put(this.getApiPath() + `/${encodeURIComponent(id)}/change-permissions`, null).then(response => {
       if (response.status === 403) {
         throw new Error(403);
       }
@@ -228,7 +228,7 @@ class IdentityService extends AbstractService {
    */
   getFormDefinition(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${id}/form-definition`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-definition`)
       .then(response => {
         return response.json();
       })
@@ -248,7 +248,7 @@ class IdentityService extends AbstractService {
    */
   getFormValues(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${id}/form-values`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}/form-values`)
       .then(response => {
         return response.json();
       })
@@ -269,7 +269,7 @@ class IdentityService extends AbstractService {
    */
   saveFormValues(id, values) {
     return RestApiService
-      .post(this.getApiPath() + `/${id}/form-values`, values)
+      .post(this.getApiPath() + `/${encodeURIComponent(id)}/form-values`, values)
       .then(response => {
         return response.json();
       })

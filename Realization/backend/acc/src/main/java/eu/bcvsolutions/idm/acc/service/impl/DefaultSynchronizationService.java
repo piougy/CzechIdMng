@@ -784,7 +784,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
 								actionsLog);
 					}
-					synchronizationLogService.save(log);
+					// synchronizationLogService.save(log);
 					syncActionLogService.saveAll(actionsLog);
 					if (itemLog.getSyncActionLog() != null) {
 						syncItemLogService.save(itemLog);

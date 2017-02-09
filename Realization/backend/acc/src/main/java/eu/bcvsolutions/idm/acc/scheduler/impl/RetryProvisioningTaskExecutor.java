@@ -63,7 +63,7 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all batches
-			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 1));
+			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 10));
 			// init count
 			if (count == null) {
 				count = batches.getTotalElements();

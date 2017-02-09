@@ -33,7 +33,7 @@ export default class ProgressBar extends Basic.AbstractContextComponent {
       // start label
       return this.i18n('component.basic.ProgressBar.start');
     }
-    return this.i18n('component.basic.ProgressBar.label', { min, max, now });
+    return this.i18n('component.basic.ProgressBar.label', { min, max: (max === null ? '?' : max), now: (now === null ? '?' : now) });
   }
 
   render() {

@@ -276,6 +276,8 @@ public class DefaultSysProvisioningOperationService
 	
 	/**
 	 * Replaces GuardedStrings as ConfidentialStrings in given {@link ProvisioningContext}. 
+	 * 
+	 * TODO: don't update accountObject in provisioningOperation (needs attribute defensive clone)
 	 *
 	 * @param context
 	 * @return Returns values (key / value) to store in confidential storage. 

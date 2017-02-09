@@ -10,17 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
-import org.springframework.data.repository.query.spi.EvaluationContextExtension;
-import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.core.event.ValidatingRepositoryEventListener;
 import org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.rest.webmvc.json.DomainObjectReader;
 import org.springframework.data.rest.webmvc.mapping.Associations;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.cors.CorsConfiguration;
@@ -172,28 +167,6 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
 		Validator validator = validator();
 		validatingListener.addValidator("beforeCreate", validator);
 		validatingListener.addValidator("beforeSave", validator);
-	}
-
-	/**
-	 * Support hasAuthority etc. in search queries
-	 * 
-	 * @return
-	 */
-	@Bean
-	public EvaluationContextExtension securityExtension() {
-		return new EvaluationContextExtensionSupport() {
-			@Override
-			public String getExtensionId() {
-				return "security";
-			}
-
-			@Override
-			public SecurityExpressionRoot getRootObject() {
-				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				return new SecurityExpressionRoot(authentication) {
-				};
-			}
-		};
 	}
 	
 	/**

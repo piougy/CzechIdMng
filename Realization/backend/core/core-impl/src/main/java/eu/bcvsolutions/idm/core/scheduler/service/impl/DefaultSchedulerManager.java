@@ -23,22 +23,21 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.AbstractTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.TaskTriggerState;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulableTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.SchedulerManager;
 import eu.bcvsolutions.idm.core.scheduler.exception.InvalidCronExpressionException;
@@ -51,8 +50,6 @@ import eu.bcvsolutions.idm.core.scheduler.exception.SchedulerException;
  * 
  * @author Radek Tomiška
  */
-@Service
-@ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class DefaultSchedulerManager implements SchedulerManager {
 
 	/**
@@ -63,7 +60,6 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	private final ApplicationContext context;
 	private final Scheduler scheduler;
 	
-	@Autowired
 	public DefaultSchedulerManager(
 			ApplicationContext context,
 			Scheduler scheduler) {
@@ -176,6 +172,16 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			task.getParameters().entrySet().forEach(entry -> {
 				jobDataMap.put(entry.getKey(), entry.getValue());
 			});
+			// validate init method
+			try {
+				LongRunningTaskExecutor taskExecutor = AutowireHelper.createBean(task.getTaskType());
+				taskExecutor.init(jobDataMap);
+			} catch (ResultCodeException ex) {
+				throw ex;
+			} catch (Exception ex) {
+				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+						ImmutableMap.of("taskId", taskId, "taskType", task.getTaskType(), "instanceId", task.getInstanceId()), ex);
+			}
 			// create job detail - job definition
 			JobDetail jobDetail = JobBuilder.newJob()
 					.withIdentity(taskId, DEFAULT_GROUP_NAME)

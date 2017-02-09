@@ -36,7 +36,9 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	private EntityLookupService entityLookupService;
 	//
 	private ParameterConverter parameterConverter;	
-	private UUID taskId;	
+	private UUID taskId;
+	protected Long count = null;
+	protected Long counter = null;
 	
 	/**
 	 * Default implementation returns module by package conventions.
@@ -124,7 +126,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 */
 	@Override
 	public Long getCount() {
-		return null;
+		return count;
 	}
 	
 	/**
@@ -132,15 +134,14 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 */
 	@Override
 	public Long getCounter() {
-		return null;
+		return counter;
 	}
 	
 	@Override
 	public boolean updateState() {
-		IdmLongRunningTask task = service.get(taskId);
+		service.updateState(taskId, count, counter);
 		//
-		setStateProperties(task);
-		task = service.save(task);
+		IdmLongRunningTask task = service.get(taskId);
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}
 	

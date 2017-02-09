@@ -1948,6 +1948,10 @@
     "BAD_VALUE": {
       "title": "Špatná volba"
     },
+    "BAD_UUID": {
+      "title": "Chybný identifikátor",
+      "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
+    },
     "ROLE_CATALOG_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
@@ -2037,6 +2041,14 @@
     "LONG_RUNNING_TASK_CANCELED_BY_RESTART": {
       "title": "Zpracování úlohy bylo přerušeno",
       "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
+    },
+    "LONG_RUNNING_TASK_NOT_RUNNING": {
+      "title": "Úloha již neběží",
+      "message": "Úloha [{{taskType}}] na instanci [{{instanceId}}] již byla ukončena."
+    },
+    "LONG_RUNNING_TASK_INIT_FAILED": {
+      "title": "Úloha je chybně nakonfigurovaná",
+      "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
     }
   },
   "validationError": {

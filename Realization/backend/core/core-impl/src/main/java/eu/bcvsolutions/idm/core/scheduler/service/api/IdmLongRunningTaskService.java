@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.service.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -29,5 +30,8 @@ public interface IdmLongRunningTaskService extends ReadWriteEntityService<IdmLon
 	 * @see ConfigurationService
 	 */
 	List<IdmLongRunningTask> getTasks(String instanceId, OperationState state);
+	
+	
+	void updateState(UUID id, Long count, Long counter);
 	
 }

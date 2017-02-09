@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.scheduler.repository;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -62,4 +65,15 @@ public interface IdmLongRunningTaskRepository extends AbstractEntityRepository<I
 	 * @return
 	 */
 	List<IdmLongRunningTask> findAllByInstanceIdAndResult_State(@Param("instanceId") String instanceId, @Param("state") OperationState state);
+	
+	/**
+	 * Update state only
+	 * 
+	 * @param id
+	 * @param count
+	 * @param counter
+	 */
+	@Modifying
+	@Query("update #{#entityName} e set e.count = ?2, e.counter = ?3, modified = ?4 where e.id = ?1")
+	void updateState(UUID id, Long count, Long counter, DateTime modified);
 }

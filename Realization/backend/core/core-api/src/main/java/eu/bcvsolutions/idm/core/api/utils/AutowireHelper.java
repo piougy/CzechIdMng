@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.utils;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -104,5 +106,22 @@ public final class AutowireHelper implements ApplicationContextAware {
 			return null;
 		}
 		return getBeanDescription(beanNames[0]);
+	}
+	
+	/**
+	 * Fully create a new bean instance of the given class.
+	 * <p>Performs full initialization of the bean, including all applicable
+	 * {@link BeanPostProcessor BeanPostProcessors}.
+	 * <p>Note: This is intended for creating a fresh instance, populating annotated
+	 * fields and methods as well as applying all standard bean initialization callbacks.
+	 * It does <i>not</> imply traditional by-name or by-type autowiring of properties;
+	 * use {@link #createBean(Class, int, boolean)} for those purposes.
+	 * 
+	 * @param beanClass the class of the bean to create
+	 * @return the new bean instance
+	 * @throws BeansException if instantiation or wiring failed
+	 */
+	public static <T> T createBean(Class<T> beanClass) {
+		return applicationContext.getAutowireCapableBeanFactory().createBean(beanClass);
 	}
 }

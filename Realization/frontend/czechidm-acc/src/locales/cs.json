@@ -878,6 +878,10 @@
       "title": "Synchronizace je již spuštěná",
       "message": "Synchronizace [{{name}}] je již spuštěná."
     },
+    "SYNCHRONIZATION_NOT_FOUND": {
+      "title": "Synchronizace neexistuje",
+      "message": "Synchronizace [{{id}}] nebyla nalezena."
+    },
     "SYNCHRONIZATION_IS_NOT_RUNNING": {
       "title": "Synchronizace není spuštěná",
       "message": "Synchronizace [{{name}}] není spuštěná."

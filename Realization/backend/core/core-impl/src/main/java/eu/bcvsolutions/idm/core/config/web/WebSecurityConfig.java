@@ -3,13 +3,17 @@ package eu.bcvsolutions.idm.core.config.web;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.repository.query.spi.EvaluationContextExtension;
+import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -83,5 +87,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    methodInvokingFactoryBean.setTargetMethod("setStrategyName");
 	    methodInvokingFactoryBean.setArguments(new String[]{SecurityContextHolder.MODE_INHERITABLETHREADLOCAL});
 	    return methodInvokingFactoryBean;
+	}
+	
+	/**
+	 * Support hasAuthority etc. in search queries
+	 * 
+	 * @return
+	 */
+	@Bean
+	public EvaluationContextExtension securityExtension() {
+		return new EvaluationContextExtensionSupport() {
+			@Override
+			public String getExtensionId() {
+				return "security";
+			}
+
+			@Override
+			public SecurityExpressionRoot getRootObject() {
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				return new SecurityExpressionRoot(authentication) {
+				};
+			}
+		};
 	}
 }

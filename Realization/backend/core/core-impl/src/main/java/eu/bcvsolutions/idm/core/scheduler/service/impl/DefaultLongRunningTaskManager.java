@@ -27,6 +27,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Default implementation {@link LongRunningTaskManager}
@@ -42,19 +43,23 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	private final IdmLongRunningTaskService service;
 	private final Executor executor;
 	private final ConfigurationService configurationService;
+	private final SecurityService securityService;
 	
 	@Autowired
 	public DefaultLongRunningTaskManager(
 			IdmLongRunningTaskService service,
 			Executor executor,
-			ConfigurationService configurationService) {
+			ConfigurationService configurationService,
+			SecurityService securityService) {
 		Assert.notNull(service);
 		Assert.notNull(executor);
 		Assert.notNull(configurationService);
+		Assert.notNull(securityService);
 		//
 		this.service = service;
 		this.executor = executor;
 		this.configurationService = configurationService;
+		this.securityService = securityService;
 	}
 	
 	/**
@@ -69,8 +74,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					ImmutableMap.of(
 							"taskId", task.getId(), 
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId())); 
-			
+							"instanceId", task.getInstanceId()));			
 			task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 			service.save(task);
 		});
@@ -83,17 +87,41 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	@Scheduled(fixedDelay = 10000)
 	@SuppressWarnings("unchecked")
 	public void processCreated() {
+		// run as system - called from scheduler internally
+		securityService.setSystemAuthentication();
+		//
 		service.getTasks(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
-			LongRunningTaskExecutor taskExecutor;
+			LongRunningTaskExecutor taskExecutor = null;
+			ResultModel resultModel = null;
+			Exception ex = null;
+			//
 			try {
-				taskExecutor = (LongRunningTaskExecutor) Class.forName(task.getTaskType()).newInstance();
-				AutowireHelper.autowire(taskExecutor);
+				taskExecutor = (LongRunningTaskExecutor) AutowireHelper.createBean(Class.forName(task.getTaskType()));
 				taskExecutor.setLongRunningTaskId(task.getId());
-				taskExecutor.init((Map<String, Object>) task.getTaskProperties());						
-			} catch (ClassNotFoundException | InstantiationException  | IllegalAccessException ex) {
-				throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND, ex);
+				taskExecutor.init((Map<String, Object>) task.getTaskProperties());			
+			} catch (ClassNotFoundException e) {
+				ex = e;
+				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_NOT_FOUND, 
+							ImmutableMap.of(
+									"taskId", task.getId(), 
+									"taskType", task.getTaskType(),
+									"instanceId", task.getInstanceId()));
+				
+			} catch (Exception e) {
+				ex = e;
+				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INIT_FAILED, 
+							ImmutableMap.of(
+									"taskId", task.getId(), 
+									"taskType", task.getTaskType(),
+									"instanceId", task.getInstanceId()));
 			}
-			execute(taskExecutor);
+			if (ex != null) {
+				LOG.error(resultModel.toString(), ex);
+				task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
+				service.save(task);
+			} else {
+				execute(taskExecutor);
+			}			
 		});
 	}
 	
@@ -133,6 +161,11 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Assert.notNull(longRunningTaskId);
 		IdmLongRunningTask task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId);
+		//
+		if (OperationState.RUNNING != task.getResult().getState()) {
+			throw new ResultCodeException(CoreResultCode.LONG_RUNNING_TASK_NOT_RUNNING, 
+					ImmutableMap.of("taskId", longRunningTaskId, "taskType", task.getTaskType(), "instanceId", task.getInstanceId()));
+		}
 		//
 		task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
 		// running to false will be setted by task himself

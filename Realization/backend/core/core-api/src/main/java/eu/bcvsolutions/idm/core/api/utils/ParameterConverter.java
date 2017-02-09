@@ -66,7 +66,6 @@ public class ParameterConverter {
 	 */
 	public String toString(MultiValueMap<String, Object> parameters, String parameterName) {
 		Assert.notNull(parameters);
-	    Assert.notNull(parameterName);
 	    //
 		return toString(parameters.toSingleValueMap(), parameterName);
 	}
@@ -140,12 +139,25 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public UUID toUuid(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    //
+		return toUuid(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code UUID} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public UUID toUuid(Map<String, Object> parameters, String parameterName) {
 		String valueAsString = toString(parameters, parameterName);
 		if(StringUtils.isNotEmpty(valueAsString)) {
 			try {
 				return UUID.fromString(valueAsString);
 			} catch (IllegalArgumentException ex) {
-				throw new ResultCodeException(CoreResultCode.BAD_VALUE, ImmutableMap.of(parameterName, valueAsString), ex);
+				throw new ResultCodeException(CoreResultCode.BAD_UUID, ImmutableMap.of("uuid", valueAsString, parameterName, valueAsString), ex);
 			}		
 		}
 		return null;

@@ -18,7 +18,8 @@ export default class BasicProgressBar extends AbstractComponent {
    * @return {string}
    */
   _resolveLabel() {
-    const { label, now, min, max } = this.props;
+    const { label, now, min } = this.props;
+    const max = this._resolveMax();
     //
     let percent = 0;
     if ((max - min) > 0) {
@@ -33,8 +34,25 @@ export default class BasicProgressBar extends AbstractComponent {
     );
   }
 
+  /**
+   * Automatic max resolving
+   *
+   * @return {number}
+   */
+  _resolveMax() {
+    const { now, max } = this.props;
+    //
+    let _max = max;
+    if (_max === null) {
+      if (now > 0) {
+        _max = now * 2;
+      }
+    }
+    return _max;
+  }
+
   render() {
-    const { rendered, showLoading, min, max, now, active, style, className } = this.props;
+    const { rendered, showLoading, min, now, active, style, className } = this.props;
     if (!rendered) {
       return null;
     }
@@ -53,7 +71,7 @@ export default class BasicProgressBar extends AbstractComponent {
       <span className={classNames}>
         <ProgressBar
           min={min}
-          max={max}
+          max={this._resolveMax()}
           now={now}
           label={this._resolveLabel()}
           active={active}
@@ -72,7 +90,7 @@ BasicProgressBar.propTypes = {
   /**
    * End count
    */
-  max: PropTypes.number.isRequired,
+  max: PropTypes.number,
   /**
    * Actual counter
    */

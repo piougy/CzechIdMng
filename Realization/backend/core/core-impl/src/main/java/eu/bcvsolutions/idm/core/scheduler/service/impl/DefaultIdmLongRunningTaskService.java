@@ -1,7 +1,9 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,5 +37,11 @@ public class DefaultIdmLongRunningTaskService extends AbstractReadWriteEntitySer
 	@Transactional(readOnly = true)
 	public List<IdmLongRunningTask> getTasks(String instanceId, OperationState state) {
 		return repository.findAllByInstanceIdAndResult_State(instanceId, state);
+	}
+	
+	@Override
+	@Transactional
+	public void updateState(UUID id, Long count, Long counter) {
+		repository.updateState(id, count, counter, new DateTime());
 	}
 }

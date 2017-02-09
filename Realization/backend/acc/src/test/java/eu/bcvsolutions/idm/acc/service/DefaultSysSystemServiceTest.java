@@ -4,11 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
@@ -41,6 +44,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
+import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
@@ -93,6 +97,9 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 	private AccAccountService accountService;
 	@Autowired
 	private SysSystemEntityService systemEntityService;
+	// Only for call method createTestSystem
+	@Autowired
+	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	
 	@Before
 	public void login() {
@@ -354,5 +361,26 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		formService.getValues(system);
 	}
 	
+	@Test
+	public void checkSystemValid() {
+		// create test system
+		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem();
+		// do test system
+		systemService.checkSystem(system);
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void checkSystemUnValid() {
+		// create test system
+		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem();
+		// set wrong password
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorKey());
+		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
+		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getName());}).findFirst().get();
+		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));
+		
+		// do test system
+		systemService.checkSystem(system);
+	}
 
 }

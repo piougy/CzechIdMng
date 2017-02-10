@@ -444,7 +444,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		IcObjectClass icObjectClass = new IcObjectClassImpl(objectClassName);
 
 		// Call IC module for check authenticate
-		return connectorFacade.authenticateObject(connectorKey, connectorConfig, icObjectClass, username, password);
+		return connectorFacade.authenticateObject(system.getConnectorInstance(), connectorConfig, icObjectClass, username, password);
 	}
 
 	/**

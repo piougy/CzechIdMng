@@ -324,7 +324,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
 
-				connectorFacade.search(connectorKey, connectorConfig, objectClass, filter, resultHandler);
+				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
 			} else {
 				log.addToLog("Synchronization will use inner connector synchronization implementation.");
 				IcSyncResultsHandler icSyncResultsHandler = new IcSyncResultsHandler() {
@@ -362,7 +362,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 					}
 				};
 
-				connectorFacade.synchronization(connectorKey, connectorConfig, objectClass, lastIcToken,
+				connectorFacade.synchronization(system.getConnectorInstance(), connectorConfig, objectClass, lastIcToken,
 						icSyncResultsHandler);
 			}
 			// We do reconciliation (find missing account)

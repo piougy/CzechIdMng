@@ -197,7 +197,8 @@
         "button": {
           "showBasicInfo": "Přejít na základní údaje",
           "checkSystem": "Test konektoru",
-          "checkSystemTooltip": "Provede uložení aktuálního nastavení a zavolání testu na konektoru."
+          "checkSystemTooltip": "Provede uložení aktuálního nastavení a zavolání testu na konektoru.",
+          "loadConnectorDefinition": "Nahrání definice konektoru"
         },
         "save": {
           "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
@@ -457,7 +458,8 @@
       "host": "Adresa",
       "port": "Port",
       "password": "Heslo",
-      "timeout": "Timeout"
+      "timeout": "Timeout",
+      "useSsl": "SSL"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",

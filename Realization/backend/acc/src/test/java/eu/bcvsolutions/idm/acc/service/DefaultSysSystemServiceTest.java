@@ -50,7 +50,9 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
@@ -300,9 +302,12 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		@SuppressWarnings("deprecation")
 		IcConnectorKey connectorKey = systemService.getTestConnectorKey();
 		
-		IcConnectorConfiguration conf = icConfigurationAggregatorService.getConnectorConfiguration(connectorKey);
+		// create connector instance impl with connector key
+		IcConnectorInstance connectorInstance = new IcConnectorInstanceImpl(null, connectorKey, false);
 		
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorKey);
+		IcConnectorConfiguration conf = icConfigurationAggregatorService.getConnectorConfiguration(connectorInstance);
+		
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(connectorInstance);
 		
 		assertEquals(conf.getConfigurationProperties().getProperties().size(), savedFormDefinition.getFormAttributes().size());
 		assertEquals(conf.getConfigurationProperties().getProperties().get(3).getDisplayName(), savedFormDefinition.getFormAttributes().get(3).getDisplayName());

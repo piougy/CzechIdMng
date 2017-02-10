@@ -15,7 +15,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.LocalDateTime;
 
 import com.sun.istack.NotNull;
 

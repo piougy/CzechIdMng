@@ -49,7 +49,6 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.entity.SysSyncLog;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
-import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
@@ -317,7 +316,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
 		
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "changeLogColumn".equals(value.getFormAttribute().getName());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));

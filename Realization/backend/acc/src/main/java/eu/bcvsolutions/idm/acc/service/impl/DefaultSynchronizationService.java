@@ -138,7 +138,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	private final GroovyScriptService groovyScriptService;
 	private final ConfidentialStorage confidentialStorage;
 	private final FormService formService;
-	private final EntityEventManager entityEventProcessorService;
+	private final EntityEventManager entityEventManager;
 	private final EntityManager entityManager;
 	private final LongRunningTaskManager longRunningTaskManager;
 	//
@@ -152,7 +152,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			AccAccountService accountService, SysSystemEntityService systemEntityService,
 			ConfidentialStorage confidentialStorage, FormService formService, IdmIdentityService identityService,
 			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
-			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventProcessorService,
+			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventManager,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
 			EntityManager entityManager,
 			LongRunningTaskManager longRunningTaskManager) {
@@ -170,7 +170,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(identityAccoutnService);
 		Assert.notNull(syncItemLogService);
 		Assert.notNull(identityRoleService);
-		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(entityEventManager);
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(entityManager);
@@ -189,7 +189,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		this.identityAccoutnService = identityAccoutnService;
 		this.syncItemLogService = syncItemLogService;
 		this.identityRoleService = identityRoleService;
-		this.entityEventProcessorService = entityEventProcessorService;
+		this.entityEventManager = entityEventManager;
 		this.groovyScriptService = groovyScriptService;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityManager = entityManager;
@@ -200,7 +200,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	@Override
 	public SysSyncConfig startSynchronizationEvent(SysSyncConfig config) {
 		CoreEvent<SysSyncConfig> event = new CoreEvent<SysSyncConfig>(SynchronizationEventType.START, config);
-		return (SysSyncConfig) entityEventProcessorService.process(event).getContent(); 
+		return (SysSyncConfig) entityEventManager.process(event).getContent(); 
 	}
 	
 	/**
@@ -209,7 +209,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
 	public void startSynchronization(SysSyncConfig config) {
-		DefaultSynchronizationService taskExecutor = new DefaultSynchronizationService(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService, synchronizationLogService, syncActionLogService, accountService, systemEntityService, confidentialStorage, formService, identityService, identityAccoutnService, syncItemLogService, identityRoleService, entityEventProcessorService, groovyScriptService, workflowProcessInstanceService, entityManager, longRunningTaskManager);
+		DefaultSynchronizationService taskExecutor = new DefaultSynchronizationService(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService, synchronizationLogService, syncActionLogService, accountService, systemEntityService, confidentialStorage, formService, identityService, identityAccoutnService, syncItemLogService, identityRoleService, entityEventManager, groovyScriptService, workflowProcessInstanceService, entityManager, longRunningTaskManager);
 		taskExecutor.synchronizationConfigId = config.getId();
 		longRunningTaskManager.execute(taskExecutor);
 	}
@@ -415,10 +415,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			// We do reconciliation (find missing account)
 			if (config.isReconciliation()) {
 				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
-			}
-			//
-			count = counter;
-			updateState();			
+			}			
 			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
 			synchronizationConfigService.save(config);
@@ -432,13 +429,16 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			log.setRunning(false);
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
+			//
+			count = counter;
+			updateState();
 		}
 	}
 	
 	@Override
 	public SysSyncConfig stopSynchronizationEvent(SysSyncConfig config) {
 		CoreEvent<SysSyncConfig> event = new CoreEvent<SysSyncConfig>(SynchronizationEventType.CANCEL, config);
-		return (SysSyncConfig) entityEventProcessorService.process(event).getContent(); 
+		return (SysSyncConfig) entityEventManager.process(event).getContent(); 
 	}
 	
 	@Override
@@ -730,7 +730,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			
 			CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
 			event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
-			EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
+			EventResult<SysSyncItemLog> lastResult = entityEventManager.process(event).getLastResult(); 
 			boolean result = false;
 			if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
 				result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
@@ -801,7 +801,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 							actionsLog);
 					CoreEvent<SysSyncItemLog> event = new CoreEvent<SysSyncItemLog>(SynchronizationEventType.START_ITEM, itemLog);
 					event.getProperties().put(SynchronizationService.WRAPPER_SYNC_ITEM, itemWrapper);
-					EventResult<SysSyncItemLog> lastResult = entityEventProcessorService.process(event).getLastResult(); 
+					EventResult<SysSyncItemLog> lastResult = entityEventManager.process(event).getLastResult(); 
 					boolean result = false;
 					if(lastResult != null && lastResult.getEvent().getProperties().containsKey(SynchronizationService.RESULT_SYNC_ITEM)){
 						result =  (boolean) lastResult.getEvent().getProperties().get(SynchronizationService.RESULT_SYNC_ITEM);
@@ -1180,7 +1180,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 					MessageFormat.format(
 							"Call provisioning (process IdentityEventType.SAVE) for identity ({0}) with username ({1}).",
 							identity.getId(), identity.getUsername()));
-			entityEventProcessorService.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
+			entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
 		} else if (SystemEntityType.GROUP == entityType) {
 			// TODO: group
 		}
@@ -1780,5 +1780,9 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		actionLog.setOperationCount(actionLog.getOperationCount() + 1);
 		addToItemLog(logItem, MessageFormat.format("Operation count for [{0}] is [{1}]", actionLog.getSyncAction(),
 				actionLog.getOperationCount()));
+	}
+	
+	public void setSynchronizationConfigId(UUID synchronizationConfigId) {
+		this.synchronizationConfigId = synchronizationConfigId;
 	}
 }

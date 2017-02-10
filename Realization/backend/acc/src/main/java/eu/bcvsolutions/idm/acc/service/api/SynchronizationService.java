@@ -10,6 +10,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationCancelProcessor;
 import eu.bcvsolutions.idm.acc.event.processor.synchronization.SynchronizationStartProcessor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 
 /**
@@ -17,7 +18,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SynchronizationService {
+public interface SynchronizationService extends LongRunningTaskExecutor {
 
 	public static final String WF_VARIABLE_KEY_UID = "uid";
 	public static final String WF_VARIABLE_KEY_ENTITY_TYPE = "entityType";

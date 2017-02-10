@@ -139,9 +139,16 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	
 	@Override
 	public boolean updateState() {
+		// TODO: interface only + AOP
+		if (service == null) {
+			return true;
+		}
 		service.updateState(taskId, count, counter);
 		//
 		IdmLongRunningTask task = service.get(taskId);
+		if (task == null) {
+			return true;
+		}
 		return task.isRunning() && OperationState.isRunnable(task.getResultState());
 	}
 	

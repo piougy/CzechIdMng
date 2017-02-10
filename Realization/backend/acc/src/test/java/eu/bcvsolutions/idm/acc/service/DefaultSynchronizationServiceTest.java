@@ -53,20 +53,27 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
-import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
+import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
+import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -94,10 +101,16 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_EMAIL_CORRECT = "email@test.cz";
 
 	@Autowired
-	private SysSystemService sysSystemService;
+	private SysSystemService systemService;
 	
 	@Autowired
-	private IdmIdentityService idmIdentityService;
+	private SysSystemEntityService systemEntityService;
+	
+	@Autowired
+	private IdmIdentityService identityService;
+	
+	@Autowired
+	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	private AccIdentityAccountService identityAccoutnService;
@@ -127,9 +140,6 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private SysSyncActionLogService syncActionLogService;
 
 	@Autowired
-	private SynchronizationService synchornizationService;
-
-	@Autowired
 	private EntityManager entityManager;
 
 	@Autowired
@@ -140,15 +150,42 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	DataSource dataSource;
+	
+	@Autowired
+	private LongRunningTaskManager longRunningTaskManager;
+	
+	@Autowired
+	private IcConnectorFacade connectorFacade;
+	
+	@Autowired
+	private ConfidentialStorage confidentialStorage;
+	
+	@Autowired
+	private EntityEventManager entityEventManager;
+	
+	@Autowired
+	private GroovyScriptService groovyScriptService;
+	
+	@Autowired
+	private WorkflowProcessInstanceService workflowProcessInstanceService;
 
 	// Only for call method createTestSystem
 	@Autowired
 	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	private SysSystem system;
+	private DefaultSynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
+		synchornizationService = new DefaultSynchronizationService(
+				connectorFacade, systemService, 
+				schemaAttributeMappingService, syncConfigService, 
+				syncLogService, syncActionLogService, accountService, 
+				systemEntityService, confidentialStorage, formService, 
+				identityService, identityAccoutnService, syncItemLogService, 
+				identityRoleService, entityEventManager, groovyScriptService, 
+				workflowProcessInstanceService, entityManager, longRunningTaskManager);
 	}
 
 	@After
@@ -211,8 +248,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(1, syncConfigs.size());
 		SysSyncConfig syncConfigCustom = syncConfigs.get(0);
 		Assert.assertFalse(syncConfigService.isRunning(syncConfigCustom));
-
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
+		//
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//		
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -260,12 +299,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state before sync
 		Assert.assertEquals(IDENTITY_USERNAME_ONE,
-				idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
+				identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
 		Assert.assertEquals(IDENTITY_USERNAME_TWO,
-				idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
+				identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
 
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -290,9 +330,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state after sync
 		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED,
-				idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
+				identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getFirstName());
 		Assert.assertEquals(ATTRIBUTE_VALUE_CHANGED,
-				idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
+				identityService.getByUsername("x" + IDENTITY_USERNAME_TWO).getLastName());
 
 		// Delete log
 		syncLogService.delete(log);
@@ -316,7 +356,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
 		
-		IdmFormDefinition savedFormDefinition = sysSystemService.getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorKey());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "changeLogColumn".equals(value.getFormAttribute().getName());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));
@@ -333,8 +373,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.ENDS_WITH); // We don`t use custom filter. This option will be not used.
 		syncConfigService.save(syncConfigCustom);
 
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -393,9 +434,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setToken(LocalDateTime.now().toString("yyyy-MM-dd HH:mm:ss"));
 		syncConfigCustom.setFilterOperation(IcFilterOperationType.LESS_THAN);
 		syncConfigService.save(syncConfigCustom);
-
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		//
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -447,9 +489,10 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setMissingAccountAction(ReconciliationMissingAccountActionType.IGNORE);
 		syncConfigCustom.setReconciliation(true);
 		syncConfigService.save(syncConfigCustom);
-
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		//
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -498,16 +541,17 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state before sync
 		IdentityAccountFilter identityAccountFilterOne = new IdentityAccountFilter();
-		identityAccountFilterOne.setIdentityId(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getId());
+		identityAccountFilterOne.setIdentityId(identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getId());
 		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
 
 		IdentityAccountFilter identityAccountFilterTwo = new IdentityAccountFilter();
-		identityAccountFilterTwo.setIdentityId(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getId());
+		identityAccountFilterTwo.setIdentityId(identityService.getByUsername("x" + IDENTITY_USERNAME_ONE).getId());
 		Assert.assertEquals(1, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
 
 		// Start synchronization
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -559,8 +603,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 		// Check state before sync
 
-		IdmIdentity identityOne = idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
-		IdmIdentity identityTwo = idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		IdmIdentity identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentity identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
 		IdentityAccountFilter identityAccountFilterOne = new IdentityAccountFilter();
 		identityAccountFilterOne.setIdentityId(identityOne.getId());
 		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterOne, null).getTotalElements());
@@ -570,8 +614,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(0, identityAccoutnService.find(identityAccountFilterTwo, null).getTotalElements());
 
 		// Start synchronization
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -624,13 +669,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigCustom.setReconciliation(true);
 		syncConfigService.save(syncConfigCustom);
 
-		IdmIdentity identityOne = idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
-		IdmIdentity identityTwo = idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
+		IdmIdentity identityOne = identityService.getByUsername("x" + IDENTITY_USERNAME_ONE);
+		IdmIdentity identityTwo = identityService.getByUsername("x" + IDENTITY_USERNAME_TWO);
 
 		identityOne.setFirstName(IDENTITY_USERNAME_ONE);
 		identityTwo.setLastName(IDENTITY_USERNAME_TWO);
-		idmIdentityService.save(identityOne);
-		idmIdentityService.save(identityTwo);
+		identityService.save(identityOne);
+		identityService.save(identityTwo);
 
 		// Change account on resource
 		getBean().changeResourceData();
@@ -652,8 +697,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_TWO).getLastname());
 
 		// Start synchronization
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -702,7 +748,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		identity.setUsername("x" + IDENTITY_USERNAME_THREE);
 		identity.setFirstName(IDENTITY_USERNAME_THREE);
 		identity.setLastName(IDENTITY_USERNAME_THREE);
-		identity = idmIdentityService.save(identity);
+		identity = identityService.save(identity);
 
 		AccAccount accountOne = new AccAccount();
 		accountOne.setSystem(syncConfigCustom.getSystemMapping().getSystem());
@@ -729,8 +775,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertNull(entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME_THREE));
 
 		// Start synchronization
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -782,13 +829,14 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		syncConfigService.save(syncConfigCustom);
 
 		// Check state before sync
-		Assert.assertNotNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE));
-		Assert.assertNotNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
-		Assert.assertNotNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_THREE));
+		Assert.assertNotNull(identityService.getByUsername("x" + IDENTITY_USERNAME_ONE));
+		Assert.assertNotNull(identityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
+		Assert.assertNotNull(identityService.getByUsername("x" + IDENTITY_USERNAME_THREE));
 
 		// Start synchronization
-		synchornizationService.startSynchronizationEvent(syncConfigCustom);
-
+		synchornizationService.setSynchronizationConfigId(syncConfigCustom.getId());
+		synchornizationService.process();
+		//
 		SynchronizationLogFilter logFilter = new SynchronizationLogFilter();
 		logFilter.setSynchronizationConfigId(syncConfigCustom.getId());
 		List<SysSyncLog> logs = syncLogService.find(logFilter, null).getContent();
@@ -812,9 +860,9 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		Assert.assertEquals(3, items.size());
 
 		// Check state after sync
-		Assert.assertNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_ONE));
-		Assert.assertNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
-		Assert.assertNull(idmIdentityService.getByUsername("x" + IDENTITY_USERNAME_THREE));
+		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_ONE));
+		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_TWO));
+		Assert.assertNull(identityService.getByUsername("x" + IDENTITY_USERNAME_THREE));
 
 		// Delete log
 		syncLogService.delete(log);
@@ -894,7 +942,7 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		system = defaultSysAccountManagementServiceTest.createTestSystem();
 
 		// generate schema for system
-		List<SysSchemaObjectClass> objectClasses = sysSystemService.generateSchema(system);
+		List<SysSchemaObjectClass> objectClasses = systemService.generateSchema(system);
 
 		// Create provisioning mapping
 		SysSystemMapping systemMapping = new SysSystemMapping();
@@ -984,5 +1032,4 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private DefaultSynchronizationServiceTest getBean() {
 		return applicationContext.getBean(this.getClass());
 	}
-
 }

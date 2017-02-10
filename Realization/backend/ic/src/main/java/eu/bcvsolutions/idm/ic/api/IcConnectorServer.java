@@ -9,13 +9,6 @@ package eu.bcvsolutions.idm.ic.api;
 public interface IcConnectorServer {
 	
 	/**
-	 * Return name of remote connector server
-	 * 
-	 * @return
-	 */
-	String getName();
-	
-	/**
 	 * Return host of remote connector server
 	 * 
 	 * @return

@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
@@ -70,14 +70,15 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 
 	@Override
-	public IcUidAttribute createObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute createObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, List<IcAttribute> attributes) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(attributes);
-		log.debug("Create object - ConnId ({} {})", key.toString(), attributes.toString());
+		log.debug("Create object - ConnId ({} {})", connectorInstance.getConnectorKey().toString(), attributes.toString());
 
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>();
 		for (IcAttribute icAttribute : attributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
@@ -88,21 +89,22 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		Uid uid = conn.create(objectClassConnId, connIdAttributes, null);
-		log.debug("Created object - ConnId ({} {}) Uid= {}", key.toString(), attributes.toString(), uid);
+		log.debug("Created object - ConnId ({} {}) Uid= {}", connectorInstance.getConnectorKey().toString(), attributes.toString(), uid);
 		return ConnIdIcConvertUtil.convertConnIdUid(uid);
 	}
 
 	@Override
-	public IcUidAttribute updateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute updateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(replaceAttributes);
 		Assert.notNull(uid);
 
-		log.debug("Update object - ConnId (Uid= {} {} {})", uid, key.toString(), replaceAttributes.toString());
+		log.debug("Update object - ConnId (Uid= {} {} {})", uid, connectorInstance.getConnectorKey().toString(), replaceAttributes.toString());
 
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 		Set<Attribute> connIdAttributes = new HashSet<>();
 		for (IcAttribute icAttribute : replaceAttributes) {
 			connIdAttributes.add(ConnIdIcConvertUtil.convertIcAttribute(icAttribute));
@@ -114,19 +116,20 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 
 		Uid updatedUid = conn.update(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), connIdAttributes,
 				null);
-		log.debug("Updated object - ConnId ({} {}) Uid= {})", key.toString(), replaceAttributes.toString(), updatedUid);
+		log.debug("Updated object - ConnId ({} {}) Uid= {})", connectorInstance.getConnectorKey().toString(), replaceAttributes.toString(), updatedUid);
 		return ConnIdIcConvertUtil.convertConnIdUid(updatedUid);
 	}
 
 	@Override
-	public void deleteObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public void deleteObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(uid);
-		log.debug("Delete object - ConnId (Uid= {} {})", uid, key.toString());
+		log.debug("Delete object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -134,18 +137,19 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		}
 
 		conn.delete(objectClassConnId, ConnIdIcConvertUtil.convertIcUid(uid), null);
-		log.debug("Deleted object - ConnId ({}) Uid= {}", key.toString(), uid);
+		log.debug("Deleted object - ConnId ({}) Uid= {}", connectorInstance.getConnectorKey().toString(), uid);
 	}
 
 	@Override
-	public IcConnectorObject readObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcConnectorObject readObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(uid);
-		log.debug("Read object - ConnId (Uid= {} {})", uid, key.toString());
+		log.debug("Read object - ConnId (Uid= {} {})", uid, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -158,14 +162,15 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 
 	@Override
-	public IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute authenticateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(username);
-		log.debug("Authenticate object - ConnId (username= {} {})", username, key.toString());
+		log.debug("Authenticate object - ConnId (username= {} {})", username, connectorInstance.getConnectorKey().toString());
 
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -183,15 +188,16 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 
 	@Override
-	public IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcSyncToken synchronization(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
-		log.debug("Start synchronization for connector {} and objectClass {} - ConnId", key.toString(), objectClass.getDisplayName());
+		log.debug("Start synchronization for connector {} and objectClass {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName());
 		
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -214,16 +220,17 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 	}
 	
 	@Override
-	public void search(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcFilter filter, IcResultsHandler handler){
-		Assert.notNull(key);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		Assert.notNull(objectClass);
 		Assert.notNull(handler);
 		
-		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", key.toString(), objectClass.getDisplayName(), filter);
+		log.debug("Start search for connector {} and objectClass {} and filter {} - ConnId", connectorInstance.getConnectorKey().toString(), objectClass.getDisplayName(), filter);
 		
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
 
 		ObjectClass objectClassConnId = ConnIdIcConvertUtil.convertIcObjectClass(objectClass);
 		if (objectClassConnId == null) {
@@ -243,10 +250,10 @@ public class ConnIdIcConnectorService implements IcConnectorService {
 		conn.search(objectClassConnId, filterConnId, handlerConnId, null);
 	}
 
-	private ConnectorFacade getConnectorFacade(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
+	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-		ConnectorInfo connIdInfo = configurationServiceConnId.getConnIdConnectorInfo(key);
+		ConnectorInfo connIdInfo = configurationServiceConnId.getConnIdConnectorInfo(connectorInstance);
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");
 		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
 		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");

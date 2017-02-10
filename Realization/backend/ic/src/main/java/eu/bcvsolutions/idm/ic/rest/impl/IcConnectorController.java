@@ -50,6 +50,7 @@ public class IcConnectorController implements BaseController {
 	 * @param framework - ic framework
 	 * @return
 	 */
+	@Deprecated
 	@RequestMapping(method = RequestMethod.GET, value = "/search/local")
 	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableLocalConnectors(
 			@RequestParam(required = false) String framework) {

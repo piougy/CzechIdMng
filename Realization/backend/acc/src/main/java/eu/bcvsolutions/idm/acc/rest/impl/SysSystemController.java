@@ -48,7 +48,9 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
-import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;;
+import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
+import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;;
 
 /**
  * Target system setting controller
@@ -279,28 +281,32 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
+	/**
+	 * Rest endpoints return available remote connectors.
+	 * If entity hasn't set for remote or isn't exists return empty map of connectors
+	 * 
+	 * @param backendId
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.GET, value = "{backendId}/search/remote")
 	public ResponseEntity<Map<String, List<IcConnectorInfo>>> getAvailableRemoteConnectors(
 			@PathVariable @NotNull String backendId) {
 		SysSystem entity = this.getEntity(backendId);
-		
-		if (entity == null) {
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
-		}
-		
-		String framework = entity.getConnectorKey().getFramework();
-		
-		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
-		if (framework != null) {
-			if (!icConfiguration.getIcConfigs().containsKey(framework)) {
-				throw new ResultCodeException(IcResultCode.IC_FRAMEWORK_NOT_FOUND,
-						ImmutableMap.of("framework", framework));
-			}
-			infos.put(framework, icConfiguration.getIcConfigs().get(framework)
-					.getAvailableRemoteConnectors(entity.getConnectorServer()));
 
-		} else {
-			infos = icConfiguration.getAvailableLocalConnectors();
+		Map<String, List<IcConnectorInfo>> infos = new HashMap<>();
+		
+		// if entity hasn't set up for remote return empty map
+		if (entity == null || !entity.isRemote()) {
+			return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
+		}
+
+ 		Assert.notNull(entity.getConnectorServer());
+		try {
+			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
+				infos.put(config.getImplementationType(), config.getAvailableRemoteConnectors(entity.getConnectorServer()));
+			}
+		} catch (IcException ex) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_REMOTE_SERVER_NOT_FOUND, ImmutableMap.of("system", entity.getName()), ex);
 		}
 		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}

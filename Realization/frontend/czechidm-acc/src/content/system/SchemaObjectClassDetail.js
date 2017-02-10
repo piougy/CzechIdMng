@@ -143,7 +143,7 @@ class SchemaObjectClassDetail extends Basic.AbstractTableContent {
               <Basic.Checkbox
                 ref="container"
                 label={this.i18n('acc:entity.SchemaObjectClass.container')}/>
-              <Basic.Checkbox
+              <Basic.Checkbox hidden
                 ref="auxiliary"
                 label={this.i18n('acc:entity.SchemaObjectClass.auxiliary')}/>
             </Basic.AbstractForm>

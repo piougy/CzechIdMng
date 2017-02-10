@@ -379,7 +379,7 @@ public class DefaultSysSystemServiceTest extends AbstractIntegrationTest {
 		// create test system
 		SysSystem system =  defaultSysAccountManagementServiceTest.createTestSystem();
 		// set wrong password
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "password".equals(value.getFormAttribute().getName());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("wrongPassword"));

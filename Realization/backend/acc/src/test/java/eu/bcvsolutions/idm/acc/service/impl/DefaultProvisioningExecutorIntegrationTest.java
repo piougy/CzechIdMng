@@ -218,7 +218,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		// check target account
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntity.getUid(), null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -231,7 +231,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				systemEntity.getUid(), password);
@@ -274,7 +274,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -290,7 +290,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -303,7 +303,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				systemEntityUid, password);
@@ -344,7 +344,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, systemEntityUid, null);
 		IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -361,7 +361,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		// check target account
 		existsConnectorObject = connectorFacade.readObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass, 
 				uidAttribute);
@@ -374,7 +374,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
-				system.getConnectorKey(), 
+				system.getConnectorInstance(), 
 				systemService.getConnectorConfiguration(system), 
 				objectClass,
 				systemEntityUid, password);

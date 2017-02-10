@@ -21,6 +21,7 @@ import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
 import eu.bcvsolutions.idm.acc.entity.SysConnectorKey;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
@@ -114,6 +115,10 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	
 	@Override
 	public SysSystem save(SysSystem entity) {
+		// create default connector server
+		if (entity.getConnectorServer() == null) {
+			entity.setConnectorServer(new SysConnectorServer());
+		}
 		return super.save(entity);
 	}
 
@@ -213,7 +218,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 
 		// Call IC module 
-		icConfigurationFacade.test(connectorKey, connectorConfig);
+		icConfigurationFacade.test(system.getConnectorInstance(), connectorConfig);
 	}
 
 	@Override
@@ -354,9 +359,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(connectorInstance);
 		Assert.notNull(connectorInstance.getConnectorKey());
 		//
-		// if form definition for given key already exists
 		IdmFormDefinition formDefinition = getFormService().getDefinition(connectorInstance.getConnectorKey().getConnectorName(),
-				connectorInstance.getConnectorKey().getFullName());
+					connectorInstance.getConnectorKey().getFullName());
+		//
 		if (formDefinition == null) {
 			// we creates new form definition
 			formDefinition = createConnectorFormDefinition(connectorInstance);
@@ -365,7 +370,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	}
 
 	/**
-	 * Create form definition to given connectorKey by connector properties
+	 * Create form definition to given connectorInstance by connector properties
 	 * 
 	 * @param connectorKey
 	 * @return
@@ -385,7 +390,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			formAttributes.add(attribute);
 		}
 		return getFormService().createDefinition(connectorInstance.getConnectorKey().getConnectorName(),
-				connectorInstance.getConnectorKey().getFullName(), formAttributes);
+					connectorInstance.getConnectorKey().getFullName(), formAttributes);
 	}
 
 	@Deprecated

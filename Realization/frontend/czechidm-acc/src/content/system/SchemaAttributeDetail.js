@@ -114,7 +114,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
                 required
                 max={255}/>
               <Basic.TextField
-                ref="nativeName"
+                ref="nativeName" hidden
                 label={this.i18n('acc:entity.SchemaAttribute.nativeName')}
                 max={255}/>
               <Basic.Checkbox

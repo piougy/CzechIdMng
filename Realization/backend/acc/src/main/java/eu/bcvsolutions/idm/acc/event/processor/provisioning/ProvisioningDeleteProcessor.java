@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
@@ -43,13 +43,13 @@ public class ProvisioningDeleteProcessor extends AbstractProvisioningProcessor {
 
 	@Override
 	public void processInternal(SysProvisioningOperation provisioningOperation, IcConnectorConfiguration connectorConfig) {;
-		IcConnectorKey connectorKey = provisioningOperation.getSystem().getConnectorKey();
+		IcConnectorInstance connectorInstance = provisioningOperation.getSystem().getConnectorInstance();
 		IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 		IcObjectClass objectClass = provisioningOperation.getProvisioningContext().getConnectorObject().getObjectClass();
 		//
-		IcConnectorObject connectorObject = connectorFacade.readObject(connectorKey, connectorConfig, objectClass, uidAttribute);
+		IcConnectorObject connectorObject = connectorFacade.readObject(connectorInstance, connectorConfig, objectClass, uidAttribute);
 		if (connectorObject != null) {
-			connectorFacade.deleteObject(connectorKey, connectorConfig, objectClass, uidAttribute);
+			connectorFacade.deleteObject(connectorInstance, connectorConfig, objectClass, uidAttribute);
 		}
 	}
 }

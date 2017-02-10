@@ -1,38 +1,32 @@
 package eu.bcvsolutions.idm.acc.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
-import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 
 /**
- *	Default implementation with remote connector servers
- *	Basic info about server (name, url, port, key)	
+ *	Default implementation with remote connector servers persisted with target system
+ *	Basic info about server (host, port, key)	
  *
  *	@author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
-@Entity
-@Table(name = "sys_connector_server", indexes = { 
-		@Index(name = "ux_connector_server_name", columnList = "name", unique = true)})
-public class SysConnectorServer extends AbstractEntity implements IdentifiableByName, IcConnectorServer {
-
-	private static final long serialVersionUID = -3814155757811719322L;
+@Audited
+@Embeddable
+public class SysConnectorServer implements IcConnectorServer, Serializable {
 	
-	@NotEmpty
-	@Size(min = 0, max = DefaultFieldLengths.NAME)
-	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
-	private String name;
+	private static final long serialVersionUID = 1L;
 	
+	@Size(max = DefaultFieldLengths.NAME)
 	@Column(name = "host")
 	private String host;
 	
@@ -43,19 +37,13 @@ public class SysConnectorServer extends AbstractEntity implements IdentifiableBy
 	@Column(name = "password")
 	private String password;
 	
-	@Column(name = "name_connector_bundle")
-	private String nameConnectorBundle;
-	
-	@Column(name = "use_ssl")
-	private boolean useSsl = false;
+	@NotNull
+	@Column(name = "use_ssl", nullable = false)
+	private boolean useSsl;
 	
 	@Column(name = "timeout")
 	private int timeout = 3600;
-	
-	@Override
-	public String getName() {
-		return name;
-	}
+
 	public boolean isUseSsl() {
 		return useSsl;
 	}
@@ -94,17 +82,5 @@ public class SysConnectorServer extends AbstractEntity implements IdentifiableBy
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public String getNameConnectorBundle() {
-		return nameConnectorBundle;
-	}
-
-	public void setNameConnectorBundle(String nameConnectorBundle) {
-		this.nameConnectorBundle = nameConnectorBundle;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 }

@@ -10,9 +10,13 @@ package eu.bcvsolutions.idm.ic.api;
 
 public interface IcConnectorInstance {
 	
+	public static char SERVER_NAME_DELIMITER = ':';
+	
 	IcConnectorKey getConnectorKey();
 	
 	IcConnectorServer getConnectorServer();
 	
-	boolean getRemote();
+	String getFullServerName();
+	
+	boolean isRemote();
 }

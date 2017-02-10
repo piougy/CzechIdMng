@@ -6,7 +6,6 @@ import java.util.Map;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 
 /**
@@ -56,17 +55,17 @@ public interface IcConfigurationFacade {
 	
 	/**
 	 * Check if is connector configuration valid
-	 * @param key - Identification of connector
+	 * @param connectorInstance - Identification of connector
 	 * @param connectorConfiguration - Connector configuration
 	 */
-	void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration);
 	
 	/**
 	 * Check if is connector works fine
-	 * @param key - Identification of connector
+	 * @param connectorInstance - Identification of connector
 	 * @param connectorConfiguration - Connector configuration
 	 */
-	void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration);
+	void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration);
 
 
 }

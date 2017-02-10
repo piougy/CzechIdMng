@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 //
 import { Basic, Advanced, Utils, Managers } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -25,6 +26,13 @@ class SystemConnectorContent extends Basic.AbstractContent {
     this.selectNavigationItems(['sys-systems', 'system-connector']);
     // load definition and values
     const { entityId } = this.props.params;
+    this.context.store.dispatch(manager.fetchAvailableFrameworks());
+    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
+    this.context.store.dispatch(manager.fetchEntity(entityId));
+    this.reloadConnectorConfiguration(entityId);
+  }
+
+  reloadConnectorConfiguration(entityId) {
     this.context.store.dispatch(manager.fetchConnectorConfiguration(entityId, `${uiKey}-${entityId}`, (formInstance, error) => {
       if (error) {
         if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
@@ -43,6 +51,62 @@ class SystemConnectorContent extends Basic.AbstractContent {
   showDetail() {
     const { entityId } = this.props.params;
     this.context.router.push(`/system/${entityId}/detail`);
+  }
+
+  saveConnector(event) {
+    if (!this.refs.formConnector.isFormValid()) {
+      return;
+    }
+    //
+    const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+
+    const data = event.value;
+
+    if (data === null) {
+      return;
+    }
+
+    this.setState({
+      showLoading: true
+    }, () => {
+      let connector = null;
+      if (entity.remote) {
+        connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
+      } else {
+        connector = availableFrameworks.get(data.split(':')[0]).get(data);
+      }
+
+      let saveEntity = { };
+
+      if (connector !== null) {
+        saveEntity = {
+          ...entity,
+          connectorKey: {
+            framework: connector.connectorKey.framework,
+            connectorName: connector.connectorKey.connectorName,
+            bundleName: connector.connectorKey.bundleName,
+            bundleVersion: connector.connectorKey.bundleVersion
+          }
+        };
+      }
+      // we dont must check is new, on this component will be always old entity
+      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+        this.reloadConnectorConfiguration(patchedEntity.id);
+        this._afterSave(patchedEntity, newError);
+      }));
+    });
+  }
+
+  _afterSave(entity, error) {
+    this.setState({
+      showLoading: false
+    }, () => {
+      if (error) {
+        this.addError(error);
+        return;
+      }
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+    });
   }
 
   save(check = false, event) {
@@ -83,10 +147,43 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }));
   }
 
+  _getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity) {
+    const options = [];
+    if (entity) {
+      if (entity.remote && availableRemoteFrameworks) {
+        availableRemoteFrameworks.forEach((connectors, framework) => {
+          connectors.forEach((connector, fullName) => {
+            options.push({
+              value: fullName,
+              niceLabel: `${connector.connectorDisplayName} (${framework})`
+            });
+          });
+        });
+      } else if (availableFrameworks) {
+        availableFrameworks.forEach((connectors, framework) => {
+          connectors.forEach((connector, fullName) => {
+            options.push({
+              value: fullName,
+              niceLabel: `${connector.connectorDisplayName} (${framework})`
+            });
+          });
+        });
+      }
+    }
+    return options;
+  }
+
   render() {
-    const { formInstance} = this.props;
+    const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
     const { error, showLoading } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
+    const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
+
+    let pickConnector = null;
+    if (entity && entity.connectorKey) {
+      pickConnector = _.find(_availableConnectors, { 'value': entity.connectorKey.fullName });
+    }
+
     let content;
     if (error) {
       // connector is wrong configured
@@ -133,19 +230,30 @@ class SystemConnectorContent extends Basic.AbstractContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.PanelBody>
+          <Basic.AbstractForm rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
+            className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+            <Basic.EnumSelectBox
+              ref="connector"
+              label={this.i18n('acc:entity.System.connectorKey.connectorName')}
+              placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
+              value={pickConnector ? pickConnector.value : null}
+              options={_availableConnectors}
+              clearable={false}
+              onChange={this.saveConnector.bind(this)}/>
+          </Basic.AbstractForm>
           <Basic.Button
             style={{display: 'block', margin: 'auto'}}
             level="success"
             showLoading={_showLoading}
             onClick={this.save.bind(this, true)}
-            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ')}
+            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
             title={ this.i18n('button.checkSystemTooltip') }>
             <Basic.Icon type="fa" icon="check-circle"/>
             {' '}
             { this.i18n('button.checkSystem') }
           </Basic.Button>
         </Basic.PanelBody>
-        <Basic.Panel className="no-border last">
+        <Basic.Panel className="no-border last" rendered={pickConnector !== undefined}>
           { content }
         </Basic.Panel>
       </div>
@@ -165,8 +273,11 @@ SystemConnectorContent.defaultProps = {
 function select(state, component) {
   const { entityId } = component.params;
   return {
+    entity: manager.getEntity(state, entityId),
     _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${entityId}`),
-    formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`)
+    formInstance: Managers.DataManager.getData(state, `${uiKey}-${entityId}`),
+    availableFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_CONNECTORS),
+    availableRemoteFrameworks: Managers.DataManager.getData(state, SystemManager.AVAILABLE_REMOTE_CONNECTORS)
   };
 }
 

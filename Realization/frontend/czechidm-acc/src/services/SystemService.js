@@ -164,7 +164,6 @@ class SystemService extends Services.AbstractService {
    * Returns available remote connector for system id, connector server is part of sy
    */
   getAvailableRemoteConnectors(systemId) {
-    console.log(this.getApiPath() + `/${systemId}/search/remote`);
     return Services.RestApiService
       .get(Services.RestApiService.getUrl(this.getApiPath() + `/${systemId}/search/remote`))
       .then(response => {

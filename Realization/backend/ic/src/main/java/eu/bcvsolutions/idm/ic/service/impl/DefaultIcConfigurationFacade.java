@@ -15,7 +15,6 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
-import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
@@ -61,22 +60,25 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		checkIcType(connectorInstance.getConnectorKey());
-		return icConfigs.get(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance.getConnectorKey(), connectorConfiguration);
+		return icConfigs.get(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance, connectorConfiguration);
 	}
 	
 	@Override
-	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
-		checkIcType(key);
-		icConfigs.get(key.getFramework()).test(key, connectorConfiguration);
+	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		if (connectorInstance.isRemote()) {
+			Assert.notNull(connectorInstance.getConnectorServer());
+		}
+		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).test(connectorInstance, connectorConfiguration);
 		
 	}
 	
 	@Override
-	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
-		checkIcType(key);
-		icConfigs.get(key.getFramework()).validate(key, connectorConfiguration);
+	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).validate(connectorInstance, connectorConfiguration);
 	}
 
 	private boolean checkIcType(IcConnectorKey key) {
@@ -103,6 +105,6 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		Assert.notNull(connectorInstance.getConnectorKey().getFramework());
 		checkIcType(connectorInstance.getConnectorKey()); 
 		return this.getIcConfigs()
-			.get(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance.getConnectorKey());
+			.get(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance);
 	}
 }

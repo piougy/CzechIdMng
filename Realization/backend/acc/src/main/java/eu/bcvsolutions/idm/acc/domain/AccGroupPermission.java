@@ -25,7 +25,7 @@ public enum AccGroupPermission implements GroupPermission {
 	public static final String SYSTEM_READ = "SYSTEM" + BasePermission.SEPARATOR + "READ";
 	public static final String SYSTEM_WRITE = "SYSTEM" + BasePermission.SEPARATOR + "WRITE";
 	public static final String SYSTEM_DELETE = "SYSTEM" + BasePermission.SEPARATOR + "DELETE";
-	
+	//
 	public static final String ACCOUNT_READ = "ACCOUNT" + BasePermission.SEPARATOR + "READ";
 	public static final String ACCOUNT_WRITE = "ACCOUNT" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ACCOUNT_DELETE = "ACCOUNT" + BasePermission.SEPARATOR + "DELETE";

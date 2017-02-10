@@ -356,7 +356,8 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 		
 		SysSystem system = syncConfigCustom.getSystemMapping().getSystem();
 		
-		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorKey());
+		IdmFormDefinition savedFormDefinition = systemService.getConnectorFormDefinition(system.getConnectorInstance());
+
 		List<AbstractFormValue<SysSystem>> values = formService.getValues(system, savedFormDefinition);
 		AbstractFormValue<SysSystem> changeLogColumn = values.stream().filter(value -> {return "changeLogColumn".equals(value.getFormAttribute().getName());}).findFirst().get();
 		formService.saveValues(system, changeLogColumn.getFormAttribute(), ImmutableList.of("modified"));

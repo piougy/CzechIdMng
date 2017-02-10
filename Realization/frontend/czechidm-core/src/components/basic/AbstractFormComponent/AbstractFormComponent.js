@@ -139,48 +139,50 @@ class AbstractFormComponent extends AbstractContextComponent {
   }
 
   validate(showValidationError) {
+    const{value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
-    if (this.state.validation) {
-      let result = this.state.validation.validate(this.state.value);
-      // custom validate
-      if (this.props.validate) {
-        result = this.props.validate(this.state.value, result);
-      }
-      if (result.error) {
-        let key;
-        const params = {};
-        if (result.error.key) {
-          key = result.error.key;
-        } else {
-          const detail = result.error.details[0];
-          key = detail.type;
-          const limit = detail.context.limit;
-          if (limit) {
-            merge(params, {count: limit});
-          }
-          const valids = detail.context.valids;
-          if (valids) {
-            merge(params, {valids});
-          }
-        }
-        const message = this._localizationValidation(key, params);
-        this.setState({validationResult:
-           {status: 'error',
-            class: 'has-error has-feedback',
-            isValid: false,
-            message},
-          showValidationError: showValidations}); // show validation error on UI
-        return false;
-      }
-      this.setState({validationResult:
-          {status: null,
-             class: '',
-             isValid: true,
-             message: null,
-             showValidationError: true},
-          showValidationError: showValidations}); // show validation error on UI
+    if (!validation) {
       return true;
     }
+    let result = validation.validate(value);
+    // custom validate
+    if (this.props.validate) {
+      result = this.props.validate(value, result);
+    }
+    if (result.error) {
+      let key;
+      const params = {};
+      if (result.error.key) {
+        key = result.error.key;
+      } else {
+        const detail = result.error.details[0];
+        key = detail.type;
+        const limit = detail.context.limit;
+        if (limit) {
+          merge(params, {count: limit});
+        }
+        const valids = detail.context.valids;
+        if (valids) {
+          merge(params, {valids});
+        }
+      }
+      const message = this._localizationValidation(key, params);
+      this.setState({validationResult:
+         {status: 'error',
+          class: 'has-error has-feedback',
+          isValid: false,
+          message},
+        showValidationError: showValidations}); // show validation error on UI
+      return false;
+    }
+    this.setState({validationResult:
+        {status: null,
+           class: '',
+           isValid: true,
+           message: null,
+           showValidationError: true},
+        showValidationError: showValidations}); // show validation error on UI
+    return true;
   }
 
   getValue() {

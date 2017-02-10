@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.ic.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
@@ -30,7 +32,7 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	private Map<String, IcConfigurationService> icConfigs = new HashMap<>();
 	// Connector infos are cached
 	private Map<String, List<IcConnectorInfo>> icLocalConnectorInfos;
-
+	
 	/**
 	 * @return Configuration services for all ICs
 	 */
@@ -55,25 +57,28 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 	}
 
 	@Override
-	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConfigs.get(key.getFramework()).getSchema(key, connectorConfiguration);
+	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConfigs.get(connectorInstance.getConnectorKey().getFramework()).getSchema(connectorInstance, connectorConfiguration);
 	}
 	
 	@Override
-	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
-		checkIcType(key);
-		icConfigs.get(key.getFramework()).test(key, connectorConfiguration);
+	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		if (connectorInstance.isRemote()) {
+			Assert.notNull(connectorInstance.getConnectorServer());
+		}
+		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).test(connectorInstance, connectorConfiguration);
 		
 	}
 	
 	@Override
-	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
-		checkIcType(key);
-		icConfigs.get(key.getFramework()).validate(key, connectorConfiguration);
+	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		icConfigs.get(connectorInstance.getConnectorKey().getFramework()).validate(connectorInstance, connectorConfiguration);
 	}
 
 	private boolean checkIcType(IcConnectorKey key) {
@@ -83,14 +88,23 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		}
 		return true;
 	}
-
+	
 	@Override
-	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
-		Assert.notNull(key);
-		Assert.notNull(key.getFramework());
-		checkIcType(key); 
-		return this.getIcConfigs()
-			.get(key.getFramework()).getConnectorConfiguration(key);
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
+		List<IcConnectorInfo> remoteConnectors = new ArrayList<>();
+		// get service from icConfig, get all available remote connector for service in configs
+		for (IcConfigurationService config : icConfigs.values()) {
+			remoteConnectors.addAll(config.getAvailableRemoteConnectors(connectorInstance.getConnectorServer()));
+		}
+		return remoteConnectors;
 	}
 
+	@Override
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorKey().getFramework());
+		checkIcType(connectorInstance.getConnectorKey()); 
+		return this.getIcConfigs()
+			.get(connectorInstance.getConnectorKey().getFramework()).getConnectorConfiguration(connectorInstance);
+	}
 }

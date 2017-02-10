@@ -68,6 +68,11 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "role_type", nullable = false)
 	private IdmRoleType roleType = IdmRoleType.TECHNICAL;
+	
+	@Audited
+	@NotNull
+	@Column(name = "priority", nullable = false)
+	private int priority = 0;
 
 	@Audited
 	@Column(name = "approve_add_workflow", length = DefaultFieldLengths.NAME)
@@ -228,5 +233,13 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	public String getDescription() {
 		return description;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 }

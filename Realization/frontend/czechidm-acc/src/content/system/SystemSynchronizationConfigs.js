@@ -61,14 +61,14 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
         if (this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
         }
-        promise.then((json) => {
+        promise.then(() => {
           this.setState({
             showLoading: false
           });
           if (this.refs.table) {
             this.refs.table.getWrappedInstance().reload();
           }
-          this.addMessage({ message: this.i18n('action.startSynchronization.success', { name: json.name }) });
+          // this.addMessage({ message: this.i18n('action.startSynchronization.success', { name: json.name }) });
         }).catch(ex => {
           this.setState({
             showLoading: false

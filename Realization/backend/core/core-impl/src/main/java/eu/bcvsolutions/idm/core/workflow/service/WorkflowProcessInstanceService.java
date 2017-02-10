@@ -27,9 +27,9 @@ public interface WorkflowProcessInstanceService {
 	 * and add two involved users (applicant and implementer).
 	 * 
 	 * @param definitionKey
-	 * @param objectType
-	 * @param applicant
-	 * @param objectIdentifier
+	 * @param objectType - Mostly type of applicant 
+	 * @param applicant  - User readable applicant name
+	 * @param objectIdentifier - Mostly identifier of applicant
 	 * @param variables
 	 * @return
 	 */

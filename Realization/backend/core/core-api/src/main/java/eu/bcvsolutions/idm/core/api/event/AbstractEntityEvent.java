@@ -66,14 +66,19 @@ public abstract class AbstractEntityEvent<E extends BaseEntity> extends Applicat
 		return context;
 	}
 	
-	/**
-	 * Event is closed = no other events will be processed (break event chain)
-	 * 
-	 * @return
-	 */
 	@Override
 	public boolean isClosed() {
 		return context.isClosed();
+	}
+	
+	@Override
+	public boolean isSuspended() {
+		return context.isSuspended();
+	}
+	
+	@Override
+	public Integer getProcessedOrder() {
+		return context.getProcessedOrder();
 	}
 	
 	@Override

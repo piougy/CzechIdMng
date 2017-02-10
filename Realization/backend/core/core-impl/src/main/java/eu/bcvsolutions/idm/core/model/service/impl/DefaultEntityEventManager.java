@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
@@ -58,14 +58,18 @@ public class DefaultEntityEventManager implements EntityEventManager {
 	public <E extends BaseEntity> EventContext<E> process(EntityEvent<E> event) {
 		Assert.notNull(event);
 		//
-		LOG.debug("Publishing event [{}] [{}]", event.getContent().getClass().getSimpleName(), event.getType());
+		BaseEntity content = event.getContent();
+		LOG.debug("Publishing event [{}] [{}] [{}]", content.getClass().getSimpleName(), content.getId(), event.getType());
+		// continue suspended event
+		event.getContext().setSuspended(false);
+		//
 		this.publisher.publishEvent(event); 
 		return event.getContext();
 	}
 
 	@Override
 	@SuppressWarnings({ "rawtypes" })
-	public List<EntityEventProcessorDto> find(EmptyFilter filter) {
+	public List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter) {
 		List<EntityEventProcessorDto> dtos = new ArrayList<>();
 		Map<String, EntityEventProcessor> processors = context.getBeansOfType(EntityEventProcessor.class);
 		for(Entry<String, EntityEventProcessor> entry : processors.entrySet()) {
@@ -73,7 +77,10 @@ public class DefaultEntityEventManager implements EntityEventManager {
 			// entity event processor depends on module - we could not call any processor method
 			if (!enabledEvaluator.isEnabled(processor)) {
 				continue;
-			}			
+			}
+			if (filter != null && filter.getEntityClass() != null && !filter.getEntityClass().isAssignableFrom(processor.getEntityClass())) {
+				continue;
+			}
 			EntityEventProcessorDto dto = new EntityEventProcessorDto();
 			dto.setId(entry.getKey());
 			dto.setName(processor.getName());

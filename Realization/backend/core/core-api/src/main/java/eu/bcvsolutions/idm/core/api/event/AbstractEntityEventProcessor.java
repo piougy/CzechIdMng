@@ -3,12 +3,13 @@ package eu.bcvsolutions.idm.core.api.event;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
@@ -20,9 +21,9 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link AbstractEntity} type
+ * @param <E> {@link BaseEntity} type
  */
-public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
+public abstract class AbstractEntityEventProcessor<E extends BaseEntity> implements EntityEventProcessor<E>, ApplicationListener<AbstractEntityEvent<E>> {
 
 	private final Class<E> entityClass;
 	private final Set<String> types = new HashSet<>();
@@ -51,7 +52,24 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 	
 	@Override
 	public String getModule() {
-		return this.getClass().getCanonicalName().split("\\.")[3];
+		String name = this.getClass().getCanonicalName();
+		if (StringUtils.isEmpty(name)) {
+			return null;
+		}
+		String names[] = name.split("\\.");
+		if (names.length > 3) {
+			return name.split("\\.")[3];
+		}
+		return null;
+	}
+	
+	@Override
+	public String getName() {
+		String name = this.getClass().getCanonicalName();
+		if (StringUtils.isEmpty(name)) {
+			return null;
+		}
+		return name;
 	}
 	
 	@Override
@@ -102,6 +120,14 @@ public abstract class AbstractEntityEventProcessor<E extends AbstractEntity> imp
 		}
 		if (event.isClosed()) {	
 			// event is completely processed 
+			return;
+		}
+		if (event.isSuspended()) {	
+			// event is suspended
+			return;
+		}
+		if (event.getProcessedOrder() != null && event.getProcessedOrder() >= this.getOrder()) {	
+			// event was processed with this processor
 			return;
 		}
 		EventContext<E> context = event.getContext();

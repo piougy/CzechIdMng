@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
@@ -42,6 +41,6 @@ public class EntityEventProcessorController {
 	@RequestMapping(method = RequestMethod.GET)
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.MODULE_READ + "')")
 	public List<EntityEventProcessorDto> find() {
-		return entityEventManager.find(new EmptyFilter());
+		return entityEventManager.find(null);
 	}
 }

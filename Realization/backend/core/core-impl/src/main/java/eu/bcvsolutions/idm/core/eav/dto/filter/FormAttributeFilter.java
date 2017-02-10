@@ -12,6 +12,8 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 public class FormAttributeFilter implements BaseFilter {
 
 	private IdmFormDefinition formDefinition;
+	private String definitionType;
+	private String definitionName;
 	private String name;
 
 	public IdmFormDefinition getFormDefinition() {
@@ -28,6 +30,22 @@ public class FormAttributeFilter implements BaseFilter {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDefinitionType() {
+		return definitionType;
+	}
+
+	public void setDefinitionType(String definitionType) {
+		this.definitionType = definitionType;
+	}
+
+	public String getDefinitionName() {
+		return definitionName;
+	}
+
+	public void setDefinitionName(String definitionName) {
+		this.definitionName = definitionName;
 	}
 
 }

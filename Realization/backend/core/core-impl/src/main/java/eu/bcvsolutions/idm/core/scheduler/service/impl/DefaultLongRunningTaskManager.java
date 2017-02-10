@@ -191,24 +191,24 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		for (Thread thread : threadSet) {
 			if (thread.getId() == task.getThreadId()) {
-				ResultModel resultModel = null;
+				ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INTERRUPT, 
+						ImmutableMap.of(
+								"taskId", task.getId(), 
+								"taskType", task.getTaskType(),
+								"instanceId", task.getInstanceId()));
 				Exception ex = null;
 				try {
 					thread.interrupt();
 				} catch(Exception e) {
-					resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_INTERRUPT, 
-							ImmutableMap.of(
-									"taskId", task.getId(), 
-									"taskType", task.getTaskType(),
-									"instanceId", task.getInstanceId()));
 					ex = e;
 					LOG.error(resultModel.toString(), e);
 				}
 				task.setRunning(false);
-				if (resultModel == null) {
-					task.setResult(new OperationResult.Builder(OperationState.CANCELED).build());
+				//
+				if (ex == null) {
+					task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).build());
 				} else {
-					task.setResult(new OperationResult.Builder(OperationState.CANCELED).setModel(resultModel).setCause(ex).build());
+					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				}				
 				service.save(task);
 				return;

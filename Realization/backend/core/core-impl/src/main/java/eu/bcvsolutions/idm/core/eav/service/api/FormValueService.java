@@ -131,4 +131,14 @@ public interface FormValueService<O extends FormableEntity, E extends AbstractFo
 	 * @return
 	 */
 	Serializable getConfidentialPersistentValue(E guardedValue);
+	
+	/**
+	 * Finds owners by string attribute value
+	 * 
+	 * @param attribute
+	 * @param persistentValue
+	 * @param pageable
+	 * @return
+	 */
+	Page<O> findOwners(IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable);
 }

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import * as Utils from '../../utils';
 import RoleTypeEnum from '../../enums/RoleTypeEnum';
+import RolePriorityEnum from '../../enums/RolePriorityEnum';
 import authorityHelp from './AuthoritiesPanel_cs.md';
 import AuthoritiesPanel from './AuthoritiesPanel';
 import * as Basic from '../../components/basic';
@@ -53,6 +54,8 @@ class RoleDetail extends Basic.AbstractContent {
     if (copyOfEntity._embedded !== undefined && copyOfEntity._embedded.roleCatalogue !== undefined) {
       copyOfEntity.roleCatalogue = copyOfEntity._embedded.roleCatalogue.id;
     }
+    copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
+    copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
   }
 
@@ -131,6 +134,15 @@ class RoleDetail extends Basic.AbstractContent {
     }
   }
 
+  _onChangePriorityEnum(item) {
+    if (item) {
+      const priority = RolePriorityEnum.getPriority(item.value);
+      this.refs.priority.setValue(priority + '');
+    } else {
+      this.refs.priority.setValue(null);
+    }
+  }
+
   render() {
     const { entity, showLoading } = this.props;
     const { _showLoading } = this.state;
@@ -160,6 +172,16 @@ class RoleDetail extends Basic.AbstractContent {
                         enum={RoleTypeEnum}
                         required
                         readOnly={!Utils.Entity.isNew(entity)}/>
+                      <Basic.EnumSelectBox
+                        ref="priorityEnum"
+                        label={this.i18n('entity.Role.priorityEnum')}
+                        enum={RolePriorityEnum}
+                        onChange={this._onChangePriorityEnum.bind(this)}/>
+                      <Basic.TextField
+                        ref="priority"
+                        label={this.i18n('entity.Role.priority')}
+                        readOnly
+                        required/>
                       <Basic.SelectBox
                         ref="roleCatalogue"
                         label={this.i18n('entity.Role.roleCatalogue.name')}

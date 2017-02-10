@@ -387,6 +387,13 @@
     "TriggerTypeEnum": {
       "SIMPLE": "Jednorázové spuštění",
       "CRON": "Cron"
+    },
+    "RolePriorityEnum": {
+      "NONE": "Žádná",
+      "MINOR": "Malá",
+      "MAJOR": "Velká",
+      "CRITICAL": "Kritická",
+      "TRIVIAL": "Triviální"
     }
   },
   "dashboard": {
@@ -1236,7 +1243,7 @@
         "empty": "Nenalezeny žádné běžící úlohy",
         "button": {
           "cancel": "Ukončit úlohu",
-          "interrupt": "Killnout úlohu"
+          "interrupt": "Zničit úlohu"
         },
         "action": {
           "task-cancel": {
@@ -1245,7 +1252,7 @@
             "success": "Bylo požádáno o ukončení úlohy [{{record}}]. Úloha se sama ukončí po dokončení aktuálně zpracovávaného záznamu."
           },
           "task-interrupt": {
-            "header": "Killnout spuštěnou úlohu",
+            "header": "Zničit spuštěnou úlohu",
             "message": "Opravdu chcete ukončit úlohu [<strong>{{record}}</strong>]?",
             "success": "Úloha [{{record}}] byla ukončena."
           }
@@ -1562,6 +1569,8 @@
       "_type": "Role",
       "name": "Název role",
       "roleType": "Typ role",
+      "priority": "Kritičnost",
+      "priorityEnum": "Úroveň kritičnosti",
       "disabled": "Neaktivní",
       "approvable": "Schvalovaná",
       "superiorRoles": "Nadřazené role",

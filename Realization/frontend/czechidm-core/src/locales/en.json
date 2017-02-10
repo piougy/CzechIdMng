@@ -387,6 +387,13 @@
     "TriggerTypeEnum": {
       "SIMPLE": "One-time start",
       "CRON": "Cron"
+    },
+    "RolePriorityEnum": {
+      "NONE": "None",
+      "MINOR": "Minor",
+      "MAJOR": "Major",
+      "CRITICAL": "Critical",
+      "TRIVIAL": "Trivial"
     }
   },
  "dashboard": {
@@ -1562,6 +1569,8 @@
       "_type": "Role",
       "name": "Název role",
       "roleType": "Typ role",
+      "priority": "Criticality",
+      "priorityEnum": "Criticality level",
       "disabled": "Neaktivní",
       "approvable": "Schvalovaná",
       "superiorRoles": "Nadřazené role",

@@ -351,8 +351,9 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 						
 						// We reload log (maybe was synchronization canceled) 
 						counter++;
+						updateState(log.isRunning());
 						log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-						if (!updateState() || !log.isRunning()) {
+						if (!log.isRunning()) {
 							result = false;
 						}
 						if (!result) {
@@ -395,7 +396,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 						// We reload log (maybe was synchronization canceled) 
 						log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
 						counter++;
-						if (!updateState() || !log.isRunning()) {
+						updateState(log.isRunning());
+						if (!log.isRunning()) {
 							result = false;
 						}
 						if (!result) {
@@ -431,7 +433,19 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			synchronizationLogService.save(log);
 			//
 			count = counter;
-			updateState();
+			updateState(false);
+		}
+	}
+	
+	/**
+	 * Synchronization has own cancel mechanism
+	 * 
+	 * @param running
+	 */
+	public void updateState(boolean running) {
+		boolean result = super.updateState();
+		if (running && !result) { // synchronization was canceled from long running task agenda - we need to stop synchronization through event 
+			stopSynchronizationEvent(synchronizationConfigService.get(synchronizationConfigId));
 		}
 	}
 	

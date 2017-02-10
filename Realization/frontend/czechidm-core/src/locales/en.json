@@ -102,9 +102,9 @@
       "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> vybraných záznamů?",
       "error": "An error occurred while activating [{{record}}]",
       "success_0": "N/A",
-      "success_1": "elected record [{{record}}] were successfully activated",
-      "success_2": "elected records [{{records}}] were successfully activated",
-      "success_5": "elected records [{{records}}] were successfully activated"
+      "success_1": "Selected record [{{record}}] were successfully activated",
+      "success_2": "Selected records [{{records}}] were successfully activated",
+      "success_5": "Selected records [{{records}}] were successfully activated"
     },
       "deactivate": {
       "action": "Deactivate",
@@ -239,20 +239,20 @@
           "notImplemented": "Sorry, this operation is not available yet."
         },
         "error": {
-          "load": "Při načítání záznamů do tabulky nastala chyba"
+          "load": "When retrieving records to the table an error occurred"
         },
         "button": {
-          "refresh": "Znovu načíst záznamy"
+          "refresh": "Reload records"
         },
         "noData": "$t(component.basic.Table.noData)"
       },
       "Tree": {
-        "loading": "Načítání ..."
+        "loading": "Loading ..."
       },
       "EavForm": {
         "multiple": {
           "label": "multi",
-          "title": "Podporuje zádání více hodnot. Co hodnota, to nový řádek",
+          "title": "Supports entering multiple values. What value ~ a new line.",
           "unsupported": {
             "title": "{{name}} - attribute cannot be multiple",
             "formDefinition": {
@@ -406,7 +406,7 @@
       "APP": "App configuration",
       "AUDIT": "Audit",
       "CONFIGURATION": "Configuration (app)",
-      "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
+      "CONFIGURATIONSECURED": "Configuration (system)",
       "IDENTITY": "Users",
       "MODULE": "Modules",
       "NOTIFICATION": "Notifications",
@@ -503,92 +503,92 @@
         }
       },
       "change": {
-        "header": "Změna hesla",
-        "title": "Změna hesla",
-        "passwordOld": "Staré heslo",
-        "password": "Nové heslo",
-        "passwordChangeTooltip": "Síla hesla:",
+        "header": "Password change",
+        "title": "Password change",
+        "passwordOld": "Old password",
+        "password": "New password",
+        "passwordChangeTooltip": "Password strength",
         "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
+          "label": "Password againg",
+          "placeholder": "Password again"
         },
         "button": {
-          "passwordChange": "Změna hesla"
+          "passwordChange": "Password change"
         },
         "message": {
           "passwordChange": {
-            "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
-            "required": "Vyžadována změna hesla pro CzechIdM",
+            "info": "This form can be used to change the password for your user identity",
+            "required": "Required to change password CzechIdM",
             "success": {
-              "title": "Změna hesla proběhla v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech."
+              "title": "Changing the password is OK",
+              "message": "Your password was successfully changed on all your accounts."
             }
           },
           "passwordMustChange": {
             "success": {
-              "title": "Změna hesla proběhla v pořádku",
-              "message": "Vaše heslo do CzechIdM bylo úspěšně změněno."
+              "title": "Changing the password is OK",
+              "message": "Your CzechIdM password was successfully changed."
             }
           }
         }
       },
       "strength" : {
-        "weak": "slabé",
-        "okay": "normální",
-        "strong": "silné",
-        "great": "perfektní"
+        "weak": "weak",
+        "okay": "normal",
+        "strong": "strong",
+        "great": "perfect"
       }
     },
     "messages": {
-      "header": "Historie uživatelských hlášení",
-      "title": "Hlášení",
-      "empty": "Nenalazena žádná hlášení.",
+      "header": "User history report",
+      "title": "Messages",
+      "empty": "No messages found.",
       "button": {
-        "removeAll": "Odebrat všechna hlášení"
+        "removeAll": "Remove all messages."
       }
     },
     "passwordPolicies": {
-      "header": "Politiky hesel",
-      "title": "Politiky hesel",
+      "header": "Password policy",
+      "title": "Password policy",
       "edit": {
-        "header": "detail konfigurace politiky hesel",
-        "title": "Detail konfigurace politiky hesel"
+        "header": "Password policy config detail",
+        "title": "Password policy config detail"
       },
       "basic": {
-        "header": "Základní informace",
-        "title": "Základní informace"
+        "header": "Basic info",
+        "title": "Basic info"
       },
       "advanced": {
-        "header": "Rozšířená kontrola",
-        "title": "Rozšířená kontrola"
+        "header": "Extended rules",
+        "title": "Extended rules"
       },
       "characters": {
-        "header": "Znaky",
-        "title": "Znaky"
+        "header": "Letters",
+        "title": "Letters"
       },
       "create": {
-        "title": "Nová konfigurace politiky hesel",
-        "header": "Nová konfigurace politiky hesel"
+        "title": "New configuration of password policies",
+        "header": "New configuration of password policies"
       },
       "validation": {
-        "maxLength": "Maximální povolená délka hesla: {{0}}",
-        "minLength": "Minimální délka hesla: {{0}}",
+        "maxLength": "Maximum allowable password length: {{0}}",
+        "minLength": "Minimum password length: {{0}}",
         "minNumber": "Minimální počet číslic: {{0}}",
-        "minUpperChar": "Minimální počet velkých znaků: {{0}}",
-        "prohibited": "Heslo obsahuje zakázané znaky: ",
-        "minLowerChar": "Minimální počet malých znaků: {{0}}",
-        "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo přes tyto politiky: ",
-        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
-        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujícíh pravidel: ",
+        "minUpperChar": "Minimum number of digits: {{0}}",
+        "prohibited": "Password contains illegal characters: ",
+        "minLowerChar": "Minimum number of lowercase characters: {{0}}",
+        "minSpecialChar": "Minimum number of special characters: {{0}}",
+        "policiesNames": "Password has not passed through these policies ",
+        "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
+        "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
-        "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
-        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
-        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
-        "date": "Heslo není možné nyní změnit, zkuste to znovu: "
+        "passwordSimilarEmail": "Password is too similar to a username: ",
+        "passwordSimilarFirstName": "Password is too similar to a name: ",
+        "passwordSimilarLastName": "Password is too similar surnames: ",
+        "date": "Password can not be changed now, try again: "
       },
       "save": {
-        "success": "Politika [{{name}}] byla úspěšně uložena."
+        "success": "Password policy [{{name}}] was successfully saved."
       }
     },
     "configuration": {

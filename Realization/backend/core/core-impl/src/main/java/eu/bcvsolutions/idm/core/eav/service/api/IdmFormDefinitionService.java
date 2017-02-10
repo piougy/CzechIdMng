@@ -21,7 +21,7 @@ public interface IdmFormDefinitionService extends ReadWriteEntityService<IdmForm
 	 * Returns form definition by given type and name (unique).
 	 * 
 	 * @param type required
-	 * @param name if name is {@code null}, then {@value #DEFAULT_DEFINITION_NAME} is used.
+	 * @param name [optional] if name is {@code null}, then {@value #DEFAULT_DEFINITION_NAME} is used.
 	 * @return
 	 */
 	IdmFormDefinition get(String type, String name);

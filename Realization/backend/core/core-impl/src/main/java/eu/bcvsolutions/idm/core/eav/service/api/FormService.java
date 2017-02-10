@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
@@ -51,7 +54,6 @@ public interface FormService {
 	 * Finds default definition by given owner
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param ownerClass owner type
 	 * @return
 	 */
@@ -64,6 +66,16 @@ public interface FormService {
 	 * @return
 	 */
 	String getDefaultDefinitionType(Class<? extends FormableEntity> ownerClass);
+	
+	/**
+	 * Returns attribute by given name from default form definition
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param ownerClass owner type
+	 * @param attributeName attribute name
+	 * @return
+	 */
+	IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeName);
 	
 	/**
 	 * Creates form definition
@@ -79,18 +91,34 @@ public interface FormService {
 	 * Creates default form definition for given owner type
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param ownerClass owner type
 	 * @param formAttributes
 	 * @return
 	 */
 	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, List<IdmFormAttribute> formAttributes);
+	
+	/**
+	 * Persists given form attribute.
+	 * 
+	 * @param attribute
+	 * @return
+	 */
+	IdmFormAttribute saveAttribute(IdmFormAttribute attribute);
+	
+	/**
+	 * Persists given form attribute. If attribute does not have form definition specified, then default will be used.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param ownerClass owner type
+	 * @param attribute
+	 * @return
+	 */
+	IdmFormAttribute saveAttribute(Class<? extends FormableEntity> ownerClass, IdmFormAttribute attribute);
 		
 	/**
 	 * Saves form values to given owner and form definition.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param owner
 	 * @param formDefinition [optional]
 	 * @param values
@@ -139,7 +167,6 @@ public interface FormService {
 	 * Reads form values by given owner. Return values from default form definition.
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param owner
 	 * @param <O> values owner
 	 * @return
@@ -162,7 +189,6 @@ public interface FormService {
 	 * Returns attribute values by attributeName from given definition, or empty collection
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param owner
 	 * @param formDefinition [optional] if form definition is not given, then return attribute values from default definition
 	 * @param attributeName
@@ -187,7 +213,6 @@ public interface FormService {
 	 * Returns attribute values by attributeName from default definition, or empty collection
 	 * 
 	 * @see {@link #getDefaultDefinitionType(Class)}
-	 * 
 	 * @param owner
 	 * @param attributeName
 	 * @param <O> values owner
@@ -233,6 +258,13 @@ public interface FormService {
 	 * @throws IllegalArgumentException if attributte has multi values
 	 */
 	Serializable toSinglePersistentValue(final List<AbstractFormValue<FormableEntity>> values);
+	
+	/**
+	 * Deletes given attribute definition
+	 * 
+	 * @param attribute
+	 */
+	void deleteAttribute(IdmFormAttribute attribute);
 	
 	/**
 	 * Deletes form values by given owner
@@ -284,4 +316,29 @@ public interface FormService {
 	 * @return
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue);
+	
+	/**
+	 * Finds owners by attribute value
+	 * 
+	 * @param ownerClass owner type
+	 * @param attribute attribute
+	 * @param persistentValue attribute value
+	 * @param pageable
+	 * @param <O> values owner
+	 * @return
+	 */
+	<O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable);
+	
+	/**
+	 * Finds owners by attribute value from default form definition.
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)
+	 * @param ownerClass owner type
+	 * @param attributeName attribute
+	 * @param persistentValue attribute value
+	 * @param pageable
+	 * @param <O> values owner
+	 * @return
+	 */
+	<O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, String attributeName, Serializable persistentValue, Pageable pageable);
 }

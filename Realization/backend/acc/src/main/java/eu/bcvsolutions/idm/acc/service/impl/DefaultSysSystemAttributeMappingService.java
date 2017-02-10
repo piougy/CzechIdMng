@@ -33,9 +33,7 @@ import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
@@ -59,7 +57,6 @@ public class DefaultSysSystemAttributeMappingService
 	private final SysSystemAttributeMappingRepository repository;
 	private final GroovyScriptService groovyScriptService;
 	private final FormService formService;
-	private final IdmFormAttributeService formAttributeService;
 	private final SysRoleSystemAttributeRepository roleSystemAttributeRepository;
 	private final FormPropertyManager formPropertyManager;
 	private final SysSyncConfigRepository syncConfigRepository;
@@ -69,7 +66,6 @@ public class DefaultSysSystemAttributeMappingService
 			SysSystemAttributeMappingRepository repository,
 			GroovyScriptService groovyScriptService, 
 			FormService formService,
-			IdmFormAttributeService formAttributeService, 
 			SysRoleSystemAttributeRepository roleSystemAttributeRepository,
 			FormPropertyManager formPropertyManager,
 			SysSyncConfigRepository syncConfigRepository) {
@@ -77,7 +73,6 @@ public class DefaultSysSystemAttributeMappingService
 		//
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(formService);
-		Assert.notNull(formAttributeService);
 		Assert.notNull(roleSystemAttributeRepository);
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(syncConfigRepository);
@@ -85,7 +80,6 @@ public class DefaultSysSystemAttributeMappingService
 		this.formService = formService;
 		this.repository = repository;
 		this.groovyScriptService = groovyScriptService;
-		this.formAttributeService = formAttributeService;
 		this.roleSystemAttributeRepository = roleSystemAttributeRepository;
 		this.formPropertyManager = formPropertyManager;
 		this.syncConfigRepository = syncConfigRepository;
@@ -185,22 +179,16 @@ public class DefaultSysSystemAttributeMappingService
 	 */
 	@Override
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public void createExtendedAttributeDefinition(AttributeMapping entity, Class<?> entityType) {
-		IdmFormDefinition definition = formService
-				.getDefinition(entityType.getCanonicalName());
-		if (definition != null) {
-			IdmFormAttribute defAttribute = definition.getMappedAttributeByName(entity.getIdmPropertyName());
-			if (defAttribute == null) {
-				log.info(MessageFormat.format(
-						"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
-						entity.getIdmPropertyName()));
-
-				IdmFormAttribute attributeDefinition = convertMappingAttribute(entity, definition);
-
-				definition.getFormAttributes().add(attributeDefinition);
-				formAttributeService.save(attributeDefinition);
-			}
-		}
+		Class<? extends FormableEntity> ownerClass = (Class<? extends FormableEntity>)entityType;
+		IdmFormAttribute attribute = formService.getAttribute(ownerClass, entity.getIdmPropertyName());
+		if (attribute == null) {
+			log.info(MessageFormat.format(
+					"IdmFormAttribute for identity and property {0} not found. We will create definition now.",
+					entity.getIdmPropertyName()));
+			formService.saveAttribute(ownerClass, convertMappingAttribute(entity));
+		}		
 	}
 	
 	@Override
@@ -282,12 +270,9 @@ public class DefaultSysSystemAttributeMappingService
 	 * Convert schema attribute handling to Form attribute
 	 * 
 	 * @param entity
-	 * @param definition
 	 * @return
 	 */
-	private IdmFormAttribute convertMappingAttribute(AttributeMapping entity,
-			IdmFormDefinition definition) {
-
+	private IdmFormAttribute convertMappingAttribute(AttributeMapping entity) {
 		SysSchemaAttribute schemaAttribute = entity.getSchemaAttribute();
 		IdmFormAttribute attributeDefinition = new IdmFormAttribute();
 		attributeDefinition.setSeq((short) 0);
@@ -298,7 +283,6 @@ public class DefaultSysSystemAttributeMappingService
 		attributeDefinition.setMultiple(schemaAttribute.isMultivalued());
 		attributeDefinition.setReadonly(!schemaAttribute.isUpdateable());
 		attributeDefinition.setConfidential(entity.isConfidentialAttribute());
-		attributeDefinition.setFormDefinition(definition);
 		attributeDefinition.setDescription(
 				MessageFormat.format("Genereted by schema attribute {0} in resource {1}. Created by SYSTEM.",
 						schemaAttribute.getName(), schemaAttribute.getObjectClass().getSystem().getName()));

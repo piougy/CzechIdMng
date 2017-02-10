@@ -227,4 +227,58 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 		//
 		return confidentialStorage.get(guardedValue, getConfidentialStorageKey(attribute));
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Page<O> findOwners(IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable) {
+		Assert.notNull(attribute);
+		DefaultFormValue value = new DefaultFormValue(attribute);
+		value.setValue(persistentValue);
+		//
+		switch (attribute.getPersistentType()) {
+			case INT:
+			case LONG:
+				return getRepository().findOwnersByLongValue(attribute, value.getLongValue(), pageable);
+			case BOOLEAN:
+				return getRepository().findOwnersByBooleanValue(attribute, value.getBooleanValue(), pageable);
+			case DATE:
+			case DATETIME:
+				return getRepository().findOwnersByDateValue(attribute, value.getDateValue(), pageable);
+			case DOUBLE:
+			case CURRENCY:
+				return getRepository().findOwnersByDoubleValue(attribute, value.getDoubleValue(), pageable);
+			case BYTEARRAY: {
+				return getRepository().findOwnersByByteArrayValue(attribute, value.getByteValue(), pageable);
+			}
+			default:
+				return getRepository().findOwnersByStringValue(attribute, value.getStringValue(), pageable);
+		}
+	}
+	
+	/**
+	 * For value conversion only
+	 * 
+	 * @author Radek Tomiška
+	 *
+	 */
+	@SuppressWarnings({ "serial", "rawtypes" })
+	private class DefaultFormValue extends AbstractFormValue {
+		
+		public DefaultFormValue(IdmFormAttribute formAttribute) {
+			super(formAttribute);
+		}
+
+		@Override
+		public FormableEntity getOwner() {
+			return null;
+		}
+
+		@Override
+		public void setOwner(FormableEntity owner) {
+			// nothing
+		}		
+	}
 }

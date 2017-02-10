@@ -7,7 +7,7 @@ require('moment/locale/cs');
 
 let i18nextInstance = null;
 // TODO: move to configuration
-const SUPPORTED_LANGUAGES = ['cs'];
+const SUPPORTED_LANGUAGES = ['cs', 'en'];
 
 // original lookup - window.location.search.substring(1) - does not work
 const customQueryStringDetector = {

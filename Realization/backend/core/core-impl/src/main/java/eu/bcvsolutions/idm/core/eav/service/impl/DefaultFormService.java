@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
@@ -90,7 +92,7 @@ public class DefaultFormService implements FormService {
 	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass) {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
-		return formDefinitionService.get(getDefaultDefinitionType(ownerClass), null);		
+		return formDefinitionService.get(getDefaultDefinitionType(ownerClass), IdmFormDefinitionService.DEFAULT_DEFINITION_NAME);		
 	}
 	
 	/**
@@ -118,6 +120,15 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
 		return ownerClass.getCanonicalName();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormAttribute getAttribute(Class<? extends FormableEntity> ownerClass, String attributeName) {
+		Assert.notNull(ownerClass, "Owner class is required!");
+		Assert.hasLength(attributeName, "Form attribute definition name is required!");
+		//
+		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), IdmFormDefinitionService.DEFAULT_DEFINITION_NAME, attributeName);
 	}
 	
 	/**
@@ -159,6 +170,21 @@ public class DefaultFormService implements FormService {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
 		return createDefinition(getDefaultDefinitionType(ownerClass), null, formAttributes);
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormAttribute saveAttribute(IdmFormAttribute attribute) {
+		return formAttributeService.save(attribute);
+	}
+	
+	@Override
+	@Transactional
+	public IdmFormAttribute saveAttribute(Class<? extends FormableEntity> ownerClass, IdmFormAttribute attribute) {
+		Assert.notNull(attribute);
+		attribute.setFormDefinition(checkDefaultDefinition(ownerClass, attribute.getFormDefinition()));
+		//
+		return saveAttribute(attribute);
 	}
 	
 	/**
@@ -244,7 +270,7 @@ public class DefaultFormService implements FormService {
 			IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues) {
 		Assert.notNull(owner, "Form values owner is required!");
 		Assert.notNull(owner.getId(), "Owner id is required!");
-		Assert.notNull(attributeName, "Form attribute definition name is required!");
+		Assert.hasLength(attributeName, "Form attribute definition name is required!");
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
 		return saveValues(owner, formDefinition.getMappedAttributeByName(attributeName), persistentValues);
@@ -345,6 +371,12 @@ public class DefaultFormService implements FormService {
 		formDefinition = checkDefaultDefinition(owner.getClass(), formDefinition);
 		//
 		return getValues(owner, formDefinition.getMappedAttributeByName(attributeName));
+	}
+	
+	@Override
+	@Transactional
+	public void deleteAttribute(IdmFormAttribute attribute) {
+		formAttributeService.delete(attribute);
 	}
 	
 	/**
@@ -483,6 +515,30 @@ public class DefaultFormService implements FormService {
 		//
 		FormValueService<O, E> formValueService = getFormValueService(guardedValue.getOwner());
 		return formValueService.getConfidentialPersistentValue(guardedValue);
+	}
+	
+	@Override
+	@SuppressWarnings({ "unchecked" })
+	@Transactional(readOnly = true)
+	public <O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, IdmFormAttribute attribute, Serializable persistentValue, Pageable pageable) {
+		Assert.notNull(ownerClass, "Owner class is required!");
+		Assert.notNull(attribute, "Form attribute is required!");
+		if (attribute.isConfidential()) {
+			throw new UnsupportedOperationException(MessageFormat.format("Find owners by confidential attributes [{0}] are not supported.", attribute.getName()));
+		}
+		//
+		FormValueService<O, ?> formValueService = (FormValueService<O, ?>)formValueServices.getPluginFor(ownerClass);
+		//
+		return formValueService.findOwners(attribute, persistentValue, pageable);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public <O extends FormableEntity> Page<O> findOwners(Class<O> ownerClass, String attributeName, Serializable persistentValue, Pageable pageable) {
+		IdmFormAttribute attribute = getAttribute(ownerClass, attributeName);
+		Assert.notNull(attribute, MessageFormat.format("Attribute [{0}] does not exist in default form definition for owner [{1}]", attributeName, ownerClass));
+		//
+		return findOwners(ownerClass, attribute, persistentValue, pageable);
 	}
 	
 	/**

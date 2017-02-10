@@ -54,6 +54,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 	public static final String FORM_ATTRIBUTE_PHONE = "phone";
 	public static final String FORM_ATTRIBUTE_WWW = "webPages";
 	public static final String FORM_ATTRIBUTE_PASSWORD = "password";
+	public static final String FORM_ATTRIBUTE_DATETIME = "datetime";
 	
 	@Autowired
 	private InitApplicationData initApplicationData;
@@ -322,7 +323,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				attributes.add(date);
 				
 				IdmFormAttribute datetime = new IdmFormAttribute();
-				datetime.setName("datetime");
+				datetime.setName(FORM_ATTRIBUTE_DATETIME);
 				datetime.setDisplayName("Date and time");
 				datetime.setPersistentType(PersistentType.DATETIME);
 				attributes.add(datetime);

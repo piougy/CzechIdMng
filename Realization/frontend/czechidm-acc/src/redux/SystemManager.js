@@ -119,6 +119,43 @@ export default class SystemManager extends Managers.EntityManager {
       }
     };
   }
+
+  /**
+   * Fetch available remote connectors by framewrok
+   * cb - callback
+   */
+  fetchAvailableRemoteConnector(systemId, cb) {
+    const uiKey = SystemManager.AVAILABLE_REMOTE_CONNECTORS;
+    //
+    return (dispatch) => {
+      let availableFrameworks = new Immutable.Map();
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getAvailableRemoteConnectors(systemId)
+        .then(json => {
+          for (const framework in json) {
+            if (!json.hasOwnProperty(framework)) {
+              continue;
+            }
+            let availableConnectors = new Immutable.Map();
+            json[framework].forEach(connector => {
+              availableConnectors = availableConnectors.set(connector.connectorKey.fullName, connector);
+            });
+            availableFrameworks = availableFrameworks.set(framework, availableConnectors);
+          }
+          if (cb) {
+            cb(availableFrameworks);
+          }
+          dispatch(this.dataManager.receiveData(uiKey, availableFrameworks));
+        })
+        .catch(error => {
+          if (cb) {
+            cb(null, error);
+          }
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
 }
 
 SystemManager.AVAILABLE_CONNECTORS = 'connectors-available';
+SystemManager.AVAILABLE_REMOTE_CONNECTORS = 'remote-connectors-available';

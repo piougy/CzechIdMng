@@ -31,16 +31,18 @@ import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
 @Service
 public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityService<IdmFormAttribute, FormAttributeFilter> implements IdmFormAttributeService{
 
+	private final IdmFormAttributeRepository repository;
 	private final PluginRegistry<FormValueService<?, ?>, Class<?>> formValueServices;
 	
 	@Autowired
 	public DefaultIdmFormAttributeService(
-			IdmFormAttributeRepository formAttributeDefinitionRepository,
+			IdmFormAttributeRepository repository,
 			List<? extends FormValueService<?, ?>> formValueServices) {
-		super(formAttributeDefinitionRepository);
+		super(repository);
 		//
 		Assert.notNull(formValueServices);
 		//
+		this.repository = repository;
 		this.formValueServices = OrderAwarePluginRegistry.create(formValueServices);
 	}
 	
@@ -69,6 +71,12 @@ public class DefaultIdmFormAttributeService extends AbstractReadWriteEntityServi
 		});
 		//
 		super.delete(entity);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormAttribute findAttribute(String definitionType, String definitionName, String attributeName) {
+		return repository.findOneByFormDefinition_typeAndFormDefinition_nameAndName(definitionType, definitionName, attributeName);
 	}
 
 }

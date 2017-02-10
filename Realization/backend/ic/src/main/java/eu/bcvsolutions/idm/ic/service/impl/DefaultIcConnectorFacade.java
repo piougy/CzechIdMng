@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
@@ -45,65 +46,72 @@ public class DefaultIcConnectorFacade implements IcConnectorFacade {
 	}
 
 	@Override
-	public IcUidAttribute createObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute createObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, List<IcAttribute> attributes) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConnectors.get(key.getFramework()).createObject(key, connectorConfiguration, objectClass, attributes);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).createObject(connectorInstance, connectorConfiguration, objectClass, attributes);
 
 	}
 
 	@Override
-	public IcUidAttribute updateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute updateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid, List<IcAttribute> replaceAttributes) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConnectors.get(key.getFramework()).updateObject(key, connectorConfiguration, objectClass, uid,
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).updateObject(connectorInstance, connectorConfiguration, objectClass, uid,
 				replaceAttributes);
 
 	}
 
 	@Override
-	public void deleteObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public void deleteObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(key);
-		checkIcType(key);
-		icConnectors.get(key.getFramework()).deleteObject(key, connectorConfiguration, objectClass, uid);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		icConnectors.get(connectorInstance.getConnectorKey().getFramework()).deleteObject(connectorInstance, connectorConfiguration, objectClass, uid);
 
 	}
 	
 	@Override
-	public IcConnectorObject readObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcConnectorObject readObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcUidAttribute uid) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConnectors.get(key.getFramework()).readObject(key, connectorConfiguration, objectClass, uid);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).readObject(connectorInstance, connectorConfiguration, objectClass, uid);
 
 	}
 
 	@Override
-	public IcUidAttribute authenticateObject(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcUidAttribute authenticateObject(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, String username, GuardedString password) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConnectors.get(key.getFramework()).authenticateObject(key, connectorConfiguration, objectClass,
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).authenticateObject(connectorInstance, connectorConfiguration, objectClass,
 				username, password);
 	}
 
 	@Override
-	public IcSyncToken synchronization(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration,
+	public IcSyncToken synchronization(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration,
 			IcObjectClass objectClass, IcSyncToken token, IcSyncResultsHandler handler) {
-		Assert.notNull(key);
-		checkIcType(key);
-		return icConnectors.get(key.getFramework()).synchronization(key, connectorConfiguration, objectClass, token, handler);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		return icConnectors.get(connectorInstance.getConnectorKey().getFramework()).synchronization(connectorInstance, connectorConfiguration, objectClass, token, handler);
 	}
 	
 	@Override
-	public void search(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
+	public void search(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration, IcObjectClass objectClass,
 			IcFilter filter, IcResultsHandler handler){
-		Assert.notNull(key);
-		checkIcType(key);
-		icConnectors.get(key.getFramework()).search(key, connectorConfiguration, objectClass, filter, handler);
+		Assert.notNull(connectorInstance);
+		Assert.notNull(connectorInstance.getConnectorKey());
+		checkIcType(connectorInstance.getConnectorKey());
+		icConnectors.get(connectorInstance.getConnectorKey().getFramework()).search(connectorInstance, connectorConfiguration, objectClass, filter, handler);
 	}
 	
 

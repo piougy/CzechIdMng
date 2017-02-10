@@ -88,7 +88,7 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 			}
 		}
 		//
-		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorKey(), connectorConfig,
+		IcUidAttribute icUid = connectorFacade.createObject(provisioningOperation.getSystem().getConnectorInstance(), connectorConfig,
 				connectorObject.getObjectClass(), connectorObject.getAttributes());
 		//
 		provisioningOperationService.save(provisioningOperation); // has to be fist - we need to replace guarded strings before systemEntityService.save(systemEntity)

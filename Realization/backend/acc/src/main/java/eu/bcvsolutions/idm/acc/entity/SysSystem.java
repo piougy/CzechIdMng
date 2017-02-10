@@ -26,6 +26,8 @@ import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.impl.IcConnectorInstanceImpl;
 
 /**
  * Target system setting - is used for accont management and provisioning
@@ -85,6 +87,13 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@Audited
 	@Embedded
 	private SysConnectorKey connectorKey;
+	
+	@Column(name = "remote", nullable = false)
+	private boolean remote;
+	
+	@Audited
+	@Embedded
+	private SysConnectorServer connectorServer;
 	
 	@Audited
 	@ManyToOne(optional = true)
@@ -176,5 +185,26 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 
 	public void setQueue(boolean queue) {
 		this.queue = queue;
+	}
+
+	public boolean isRemote() {
+		return remote;
+	}
+
+	public SysConnectorServer getConnectorServer() {
+		return connectorServer;
+	}
+
+	public void setRemote(boolean remote) {
+		this.remote = remote;
+	}
+
+	public void setConnectorServer(SysConnectorServer connectorServer) {
+		this.connectorServer = connectorServer;
+	}
+	
+	@JsonIgnore
+	public IcConnectorInstance getConnectorInstance() {
+		return new IcConnectorInstanceImpl(this.getConnectorServer(), this.getConnectorKey(), this.isRemote());
 	}
 }

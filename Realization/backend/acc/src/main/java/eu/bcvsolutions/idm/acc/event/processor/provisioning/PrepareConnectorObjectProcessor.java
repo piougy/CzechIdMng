@@ -132,7 +132,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		try {
 			IcUidAttribute uidAttribute = new IcUidAttributeImpl(null, provisioningOperation.getSystemEntityUid(), null);
 			IcConnectorObject existsConnectorObject = connectorFacade.readObject(
-					provisioningOperation.getSystem().getConnectorKey(), 
+					provisioningOperation.getSystem().getConnectorInstance(), 
 					connectorConfig, 
 					objectClass, 
 					uidAttribute);

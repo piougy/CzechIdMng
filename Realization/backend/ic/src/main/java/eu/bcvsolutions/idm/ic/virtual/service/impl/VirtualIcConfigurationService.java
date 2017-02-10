@@ -10,7 +10,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.exception.IcException;
 import eu.bcvsolutions.idm.ic.impl.IcConfigurationPropertiesImpl;
@@ -73,8 +74,9 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
-		Assert.notNull(key);
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		//
 		IcConnectorConfigurationImpl dto = new IcConnectorConfigurationImpl();
 		IcConfigurationPropertiesImpl propertiesDto = new IcConfigurationPropertiesImpl();
 		IcConfigurationPropertyImpl propertyDto = new IcConfigurationPropertyImpl();
@@ -92,20 +94,27 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 	}
 
 	@Override
-	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		return null;
 	}
 
 	@Override
-	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorInstance connectorInstance) {
+		return null;
+	}
+
+	@Override
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
+		return null;
+	}
+
+	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
+	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
 		// TODO Auto-generated method stub
-		
 	}
-
 }

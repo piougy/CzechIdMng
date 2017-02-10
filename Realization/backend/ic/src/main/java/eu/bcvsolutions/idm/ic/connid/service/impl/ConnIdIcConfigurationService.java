@@ -12,6 +12,8 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.identityconnectors.framework.api.RemoteFrameworkConnectionInfo;
+import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
@@ -22,7 +24,8 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorConfiguration;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
-import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
+import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
 import eu.bcvsolutions.idm.ic.exception.IcException;
@@ -103,58 +106,167 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorKey key) {
-		Assert.notNull(key);
-
-		ConnectorInfo i = getConnIdConnectorInfo(key);
+	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		ConnectorInfo i = null;
+		if (connectorInstance.isRemote()) {
+			i = getRemoteConnIdConnectorInfo(connectorInstance);
+		} else {
+			i = getConnIdConnectorInfo(connectorInstance);
+		}
+		
 		if (i != null) {
 			APIConfiguration apiConf = i.createDefaultAPIConfiguration();
 			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConf);
 		}
 		return null;
 	}
+	
+	private List<ConnectorInfo> getAllRemoteConnectors(IcConnectorServer server) {
+		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(server);
+		//
+		return remoteInfoManager.getConnectorInfos();
+	}
+	
+	@Override
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server) {
+		Assert.notNull(server);
+		//
+		List<IcConnectorInfo> result = new ArrayList<>();
+		//
+		List<ConnectorInfo> infos = getAllRemoteConnectors(server);
 
-	public ConnectorInfo getConnIdConnectorInfo(IcConnectorKey key) {
-		Assert.notNull(key);
+		for (ConnectorInfo info : infos) {
+			ConnectorKey key = info.getConnectorKey();
+			if (key == null) {
+				continue;
+			}			
+			// transform
+			IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getImplementationType(), key.getBundleName(),
+					key.getBundleVersion(), key.getConnectorName());
+			IcConnectorInfoImpl infoDto = new IcConnectorInfoImpl(info.getConnectorDisplayName(),
+					info.getConnectorCategory(), keyDto);
 
-		for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
-			ConnectorInfo i = manager.findConnectorInfo(
-					ConnIdIcConvertUtil.convertConnectorKeyFromDto(key, this.getImplementationType()));
-			if (i != null) {
-				return i;
+			result.add(infoDto);
+		}
+		
+			
+		return result;
+	}
+	
+	@Override
+	public IcConnectorConfiguration getRemoteConnectorConfiguration(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorServer());
+		ConnectorInfo info = getRemoteConnIdConnectorInfo(connectorInstance);
+		//
+		if (info != null) {
+			APIConfiguration apiConfiguration = info.createDefaultAPIConfiguration();
+			// TODO: same as local???
+			return ConnIdIcConvertUtil.convertConnIdConnectorConfiguration(apiConfiguration);
+		}
+		//
+		return null;
+	}
+	
+	private ConnectorInfo getRemoteConnIdConnectorInfo(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		Assert.notNull(connectorInstance.getConnectorServer());
+		ConnectorInfoManager remoteInfoManager = findRemoteConnectorManager(connectorInstance.getConnectorServer());
+		
+		for (ConnectorInfo info : remoteInfoManager.getConnectorInfos()) {
+			ConnectorKey connectorKey = info.getConnectorKey();
+			if (connectorKey == null) {
+				continue;
+			} else if (connectorKey.getConnectorName().equals(connectorInstance.getConnectorKey().getConnectorName())) {
+				return info;
+			}
+		}
+		
+		return null;
+	}
+
+	public ConnectorInfo getConnIdConnectorInfo(IcConnectorInstance connectorInstance) {
+		Assert.notNull(connectorInstance.getConnectorKey());
+		if (connectorInstance.isRemote()) {
+			Assert.notNull(connectorInstance.getConnectorServer());
+			return getRemoteConnIdConnectorInfo(connectorInstance);
+		} else {
+			for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
+				ConnectorInfo i = manager.findConnectorInfo(
+						ConnIdIcConvertUtil.convertConnectorKeyFromDto(connectorInstance.getConnectorKey(), this.getImplementationType()));
+				if (i != null) {
+					return i;
+				}
 			}
 		}
 		return null;
 	}
 	
 	@Override
-	public void validate(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration){
-		Assert.notNull(key);
+	public void validate(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-		log.debug("Validate connector - ConnId ({})", key.toString());
+		if (connectorInstance.isRemote()) {
+			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+		} else {
+			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
+		}
 		// Validation is in getConnectorFacade method
-		getConnectorFacade(key, connectorConfiguration);
+		getConnectorFacade(connectorInstance, connectorConfiguration);
 				
 	}
 	
 	@Override
-	public void test(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration){
-		Assert.notNull(key);
+	public void test(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration){
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-		log.debug("Validate connector - ConnId ({})", key.toString());
+		if (connectorInstance.isRemote()) {
+			Assert.notNull(connectorInstance.getConnectorServer());
+			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+		} else {
+			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
+		}
 		// Validation is in getConnectorFacade method
-		getConnectorFacade(key, connectorConfiguration).test();
+		getConnectorFacade(connectorInstance, connectorConfiguration).test();
 				
 	}
 
 	@Override
-	public IcSchema getSchema(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
+	public IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-		log.info(MessageFormat.format("Get Schema - ConnId ({0})", key.toString()));
-		ConnectorFacade conn = getConnectorFacade(key, connectorConfiguration);
+		if (connectorInstance.isRemote()) {
+			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", connectorInstance.getFullServerName()));
+		} else {
+			log.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
+		}
+		ConnectorFacade conn = getConnectorFacade(connectorInstance, connectorConfiguration);
+
 		Schema schema = conn.schema();
 		return ConnIdIcConvertUtil.convertConnIdSchema(schema);
+	}
+	
+	private ConnectorInfoManager findRemoteConnectorManager(IcConnectorServer server) {
+		// get all saved remote connector servers
+		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(
+				server.getHost(), server.getPort(),
+				new org.identityconnectors.common.security.GuardedString(server.getPassword().toCharArray()),
+				server.isUseSsl(), null, server.getTimeout());
+		
+		ConnectorInfoManager manager = null; 
+		try {
+			// flush remote cache
+			ConnectorInfoManagerFactory.getInstance().clearRemoteCache();
+			manager = ConnectorInfoManagerFactory.getInstance().getRemoteManager(info);
+		} catch (ConnectorIOException e) {
+			throw new IcException(
+					MessageFormat.format("Remote connector for {0}:{1}, not found, or isn't running.", server.getHost(), server.getPort()), e);
+		}
+		
+		// TODO: null & InvalidCredentialException
+		
+		return manager;
 	}
 
 	private List<ConnectorInfoManager> findAllLocalConnectorManagers() {
@@ -181,10 +293,13 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		return managers;
 	}
 
-	private ConnectorFacade getConnectorFacade(IcConnectorKey key, IcConnectorConfiguration connectorConfiguration) {
-		Assert.notNull(key);
+	private ConnectorFacade getConnectorFacade(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration) {
+		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
-		ConnectorInfo connIdInfo = this.getConnIdConnectorInfo(key);
+		if (connectorInstance.isRemote()) {
+			Assert.notNull(connectorInstance.getConnectorServer());
+		}
+		ConnectorInfo connIdInfo = this.getConnIdConnectorInfo(connectorInstance);
 		Assert.notNull(connIdInfo, "ConnId connector info not found!");
 		APIConfiguration config = connIdInfo.createDefaultAPIConfiguration();
 		Assert.notNull(config.getConfigurationProperties(), "ConnId connector configuration properties not found!");
@@ -197,5 +312,4 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		conn.validate();
 		return conn;
 	}
-
 }

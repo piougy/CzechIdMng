@@ -209,6 +209,7 @@ public class ConnIdIcConvertUtil {
 		ObjectPoolConfiguration connectorPoolConfiguration = convertIcPoolConfiguration(
 				icConf.getConnectorPoolConfiguration());
 		((APIConfigurationImpl) defaultConnIdConf).setConnectorPoolConfiguration(connectorPoolConfiguration);
+		
 		return defaultConnIdConf;
 	}
 
@@ -371,7 +372,6 @@ public class ConnIdIcConvertUtil {
 		}
 
 		icObjectClass.setType(objectClass.getType());
-		icObjectClass.setAuxiliary(objectClass.isAuxiliary());
 		icObjectClass.setContainer(objectClass.isContainer());
 		return icObjectClass;
 	}
@@ -393,7 +393,6 @@ public class ConnIdIcConvertUtil {
 		icAttribute.setCreateable(attribute.isCreateable());
 		icAttribute.setMultivalued(attribute.isMultiValued());
 		icAttribute.setName(attribute.getName());
-		icAttribute.setNativeName(attribute.getNativeName());
 		icAttribute.setReadable(attribute.isReadable());
 		icAttribute.setRequired(attribute.isRequired());
 		icAttribute.setReturnedByDefault(attribute.isReturnedByDefault());

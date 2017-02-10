@@ -34,7 +34,7 @@ public interface IcConnectorKey {
 	 * @return
 	 */
 	String getConnectorName();
-	
+
 	/**
 	 * Returns full connector name
 	 * 

@@ -55,7 +55,7 @@ public class BasicEmailTest extends AbstractWorkflowIntegrationTest {
 	public void testSendEmailFromWorkflow() {
 		//Deploy process - annotation @Deployment can't be used - we need custom behavior to work
 		InputStream is = this.getClass().getClassLoader()
-				.getResourceAsStream("eu/bcvsolutions/idm/core/workflow/deploy/testEmailer.bpmn20.xml");
+				.getResourceAsStream("eu/bcvsolutions/idm/workflow/deploy/testEmailer.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "testEmailer.bpmn20.xml", is);
 		NotificationFilter filter = new NotificationFilter();
 		

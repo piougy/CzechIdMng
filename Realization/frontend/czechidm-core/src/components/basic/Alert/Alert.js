@@ -6,9 +6,11 @@ import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
 
 /**
- * Aler box
+ * Alert box
  * TODO: Improvent:
  * - buttons
+ *
+ * @author Radek Tomiška
  */
 class Alert extends AbstractComponent {
 

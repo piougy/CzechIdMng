@@ -7,9 +7,9 @@
     },
     "helpdesk": "HelpDesk",
     "version": {
-      "frontend": "Verze",
-      "backend": "Verze rozhraní",
-      "releaseDate": "Datum vydání"
+      "frontend": "Version",
+      "backend": "Backend version",
+      "releaseDate": "Release date"
     }
   },
   "format": {
@@ -20,238 +20,239 @@
   },
   "message": {
     "success": {
-      "common": "Operace úspěšně proběhla",
-      "create": "Vytvoření proběhlo úspěšně",
-      "update": "Uložení proběhlo úspěšně",
-      "delete": "Smazání proběhlo úspěšně"
+      "common": "The operation completed successfully",
+      "create": "Creation successfully completed",
+      "update": "Updated successfully completed",
+      "delete": "Deletion successfully completed"
     },
-    "task": {
-      "detailNotFound":"Tento typ úkolu není podporován!"
+   "task": {
+      "detailNotFound":"This task is not supported!"
     },
-    "failed": "Operace selhala",
-    "notImplemented": "Operace není zatím podporována"
+   "failed": "Operation failed",
+    "notImplemented": "This operation is not available yet"
   },
   "label": {
-    "id": "Identifikátor",
-    "action": "Akce",
-    "otherAttributes": "Další atributy",
-    "selectAll": "Vybrat vše / nic",
-    "validFrom": "Platnost od",
-    "validTill": "Platnost do",
-    "select": "Vyberte ...",
-    "disabled": "Neaktivní",
-    "property": "Attribut",
-    "value": "Hodnota"
+    "id": "Id",
+    "action": "Action",
+    "otherAttributes": "Other attributes",
+    "selectAll": "Select / deselect all",
+    "validFrom": "Valid from",
+    "validTill": "Valid to",
+    "select": "Select ...",
+    "disabled": "Disabled",
+    "property": "Attribute",
+    "value": "Value"
   },
-  "button": {
-    "activate": "Aktivovat",
-    "add": "Přidat",
-    "back": "Zpět",
-    "cancel": "Zrušit",
-    "close": "Zavřít",
-    "apply": "Použít",
-    "confirm": "Potvrdit",
-    "create": "Vytvořit",
-    "createContinue": "Vytvořit a pokračovat editací",
-    "createNew": "Vytvořit a přidat další",
-    "deactivate": "Deaktivovat",
-    "deactivatePrepare": "Připravuji deaktivaci ...",
-    "delete": "Odebrat",
+   "button": {
+    "activate": "Activate",
+    "add": "Add",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "apply": "Apply",
+    "confirm": "Confirm",
+    "create": "Create",
+    "createContinue": "Created and edit",
+    "createNew": "Created and add new",
+    "deactivate": "Deactivate",
+    "deactivatePrepare": "Preparing deactivation ...",
+    "delete": "Delete",
     "detail": "Detail",
-    "edit": "Upravit",
+    "edit": "Edit",
     "filter": {
-      "toogle": " Filtr ",
-      "use": "Filtrovat",
-      "cancel": "Zrušit filtr"
+      "toogle": " Filter ",
+      "use": "Filter",
+      "cancel": "Cancel filter"
     },
-    "logout": "Odhlásit se",
-    "no": "Ne",
-    "send": "Odeslat",
-    "sending": "Odesílám ...",
-    "save": "Uložit",
-    "saveAndClose": "Uložit a zavřít",
-    "saveAndContinue": "Uložit a pokračovat",
-    "saving": "Ukládám ...",
-    "yes": "Ano",
-    "set": "Nastavit"
+    "logout": "Log Out",
+    "no": "No",
+    "send": "Send",
+    "sending": "Sending",
+    "save": "Save",
+    "saveAndClose": "Save and exit",
+    "saveAndContinue": "Save and continue",
+    "saving": "Saving",
+    "yes": "Yes",
+    "set": "Set"
   },
   "action": {
     "delete": {
-      "action": "Odebrat",
-      "header_1": "Odebrání záznamu",
-      "header_2": "Odebrání záznamů",
+      "action": "Remove",
+      "header_1": "Removing record",
+      "header_2": "Removing records",
       "header_5": "$t(action.delete.header_2)",
-      "message_1": "Opravdu chcete odebrat vybraný záznam [<strong>{{record}}</strong>]?",
-      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete odebrat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při odebírání záznamu [{{record}}] nastala chyba",
-      "success_1": "Vybraný záznam [{{record}}] byl úspěšně smazán",
-      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně smazány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně smazány"
+      "message_1": "Do you want to remove selected record [<strong>{{record}}</strong>]?",
+      "message_2": "Select records: [<strong>{{records}}</strong>].<br /><br />Do you want to remove <strong>{{count}}</strong> selected records?",
+      "message_5": "Select records: [<strong>{{records}}</strong>].<br /><br /Do you want to remove <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while removing [{{record}}].",
+      "success_1": "Selected record [{{record}}] was successfully deleted",
+      "success_2": "Selected records [{{records}}] were successfully deleted",
+      "success_5": "Selected records [{{records}}] were successfully deleted"
     },
+
     "activate": {
-      "action": "Aktivovat",
+      "action": "Activate",
       "header_0": "N/A",
-      "header_1": "Aktivovat záznam",
-      "header_2": "Aktivovat záznamy",
+      "header_1": "Activate record",
+      "header_2": "Activate records",
       "header_5": "$t(action.activate.header_2)",
       "message_0": "N/A",
-      "message_1": "Opravdu chcete aktivovat vybraný záznam [<strong>{{record}}</strong>]?",
-      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při activaci záznamu [{{record}}] nastala chyba",
+      "message_1": "Do you really want to remove selected record [<strong>{{record}}</strong>]?",
+      "message_2": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to activate <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "An error occurred while activating [{{record}}]",
       "success_0": "N/A",
-      "success_1": "Vybraný záznam [{{record}}] byl úspěšně aktivován",
-      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány"
+      "success_1": "Selected record [{{record}}] were successfully activated",
+      "success_2": "Selected records [{{records}}] were successfully activated",
+      "success_5": "Selected records [{{records}}] were successfully activated"
     },
-    "deactivate": {
-      "action": "Deaktivovat",
+      "deactivate": {
+      "action": "Deactivate",
       "header_0": "N/A",
-      "header_1": "Deaktivovat záznam",
-      "header_2": "Deaktivovat záznamy",
+      "header_1": "Deactivate record",
+      "header_2": "Deactivate records",
       "header_5": "$t(action.deactivate.header_2)",
       "message_0": "N/A",
-      "message_1": "Opravdu chcete deaktivovat vybraný záznam [<strong>{{record}}</strong>]?",
-      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete deaktivovat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při aktivaci záznamu [{{record}}] nastala chyba",
+      "message_1": "Do you want to deactivate selected record [<strong>{{record}}</strong>]?",
+      "message_2": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
+      "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to deactivate <strong>{{count}}</strong> selected records?",
+      "error": "An error occurred while removing [{{record}}]",
       "success_0": "N/A",
-      "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
-      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+      "success_1": "Selected record [{{record}}] were successfully deactivated",
+      "success_2": "Selected records [{{records}}] were successfully deactivated",
+      "success_5": "Selected records [{{records}}] were successfully deactivated"
     }
   },
   "environment": {
     "development": {
       "short": "D",
       "label": "Development",
-      "title": "Vývojové prostředí"
+      "title": "Development environment"
     },
     "test": {
       "short": "T",
       "label": "Test",
-      "title": "Testovací prostředí"
+      "title": "Test environment"
     }
   },
-  "navigation" : {
+ "navigation" : {
     "toogle": "Toggle navigation",
     "menu": {
-      "home": "Nástěnka",
+      "home": "Dashboard",
       "profile": {
-        "label": "Profil",
-        "title": "Můj profil"
+        "label": "Profile",
+        "title": "My profile"
       },
       "subordinates": {
-        "label": "Podřízení",
-        "title": "Můj tým"
+        "label": "My subordinates",
+        "title": "My subordinates"
       },
       "roles": {
-        "label": "Role uživatele",
-        "title": "Přiřazené role"
+        "label": "User roles",
+        "title": "Assigned roles"
       },
       "tasks": {
-        "label" : "Úkoly",
-        "title" : "Moje úkoly"
+        "label" : "Tasks",
+        "title" : "My tasks"
       },
-      "task" : "Úkol",
+      "task" : "Task",
       "identities": {
-        "label": "Uživatelé",
-        "title": "Seznam uživatelů"
+        "label": "Users",
+        "title": "List of users"
       },
-      "messages": "Hlášení",
-      "configuration": "Konfigurace aplikace",
+      "messages": "Report a problem",
+      "configuration": "Configuration",
       "userLabel": "{{entityId}}",
       "login": "$t(content.login.header)",
-      "logout": "Odhlásit",
-      "system": "Nastavení",
+      "logout": "Log Out",
+      "system": "Settings",
       "workflow": {
-        "definitions": "Definice workflow",
-        "historicProcess": "Historie workflow",
+        "definitions": "Workflow definition",
+        "historicProcess": "Workflow history",
         "title": "Workflow"
       },
       "audit": {
-        "profile": "Audit uživatele"
+        "profile": "Audit of user"
       },
       "separator": {
-        "system": "Systémové menu"
+        "system": "System settings"
       },
       "notifications": {
-        "label": "Notifikace",
-        "title": "Notifikace"
+        "label": "Notifications",
+        "title": "Notifications"
       }
     }
   },
   "component" : {
     "basic": {
       "HelpIcon" : {
-        "title": "Nápověda"
+        "title": "Help"
       },
       "SelectBox" : {
-        "noResultsText": "Žádný výsledek",
-        "searchPromptText": "Pro vyhledávání začněte psát ...",
-        "searchingText": "Vyhledávání..."
+        "noResultsText": "No result",
+        "searchPromptText": "Start typing ...",
+        "searchingText": "Searching ..."
       },
       "Table" : {
         "Pagination" : {
-          "recordInfo": "<strong title='Počáteční zobrazený záznam na stránce'>{{minRecord}}</strong> - <strong title='Poslední zobrazený záznam na stránce'>{{maxRecord}}</strong> z <strong title='Celkový počet záznamů'>{{totalRecords}}</strong> záznamů",
-          "size": "Záznamů na stránce",
+          "recordInfo": "<strong title='First record on page'>{{minRecord}}</strong> - <strong title='Last record on page'>{{maxRecord}}</strong> z <strong title='Total number of records'>{{totalRecords}}</strong> records",
+          "size": "Number of records",
           "page": {
-            "title": "Strana",
-            "select": "Přejít na stranu {{page}}"
+            "title": "Page",
+            "select": "Go to page {{page}}"
           },
-          "from": "z"
+          "from": "of"
         },
-        "noData": "Nenalezeny žádné záznamy"
+        "noData": "No results found"
       },
       "ProgressBar": {
-        "start": "Zpracovávám",
-        "processed": "Zpracováno"
+        "start": "Processing",
+        "processed": "Processed"
       },
       "Dropzone": {
-        "infoText": "Přetáhněte soubory na tuto polochu a nebo na ní klikněte pro výběr souborů."
+        "infoText": "Drag files here, or click for select dialog."
       },
       "TextField": {
         "confidential": {
-          "edit": "Nastavit novou hodnotu"
+          "edit": "Set new value"
         }
       }
     },
-    "advanced": {
+   "advanced": {
       "IdentityInfo": {
-        "disabledInfo": "Uživatel je deaktivový",
-        "profileLink": "Zobrazit celý detail"
+        "disabledInfo": "User is deactivated",
+        "profileLink": "Show full detail"
       },
       "Filter": {
         "option": {
-          "yes": "Ano",
-          "no": "Ne"
+          "yes": "Yes",
+          "no": "No"
         }
       },
       "Table": {
         "bulk-action": {
-          "selection_empty": "Vyberte záznamy ...",
-          "selection_0": "Vyberte záznamy ...",
-          "selection_1": "Operace s vybraným záznamem:",
-          "selection_2": "Operace s vybranými záznamy ({{count}}):",
-          "selection_5": "Operace s vybranými záznamy ({{count}}):",
-          "notImplemented": "Omlouváme se, tato operace nebyla prozatím naimplementována."
+          "selection_empty": "Select records ...",
+          "selection_0": "Select records ...",
+          "selection_1": "Operation with selected record:",
+          "selection_2": "Operation with selected records ({{count}}):",
+          "selection_5": "Operation with selected records ({{count}}):",
+          "notImplemented": "Sorry, this operation is not available yet."
         },
         "error": {
-          "load": "Při načítání záznamů do tabulky nastala chyba"
+          "load": "When retrieving records to the table an error occurred"
         },
         "button": {
-          "refresh": "Znovu načíst záznamy"
+          "refresh": "Reload records"
         },
         "noData": "$t(component.basic.Table.noData)"
       },
       "Tree": {
-        "loading": "Načítání ..."
+        "loading": "Loading ..."
       },
       "EavForm": {
         "multiple": {
           "label": "multi",
-          "title": "Podporuje zádání více hodnot. Co hodnota, to nový řádek",
+          "title": "Supports entering multiple values. What value ~ a new line.",
           "unsupported": {
             "title": "{{name}} - attribute cannot be multiple",
             "formDefinition": {
@@ -270,38 +271,38 @@
       }
     }
   },
-  "enums" : {
+   "enums" : {
     "ApiOperationTypeEnum" : {
-      "CREATE" : "Vytvořit",
-      "UPDATE" : "Upravit",
-      "GET" : "Načíst",
-      "DELETE" : "Smazat"
+      "CREATE" : "create",
+      "UPDATE" : "edit",
+      "GET" : "get",
+      "DELETE" : "delete"
     },
     "RoleTypeEnum": {
-      "SYSTEM": "Systémová",
+      "SYSTEM": "System",
       "BUSINESS": "Business",
-      "TECHNICAL": "Technická",
-      "LOGIN": "Přihlašovací"
+      "TECHNICAL": "Technical",
+      "LOGIN": "Login"
     },
     "ScriptCategoryEnum": {
-      "DEFAULT": "Standardní",
-      "TRANSFORM_FROM": "Transformace z",
-      "TRANSFORM_TO": "Transformace do",
-      "SYSTEM": "Systemové"
+      "DEFAULT": "Standard",
+      "TRANSFORM_FROM": "Transformation from",
+      "TRANSFORM_TO": "Transformation to",
+      "SYSTEM": "SystemovĂ©"
     },
     "RoleAssignTypeEnum": {
-      "UNASSIGNED": "Nepřiřazena",
-      "WAIT_ASSIGN": "Nepřiřazena (čeká na přiřazení)",
-      "WAIT_APPROVE": "Nepřiřazena (čeká na schválení)",
-      "ASSIGNED": "Přiřazena",
-      "FINITE_ASSIGNMENT": "Přirazena (s expirací)",
-      "QUARANTINE": "Přiřazena (v karanténě)",
-      "WAIT_CHANGE_APPROVE": "Přiřazena (úprava čeká na schválení)",
-      "WAIT_REMOVE_APPROVE": "Přiřazena (odebrání čeká na schválení)"
+      "UNASSIGNED": "not assigned",
+      "WAIT_ASSIGN": "not assigned (waiting for assign)",
+      "WAIT_APPROVE": "not assigned (waiting for aproval)",
+      "ASSIGNED": "Assign",
+      "FINITE_ASSIGNMENT": "Assign (with expiration)",
+      "QUARANTINE": "Assign (in quarantene)",
+      "WAIT_CHANGE_APPROVE": "Assign (update waiting for approval)",
+      "WAIT_REMOVE_APPROVE": "Assign (removing waiting for approval)"
     },
     "OperationResultEnum": {
-      "SUCCESS": "Úspěch",
-      "FAILED": "Selhání"
+      "SUCCESS": "succes",
+      "FAILED": "failed"
     },
     "OperationTypeEnum": {
       "ADD": "ADD",
@@ -327,47 +328,47 @@
       "WorkflowDefinition": "WorkflowDefinition"
     },
     "TaskStateEnum": {
-      "APPROVED": "Schváleno",
-      "DENIED": "Zamítnuto",
-      "PENDING": "Čekající",
-      "ESCALATED": "Eskalováno"
+      "APPROVED": "Approved",
+      "DENIED": "Denied",
+      "PENDING": "Waiting",
+      "ESCALATED": "Escalated"
     },
     "DelegateStateEnum": {
-      "PENDING": "Čeká na schválení",
-      "DENIED": "Zamítnuto",
-      "APPROVED": "Schváleno"
+      "PENDING": "Waiting for approval",
+      "DENIED": "Denied",
+      "APPROVED": "Approved"
     },
     "NotificationStateEnum": {
-      "ALL": "Odesláno",
-      "PARTLY": "Částečně",
-      "NOT": "Neodesláno"
+      "ALL": "Send",
+      "PARTLY": "Partly",
+      "NOT": "Not sended"
     },
     "AccessTypeEnum": {
-      "DENY_ALL": "Přístup zamítnut všem",
-      "PERMIT_ALL": "Přístup povolen všem",
-      "NOT_AUTHENTICATED": "Pouze bez přihlášení",
-      "IS_AUTHENTICATED": "Je třeba přihlášení",
-      "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
-      "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
+      "DENY_ALL": "Access denied to all",
+      "PERMIT_ALL": "Allowed access to all",
+      "NOT_AUTHENTICATED": "Not authenticated",
+      "IS_AUTHENTICATED": "Login required",
+      "HAS_ANY_AUTHORITY": "At least one of the privileges",
+      "HAS_ALL_AUTHORITIES": "Assigned all the permissions"
     },
     "AuditModificationEnum": {
-      "ADD": "vytvoření",
-      "MOD": "modifikace",
-      "DEL": "smazání"
+      "ADD": "create",
+      "MOD": "update",
+      "DEL": "delete"
     },
-    "PasswordPolicyTypeEnum": {
-      "VALIDATE": "Validační",
-      "GENERATE": "Generování"
+   "PasswordPolicyTypeEnum": {
+      "VALIDATE": "validation",
+      "GENERATE": "Generating"
     },
     "PasswordPolicyGenerateTypeEnum": {
-      "RANDOM": "Náhodné",
+      "RANDOM": "Random",
       "PASSPHRASE": "Passphrase"
     },
     "PasswordPolicyIdentityAttributeEnum": {
-      "USERNAME": "Uživatelské jméno",
-      "LASTNAME": "Jméno",
-      "FIRSTNAME": "Přijmení",
-      "EMAIL": "Email"
+      "USERNAME": "User name",
+      "LASTNAME": "Last name",
+      "FIRSTNAME": "First Name",
+      "EMAIL": "E-mail"
     },
     "NotificationLevelEnum": {
       "SUCCESS": "SUCCESS",
@@ -375,219 +376,219 @@
       "WARNING": "WARNING",
       "ERROR": "ERROR"
     },
-    "OperationStateEnum":{
-      "CREATED": "Vytvořeno",
-      "RUNNING": "Běží",
-    	"EXECUTED": "Provedeno",
-    	"EXCEPTION": "Chyba",
-    	"NOT_EXECUTED": "Neprovedeno",
-    	"CANCELED": "Zrušeno"
+   "OperationStateEnum":{
+      "CREATED": "Created",
+      "RUNNING": "Running",
+    	"EXECUTED": "Executed",
+    	"EXCEPTION": "Failed",
+    	"NOT_EXECUTED": "Not executed",
+    	"CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {
-      "SIMPLE": "Jednorázové spuštění",
+      "SIMPLE": "One-time start",
       "CRON": "Cron"
     }
   },
-  "dashboard": {
+ "dashboard": {
     "profileDashboard" : {
-      "header": "Vaše základní údaje",
-      "goToProfil": "Přejít na detail profilu"
+      "header": "Your basic informations",
+      "goToProfil": "Go to profile detail"
     }
   },
   "permission": {
     "base" : {
-      "ADMIN": "Administrace",
-      "READ": "Čtení",
-      "WRITE": "Zápis",
-      "DELETE": "Mazání"
+      "ADMIN": "Administration",
+      "READ": "Read",
+      "WRITE": "Write",
+      "DELETE": "Delete"
     },
     "group": {
-      "APP": "Správa aplikace",
+      "APP": "App configuration",
       "AUDIT": "Audit",
-      "CONFIGURATION": "Konfigurace aplikace (veřejná)",
-      "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
-      "IDENTITY": "Uživatelé",
-      "MODULE": "Moduly",
-      "NOTIFICATION": "Notifikace",
-      "ROLE": "Role",
-      "TREENODE": "Prvky struktur",
-      "TREETYPE": "Typy struktur",
-      "SCRIPT": "Pravidla"
+      "CONFIGURATION": "Configuration (app)",
+      "CONFIGURATIONSECURED": "Configuration (system)",
+      "IDENTITY": "Users",
+      "MODULE": "Modules",
+      "NOTIFICATION": "Notifications",
+      "ROLE": "Roles",
+      "TREENODE": "Tree nodes",
+      "TREETYPE": "Structure types",
+      "SCRIPT": "Scripts"
     }
   },
   "content": {
     "error": {
       "401": {
         "title": "401",
-        "description": "Pro přístup je třeba se přihlásit."
+        "description": "To access must be logged."
       },
       "403": {
         "title": "403",
-        "description": "Nedostatečná přístupová oprávnění."
+        "description": "Insufficient access rights."
       },
       "404": {
         "title": "404",
-        "description": "Stránka nenalezena.",
-        "record": "Záznam s identifikátorem <strong>{{id}}</strong> neexistuje."
+        "description": "Page not found.",
+        "record": "Record ID <strong>{{id}}</strong> does not exist."
       },
       "500": {
         "title": "Oups, this is embarasing"
       },
       "503": {
         "title": "503",
-        "description": "Služba není momentálně dostupná.",
-        "note": "Zkuste to prosím později."
+        "description": "The service is currently not available.",
+        "note": "Please, try it later."
       }
     },
     "about": {
-      "header": "O aplikaci",
+      "header": "About app",
       "title": "$t(content.about.header)",
-      "sourceCodeOn": "Projekt dostupný na",
+      "sourceCodeOn": "Project source available at",
       "link": "$t(content.about.header)"
     },
     "login": {
-      "header": "Přihlášení",
+      "header": "Log in",
       "title": "$t(content.login.header)",
       "username": "$t(entity.Identity.username)",
-      "password": "Heslo",
-      "admin": "Administártor",
+      "password": "Password",
+      "admin": "Administrator",
       "button": {
         "login": "$t(content.login.header)",
         "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
-          "value": "Odhlásit se",
-          "title": "Odhlásit se úplně a pokračovat na nové přihlášení"
+          "value": "Logout",
+          "title": "Log out completely and continue on new logging"
         }
       }
     },
     "logout": {
-      "header": "Odhlášení",
+      "header": "Logout",
       "title": "$t(content.logout.header)",
       "message": {
-        "logout": "Odhlášení proběhlo"
+        "logout": "Logout."
       }
     },
     "password": {
       "reset": {
-        "header": "Reset hesla",
-        "title": "Reset hesla",
-        "username": "Zadejte uživatelské jméno",
+        "header": "Password reset",
+        "title": "Password reset",
+        "username": "Enter your username",
         "token": {
-          "label": "Ověřovací kód",
-          "placeholder": "Ověřovací kód obdržený v SMS zprávě"
+          "label": "Verification code",
+          "placeholder": "Verification code received via SMS"
         },
-        "password": "Nové heslo",
+        "password": "New password",
         "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
+          "label": "Password again",
+          "placeholder": "New password again"
         },
         "button": {
-          "haveToken": "Již jsem obdržel ověřovací kód",
-          "sendToken": "Odeslat",
-          "passwordReset": "Reset hesla"
+          "haveToken": "I have already received the verification code",
+          "sendToken": "Send",
+          "passwordReset": "Password reset"
         },
         "message": {
           "generateResetToken": {
-            "info": "Tento formulář lze použít pro reset hesla Vaší uživatelské identity. Po odeslání Vám bude zaslán ověřovací kód, který budete moci použít pro nastavení nového hesla. Heslo lze resetovat pouze jednou za 24 hodin. Pokud již máte platný ověřovací kód, stiskněte tlačítko Již jsem obdržel ověřovací kód.",
-            "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
+            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press I have already received",
+            "success": "Verification code will be sent via SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
+            "info": "On your phone number verification code was sent. Now you can change the password to your user account. If you do not receive an SMS message to a few minutes, please contact technical support. For technical problems, contact support at the email address helpdesk@bcvsolutions.eu",
             "success": {
-              "title": "Reset hesla proběhl v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
+              "title": "Reset your password successfully changed",
+              "message": "Your password was successfully changed on all your accounts"
             }
           }
         }
       },
       "change": {
-        "header": "Změna hesla",
-        "title": "Změna hesla",
-        "passwordOld": "Staré heslo",
-        "password": "Nové heslo",
-        "passwordChangeTooltip": "Síla hesla:",
+        "header": "Password change",
+        "title": "Password change",
+        "passwordOld": "Old password",
+        "password": "New password",
+        "passwordChangeTooltip": "Password strength",
         "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
+          "label": "Password againg",
+          "placeholder": "Password again"
         },
         "button": {
-          "passwordChange": "Změna hesla"
+          "passwordChange": "Password change"
         },
         "message": {
           "passwordChange": {
-            "info": "Tento formulář lze použít pro změnu hesla Vaší uživatelské identity",
-            "required": "Vyžadována změna hesla pro CzechIdM",
+            "info": "This form can be used to change the password for your user identity",
+            "required": "Required to change password CzechIdM",
             "success": {
-              "title": "Změna hesla proběhla v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech."
+              "title": "Changing the password is OK",
+              "message": "Your password was successfully changed on all your accounts."
             }
           },
           "passwordMustChange": {
             "success": {
-              "title": "Změna hesla proběhla v pořádku",
-              "message": "Vaše heslo do CzechIdM bylo úspěšně změněno."
+              "title": "Changing the password is OK",
+              "message": "Your CzechIdM password was successfully changed."
             }
           }
         }
       },
       "strength" : {
-        "weak": "slabé",
-        "okay": "normální",
-        "strong": "silné",
-        "great": "perfektní"
+        "weak": "weak",
+        "okay": "normal",
+        "strong": "strong",
+        "great": "perfect"
       }
     },
     "messages": {
-      "header": "Historie uživatelských hlášení",
-      "title": "Hlášení",
-      "empty": "Nenalazena žádná hlášení.",
+      "header": "User history report",
+      "title": "Messages",
+      "empty": "No messages found.",
       "button": {
-        "removeAll": "Odebrat všechna hlášení"
+        "removeAll": "Remove all messages."
       }
     },
     "passwordPolicies": {
-      "header": "Politiky hesel",
-      "title": "Politiky hesel",
+      "header": "Password policy",
+      "title": "Password policy",
       "edit": {
-        "header": "detail konfigurace politiky hesel",
-        "title": "Detail konfigurace politiky hesel"
+        "header": "Password policy config detail",
+        "title": "Password policy config detail"
       },
       "basic": {
-        "header": "Základní informace",
-        "title": "Základní informace"
+        "header": "Basic info",
+        "title": "Basic info"
       },
       "advanced": {
-        "header": "Rozšířená kontrola",
-        "title": "Rozšířená kontrola"
+        "header": "Extended rules",
+        "title": "Extended rules"
       },
       "characters": {
-        "header": "Znaky",
-        "title": "Znaky"
+        "header": "Letters",
+        "title": "Letters"
       },
       "create": {
-        "title": "Nová konfigurace politiky hesel",
-        "header": "Nová konfigurace politiky hesel"
+        "title": "New configuration of password policies",
+        "header": "New configuration of password policies"
       },
       "validation": {
-        "maxLength": "Maximální povolená délka hesla: {{0}}",
-        "minLength": "Minimální délka hesla: {{0}}",
+        "maxLength": "Maximum allowable password length: {{0}}",
+        "minLength": "Minimum password length: {{0}}",
         "minNumber": "Minimální počet číslic: {{0}}",
-        "minUpperChar": "Minimální počet velkých znaků: {{0}}",
-        "prohibited": "Heslo obsahuje zakázané znaky: ",
-        "minLowerChar": "Minimální počet malých znaků: {{0}}",
-        "minSpecialChar": "Minimální počet speciálních znaků: {{0}}",
-        "policiesNames": "Heslo neprošlo přes tyto politiky: ",
-        "minRulesToFulfillCount": "Nesplněno minimum povinných pravidel: ",
-        "minRulesToFulfill": "Doplňte minimálně {{count}} z následujícíh pravidel: ",
+        "minUpperChar": "Minimum number of digits: {{0}}",
+        "prohibited": "Password contains illegal characters: ",
+        "minLowerChar": "Minimum number of lowercase characters: {{0}}",
+        "minSpecialChar": "Minimum number of special characters: {{0}}",
+        "policiesNames": "Password has not passed through these policies ",
+        "minRulesToFulfillCount": "Unfulfilled minimum mandatory rules: ",
+        "minRulesToFulfill": "Fill in at least {{count}} the following rules: ",
         "passwordSimilarUsername": "Heslo je příliš podobné uživatelskému jménu: ",
-        "passwordSimilarEmail": "Heslo je příliš podobné emailu: ",
-        "passwordSimilarFirstName": "Heslo je příliš podobné jménu: ",
-        "passwordSimilarLastName": "Heslo je příliš podobné příjmení: ",
-        "date": "Heslo není možné nyní změnit, zkuste to znovu: "
+        "passwordSimilarEmail": "Password is too similar to a username: ",
+        "passwordSimilarFirstName": "Password is too similar to a name: ",
+        "passwordSimilarLastName": "Password is too similar surnames: ",
+        "date": "Password can not be changed now, try again: "
       },
       "save": {
-        "success": "Politika [{{name}}] byla úspěšně uložena."
+        "success": "Password policy [{{name}}] was successfully saved."
       }
     },
     "configuration": {
@@ -1947,6 +1948,10 @@
     "BAD_VALUE": {
       "title": "Špatná volba"
     },
+    "BAD_UUID": {
+      "title": "Chybný identifikátor",
+      "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
+    },
     "ROLE_CATALOG_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
@@ -2036,6 +2041,14 @@
     "LONG_RUNNING_TASK_CANCELED_BY_RESTART": {
       "title": "Zpracování úlohy bylo přerušeno",
       "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
+    },
+    "LONG_RUNNING_TASK_NOT_RUNNING": {
+      "title": "Úloha již neběží",
+      "message": "Úloha [{{taskType}}] na instanci [{{instanceId}}] již byla ukončena."
+    },
+    "LONG_RUNNING_TASK_INIT_FAILED": {
+      "title": "Úloha je chybně nakonfigurovaná",
+      "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
     }
   },
   "validationError": {

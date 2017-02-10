@@ -7,7 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.net.URLEncoder;
+
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractRestTest;
@@ -24,6 +29,8 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
 	
 	@Autowired
 	private SecurityService securityService;
+	@Autowired
+	private IdmIdentityService identityService;
 	
 	private Authentication getAuthentication() {
 		return new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, securityService.getAllAvailableAuthorities());
@@ -50,5 +57,22 @@ public class IdmIdentityControllerRestTest extends AbstractRestTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
                 .andExpect(jsonPath("$.username", equalTo(InitTestData.TEST_ADMIN_USERNAME)));
+    }
+	
+	@Test
+	@Ignore // TODO: url decode does not works in test ... why? 
+    public void testUsernameWithSpecialCharacters() throws Exception {
+		IdmIdentity identity = new IdmIdentity();
+		identity.setUsername("hh.hh#./sd");
+		identity.setFirstName("test");
+		identity.setLastName("test");
+		identityService.save(identity);
+		//
+		getMockMvc().perform(get(BaseEntityController.BASE_PATH + "/identities/" + URLEncoder.encode(identity.getUsername(), "UTF-8"))
+        		.with(authentication(getAuthentication()))
+                .contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(InitTestData.HAL_CONTENT_TYPE))
+                .andExpect(jsonPath("$.username", equalTo(identity.getUsername())));
     }
 }

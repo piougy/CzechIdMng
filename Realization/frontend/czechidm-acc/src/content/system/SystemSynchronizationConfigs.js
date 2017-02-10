@@ -44,7 +44,7 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
     }
   }
 
-  _startSynchronization(bulkActionValue, ids) {
+  _startSynchronization(bulkActionValue, ids, event) {
     if (event) {
       event.preventDefault();
     }
@@ -85,7 +85,7 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
     return;
   }
 
-  _cancelSynchronization(id) {
+  _cancelSynchronization(id, event) {
     if (event) {
       event.preventDefault();
     }

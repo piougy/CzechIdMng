@@ -20,8 +20,6 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TestTaskExecutor.class);
 	private static final String PARAMETER_COUNT = "count";
-	private Long count;
-	private Long counter;
 	
 	@Override
 	public void init(Map<String, Object> properties) {
@@ -39,7 +37,7 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 		// 
 		try {
 			for (long i = 1; i <= getCount(); i++) {
-				LOG.warn(".......... Counter: " + i);
+				LOG.warn(".......... Counter: [{}]", i);
 				counter = i;
 				if (!updateState()) {
 					break;
@@ -49,16 +47,6 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 		} catch (Exception ex) {
 			throw new CoreException(ex);
 		}
-	}
-	
-	@Override
-	public Long getCount() {
-		return count;
-	}
-	
-	@Override
-	public Long getCounter() {
-		return counter;
 	}
 	
 	public void setCount(Long count) {

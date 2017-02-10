@@ -6,6 +6,11 @@ import Icon from '../Icon/Icon';
 import HelpIcon from '../HelpIcon/HelpIcon';
 import Loading from '../Loading/Loading';
 
+/**
+ * Basic panel decorator
+ *
+ * @author Radek Tomiška
+ */
 export class Panel extends AbstractComponent {
 
   constructor(props) {

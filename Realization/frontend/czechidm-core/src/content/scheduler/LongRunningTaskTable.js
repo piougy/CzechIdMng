@@ -202,7 +202,7 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                     value={detail.entity.taskDescription}/>
                   <Basic.LabelWrapper label={this.i18n('entity.LongRunningTask.counter')}>
                     <div style={{ margin: '7px 0' }}>
-                      {manager.getProcessedCount(detail.entity)}
+                      { manager.getProcessedCount(detail.entity) }
                     </div>
                   </Basic.LabelWrapper>
                   {

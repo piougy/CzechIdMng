@@ -63,7 +63,7 @@ public class HistoryProcessAndTaskTest extends AbstractWorkflowIntegrationTest {
 	public void deployAndRunProcess() {
 		//Deploy process
 		InputStream is = this.getClass().getClassLoader()
-				.getResourceAsStream("eu/bcvsolutions/idm/core/workflow/history/testHistoryProcessAndTask.bpmn20.xml");
+				.getResourceAsStream("eu/bcvsolutions/idm/workflow/history/testHistoryProcessAndTask.bpmn20.xml");
 		WorkflowDeploymentDto deploymentDto = processDeploymentService.create(PROCESS_KEY, "test.bpmn20.xml", is);
 		assertNotNull(deploymentDto);
 

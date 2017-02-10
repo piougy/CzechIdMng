@@ -5,6 +5,7 @@ import _ from 'lodash';
 import Immutable from 'immutable';
 //
 import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
 import { DataManager, IdentityManager } from '../../redux';
 
 const RESOURCE_IDM = 'CzechIdM';
@@ -335,11 +336,6 @@ class PasswordReset extends Basic.AbstractContent {
         />);
     });
 
-    let deactivateLabel = (<span style={{color: '#000'}}>{this.i18n('component.basic.ProgressBar.start')}</span>);
-    if (bulkCounter > 0) {
-      deactivateLabel = this.i18n('component.basic.ProgressBar.processed') + ' %(now)s / %(max)s';
-    }
-
     return (
       <div>
         <Helmet title={this.i18n('title')} />
@@ -376,7 +372,7 @@ class PasswordReset extends Basic.AbstractContent {
           bsSize="large" backdrop="static">
           <Basic.Modal.Header text={this.i18n('header', { count: bulkCount})}/>
           <Basic.Modal.Body>
-            <Basic.ProgressBar min={0} max={bulkCount} now={bulkCounter} label={deactivateLabel} active style={{ marginBottom: 0}}/>
+            <Advanced.ProgressBar max={bulkCount} now={bulkCounter} style={{ marginBottom: 0}}/>
           </Basic.Modal.Body>
         </Basic.Modal>
       </div>

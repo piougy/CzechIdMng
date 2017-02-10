@@ -284,6 +284,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public String getInstanceId() {
 		return getValue(ConfigurationService.PROPERTY_APP_INSTANCE_ID, ConfigurationService.DEFAULT_PROPERTY_APP_INSTANCE_ID);
 	}

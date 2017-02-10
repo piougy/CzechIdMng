@@ -23,6 +23,7 @@ import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -39,6 +40,8 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	private Executor executor;
 	@Autowired
 	private ConfigurationService configurationService;
+	@Autowired
+	private SecurityService securityService;
 	//
 	private DefaultLongRunningTaskManager manager;
 	private String processed = null;
@@ -48,7 +51,8 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		manager = new DefaultLongRunningTaskManager(
 				service,
 				executor, 
-				configurationService);
+				configurationService,
+				securityService);
 	}
 	
 	@Test

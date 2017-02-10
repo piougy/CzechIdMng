@@ -55,7 +55,7 @@ public class IdentitySaveProcessor extends AbstractEntityEventProcessor<IdmIdent
 	}
 	
 	private void doProvisioning(IdmIdentity identity) {
-		LOG.debug("Call provisioning for idnetity [{}]", identity.getUsername());
+		LOG.debug("Call provisioning for identity [{}]", identity.getUsername());
 		getProvisioningService().doProvisioning(identity);
 	}
 	

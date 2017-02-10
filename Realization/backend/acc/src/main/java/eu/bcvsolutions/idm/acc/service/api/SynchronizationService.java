@@ -53,7 +53,7 @@ public interface SynchronizationService {
 	 * @param config
 	 * @return
 	 */
-	SysSyncConfig startSynchronization(SysSyncConfig config);
+	void startSynchronization(SysSyncConfig config);
 	
 	/**
 	 * Default implementation cancel running synchronization. By default is call from {@link SynchronizationCancelProcessor}

@@ -42,7 +42,7 @@ export default class AbstractService {
    */
   getById(id) {
     return RestApiService
-      .get(this.getApiPath() + `/${id}`)
+      .get(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
         if (response.status === 403) {
           throw new Error(403);
@@ -96,7 +96,7 @@ export default class AbstractService {
 
   deleteById(id) {
     return RestApiService
-      .delete(this.getApiPath() + `/${id}`)
+      .delete(this.getApiPath() + `/${encodeURIComponent(id)}`)
       .then(response => {
         if (response.status === 204) {
           return {};
@@ -113,7 +113,7 @@ export default class AbstractService {
 
   updateById(id, json) {
     return RestApiService
-      .put(this.getApiPath() + `/${id}`, json)
+      .put(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
       .then(response => {
         return response.json();
       })
@@ -127,7 +127,7 @@ export default class AbstractService {
 
   patchById(id, json) {
     return RestApiService
-      .patch(this.getApiPath() + `/${id}`, json)
+      .patch(this.getApiPath() + `/${encodeURIComponent(id)}`, json)
       .then(response => {
         return response.json();
       })
@@ -220,7 +220,7 @@ export default class AbstractService {
    */
   getRevisions(entityId) {
     return RestApiService
-    .get(this.getApiPath() + `/${entityId}/revisions`)
+    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions`)
     .then(response => {
       return response.json();
     })
@@ -241,7 +241,7 @@ export default class AbstractService {
    */
   getRevision(entityId, revId) {
     return RestApiService
-    .get(this.getApiPath() + `/${entityId}/revisions/${revId}`)
+    .get(this.getApiPath() + `/${encodeURIComponent(entityId)}/revisions/${encodeURIComponent(revId)}`)
     .then(response => {
       return response.json();
     })

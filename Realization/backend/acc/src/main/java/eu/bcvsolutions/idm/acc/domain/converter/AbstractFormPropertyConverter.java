@@ -122,7 +122,7 @@ public abstract class AbstractFormPropertyConverter implements FormPropertyConve
 		if (!valueList.isEmpty()) {
 			// arrays only
 			// override for other data types
-			if (PersistentType.TEXT.equals(getFormPropertyType())) {
+			if (PersistentType.TEXT == getFormPropertyType()) {
 				value = valueList.toArray(new String[]{});
 			} else {
 				value = valueList.toArray();

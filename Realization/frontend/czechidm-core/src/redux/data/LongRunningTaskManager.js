@@ -32,7 +32,7 @@ export default class LongRunningTaskManager extends EntityManager {
    * @return {string}
    */
   getProcessedCount(entity) {
-    if (!entity) {
+    if (!entity || (entity.counter === null && entity.count === null)) {
       return null;
     }
     return `${entity.counter !== null ? entity.counter : '?'} / ${entity.count !== null ? entity.count : '?'}`;

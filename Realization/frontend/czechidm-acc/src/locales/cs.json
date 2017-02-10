@@ -402,7 +402,8 @@
         "result": "Výsledek",
         "accountObject": "Idm atributy",
         "connectorObject": "Atributy pro provisioning",
-        "resultCode": "Kód"
+        "resultCode": "Kód",
+        "nextAttempt": "<strong>Pokus:</strong> {{currentAttempt}} / {{maxAttempts}}, Další pokus bude spuštěn <strong>{{nextAttempt}}</strong>"
       },
       "filter": {
         "dateFrom": {
@@ -892,6 +893,10 @@
     "SYNCHRONIZATION_IS_RUNNING": {
       "title": "Synchronizace je již spuštěná",
       "message": "Synchronizace [{{name}}] je již spuštěná."
+    },
+    "SYNCHRONIZATION_NOT_FOUND": {
+      "title": "Synchronizace neexistuje",
+      "message": "Synchronizace [{{id}}] nebyla nalezena."
     },
     "SYNCHRONIZATION_IS_NOT_RUNNING": {
       "title": "Synchronizace není spuštěná",

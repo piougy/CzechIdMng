@@ -23,7 +23,6 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +67,8 @@ import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
-import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
+import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -90,6 +89,8 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -118,7 +119,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-public class DefaultSynchronizationService implements SynchronizationService {
+public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor implements SynchronizationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
 	private final IdmIdentityService identityService;
@@ -139,6 +140,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 	private final FormService formService;
 	private final EntityEventManager entityEventProcessorService;
 	private final EntityManager entityManager;
+	private final LongRunningTaskManager longRunningTaskManager;
+	//
+	private UUID synchronizationConfigId = null;
 
 	@Autowired
 	public DefaultSynchronizationService(IcConnectorFacade connectorFacade, SysSystemService systemService,
@@ -150,7 +154,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			AccIdentityAccountService identityAccoutnService, SysSyncItemLogService syncItemLogService,
 			IdmIdentityRoleService identityRoleService, EntityEventManager entityEventProcessorService,
 			GroovyScriptService groovyScriptService, WorkflowProcessInstanceService workflowProcessInstanceService,
-			EntityManager entityManager, ApplicationContext applicationContext) {
+			EntityManager entityManager,
+			LongRunningTaskManager longRunningTaskManager) {
 		Assert.notNull(connectorFacade);
 		Assert.notNull(systemService);
 		Assert.notNull(attributeHandlingService);
@@ -169,8 +174,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		Assert.notNull(groovyScriptService);
 		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(entityManager);
-		Assert.notNull(applicationContext);
-
+		Assert.notNull(longRunningTaskManager);
+		//
 		this.connectorFacade = connectorFacade;
 		this.systemService = systemService;
 		this.attributeHandlingService = attributeHandlingService;
@@ -189,6 +194,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.entityManager = entityManager;
 		this.syncActionLogService = syncActionLogService;
+		this.longRunningTaskManager = longRunningTaskManager;
 	}
 	
 	@Override
@@ -196,11 +202,48 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		CoreEvent<SysSyncConfig> event = new CoreEvent<SysSyncConfig>(SynchronizationEventType.START, config);
 		return (SysSyncConfig) entityEventProcessorService.process(event).getContent(); 
 	}
-
+	
+	/**
+	 * Prepare and execute long running task
+	 */
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
-	public SysSyncConfig startSynchronization(SysSyncConfig config) {
-		Assert.notNull(config);
+	public void startSynchronization(SysSyncConfig config) {
+		DefaultSynchronizationService taskExecutor = new DefaultSynchronizationService(connectorFacade, systemService, attributeHandlingService, synchronizationConfigService, synchronizationLogService, syncActionLogService, accountService, systemEntityService, confidentialStorage, formService, identityService, identityAccoutnService, syncItemLogService, identityRoleService, entityEventProcessorService, groovyScriptService, workflowProcessInstanceService, entityManager, longRunningTaskManager);
+		taskExecutor.synchronizationConfigId = config.getId();
+		longRunningTaskManager.execute(taskExecutor);
+	}
+	
+	/**
+	 * Add transactional only - public method called from long running task manager
+	 */
+	@Override
+	@Transactional(propagation = Propagation.NEVER)
+	public void run() {
+		super.run();
+	}
+		
+	@Override
+	public String getDescription() {
+		SysSyncConfig config = synchronizationConfigService.get(synchronizationConfigId);
+		if (config == null) {
+			return "Synchronization long running task";
+		}
+		return MessageFormat.format("Run synchronization [{0}] - [{1}]", config.getName(), config.getSystemMapping().getName());
+	}
+
+	/**
+	 * Called from long running task
+	 */
+	@Override
+	public void process() {
+		SysSyncConfig config = synchronizationConfigService.get(synchronizationConfigId);
+		//
+		if (config == null) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_NOT_FOUND,
+					ImmutableMap.of("id", synchronizationConfigId));
+		}
+		//
 		// Synchronization must be enabled
 		if (!config.isEnabled()) {
 			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_IS_NOT_ENABLED,
@@ -256,6 +299,8 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		log.addToLog(MessageFormat.format("Synchronization was started in {0}.", log.getStarted()));
 
 		List<String> systemAccountsList = new ArrayList<>();
+		
+		counter = 0L;
 
 		try {
 			synchronizationLogService.save(log);
@@ -305,8 +350,9 @@ public class DefaultSynchronizationService implements SynchronizationService {
 								mappedAttributes, log, systemAccountsList);
 						
 						// We reload log (maybe was synchronization canceled) 
+						counter++;
 						log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-						if (!log.isRunning()) {
+						if (!updateState() || !log.isRunning()) {
 							result = false;
 						}
 						if (!result) {
@@ -342,13 +388,14 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						// Save token
 						log.setToken(tokenObject);
 						config.setToken(tokenObject);
-
+						//
 						boolean result = startItemSynchronization(uid, icObject, type, entityType, itemLog, config, system,
 								mappedAttributes, log, systemAccountsList);
 						
 						// We reload log (maybe was synchronization canceled) 
 						log.setRunning(synchronizationLogService.get(log.getId()).isRunning());
-						if (!log.isRunning()) {
+						counter++;
+						if (!updateState() || !log.isRunning()) {
 							result = false;
 						}
 						if (!result) {
@@ -369,10 +416,12 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			if (config.isReconciliation()) {
 				startReconciliation(entityType, systemAccountsList, config, system, log, actionsLog);
 			}
-
+			//
+			count = counter;
+			updateState();			
+			//
 			log.addToLog(MessageFormat.format("Synchronization was correctly ended in {0}.", LocalDateTime.now()));
-			return synchronizationConfigService.save(config);
-
+			synchronizationConfigService.save(config);
 		} catch (Exception e) {
 			String message = "Error during synchronization";
 			log.addToLog(message);
@@ -384,7 +433,6 @@ public class DefaultSynchronizationService implements SynchronizationService {
 			log.setEnded(LocalDateTime.now());
 			synchronizationLogService.save(log);
 		}
-		return config;
 	}
 	
 	@Override
@@ -784,7 +832,7 @@ public class DefaultSynchronizationService implements SynchronizationService {
 						initSyncActionLog(SynchronizationActionType.IGNORE, OperationResultType.ERROR, itemLog, log,
 								actionsLog);
 					}
-					synchronizationLogService.save(log);
+					// synchronizationLogService.save(log);
 					syncActionLogService.saveAll(actionsLog);
 					if (itemLog.getSyncActionLog() != null) {
 						syncItemLogService.save(itemLog);
@@ -1733,5 +1781,4 @@ public class DefaultSynchronizationService implements SynchronizationService {
 		addToItemLog(logItem, MessageFormat.format("Operation count for [{0}] is [{1}]", actionLog.getSyncAction(),
 				actionLog.getOperationCount()));
 	}
-
 }

@@ -110,6 +110,6 @@ public class ProvisioningCreateProcessor extends AbstractProvisioningProcessor {
 		if(!super.supports(entityEvent)) {
 			return false;
 		}
-		return ProvisioningEventType.CREATE.equals(((ProvisioningOperation)entityEvent.getContent()).getOperationType());
+		return ProvisioningEventType.CREATE == ((ProvisioningOperation)entityEvent.getContent()).getOperationType();
 	}
 }

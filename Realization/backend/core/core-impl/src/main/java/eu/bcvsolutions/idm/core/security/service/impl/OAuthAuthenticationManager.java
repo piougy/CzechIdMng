@@ -52,7 +52,7 @@ public class OAuthAuthenticationManager implements AuthenticationManager {
 			throw new IdmAuthenticationException("Identity [" + usernameFromToken + "] is disabled!");
 		}
 		//
-		// TODO: this is on wrong place ... shuld be outside in login service etc.
+		// TODO: this is on wrong place ... should be outside in login service etc.
 		//
 		//Set logged user to workflow engine
 		workflowIdentityService.setAuthenticatedUserId(identity.getUsername());

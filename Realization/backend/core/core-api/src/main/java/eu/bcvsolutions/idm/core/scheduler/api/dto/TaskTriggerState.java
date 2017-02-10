@@ -18,6 +18,6 @@ public enum TaskTriggerState {
 	 * @return task trigger state
 	 */
 	public static TaskTriggerState convert(TriggerState state) {
-		return TriggerState.PAUSED.equals(state) ? PAUSED : ACTIVE; 
+		return TriggerState.PAUSED == state ? PAUSED : ACTIVE; 
 	}
 }

@@ -34,7 +34,9 @@
         "save": {
           "success": "Systém [{{name}}] byl úspěšně uložen"
         },
-        "basic": "Základní informace"
+        "loadRemoteConnectors": "Load connector from remote server",
+        "remoteConnectorServer": "Remote connector server",
+        "basic": "Basic information"
       },
       "entities": {
         "header": "Entity na koncovém systému <small>uložené v idm</small>",
@@ -194,8 +196,9 @@
         "title": "Konfigurace",
         "button": {
           "showBasicInfo": "Přejít na základní údaje",
-          "checkSystem": "Test konektoru",
-          "checkSystemTooltip": "Provede uložení aktuálního nastavení a zavolání testu na konektoru."
+          "checkSystem": "Test connector",
+          "checkSystemTooltip": "Performs save actual settings and call test on connector.",
+          "loadConnectorDefinition": "Load definition of connector"
         },
         "save": {
           "success": "Konfigurace konektoru pro systém [{{name}}] byla úspěšně uložena."
@@ -444,7 +447,20 @@
         "bundleName": "Bundle konektoru",
         "bundleVersion": "Verze konektoru"
       },
-      "connectorHost": "Server s konektory"
+      "remoteConnector": {
+        "label": "Remote connector server",
+        "help": "They will be loaded remote connectors instead of local."
+      },
+      "connectorHost": "Server with connectors"
+    },
+    "ConnectorServer": {
+      "name": "Name",
+      "chooseConnectorServer": "Choose remote connector server",
+      "host": "Host",
+      "port": "Port",
+      "password": "Password",
+      "timeout": "Timeout",
+      "useSsl": "SSL"
     },
     "RoleSystem": {
       "_type": "Role přiřazuje účet na systému",

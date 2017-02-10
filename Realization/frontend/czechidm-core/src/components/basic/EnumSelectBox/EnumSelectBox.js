@@ -227,7 +227,7 @@ class EnumSelectBox extends SelectBox {
   }
 
   getSelectComponent() {
-    const { placeholder, multiSelect, fieldLabel, searchable } = this.props;
+    const { placeholder, multiSelect, fieldLabel, searchable, clearable } = this.props;
     const { value, readOnly, disabled } = this.state;
     //
     return (
@@ -239,6 +239,7 @@ class EnumSelectBox extends SelectBox {
           onChange={this.onChange}
           disabled={readOnly || disabled}
           ignoreCase
+          clearable={clearable}
           ignoreAccents={false}
           multi={multiSelect}
           onValueClick={this.gotoContributor}
@@ -267,13 +268,15 @@ EnumSelectBox.propTypes = {
     PropTypes.symbol
   ]),
   searchable: PropTypes.bool,
-  useSymbol: PropTypes.bool
+  useSymbol: PropTypes.bool,
+  clearable: PropTypes.bool
 };
 
 EnumSelectBox.defaultProps = {
   ...SelectBox.defaultProps,
   searchable: false,
-  useSymbol: true
+  useSymbol: true,
+  clearable: true
 };
 
 export default EnumSelectBox;

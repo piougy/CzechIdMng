@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  * @author Radek Tomiška
  *
  */
-public class TestSchedulableTask extends AbstractSchedulableTaskExecutor {
+public class TestSchedulableTask extends AbstractSchedulableTaskExecutor<String> {
 
 	private String result;
 	private Long count;
@@ -36,13 +36,13 @@ public class TestSchedulableTask extends AbstractSchedulableTaskExecutor {
 	}
 	
 	@Override
-	public void process() {
+	public String process() {
 		for (long i = 0; i < count; i++) {
 			counter++;
 			if(!updateState()) {
 				break;
 			}
 		}			
-		DefaultSchedulerManagerIntegrationTest.processed = result;
+		return result;
 	}
 }

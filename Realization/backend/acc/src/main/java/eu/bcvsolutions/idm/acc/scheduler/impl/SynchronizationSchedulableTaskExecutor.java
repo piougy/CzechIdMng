@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
  */
 @Service
 @Description("Synchronization scheduling - publishes start event only")
-public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableTaskExecutor {
+public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 
 	private static final String PARAMETER_UUID = "Synchronization uuid";
 	@Autowired
@@ -46,8 +46,9 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	}
 	
 	@Override
-	public void process() {
-		synchronizationService.startSynchronizationEvent(getConfig());		
+	public Boolean process() {
+		synchronizationService.startSynchronizationEvent(getConfig());	
+		return true;
 	}
 	
 	private SysSyncConfig getConfig() {

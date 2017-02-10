@@ -7,11 +7,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
@@ -47,7 +48,6 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	private SecurityService securityService;
 	//
 	private DefaultLongRunningTaskManager manager;
-	private String processed = null;
 	
 	@Before
 	public void init() {		
@@ -58,14 +58,13 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 				securityService);
 	}
 	
-	@Ignore
 	@Test
-	public void testRunSimpleTask() {
+	public void testRunSimpleTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_01";
-		LongRunningTaskExecutor taskExecutor = new TestSimpleLongRunningTaskExecutor(result);
+		LongRunningTaskExecutor<String> taskExecutor = new TestSimpleLongRunningTaskExecutor(result);
 		assertNull(taskExecutor.getLongRunningTaskId());
 		//
-		manager.execute(taskExecutor);
+		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
 		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertNotNull(longRunningTask);
@@ -73,28 +72,21 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertEquals(taskExecutor.getClass().getCanonicalName(), longRunningTask.getTaskType());
 		assertEquals(configurationService.getInstanceId(), longRunningTask.getInstanceId());
 		//
-		Function<String, Boolean> continueFunction = res -> {
-			return !result.equals(processed);
-		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		assertEquals(result, futureTask.getFutureTask().get());
 		//
 		longRunningTask = service.get(longRunningTask.getId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
 	}
 	
 	@Test
-	@Ignore
-	public void testRunCountableTask() {
+	public void testRunCountableTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_02";
 		Long count = 10L;
-		LongRunningTaskExecutor taskExecutor = new TestCountableLongRunningTaskExecutor(result, count);
+		LongRunningTaskExecutor<String> taskExecutor = new TestCountableLongRunningTaskExecutor(result, count);
 		//
-		manager.execute(taskExecutor);
-		//	
-		Function<String, Boolean> continueFunction = res -> {
-			return !result.equals(processed);
-		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
+		//
+		assertEquals(result, futureTask.getFutureTask().get());
 		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.EXECUTED, longRunningTask.getResult().getState());
@@ -102,20 +94,17 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertEquals(count, longRunningTask.getCounter());
 	}
 	
-	// TODO: Locking
+	// TODO: locking - start event override canceled state
 	// @Test
-	public void testCancelTaskBeforeStart() {
+	public void testCancelTaskBeforeStart() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_03";
 		Long count = 50L;
-		LongRunningTaskExecutor taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
+		LongRunningTaskExecutor<String> taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
-		manager.execute(taskExecutor);
+		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
 		manager.cancel(taskExecutor.getLongRunningTaskId());
 		//	
-		Function<String, Boolean> continueFunction = res -> {
-			return !result.equals(processed);
-		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		assertEquals(result, futureTask.getFutureTask().get());
 		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
@@ -124,25 +113,21 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@Ignore
-	public void testCancelRunningTask() {
+	public void testCancelRunningTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_04";
 		Long count = 100L;
-		LongRunningTaskExecutor taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
+		LongRunningTaskExecutor<String> taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
-		manager.execute(taskExecutor);
+		LongRunningFutureTask<String> futureTask = manager.execute(taskExecutor);
 		//
 		Function<String, Boolean> continueFunction = res -> {
 			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
 		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		waitForResult(continueFunction);
 		//
 		manager.cancel(taskExecutor.getLongRunningTaskId());
 		//
-		continueFunction = res -> {
-			return !result.equals(processed);
-		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		assertEquals(result, futureTask.getFutureTask().get());
 		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertEquals(OperationState.CANCELED, longRunningTask.getResult().getState());
@@ -151,27 +136,26 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@Ignore
-	public void testInterruptRunningTask() {
+	public void testInterruptRunningTask() throws InterruptedException, ExecutionException {
 		String result = "TEST_SUCCESS_05";
 		Long count = 100L;
-		LongRunningTaskExecutor taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
+		LongRunningTaskExecutor<String> taskExecutor = new TestStopableLongRunningTaskExecutor(result, count);
 		//
 		manager.execute(taskExecutor);
 		//
 		Function<String, Boolean> continueFunction = res -> {
 			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
 		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
-		//
-		manager.interrupt(taskExecutor.getLongRunningTaskId());
-		//
-		continueFunction = res -> {
-			return !service.get(taskExecutor.getLongRunningTaskId()).isRunning();
-		};
-		DefaultSchedulerManagerIntegrationTest.waitForResult(continueFunction);
+		waitForResult(continueFunction);
 		//
 		IdmLongRunningTask longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
+		assertEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
+		assertEquals(count, longRunningTask.getCount());
+		assertTrue(longRunningTask.isRunning());
+		//
+		assertTrue(manager.interrupt(taskExecutor.getLongRunningTaskId()));
+		//
+		longRunningTask = service.get(taskExecutor.getLongRunningTaskId());
 		assertNotEquals(OperationState.RUNNING, longRunningTask.getResult().getState());
 		assertEquals(count, longRunningTask.getCount());
 		assertNotEquals(count, longRunningTask.getCounter());
@@ -179,7 +163,6 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 	}
 	
 	@Test
-	@Ignore
 	public void testCancelPreviouslyRunnedTask() {
 		IdmLongRunningTask taskOne = new IdmLongRunningTask();
 		taskOne.setResult(new OperationResult.Builder(OperationState.RUNNING).build());
@@ -206,7 +189,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		assertTrue(taskTwo.isRunning());
 	}
 	
-	private class TestSimpleLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor {
+	private class TestSimpleLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {
 
 		private final String result;
 		
@@ -220,17 +203,15 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		}
 		
 		@Override
-		public void process() {
-			processed = result;
+		public String process() {
+			return result;
 		}
 		
 	}
 	
-	private class TestCountableLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor {
+	private class TestCountableLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {
 
 		private final String result;
-		private final Long count;
-		private Long counter;
 		
 		public TestCountableLongRunningTaskExecutor(String result, Long count) {
 			this.result = result;
@@ -239,32 +220,21 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		}
 		
 		@Override
-		public Long getCount() {
-			return count;
-		}
-		@Override
-		public Long getCounter() {
-			return counter;
-		}
-		
-		@Override
-		public void process() {
+		public String process() {
 			for (long i = 0; i < count; i++) {
 				counter++;
 				if(!updateState()) {
 					break;
 				}
-			}			
-			processed = result;
+			}
+			return result;
 		}
 		
 	}
 	
-	private class TestStopableLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor {
+	private class TestStopableLongRunningTaskExecutor extends AbstractLongRunningTaskExecutor<String> {
 
 		private final String result;
-		private final Long count;
-		private Long counter;
 		
 		public TestStopableLongRunningTaskExecutor(String result, Long count) {
 			this.result = result;
@@ -273,16 +243,7 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 		}
 		
 		@Override
-		public Long getCount() {
-			return count;
-		}
-		@Override
-		public Long getCounter() {
-			return counter;
-		}
-		
-		@Override
-		public void process() {
+		public String process() {
 			for (long i = 0; i < count; i++) {
 				counter++;
 				if(!updateState()) {
@@ -291,11 +252,23 @@ public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegr
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException ex) {
-					throw new CoreException(ex);
+					throw new CoreException("text executor was interruped", ex);
 				}
-			}			
-			processed = result;
+			}
+			return result;
 		}
 		
+	}
+	
+	protected static void waitForResult(Function<String, Boolean> continueFunction) {
+		int counter = 0;
+		while(continueFunction.apply(null) && (counter < 25)) {
+			counter++;
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException ex) {
+				throw new CoreException(ex);
+			}
+		};
 	}
 }

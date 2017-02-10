@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  * @author Radek Tomiška
  *
  */
-public abstract class AbstractLongRunningTaskExecutor implements LongRunningTaskExecutor {
+public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningTaskExecutor<V> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired
@@ -85,20 +85,20 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	
 	
 	@Override
-	public void run() {
+	public V call() {
 		try {
 			if (!start()) {
-				return;
+				return null;
 			}
-			process();
+			V result = process();
 			//
-			end(null);
+			return end(result, null);
 		} catch (Exception ex) {
-			end(ex);
+			return end(null, ex);
 		}
 	}
 	
-	protected void end(Exception ex) {
+	protected V end(V result, Exception ex) {
 		Assert.notNull(taskId);
 		IdmLongRunningTask task = service.get(taskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
@@ -119,6 +119,8 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		}
 		task.setRunning(false);
 		service.save(task);
+		//
+		return result;
 	}
 	
 	/**

@@ -1,9 +1,12 @@
 package eu.bcvsolutions.idm.core.scheduler.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 
 import javax.annotation.PostConstruct;
 
@@ -23,6 +26,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
@@ -32,6 +36,7 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Default implementation {@link LongRunningTaskManager}
  * 
+ * TODO: long running task interface only + AOP wrapper for long running task executor
  * 
  * @author Radek Tomiška
  *
@@ -80,23 +85,29 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 		});
 	}
 	
+	@Override
+	@Scheduled(fixedDelay = 10000)
+	public void scheduleProcessCreated() {
+		processCreated();
+	}
+	
 	/**
 	 * Executes long running task on this instance
 	 */
 	@Override
-	@Scheduled(fixedDelay = 10000)
 	@SuppressWarnings("unchecked")
-	public void processCreated() {
+	public List<LongRunningFutureTask<?>> processCreated() {
 		// run as system - called from scheduler internally
 		securityService.setSystemAuthentication();
 		//
+		List<LongRunningFutureTask<?>> taskList = new ArrayList<LongRunningFutureTask<?>>();
 		service.getTasks(configurationService.getInstanceId(), OperationState.CREATED).forEach(task -> {
-			LongRunningTaskExecutor taskExecutor = null;
+			LongRunningTaskExecutor<?> taskExecutor = null;
 			ResultModel resultModel = null;
 			Exception ex = null;
 			//
 			try {
-				taskExecutor = (LongRunningTaskExecutor) AutowireHelper.createBean(Class.forName(task.getTaskType()));
+				taskExecutor = (LongRunningTaskExecutor<?>) AutowireHelper.createBean(Class.forName(task.getTaskType()));
 				taskExecutor.setLongRunningTaskId(task.getId());
 				taskExecutor.init((Map<String, Object>) task.getTaskProperties());			
 			} catch (ClassNotFoundException e) {
@@ -120,13 +131,14 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 				task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				service.save(task);
 			} else {
-				execute(taskExecutor);
+				taskList.add(execute(taskExecutor));
 			}			
 		});
+		return taskList;
 	}
 	
 	@Override
-	public void execute(LongRunningTaskExecutor taskExecutor) {
+	public <V> LongRunningFutureTask<V> execute(LongRunningTaskExecutor<V> taskExecutor) {
 		// autowire task properties
 		AutowireHelper.autowire(taskExecutor);
 		// prepare task
@@ -152,7 +164,9 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 			}
 		}		
 		// execute
-		executor.execute(taskExecutor);
+		FutureTask<V> futureTask = new FutureTask<>(taskExecutor);
+		executor.execute(futureTask);
+		return new LongRunningFutureTask<>(taskExecutor, futureTask);
 	}
 
 	@Override
@@ -174,7 +188,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	
 	@Override
 	@Transactional
-	public void interrupt(UUID longRunningTaskId) {
+	public boolean interrupt(UUID longRunningTaskId) {
 		Assert.notNull(longRunningTaskId);
 		IdmLongRunningTask task = service.get(longRunningTaskId);
 		Assert.notNull(longRunningTaskId);
@@ -211,8 +225,10 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 					task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 				}				
 				service.save(task);
-				return;
+				return true;
 			}
 		}
+		LOG.warn("Long ruuning task with id");
+		return false;
 	}
 }

@@ -91,20 +91,20 @@
     },
 
     "activate": {
-      "action": "Aktivovat",
+      "action": "Activate",
       "header_0": "N/A",
-      "header_1": "Aktivovat záznam",
-      "header_2": "Aktivovat záznamy",
+      "header_1": "Activate record",
+      "header_2": "Activate records",
       "header_5": "$t(action.activate.header_2)",
       "message_0": "N/A",
-      "message_1": "Opravdu chcete aktivovat vybraný záznam [<strong>{{record}}</strong>]?",
-      "message_2": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybrané záznamy?",
-      "message_5": "Vybrány záznamy: [<strong>{{records}}</strong>].<br /><br />Opravdu chcete aktivatovat <strong>{{count}}</strong> vybraných záznamů?",
-      "error": "Při activaci záznamu [{{record}}] nastala chyba",
+      "message_1": "Do you really want to remove selected record [<strong>{{record}}</strong>]?",
+      "message_2": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you want to activate <strong>{{count}}</strong> vybrané záznamy?",
+      "message_5": "Selected records: [<strong>{{records}}</strong>].<br /><br />Do you really want to activate <strong>{{count}}</strong> vybraných záznamů?",
+      "error": "An error occurred while activating [{{record}}]",
       "success_0": "N/A",
-      "success_1": "Vybraný záznam [{{record}}] byl úspěšně aktivován",
-      "success_2": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány",
-      "success_5": "Vybrané záznamy [{{records}}] byly úspěšně aktivovány"
+      "success_1": "elected record [{{record}}] were successfully activated",
+      "success_2": "elected records [{{records}}] were successfully activated",
+      "success_5": "elected records [{{records}}] were successfully activated"
     },
       "deactivate": {
       "action": "Deactivate",
@@ -344,12 +344,12 @@
       "NOT": "Not sended"
     },
     "AccessTypeEnum": {
-      "DENY_ALL": "Přístup zamítnut všem",
-      "PERMIT_ALL": "Přístup povolen všem",
-      "NOT_AUTHENTICATED": "Pouze bez přihlášení",
-      "IS_AUTHENTICATED": "Je třeba přihlášení",
-      "HAS_ANY_AUTHORITY": "Alesnoň jedno z oprávnění",
-      "HAS_ALL_AUTHORITIES": "Přiřazena všechna z oprávnění"
+      "DENY_ALL": "Access denied to all",
+      "PERMIT_ALL": "Allowed access to all",
+      "NOT_AUTHENTICATED": "Not authenticated",
+      "IS_AUTHENTICATED": "Login required",
+      "HAS_ANY_AUTHORITY": "At least one of the privileges",
+      "HAS_ALL_AUTHORITIES": "Assigned all the permissions"
     },
     "AuditModificationEnum": {
       "ADD": "create",
@@ -385,7 +385,7 @@
     	"CANCELED": "Canceled"
     },
     "TriggerTypeEnum": {
-      "SIMPLE": "Jednorázové spuštění",
+      "SIMPLE": "One-time start",
       "CRON": "Cron"
     }
   },
@@ -403,101 +403,101 @@
       "DELETE": "Delete"
     },
     "group": {
-      "APP": "Správa aplikace",
+      "APP": "App configuration",
       "AUDIT": "Audit",
-      "CONFIGURATION": "Konfigurace aplikace (veřejná)",
+      "CONFIGURATION": "Configuration (app)",
       "CONFIGURATIONSECURED": "Konfigurace aplikace (systémová)",
-      "IDENTITY": "Uživatelé",
-      "MODULE": "Moduly",
-      "NOTIFICATION": "Notifikace",
-      "ROLE": "Role",
-      "TREENODE": "Prvky struktur",
-      "TREETYPE": "Typy struktur",
-      "SCRIPT": "Pravidla"
+      "IDENTITY": "Users",
+      "MODULE": "Modules",
+      "NOTIFICATION": "Notifications",
+      "ROLE": "Roles",
+      "TREENODE": "Tree nodes",
+      "TREETYPE": "Structure types",
+      "SCRIPT": "Scripts"
     }
   },
   "content": {
     "error": {
       "401": {
         "title": "401",
-        "description": "Pro přístup je třeba se přihlásit."
+        "description": "To access must be logged."
       },
       "403": {
         "title": "403",
-        "description": "Nedostatečná přístupová oprávnění."
+        "description": "Insufficient access rights."
       },
       "404": {
         "title": "404",
-        "description": "Stránka nenalezena.",
-        "record": "Záznam s identifikátorem <strong>{{id}}</strong> neexistuje."
+        "description": "Page not found.",
+        "record": "Record ID <strong>{{id}}</strong> does not exist."
       },
       "500": {
         "title": "Oups, this is embarasing"
       },
       "503": {
         "title": "503",
-        "description": "Služba není momentálně dostupná.",
-        "note": "Zkuste to prosím později."
+        "description": "The service is currently not available.",
+        "note": "Please, try it later."
       }
     },
     "about": {
-      "header": "O aplikaci",
+      "header": "About app",
       "title": "$t(content.about.header)",
-      "sourceCodeOn": "Projekt dostupný na",
+      "sourceCodeOn": "Project source available at",
       "link": "$t(content.about.header)"
     },
     "login": {
-      "header": "Přihlášení",
+      "header": "Log in",
       "title": "$t(content.login.header)",
       "username": "$t(entity.Identity.username)",
-      "password": "Heslo",
-      "admin": "Administártor",
+      "password": "Password",
+      "admin": "Administrator",
       "button": {
         "login": "$t(content.login.header)",
         "passwordReset": "$t(content.password.reset.button.passwordReset)",
         "passwordChange": "$t(content.password.change.button.passwordChange)",
         "logout": {
-          "value": "Odhlásit se",
-          "title": "Odhlásit se úplně a pokračovat na nové přihlášení"
+          "value": "Logout",
+          "title": "Log out completely and continue on new logging"
         }
       }
     },
     "logout": {
-      "header": "Odhlášení",
+      "header": "Logout",
       "title": "$t(content.logout.header)",
       "message": {
-        "logout": "Odhlášení proběhlo"
+        "logout": "Logout."
       }
     },
     "password": {
       "reset": {
-        "header": "Reset hesla",
-        "title": "Reset hesla",
-        "username": "Zadejte uživatelské jméno",
+        "header": "Password reset",
+        "title": "Password reset",
+        "username": "Enter your username",
         "token": {
-          "label": "Ověřovací kód",
-          "placeholder": "Ověřovací kód obdržený v SMS zprávě"
+          "label": "Verification code",
+          "placeholder": "Verification code received via SMS"
         },
-        "password": "Nové heslo",
+        "password": "New password",
         "passwordAgain": {
-          "label": "Heslo znovu",
-          "placeholder": "Nové heslo pro kontrolu"
+          "label": "Password again",
+          "placeholder": "New password again"
         },
         "button": {
-          "haveToken": "Již jsem obdržel ověřovací kód",
-          "sendToken": "Odeslat",
-          "passwordReset": "Reset hesla"
+          "haveToken": "I have already received the verification code",
+          "sendToken": "Send",
+          "passwordReset": "Password reset"
         },
         "message": {
           "generateResetToken": {
-            "info": "Tento formulář lze použít pro reset hesla Vaší uživatelské identity. Po odeslání Vám bude zaslán ověřovací kód, který budete moci použít pro nastavení nového hesla. Heslo lze resetovat pouze jednou za 24 hodin. Pokud již máte platný ověřovací kód, stiskněte tlačítko Již jsem obdržel ověřovací kód.",
-            "success": "Oveřovací kód Vám byl zaslán prostřednictvím SMS"
+            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press I have already received",
+            "success": "Verification code will be sent via SMS"
           },
           "passwordReset": {
-            "info": "Na Vaše telefonní číslo byl zaslán ověřovací kód. Nyní můžete změnit heslo k Vašemu uživatelskému účtu. Pokud neobdržíte SMS zprávu do několika minut, obraťte se na technickou podporu. V případě technických problémů se obraťte na podporu na emailové adrese helpdesk@bcvsolutions.eu",
+            "info": "On your phone number verification code was sent. Now you can change the password to your user account. If you do not receive an SMS message to a few minutes, please contact technical support. For technical problems, contact support at the email address helpdesk@bcvsolutions.eu",
             "success": {
-              "title": "Reset hesla proběhl v pořádku",
-              "message": "Vaše heslo bylo úspěšně změněno na všech Vašich účtech"
+              "title": "Reset your password successfully changed",
+              "message": "Your password was successfully changed on all your accounts"
             }
           }
         }

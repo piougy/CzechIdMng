@@ -599,120 +599,120 @@
       }
     },
     "configuration": {
-      "header": "Konfigurace aplikace",
-      "title": "Konfigurace aplikace",
+      "header": "Configuration",
+      "title": "Configuration",
       "edit": {
-        "header": "{{name}} <small>detail položky konfigurace</small>"
+        "header": "{{name}} <small>detail configuration items</small>"
       },
       "create": {
-        "header": "Nová konfigurační položka"
+        "header": "New configuration items"
       },
       "save": {
-        "success": "Položka konfigurace [{{name}}] byla úspěšně uložena"
+        "success": "Configuration items [{{name}}] successfully saved"
       },
-      "fromFile": "Konfigurace aplikace z konfiguračních souborů <small>application.properties</small>",
-      "fromEnvironment": "Konfigurace prostředí <small>backendového serveru</small>",
-      "guarded": "Hodnoty položky konfigurace obsahující klíč [<strong>{{guarded}}</strong>] budou automaticky nastaveny tajnými a neveřejnými. Hodnoty začínající prefixem [<strong>idm.sec.</strong>] nemohou býti veřejnými.",
+      "fromFile": "Configuring the application of the configuration files <small>application.properties</small>",
+      "fromEnvironment": "Configuring the environment of <small>backend</small>",
+      "guarded": "The values of configuration items containing key [<strong>{{guarded}}</strong>] The values of configuration items containing key will automatically set the secret and invisible. Values beginning with the prefix [<strong>idm.sec.</strong>] can not be visible.",
       "confidential": {
-        "help": "Nastavení bude uložené v šifrovaném úložišti"
+        "help": "The setting will be stored in an encrypted vault"
       },
       "secured": {
-        "notAllowed": "Nemáte oprávnění pro editaci systémové konfigurace",
-        "help": "Veřejné nastavení aplikace lze načíst bez přihlášení. Tajné nastavení nemůže být zároveň veřejným."
+        "notAllowed": "You do not have permission to edit the system configuration",
+        "help": "Public settings can be loaded without logging in. Secret settings can also be public."
       }
     },
     "tasks-summary": {
-      "summary": "Přehled úkolů",
-      "approvalTasks": "Schvalované úkoly",
+      "summary": "Tasks list",
+      "approvalTasks": "Approved tasks",
       "filter": {
         "createdDateFrom": {
-          "label": "Vytvořeno od",
-          "placeholder": "Vytvořeno od"
+          "label": "Created from",
+          "placeholder": "Created from"
         },
         "createdDateTill": {
-          "label": "Vytvořeno do",
-          "placeholder": "Vytvořeno do"
+          "label": "Created till",
+          "placeholder": "Created till"
         },
         "closeDateFrom": {
-          "label": "Ukončeno od",
-          "placeholder": "Úkol byl ukončen od"
+          "label": "Closed by",
+          "placeholder": "The task was finished by"
         },
         "closeDateTill": {
-          "label": "Ukončeno do",
-          "placeholder": "Úkol byl ukončen do"
+          "label": "Ended till",
+          "placeholder": "The task was completed till"
         },
         "approvedBy": {
-          "label": "Schvalovatel",
-          "placeholder": "Kdo úkol schválil"
+          "label": "Approver",
+          "placeholder": "Who appoved the task"
         },
         "taskState": {
-          "label": "Stav",
-          "placeholder": "Stav úkolu"
+          "label": "State",
+          "placeholder": "Task state"
         },
         "taskName": {
-          "label": "Název",
-          "placeholder": "Název úkolu"
+          "label": "Name",
+          "placeholder": "Task name"
         },
         "taskId": {
           "label": "ID",
-          "placeholder": "Identifikátor úkolu"
+          "placeholder": "Task id"
         },
         "note": {
-          "label": "Poznámka",
-          "placeholder": "Poznámka"
+          "label": "Note",
+          "placeholder": "Task note"
         }
       }
     },
     "tasks-assigned": {
-      "assigned": "Přiřazené úkoly",
+      "assigned": "Assigned tasks",
       "action": {
         "approve": {
-          "action": "Schválit",
-          "header_1": "Schválení úkolu",
-          "header_2": "Schválení úkolů",
+          "action": "Approve tesk",
+          "header_1": "Task to approve",
+          "header_2": "Task to approve",
           "header_5": "$t(content.tasks-assigned.action.approve.header_2)",
-          "message_1": "Opravdu chcete schválit vybraný úkol?",
-          "message_2": "Opravdu chcete schválit <strong>{{count}}</strong> vybrané úkoly?",
-          "message_5": "Opravdu chcete schválit <strong>{{count}}</strong> vybraných úkolů?",
-          "error": "Při schvalování úkolu {{task}} nastala chyba",
-          "success_1": "Úkol byl úspěšně schválen",
-          "success_2": "Úkoly byly úspěšně schváleny",
+          "message_1": "Do you really want to approve the selected task?",
+          "message_2": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
+          "message_5": "Do you really want to approve <strong>{{count}}</strong> the selected tasks?",
+          "error": "When approving the task {{task}} task error occurred.",
+          "success_1": "The task was successfully approved",
+          "success_2": "Tasks were successfully approved",
           "success_5": "$t(content.tasks-assigned.action.approve.success_2)"
         },
         "disapprove": {
-          "action": "Zamítnout",
-          "header_1": "Zamítnutí úkolu",
-          "header_2": "Zamítnutí úkolů",
+          "action": "Reject",
+          "header_1": "Rejection the task",
+          "header_2": "rejection the task",
           "header_5": "$t(content.tasks-assigned.action.approve.header_2)",
-          "message_1": "Opravdu chcete zamítnout vybraný úkol?",
-          "message_2": "Opravdu chcete zamítnout <strong>{{count}}</strong> vybrané úkoly?",
-          "message_5": "Opravdu chcete zamítnout <strong>{{count}}</strong> vybraných úkolů?",
-          "error": "Při zamítání úkolu {{task}} nastala chyba",
-          "success_1": "Úkol byl úspěšně zamítnut",
-          "success_2": "Úkoly byly úspěšně zamítnuty",
+          "message_1": "Do you really want to reject the selected task?",
+          "message_2": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
+          "message_5": "Do you really want to reject <strong>{{count}}</strong> the selected tasks?",
+          "error": "When rejecting the task {{task}} task error occurred",
+          "success_1": "The task was successfully approved",
+          "success_2": "Tasks were successfully approved",
           "success_5": "$t(content.tasks-assigned.action.approve.success_2)"
         }
       }
     },
     "task":{
         "instances": {
-          "header": "Nevyřešené úkoly",
-          "title": "Nevyřešené úkoly"
+          "header": "Unresolved tasks",
+          "title": "Unresolved tasks"
         },
         "instance": {
-          "header": "Detail úkolu",
-          "title": "Detail úkolu",
-          "name": "Název aktivity",
-          "description": "Název úkolu",
-          "createdDate": "Úkol vytvořen",
-          "applicantFullName": "Jméno žadatele",
-          "applicant": "Žadatel",
-          "successComplete": "Úkol {{name}} byl úspěšně vyřešen.",
-          "completeTaskConfirmTitle": "Potvrzení ukončení úkolu",
-          "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
+          "header": "Task detail",
+          "title": "Task detail",
+          "name": "Activity name",
+          "description": "Task name",
+          "createdDate": "Task created",
+          "applicantFullName": "Applicant name",
+          "applicant": "Applicant",
+          "successComplete": "The task {{name}} was successfully solved.",
+          "completeTaskConfirmTitle": "Confirmation of task completion",
+          "completeTaskConfirmDetail": "o you really want this task to terminate?",
           "role": {
-            "currentRoles": "Aktuálně přiřazená oprávnění",
-            "conceptIdentityRoles": "Oprávnění žádatele"
+            "currentRoles": "Currently assigned permissions",
+            "conceptIdentityRoles": "Applicants roles"
           }
         },
         "DefaultTaskDetail": {

@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
 
 /**
@@ -52,15 +53,7 @@ public abstract class AbstractEntityEventProcessor<E extends BaseEntity> impleme
 	
 	@Override
 	public String getModule() {
-		String name = this.getClass().getCanonicalName();
-		if (StringUtils.isEmpty(name)) {
-			return null;
-		}
-		String names[] = name.split("\\.");
-		if (names.length > 3) {
-			return name.split("\\.")[3];
-		}
-		return null;
+		return EntityUtils.getModule(this.getClass());
 	}
 	
 	@Override
@@ -126,7 +119,8 @@ public abstract class AbstractEntityEventProcessor<E extends BaseEntity> impleme
 			// event is suspended
 			return;
 		}
-		if (event.getProcessedOrder() != null && event.getProcessedOrder() >= this.getOrder()) {	
+		Integer processedOrder = event.getProcessedOrder();
+		if (processedOrder != null && processedOrder >= this.getOrder()) {	
 			// event was processed with this processor
 			return;
 		}

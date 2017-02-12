@@ -126,6 +126,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				treeType = new IdmTreeType();
 				treeType.setCode(DEFAULT_TREE_TYPE);
 				treeType.setName("Organization structure");
+				treeType.setDefaultTreeType(true);
 				this.treeTypeService.save(treeType);
 			}
 			//

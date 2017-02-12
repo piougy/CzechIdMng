@@ -72,35 +72,40 @@ export default class TypeDetail extends Basic.AbstractContent {
   render() {
     const { uiKey } = this.props;
     const { showLoading } = this.state;
+    //
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREETYPE_WRITE')} >
-              <Basic.TextField
-                ref="code"
-                label={this.i18n('entity.TreeType.code')}
-                required
-                max={255}/>
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.TreeType.name')}
-                required
-                min={0}
-                max={255}/>
-            </Basic.AbstractForm>
+          <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREETYPE_WRITE')} >
+            <Basic.TextField
+              ref="code"
+              label={this.i18n('entity.TreeType.code')}
+              required
+              max={255}/>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.TreeType.name')}
+              required
+              min={0}
+              max={255}/>
+            <Basic.Checkbox
+              ref="defaultTreeType"
+              label={this.i18n('entity.TreeType.defaultTreeType.label')}
+              helpBlock={this.i18n('entity.TreeType.defaultTreeType.help')}/>
+          </Basic.AbstractForm>
 
-            <Basic.PanelFooter showLoading={showLoading} >
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </form>
+          <Basic.PanelFooter showLoading={showLoading} >
+            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+              {this.i18n('button.save')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </form>
       </div>
     );
   }

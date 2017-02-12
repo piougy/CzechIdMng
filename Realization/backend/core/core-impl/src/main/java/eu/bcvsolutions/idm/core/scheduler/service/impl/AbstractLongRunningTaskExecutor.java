@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
@@ -23,6 +24,8 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 
 /**
  * Template for long running task executor. This template persists long running tasks.
+ * 
+ * TODO: interface only + AOP executor
  * 
  * @author Radek Tomiška
  *
@@ -45,7 +48,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	 */
 	@Override
 	public String getModule() {
-		return this.getClass().getCanonicalName().split("\\.")[3];
+		return EntityUtils.getModule(this.getClass());
 	}
 	
 	@Override

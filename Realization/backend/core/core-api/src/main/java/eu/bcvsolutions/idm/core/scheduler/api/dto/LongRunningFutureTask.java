@@ -9,7 +9,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
  * 
  * @author Radek Tomiška
  *
- * @param <V>
+ * @param <V> Expected result type
  */
 public class LongRunningFutureTask<V> {
 

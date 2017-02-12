@@ -44,7 +44,7 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 				}
 				Thread.sleep(300L);
 			}
-			return true;
+			return Boolean.TRUE;
 		} catch (Exception ex) {
 			throw new CoreException(ex);
 		}

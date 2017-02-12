@@ -80,6 +80,11 @@ module.exports = {
       component: require('./src/content/identity/PasswordReset')
     },
     {
+      path: 'organizations',
+      component: require('./src/content/organization/Organizations'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
+    },
+    {
       path: 'tree',
       childRoutes: [
         {

@@ -94,7 +94,7 @@ public class WebConfig extends RepositoryRestMvcConfiguration {
         configurer.setUrlPathHelper(urlPathHelper);
         //
 		// disable extension suffixes
-		configurer.setUseSuffixPatternMatch(false);
+		configurer.setUseSuffixPatternMatch(Boolean.FALSE);
 		//
 		// this will be useful in future ...
 		// configurer.setUseRegisteredSuffixPatternMatch(true);

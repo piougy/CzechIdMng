@@ -143,8 +143,9 @@ export class TypeTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.Column property="code" sort width="125px"/>
+            <Advanced.Column property="code" sort width={125}/>
             <Advanced.Column property="name" sort/>
+            <Advanced.Column property="defaultTreeType" header={this.i18n('entity.TreeType.defaultTreeType.label')} sort width={100} face="boolean"/>
           </Advanced.Table>
         </div>
       </Basic.Row>

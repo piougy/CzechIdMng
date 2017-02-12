@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 import uuid from 'uuid';
 import faker from 'faker';
 //
@@ -11,15 +10,12 @@ import SearchParameters from '../../../domain/SearchParameters';
 
 // Root nodes  key for tree
 const rootNodesKey = 'tree-node-table-roots';
-
-// Table uiKey
-const tableUiKey = 'tree-node-table';
 const treeTypeManager = new TreeTypeManager();
 
 /**
-* Table of nodes
+* Table of tree nodes
 */
-export class NodeTable extends Basic.AbstractContent {
+export default class NodeTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -97,7 +93,7 @@ export class NodeTable extends Basic.AbstractContent {
   }
 
   onDelete(bulkActionValue, selectedRows) {
-    const { treeNodeManager } = this.props;
+    const { treeNodeManager, uiKey } = this.props;
     const { type } = this.state;
     const selectedEntities = treeNodeManager.getEntitiesByIds(this.context.store.getState(), selectedRows);
     //
@@ -105,7 +101,7 @@ export class NodeTable extends Basic.AbstractContent {
       this.i18n(`action.${bulkActionValue}.message`, { count: selectedEntities.length, record: treeNodeManager.getNiceLabel(selectedEntities[0]), records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') }),
       this.i18n(`action.${bulkActionValue}.header`, { count: selectedEntities.length, records: treeNodeManager.getNiceLabels(selectedEntities).join(', ') })
     ).then(() => {
-      this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, tableUiKey, (entity, error, successEntities) => {
+      this.context.store.dispatch(treeNodeManager.deleteEntities(selectedEntities, uiKey, (entity, error, successEntities) => {
         if (entity && error) {
           this.addErrorMessage({ title: this.i18n(`action.delete.error`, { record: treeNodeManager.getNiceLabel(entity) }) }, error);
         }
@@ -137,14 +133,15 @@ export class NodeTable extends Basic.AbstractContent {
   }
 
   _changeTree(entity, event) {
-    const { treeNodeManager } = this.props;
     if (event) {
       event.preventDefault();
     }
+    const { treeNodeManager, showTreeTypeSelect } = this.props;
+    //
     if (!entity.id) {
       return;
     }
-
+    //
     this.setState({
       showLoading: true
     }, () => {
@@ -164,7 +161,9 @@ export class NodeTable extends Basic.AbstractContent {
         }
         this.cancelFilter();
       }));
-      this.context.router.push('/tree/nodes/?type=' + entity.id);
+      if (showTreeTypeSelect) {
+        this.context.router.push('/tree/nodes/?type=' + entity.id);
+      }
     });
   }
 
@@ -230,7 +229,7 @@ export class NodeTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { treeNodeManager } = this.props;
+    const { treeNodeManager, uiKey, showTreeTypeSelect } = this.props;
     const { filterOpened, rootNodes, showLoading, type, rootNodesCount } = this.state;
     const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
     return (
@@ -238,7 +237,9 @@ export class NodeTable extends Basic.AbstractContent {
         <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
           <div className="basic-toolbar">
             <div className="pull-left">
-              <h3 style={{ margin: 0 }}>{this.i18n('content.tree.typePick')}</h3>
+              <h3 style={{ margin: 0 }}>
+                { showTreeTypeSelect ? this.i18n('content.tree.typePick') : this.i18n('entity.TreeType._type') }
+              </h3>
             </div>
             <div className="pull-right">
               <Basic.Button
@@ -256,7 +257,7 @@ export class NodeTable extends Basic.AbstractContent {
                 className="btn-xs"
                 style={{ marginRight: 3 }}
                 onClick={this.showTypeDetail.bind(this, {})}
-                rendered={SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_WRITE')}>
                 <Basic.Icon value="fa:plus"/>
               </Basic.Button>
               <Basic.Button
@@ -272,7 +273,7 @@ export class NodeTable extends Basic.AbstractContent {
           </div>
           <div style={{ paddingLeft: 15, paddingRight: 15 }}>
             {
-              !type
+              (!type || !showTreeTypeSelect)
               ||
               <Basic.AbstractForm ref="treePick" uiKey="tree-pick" className="form-horizontal" >
                 <span>
@@ -289,25 +290,22 @@ export class NodeTable extends Basic.AbstractContent {
             {
               !showTree
               ||
-              <Basic.Panel>
-                <Advanced.Tree
-                  ref="organizationTree"
-                  rootNodes={ rootNodes }
-                  rootNodesCount={ rootNodesCount }
-                  headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-                  uiKey="orgTree"
-                  manager={treeNodeManager}
-                  />
-              </Basic.Panel>
+              <Advanced.Tree
+                ref="organizationTree"
+                rootNodes={ rootNodes }
+                rootNodesCount={ rootNodesCount }
+                headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
+                uiKey="orgTree"
+                manager={treeNodeManager}
+                />
             }
           </div>
         </div>
-
         <div className="col-lg-9">
           <Basic.Confirm ref="confirm-delete" level="danger"/>
           <Advanced.Table
             ref="table"
-            uiKey={tableUiKey}
+            uiKey={uiKey}
             forceSearchParameters={new SearchParameters().setFilter('treeType', type.id)}
             manager={treeNodeManager}
             showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
@@ -372,7 +370,7 @@ export class NodeTable extends Basic.AbstractContent {
             <Advanced.Column property="code" width="125px" sort face="text"/>
             <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
             <Advanced.Column property="parent.name" sort/>
-            <Advanced.Column property="treeType.name" sort/>
+            <Advanced.Column property="treeType.name" sort rendered={false}/>
             <Advanced.Column property="disabled" sort face="bool"/>
             <Advanced.Column property="shortName" sort rendered={false}/>
             <Advanced.Column property="parentId" sort rendered={false}/>
@@ -384,17 +382,16 @@ export class NodeTable extends Basic.AbstractContent {
 }
 
 NodeTable.propTypes = {
+  uiKey: PropTypes.string.isRequired,
   type: PropTypes.object.isRequired,
   treeNodeManager: PropTypes.object.isRequired,
-  treeTypeManager: PropTypes.object.isRequired
+  /**
+   * Show tree type select
+   */
+  showTreeTypeSelect: PropTypes.bool,
 };
 
 NodeTable.defaultProps = {
+  uiKey: 'tree-node-table',
+  showTreeTypeSelect: true
 };
-
-function select() {
-  return {
-  };
-}
-
-export default connect(select)(NodeTable);

@@ -131,33 +131,14 @@ module.exports = {
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
       },
       {
-        'id': 'tree',
-        'labelKey': 'content.tree.header',
-        'titleKey': 'content.tree.title',
+        'id': 'organizations',
+        'labelKey': 'content.organizations.header',
+        'titleKey': 'content.organizations.title',
         'icon': 'tree-deciduous',
         'order': 1050,
         'iconColor': '#419641',
-        'path': '/tree/nodes',
-        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
-        'items': [
-          {
-            'id': 'tree-nodes',
-            'labelKey': 'content.tree.nodes.title',
-            'order': 15,
-            'icon': 'apple',
-            'path': '/tree/nodes',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
-          },
-          {
-            'id': 'tree-types',
-            'labelKey': 'content.tree.types.title',
-            'titleKey': 'content.tree.types.title',
-            'order': 10,
-            'icon': 'tree-deciduous',
-            'path': '/tree/types',
-            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
-          }
-        ]
+        'path': '/organizations',
+        'access': [ { 'type': 'IS_AUTHENTICATED' } ]
       },
       {
         'id': 'profile-system-separator',
@@ -395,12 +376,41 @@ module.exports = {
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
           },
           {
+            'id': 'tree',
+            'labelKey': 'content.tree.header',
+            'titleKey': 'content.tree.title',
+            'icon': 'tree-deciduous',
+            'order': 40,
+            'iconColor': '#419641',
+            'path': '/tree/nodes',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+            'items': [
+              {
+                'id': 'tree-nodes',
+                'labelKey': 'content.tree.nodes.title',
+                'order': 15,
+                'icon': 'apple',
+                'path': '/tree/nodes',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+              },
+              {
+                'id': 'tree-types',
+                'labelKey': 'content.tree.types.title',
+                'titleKey': 'content.tree.types.title',
+                'order': 10,
+                'icon': 'tree-deciduous',
+                'path': '/tree/types',
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+              }
+            ]
+          },
+          {
             'id': 'role-catalogues',
             'labelKey': 'content.roleCatalogues.header',
             'titleKey': 'content.roleCatalogues.title',
             'icon': 'fa:list-alt',
             'iconColor': '#dad727',
-            'order': 40,
+            'order': 50,
             'path': '/role-catalogues',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
           },
@@ -410,7 +420,7 @@ module.exports = {
             'titleKey': 'content.passwordPolicies.title',
             'icon': 'fa:key',
             'iconColor': '#ff0000',
-            'order': 45,
+            'order': 60,
             'path': '/password-policies',
             'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['PASSWORDPOLICY_READ'] } ],
             'items': [

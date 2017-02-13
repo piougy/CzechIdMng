@@ -37,6 +37,7 @@ import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
@@ -64,7 +65,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 @Service
 public class DefaultSysSystemService extends AbstractFormableService<SysSystem, SysSystemFilter>
 		implements SysSystemService {
-
+	
 	private final SysSystemRepository systemRepository;
 	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
@@ -75,6 +76,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final SysSyncConfigService synchronizationConfigService;
 	private final FormPropertyManager formPropertyManager;
 	private final SysProvisioningArchiveRepository provisioningArchiveRepository;
+	private final ConfidentialStorage confidentialStorage;
 
 	@Autowired
 	public DefaultSysSystemService(
@@ -88,7 +90,8 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			AccAccountRepository accountRepository,
 			SysSyncConfigService synchronizationConfigService,
 			FormPropertyManager formPropertyManager,
-			SysProvisioningArchiveRepository provisioningArchiveRepository) {
+			SysProvisioningArchiveRepository provisioningArchiveRepository,
+			ConfidentialStorage confidentialStorage) {
 		super(systemRepository, formService);
 		//
 		Assert.notNull(icConfigurationFacade);
@@ -100,6 +103,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(synchronizationConfigService);
 		Assert.notNull(formPropertyManager);
 		Assert.notNull(provisioningArchiveRepository);
+		Assert.notNull(confidentialStorage);
 		//
 		this.systemRepository = systemRepository;
 		this.icConfigurationFacade = icConfigurationFacade;
@@ -111,6 +115,7 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.synchronizationConfigService = synchronizationConfigService;
 		this.formPropertyManager = formPropertyManager;
 		this.provisioningArchiveRepository = provisioningArchiveRepository;
+		this.confidentialStorage = confidentialStorage;
 	}
 	
 	@Override
@@ -119,7 +124,19 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (entity.getConnectorServer() == null) {
 			entity.setConnectorServer(new SysConnectorServer());
 		}
-		return super.save(entity);
+		if (entity.getConnectorKey() == null) {
+			entity.setConnectorKey(new SysConnectorKey());
+		}
+		//
+		SysSystem newSystem = super.save(entity);
+		//
+		// after save entity save password to confidential storage
+		// save password from remote connector server to confidential storage
+		if (entity.getConnectorServer().getPassword() != null) {
+			// save for newSystem
+			confidentialStorage.save(newSystem, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
+		}
+		return newSystem;
 	}
 
 	@Override
@@ -173,7 +190,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		}
 		IcConnectorConfiguration connectorConfig = null;
 		// load connector properties, different between local and remote
-		connectorConfig = icConfigurationFacade.getConnectorConfiguration(system.getConnectorInstance());
+		IcConnectorInstance connectorInstance = system.getConnectorInstance();
+		connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 
 		// load filled form values
 		IdmFormDefinition formDefinition = getConnectorFormDefinition(system.getConnectorInstance());

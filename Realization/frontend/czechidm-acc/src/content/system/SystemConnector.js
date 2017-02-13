@@ -67,7 +67,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
     }
 
     this.setState({
-      showLoading: true
+      showLoading: true,
+      error: null
     }, () => {
       let connector = null;
       if (entity.remote) {
@@ -105,7 +106,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
         this.addError(error);
         return;
       }
-      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      // now we do not want to see success message
+      // this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     });
   }
 
@@ -197,6 +199,9 @@ class SystemConnectorContent extends Basic.AbstractContent {
           </div>
         </Basic.Alert>
       );
+    } else if (!formInstance && !_showLoading) {
+      // connector not found on BE
+      content = null;
     } else if (!formInstance || _showLoading) {
       // connector eav form is loaded from BE
       content = (
@@ -230,7 +235,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
         <Basic.PanelBody>
-          <Basic.AbstractForm rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
+          <Basic.AbstractForm showLoading={_showLoading} rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
             className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
             <Basic.EnumSelectBox
               ref="connector"

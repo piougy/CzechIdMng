@@ -19,7 +19,9 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorKey;
  *
  */
 public interface SysSystemService extends ReadWriteEntityService<SysSystem, SysSystemFilter>, IdentifiableByNameEntityService<SysSystem> {
-
+	
+	public static final String REMOTE_SERVER_PASSWORD = "remoteServerPassword";
+	
 	/**
 	 * Generate and persist schema to system. 
 	 * Use connector info and connector configuration stored in system.

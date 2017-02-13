@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.ic.api;
 
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+
 /**
  * Interface for work with remote connector server
  * 
@@ -25,7 +27,14 @@ public interface IcConnectorServer {
 	 * Return password for remote connector server
 	 * @return
 	 */
-	String getPassword();
+	GuardedString getPassword();
+	
+	/**
+	 * Method is for setting password from confidential storage
+	 * 
+	 * @param password
+	 */
+	void setPassword(GuardedString password);
 	
 	/**
 	 * Return flag if remote server use SSL

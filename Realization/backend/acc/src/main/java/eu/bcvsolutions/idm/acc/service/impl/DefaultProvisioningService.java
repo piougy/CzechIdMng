@@ -497,43 +497,67 @@ public class DefaultProvisioningService implements ProvisioningService {
 		}
 		defaultAttributes.stream().forEach(defaultAttribute -> {
 
-			Optional<SysRoleSystemAttribute> overloadingAttributeOptional = overloadingAttributes.stream()
+			List<SysRoleSystemAttribute> attributesOrdered = overloadingAttributes.stream()
 					.filter(roleSystemAttribute -> {
 						// Search attribute override same schema attribute
 						return roleSystemAttribute.getSystemAttributeMapping().equals(defaultAttribute);
 					}).sorted((att1, att2) -> {
-						// Sort attributes by role name
-						return att2.getRoleSystem().getRole().getName()
-								.compareTo(att1.getRoleSystem().getRole().getName());
-					}).findFirst();
+						// Sort attributes by role priority
+						return new Integer(att2.getRoleSystem().getRole().getPriority())
+								.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
+					}).collect(Collectors.toList());
 
-			if (overloadingAttributeOptional.isPresent()) {
-				SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
-				// Disabled attribute will be skipped
-				if (!overloadingAttribute.isDisabledDefaultAttribute()) {
-					// We can't use instance of SysSysteAttributeMapping and set
-					// up overloaded value (it is entity).
-					// We have to create own dto and set up all values
-					// (overloaded and default)
-					AttributeMapping overloadedAttribute = new MappingAttributeDto();
-					// Default values (values from schema attribute
-					// handling)
-					overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
-					overloadedAttribute
-							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
-					// Overloaded values
-					fillOverloadedAttribute(overloadingAttribute, overloadedAttribute);
-					// Add modified attribute to final list
-					finalAttributes.add(overloadedAttribute);
-				}
-			} else {
+			if (attributesOrdered.isEmpty()) {
 				// We don't have overloading attribute, we will use default
 				// If is default attribute disabled, then we don't use him
 				if (!defaultAttribute.isDisabledAttribute()) {
 					finalAttributes.add(defaultAttribute);
 				}
-			}
+			} else {
+				// First element have role with max priority
+				int maxPriority = attributesOrdered.get(0).getRoleSystem().getRole().getPriority();
 
+				//TODO: Second filtering must be ... disabled attribute have higher priority then enabled!!!!!!!!!!!!!!!!!
+				
+				Optional<SysRoleSystemAttribute> overloadingAttributeOptional = attributesOrdered.stream()
+						.filter(attribute -> {
+							// Filter attributes by max priority
+							return maxPriority == attribute.getRoleSystem().getRole().getPriority();
+						}).sorted((att1, att2) -> {
+							// Second filtering, if we have same priority, then we will sort by role name
+							return att2.getRoleSystem().getRole().getName()
+									.compareTo(att1.getRoleSystem().getRole().getName());
+						}).findFirst();
+
+				if (overloadingAttributeOptional.isPresent()) {
+					SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
+					// Disabled attribute will be skipped
+					if (!overloadingAttribute.isDisabledDefaultAttribute()) {
+						// We can't use instance of SysSysteAttributeMapping and
+						// set
+						// up overloaded value (it is entity).
+						// We have to create own dto and set up all values
+						// (overloaded and default)
+						AttributeMapping overloadedAttribute = new MappingAttributeDto();
+						// Default values (values from schema attribute
+						// handling)
+						overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+						overloadedAttribute
+								.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
+						// Overloaded values
+						fillOverloadedAttribute(overloadingAttribute, overloadedAttribute);
+						// Add modified attribute to final list
+						finalAttributes.add(overloadedAttribute);
+					}
+
+				} else {
+					// We don't have overloading attribute, we will use default
+					// If is default attribute disabled, then we don't use him
+					if (!defaultAttribute.isDisabledAttribute()) {
+						finalAttributes.add(defaultAttribute);
+					}
+				}
+			}
 		});
 		return finalAttributes;
 	}

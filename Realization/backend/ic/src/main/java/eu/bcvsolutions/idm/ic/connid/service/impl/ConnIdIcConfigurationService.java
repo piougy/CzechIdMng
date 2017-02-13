@@ -13,7 +13,9 @@ import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorInfoManagerFactory;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.api.RemoteFrameworkConnectionInfo;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
+import org.identityconnectors.framework.common.exceptions.InvalidCredentialException;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.spi.ConnectorClass;
 import org.reflections.Reflections;
@@ -28,7 +30,11 @@ import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 import eu.bcvsolutions.idm.ic.api.IcSchema;
 import eu.bcvsolutions.idm.ic.connid.domain.ConnIdIcConvertUtil;
+import eu.bcvsolutions.idm.ic.exception.IcCantConnectException;
 import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.exception.IcInvalidCredentialException;
+import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
+import eu.bcvsolutions.idm.ic.exception.IcServerNotFoundException;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorInfoImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorKeyImpl;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
@@ -251,7 +257,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		// get all saved remote connector servers
 		RemoteFrameworkConnectionInfo info = new RemoteFrameworkConnectionInfo(
 				server.getHost(), server.getPort(),
-				new org.identityconnectors.common.security.GuardedString(server.getPassword().toCharArray()),
+				new org.identityconnectors.common.security.GuardedString(server.getPassword().asString().toCharArray()),
 				server.isUseSsl(), null, server.getTimeout());
 		
 		ConnectorInfoManager manager = null; 
@@ -259,12 +265,15 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			// flush remote cache
 			ConnectorInfoManagerFactory.getInstance().clearRemoteCache();
 			manager = ConnectorInfoManagerFactory.getInstance().getRemoteManager(info);
+		} catch (InvalidCredentialException e) {
+			throw new IcInvalidCredentialException(server.getHost(), server.getPort(), e);
 		} catch (ConnectorIOException e) {
-			throw new IcException(
-					MessageFormat.format("Remote connector for {0}:{1}, not found, or isn't running.", server.getHost(), server.getPort()), e);
+			throw new IcServerNotFoundException(server.getHost(), server.getPort(), e);
+		} catch (ConnectorException e) {
+			throw new IcCantConnectException(server.getHost(), server.getPort(), e);
+		} catch (Exception e) {
+			throw new IcRemoteServerException(server.getHost(), server.getPort(), e);
 		}
-		
-		// TODO: null & InvalidCredentialException
 		
 		return manager;
 	}

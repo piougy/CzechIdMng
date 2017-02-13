@@ -449,7 +449,7 @@
       },
       "remoteConnector": {
         "label": "Vzdálený konektor server",
-        "help": "Při zaškrknutí této možnosti budou načteny vzdálené konektory dostupné na serveru. Konektory načtete tlačítkem 'Načíst konektory'."
+        "help": "Budou načteny vzdálené konektory místo místních."
       },
       "connectorHost": "Server s konektory"
     },
@@ -937,6 +937,26 @@
     "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
       "title": "Entita na systému nemůže být smazána",
       "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
+    },
+    "REMOTE_SERVER_INVALID_CREDENTIAL": {
+      "title": "Špatné heslo ke vzdálenému konektoru",
+      "message": "Nesprávné heslo ke vzádlenému konektor serveru [{{server}}]"
+    },
+    "REMOTE_SERVER_NOT_FOUND": {
+      "title": "Server nenalezen",
+      "message": "Server [{{server}}] nebyl nalezen."
+    },
+    "REMOTE_SERVER_CANT_CONNECT": {
+      "title": "Nemohu se připojit ke vzdálenému serveru",
+      "message": "Nemohu se připojit ke vzdálenému server [{{server}}]"
+    },
+    "REMOTE_SERVER_UNEXPECTED_ERROR": {
+      "title": "Neočekávaná chyba",
+      "message": "Při připojování k serveru [{{server}}] se stala neočekáváná chyba"
+    },
+    "CONNECTOR_FORM_DEFINITION_NOT_FOUND": {
+      "title": "Definice formuláře nebyly nalezeny",
+      "message": "Definice formuláře pro systém nebyly nalezeny, zvolte prosím konektor."
     }
   }
 }

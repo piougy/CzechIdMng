@@ -716,102 +716,102 @@
           }
         },
         "DefaultTaskDetail": {
-          "applicant": "Žadatel",
-          "createdDate": "Datum vytvoření žádosti",
-          "approvers": "Schvalovatelé tohoto úkolu",
+          "applicant": "Applicant",
+          "createdDate": "Created date",
+          "approvers": "Approvers of this task",
           "note": "$t(entity.ApprovalTask.note)",
           "taskState": "$t(entity.ApprovalTask.taskState)",
-          "approve": "Schválit",
-          "disapprove": "Zamítnout",
-          "approvers": "Schvalovatelé tohoto úkolu",
+          "approve": "Approve",
+          "disapprove": "Reject",
+          "approvers": "Approvers of this task",
           "messages": {
-            "approved":"Úkol byl úspěšně schválen",
-            "disapproved": "Ukol byl úspěšně zamítnut",
-            "confirmTaskApproveTitle": "Potvrzení schválení úkolu",
-            "confirmTaskApprove": "Opravdu chcete tento úkol schválit?",
-            "confirmTaskDisapprove": "Opravdu chcete tento úkol zamítnout?",
-            "confirmTaskDisapproveTitle": "Potvrzení zamítnutí úkolu"
+            "approved":"The task was successfully approved",
+            "disapproved": "The task was successfully rejected",
+            "confirmTaskApproveTitle": "Task approve confirmation",
+            "confirmTaskApprove": "Do you really want this task to approve?",
+            "confirmTaskDisapprove": "Do you really want this task to reject?",
+            "confirmTaskDisapproveTitle": "Task reject confirmation"
           }
         },
         "RoleApprovalTaskDetail": {
-          "roleName" : "Název role"
+          "roleName" : "Role name"
         },
         "IdentityRoleConceptTable": {
-          "oldValue": "Původní hodnota {{oldValue}}",
-          "oldValueNotExist": "Původní hodnota byla prázdná",
+          "oldValue": "Old value {{oldValue}}",
+          "oldValueNotExist": "Old value was empty",
           "create": {
-            "header": "Přidat oprávnění"
+            "header": "Add roles"
           },
           "edit": {
-            "header": "Upravit oprávnění"
+            "header": "Edit roles"
           },
           "action": {
             "deleteAdded": {
-              "header": "Odstranění oprávnění",
-              "message": "Opravdu chcete odstranit toto nové oprávnění?"
+              "header": "Delete added roles",
+              "message": "Do you really want to delete added roles?"
             },
             "deleteChanged": {
-              "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+              "header": "Delete changed roles",
+              "message": "Do you really want to delete changed roles?"
             },
             "deleteRemoved": {
-              "header": "Odstranění úprav",
-              "message": "Opravdu chcete zrušit úpravy nad tímto oprávněním?"
+              "header": "Delete removed roles",
+              "message": "Do you really want to delete removed roles?"
             },
             "delete": {
-              "header": "Odstranění oprávnění",
-              "message": "Opravdu chcete toto oprávnění odstranit?"
+              "header": "Delete roles",
+              "message": "Do you really want to delete roles"
             }
           }
         }
     },
     "identities": {
-      "header": "Uživatelé",
-      "title": "Uživatelé",
+      "header": "Users",
+      "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Uživatelské jméno, příjmení, jméno, email či popis"
+          "placeholder": "Username, surname, name, email or description"
         },
-        "orgStructure": "Organizační struktura"
+        "orgStructure": "Org structure"
       },
       "action": {
         "deactivate": {
-          "action": "Deaktivovat",
-          "header_1": "Deaktivace uživatele",
-          "header_2": "Deaktivace uživatelů",
+          "action": "Deactivate",
+          "header_1": "Deactivate user",
+          "header_2": "Deactivate users",
           "header_5": "$t(content.identities.action.deactivate.header_2)",
-          "message_1": "Opravdu chcete deaktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete deaktivovat <strong>{{count}}</strong> vybrané uživatele?",
+          "message_1": "Do you really want to deactivate the selected user <strong>{{username}}</strong>?",
+          "message_2": "Do you really want to deactivate <strong>{{count}}</strong> selected users?",
           "message_5": "$t(content.identities.action.deactivate.message_2)",
-          "error": "Při deaktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou deaktivováni"
+          "error": "When you deactivate a user {{username}} an error occurred",
+          "success": "Selected users [{{usernames}}] are deactivated"
         },
         "activate": {
-          "action": "Aktivovat",
+          "action": "Activate",
           "header_0": "N/A",
-          "header_1": "Aktivace uživatele",
-          "header_2": "Aktivace uživatelů",
+          "header_1": "User activation",
+          "header_2": "Users activation",
           "header_5": "$t(content.identities.action.activate.header_2)",
-          "message_1": "Opravdu chcete aktivovat vybraného uživatele <strong>{{username}}</strong>?",
-          "message_2": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybrané uživatele?",
-          "message_5": "Opravdu chcete aktivovat <strong>{{count}}</strong> vybraných uživatelů?",
-          "error": "Při aktivaci uživatele {{username}} nastala chyba",
-          "success": "Vybraní uživatelé [{{usernames}}] jsou aktivní"
+          "message_1": "Do you really want to activate the selected user <strong>{{username}}</strong>?",
+          "message_2": "Do you really want to activate <strong>{{count}}</strong> selected users?",
+          "message_5": "$t(content.identities.action.activate.message_2)",
+          "error": "When you activate a user {{username}} an error occurred",
+          "success": "Selected users [{{usernames}}] are activated"
         },
         "reset": {
-          "action": "Resetovat heslo"
+          "action": "Password reset"
         },
         "remove": {
-          "action": "Odebrat"
+          "action": "Remove"
         }
       }
     },
     "tree": {
-      "header": "Stromové struktury",
-      "title": "Stromové struktury",
+      "header": "Tree structure",
+      "title": "Tree structure",
       "filter": {
         "parentId": {
-          "label": "Nadřazená jedn."
+          "label": "Parent unit"
         }
       },
       "typeNotFound": "Nebyl nalezen žádný typ.",

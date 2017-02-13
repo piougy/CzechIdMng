@@ -113,7 +113,6 @@ class IdentityDetail extends Basic.AbstractContent {
                 ref="email"
                 label={this.i18n('content.identity.profile.email.label')}
                 placeholder={this.i18n('email.placeholder')}
-                hidden={false}
                 validation={Joi.string().email()}/>
               <Basic.TextField
                 ref="phone"

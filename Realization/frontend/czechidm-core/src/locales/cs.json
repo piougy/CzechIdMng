@@ -1335,6 +1335,12 @@
           "header": "Detail úlohy",
           "result": "Výsledek",
           "resultCode": "Kód"
+        },
+        "action": {
+          "processCreated": {
+            "button": "Spustit vytvořené úlohy",
+            "success": "Vytvořené úlohy budou spuštěny."
+          }
         }
       }
     },

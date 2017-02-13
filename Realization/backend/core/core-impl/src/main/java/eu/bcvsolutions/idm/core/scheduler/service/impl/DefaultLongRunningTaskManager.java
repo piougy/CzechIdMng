@@ -11,6 +11,7 @@ import java.util.concurrent.FutureTask;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -71,7 +72,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	 */
 	@Transactional
 	@PostConstruct
-	public void init() {
+	public void init() {		
 		service.getTasks(configurationService.getInstanceId(), OperationState.RUNNING).forEach(task -> {
 			task.setRunning(false);
 			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_CANCELED_BY_RESTART, 
@@ -85,7 +86,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	}
 	
 	@Override
-	// @Scheduled(fixedDelay = 10000)
+	@Scheduled(fixedDelayString = "${scheduler.task.queue.process:60000}")
 	public void scheduleProcessCreated() {
 		processCreated();
 	}

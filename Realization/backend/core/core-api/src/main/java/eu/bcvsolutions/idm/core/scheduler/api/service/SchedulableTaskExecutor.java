@@ -10,7 +10,7 @@ import org.quartz.Job;
  * @author Radek Tomiška
  * 
  */
-public interface SchedulableTaskExecutor extends LongRunningTaskExecutor, Job {
+public interface SchedulableTaskExecutor<V> extends LongRunningTaskExecutor<V>, Job {
 
 	static final String PARAMETER_INSTANCE_ID = "core:instanceId"; // server instance id
 	

@@ -39,6 +39,10 @@ public class IdmTreeType extends AbstractEntity {
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
+	@Audited
+	@Column(name = "default_tree_type", nullable = false)
+	private boolean defaultTreeType = false;
+	
 	public String getCode() {
 		return code;
 	}
@@ -53,5 +57,18 @@ public class IdmTreeType extends AbstractEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	/**
+	 * Returns true, when this type is defined as default organization structure
+	 * 
+	 * @return
+	 */
+	public boolean isDefaultTreeType() {
+		return defaultTreeType;
+	}
+	
+	public void setDefaultTreeType(boolean defaultTreeType) {
+		this.defaultTreeType = defaultTreeType;
 	}
 }

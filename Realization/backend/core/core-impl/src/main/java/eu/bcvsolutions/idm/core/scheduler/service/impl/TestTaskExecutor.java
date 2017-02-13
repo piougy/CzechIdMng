@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
  */
 @Service
 @Description("Test long running task")
-public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
+public class TestTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TestTaskExecutor.class);
 	private static final String PARAMETER_COUNT = "count";
@@ -33,7 +33,7 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 	}
 	
 	@Override
-	public void process() {
+	public Boolean process() {
 		// 
 		try {
 			for (long i = 1; i <= getCount(); i++) {
@@ -44,6 +44,7 @@ public class TestTaskExecutor extends AbstractSchedulableTaskExecutor {
 				}
 				Thread.sleep(300L);
 			}
+			return Boolean.TRUE;
 		} catch (Exception ex) {
 			throw new CoreException(ex);
 		}

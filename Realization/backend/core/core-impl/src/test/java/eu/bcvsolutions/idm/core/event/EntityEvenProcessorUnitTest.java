@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.service;
+package eu.bcvsolutions.idm.core.event;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class EntityEventManagerUnitTest extends AbstractUnitTest {	
+public class EntityEvenProcessorUnitTest extends AbstractUnitTest {	
 	
 	private static enum CustomType implements EventType {
 		SAVE, CUSTOM

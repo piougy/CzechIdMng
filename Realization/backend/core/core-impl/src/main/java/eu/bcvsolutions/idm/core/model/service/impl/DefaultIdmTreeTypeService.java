@@ -42,6 +42,15 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 		this.identityContractRepository = identityContractRepository;
 	}
 	
+	@Override
+	@Transactional
+	public IdmTreeType save(IdmTreeType entity) {
+		if (entity.isDefaultTreeType()) {
+			this.treeTypeRepository.clearDefaultTreeType(entity.getId());
+		}
+		return super.save(entity);
+	}
+	
 	/**
 	 * Deletes tree type, if no children a contracts assigned to this type exists. 
 	 */
@@ -68,6 +77,12 @@ public class DefaultIdmTreeTypeService extends AbstractReadWriteEntityService<Id
 	@Transactional(readOnly = true)
 	public IdmTreeType getByCode(String code) {
 		return treeTypeRepository.findOneByCode(code);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public IdmTreeType getDefaultTreeType() {
+		return treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 	}
 
 

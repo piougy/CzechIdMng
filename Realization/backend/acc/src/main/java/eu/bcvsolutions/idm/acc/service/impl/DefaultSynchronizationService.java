@@ -119,7 +119,7 @@ import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
  *
  */
 @Service
-public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor implements SynchronizationService {
+public class DefaultSynchronizationService extends AbstractLongRunningTaskExecutor<SysSyncConfig> implements SynchronizationService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultSynchronizationService.class);
 	private final IdmIdentityService identityService;
@@ -219,8 +219,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 */
 	@Override
 	@Transactional(propagation = Propagation.NEVER)
-	public void run() {
-		super.run();
+	public SysSyncConfig call() {
+		return super.call();
 	}
 		
 	@Override
@@ -236,7 +236,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 	 * Called from long running task
 	 */
 	@Override
-	public void process() {
+	public SysSyncConfig process() {
 		SysSyncConfig config = synchronizationConfigService.get(synchronizationConfigId);
 		//
 		if (config == null) {
@@ -435,6 +435,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			count = counter;
 			updateState(false);
 		}
+		return config;
 	}
 	
 	/**

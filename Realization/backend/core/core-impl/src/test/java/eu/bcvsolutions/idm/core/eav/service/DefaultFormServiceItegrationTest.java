@@ -21,13 +21,16 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
+import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
@@ -49,16 +52,26 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
 	private IdmIdentityService identityService;
-	
-	@Autowired
-	private FormService formService;
-	
 	@Autowired
 	private IdmFormDefinitionService formDefinitionService;	
+	@Autowired
+	private IdmFormAttributeService formAttributeService;	
+	@Autowired
+	private EntityEventManager entityEventManager;
+	@Autowired
+	private List<? extends FormValueService<?, ?>> formValueServices;
+	
+	//
+	private DefaultFormService formService;
 	
 	@Before
-	public void login() {
+	public void init() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
+		formService = new DefaultFormService(
+				formDefinitionService, 
+				formAttributeService, 
+				formValueServices, 
+				entityEventManager);
 	}
 	
 	@After 

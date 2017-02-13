@@ -50,4 +50,20 @@ public interface EntityEvent<E extends BaseEntity> extends ResolvableTypeProvide
 	 * @return
 	 */
 	boolean isClosed();
+	
+	/**
+	 * Event is suspended = no other events will be processed, while event is suspended. 
+	 * Suspended event could be republished again - when will continue when event was suspended - all processors 
+	 * with greater order than getProcessedOrder will be called.
+	 * 
+	 * @return
+	 */
+	boolean isSuspended();
+	
+	/**
+	 * Returns last processed order or {@code null}, if any processor was called (event is starting).
+	 * 
+	 * @return
+	 */
+	Integer getProcessedOrder();
 }

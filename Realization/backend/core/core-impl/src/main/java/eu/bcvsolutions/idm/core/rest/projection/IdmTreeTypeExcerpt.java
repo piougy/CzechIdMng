@@ -18,4 +18,6 @@ public interface IdmTreeTypeExcerpt extends AbstractDtoProjection {
 	String getCode();
 	
 	String getName();
+	
+	boolean isDefaultTreeType();
 }

@@ -22,7 +22,7 @@ public class Task {
 	private String module;
 	@NotEmpty
 	private String instanceId;
-	private Class<? extends SchedulableTaskExecutor> taskType; // task executor class
+	private Class<? extends SchedulableTaskExecutor<?>> taskType; // task executor class
 	private String description;	
 	private List<AbstractTaskTrigger> triggers;
 	private Map<String, String> parameters;
@@ -46,11 +46,11 @@ public class Task {
 		this.module = module;
 	}
 	
-	public Class<? extends SchedulableTaskExecutor> getTaskType() {
+	public Class<? extends SchedulableTaskExecutor<?>> getTaskType() {
 		return taskType;
 	}
 	
-	public void setTaskType(Class<? extends SchedulableTaskExecutor> taskType) {
+	public void setTaskType(Class<? extends SchedulableTaskExecutor<?>> taskType) {
 		this.taskType = taskType;
 	}
 

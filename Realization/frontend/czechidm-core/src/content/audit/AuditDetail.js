@@ -30,8 +30,10 @@ class AuditDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
+    // showLoadingSelect is used for reload versions and diff
     this.state = {
-      noVersion: false
+      noVersion: false,
+      showLoadingSelect: true
     };
   }
 
@@ -58,10 +60,15 @@ class AuditDetail extends Basic.AbstractContent {
   _reloadComponent(props) {
     const { entityId, revID } = props.params;
     // fetch first audit detail
-    this.context.store.dispatch(auditManager.fetchEntityIfNeeded(entityId, FIRST_ENTITY_UIKEY));
+    this.context.store.dispatch(auditManager.fetchEntity(entityId, FIRST_ENTITY_UIKEY));
     if (revID) {
-      // if exist revID (params), fetch second audit detail
-      this.context.store.dispatch(auditManager.fetchEntityIfNeeded(revID, SECOND_ENTITY_UIKEY));
+      // if exist revID (params), fetch second audit detail, also is needed set showLoadingSelect
+      this.context.store.dispatch(auditManager.fetchEntity(revID, SECOND_ENTITY_UIKEY, () => {
+        // just set showLoadingSelect to false, we have second revision, or not?
+        this.setState({
+          showLoadingSelect: false
+        });
+      }));
       // fetch diff between audit details
       this.context.store.dispatch(auditManager.fetchDiffBetweenVersion(entityId, revID, AUDIT_DETAIL_DIFF));
     } else {
@@ -70,7 +77,8 @@ class AuditDetail extends Basic.AbstractContent {
         // if previousVersion is null then audit detail first hasn't other version
         if (previousVersion === null) {
           this.setState({
-            noVersion: true
+            noVersion: true,
+            showLoadingSelect: false
           });
         }
         if (previousVersion) {
@@ -84,14 +92,18 @@ class AuditDetail extends Basic.AbstractContent {
   }
 
   changeSecondRevision(rev) {
-    const { entityId } = this.props.params;
-    this.setState({
-      noVersion: false
-    });
-    if (rev) {
-      this.context.router.replace(`/audit/entities/${entityId}/diff/${rev.id}`);
-    } else {
-      this.context.router.replace(`/audit/entities/${entityId}/diff`);
+    const { entityId, revID } = this.props.params;
+    // if bouth ids are same do nothing
+    if (parseInt(revID, 10) !== rev.id) {
+      this.setState({
+        noVersion: false,
+        showLoadingSelect: true
+      });
+      if (rev) {
+        this.context.router.replace(`/audit/entities/${entityId}/diff/${rev.id}`);
+      } else {
+        this.context.router.replace(`/audit/entities/${entityId}/diff`);
+      }
     }
   }
 
@@ -104,8 +116,7 @@ class AuditDetail extends Basic.AbstractContent {
 
   render() {
     const { auditDetailFirst, auditDetailSecond, diffValues, previousVersion } = this.props;
-    const { noVersion } = this.state;
-
+    const { noVersion, showLoadingSelect } = this.state;
     const auditDetailSecondFinal = auditDetailSecond !== null ? auditDetailSecond : previousVersion;
 
     return (
@@ -133,7 +144,7 @@ class AuditDetail extends Basic.AbstractContent {
                   <AuditDetailInfo ref="detailSecond"
                     auditDetail={auditDetailSecondFinal} useAsSelect
                     noVersion={noVersion}
-                    showLoading={auditDetailSecondFinal === null}
+                    showLoading={showLoadingSelect}
                     cbChangeSecondRev={this.changeSecondRevision.bind(this)}
                     auditManager={auditManager}
                     forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)} />
@@ -149,10 +160,10 @@ class AuditDetail extends Basic.AbstractContent {
                   <Basic.Alert text={this.i18n('noPreviousRevision')} />
                 </div>
                 :
-            <AuditDetailTable
-              showLoading={auditDetailSecondFinal === null}
-              detail={this._sameType(auditDetailFirst, auditDetailSecondFinal) ? auditDetailSecondFinal : null}
-              diffValues={diffValues ? diffValues.diffValues : null}/>
+                <AuditDetailTable
+                  showLoading={showLoadingSelect}
+                  detail={this._sameType(auditDetailFirst, auditDetailSecondFinal) ? auditDetailSecondFinal : null}
+                  diffValues={diffValues ? diffValues.diffValues : null}/>
           }
         </Basic.Row>
           </div>
@@ -180,8 +191,7 @@ function select(state, component) {
     auditDetailFirst: auditManager.getEntity(state, entityId),
     auditDetailSecond: auditManager.getEntity(state, revID),
     previousVersion: DataManager.getData(state, AUDIT_PREVIOUS_VERSION),
-    diffValues: DataManager.getData(state, AUDIT_DETAIL_DIFF),
-    showLoadingFirstDetail: auditManager.isShowLoading(state, null, entityId)
+    diffValues: DataManager.getData(state, AUDIT_DETAIL_DIFF)
   };
 }
 

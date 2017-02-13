@@ -937,6 +937,26 @@
     "SYSTEM_ENTITY_DELETE_FAILED_HAS_OPERATIONS": {
       "title": "Entita na systému nemůže být smazána",
       "message": "Entita [{{uid}}] na systému [{{system}}] nemůže být smazána. Pro entitu existují aktivní operace na provisioning."
+    },
+    "REMOTE_SERVER_INVALID_CREDENTIAL": {
+      "title": "Bad password for remote connector server",
+      "message": "Bad password for remote connector server [{{server}}]"
+    },
+    "REMOTE_SERVER_NOT_FOUND": {
+      "title": "Server not found",
+      "message": "Server [{{server}}] not found."
+    },
+    "REMOTE_SERVER_CANT_CONNECT": {
+      "title": "Can't connecto to remote connector server",
+      "message": "Can't connecto to remote connector server [{{server}}]"
+    },
+    "REMOTE_SERVER_UNEXPECTED_ERROR": {
+      "title": "Unexpected error",
+      "message": "Unexpected error while connect to server [{{server}}]"
+    },
+    "CONNECTOR_FORM_DEFINITION_NOT_FOUND": {
+      "title": "Form definition for connector not found",
+      "message": "Form definition for system not found, please choose connector first."
     }
   }
 }

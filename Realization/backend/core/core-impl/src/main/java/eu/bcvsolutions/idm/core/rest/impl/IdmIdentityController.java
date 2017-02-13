@@ -236,24 +236,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		return toResources(results, assembler, IdmAudit.class, null);
 	}
 	
-	@Override
-	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
-		IdentityFilter filter = new IdentityFilter();
-		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
-		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
-		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
-		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
-		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
-		// TODO: or / and in multivalues? OR is supported now
-		if (parameters.containsKey("role")) {
-			for(Object role : parameters.get("role")) {
-				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class));
-			}
-		}
-		return filter;
-	}
-	
 	/**
 	 * Returns form definition to given identity.
 	 * 
@@ -324,5 +306,26 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", IdmIdentity.class.getCanonicalName()));
 		}			
 		return formDefinition;	
+	}
+	
+	
+	@Override
+	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdentityFilter filter = new IdentityFilter();
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setSubordinatesFor(getParameterConverter().toEntity(parameters, "subordinatesFor", IdmIdentity.class));
+		filter.setSubordinatesByTreeType(getParameterConverter().toEntity(parameters, "subordinatesByTreeType", IdmTreeType.class));
+		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
+		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
+		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
+		filter.setTreeNodeId(getParameterConverter().toUuid(parameters, "treeNodeId"));
+		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
+		// TODO: or / and in multivalues? OR is supported now
+		if (parameters.containsKey("role")) {
+			for(Object role : parameters.get("role")) {
+				filter.getRoles().add(getParameterConverter().toEntity((String)role, IdmRole.class));
+			}
+		}
+		return filter;
 	}
 }

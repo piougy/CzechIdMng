@@ -1658,7 +1658,11 @@
       "name": "Název",
       "defaultTreeType": {
         "label": "Výchozí struktura",
-        "help": "Tento typ struktury bude použit jako výchozí organizační struktura"
+        "help": "Tento typ struktury bude použit jako výchozí organizační struktura."
+      },
+      "defaultTreeNode": {
+        "label": "Výchozí prvek struktury",
+        "help": "Tento prvek struktury bude použit jako výchozí, např. při zakládání výchozího pracovně právního vztahu."
       }
     },
     "Delegate": {

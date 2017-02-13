@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -130,11 +129,11 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 	@ResponseBody
 	@RequestMapping(value = "/search/roots", method = RequestMethod.GET)
 	public Resources<?> findRoots(
-			@RequestParam(value = "treeType", required = false) String treeType,
+			@RequestParam(value = "treeTypeId", required = false) String treeTypeId,
 			PersistentEntityResourceAssembler assembler,
 			@PageableDefault Pageable pageable) {
 		// TODO: try - catch ... or better findRoots with tree type instance (aditional select, but type save)
-		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeType), pageable);
+		Page<IdmTreeNode> roots = this.treeNodeService.findRoots(UUID.fromString(treeTypeId), pageable);
 		return toResources(roots, assembler, IdmTreeNode.class, null);
 	}
 	
@@ -147,14 +146,5 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		// TODO: try - catch ... or better findChildrenByParent with tree node instance (aditional select, but type save)
 		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
 		return toResources(children, assembler, IdmTreeNode.class, null);
-	}
-	
-	@Override
-	protected TreeNodeFilter toFilter(MultiValueMap<String, Object> parameters) {
-		TreeNodeFilter filter = new TreeNodeFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
-		filter.setTreeNodeId(getParameterConverter().toUuid(parameters, "parent"));
-		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeType"));
-		return filter;
 	}
 }

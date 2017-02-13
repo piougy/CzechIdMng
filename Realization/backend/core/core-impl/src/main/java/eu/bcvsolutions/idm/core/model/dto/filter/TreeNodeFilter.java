@@ -6,15 +6,16 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 /**
  * Filter for tree node
+ * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
 
 public class TreeNodeFilter extends QuickFilter {
 	
-	private UUID treeTypeId;
-	
-	private UUID treeNodeId;
+	private UUID treeTypeId;	
+	private UUID treeNodeId;	
+	private Boolean defaultTreeType; // default tree type wil be used
 
 	public UUID getTreeTypeId() {
 		return treeTypeId;
@@ -30,4 +31,13 @@ public class TreeNodeFilter extends QuickFilter {
 
 	public void setTreeNodeId(UUID treeNodeId) {
 		this.treeNodeId = treeNodeId;
-	}}
+	}
+	
+	public Boolean getDefaultTreeType() {
+		return defaultTreeType;
+	}
+	
+	public void setDefaultTreeType(Boolean defaultTreeType) {
+		this.defaultTreeType = defaultTreeType;
+	}
+}

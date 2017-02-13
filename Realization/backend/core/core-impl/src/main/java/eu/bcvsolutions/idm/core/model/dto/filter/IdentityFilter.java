@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.dto.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -16,6 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 public class IdentityFilter extends QuickFilter {
+	
 	/**
 	 * Subordinates for given identity
 	 */
@@ -39,13 +41,20 @@ public class IdentityFilter extends QuickFilter {
 	/**
 	 * roles - OR
 	 */
-	private List<IdmRole> roles;
-	
+	private List<IdmRole> roles;	
 	/**
 	 * Little dynamic search by identity property and value
 	 */
 	private String property;
 	private Object value;
+	/**
+	 * Identities for tree structure (by identity contract)
+	 */
+	private UUID treeNodeId;
+	/**
+	 * Identities for tree structure (by identity contract)
+	 */
+	private UUID treeTypeId;
 
 	public IdmIdentity getSubordinatesFor() {
 		return subordinatesFor;
@@ -112,5 +121,21 @@ public class IdentityFilter extends QuickFilter {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+	
+	public void setTreeNodeId(UUID treeNodeId) {
+		this.treeNodeId = treeNodeId;
+	}
+	
+	public UUID getTreeNodeId() {
+		return treeNodeId;
+	}
+	
+	public UUID getTreeTypeId() {
+		return treeTypeId;
+	}
+	
+	public void setTreeTypeId(UUID treeTypeId) {
+		this.treeTypeId = treeTypeId;
 	}
 }

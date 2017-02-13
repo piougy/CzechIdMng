@@ -45,7 +45,7 @@ export default class TreeTypeManager extends EntityManager {
         })
         .catch(error => {
           if (error.statusCode === 404) {
-              dispatch(this.dataManager.receiveData(uiKey, null));
+            dispatch(this.dataManager.receiveData(uiKey, null));
           } else {
             // TODO: data uiKey
             dispatch(this.dataManager.receiveError(null, uiKey, error));

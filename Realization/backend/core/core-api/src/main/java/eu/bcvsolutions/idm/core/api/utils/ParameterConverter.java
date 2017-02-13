@@ -8,12 +8,9 @@ import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
@@ -28,33 +25,11 @@ import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 public class ParameterConverter {
 
 	private final EntityLookupService entityLookupService;
-	private final ObjectMapper mapper;
 	
-	public ParameterConverter(
-			EntityLookupService entityLookupService,
-			ObjectMapper mapper) {
+	public ParameterConverter(EntityLookupService entityLookupService) {
 		Assert.notNull(entityLookupService);
 		//
 		this.entityLookupService = entityLookupService;
-		this.mapper = mapper;
-	}
-	
-	/**
-	 * Converts http get parameters to filter
-	 * 
-	 * @param parameters
-	 * @param filterClass
-	 * @return
-	 */
-	public <F extends BaseFilter> F toFilter(MultiValueMap<String, Object> parameters, Class<F> filterClass) {
-		if (mapper == null || parameters.isEmpty() || EmptyFilter.class.equals(filterClass)) {
-			return null;
-		}
-		try {
-			return mapper.convertValue(parameters.toSingleValueMap(), filterClass);
-		} catch (IllegalArgumentException ex) {
-			throw new ResultCodeException(CoreResultCode.BAD_FILTER, ex);
-		}
 	}
 	
 	/**
@@ -92,6 +67,19 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public Boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+		//
+		return toBoolean(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Converts parameter to {@code Boolean} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public Boolean toBoolean(Map<String, Object> parameters, String parameterName) {
 		String valueAsString = toString(parameters, parameterName);
 		if (StringUtils.isNotEmpty(valueAsString)) {
 			return Boolean.valueOf(valueAsString);
@@ -172,6 +160,20 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends Enum<T>> T toEnum(MultiValueMap<String, Object> parameters, String parameterName, Class<T> enumClass) {
+		Assert.notNull(parameters);
+	    //
+		return toEnum(parameters.toSingleValueMap(), parameterName, enumClass);
+	}
+	
+	/**
+	 * Converts parameter to given {@code enumClass} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param enumClass
+	 * @return
+	 */
+	public <T extends Enum<T>> T toEnum(Map<String, Object> parameters, String parameterName, Class<T> enumClass) {
 		Assert.notNull(enumClass);
 	    //
 	    String valueAsString = toString(parameters, parameterName);
@@ -194,6 +196,20 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public <T extends BaseEntity> T toEntity(MultiValueMap<String, Object> parameters, String parameterName, Class<T> entityClass) {
+		Assert.notNull(parameters);
+	    //
+		return toEntity(parameters.toSingleValueMap(), parameterName, entityClass);
+	}
+	
+	/**
+	 * Converts parameter to given {@code entityClass} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param entityClass
+	 * @return
+	 */
+	public <T extends BaseEntity> T toEntity(Map<String, Object> parameters, String parameterName, Class<T> entityClass) {
 		 String valueAsString = toString(parameters, parameterName);
 	    if(StringUtils.isEmpty(valueAsString)) {
 	    	return null;
@@ -232,6 +248,19 @@ public class ParameterConverter {
 	 * @return
 	 */
 	public DateTime toDateTime(MultiValueMap<String, Object> parameters, String parameterName) {
+		Assert.notNull(parameters);
+	    //
+		return toDateTime(parameters.toSingleValueMap(), parameterName);
+	}
+	
+	/**
+	 * Converts parameter {@code DateTime} from given parameters.
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @return
+	 */
+	public DateTime toDateTime(Map<String, Object> parameters, String parameterName) {
 		String valueAsString = toString(parameters, parameterName);
 		if (valueAsString == null || valueAsString.isEmpty()) {
 			return null;

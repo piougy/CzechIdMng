@@ -3,7 +3,6 @@ package eu.bcvsolutions.idm.core.scheduler.config;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -29,8 +28,6 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultSchedulerManager;
 @ConditionalOnProperty(prefix = "scheduler", name = "enabled", matchIfMissing = true)
 public class SchedulerConfig {
 	
-	@Autowired
-	private ApplicationContext context;
 //	@Autowired
 //	private DataSource dataSource; // TODO: after flyway will be enabled
 
@@ -50,7 +47,7 @@ public class SchedulerConfig {
 	 * @throws IOException
 	 */
 	@Bean
-    public SchedulerFactoryBean schedulerFactoryBean() {
+    public SchedulerFactoryBean schedulerFactoryBean(ApplicationContext context) {
 		try {
 			SchedulerFactoryBean factory = new SchedulerFactoryBean();
 	        factory.setOverwriteExistingJobs(true); // update triggers in DB whe config file is changed
@@ -73,7 +70,7 @@ public class SchedulerConfig {
     }
 
 	@Bean(name = "schedulerManager")
-	public SchedulerManager schedulerManager() {
-		return new DefaultSchedulerManager(context, schedulerFactoryBean().getScheduler());
+	public SchedulerManager schedulerManager(ApplicationContext context) {
+		return new DefaultSchedulerManager(context, schedulerFactoryBean(context).getScheduler());
 	}
 }

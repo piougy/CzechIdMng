@@ -99,7 +99,7 @@ class Nodes extends Basic.AbstractContent {
               {
                 !isNoType
                 ?
-                <NodeTable treeNodeManager={this.getManager()} treeTypeManager={this.getTypeManager()} type={type} />
+                <NodeTable treeNodeManager={this.getManager()} treeTypeManager={this.getTypeManager()} type={type} activeTab={2}/>
                 :
                 <div className="alert alert-info">
                   {this.i18n('content.tree.typeNotFound')} <a href="#" className="alert-link" onClick={this.newType.bind(this)}>{this.i18n('content.tree.newType')}</a>

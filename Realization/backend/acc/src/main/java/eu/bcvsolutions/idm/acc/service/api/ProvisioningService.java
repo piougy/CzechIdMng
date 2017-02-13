@@ -103,5 +103,16 @@ public interface ProvisioningService {
 	 */
 	List<AttributeMapping> resolveMappedAttributes(String uid, AccAccount account, IdmIdentity identity, SysSystem system, SystemEntityType entityType);
 
+	/**
+	 * Create final list of attributes for provisioning.
+	 * 
+	 * @param identityAccount
+	 * @param defaultAttributes
+	 * @param overloadingAttributes
+	 * @return
+	 */
+	List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
+			List<SysRoleSystemAttribute> overloadingAttributes);
+
 	
 }

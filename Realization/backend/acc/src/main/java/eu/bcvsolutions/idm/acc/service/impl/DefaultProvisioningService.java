@@ -489,7 +489,8 @@ public class DefaultProvisioningService implements ProvisioningService {
 	 * @param overloadingAttributes
 	 * @return
 	 */
-	private List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
+	@Override
+	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttribute> overloadingAttributes) {
 		List<AttributeMapping> finalAttributes = new ArrayList<>();
 		if (defaultAttributes == null) {
@@ -513,12 +514,25 @@ public class DefaultProvisioningService implements ProvisioningService {
 				if (!defaultAttribute.isDisabledAttribute()) {
 					finalAttributes.add(defaultAttribute);
 				}
+				return;
 			} else {
 				// First element have role with max priority
 				int maxPriority = attributesOrdered.get(0).getRoleSystem().getRole().getPriority();
 
-				//TODO: Second filtering must be ... disabled attribute have higher priority then enabled!!!!!!!!!!!!!!!!!
+				// We will search for disabled overloaded attribute
+				Optional<SysRoleSystemAttribute> disabledOverloadedAttOptional = attributesOrdered.stream().filter(attribute -> {
+					// Filter attributes by max priority
+					return maxPriority == attribute.getRoleSystem().getRole().getPriority();
+				}).filter(attribute -> {
+					// Second filtering, we will search for disabled overloaded attribute
+					return attribute.isDisabledDefaultAttribute();
+				}).findFirst();
+				if(disabledOverloadedAttOptional.isPresent()){
+					// We found disabled overloaded attribute with highest priority
+					return;
+				}
 				
+				// None overloaded attribute are disabled, we will search for attribute with highest priority (and role name)
 				Optional<SysRoleSystemAttribute> overloadingAttributeOptional = attributesOrdered.stream()
 						.filter(attribute -> {
 							// Filter attributes by max priority

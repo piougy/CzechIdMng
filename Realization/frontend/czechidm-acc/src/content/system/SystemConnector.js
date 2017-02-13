@@ -202,11 +202,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
     } else if (!formInstance && !_showLoading) {
       // connector not found on BE
       content = null;
-    } else if (!formInstance || _showLoading) {
-      // connector eav form is loaded from BE
-      content = (
-        <Basic.Loading isStatic showLoading/>
-      );
     } else {
       // connector setting is ready
       content = (
@@ -230,36 +225,35 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-        </Basic.ContentHeader>
-        <Basic.PanelBody>
-          <Basic.AbstractForm showLoading={_showLoading} rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
-            className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
-            <Basic.EnumSelectBox
-              ref="connector"
-              label={this.i18n('acc:entity.System.connectorKey.connectorName')}
-              placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
-              value={pickConnector ? pickConnector.value : null}
-              options={_availableConnectors}
-              clearable={false}
-              onChange={this.saveConnector.bind(this)}/>
-          </Basic.AbstractForm>
-          <Basic.Button
-            style={{display: 'block', margin: 'auto'}}
-            level="success"
-            showLoading={_showLoading}
-            onClick={this.save.bind(this, true)}
-            rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
-            title={ this.i18n('button.checkSystemTooltip') }>
-            <Basic.Icon type="fa" icon="check-circle"/>
-            {' '}
-            { this.i18n('button.checkSystem') }
-          </Basic.Button>
-        </Basic.PanelBody>
-        <Basic.Panel className="no-border last" rendered={pickConnector !== undefined}>
-          { content }
+        <Basic.Panel showLoading={_showLoading} className="no-border">
+          <Basic.ContentHeader style={{ marginBottom: 0 }}>
+            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+          </Basic.ContentHeader>
+          <Basic.PanelBody>
+            <Basic.AbstractForm showLoading={_showLoading} rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
+              className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.EnumSelectBox
+                ref="connector"
+                label={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                value={pickConnector ? pickConnector.value : null}
+                options={_availableConnectors}
+                clearable={false}
+                onChange={this.saveConnector.bind(this)}/>
+            </Basic.AbstractForm>
+            <Basic.Button
+              style={{display: 'block', margin: 'auto'}}
+              level="success"
+              showLoading={_showLoading}
+              onClick={this.save.bind(this, true)}
+              rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
+              title={ this.i18n('button.checkSystemTooltip') }>
+              <Basic.Icon type="fa" icon="check-circle"/>
+              {' '}
+              { this.i18n('button.checkSystem') }
+            </Basic.Button>
+          </Basic.PanelBody>
+            { content }
         </Basic.Panel>
       </div>
     );

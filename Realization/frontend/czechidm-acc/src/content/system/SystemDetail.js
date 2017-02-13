@@ -53,16 +53,10 @@ class SystemDetail extends Basic.AbstractContent {
     };
 
     if (entity && entity._embedded && entity._embedded.passwordPolicyGenerate) {
-      data = {
-        ...data,
-        passwordPolicyGenerate: entity._embedded.passwordPolicyGenerate
-      };
+      data.passwordPolicyGenerate = entity._embedded.passwordPolicyGenerate;
     }
     if (entity && entity._embedded && entity._embedded.passwordPolicyValidate) {
-      data = {
-        ...data,
-        passwordPolicyValidate: entity._embedded.passwordPolicyValidate
-      };
+      data.passwordPolicyValidate = entity._embedded.passwordPolicyValidate;
     }
 
     // connector is part of entity, not embedded

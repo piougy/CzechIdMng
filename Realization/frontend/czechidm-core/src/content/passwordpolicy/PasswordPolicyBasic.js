@@ -41,7 +41,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     if (this._getIsNew()) {
       // if entity is new, set default required rules
       this.context.store.dispatch(passwordPolicyManager.receiveEntity(entityId, {
-        type: PasswordPolicyTypeEnum.findKeyBySymbol(PasswordPolicyTypeEnum, PasswordPolicyTypeEnum.VALIDATE),
+        type: PasswordPolicyTypeEnum.VALIDATE,
         passwordLengthRequired: true,
         upperCharRequired: true,
         lowerCharRequired: true,
@@ -76,6 +76,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
       loadedEntity.identityAttributeCheck = this._transformAttributeToCheck(entity.identityAttributeCheck);
 
       this.refs.form.setData(loadedEntity);
+      this.refs.name.focus();
     }
   }
 
@@ -162,8 +163,10 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   }
 
   _changeType(value) {
-    if (value && PasswordPolicyTypeEnum.findSymbolByKey(value.value) === PasswordPolicyTypeEnum.VALIDATE ||
-            PasswordPolicyTypeEnum.findSymbolByKey(value) === PasswordPolicyTypeEnum.VALIDATE) {
+    // value can be instance of Symbol or value of enum select box => key for symbol
+    if (PasswordPolicyTypeEnum.findSymbolByKey(value.value) === PasswordPolicyTypeEnum.VALIDATE ||
+            PasswordPolicyTypeEnum.findSymbolByKey(value) === PasswordPolicyTypeEnum.VALIDATE ||
+          value === PasswordPolicyTypeEnum.VALIDATE) {
       this.setState({
         validateType: true
       });
@@ -177,9 +180,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   render() {
     const { uiKey, entity, isNew } = this.props;
     const { showLoading, validateType } = this.state;
-
     return (
-      <form onSubmit={this.save.bind(this)}>
+      <form onSubmit={this.save.bind(this, 'SAVE')}>
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
@@ -195,7 +197,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 max={255}/>
               <Basic.EnumSelectBox
                 ref="generateType" required={!validateType} hidden={validateType}
-                enum={PasswordPolicyGenerateTypeEnum}
+                enum={PasswordPolicyGenerateTypeEnum} clearable={false}
                 label={this.i18n('entity.PasswordPolicy.generateType')}/>
 
               <Basic.TextField ref="passphraseWords"
@@ -266,6 +268,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
             }
           </Basic.PanelFooter>
         </Basic.Panel>
+        {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+        <input type="submit" className="hidden"/>
       </form>
     );
   }

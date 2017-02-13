@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -44,6 +45,7 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 	private String name;
 	
 	@Audited
+	@Type(type = "org.hibernate.type.StringClobType")
 	@Column(name = "script")
 	private String script;
 	

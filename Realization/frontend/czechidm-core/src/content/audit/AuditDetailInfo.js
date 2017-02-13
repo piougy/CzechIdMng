@@ -17,12 +17,6 @@ class AuditDetailInfo extends Basic.AbstractContent {
     return 'content.audit';
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.refs.revisionDiff) {
-      this.refs.revisionDiff.setValue(nextProps.auditDetail);
-    }
-  }
-
   _getType(name) {
     const type = name.split('.');
     return type[type.length - 1];
@@ -31,10 +25,15 @@ class AuditDetailInfo extends Basic.AbstractContent {
 
   render() {
     const { auditDetail, cbChangeSecondRev, useAsSelect, noVersion,
-      forceSearchParameters, auditManager } = this.props;
+      forceSearchParameters, auditManager, showLoading} = this.props;
+
+    const data = {
+      ...auditDetail,
+      revisionDiff: auditDetail
+    };
 
     return (
-      <Basic.AbstractForm ref="form" className="form-horizontal" data={noVersion ? {revisionDate: null} : auditDetail} showLoading={auditDetail === null && !noVersion}>
+      <Basic.AbstractForm ref="form" className="form-horizontal" data={noVersion ? {revisionDate: null} : data} showLoading={showLoading}>
         <Basic.TextField hidden={useAsSelect}
           ref="id" readOnly
           label={this.i18n('revision.id')}/>
@@ -42,8 +41,8 @@ class AuditDetailInfo extends Basic.AbstractContent {
           !useAsSelect
           ||
           <Basic.SelectBox
-            ref="revisionDiff" rendered={useAsSelect}
-            value={auditDetail}
+            ref="revisionDiff"
+            clearable={false}
             label={this.i18n('revision.id')}
             onChange={cbChangeSecondRev}
             forceSearchParameters={forceSearchParameters}

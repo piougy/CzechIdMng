@@ -7,18 +7,23 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
 
 /**
 * Table of users
+*
+* @author Radek Tomiška
 */
 export class IdentityTable extends Basic.AbstractTableContent {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: this.props.filterOpened
+      filterOpened: props.filterOpened,
+      text: null,
+      treeNodeId: props.treeNodeId
     };
     this.dataManager = new DataManager();
     this.treeNodeManager = new TreeNodeManager();
@@ -34,8 +39,40 @@ export class IdentityTable extends Basic.AbstractTableContent {
     return this.props.identityManager;
   }
 
+  setTreeNodeId(treeNodeId) {
+    this.setState({
+      treeNodeId
+    });
+  }
+
   /**
-  * Redirec to user form
+   * Filter identities by given tree node id
+   *
+   * @param  {string} treeNodeId
+   */
+  filterByTreeNodeId(treeNodeId) {
+    this.setState({
+      treeNodeId
+    }, () => {
+      this.useFilter();
+    });
+  }
+
+  _changeText(event) {
+    this.setState({
+      text: event.currentTarget.value
+    });
+  }
+
+  _changeTreeNode(entity, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setTreeNodeId(entity ? entity.id : null);
+  }
+
+  /**
+  * Redirect to user form
   */
   showDetail(entity) {
     if (entity.id === undefined) {
@@ -50,38 +87,19 @@ export class IdentityTable extends Basic.AbstractTableContent {
     if (event) {
       event.preventDefault();
     }
-    /* warning organization no longer exists
-    if (!this.refs.filterName.getValue() && !selectedOrganization) {
-      this.cancelFilter();
-      return;
-    }
-    let homeOrganisationFilter = {
-      field: 'homeOrganisation',
-      operation: 'AND',
-      filters: [
-        {
-          field: 'homeOrganisation.fullName',
-          value: (selectedOrganization ? selectedOrganization : '') + '%'
-        }
-      ]
-    }*/
-    /*
-    if (selectedOrganization){
-      userSearchParameters.filter.filters.push(homeOrganisationFilter);
-    }*/
-    this.refs.table.getWrappedInstance().useFilterData({ text: this.refs.filterName.getValue() || '' });
+    this.refs.table.getWrappedInstance().useFilterForm(this.refs.filterForm);
   }
 
-  cancelFilter() {
-    const { identityManager, _searchParameters } = this.props;
-    this.refs.filterName.setState({ value: null });
-    //
-    // prevent sort and pagination
-    let userSearchParameters = _searchParameters.setFilters(identityManager.getDefaultSearchParameters().getFilters());
-    userSearchParameters = userSearchParameters.setPage(0);
-    //
-    this.refs.table.getWrappedInstance().fetchEntities(userSearchParameters);
-    // this.refs.orgTree.getWrappedInstance().collapse();
+  cancelFilter(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      text: null,
+      treeNodeId: null
+    }, () => {
+      this.refs.table.getWrappedInstance().cancelFilter(this.refs.filterForm);
+    });
   }
 
   onActivate(bulkActionValue, usernames) {
@@ -104,32 +122,32 @@ export class IdentityTable extends Basic.AbstractTableContent {
     this.context.router.push(`/identities/password/reset`);
   }
 
-  _homeNodeFilter(node, event) {
-    event.stopPropagation();
-    this.setState({selectedNode: node ? node.id : null}, ()=>{this.useFilter();});
-  }
-
-  _orgTreeHeaderDecorator(props) {
-    const style = props.style;
-    const iconType = props.node.isLeaf ? 'group' : 'building';
-    const iconClass = `fa fa-${iconType}`;
-    const iconStyle = { marginRight: '5px' };
-    return (
-      <div style={style.base}>
-        <div style={style.title}>
-          <i className={iconClass} style={iconStyle}/>
-          <Basic.Button level="link" style={{padding: '0px 0px 0px 0px'}} onClick={this._homeNodeFilter.bind(this, props.node)}>
-            { props.node.shortName }
-          </Basic.Button>
-        </div>
-      </div>
-    );
-  }
-
   render() {
-    const { uiKey, identityManager, columns, forceSearchParameters, showAddButton, deleteEnabled, showRowSelection } = this.props;
-    const { filterOpened } = this.state;
-
+    const {
+      uiKey,
+      identityManager,
+      columns,
+      forceSearchParameters,
+      showAddButton,
+      deleteEnabled,
+      showRowSelection,
+      rendered,
+      treeType
+    } = this.props;
+    const { filterOpened, treeNodeId, text } = this.state;
+    if (!rendered) {
+      return null;
+    }
+    //
+    let _forceSearchParameters = forceSearchParameters || new SearchParameters();
+    let forceTreeNodeSearchParams = new SearchParameters();
+    if (!treeType) {
+      forceTreeNodeSearchParams = forceTreeNodeSearchParams.setFilter('defaultTreeType', true);
+    } else {
+      forceTreeNodeSearchParams = forceTreeNodeSearchParams.setFilter('treeTypeId', treeType.id);
+      _forceSearchParameters = _forceSearchParameters.setFilter('treeTypeId', treeType.id);
+    }
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-deactivate" level="danger"/>
@@ -144,47 +162,38 @@ export class IdentityTable extends Basic.AbstractTableContent {
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
-                <Basic.Row className="last">
-                  <div className="col-lg-8">
+              <Basic.AbstractForm data={{ text, treeNodeId }} ref="filterForm" className="form-horizontal">
+                <Basic.Row>
+                  <div className="col-lg-6">
                     <Advanced.Filter.TextField
-                      ref="filterName"
+                      ref="text"
                       placeholder={this.i18n('content.identities.filter.name.placeholder')}
-                      labelSpan=""
-                      componentSpan="col-sm-12"
+                      label="Text"
+                      onChange={this._changeText.bind(this)}
                       help={filterHelp}/>
                   </div>
-                  <div className="col-lg-4 text-right">
+                  <div className="col-lg-6 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
                 </Basic.Row>
-                {/* warning organization no longer exists
-                <Basic.Row>
-                  <div className="col-lg-8">
-                    <Basic.LabelWrapper readOnly ref="homeOrgTree" componentSpan="col-sm-12">
-                      <Basic.Panel className="no-margin">
-                        <Advanced.Tree
-                          ref="orgTree"
-                          rootNode={[{id: 'top', name: 'top', toggled: false, shortName: this.i18n(`content.identities.filter.orgStructure`), children: []}]}
-                          propertyId="name"
-                          propertyParent="parentId"
-                          propertyName="shortName"
-                          headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-                          uiKey="user-table-org-tree"
-                          manager={this.organizationManager}
-                          />
-                      </Basic.Panel>
-                    </Basic.LabelWrapper>
+                <Basic.Row className="last">
+                  <div className="col-lg-6">
+                    <Advanced.Filter.SelectBox
+                      ref="treeNodeId"
+                      placeholder="Prvek v organizační struktuře"
+                      label="Org. struktura"
+                      forceSearchParameters={forceTreeNodeSearchParams}
+                      manager={this.treeNodeManager}
+                      onChange={this._changeTreeNode.bind(this)}/>
                   </div>
-                  <div className="col-lg-4">
+                  <div className="col-lg-6">
                   </div>
                 </Basic.Row>
-                */}
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
           filterOpened={filterOpened}
-          forceSearchParameters={forceSearchParameters}
+          forceSearchParameters={_forceSearchParameters}
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: !deleteEnabled },
@@ -259,7 +268,16 @@ IdentityTable.propTypes = {
   /**
    * Enable row selection - checkbox in first cell
    */
-  showRowSelection: PropTypes.bool
+  showRowSelection: PropTypes.bool,
+  /**
+   * Rendered
+   */
+  rendered: PropTypes.bool,
+  /**
+   * Filter tree type structure - given id ur default - false
+   * @deprecated Remove after better tree type - node filter component
+   */
+  treeType: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
 };
 
 IdentityTable.defaultProps = {
@@ -268,7 +286,9 @@ IdentityTable.defaultProps = {
   showAddButton: true,
   deleteEnabled: false,
   showRowSelection: false,
-  forceSearchParameters: null
+  forceSearchParameters: null,
+  rendered: true,
+  treeType: false
 };
 
 function select(state, component) {

@@ -77,7 +77,15 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	  	    		+ "or (?#{[0].property} = 'firstName' and e.firstName = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'lastName' and e.lastName = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'email' and e.email = ?#{[0].value}) "
-	        + " )")
+	        + " )"
+	        + " and"
+	        + "	("
+	        	+ " ?#{[0].treeNodeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.id = ?#{[0].treeNodeId})"
+	        + "	)"
+	        + " and"
+	        + "	("
+	        	+ " ?#{[0].treeTypeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.treeType.id = ?#{[0].treeTypeId})"
+	        + "	)")
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	
 	@Transactional(timeout = 5, readOnly = true)

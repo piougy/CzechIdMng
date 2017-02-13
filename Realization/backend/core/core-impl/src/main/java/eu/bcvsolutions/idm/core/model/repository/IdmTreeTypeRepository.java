@@ -12,6 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.rest.projection.IdmTreeTypeExcerpt;
 
@@ -59,4 +60,14 @@ public interface IdmTreeTypeRepository extends AbstractEntityRepository<IdmTreeT
 	@Modifying
 	@Query("update #{#entityName} e set e.defaultTreeType = false where (:updatedEntityId is null or e.id != :updatedEntityId)")
 	void clearDefaultTreeType(@Param("updatedEntityId") UUID updatedEntityId);
+	
+	/**
+	 * Clear default tree node, when node is deleted etc.
+	 * 
+	 * @param defaultTreeNode
+	 * @return
+	 */
+	@Modifying
+	@Query("update #{#entityName} e set e.defaultTreeNode = null where e.defaultTreeNode = :defaultTreeNode")
+	int clearDefaultTreeNode(@Param("defaultTreeNode") IdmTreeNode defaultTreeNode);
 }

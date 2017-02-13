@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import * as Basic from '../../../components/basic';
-import { TreeTypeManager, SecurityManager } from '../../../redux';
+import * as Utils from '../../../utils';
+import { TreeTypeManager, SecurityManager, TreeNodeManager } from '../../../redux';
 
 /**
  * Type detail content
@@ -10,6 +11,7 @@ export default class TypeDetail extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.treeTypeManager = new TreeTypeManager();
+    this.treeNodeManager = new TreeNodeManager();
     this.state = {
       showLoading: false
     };
@@ -24,7 +26,12 @@ export default class TypeDetail extends Basic.AbstractContent {
     this.selectNavigationItem('tree-types');
 
     if (entity !== undefined) {
-      this.refs.form.setData(entity);
+      const data = {
+        ...entity,
+      };
+      data.defaultTreeNode = (entity._embedded && entity._embedded.defaultTreeNode) ? entity._embedded.defaultTreeNode : entity.defaultTreeNode;
+      //
+      this.refs.form.setData(data);
       this.refs.code.focus();
     }
   }
@@ -44,7 +51,11 @@ export default class TypeDetail extends Basic.AbstractContent {
     }, this.refs.form.processStarted());
 
     const entity = this.refs.form.getData();
-
+    // transform defaultTreeNode
+    if (entity.defaultTreeNode) {
+      entity.defaultTreeNode = this.treeNodeManager.getSelfLink(entity.defaultTreeNode);
+    }
+    //
     if (entity.id === undefined) {
       this.context.store.dispatch(this.treeTypeManager.createEntity(entity, `${uiKey}-detail`, (createdEntity, error) => {
         this._afterSave(createdEntity, error);
@@ -70,7 +81,7 @@ export default class TypeDetail extends Basic.AbstractContent {
   }
 
   render() {
-    const { uiKey } = this.props;
+    const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
     //
     return (
@@ -92,6 +103,13 @@ export default class TypeDetail extends Basic.AbstractContent {
               ref="defaultTreeType"
               label={this.i18n('entity.TreeType.defaultTreeType.label')}
               helpBlock={this.i18n('entity.TreeType.defaultTreeType.help')}/>
+            <Basic.SelectBox
+              ref="defaultTreeNode"
+              label={this.i18n('entity.TreeType.defaultTreeNode.label')}
+              helpBlock={this.i18n('entity.TreeType.defaultTreeNode.help')}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', entity.id)}
+              manager={this.treeNodeManager}
+              rendered={!Utils.Entity.isNew(entity)}/>
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

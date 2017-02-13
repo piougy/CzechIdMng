@@ -1658,7 +1658,11 @@
       "name": "Name",
       "defaultTreeType": {
         "label": "Default tree",
-        "help": "This tree type will be used as default organization structure"
+        "help": "This tree type will be used as default organization structure."
+      },
+      "defaultTreeNode": {
+        "label": "Default tree node",
+        "help": "This tree node will be used as default, e.g. for default working position."
       }
     },
     "Delegate": {

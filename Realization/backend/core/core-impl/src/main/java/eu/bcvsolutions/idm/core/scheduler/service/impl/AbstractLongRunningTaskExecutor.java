@@ -26,6 +26,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
  * Template for long running task executor. This template persists long running tasks.
  * 
  * TODO: interface only + AOP executor
+ * TODO: refactor autowired fields
  * 
  * @author Radek Tomiška
  *
@@ -164,7 +165,7 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	 */
 	protected ParameterConverter getParameterConverter() {
 		if (parameterConverter == null) {
-			parameterConverter = new ParameterConverter(entityLookupService, null);
+			parameterConverter = new ParameterConverter(entityLookupService);
 		}
 		return parameterConverter;
 	}

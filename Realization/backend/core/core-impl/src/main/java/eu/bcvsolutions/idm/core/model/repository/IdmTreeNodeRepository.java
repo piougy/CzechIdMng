@@ -41,7 +41,8 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	        	+ " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
         	+ " )"
 	        + " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
-	        + " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})")
+	        + " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})"
+	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))")
 	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
 
 	/**

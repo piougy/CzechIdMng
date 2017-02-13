@@ -1,4 +1,4 @@
-# ProgressBar Component
+# Tabs Component
 
 Wrapped react bootstrap Tabs and Tab
 * https://react-bootstrap.github.io/components.html#tabs

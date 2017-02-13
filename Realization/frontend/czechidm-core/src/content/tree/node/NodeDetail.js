@@ -117,7 +117,7 @@ export default class NodeDetail extends Basic.AbstractContent {
             <Basic.SelectBox
               ref="parent"
               label={this.i18n('entity.TreeNode.parent.name')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type)}
               manager={this.treeNodeManager}/>
             <Basic.Checkbox
               ref="disabled"

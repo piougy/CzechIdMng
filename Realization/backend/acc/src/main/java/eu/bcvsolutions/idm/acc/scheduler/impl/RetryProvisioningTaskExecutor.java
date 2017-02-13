@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskEx
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 @Description("Retry provisioning periodically")
-public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecutor {
+public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecutor<Boolean> {
 	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(RetryProvisioningTaskExecutor.class);
 	@Autowired 
@@ -58,7 +58,7 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 	}
 	
 	@Override
-	public void process() {
+	public Boolean process() {
 		LOG.info("Retry provisioning executor starts for all next attmepts old than [{}]", start);
 		boolean canContinue = true;
 		while(canContinue) {
@@ -82,5 +82,6 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 			}
 		}
 		LOG.info("Retry provisioning executor ended for all next attmepts old than [{}]", start);
+		return true;
 	}
 }

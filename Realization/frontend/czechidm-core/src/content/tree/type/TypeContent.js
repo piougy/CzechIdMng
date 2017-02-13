@@ -20,10 +20,12 @@ class TypeContent extends Basic.AbstractContent {
     return 'content.tree.types';
   }
 
-  componentDidMount() {
-    this.selectNavigationItem('tree-types');
-    const { entityId } = this.props.params;
+  getNavigationKey() {
+    return 'tree-types';
+  }
 
+  componentDidMount() {
+    const { entityId } = this.props.params;
     if (this._getIsNew()) {
       this.context.store.dispatch(treeTypeManager.receiveEntity(entityId, { }));
     } else {

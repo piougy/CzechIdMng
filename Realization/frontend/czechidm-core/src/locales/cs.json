@@ -1204,6 +1204,16 @@
         "title": "Garant rolí"
       }
     },
+    "organizations": {
+      "header": "Organizační struktura",
+      "title": "Organizační struktura",
+      "defaultTreeType": {
+        "empty": {
+          "message": "Výchozí organizační struktura není nakonfigurována.",
+          "button": "Definovat výchozí strukturu"
+        }
+      }
+    },
     "audit": {
       "header": "Audit",
       "headerSmall": "záznamy auditních logů",
@@ -1628,8 +1638,8 @@
       }
     },
     "TreeNode": {
-      "_type": "Pracovní pozice",
-      "id": "Interní id pozice",
+      "_type": "Prvek stromu",
+      "id": "Identifikátor",
       "code": "Kód",
       "name": "Název",
       "disabled": "Neaktivní",
@@ -1643,8 +1653,17 @@
       }
     },
     "TreeType": {
+      "_type": "Struktura",
       "code": "Kód",
-      "name": "Název"
+      "name": "Název",
+      "defaultTreeType": {
+        "label": "Výchozí struktura",
+        "help": "Tento typ struktury bude použit jako výchozí organizační struktura."
+      },
+      "defaultTreeNode": {
+        "label": "Výchozí prvek struktury",
+        "help": "Tento prvek struktury bude použit jako výchozí, např. při zakládání výchozího pracovně právního vztahu."
+      }
     },
     "Delegate": {
       "_type": "Delegace",

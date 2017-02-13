@@ -5,7 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 import org.joda.time.DateTime;
@@ -16,9 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
-import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.CronTaskTrigger;
+import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.SimpleTaskTrigger;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.Task;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
@@ -29,6 +32,8 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
  * Scheduler tests
+ * 
+ *  TODO: use futures instead wait - its unstable
  * 
  * @author Radek Tomiška
  *
@@ -47,7 +52,6 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	private IdmLongRunningTaskService longRunningTaskService;
 	//
 	private DefaultSchedulerManager manager;
-	protected static String processed = null;
 	protected final static String RESULT_PROPERTY = "result";
 	
 	@Before
@@ -86,7 +90,7 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 	}
 	
 	@Test
-	public void testCreateAndRunSimpleTrigger() {
+	public void testCreateAndRunSimpleTrigger() throws InterruptedException, ExecutionException {
 		String result = "TEST_SCHEDULER_TWO";
 		Task task = createTask(result);
 		//
@@ -99,16 +103,16 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		Function<String, Boolean> continueFunction = res -> {
 			return longRunningTaskService.getTasks(configurationService.getInstanceId(), OperationState.CREATED).size() == 0;
 		};
-		waitForResult(continueFunction);
+		DefaultLongRunningTaskManagerIntegrationTest.waitForResult(continueFunction);
 		//
-		longRunningTaskManager.processCreated();
-		//
-		continueFunction = res -> {
-			return !result.equals(processed);
-		};
-		waitForResult(continueFunction);
-		//
-		assertEquals(result, processed);
+		List<FutureTask<?>> taskList = new ArrayList<>();
+		for (LongRunningFutureTask<?> longRunningFutureTask : longRunningTaskManager.processCreated()) {
+			if (longRunningFutureTask.getExecutor() instanceof TestSchedulableTask) {
+				taskList.add(longRunningFutureTask.getFutureTask());
+			}
+		}
+		assertEquals(1, taskList.size());
+		assertEquals(result, taskList.get(0).get());
 	}
 	
 	@Test
@@ -152,17 +156,5 @@ public class DefaultSchedulerManagerIntegrationTest extends AbstractIntegrationT
 		task.getParameters().put(RESULT_PROPERTY, result);
 		//
 		return manager.createTask(task);
-	}
-	
-	protected static void waitForResult(Function<String, Boolean> continueFunction) {
-		int counter = 0;
-		while(continueFunction.apply(null) && (counter < 20)) {
-			counter++;
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException ex) {
-				throw new CoreException(ex);
-			}
-		};
 	}
 }

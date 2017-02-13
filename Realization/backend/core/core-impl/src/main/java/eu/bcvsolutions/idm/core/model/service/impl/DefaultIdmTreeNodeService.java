@@ -20,31 +20,37 @@ import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmTreeNodeRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 
 @Service
 public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<IdmTreeNode, TreeNodeFilter> implements IdmTreeNodeService {
 	
 	private final IdmTreeNodeRepository treeNodeRepository;
+	private final IdmTreeTypeRepository treeTypeRepository;
 	private final IdmIdentityContractRepository identityContractRepository;
 	private final DefaultBaseTreeService<IdmTreeNode> baseTreeService;
 
 	@Autowired
 	public DefaultIdmTreeNodeService(
 			IdmTreeNodeRepository treeNodeRepository,
+			IdmTreeTypeRepository treeTypeRepository,
 			IdmIdentityContractRepository identityContractRepository,
 			DefaultBaseTreeService<IdmTreeNode> baseTreeService) {
 		super(treeNodeRepository);
 		//
+		Assert.notNull(treeTypeRepository);
 		Assert.notNull(identityContractRepository);
 		Assert.notNull(baseTreeService);
 		//
 		this.treeNodeRepository = treeNodeRepository;
+		this.treeTypeRepository = treeTypeRepository;
 		this.identityContractRepository = identityContractRepository;
 		this.baseTreeService = baseTreeService;
 	}
 	
 	@Override
+	@Transactional
 	public void delete(IdmTreeNode treeNode) {
 		Assert.notNull(treeNode);
 		//
@@ -55,11 +61,14 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		if (this.identityContractRepository.countByWorkingPosition(treeNode) > 0) {
 			throw new TreeNodeException(CoreResultCode.TREE_NODE_DELETE_FAILED_HAS_CONTRACTS,  ImmutableMap.of("treeNode", treeNode.getName()));
 		}
-		
+		// clear default tree nodes from type
+		treeTypeRepository.clearDefaultTreeNode(treeNode);
+		//
 		super.delete(treeNode);
 	}
 	
 	@Override
+	@Transactional
 	public IdmTreeNode save(IdmTreeNode entity) {
 		this.validate(entity);
 		return super.save(entity);

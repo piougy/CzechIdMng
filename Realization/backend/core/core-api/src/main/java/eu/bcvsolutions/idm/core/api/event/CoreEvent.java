@@ -32,4 +32,8 @@ public class CoreEvent<E extends BaseEntity> extends AbstractEntityEvent<E> {
 	public CoreEvent(EventType type, E content, Map<String, Serializable> properties) {
 		super(type, content, properties);
 	}
+	
+	public CoreEvent(EventType type, E content, Map<String, Serializable> properties, EventContext<E> context) {
+		super(type, content, properties, context);
+	}
 }

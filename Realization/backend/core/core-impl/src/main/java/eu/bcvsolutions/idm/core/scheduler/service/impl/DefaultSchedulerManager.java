@@ -71,15 +71,16 @@ public class DefaultSchedulerManager implements SchedulerManager {
 	}
 	
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Task> getSupportedTasks() {		
 		List<Task> tasks = new ArrayList<>();		
 		for (Map.Entry<String, SchedulableTaskExecutor> entry : context.getBeansOfType(SchedulableTaskExecutor.class)
 				.entrySet()) {
-			SchedulableTaskExecutor taskExecutor = entry.getValue();
+			SchedulableTaskExecutor<?> taskExecutor = entry.getValue();
 			Task task = new Task();
 			task.setId(entry.getKey());
 			task.setModule(taskExecutor.getModule());
-			task.setTaskType(taskExecutor.getClass());
+			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) taskExecutor.getClass());
 			task.setDescription(AutowireHelper.getBeanDescription(entry.getKey()));
 			for (String parameterName : taskExecutor.getParameterNames()) {
 				task.getParameters().put(parameterName, null);
@@ -126,7 +127,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			Task task = new Task();
 			// task setting
 			task.setId(jobKey.getName());
-			task.setTaskType((Class<? extends SchedulableTaskExecutor>) jobDetail.getJobClass());
+			task.setTaskType((Class<? extends SchedulableTaskExecutor<?>>) jobDetail.getJobClass());
 			task.setDescription(jobDetail.getDescription());
 			task.setInstanceId(jobDetail.getJobDataMap().getString(SchedulableTaskExecutor.PARAMETER_INSTANCE_ID));
 			task.setTriggers(new ArrayList<>());
@@ -174,7 +175,7 @@ public class DefaultSchedulerManager implements SchedulerManager {
 			});
 			// validate init method
 			try {
-				LongRunningTaskExecutor taskExecutor = AutowireHelper.createBean(task.getTaskType());
+				LongRunningTaskExecutor<?> taskExecutor = AutowireHelper.createBean(task.getTaskType());
 				taskExecutor.init(jobDataMap);
 			} catch (ResultCodeException ex) {
 				throw ex;

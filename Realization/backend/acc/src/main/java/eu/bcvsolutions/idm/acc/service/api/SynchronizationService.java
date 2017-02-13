@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.ic.api.IcAttribute;
  * @author svandav
  *
  */
-public interface SynchronizationService extends LongRunningTaskExecutor {
+public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncConfig> {
 
 	public static final String WF_VARIABLE_KEY_UID = "uid";
 	public static final String WF_VARIABLE_KEY_ENTITY_TYPE = "entityType";

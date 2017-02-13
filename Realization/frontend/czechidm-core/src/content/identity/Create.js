@@ -95,7 +95,8 @@ class Profile extends Basic.AbstractContent {
             break;
           }
           default : {
-            this.context.router.push(`identities`);
+            // this.context.router.push(`identities`); // TODO: has goBack?
+            this.context.router.goBack();
           }
         }
       });

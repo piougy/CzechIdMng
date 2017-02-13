@@ -134,6 +134,8 @@ public interface FormService {
 	 * @param owner
 	 * @param attribute
 	 * @param persistentValue raw values
+	 * @param <O> values owner
+	 * @param <E> value entity
 	 * @return persisted values
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormAttribute attribute, List<Serializable> persistentValues);
@@ -147,6 +149,8 @@ public interface FormService {
 	 * @param attributeName
 	 * @param persistentValues
 	 * @return persisted values
+	 * @param <O> values owner
+	 * @param <E> value entity
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, IdmFormDefinition formDefinition, String attributeName, List<Serializable> persistentValues);
@@ -159,6 +163,8 @@ public interface FormService {
 	 * @param attributeName
 	 * @param persistentValues
 	 * @return persisted values
+	 * @param <O> values owner
+	 * @param <E> value entity
 	 * @throws IllegalArgumentException if default definition does not exist
 	 */
 	<O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName, List<Serializable> persistentValues);

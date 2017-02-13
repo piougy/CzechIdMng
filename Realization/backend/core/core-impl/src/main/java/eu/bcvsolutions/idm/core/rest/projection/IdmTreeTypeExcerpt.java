@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.rest.projection;
 import org.springframework.data.rest.core.config.Projection;
 
 import eu.bcvsolutions.idm.core.api.rest.projection.AbstractDtoProjection;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
@@ -18,4 +19,8 @@ public interface IdmTreeTypeExcerpt extends AbstractDtoProjection {
 	String getCode();
 	
 	String getName();
+	
+	boolean isDefaultTreeType();
+	
+	IdmTreeNode getDefaultTreeNode();
 }

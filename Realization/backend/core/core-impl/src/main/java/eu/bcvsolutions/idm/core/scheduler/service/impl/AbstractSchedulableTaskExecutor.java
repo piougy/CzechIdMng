@@ -17,11 +17,10 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 /**
  * Schedulable task services (this services will be automatically available as scheduled tasks)
  * 
- * 
  * @author Radek Tomiška
  *
  */
-public abstract class AbstractSchedulableTaskExecutor extends AbstractLongRunningTaskExecutor implements SchedulableTaskExecutor {
+public abstract class AbstractSchedulableTaskExecutor<V> extends AbstractLongRunningTaskExecutor<V> implements SchedulableTaskExecutor<V> {
 
 	@Autowired
 	private SecurityService securityService;

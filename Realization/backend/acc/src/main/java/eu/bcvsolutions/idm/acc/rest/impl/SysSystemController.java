@@ -33,6 +33,7 @@ import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.dto.filter.SysSystemFilter;
+import eu.bcvsolutions.idm.acc.entity.SysConnectorServer;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemFormValue;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
@@ -40,6 +41,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.AbstractReadWriteEntityController;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
+import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
@@ -48,7 +50,10 @@ import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
-import eu.bcvsolutions.idm.ic.exception.IcException;
+import eu.bcvsolutions.idm.ic.exception.IcCantConnectException;
+import eu.bcvsolutions.idm.ic.exception.IcInvalidCredentialException;
+import eu.bcvsolutions.idm.ic.exception.IcRemoteServerException;
+import eu.bcvsolutions.idm.ic.exception.IcServerNotFoundException;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;;
 
@@ -66,6 +71,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	private final SysSystemService systemService;
 	private final FormService formService;
 	private final IcConfigurationFacade icConfiguration;
+	private final ConfidentialStorage confidentialStorage;
 	
 	@Autowired 
 	private IdmFormDefinitionController formDefinitionController;
@@ -75,16 +81,19 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			EntityLookupService entityLookupService, 
 			SysSystemService systemService, 
 			FormService formService,
-			IcConfigurationFacade icConfiguration) {
+			IcConfigurationFacade icConfiguration,
+			ConfidentialStorage confidentialStorage) {
 		super(entityLookupService);
 		//
 		Assert.notNull(systemService);
 		Assert.notNull(formService);
 		Assert.notNull(icConfiguration);
+		Assert.notNull(confidentialStorage);
 		//
 		this.systemService = systemService;
 		this.formService = formService;
 		this.icConfiguration = icConfiguration;
+		this.confidentialStorage = confidentialStorage;
 	}
 
 	@Override
@@ -301,13 +310,23 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 		}
 
  		Assert.notNull(entity.getConnectorServer());
-		try {
-			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
-				infos.put(config.getImplementationType(), config.getAvailableRemoteConnectors(entity.getConnectorServer()));
+ 		//
+ 		try {
+ 			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
+				SysConnectorServer server = entity.getConnectorServer();
+				server.setPassword(this.confidentialStorage.getGuardedString(entity, SysSystemService.REMOTE_SERVER_PASSWORD));
+				infos.put(config.getImplementationType(), config.getAvailableRemoteConnectors(server));
 			}
-		} catch (IcException ex) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_REMOTE_SERVER_NOT_FOUND, ImmutableMap.of("system", entity.getName()), ex);
+		} catch (IcInvalidCredentialException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+		} catch (IcServerNotFoundException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_NOT_FOUND, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+		} catch (IcCantConnectException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_CANT_CONNECT, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
+		} catch (IcRemoteServerException e) {
+			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_UNEXPECTED_ERROR, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));
 		}
+		//
 		return new ResponseEntity<Map<String, List<IcConnectorInfo>>>(infos, HttpStatus.OK);
 	}
 	
@@ -321,10 +340,17 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	private synchronized IdmFormDefinition getConnectorFormDefinition(SysSystem system) {
 		Assert.notNull(system);
 		//
-		try {
-			return systemService.getConnectorFormDefinition(system.getConnectorInstance());
-		} catch(Exception ex) {
-			throw new ResultCodeException(AccResultCode.CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND, ImmutableMap.of("system", system.getName()), ex);
+		// connector key can't be null
+		if (system.getConnectorKey() == null) {
+			throw new ResultCodeException(AccResultCode.CONNECTOR_FORM_DEFINITION_NOT_FOUND, ImmutableMap.of("system", system.getId()));
 		}
+		// for remote connector form definition we need password for remote connector server
+		if (system.isRemote()) {
+			SysConnectorServer connectorServer = system.getConnectorServer();
+			connectorServer.setPassword(this.confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+			system.setConnectorServer(connectorServer);
+		}
+		//
+		return systemService.getConnectorFormDefinition(system.getConnectorInstance());
 	}
 }

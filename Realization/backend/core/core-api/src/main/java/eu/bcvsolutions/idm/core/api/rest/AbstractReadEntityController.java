@@ -41,7 +41,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
-import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
+import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
 
 /**
  * Read operations (get, find)
@@ -55,7 +55,7 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	private static final EmbeddedWrappers WRAPPERS = new EmbeddedWrappers(false);	
 	protected final EntityLookupService entityLookupService;	
 	private final ReadEntityService<E, F> entityService;
-	private ParameterConverter parameterConverter;
+	private FilterConverter filterConverter;
 	
 	@Autowired
 	private PagedResourcesAssembler<Object> pagedResourcesAssembler; // TODO: autowired in api package - move higher
@@ -266,10 +266,10 @@ public abstract class AbstractReadEntityController<E extends BaseEntity, F exten
 	 * 
 	 * @return
 	 */
-	protected ParameterConverter getParameterConverter() {
-		if (parameterConverter == null) {
-			parameterConverter = new ParameterConverter(entityLookupService, mapper);
+	protected FilterConverter getParameterConverter() {
+		if (filterConverter == null) {
+			filterConverter = new FilterConverter(entityLookupService, mapper);
 		}
-		return parameterConverter;
+		return filterConverter;
 	}
 }

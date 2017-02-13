@@ -3,7 +3,7 @@ package eu.bcvsolutions.idm.core.api.service;
 import java.util.List;
 
 import eu.bcvsolutions.idm.core.api.dto.EntityEventProcessorDto;
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
+import eu.bcvsolutions.idm.core.api.dto.filter.EntityEventProcessorFilter;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EntityEventProcessor;
@@ -36,5 +36,5 @@ public interface EntityEventManager {
 	 * @param filter
 	 * @return
 	 */
-	List<EntityEventProcessorDto> find(EmptyFilter filter);
+	List<EntityEventProcessorDto> find(EntityEventProcessorFilter filter);
 }

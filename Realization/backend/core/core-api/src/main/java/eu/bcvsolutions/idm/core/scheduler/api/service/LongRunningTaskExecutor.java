@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.scheduler.api.service;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * Long running task executor
@@ -9,7 +10,7 @@ import java.util.UUID;
  * @author Radek Tomiška
  *
  */
-public interface LongRunningTaskExecutor extends Runnable {
+public interface LongRunningTaskExecutor<V> extends Callable<V> {
 
 	/**
 	 * Module identifier
@@ -28,7 +29,7 @@ public interface LongRunningTaskExecutor extends Runnable {
 	/**
 	 * Main execution method
 	 */
-	void process();
+	V process();
 	
 	/**
 	 * Executors description

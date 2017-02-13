@@ -16,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
@@ -24,10 +25,13 @@ import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 /**
  * Template for long running task executor. This template persists long running tasks.
  * 
+ * TODO: interface only + AOP executor
+ * TODO: refactor autowired fields
+ * 
  * @author Radek Tomiška
  *
  */
-public abstract class AbstractLongRunningTaskExecutor implements LongRunningTaskExecutor {
+public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningTaskExecutor<V> {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractLongRunningTaskExecutor.class);
 	@Autowired
@@ -45,7 +49,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 */
 	@Override
 	public String getModule() {
-		return this.getClass().getCanonicalName().split("\\.")[3];
+		return EntityUtils.getModule(this.getClass());
 	}
 	
 	@Override
@@ -85,20 +89,20 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	
 	
 	@Override
-	public void run() {
+	public V call() {
 		try {
 			if (!start()) {
-				return;
+				return null;
 			}
-			process();
+			V result = process();
 			//
-			end(null);
+			return end(result, null);
 		} catch (Exception ex) {
-			end(ex);
+			return end(null, ex);
 		}
 	}
 	
-	protected void end(Exception ex) {
+	protected V end(V result, Exception ex) {
 		Assert.notNull(taskId);
 		IdmLongRunningTask task = service.get(taskId);
 		Assert.notNull(task, "Long running task has to be prepared before task is started");
@@ -119,6 +123,8 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 		}
 		task.setRunning(false);
 		service.save(task);
+		//
+		return result;
 	}
 	
 	/**
@@ -159,7 +165,7 @@ public abstract class AbstractLongRunningTaskExecutor implements LongRunningTask
 	 */
 	protected ParameterConverter getParameterConverter() {
 		if (parameterConverter == null) {
-			parameterConverter = new ParameterConverter(entityLookupService, null);
+			parameterConverter = new ParameterConverter(entityLookupService);
 		}
 		return parameterConverter;
 	}

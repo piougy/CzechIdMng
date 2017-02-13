@@ -4,12 +4,19 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 
 /**
@@ -33,9 +40,10 @@ public class SysConnectorServer implements IcConnectorServer, Serializable {
 	@Column(name = "port")
 	private int port;
 	
-	// TODO: confidential storage
-	@Column(name = "password")
-	private String password;
+	@Transient
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@JsonDeserialize(using = GuardedStringDeserializer.class)
+	private transient GuardedString password;
 	
 	@NotNull
 	@Column(name = "use_ssl", nullable = false)
@@ -76,11 +84,11 @@ public class SysConnectorServer implements IcConnectorServer, Serializable {
 		this.port = port;
 	}
 
-	public String getPassword() {
+	public GuardedString getPassword() {
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(GuardedString password) {
 		this.password = password;
 	}
 }

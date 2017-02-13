@@ -23,8 +23,11 @@ class NodeContent extends Basic.AbstractContent {
     return 'content.tree.nodes';
   }
 
+  getNavigationKey() {
+    return 'tree-nodes';
+  }
+
   componentDidMount() {
-    this.selectNavigationItem('tree-nodes');
     const { entityId } = this.props.params;
     const isNew = this._getIsNew();
 

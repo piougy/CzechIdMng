@@ -16,28 +16,21 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public class DefaultEventContext<E extends BaseEntity> implements EventContext<E> {
 
 	private final List<EventResult<E>> processed = new ArrayList<>();
+	private boolean suspended;
+	private Integer processedOrder;
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<EventResult<E>> getResults() {
 		return Collections.unmodifiableList(processed);
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public void addResult(EventResult<E> eventResult) {
 		processed.add(eventResult);
+		suspended = eventResult.isSuspended();
+		processedOrder = eventResult.getProcessedOrder();
 	}
 	
-	/**
-	 * Returns last event content, or null, if no event was processed.
-	 * 
-	 * @return
-	 */
 	@Override
 	public E getContent() {
 		if(processed.isEmpty()) {
@@ -46,26 +39,34 @@ public class DefaultEventContext<E extends BaseEntity> implements EventContext<E
 		return getLastResult().getEvent().getContent();
 	}
 	
-	/**
-	 * Returns last event result, or null, if no event was processed.
-	 * 
-	 * @return
-	 */
 	@Override
 	public EventResult<E> getLastResult(){
 		return processed.get(processed.size() - 1);
 	}
 	
-	/**
-	 * Event is closed = no other events will be processed (break event chain)
-	 * 
-	 * @return
-	 */
 	@Override
 	public boolean isClosed() {
 		if(processed.isEmpty()) {
 			return false;
 		}
 		return getLastResult().isClosed();
+	}
+	
+	@Override
+	public boolean isSuspended() {
+		return suspended;
+	}
+	
+	@Override
+	public void setSuspended(boolean suspended) {
+		this.suspended = suspended;
+	}
+	
+	public Integer getProcessedOrder() {
+		return processedOrder;
+	}
+	
+	public void setProcessedOrder(Integer processedOrder) {
+		this.processedOrder = processedOrder;
 	}
 }

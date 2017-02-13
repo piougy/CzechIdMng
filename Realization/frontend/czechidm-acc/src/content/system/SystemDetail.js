@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-// import Joi from 'joi'; // TODO: set for port valdiation
+import Joi from 'joi';
 //
 import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -184,6 +184,31 @@ class SystemDetail extends Basic.AbstractContent {
                   onChange={this._setRemoteServer.bind(this)}
                   label={this.i18n('acc:entity.System.remoteConnector.label')}
                   helpBlock={this.i18n('acc:entity.System.remoteConnector.help')}/>
+                {/* definition for remote connector server */}
+                <Basic.TextField
+                  ref="host"
+                  label={this.i18n('acc:entity.ConnectorServer.host')}
+                  hidden={!showConfigurationRemoteServer}
+                  required={showConfigurationRemoteServer}
+                  max={255}/>
+                <Basic.Checkbox
+                  ref="useSsl"
+                  label={this.i18n('acc:entity.ConnectorServer.useSsl')}
+                  hidden={!showConfigurationRemoteServer}/>
+                <Basic.TextField
+                  ref="port"
+                  label={this.i18n('acc:entity.ConnectorServer.port')}
+                  hidden={!showConfigurationRemoteServer}/>
+                <Basic.TextField
+                  ref="password"
+                  confidential
+                  label={this.i18n('acc:entity.ConnectorServer.password')}
+                  hidden={!showConfigurationRemoteServer}/>
+                <Basic.TextField
+                  ref="timeout"
+                  label={this.i18n('acc:entity.ConnectorServer.timeout')}
+                  hidden={!showConfigurationRemoteServer}/>
+                {/* end for connector server definition */}
                 <Basic.Checkbox
                   ref="disabled"
                   label={this.i18n('acc:entity.System.disabled')}/>
@@ -218,30 +243,6 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.System.queue.label')}
                   helpBlock={this.i18n('acc:entity.System.queue.help')}
                   hidden/>
-
-                <Basic.TextField
-                  ref="host"
-                  label={this.i18n('acc:entity.ConnectorServer.host')}
-                  hidden={!showConfigurationRemoteServer}
-                  required={showConfigurationRemoteServer}
-                  max={255}/>
-                <Basic.Checkbox
-                  ref="useSsl"
-                  label={this.i18n('acc:entity.ConnectorServer.useSsl')}
-                  hidden={!showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="port"
-                  label={this.i18n('acc:entity.ConnectorServer.port')}
-                  hidden={!showConfigurationRemoteServer}
-                  required={showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="password"
-                  label={this.i18n('acc:entity.ConnectorServer.password')}
-                  hidden={!showConfigurationRemoteServer}/>
-                <Basic.TextField
-                  ref="timeout"
-                  label={this.i18n('acc:entity.ConnectorServer.timeout')}
-                  hidden={!showConfigurationRemoteServer}/>
               </Basic.AbstractForm>
             </Basic.PanelBody>
 

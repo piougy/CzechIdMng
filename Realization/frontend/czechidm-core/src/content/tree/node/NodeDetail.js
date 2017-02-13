@@ -82,7 +82,8 @@ export default class NodeDetail extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
     this.context.store.dispatch(this.treeNodeManager.clearEntities());
-    this.context.router.replace(`tree/nodes/?type=${entity._embedded.treeType.id}`);
+    // go back to tree types or organizations
+    this.context.router.goBack();
   }
 
   closeDetail() {
@@ -116,7 +117,7 @@ export default class NodeDetail extends Basic.AbstractContent {
             <Basic.SelectBox
               ref="parent"
               label={this.i18n('entity.TreeNode.parent.name')}
-              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeType', type)}
+              forceSearchParameters={this.treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type)}
               manager={this.treeNodeManager}/>
             <Basic.Checkbox
               ref="disabled"

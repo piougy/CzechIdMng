@@ -31,4 +31,19 @@ public interface EventResult<E extends BaseEntity> {
 	 * @return
 	 */
 	boolean isClosed();
+	
+	/**
+	 * Event is suspended = no other events will be processed, while event is suspended. 
+	 * Suspended event could be republished again - when will continue when event was suspended.
+	 * 
+	 * @return
+	 */
+	boolean isSuspended();
+	
+	/**
+	 * Returns last processed order
+	 * 
+	 * @return
+	 */
+	int getProcessedOrder();
 }

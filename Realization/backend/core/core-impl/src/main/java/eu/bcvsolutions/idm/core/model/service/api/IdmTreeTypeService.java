@@ -23,4 +23,11 @@ public interface IdmTreeTypeService extends ReadWriteEntityService<IdmTreeType, 
 	 * @return
 	 */
 	IdmTreeType getByCode(String code);
+	
+	/**
+	 * Returns default tree type or {@code null}, if no default tree type is defined
+	 * 
+	 * @return
+	 */
+	IdmTreeType getDefaultTreeType();
 }

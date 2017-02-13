@@ -26,7 +26,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: {}
       },
       treeTypeId: null,
-      forceSearchParameters: new SearchParameters().setFilter('treeType', SearchParameters.BLANK_UUID)
+      forceSearchParameters: new SearchParameters().setFilter('treeTypeId', SearchParameters.BLANK_UUID)
     };
   }
 
@@ -59,7 +59,7 @@ class IdentityContracts extends Basic.AbstractContent {
         entity: entityFormData
       },
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || SearchParameters.BLANK_UUID)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
       if (this.refs.treeTypeId) {
         this.refs.treeTypeId.focus();
@@ -74,7 +74,7 @@ class IdentityContracts extends Basic.AbstractContent {
         show: false
       },
       treeTypeId: null,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', SearchParameters.BLANK_UUID)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', SearchParameters.BLANK_UUID)
     });
   }
 
@@ -147,7 +147,7 @@ class IdentityContracts extends Basic.AbstractContent {
     const treeTypeId = treeType ? treeType.id : null;
     this.setState({
       treeTypeId,
-      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeType', treeTypeId || SearchParameters.BLANK_UUID)
+      forceSearchParameters: this.state.forceSearchParameters.setFilter('treeTypeId', treeTypeId || SearchParameters.BLANK_UUID)
     }, () => {
       // focus automatically - maybe will be usefull?
       // this.refs.workingPosition.focus();

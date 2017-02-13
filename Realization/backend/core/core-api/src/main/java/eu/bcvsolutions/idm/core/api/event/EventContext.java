@@ -40,6 +40,23 @@ public interface EventContext<E extends BaseEntity> {
 	 * @return
 	 */
 	boolean isClosed();
+	
+	/**
+	 * Event is suspended = no other events will be processed, while event is suspended. 
+	 * Suspended event could be republished again - when will continue when event was suspended - all processors 
+	 * with greater order than getProcessedOrder will be called.
+	 * 
+	 * @return
+	 */
+	boolean isSuspended();
+	
+	/**
+	 * Sets suspended
+	 * 
+	 * @see {@link #isSuspended()}
+	 * @param suspended
+	 */
+	void setSuspended(boolean suspended);
 
 	/**
 	 * Returns last event result, or null, if no event was processed.
@@ -47,4 +64,11 @@ public interface EventContext<E extends BaseEntity> {
 	 * @return
 	 */
 	EventResult<E> getLastResult();
+	
+	/**
+	 * Returns last processed order or {@code null}, if any processor was called (event is starting).
+	 * 
+	 * @return
+	 */
+	Integer getProcessedOrder();
 }

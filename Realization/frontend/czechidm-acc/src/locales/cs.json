@@ -449,7 +449,7 @@
       },
       "remoteConnector": {
         "label": "Vzdálený konektor server",
-        "help": "Budou načteny vzdálené konektory místo místních."
+        "help": "Při zaškrknutí budou načteny konektory ze vzdáleného serveru."
       },
       "connectorHost": "Server s konektory"
     },

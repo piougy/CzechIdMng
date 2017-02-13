@@ -449,7 +449,7 @@
       },
       "remoteConnector": {
         "label": "Remote connector server",
-        "help": "They will be loaded remote connectors instead of local."
+        "help": "After check, will be loaded connectors from remote connector server"
       },
       "connectorHost": "Server with connectors"
     },

@@ -48,7 +48,7 @@ public class SynchronizationSchedulableTaskExecutor extends AbstractSchedulableT
 	@Override
 	public Boolean process() {
 		synchronizationService.startSynchronizationEvent(getConfig());	
-		return true;
+		return Boolean.TRUE;
 	}
 	
 	private SysSyncConfig getConfig() {

@@ -82,6 +82,6 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 			}
 		}
 		LOG.info("Retry provisioning executor ended for all next attmepts old than [{}]", start);
-		return true;
+		return Boolean.TRUE;
 	}
 }

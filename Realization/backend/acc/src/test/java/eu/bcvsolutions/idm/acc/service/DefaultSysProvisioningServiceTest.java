@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 
 import eu.bcvsolutions.idm.acc.domain.AccountType;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
@@ -316,6 +317,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		AttributeMapping defOne = new MappingAttributeDto();
 		defOne.setEntityAttribute(true);
+		defOne.setStrategyType(AttributeMappingStrategyType.SET);
 		defOne.setIdmPropertyName("one");
 		defOne.setName("defOne");
 		defOne.setDisabledAttribute(true);
@@ -323,6 +325,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 
 		AttributeMapping defTwo = new MappingAttributeDto();
 		defTwo.setEntityAttribute(true);
+		defTwo.setStrategyType(AttributeMappingStrategyType.SET);
 		defTwo.setIdmPropertyName("two");
 		defTwo.setName("defTwo");
 		defaultAttributes.add(defTwo);
@@ -387,6 +390,164 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
 		List<AttributeMapping> defaultAttributes = new ArrayList<>();
 
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(2, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloadedRoleTwo".equals(attribute.getName());
+		}).findFirst().isPresent());
+		
+		// set name role One to zroleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setName("zroleOne");
+		
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(2, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloaded".equals(attribute.getName());
+		}).findFirst().isPresent());
+		
+		
+		// We set role mapping attribute to disabled, then must have  higher "priority", then role mapping one
+		// and must missing in result
+		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
+		
+		compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(1, compilledAttributes.size());
+	}
+	
+	
+	@Test
+	public void compileAttributesOverrloadedDiffPriorityTest() {
+		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<AttributeMapping> defaultAttributes = new ArrayList<>();
+
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+		
+		// roleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		// roleTwo
+		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
+		
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(2, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloaded".equals(attribute.getName());
+		}).findFirst().isPresent());
+	}
+	
+	@Test
+	public void compileAttributesOverrloadedStrategyMergeTest() {
+		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<AttributeMapping> defaultAttributes = new ArrayList<>();
+
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+		
+		// roleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		// roleTwo
+		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
+		
+		// overloadedRoleOne
+		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.MERGE);
+		// overloadedRoleTwo
+		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.MERGE);
+		
+		
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(3, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloadedRoleTwo".equals(attribute.getName());
+		}).findFirst().isPresent());
+	}
+	
+	@Test
+	public void compileAttributesOverrloadedStrategyMergeAuthoTest() {
+		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<AttributeMapping> defaultAttributes = new ArrayList<>();
+
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+		
+		// roleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		// roleTwo
+		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(100);
+		
+		// overloadedRoleOne
+		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		// overloadedRoleTwo
+		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		
+		
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(3, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloadedRoleTwo".equals(attribute.getName());
+		}).findFirst().isPresent());
+	}
+	
+	@Test
+	public void compileAttributesOverrloadedStrategyMergeAuthoDisableTest() {
+		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<AttributeMapping> defaultAttributes = new ArrayList<>();
+
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+		
+		// roleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		// roleTwo
+		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(500);
+		
+		// overloadedRoleOne
+		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		// overloadedRoleTwo
+		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.AUTHORITATIVE_MERGE);
+		overloadingAttributes.get(1).setDisabledDefaultAttribute(true);
+		
+		
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(2, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloaded".equals(attribute.getName());
+		}).findFirst().isPresent());
+	}
+	
+	
+	@Test
+	public void compileAttributesOverrloadedStrategyCreateTest() {
+		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
+		List<AttributeMapping> defaultAttributes = new ArrayList<>();
+
+		initOverloadedAttributes(overloadingAttributes, defaultAttributes);
+		
+		// roleOne
+		overloadingAttributes.get(0).getRoleSystem().getRole().setPriority(200);
+		// roleTwo
+		overloadingAttributes.get(1).getRoleSystem().getRole().setPriority(500);
+		
+		// overloadedRoleOne
+		overloadingAttributes.get(0).setStrategyType(AttributeMappingStrategyType.CREATE);
+		// overloadedRoleTwo
+		overloadingAttributes.get(1).setStrategyType(AttributeMappingStrategyType.CREATE);
+		
+		
+		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
+				overloadingAttributes);
+		Assert.assertEquals(2, compilledAttributes.size());
+		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
+			return "defOneOverloadedRoleTwo".equals(attribute.getName());
+		}).findFirst().isPresent());
+	}
+
+	private void initOverloadedAttributes(List<SysRoleSystemAttribute> overloadingAttributes,
+			List<AttributeMapping> defaultAttributes) {
 		SysSchemaAttribute attOne = new SysSchemaAttribute();
 		attOne.setName("attOne");
 		SysSchemaAttribute attTwo = new SysSchemaAttribute();
@@ -421,6 +582,15 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		
 		SysRoleSystem roleSystemOne = new SysRoleSystem();
 		roleSystemOne.setRole(roleOne);
+
+		SysRoleSystemAttribute overloadedRoleOne = new SysRoleSystemAttribute();
+		overloadedRoleOne.setSystemAttributeMapping(defOne);
+		overloadedRoleOne.setEntityAttribute(true);
+		overloadedRoleOne.setIdmPropertyName("one");
+		overloadedRoleOne.setName("defOneOverloaded");
+		overloadedRoleOne.setDisabledDefaultAttribute(false);
+		overloadedRoleOne.setRoleSystem(roleSystemOne);
+		overloadingAttributes.add(overloadedRoleOne);
 		
 		SysRoleSystemAttribute overloadedRoleTwo = new SysRoleSystemAttribute();
 		overloadedRoleTwo.setSystemAttributeMapping(defOne);
@@ -431,107 +601,6 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		overloadedRoleTwo.setRoleSystem(roleSystemTwo);
 		overloadingAttributes.add(overloadedRoleTwo);
 		
-		SysRoleSystemAttribute overloadedRoleOne = new SysRoleSystemAttribute();
-		overloadedRoleOne.setSystemAttributeMapping(defOne);
-		overloadedRoleOne.setEntityAttribute(true);
-		overloadedRoleOne.setIdmPropertyName("one");
-		overloadedRoleOne.setName("defOneOverloaded");
-		overloadedRoleOne.setDisabledDefaultAttribute(false);
-		overloadedRoleOne.setRoleSystem(roleSystemOne);
-		overloadingAttributes.add(overloadedRoleOne);
-
-		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
-		Assert.assertEquals(2, compilledAttributes.size());
-		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
-			return "defOneOverloadedRoleTwo".equals(attribute.getName());
-		}).findFirst().isPresent());
-		
-		// set name role One to zroleOne
-		roleOne.setName("zroleOne");
-		
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
-		Assert.assertEquals(2, compilledAttributes.size());
-		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
-			return "defOneOverloaded".equals(attribute.getName());
-		}).findFirst().isPresent());
-		
-		
-		// We set role mapping attribute to disabled, then must have  higher "priority", then role mapping one
-		// and must missing in result
-		overloadedRoleTwo.setDisabledDefaultAttribute(true);
-		
-		compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
-		Assert.assertEquals(1, compilledAttributes.size());
-	}
-	
-	
-	@Test
-	public void compileAttributesOverrloadedDiffPriorityTest() {
-		List<SysRoleSystemAttribute> overloadingAttributes = new ArrayList<>();
-		List<AttributeMapping> defaultAttributes = new ArrayList<>();
-
-		SysSchemaAttribute attOne = new SysSchemaAttribute();
-		attOne.setName("attOne");
-		SysSchemaAttribute attTwo = new SysSchemaAttribute();
-		attTwo.setName("attTwo");
-		
-		SysSystemAttributeMapping defOne = new SysSystemAttributeMapping();
-		defOne.setEntityAttribute(true);
-		defOne.setIdmPropertyName("one");
-		defOne.setName("defOne");
-		defOne.setDisabledAttribute(true);
-		defOne.setSchemaAttribute(attOne);
-		defaultAttributes.add(defOne);
-
-		SysSystemAttributeMapping defTwo = new SysSystemAttributeMapping();
-		defTwo.setEntityAttribute(true);
-		defTwo.setIdmPropertyName("two");
-		defTwo.setName("defTwo");
-		defTwo.setSchemaAttribute(attTwo);
-		defaultAttributes.add(defTwo);
-	
-
-		IdmRole roleTwo = new IdmRole();
-		roleTwo.setName("roleTwo");
-		roleTwo.setPriority(100);
-		
-		IdmRole roleOne = new IdmRole();
-		roleOne.setName("roleOne");
-		roleOne.setPriority(200);
-		
-		SysRoleSystem roleSystemTwo = new SysRoleSystem();
-		roleSystemTwo.setRole(roleTwo);
-		
-		SysRoleSystem roleSystemOne = new SysRoleSystem();
-		roleSystemOne.setRole(roleOne);
-		
-		SysRoleSystemAttribute overloadedRoleTwo = new SysRoleSystemAttribute();
-		overloadedRoleTwo.setSystemAttributeMapping(defOne);
-		overloadedRoleTwo.setEntityAttribute(true);
-		overloadedRoleTwo.setIdmPropertyName("one");
-		overloadedRoleTwo.setName("defOneOverloadedRoleTwo");
-		overloadedRoleTwo.setDisabledDefaultAttribute(false);
-		overloadedRoleTwo.setRoleSystem(roleSystemTwo);
-		overloadingAttributes.add(overloadedRoleTwo);
-		
-		SysRoleSystemAttribute overloadedRoleOne = new SysRoleSystemAttribute();
-		overloadedRoleOne.setSystemAttributeMapping(defOne);
-		overloadedRoleOne.setEntityAttribute(true);
-		overloadedRoleOne.setIdmPropertyName("one");
-		overloadedRoleOne.setName("defOneOverloaded");
-		overloadedRoleOne.setDisabledDefaultAttribute(false);
-		overloadedRoleOne.setRoleSystem(roleSystemOne);
-		overloadingAttributes.add(overloadedRoleOne);
-
-		List<AttributeMapping> compilledAttributes = provisioningService.compileAttributes(defaultAttributes,
-				overloadingAttributes);
-		Assert.assertEquals(2, compilledAttributes.size());
-		Assert.assertTrue(compilledAttributes.stream().filter(attribute -> {
-			return "defOneOverloaded".equals(attribute.getName());
-		}).findFirst().isPresent());
 	}
 
 

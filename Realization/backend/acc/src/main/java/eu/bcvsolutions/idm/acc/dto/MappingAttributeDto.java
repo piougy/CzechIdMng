@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.acc.dto;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 /**
@@ -21,6 +22,7 @@ public class MappingAttributeDto  implements AttributeMapping {
 	private boolean disabledAttribute = false;
 	private String transformFromResourceScript;
 	private String transformToResourceScript;
+	private AttributeMappingStrategyType strategyType;
 
 	@Override
 	public String getIdmPropertyName() {
@@ -121,4 +123,16 @@ public class MappingAttributeDto  implements AttributeMapping {
 	public void setDisabledAttribute(boolean disabledAttribute) {
 		this.disabledAttribute = disabledAttribute;
 	}
+
+	@Override
+	public AttributeMappingStrategyType getStrategyType() {
+		return strategyType;
+	}
+
+	@Override
+	public void setStrategyType(AttributeMappingStrategyType strategyType) {
+		this.strategyType = strategyType;
+	}
+	
+	
 }

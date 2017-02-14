@@ -543,6 +543,7 @@
       },
       "systemAttributeMapping": "Atribut v systému",
       "roleSystem": "Patří k roli a systému",
+      "strategyType": "Strategy",
       "disabledDefaultAttribute": "Vynechat",
       "disabledDefaultAttributeTooltip": "Pokud je zatrhnuto, tak nebude tento atribut propagován do koncového systému (a to i když k tomuto atributu existuje výchozí mapování).",
       "transformScriptTable": "Transformace",

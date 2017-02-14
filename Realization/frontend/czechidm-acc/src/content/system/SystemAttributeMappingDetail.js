@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 //
 import { Basic, Utils, Domain} from 'czechidm-core';
 import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager} from '../../redux';
-import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum'
+import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -60,7 +60,7 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
         attribute: {
           systemMapping: props.location.query.mappingId,
           objectClassId: props.location.query.objectClassId,
-          strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET),
+          strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET)
         }
       });
     } else {

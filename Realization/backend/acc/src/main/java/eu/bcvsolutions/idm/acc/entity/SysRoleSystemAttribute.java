@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.entity;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -15,6 +17,7 @@ import org.hibernate.envers.Audited;
 
 import com.sun.istack.NotNull;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -84,6 +87,13 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "transform_script")
 	private String transformScript;
+	
+	@Audited
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "strategy_type", nullable = false)
+	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+
 
 	public String getName() {
 		return name;
@@ -163,6 +173,14 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 
 	public void setDisabledDefaultAttribute(boolean disabledDefaultAttribute) {
 		this.disabledDefaultAttribute = disabledDefaultAttribute;
+	}
+
+	public AttributeMappingStrategyType getStrategyType() {
+		return strategyType;
+	}
+
+	public void setStrategyType(AttributeMappingStrategyType strategyType) {
+		this.strategyType = strategyType;
 	}
 	
 }

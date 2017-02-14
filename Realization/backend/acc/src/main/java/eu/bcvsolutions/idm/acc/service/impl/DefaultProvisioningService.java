@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.swing.text.html.HTML.Attribute;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
@@ -314,6 +317,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		overloadedAttribute.setTransformToResourceScript(overloadingAttribute.getTransformScript());
 		overloadedAttribute.setUid(overloadingAttribute.isUid());
 		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
+		overloadedAttribute.setStrategyType(overloadingAttribute.getStrategyType());
 	}
 
 	@Override
@@ -497,56 +501,47 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return null;
 		}
 		defaultAttributes.stream().forEach(defaultAttribute -> {
+			for(AttributeMappingStrategyType strategy : AttributeMappingStrategyType.values()){
+				finalAttributes.addAll(compileAtributeForStrategy(strategy, defaultAttribute, overloadingAttributes));
+			}
+		});
+		return finalAttributes;
+	}
 
-			List<SysRoleSystemAttribute> attributesOrdered = overloadingAttributes.stream()
-					.filter(roleSystemAttribute -> {
-						// Search attribute override same schema attribute
-						return roleSystemAttribute.getSystemAttributeMapping().equals(defaultAttribute);
-					}).sorted((att1, att2) -> {
-						// Sort attributes by role priority
-						return new Integer(att2.getRoleSystem().getRole().getPriority())
-								.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
+	private List<AttributeMapping> compileAtributeForStrategy(AttributeMappingStrategyType strategy,
+			AttributeMapping defaultAttribute, List<SysRoleSystemAttribute> overloadingAttributes) {
+
+		List<AttributeMapping> finalAttributes = new ArrayList<>();
+
+		List<SysRoleSystemAttribute> attributesOrdered = overloadingAttributes.stream().filter(roleSystemAttribute -> {
+			// Search attribute override same schema attribute
+			SysSystemAttributeMapping attributeMapping = roleSystemAttribute.getSystemAttributeMapping();
+			return attributeMapping.equals(defaultAttribute);
+		}).sorted((att1, att2) -> {
+			// Sort attributes by role priority
+			return new Integer(att2.getRoleSystem().getRole().getPriority())
+					.compareTo(new Integer(att1.getRoleSystem().getRole().getPriority()));
+		}).collect(Collectors.toList());
+
+		// We have some overloaded attributes
+		if (!attributesOrdered.isEmpty()) {
+			List<SysRoleSystemAttribute> attributesOrderedGivenStrategy = attributesOrdered.stream()
+					.filter(attribute -> {
+						return strategy == attribute.getStrategyType();
 					}).collect(Collectors.toList());
 
-			if (attributesOrdered.isEmpty()) {
-				// We don't have overloading attribute, we will use default
-				// If is default attribute disabled, then we don't use him
-				if (!defaultAttribute.isDisabledAttribute()) {
-					finalAttributes.add(defaultAttribute);
-				}
-				return;
-			} else {
-				// First element have role with max priority
-				int maxPriority = attributesOrdered.get(0).getRoleSystem().getRole().getPriority();
+			// We do not have overloaded attributes for given strategy
+			if (attributesOrderedGivenStrategy.isEmpty()) {
+				return finalAttributes;
+			}
 
-				// We will search for disabled overloaded attribute
-				Optional<SysRoleSystemAttribute> disabledOverloadedAttOptional = attributesOrdered.stream().filter(attribute -> {
-					// Filter attributes by max priority
-					return maxPriority == attribute.getRoleSystem().getRole().getPriority();
-				}).filter(attribute -> {
-					// Second filtering, we will search for disabled overloaded attribute
-					return attribute.isDisabledDefaultAttribute();
-				}).findFirst();
-				if(disabledOverloadedAttOptional.isPresent()){
-					// We found disabled overloaded attribute with highest priority
-					return;
-				}
-				
-				// None overloaded attribute are disabled, we will search for attribute with highest priority (and role name)
-				Optional<SysRoleSystemAttribute> overloadingAttributeOptional = attributesOrdered.stream()
-						.filter(attribute -> {
-							// Filter attributes by max priority
-							return maxPriority == attribute.getRoleSystem().getRole().getPriority();
-						}).sorted((att1, att2) -> {
-							// Second filtering, if we have same priority, then we will sort by role name
-							return att2.getRoleSystem().getRole().getName()
-									.compareTo(att1.getRoleSystem().getRole().getName());
-						}).findFirst();
-
-				if (overloadingAttributeOptional.isPresent()) {
-					SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
+			// For merge strategies, will be add to final list all overloaded
+			// attributes
+			if (strategy == AttributeMappingStrategyType.AUTHORITATIVE_MERGE
+					|| strategy == AttributeMappingStrategyType.MERGE) {
+				attributesOrderedGivenStrategy.forEach(attribute -> {
 					// Disabled attribute will be skipped
-					if (!overloadingAttribute.isDisabledDefaultAttribute()) {
+					if (!attribute.isDisabledDefaultAttribute()) {
 						// We can't use instance of SysSysteAttributeMapping and
 						// set
 						// up overloaded value (it is entity).
@@ -559,20 +554,80 @@ public class DefaultProvisioningService implements ProvisioningService {
 						overloadedAttribute
 								.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
 						// Overloaded values
-						fillOverloadedAttribute(overloadingAttribute, overloadedAttribute);
+						fillOverloadedAttribute(attribute, overloadedAttribute);
 						// Add modified attribute to final list
 						finalAttributes.add(overloadedAttribute);
 					}
-
-				} else {
-					// We don't have overloading attribute, we will use default
-					// If is default attribute disabled, then we don't use him
-					if (!defaultAttribute.isDisabledAttribute()) {
-						finalAttributes.add(defaultAttribute);
-					}
-				}
+				});
+				return finalAttributes;
 			}
-		});
+
+			// First element have role with max priority
+			int maxPriority = attributesOrderedGivenStrategy.get(0).getRoleSystem().getRole().getPriority();
+
+			// We will search for disabled overloaded attribute
+			Optional<SysRoleSystemAttribute> disabledOverloadedAttOptional = attributesOrderedGivenStrategy.stream()
+					.filter(attribute -> {
+						// Filter attributes by max priority
+						return maxPriority == attribute.getRoleSystem().getRole().getPriority();
+					}).filter(attribute -> {
+						// Second filtering, we will search for disabled
+						// overloaded attribute
+						return attribute.isDisabledDefaultAttribute();
+					}).findFirst();
+			if (disabledOverloadedAttOptional.isPresent()) {
+				// We found disabled overloaded attribute with highest
+				// priority
+				return finalAttributes;
+			}
+
+			// None overloaded attribute are disabled, we will search for
+			// attribute with highest priority (and role name)
+			Optional<SysRoleSystemAttribute> overloadingAttributeOptional = attributesOrderedGivenStrategy.stream()
+					.filter(attribute -> {
+						// Filter attributes by max priority
+						return maxPriority == attribute.getRoleSystem().getRole().getPriority();
+					}).sorted((att1, att2) -> {
+						// Second filtering, if we have same priority, then
+						// we
+						// will sort by role name
+						return att2.getRoleSystem().getRole().getName()
+								.compareTo(att1.getRoleSystem().getRole().getName());
+					}).findFirst();
+
+			if (overloadingAttributeOptional.isPresent()) {
+				SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
+				// Disabled attribute will be skipped
+				if (!overloadingAttribute.isDisabledDefaultAttribute()) {
+					// We can't use instance of SysSysteAttributeMapping and
+					// set
+					// up overloaded value (it is entity).
+					// We have to create own dto and set up all values
+					// (overloaded and default)
+					AttributeMapping overloadedAttribute = new MappingAttributeDto();
+					// Default values (values from schema attribute
+					// handling)
+					overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+					overloadedAttribute
+							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
+					// Overloaded values
+					fillOverloadedAttribute(overloadingAttribute, overloadedAttribute);
+					// Add modified attribute to final list
+					finalAttributes.add(overloadedAttribute);
+					return finalAttributes;
+				}
+
+			}
+
+		}
+		// We don't have overloading attribute, we will use default
+		// if has given strategy
+		// If is default attribute disabled, then we don't use him
+
+		if (!defaultAttribute.isDisabledAttribute() && strategy == defaultAttribute.getStrategyType()) {
+			finalAttributes.add(defaultAttribute);
+		}
+
 		return finalAttributes;
 	}
 

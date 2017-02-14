@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import eu.bcvsolutions.idm.acc.domain.AccGroupPermission;
 import eu.bcvsolutions.idm.core.api.domain.AbstractModuleDescriptor;
 import eu.bcvsolutions.idm.core.notification.api.dto.NotificationConfigurationDto;
+import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmWebsocketLog;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 
@@ -25,6 +26,7 @@ public class AccModuleDescriptor extends AbstractModuleDescriptor {
 
 	public static final String MODULE_ID = "acc";
 	public static final String TOPIC_PROVISIONING = String.format("%s:provisioning", MODULE_ID);
+	public static final String TOPIC_NEW_PASSWORD = String.format("%s:newPassword", MODULE_ID);
 	
 	@Override
 	public String getId() {
@@ -38,7 +40,8 @@ public class AccModuleDescriptor extends AbstractModuleDescriptor {
 	
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
-		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING, null, IdmWebsocketLog.NOTIFICATION_TYPE));
+		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING, null, IdmEmailLog.NOTIFICATION_TYPE));
+		configs.add(new NotificationConfigurationDto(TOPIC_NEW_PASSWORD, null, IdmWebsocketLog.NOTIFICATION_TYPE));
 		return configs;
 	}
 }

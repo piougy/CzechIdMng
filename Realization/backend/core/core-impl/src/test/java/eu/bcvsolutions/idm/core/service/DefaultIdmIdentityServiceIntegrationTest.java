@@ -114,7 +114,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		assertEquals(1, formService.getValues(identity).size());
 		assertEquals(username, roleGuaranteeRepository.findAllByRole(role).get(0).getGuarantee().getUsername());
 		assertEquals(1, identityRoleService.find(identityRolefilter, null).getTotalElements());
-		assertEquals(1, identityContractService.getContracts(identity).size());
+		assertEquals(2, identityContractService.getContracts(identity).size()); // +default contract is created
 		assertEquals(username, identityContractService.get(contractGuarantee.getId()).getGuarantee().getUsername());
 		
 		identityService.delete(identity);

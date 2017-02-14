@@ -57,7 +57,9 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
   * Method check if props in this component is'nt different from new props.
   */
   componentWillReceiveProps(nextProps) {
-    if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id) {
+    // also is necessary to test defautl type, because it may be changed dynamical from others password policy
+    if (!this.props.entity || nextProps.entity.id !== this.props.entity.id || nextProps.entity.id !== this.refs.form.getData().id ||
+            this.props.entity.defaultPolicy !== nextProps.entity.defaultPolicy) {
       this._initForm(nextProps.entity);
     }
   }

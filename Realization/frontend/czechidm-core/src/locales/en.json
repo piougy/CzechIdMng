@@ -1968,6 +1968,10 @@
       "title": "Politika hesel nebyla uložena",
       "message": "Problém s validací politiky."
     },
+    "PASSWORD_POLICY_MAX_RULE": {
+      "title": "Exceeded the number of rules",
+      "message": "Minimum rules to fulfill must be {{rules}} or lower."
+    },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",
       "message": "Nelze nastavit delegaci na sebe sama [uživatel: {{identity}}]."

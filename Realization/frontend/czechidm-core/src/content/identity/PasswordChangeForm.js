@@ -160,6 +160,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
       if (error.statusEnum === PASSWORD_DOES_NOT_MEET_POLICY) {
         this.addErrorMessage({hidden: true}, error);
       } else {
+        console.log(5555, error);
         this.addError(error);
       }
 

@@ -814,28 +814,28 @@
           "label": "Parent unit"
         }
       },
-      "typeNotFound": "Nebyl nalezen žádný typ.",
-      "newType": "Pokračujte prosím vytvořením nového typu.",
-      "typePick": "Vyberte typ",
-      "typePickPlaceHolder": "Vyberte typ",
+      "typeNotFound": "Element not found.",
+      "newType": "Please continue creating a new element.",
+      "typePick": "Select the element",
+      "typePickPlaceHolder": "Select the element.",
       "nodes": {
-        "header": "Prvky stromové struktury",
-        "title": "Prvky",
-        "edit": "detail prvku",
-        "create": "Nový prvek",
+        "header": "Elements of the tree",
+        "title": "Elements",
+        "edit": "Element detail",
+        "create": "New element",
         "save": {
-          "success": "Prvek [{{name}}] byl úspěšně uložen"
+          "success": "The element [{{name}}] was successfully saved."
         },
-        "addType": "Přidat typ",
-        "reloadTree": "Zrušení filtru a znovunačtení stromu"
+        "addType": "Add element",
+        "reloadTree": "Cancel the filter and reload the tree"
       },
       "types": {
-        "header": "Typy struktur",
-        "title": "Typy struktur",
-        "edit": "detail typu struktury",
-        "create": "Nový typ stromové struktury",
+        "header": "Types of structures",
+        "title": "Types of structures",
+        "edit": "detail the type of structure",
+        "create": "New type of tree structure",
         "save": {
-          "success": "Typ [{{name}}] byl úspěšně uložen"
+          "success": "The type [{{name}}] was successfully saved."
         }
       }
     },
@@ -844,39 +844,39 @@
       "title": "Role"
     },
     "roleCatalogues": {
-      "header": "Katalog rolí",
-      "title": "Katalog rolí",
+      "header": "Catalog roles",
+      "title": "Catalog roles",
       "edit": {
-        "title": "Detail složky",
-        "header": "{{name}} detail složky"
+        "title": "Folder detail",
+        "header": "{{name}} folder detail"
       },
       "create": {
-        "header": "Nová složka",
-        "title": "Nový složka"
+        "header": "New folder",
+        "title": "New folder"
       },
       "save": {
-        "success": "Složka [{{name}}] byla úspěšně uložena do katalogu rolí."
+        "success": "The folder [{{name}}] was successfully saved to catalog roles."
       },
-      "parentPick": "Vyberte složku",
-      "reloadTree": "Obnov strom katalogu rolí",
-      "addRoleCatalogue": "Přidat novou složku"
+      "parentPick": "Select folder",
+      "reloadTree": "Reload tree catalog roles",
+      "addRoleCatalogue": "Add now folder"
     },
     "scripts": {
-      "header": "Definice pravidel",
-      "title": "Definice pravidel",
+      "header": "Definition of rules",
+      "title": "Definition of rules",
       "edit": {
-        "title": "Detail pravidla",
-        "header": "{{name}} detail pravidla"
+        "title": "Rule detail",
+        "header": "{{name}} rule detail"
       },
       "create": {
-        "title": "Nové pravidlo",
-        "header": "Nové pravidlo"
+        "title": "New rule",
+        "header": "New rule"
       },
       "save": {
-        "success": "Pravidlo [{{name}}] bylo úspěšně uloženo"
+        "success": "The rule [{{name}}] was successfully saved."
       },
       "filter": {
-        "text": "Název / Popis"
+        "text": "Name / Description"
       }
     },
     "roles": {
@@ -886,22 +886,22 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
-      "roleCataloguePick": "Vyberte katalog",
+      "roleCataloguePick": "Select catalog",
       "create": {
-        "header": "Nová role"
+        "header": "New role"
       },
       "save": {
-        "success": "Role [{{name}}] byla úspěšně uložena"
+        "success": "The role [{{name}}] was successfully saved."
       },
       "processRoleChange": {
-        "roleName": "Název role",
-        "roleValidFrom": "Platnost role od",
-        "roleValidTill": "Platnost role do",
-        "currentActivity": "Stav žádosti"
+        "roleName": "Role name",
+        "roleValidFrom": "Role valid from",
+        "roleValidTill": "Role valid till",
+        "currentActivity": "application status"
       },
       "processPermissionChange": {
-        "currentActivity": "Stav žádosti",
-        "processInstanceName": "Název žádosti"
+        "currentActivity": "Application status",
+        "processInstanceName": "Application name"
       },
       "setting": {
         "basic": {

@@ -218,6 +218,25 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 			return defaultValue; 
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long getLongValue(String key) {
+		String value = getValue(key);
+		return value == null ? null : Long.valueOf(value);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long getLongValue(String key, Long defaultValue) {
+		String value = getValue(key);
+		try {
+			return value == null ? defaultValue : Long.valueOf(value);
+		} catch (NumberFormatException ex) {
+			LOG.warn("Property [{}] for key [{}] is not integer, returning default value [{}]", value, key, defaultValue, ex);
+			return defaultValue; 
+		}
+	}
 
 	/**
 	 * Returns all public configuration properties

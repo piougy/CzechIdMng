@@ -5,6 +5,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import OperationStateEnum from '../../enums/OperationStateEnum';
 import { LocalizationService } from '../../services';
+import { SecurityManager } from '../../redux';
 
 /**
  * Table with long running tasks
@@ -69,6 +70,14 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
     });
   }
 
+  processCreated() {
+    const { manager } = this.props;
+    //
+    this.context.store.dispatch(manager.processCreated('task-queue-process-created', () => {
+      this.addMessage({ level: 'success', message: this.i18n('action.processCreated.success') });
+    }));
+  }
+
   render() {
     const { uiKey, manager } = this.props;
     const { filterOpened, detail } = this.state;
@@ -119,7 +128,22 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}>
+          filterOpened={!filterOpened}
+          buttons={
+            [
+              <Basic.Button
+                level="success"
+                key="start-button"
+                type="submit"
+                className="btn-xs"
+                rendered={SecurityManager.hasAuthority('SCHEDULER_WRITE')}
+                onClick={ this.processCreated.bind(this) }>
+                <Basic.Icon icon="play"/>
+                {' '}
+                { this.i18n('action.processCreated.button') }
+              </Basic.Button>
+            ]
+          }>
 
           <Advanced.Column
             property=""

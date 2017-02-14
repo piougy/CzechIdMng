@@ -123,4 +123,18 @@ public class IdmLongRunningTaskController extends AbstractReadWriteEntityControl
 		//
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
+	
+	/**
+	 * Executes prepared task from long running task queue
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/action/process-created")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	public ResponseEntity<?> processCreated() {
+		longRunningTaskManager.processCreated();
+		//
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
 }

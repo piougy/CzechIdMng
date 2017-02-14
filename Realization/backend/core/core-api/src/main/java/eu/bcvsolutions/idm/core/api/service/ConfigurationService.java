@@ -80,6 +80,7 @@ public interface ConfigurationService {
 	 * 
 	 * @param key
 	 * @return
+	 * @throws NumberFormatException If the string cannot be parsed as a {@code int}.
 	 */
 	Integer getIntegerValue(String key);
 	
@@ -90,6 +91,23 @@ public interface ConfigurationService {
 	 * @return
 	 */
 	Integer getIntegerValue(String key, Integer defaultValue);
+	
+	/**
+	 * Returns configured value as {@code Long} for given key.
+	 * 
+	 * @param key
+	 * @return
+	 * @throws NumberFormatException If the string cannot be parsed as a {@code long}.
+	 */
+	Long getLongValue(String key);
+	
+	/**
+	 * Returns configured value as {@code Long} for given key. Never throws number format exception - returns defaultValue on exception.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	Long getLongValue(String key, Long defaultValue);
 	
 	/**
 	 * Set given configuration value. Creates new, if configuration with given key does not exist. 

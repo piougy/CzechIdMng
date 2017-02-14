@@ -516,6 +516,7 @@
       "extendedAttribute": "Rozšířený atribut",
       "confidentialAttribute": "Tajný atribut",
       "entityAttribute": "Atribut entity",
+      "strategyType": "Strategie",
       "transformationFromResource": "Transfor. ze systému",
       "transformationToResource": "Transfor. do systému",
       "transformFromResourceScript": {
@@ -776,6 +777,13 @@
       "WF": "Spuštěno workflow",
       "IGNORE": "Ignorováno",
       "WARNING": "Varování"
+    },
+    "AttributeMappingStrategyTypeEnum": {
+      "SET": "Nastavit",
+      "MERGE": "Sloučit",
+      "AUTHORITATIVE_MERGE": "Autoritativní sloučení",
+      "CREATE": "Pouze při vytvoření",
+      "IF_NULL": "Pouze pokud je hodnota null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

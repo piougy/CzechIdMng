@@ -54,20 +54,26 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	@Override
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
-		IdmIdentity identity = identityService.get(provisioningOperation.getEntityIdentifier());
-		for (IcAttribute attribute : provisioningOperationService.getFullConnectorObject(provisioningOperation).getAttributes()) {
-			// TODO: send password always, when create?
-			if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
-				GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
-				// send message with new password to identity
-				notificationManager.send(AccModuleDescriptor.TOPIC_NEW_PASSWORD, new IdmMessage.Builder()
-						.setLevel(NotificationLevel.SUCCESS)
-						.setSubject("Provisioning success")
-						.setHtmlMessage(
-								"Provisioning on system: " + provisioningOperation.getSystem().getName() + ", with uid " + provisioningOperation.getSystemEntityUid() + ", was success. There is your new awesome password: '" + password.asString() + "'").build(), identity);
-				break;
+		IdmIdentity identity = null;
+		if (provisioningOperation.getEntityIdentifier() != null) {
+			identity = identityService.get(provisioningOperation.getEntityIdentifier());
+		}
+		// TODO: identity or email null, send message to actual log user?
+		if (identity != null) {
+			for (IcAttribute attribute : provisioningOperationService.getFullConnectorObject(provisioningOperation).getAttributes()) {
+				// TODO: send password always, when create?
+				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
+					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
+					// send message with new password to identity
+					notificationManager.send(AccModuleDescriptor.TOPIC_NEW_PASSWORD, new IdmMessage.Builder()
+							.setLevel(NotificationLevel.SUCCESS)
+							.setSubject("Provisioning success")
+							.setHtmlMessage(
+									"Provisioning on system: " + provisioningOperation.getSystem().getName() + ", with uid " + provisioningOperation.getSystemEntityUid() + ", was success. There is your new awesome password: '" + password.asString() + "'").build(), identity);
+					break;
+				}
+				
 			}
-			
 		}
 		return new DefaultEventResult<>(event, this);
 	}

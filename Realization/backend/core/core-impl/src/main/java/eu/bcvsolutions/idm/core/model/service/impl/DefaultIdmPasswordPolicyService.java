@@ -248,7 +248,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
 				int notRequiredRules = getNotRequiredRules(passwordPolicy);
 				int missingRules = notRequiredRules - notPassRules.size();
-				if (missingRules - minRulesToFulfill != 0) {
+				if (missingRules - minRulesToFulfill < 0) {
 					errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules);
 					errors.put(MIN_RULES_TO_FULFILL, notPassRules);
 				}

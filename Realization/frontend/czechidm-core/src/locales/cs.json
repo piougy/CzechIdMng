@@ -712,7 +712,7 @@
           "completeTaskConfirmDetail": "Opravdu chcete tento úkol ukončit?",
           "role": {
             "currentRoles": "Aktuálně přiřazená oprávnění",
-            "conceptIdentityRoles": "Oprávnění žádatele"
+            "conceptIdentityRoles": "Oprávnění žadatele"
           }
         },
         "DefaultTaskDetail": {
@@ -1049,6 +1049,12 @@
         },
         "delete": {
           "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně odebrána."
+        },
+        "contracts": {
+          "empty": {
+            "message": "Uživatel nemá žádné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden pracovně právní vztah.",
+            "button": "Přidat PPV"
+          }
         }
       },
       "passwordChange": {
@@ -1609,7 +1615,7 @@
         "label": "PPV",
         "title": "Pracovně právní vztah",
         "placeholder": "Pracovně právní vztah",
-        "help": "Vazba na organizační či jinou stromovou strukturu"
+        "help": "Vazba na pozici, organizační či jinou stromovou strukturu"
       }
     },
     "IdentityAccount": {

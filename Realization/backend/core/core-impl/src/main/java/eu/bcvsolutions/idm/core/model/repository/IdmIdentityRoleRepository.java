@@ -54,12 +54,4 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	
 	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
-	
-	/**
-	 * Removes all roles of given identity contract
-	 * 
-	 * @param identity
-	 * @return
-	 */
-	int deleteByIdentityContract(@Param("identityContract") IdmIdentityContract identityContract);
 }

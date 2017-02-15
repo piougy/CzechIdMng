@@ -1049,6 +1049,12 @@
         },
         "delete": {
           "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně odebrána."
+        },
+        "contracts": {
+          "empty": {
+            "message": "Uživatel nemá žádné pracovně právní vztahy, ke kterým by mohly býti přiřazeny role. Přidejte prosím alespoň jeden pracovně právní vztah.",
+            "button": "Přidat PPV"
+          }
         }
       },
       "passwordChange": {

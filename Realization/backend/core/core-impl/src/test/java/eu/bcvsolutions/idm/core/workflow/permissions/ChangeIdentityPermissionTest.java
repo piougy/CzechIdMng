@@ -430,7 +430,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		role.put("validTill", validTill == null ? "" : sdf.print(validTill));
 		role.put("validFrom", validFrom == null ? "" : sdf.print(validFrom));
 		role.put("_embedded", roleEmbedded);
-		role.put("identityContract", identityContractService.getContracts(identity).get(0).getId());
+		role.put("identityContract", identityContractService.getContracts(identity).get(0));
 	
 		return role;
 	}

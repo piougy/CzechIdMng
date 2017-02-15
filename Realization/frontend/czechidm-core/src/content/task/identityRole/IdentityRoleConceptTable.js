@@ -7,7 +7,8 @@ import uuid from 'uuid';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
-import {RoleManager, IdentityManager} from '../../../redux';
+import { RoleManager, IdentityManager, IdentityContractManager } from '../../../redux';
+import SearchParameters from '../../../domain/SearchParameters';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -16,6 +17,7 @@ import {RoleManager, IdentityManager} from '../../../redux';
 
 const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
+const identityContractManager = new IdentityContractManager();
 
 export class IdentityRoleConceptTable extends Basic.AbstractContent {
 
@@ -87,8 +89,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
    */
   _showDetail(entity, isEdit = false, multiAdd = false) {
     const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null,
-      identityContract: entity.identityContract ? entity.identityContract.id : null
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null
     });
 
     this.setState({
@@ -382,8 +383,9 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   }
 
   render() {
-    const { _showLoading} = this.props;
-    const {conceptData, detail} = this.state;
+    const { _showLoading, identityUsername } = this.props;
+    const { conceptData, detail } = this.state;
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-delete" level="danger"/>
@@ -419,8 +421,14 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             sort={false}/>
           <Basic.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
-            property="identityContract.id"
-            />
+            property="identityContract"
+            cell={
+              ({rowIndex, data, property}) => {
+                return (
+                  <span>{ identityContractManager.getNiceLabel(data[rowIndex][property]) }</span>
+                );
+              }
+            }/>
           <Basic.Column
             header={this.i18n('entity.IdentityRole.role')}
             property="_embedded.role.name"
@@ -456,11 +464,15 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
               <Basic.AbstractForm className="form-horizontal" ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
-                <Basic.TextField
+                <Basic.SelectBox
                   ref="identityContract"
-                  label={this.i18n('entity.IdentityRole.identityContract.label')}
-                  placeholder={this.i18n('entity.IdentityRole.identityContract.placeholder')}
-                  helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
+                  manager={ identityContractManager }
+                  forceSearchParameters={ new SearchParameters().setFilter('identity', identityUsername) }
+                  label={ this.i18n('entity.IdentityRole.identityContract.label') }
+                  placeholder={ this.i18n('entity.IdentityRole.identityContract.placeholder') }
+                  helpBlock={ this.i18n('entity.IdentityRole.identityContract.help') }
+                  returnProperty={false}
+                  readOnly={!detail.entity._added}
                   required/>
                 <Basic.SelectBox
                   ref="role"

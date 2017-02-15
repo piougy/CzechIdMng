@@ -2,14 +2,17 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
@@ -28,7 +31,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
  *
  */
 @Service
-public class DefaultIdmIdentityContractService extends AbstractReadWriteEntityService<IdmIdentityContract, EmptyFilter> implements IdmIdentityContractService {
+public class DefaultIdmIdentityContractService extends AbstractReadWriteEntityService<IdmIdentityContract, IdentityContractFilter> implements IdmIdentityContractService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
@@ -88,5 +91,11 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	@Transactional
 	public int clearGuarantee(IdmIdentity identity) {
 		return repository.clearGuarantee(identity);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, Pageable pageable) {
+		return repository.findExpiredContracts(expiration, pageable);
 	}
 }

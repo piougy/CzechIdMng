@@ -20,6 +20,8 @@ import eu.bcvsolutions.idm.core.security.api.service.EnabledEvaluator;
  * 
  * Types could be {@literal null}, then processor supports all event types
  * 
+ * TODO: move @Autowire to @Configuration bean post processor
+ * 
  * @author Radek Tomiška
  *
  * @param <E> {@link BaseEntity} type

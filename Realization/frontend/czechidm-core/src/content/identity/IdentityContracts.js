@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -128,7 +127,7 @@ class IdentityContracts extends Basic.AbstractContent {
     }
     const { entityId } = this.props.params;
     this.refs['confirm-delete'].show(
-      this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
+      this.i18n(`action.delete.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
       this.context.store.dispatch(this.getManager().deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
@@ -159,12 +158,9 @@ class IdentityContracts extends Basic.AbstractContent {
     const { detail, forceSearchParameters, treeTypeId } = this.state;
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
+        { this.renderContentHeader({ style: { marginBottom: 0 } }) }
 
         {
           _showLoading

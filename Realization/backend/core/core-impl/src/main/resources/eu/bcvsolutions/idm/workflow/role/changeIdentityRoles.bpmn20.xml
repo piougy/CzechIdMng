@@ -69,7 +69,7 @@
         <activiti:in source="approve" target="approve"></activiti:in>
         <activiti:in source="disapprove" target="disapprove"></activiti:in>
         <activiti:in sourceExpression="#{&quot;add&quot;}" target="operationType"></activiti:in>
-        <activiti:in sourceExpression="#{identityRole.identityContract}" target="identityContractIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{identityRole.identityContract.id}" target="identityContractIdentifier"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="addedIdentityRoles" activiti:elementVariable="identityRole"></multiInstanceLoopCharacteristics>
     </callActivity>
@@ -163,7 +163,7 @@ execution.setVariable("changeIdentityRoleWrapperList", changeIdentityRoleWrapper
         <activiti:in sourceExpression="#{identityRole._validTillDateNew}" target="validTillDateNew"></activiti:in>
         <activiti:in sourceExpression="#{identityRole.id}" target="identityRoleIdentifier"></activiti:in>
         <activiti:in sourceExpression="#{&quot;change&quot;}" target="operationType"></activiti:in>
-        <activiti:in sourceExpression="#{identityRole.identityContract}" target="identityContractIdentifier"></activiti:in>
+        <activiti:in sourceExpression="#{identityRole.identityContract.id}" target="identityContractIdentifier"></activiti:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="changeIdentityRoleWrapperList" activiti:elementVariable="identityRole"></multiInstanceLoopCharacteristics>
     </callActivity>

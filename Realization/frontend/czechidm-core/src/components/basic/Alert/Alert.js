@@ -7,8 +7,6 @@ import Button from '../Button/Button';
 
 /**
  * Alert box
- * TODO: Improvent:
- * - buttons
  *
  * @author Radek Tomiška
  */
@@ -33,7 +31,7 @@ class Alert extends AbstractComponent {
   }
 
   render() {
-    const { level, title, text, className, icon, onClose, rendered, showLoading, children, style } = this.props;
+    const { level, title, text, className, icon, onClose, rendered, showLoading, children, style, buttons } = this.props;
     const { closed } = this.state;
     if (!rendered || closed || (!text && !title && !children)) {
       return null;
@@ -73,6 +71,13 @@ class Alert extends AbstractComponent {
           }
           {text}
           {children}
+          {
+            (!buttons || buttons.length === 0)
+            ||
+            <div className="buttons">
+              {buttons}
+            </div>
+          }
         </div>
       </div>
     );
@@ -106,13 +111,18 @@ Alert.propTypes = {
   /**
    * Close function - if it's set, then close icon is shown and this method is called on icon click
    */
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  /**
+   * Alert action buttons
+   */
+  buttons: PropTypes.arrayOf(PropTypes.node)
 };
 
 Alert.defaultProps = {
   ...AbstractComponent.defaultProps,
   level: 'info',
-  onClose: null
+  onClose: null,
+  buttons: []
 };
 
 export default Alert;

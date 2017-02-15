@@ -89,14 +89,7 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		roleGuarantee.setRole(role);
 		roleGuarantee.setGuarantee(identity);;
 		role.setGuarantees(Lists.newArrayList(roleGuarantee));
-		roleService.save(role);
-		// assigned role
-		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
-		identityRole.setRole(role);
-		identityRoleService.save(identityRole);
-		IdentityRoleFilter identityRolefilter = new IdentityRoleFilter();
-		identityRolefilter.setIdentityId(identity.getId());		
+		roleService.save(role);	
 		// contract
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
@@ -108,6 +101,13 @@ public class DefaultIdmIdentityServiceIntegrationTest extends AbstractIntegratio
 		contractGuarantee.setPosition("test");
 		contractGuarantee.setGuarantee(identity);
 		contractGuarantee = identityContractService.save(contractGuarantee);
+		// assigned role
+		IdmIdentityRole identityRole = new IdmIdentityRole();
+		identityRole.setIdentityContract(contract);
+		identityRole.setRole(role);
+		identityRoleService.save(identityRole);
+		IdentityRoleFilter identityRolefilter = new IdentityRoleFilter();
+		identityRolefilter.setIdentityId(identity.getId());	
 		
 		assertNotNull(identityService.getByUsername(username));
 		assertNotNull(passwordService.get(identity));

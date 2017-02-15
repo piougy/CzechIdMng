@@ -1,17 +1,25 @@
 package eu.bcvsolutions.idm.core.model.dto;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.utils.EntityUtils;
 
-
+/**
+ * IdentityRole from WF
+ * 
+ * @author svanda
+ * @author Radek Tomiška
+ *
+ */
 public class IdmIdentityRoleDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
-	private UUID identity;
-	private UUID role;
+	private UUID identityContractId;
+	private UUID roleId;
 	private LocalDate validFrom;
 	private LocalDate validTill;
 
@@ -38,20 +46,19 @@ public class IdmIdentityRoleDto extends AbstractDto {
 		this.validTill = validTo;
 	}
 
-	public UUID getIdentity() {
-		return identity;
+	public UUID getRoleId() {
+		return roleId;
 	}
 
-	public void setIdentity(UUID identity) {
-		this.identity = identity;
-	}
-
-	public UUID getRole() {
-		return role;
-	}
-
-	public void setRole(UUID role) {
-		this.role = role;
+	public void setRoleId(UUID roleId) {
+		this.roleId = roleId;
 	}
 	
+	public void setIdentityContractId(Serializable identityContractId) {
+		this.identityContractId = EntityUtils.toUuid(identityContractId);
+	}
+	
+	public UUID getIdentityContractId() {
+		return identityContractId;
+	}
 }

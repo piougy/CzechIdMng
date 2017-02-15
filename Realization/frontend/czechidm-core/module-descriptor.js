@@ -138,7 +138,7 @@ module.exports = {
         'order': 1050,
         'iconColor': '#419641',
         'path': '/organizations',
-        'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+        'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
       },
       {
         'id': 'profile-system-separator',

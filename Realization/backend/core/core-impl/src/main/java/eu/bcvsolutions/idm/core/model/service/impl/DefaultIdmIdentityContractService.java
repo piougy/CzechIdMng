@@ -14,6 +14,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
@@ -49,7 +51,7 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	}
 	
 	/**
-	 * Publish {@IdentityContractEvent} only.
+	 * Publish {@link IdentityContractEvent} only.
 	 * 
 	 * @see {@link IdentityContractSaveProcessor}
 	 */
@@ -67,6 +69,11 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.UPDATE, entity)).getContent();
 	}
 	
+	/**
+	 * Publish {@link IdentityContractEvent} only.
+	 * 
+	 * @see {@link IdentityContractDeleteProcessor}
+	 */
 	@Override
 	@Transactional
 	public void delete(IdmIdentityContract entity) {
@@ -75,5 +82,11 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		//
 		LOG.debug("Deleting contract [{}] for identity [{}]", entity.getId(), entity.getIdentity().getUsername());
 		entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.DELETE, entity));
+	}
+
+	@Override
+	@Transactional
+	public int clearGuarantee(IdmIdentity identity) {
+		return repository.clearGuarantee(identity);
 	}
 }

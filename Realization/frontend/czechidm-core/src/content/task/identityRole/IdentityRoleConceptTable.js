@@ -87,7 +87,8 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
    */
   _showDetail(entity, isEdit = false, multiAdd = false) {
     const entityFormData = _.merge({}, entity, {
-      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null
+      role: entity._embedded && entity._embedded.role ? entity._embedded.role.name : null,
+      identityContract: entity.identityContract ? entity.identityContract.id : null
     });
 
     this.setState({
@@ -99,7 +100,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       }
     }, () => {
       this.refs.form.setData(entityFormData);
-      this.refs.role.focus();
+      this.refs.identityContract.focus();
     });
   }
 
@@ -396,6 +397,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
           </div>
           <div className="clearfix"></div>
         </Basic.Toolbar>
+
         <Basic.Table
           hover={false}
           data={conceptData}
@@ -415,6 +417,10 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
               }
             }
             sort={false}/>
+          <Basic.Column
+            header={this.i18n('entity.IdentityRole.identityContract.title')}
+            property="identityContract.id"
+            />
           <Basic.Column
             header={this.i18n('entity.IdentityRole.role')}
             property="_embedded.role.name"
@@ -436,57 +442,63 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             header={this.i18n('label.action')}
             className="action"
             cell={this._conceptActionsCell.bind(this)}/>
-          </Basic.Table>
-          <Basic.Modal
-            bsSize="default"
-            show={detail.show}
-            onHide={this._closeDetail.bind(this)}
-            backdrop="static"
-            keyboard={!_showLoading}>
+        </Basic.Table>
 
-            <form onSubmit={this._saveConcept.bind(this)}>
-              <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
-              <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
-              <Basic.Modal.Body>
-                <Basic.AbstractForm className="form-horizontal" ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
-                  <Basic.SelectBox
-                    ref="role"
-                    manager={roleManager}
-                    label={this.i18n('entity.IdentityRole.role')}
-                    multiSelect={detail.entity._added && detail.add}
-                    readOnly={!detail.entity._added}
-                    required/>
-                  <Basic.DateTimePicker
-                    mode="date"
-                    className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
-                    ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
-                    label={this.i18n('label.validFrom')}/>
-                  <Basic.DateTimePicker
-                    mode="date"
-                    className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
-                    ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
-                    label={this.i18n('label.validTill')}/>
-                </Basic.AbstractForm>
-              </Basic.Modal.Body>
-              <Basic.Modal.Footer>
-                <Basic.Button
-                  level="link"
-                  onClick={this._closeDetail.bind(this)}
-                  showLoading={_showLoading}>
-                  {this.i18n('button.close')}
-                </Basic.Button>
-                <Basic.Button
-                  type="submit"
-                  level="success"
-                  showLoading={_showLoading}
-                  showLoadingIcon
-                  showLoadingText={this.i18n('button.saving')}
-                  rendered={detail.edit}>
-                  {this.i18n('button.set')}
-                </Basic.Button>
-              </Basic.Modal.Footer>
-            </form>
-          </Basic.Modal>
+        <Basic.Modal
+          bsSize="default"
+          show={detail.show}
+          onHide={this._closeDetail.bind(this)}
+          backdrop="static"
+          keyboard={!_showLoading}>
+
+          <form onSubmit={this._saveConcept.bind(this)}>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
+            <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
+            <Basic.Modal.Body>
+              <Basic.AbstractForm className="form-horizontal" ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
+                <Basic.TextField
+                  ref="identityContract"
+                  label={this.i18n('entity.IdentityRole.identityContract.label')}
+                  placeholder={this.i18n('entity.IdentityRole.identityContract.placeholder')}
+                  helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
+                  required/>
+                <Basic.SelectBox
+                  ref="role"
+                  manager={roleManager}
+                  label={this.i18n('entity.IdentityRole.role')}
+                  multiSelect={detail.entity._added && detail.add}
+                  readOnly={!detail.entity._added}
+                  required/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
+                  ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
+                  label={this.i18n('label.validFrom')}/>
+                <Basic.DateTimePicker
+                  mode="date"
+                  className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
+                  ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
+                  label={this.i18n('label.validTill')}/>
+              </Basic.AbstractForm>
+            </Basic.Modal.Body>
+            <Basic.Modal.Footer>
+              <Basic.Button
+                level="link"
+                onClick={this._closeDetail.bind(this)}
+                showLoading={_showLoading}>
+                {this.i18n('button.close')}
+              </Basic.Button>
+              <Basic.Button
+                type="submit"
+                level="success"
+                showLoading={_showLoading}
+                showLoadingIcon
+                rendered={detail.edit}>
+                {this.i18n('button.set')}
+              </Basic.Button>
+            </Basic.Modal.Footer>
+          </form>
+        </Basic.Modal>
       </div>
     );
   }

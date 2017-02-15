@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 //

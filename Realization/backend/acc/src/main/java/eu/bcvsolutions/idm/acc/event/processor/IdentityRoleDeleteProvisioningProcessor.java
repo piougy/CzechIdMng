@@ -55,8 +55,8 @@ public class IdentityRoleDeleteProvisioningProcessor extends AbstractEntityEvent
 	public EventResult<IdmIdentityRole> process(EntityEvent<IdmIdentityRole> event) {
 		accountManagementService.deleteIdentityAccount(event.getContent());
 		//
-		LOG.debug("Call provisioning for identity [{}]", event.getContent().getIdentity().getUsername());
-		provisioningService.doProvisioning(event.getContent().getIdentity());
+		LOG.debug("Call provisioning for identity [{}]", event.getContent().getIdentityContract().getIdentity().getUsername());
+		provisioningService.doProvisioning(event.getContent().getIdentityContract().getIdentity());
 		return new DefaultEventResult<>(event, this);
 	}
 	

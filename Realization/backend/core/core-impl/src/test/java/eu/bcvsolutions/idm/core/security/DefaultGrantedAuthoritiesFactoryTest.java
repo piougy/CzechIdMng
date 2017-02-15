@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.core.model.domain.IdmBasePermission;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
@@ -73,8 +74,10 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		// prepare identity		
 		IdmIdentity identity = new IdmIdentity();
 		identity.setUsername("username");
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(contract);
 		identityRole.setRole(superiorRole);
 		IDENTITY_ROLES = new ArrayList<>();
 		IDENTITY_ROLES.add(identityRole);
@@ -132,8 +135,10 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		
 		IdmIdentity identity = new IdmIdentity();
 		identity.setUsername("admin");
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(contract);
 		identityRole.setRole(role);
 		List<IdmIdentityRole> roles = Lists.newArrayList(identityRole);
 		
@@ -164,8 +169,10 @@ public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
 		
 		IdmIdentity identity = new IdmIdentity();
 		identity.setUsername("identityAdmin");
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(contract);
 		identityRole.setRole(role);
 		List<IdmIdentityRole> roles = Lists.newArrayList(identityRole);
 		

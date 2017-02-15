@@ -28,24 +28,16 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
  */
 @Entity
 @Table(name = "idm_identity_role", indexes = {
-		@Index(name = "idx_idm_identity_role_identity", columnList = "identity_id"),
+		@Index(name = "idx_idm_identity_role_ident_c", columnList = "identity_contract_id"),
 		@Index(name = "idx_idm_identity_role_role", columnList = "role_id")
 })
 public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	private static final long serialVersionUID = 9208706652291035265L;
-
-	@Deprecated
-	@NotNull
-	@Audited
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmIdentity identity;
 	
 	@Audited
-	@ManyToOne
+	@NotNull
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "identity_contract_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
@@ -88,14 +80,6 @@ public class IdmIdentityRole extends AbstractEntity implements ValidableEntity {
 
 	public void setValidTill(LocalDate validTo) {
 		this.validTill = validTo;
-	}
-
-	public IdmIdentity getIdentity() {
-		return identity;
-	}
-
-	public void setIdentity(IdmIdentity identity) {
-		this.identity = identity;
 	}
 
 	public IdmRole getRole() {

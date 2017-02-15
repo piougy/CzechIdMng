@@ -12,6 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 
@@ -25,7 +26,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 		path = "identity-roles", //
 		itemResourceRel = "identityRole",
 		exported = false//
-	)
+)
 public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmIdentityRole, IdentityRoleFilter> {
 	
 	/*
@@ -35,28 +36,30 @@ public interface IdmIdentityRoleRepository extends AbstractEntityRepository<IdmI
 	@Override
 	@Query(value = "select e from IdmIdentityRole e" +
 	        " where " +
-	        " (?#{[0].identityId} is null or e.identity.id = ?#{[0].identityId})" +
+	        " (?#{[0].identityId} is null or e.identityContract.identity.id = ?#{[0].identityId})" +
 	        " and" +
-	        "(?#{[0].text} is null or lower(e.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
+	        "(?#{[0].text} is null or lower(e.identityContract.identity.username) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})")
 	Page<IdmIdentityRole> find(IdentityRoleFilter filter, Pageable pageable);
 	
-	Page<IdmIdentityRole> findByIdentity(@Param("identity") IdmIdentity identity, Pageable pageable);
+	Page<IdmIdentityRole> findByIdentityContract_Identity(@Param("identity") IdmIdentity identity, Pageable pageable);
 	
-	List<IdmIdentityRole> findAllByIdentity(@Param("identity") IdmIdentity identity, Sort sort);
+	List<IdmIdentityRole> findAllByIdentityContract(@Param("identityContract") IdmIdentityContract identityContract, Sort sort);
+	
+	List<IdmIdentityRole> findAllByIdentityContract_Identity(@Param("identity") IdmIdentity identity, Sort sort);
 
-	Page<IdmIdentityRole> findByIdentityUsername(@Param("username") String username, Pageable pageable);
+	Page<IdmIdentityRole> findByIdentityContract_Identity_Username(@Param("username") String username, Pageable pageable);
 	
 	Long countByRole(@Param("role") IdmRole role);
 	
 	Page<IdmIdentityRole> findByRole(@Param("role") IdmRole role, Pageable pageable);
 	
-	List<IdmIdentityRole> findAllByIdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
+	List<IdmIdentityRole> findAllByIdentityContract_IdentityAndRole(@Param("identity") IdmIdentity identity, @Param("role") IdmRole role);
 	
 	/**
-	 * Removes all roles of given identity
+	 * Removes all roles of given identity contract
 	 * 
 	 * @param identity
 	 * @return
 	 */
-	int deleteByIdentity(@Param("identity") IdmIdentity identity);
+	int deleteByIdentityContract(@Param("identityContract") IdmIdentityContract identityContract);
 }

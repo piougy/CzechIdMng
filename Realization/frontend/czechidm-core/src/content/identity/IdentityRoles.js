@@ -59,7 +59,8 @@ class Roles extends Basic.AbstractContent {
 
   showDetail(entity) {
     const entityFormData = _.merge({}, entity, {
-      role: entity.id ? entity._embedded.role.name : null
+      role: entity.id ? entity._embedded.role.name : null,
+      identityContract: entity.identityContract ? entity.identityContract.id : null
     });
 
     this.setState({
@@ -304,6 +305,10 @@ class Roles extends Basic.AbstractContent {
                       }
                       sort={false}/>
                     <Basic.Column
+                      header={this.i18n('entity.IdentityRole.identityContract.title')}
+                      property="identityContract.id"
+                      />
+                    <Basic.Column
                       header={this.i18n('entity.IdentityRole.role')}
                       property="_embedded.role.name"
                       />
@@ -477,6 +482,11 @@ class Roles extends Basic.AbstractContent {
               <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
               <Basic.Modal.Body>
                 <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal" readOnly={!TEST_ADD_ROLE_DIRECTLY}>
+                  <Basic.TextField
+                    ref="identityContract"
+                    label={this.i18n('entity.IdentityRole.identityContract.label')}
+                    helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
+                    required/>
                   <Basic.SelectBox
                     ref="role"
                     manager={roleManager}

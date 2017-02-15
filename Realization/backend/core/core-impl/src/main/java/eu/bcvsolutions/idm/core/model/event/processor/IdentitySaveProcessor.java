@@ -77,7 +77,7 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 		IdmTreeType defaultTreeType = treeTypeService.getDefaultTreeType();
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
-		if (defaultTreeType != null) {
+		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
 			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
 		} else {
 			contract.setPosition("default"); // TODO: from configuration manager

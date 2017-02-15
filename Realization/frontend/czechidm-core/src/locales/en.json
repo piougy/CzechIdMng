@@ -772,7 +772,10 @@
         "name": {
           "placeholder": "Username, surname, name, email or description"
         },
-        "orgStructure": "Org structure"
+        "organization": {
+          "label": "Org. structure",
+          "placeholder": "Node in organization structure"
+        }
       },
       "action": {
         "deactivate": {
@@ -1601,7 +1604,13 @@
       }
     },
     "IdentityRole": {
-      "role" : "Role"
+      "role" : "Role",
+      "identityContract": {
+        "label": "PPV",
+        "title": "Pracovně právní vztah",
+        "placeholder": "Pracovně právní vztah",
+        "help": "Vazba na organizační či jinou stromovou strukturu"
+      }
     },
     "IdentityAccount": {
       "attribute": {

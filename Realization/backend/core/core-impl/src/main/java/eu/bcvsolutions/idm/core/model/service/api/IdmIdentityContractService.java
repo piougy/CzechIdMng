@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.service.api;
 
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -22,5 +24,13 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @return
 	 */
 	List<IdmIdentityContract> getContracts(IdmIdentity identity);
+	
+	/**
+	 * Clears guarantee from all contracts, where identity is guarantee (=identity disclaims guarantee).
+	 * 
+	 * @param identity
+	 * @return Returns number of affected contracts
+	 */
+	int clearGuarantee(@Param("identity") IdmIdentity identity);
 	
 }

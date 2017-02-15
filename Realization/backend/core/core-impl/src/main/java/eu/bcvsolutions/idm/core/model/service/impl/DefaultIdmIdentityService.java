@@ -24,6 +24,7 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityDeleteProcessor;
@@ -40,7 +41,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("identityService")
 public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
@@ -66,7 +67,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 	
 	/**
-	 * Publish {@IdentityContractEvent} only.
+	 * Publish {@link IdentityContractEvent} only.
 	 * 
 	 * @see {@link IdentitySaveProcessor}
 	 */
@@ -83,7 +84,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	}
 	
 	/**
-	 * Publish {@IdentityContractEvent} only.
+	 * Publish {@link IdentityContractEvent} only.
 	 * 
 	 * @see {@link IdentityDeleteProcessor}
 	 */

@@ -27,6 +27,7 @@ public class DefaultSysProvisioningArchiveService
 	}
 
 	@Override
+	// @Transactional(propagation = Propagation.REQUIRES_NEW) // we want log in archive always
 	public SysProvisioningArchive archive(ProvisioningOperation provisioningOperation) {
 		SysProvisioningArchive archive = new SysProvisioningArchive.Builder(provisioningOperation).build();
 		// preserve original operation creator

@@ -88,6 +88,7 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@Embedded
 	private SysConnectorKey connectorKey;
 	
+	@Audited
 	@Column(name = "remote", nullable = false)
 	private boolean remote;
 	

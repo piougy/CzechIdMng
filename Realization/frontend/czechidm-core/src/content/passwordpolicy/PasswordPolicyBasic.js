@@ -41,7 +41,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     if (this._getIsNew()) {
       // if entity is new, set default required rules
       this.context.store.dispatch(passwordPolicyManager.receiveEntity(entityId, {
-        type: PasswordPolicyTypeEnum.VALIDATE,
+        type: PasswordPolicyTypeEnum.findKeyBySymbol(PasswordPolicyTypeEnum.VALIDATE),
+        generateType: PasswordPolicyGenerateTypeEnum.findKeyBySymbol(PasswordPolicyGenerateTypeEnum.RANDOM),
         passwordLengthRequired: true,
         upperCharRequired: true,
         lowerCharRequired: true,
@@ -126,6 +127,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         identityAttributeCheck.push(PasswordPolicyIdentityAttributeEnum.findKeyBySymbol(entity.identityAttributeCheck[attribute]));
       }
     }
+    //
     identityAttributeCheck = _.join(identityAttributeCheck, ', ');
     entity.identityAttributeCheck = identityAttributeCheck;
 
@@ -199,7 +201,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 max={255}/>
               <Basic.EnumSelectBox
                 ref="generateType" required={!validateType} hidden={validateType}
-                enum={PasswordPolicyGenerateTypeEnum} clearable={false}
+                enum={PasswordPolicyGenerateTypeEnum}
                 label={this.i18n('entity.PasswordPolicy.generateType')}/>
 
               <Basic.TextField ref="passphraseWords"

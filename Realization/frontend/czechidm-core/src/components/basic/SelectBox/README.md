@@ -16,7 +16,9 @@ All parameters from AbstractFormComponent are supported. Added parameters:
 | value | string or Array of strings (object or Array of objects)  | Value can contains object (object type have to equals with service entity type) or id of entity in string. In multi select mod can be in value Array (string or object) | |
 | placeholder  | string   | Short description for input  |  |
 | clearable | bool   | Selected options can be cleared| true |
-| niceLabelTransform | func   | Function for transform nice label in select box|  | |
+| niceLabel | func   | Function for transform nice label in select box|  |
+| returnProperty | oneOfType([string, bool])  | If object is selected, then this property value will be returned. If value is false, then whole object is returned. | 'id' | 
+
 
 ## Usage
 ### Select

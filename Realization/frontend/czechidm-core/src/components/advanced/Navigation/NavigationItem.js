@@ -54,11 +54,16 @@ NavigationItem.propTypes = {
   title: PropTypes.string,
   icon: PropTypes.string,
   active: PropTypes.bool,
-  text: PropTypes.string
+  text: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.node,
+    PropTypes.arrayOf(PropTypes.object)
+  ])
 };
 
 NavigationItem.defaultProps = {
   ...Basic.AbstractComponent.defaultProps,
   active: false,
-  icon: null
+  icon: null,
+  text: null
 };

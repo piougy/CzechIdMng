@@ -11,8 +11,12 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.dto.PasswordChangeDto;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
@@ -28,18 +32,26 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 	public static final String PROCESSOR_NAME = "identity-save-processor";
 	private final IdmIdentityRepository repository;
 	private final IdentityPasswordProcessor passwordProcessor;
+	private final IdmTreeTypeService treeTypeService;
+	private final IdmIdentityContractService identityContractService;
 	
 	@Autowired
 	public IdentitySaveProcessor(
 			IdmIdentityRepository repository,
-			IdentityPasswordProcessor passwordProcessor) {
+			IdentityPasswordProcessor passwordProcessor,
+			IdmTreeTypeService treeTypeService,
+			IdmIdentityContractService identityContractService) {
 		super(IdentityEventType.UPDATE, IdentityEventType.CREATE);
 		//
 		Assert.notNull(repository);
 		Assert.notNull(passwordProcessor);
+		Assert.notNull(treeTypeService);
+		Assert.notNull(identityContractService);
 		//
 		this.repository = repository;
 		this.passwordProcessor = passwordProcessor;
+		this.treeTypeService= treeTypeService;
+		this.identityContractService = identityContractService;
 	}
 	
 	@Override
@@ -53,13 +65,26 @@ public class IdentitySaveProcessor extends CoreEventProcessor<IdmIdentity> {
 		GuardedString password = identity.getPassword();
 		
 		identity = repository.save(identity);
+		//
 		// save password
 		if (password != null) {
 			PasswordChangeDto passwordDto = new PasswordChangeDto();
 			passwordDto.setNewPassword(password);
 			passwordProcessor.savePassword(identity, passwordDto);
 		}
-		// TODO: clone identity - mutable previous event content :/
+		//
+		// create default identity contract
+		IdmTreeType defaultTreeType = treeTypeService.getDefaultTreeType();
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
+		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
+			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
+		} else {
+			contract.setPosition("default"); // TODO: from configuration manager
+		}
+		identityContractService.save(contract);
+		//
+		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);
 	}
 }

@@ -24,7 +24,7 @@
     <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask1" name="Add role to Identity" activiti:expression="#{defaultIdmIdentityService.addRoleByDto(newIdmIdentityRole, false)}"></serviceTask>
+    <serviceTask id="servicetask1" name="Add role to Identity" activiti:expression="#{identityService.addRoleByDto(newIdmIdentityRole, false)}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="servicetask1"></sequenceFlow>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="endevent2"></sequenceFlow>
@@ -32,8 +32,8 @@
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentity(applicantIdentifier);
-ir.setRole(roleIdentifier);
+ir.setIdentityContractId(identityContractIdentifier);
+ir.setRoleId(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 
@@ -44,7 +44,7 @@ execution.setVariable("newIdmIdentityRole", ir);
     <sequenceFlow id="flow6" sourceRef="exclusivegateway1" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role uživatelem &quot;tomiska&quot; pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role uživatelem &quot;tomiska&quot; pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="approveTask"></sequenceFlow>
     <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
@@ -74,13 +74,13 @@ execution.setVariable("newIdmIdentityRole", ir);
         <omgdc:Bounds height="35.0" width="35.0" x="470.0" y="320.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
-        <omgdc:Bounds height="55.0" width="151.0" x="911.0" y="103.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="151.0" x="771.0" y="105.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="35.0" width="35.0" x="1161.0" y="113.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1021.0" y="115.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
-        <omgdc:Bounds height="55.0" width="160.0" x="701.0" y="103.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="160.0" x="561.0" y="105.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
         <omgdc:Bounds height="55.0" width="171.0" x="60.0" y="103.0"></omgdc:Bounds>
@@ -94,16 +94,16 @@ execution.setVariable("newIdmIdentityRole", ir);
         <omgdi:waypoint x="487.0" y="320.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="861.0" y="130.0"></omgdi:waypoint>
-        <omgdi:waypoint x="911.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="721.0" y="132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="771.0" y="132.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="1062.0" y="130.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1161.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="922.0" y="132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1021.0" y="132.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
         <omgdi:waypoint x="507.0" y="132.0"></omgdi:waypoint>
-        <omgdi:waypoint x="701.0" y="130.0"></omgdi:waypoint>
+        <omgdi:waypoint x="561.0" y="132.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
         <omgdi:waypoint x="36.0" y="130.0"></omgdi:waypoint>

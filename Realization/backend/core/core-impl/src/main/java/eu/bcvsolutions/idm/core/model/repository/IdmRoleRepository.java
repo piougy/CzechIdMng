@@ -34,7 +34,7 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
 	@Override
-	@Query(value = "select e from IdmRole e" +
+	@Query(value = "select e from #{#entityName} e" +
 	        " where"
 	        + " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 	        + " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})"

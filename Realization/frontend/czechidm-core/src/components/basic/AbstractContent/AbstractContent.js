@@ -99,13 +99,14 @@ export default class AbstractContent extends AbstractContextComponent {
   /**
    * Default Page header with page title based on navigation item
    *
+   * @param {object} props PageHeader properties e.g. style, className
    * @return {element} react element
    */
-  renderPageHeader() {
+  renderPageHeader(props) {
     const navigationItem = this.getNavigationItem() || {};
     //
     return (
-      <PageHeader>
+      <PageHeader {...props}>
         <Helmet title={this.i18n('title')} />
         <Icon value={navigationItem.icon}/>
         {' '}
@@ -117,13 +118,14 @@ export default class AbstractContent extends AbstractContextComponent {
   /**
    * Default content header with title based on navigation item
    *
+   * @param {object} props ContentHeader properties e.g. style, className
    * @return {element} react element
    */
-  renderContentHeader() {
+  renderContentHeader(props) {
     const navigationItem = this.getNavigationItem() || {};
     //
     return (
-      <ContentHeader>
+      <ContentHeader {...props}>
         <Helmet title={this.i18n('title')} />
         <Icon value={navigationItem.icon}/>
         {' '}

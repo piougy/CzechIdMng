@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import classnames from 'classnames';
+import _ from 'lodash';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
@@ -16,7 +17,7 @@ export default class BasicTabs extends AbstractComponent {
   }
 
   render() {
-    const { rendered, position, activeKey, onSelect, className, ...others } = this.props;
+    const { id, rendered, position, activeKey, onSelect, className, ...others } = this.props;
     if (!rendered) {
       return null;
     }
@@ -26,9 +27,14 @@ export default class BasicTabs extends AbstractComponent {
       {'tab-vertical': position && position === 'left'}, // TODO: not implemened
       className
     );
-
+    //
+    let _id = id;
+    if (!_id) {
+      _id = _.uniqueId('tooltip_');
+    }
+    //
     return (
-      <Tabs position={position} onSelect={onSelect} activeKey={activeKey} className={classNames} {...others}>
+      <Tabs id={_id} position={position} onSelect={onSelect} activeKey={activeKey} className={classNames} {...others}>
         {this.props.children}
       </Tabs>
     );

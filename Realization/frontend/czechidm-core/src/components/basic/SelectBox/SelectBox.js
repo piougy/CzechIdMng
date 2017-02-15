@@ -8,6 +8,7 @@ import Icon from '../Icon/Icon';
 import Tooltip from '../Tooltip/Tooltip';
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import EntityManager from '../../../redux/data/EntityManager';
+import SearchParameters from '../../../domain/SearchParameters';
 
 const NICE_LABEL = 'niceLabel';
 const ITEM_FULL_KEY = 'itemFullKey';
@@ -27,7 +28,7 @@ class SelectBox extends AbstractFormComponent {
   componentWillReceiveProps(nextProps) {
     super.componentWillReceiveProps(nextProps);
     const { forceSearchParameters} = nextProps;
-    if (forceSearchParameters && forceSearchParameters !== this.props.forceSearchParameters) {
+    if (!SearchParameters.is(forceSearchParameters, this.props.forceSearchParameters)) {
       this._initComponent(nextProps);
     }
   }
@@ -143,8 +144,11 @@ class SelectBox extends AbstractFormComponent {
     // value is not array
     const copyValue = _.merge({}, this.state.value);
     this._deletePrivateField(copyValue);
-    // result property value
-    return copyValue[this.props.returnProperty];
+    // result property value - if value is false, then whole object is returned
+    if (this.props.returnProperty) {
+      return copyValue[this.props.returnProperty];
+    }
+    return copyValue;
   }
 
   _deletePrivateField(item) {
@@ -276,20 +280,20 @@ class SelectBox extends AbstractFormComponent {
   }
 
   itemRenderer(item, input) {
-    const { niceLabelTransform } = this.props;
+    const { niceLabel } = this.props;
 
-    let niceLabel;
-    if (niceLabelTransform) {
-      niceLabel = niceLabelTransform(item);
+    let _niceLabel;
+    if (niceLabel) {
+      _niceLabel = niceLabel(item);
     } else {
-      niceLabel = this.props.manager.getNiceLabel(item);
+      _niceLabel = this.props.manager.getNiceLabel(item);
     }
 
     const inputLower = input.toLowerCase();
 
-    let itemFullKey = niceLabel;
+    let itemFullKey = _niceLabel;
     if (inputLower) {
-      if (!niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
+      if (!_niceLabel.toLowerCase().indexOf(inputLower) >= 0) {
         for (const field of this.props.searchInFields) {
           if (item[field].toLowerCase().indexOf(inputLower) >= 0) {
             itemFullKey = itemFullKey + ' (' + item[field] + ')';
@@ -299,7 +303,7 @@ class SelectBox extends AbstractFormComponent {
       }
     }
 
-    _.merge(item, {[NICE_LABEL]: niceLabel, [ITEM_FULL_KEY]: itemFullKey});
+    _.merge(item, {[NICE_LABEL]: _niceLabel, [ITEM_FULL_KEY]: itemFullKey});
   }
 
   onInputChange(value) {
@@ -420,9 +424,12 @@ SelectBox.propTypes = {
    */
   forceSearchParameters: PropTypes.object,
   /**
-  * If object is selected, then this property value will be returned
+  * If object is selected, then this property value will be returned. If value is false, then whole object is returned.
   */
-  returnProperty: PropTypes.string,
+  returnProperty: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool
+  ]),
   /**
    * Selected options can be cleared
    */
@@ -430,7 +437,7 @@ SelectBox.propTypes = {
   /**
    * Function with transform label in select box
    */
-  niceLabelTransform: PropTypes.func
+  niceLabel: PropTypes.func
 };
 
 SelectBox.defaultProps = {

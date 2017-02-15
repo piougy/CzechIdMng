@@ -52,6 +52,7 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -89,6 +90,9 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 
 	@Autowired
 	private IdmIdentityService idmIdentityService;
+	
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private IdmIdentityRoleService idmIdentityRoleService;
@@ -147,8 +151,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentity(identity.getId());
-		irdto.setRole(roleDefault.getId());
+		irdto.setIdentityContractId(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setRoleId(roleDefault.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		IdmIdentityRole irCreated = idmIdentityRoleService.addByDto(irdto);
@@ -286,8 +290,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 		IdmRole rolePassword = idmRoleService.getByName(ROLE_OVERLOADING_PASSWORD);
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentity(identity.getId());
-		irdto.setRole(rolePassword.getId());
+		irdto.setIdentityContractId(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setRoleId(rolePassword.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		idmIdentityRoleService.addByDto(irdto);
@@ -311,8 +315,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentity(identity.getId());
-		irdto.setRole(roleLastName.getId());
+		irdto.setIdentityContractId(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setRoleId(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		IdmIdentityRole irCreated = idmIdentityRoleService.addByDto(irdto);
@@ -342,8 +346,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentity(identity.getId());
-		irdto.setRole(roleLastName.getId());
+		irdto.setIdentityContractId(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setRoleId(roleLastName.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		idmIdentityRoleService.addByDto(irdto);
@@ -386,8 +390,8 @@ public class DefaultSysAccountManagementServiceTest extends AbstractIntegrationT
 				entityManager.find(TestResource.class, "x" + IDENTITY_USERNAME));
 
 		IdmIdentityRoleDto irdto = new IdmIdentityRoleDto();
-		irdto.setIdentity(identity.getId());
-		irdto.setRole(role.getId());
+		irdto.setIdentityContractId(identityContractService.getContracts(identity).get(0).getId());
+		irdto.setRoleId(role.getId());
 		// This evokes IdentityRole SAVE event. On this event will be start
 		// account management and provisioning
 		idmIdentityRoleService.addByDto(irdto);

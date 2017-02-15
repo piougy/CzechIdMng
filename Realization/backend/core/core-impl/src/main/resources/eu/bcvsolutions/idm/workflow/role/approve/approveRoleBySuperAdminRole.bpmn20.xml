@@ -3,7 +3,7 @@
   <process id="approveRoleBySuperAdminRole" name="Schválení přiřazení role uživateli s rolí &quot;SuperAdminRole&quot;" isExecutable="true">
     <documentation>Workflow pro schválení přiřazení role uživateli s rolí "SuperAdminRole"</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="approveTask" name="Schválení uživatelem s rolí &quot;SuperAdminRole&quot;" activiti:candidateUsers="#{defaultIdmIdentityService.findAllByRoleAsString(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
+    <userTask id="approveTask" name="Schválení uživatelem s rolí &quot;SuperAdminRole&quot;" activiti:candidateUsers="#{identityService.findAllByRoleAsString(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
       <documentation>Schválení přiřazení role ${defaultIdmRoleService.get(roleIdentifier).name} pro uživatele ${applicantUsername}.</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -24,7 +24,7 @@
     <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("disapprove")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask1" name="Uložení nové vazby" activiti:expression="#{defaultIdmIdentityRoleService.addByDto(newIdmIdentityRole)}"></serviceTask>
+    <serviceTask id="servicetask1" name="Uložení nové vazby" activiti:expression="#{identityRoleService.addByDto(newIdmIdentityRole)}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="servicetask1"></sequenceFlow>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="endevent2"></sequenceFlow>
@@ -32,8 +32,8 @@
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentity(applicantIdentifier);
-ir.setRole(roleIdentifier);
+ir.setIdentityContractId(identityContractIdentifier);
+ir.setRoleId(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 
@@ -47,7 +47,7 @@ execution.setVariable("newIdmIdentityRole", ir);
     <sequenceFlow id="flow6" sourceRef="exclusivegateway1" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživateli s rolí &quot;SuperAdminRole&quot; pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Schválení přiřazení role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživateli s rolí &quot;SuperAdminRole&quot; pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="approveTask"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
@@ -67,10 +67,10 @@ execution.setVariable("validTill", validTillDateNew);
 </script>
     </scriptTask>
     <sequenceFlow id="flow18" sourceRef="scripttask3" targetRef="usertask1"></sequenceFlow>
-    <serviceTask id="servicetask5" name="Generování názvu procesu" activiti:expression="Schválení úpravy role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživatele s rolí &quot;SuperAdminRole&quot; pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask5" name="Generování názvu procesu" activiti:expression="Schválení úpravy role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; uživatele s rolí &quot;SuperAdminRole&quot; pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow26" sourceRef="servicetask5" targetRef="scripttask3"></sequenceFlow>
-    <serviceTask id="servicetask4" name="Uložení změněného oprávnění" activiti:expression="#{defaultIdmIdentityRoleService.updateByDto(identityRoleIdentifier,updatedIdmIdentityRole)}"></serviceTask>
-    <userTask id="usertask1" name="Schválení uživatelem s rolí &quot;SuperAdminRole&quot;" activiti:candidateUsers="#{defaultIdmIdentityService.findAllByRoleAsString(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
+    <serviceTask id="servicetask4" name="Uložení změněného oprávnění" activiti:expression="#{identityRoleService.updateByDto(identityRoleIdentifier,updatedIdmIdentityRole)}"></serviceTask>
+    <userTask id="usertask1" name="Schválení uživatelem s rolí &quot;SuperAdminRole&quot;" activiti:candidateUsers="#{identityService.findAllByRoleAsString(defaultIdmRoleService.getByName(&quot;superAdminRole&quot;).getId())}">
       <documentation>Schválení úpravy role ${defaultIdmRoleService.get(roleIdentifier).name} pro uživatele ${applicantUsername}.</documentation>
       <extensionElements>
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
@@ -96,10 +96,10 @@ execution.setVariable("validTill", validTillDateNew);
     <scriptTask id="scripttask2" name="Aplikování změn do oprávnění" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
-def identityRoleEntity = defaultIdmIdentityRoleService.get(identityRoleIdentifier);
+def identityRoleEntity = identityRoleService.get(identityRoleIdentifier);
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentity(applicantIdentifier);
-ir.setRole(roleIdentifier);
+ir.setIdentityContractId(identityContractIdentifier);
+ir.setRoleId(roleIdentifier);
 ir.setValidFrom(identityRoleEntity.getValidFrom());
 ir.setValidTill(identityRoleEntity.getValidTill());
 
@@ -137,10 +137,10 @@ execution.setVariable("updatedIdmIdentityRole", ir);
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{decision.equals("approve")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow30" sourceRef="exclusivegateway5" targetRef="scripttask2">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) != null}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(identityRoleIdentifier) != null}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow31" name="Oprávnění, které má být změněno neexistuje" sourceRef="exclusivegateway5" targetRef="endevent5">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{defaultIdmIdentityRoleService.get(identityRoleIdentifier) == null}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[#{identityRoleService.get(identityRoleIdentifier) == null}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent5" name="End - Identity role with given ID not found">
       <documentation>Identity role with given ID not found</documentation>

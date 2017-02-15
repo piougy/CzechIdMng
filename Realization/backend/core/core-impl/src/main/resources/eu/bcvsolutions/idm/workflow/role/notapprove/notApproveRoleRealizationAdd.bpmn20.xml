@@ -3,7 +3,7 @@
   <process id="notApproveRoleRealizationAdd" name="Realizace přidání oprávnění (bez schvalování)" isExecutable="true">
     <documentation>Workflow pro realizacei přiřazení role identitě. Workflow provádí pouze samotnou realizaci, neprovádí schvalování.</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
-    <serviceTask id="servicetask1" name="Uložení oprávnění" activiti:expression="#{defaultIdmIdentityRoleService.addByDto(newIdmIdentityRole)}"></serviceTask>
+    <serviceTask id="servicetask1" name="Uložení oprávnění" activiti:expression="#{identityRoleService.addByDto(newIdmIdentityRole)}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="servicetask1"></sequenceFlow>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="endevent2"></sequenceFlow>
@@ -11,8 +11,8 @@
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentity(applicantIdentifier);
-ir.setRole(roleIdentifier);
+ir.setIdentityContractId(identityContractIdentifier);
+ir.setRoleId(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 
@@ -34,7 +34,7 @@ execution.setVariable("newIdmIdentityRole", ir);
       </extensionElements>
     </dataObject>
     <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Realizace přidání role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; (bez schvalování) pro &quot;${defaultIdmIdentityService.getNiceLabel(defaultIdmIdentityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
+    <serviceTask id="servicetask2" name="Generování názvu procesu" activiti:expression="Realizace přidání role &quot;${defaultIdmRoleService.get(roleIdentifier).name}&quot; (bez schvalování) pro &quot;${identityService.getNiceLabel(identityService.get(applicantIdentifier))}&quot;" activiti:resultVariableName="processInstanceName"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="servicetask2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="scripttask1"></sequenceFlow>
   </process>

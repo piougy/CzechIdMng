@@ -69,7 +69,7 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	        + " ("
 	        	// identity with any of given role (OR)
 	        	+ " ?#{[0].roles == null ? 0 : [0].roles.size()} = 0"
-	        	+ " or exists (from IdmIdentityRole ir where ir.identity = e and ir.role.id IN (?#{T(eu.bcvsolutions.idm.core.api.utils.RepositoryUtils).queryEntityIds([0].roles)}))"
+	        	+ " or exists (from IdmIdentityRole ir where ir.identityContract.identity = e and ir.role.id IN (?#{T(eu.bcvsolutions.idm.core.api.utils.RepositoryUtils).queryEntityIds([0].roles)}))"
 	        + " )"
 	  	    + " and "
 	  	    + " ("
@@ -89,9 +89,10 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	Page<IdmIdentity> find(IdentityFilter filter, Pageable pageable);
 	
 	@Transactional(timeout = 5, readOnly = true)
-	@Query(value = "SELECT e FROM IdmIdentity e "
-			+ "JOIN e.roles roles "
-			+ "WHERE "
-	        + "roles.role = :role")
+	@Query(value = "SELECT e FROM IdmIdentity e"
+			+ " JOIN e.contracts contracts"
+			+ " JOIN contracts.roles roles"
+			+ " WHERE"
+	        + " roles.role = :role")
 	List<IdmIdentity> findAllByRole(@Param(value = "role") IdmRole role);
 }

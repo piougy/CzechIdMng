@@ -48,7 +48,7 @@ class Loading extends AbstractComponent {
   }
 
   render() {
-    const { rendered, className, showAnimation, isStatic, loadingTitle, ...others } = this.props;
+    const { rendered, className, showAnimation, isStatic, loadingTitle, style } = this.props;
     if (!rendered) {
       return null;
     }
@@ -60,7 +60,7 @@ class Loading extends AbstractComponent {
       { 'static': isStatic }
     );
     return (
-      <div ref="container" className="loader-container" {...others}>
+      <div ref="container" className="loader-container" style={style}>
         {
           showLoading
           ?

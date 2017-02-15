@@ -16,10 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
@@ -182,12 +184,12 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(passwordAttributeMapping);
 	}
 	
-	private Map<String, Object> createAccountObject(SysSystemEntity systemEntity) {
-		Map<String, Object> accoutObject = new HashMap<>();		
-		accoutObject.put(nameAttributeMapping.getSchemaAttribute().getName(), systemEntity.getUid());
-		accoutObject.put(firstNameAttributeMapping.getSchemaAttribute().getName(), "firstOne");
-		accoutObject.put(lastNameAttributeMapping.getSchemaAttribute().getName(), "lastOne");
-		accoutObject.put(passwordAttributeMapping.getSchemaAttribute().getName(), new GuardedString("password"));		
+	private Map<ProvisioningAttributeDto, Object> createAccountObject(SysSystemEntity systemEntity) {
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();		
+		accoutObject.put(new ProvisioningAttributeDto(nameAttributeMapping.getSchemaAttribute().getName(), nameAttributeMapping.getStrategyType()), systemEntity.getUid());
+		accoutObject.put(new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), firstNameAttributeMapping.getStrategyType()), "firstOne");
+		accoutObject.put(new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), lastNameAttributeMapping.getStrategyType()), "lastOne");
+		accoutObject.put(new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), passwordAttributeMapping.getStrategyType()), new GuardedString("password"));		
 		return accoutObject;
 	}
 	
@@ -202,9 +204,13 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		systemEntity.setWish(true);
 		systemEntity = systemEntityService.save(systemEntity);
 		//
-		Map<String, Object> accoutObject = createAccountObject(systemEntity);
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		
+		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
-		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMapping.getSchemaAttribute().getName());
+		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
@@ -225,9 +231,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNotNull(existsConnectorObject);
 		assertEquals(systemEntity.getUid(), existsConnectorObject.getUidValue());
-		assertEquals(accoutObject.get(firstNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(firstNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(firstNameAttributeMapping.getName()).getValue());
-		assertEquals(accoutObject.get(lastNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(lastNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
@@ -256,9 +262,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		systemEntity.setSystem(system);
 		systemEntity.setWish(true);
 		systemEntityService.save(systemEntity);
-		Map<String, Object> accoutObject = createAccountObject(systemEntity);
+		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
-		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMapping.getSchemaAttribute().getName());
+		
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+
+		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
@@ -281,7 +292,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// password is stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
+		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 		//
 		system.setDisabled(false);
 		systemService.save(system);
@@ -297,9 +308,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNotNull(existsConnectorObject);
 		assertEquals(systemEntityUid, existsConnectorObject.getUidValue());
-		assertEquals(accoutObject.get(firstNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(firstNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(firstNameAttributeMapping.getName()).getValue());
-		assertEquals(accoutObject.get(lastNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(lastNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(
@@ -310,7 +321,7 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		assertNotNull(attribute);
 		assertEquals(systemEntityUid, attribute.getUidValue());
 		// password is removed in confidential storage
-		assertNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
+		assertNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMappingKey.getKey(), 0)));
 	}
 	
 	@Test
@@ -326,9 +337,14 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		systemEntity.setSystem(system);
 		systemEntity.setWish(true);
 		systemEntityService.save(systemEntity);
-		Map<String, Object> accoutObject = createAccountObject(systemEntity);
+		Map<ProvisioningAttributeDto, Object> accoutObject = createAccountObject(systemEntity);
 		context.setAccountObject(accoutObject);
-		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMapping.getSchemaAttribute().getName());
+		
+		ProvisioningAttributeDto passwordAttributeMappingKey = new ProvisioningAttributeDto(passwordAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto firstNameAttributeMappingKey = new ProvisioningAttributeDto(firstNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+		ProvisioningAttributeDto lastNameAttributeMappingKey = new ProvisioningAttributeDto(lastNameAttributeMapping.getSchemaAttribute().getName(), AttributeMappingStrategyType.SET);
+
+		GuardedString password = (GuardedString) accoutObject.get(passwordAttributeMappingKey);
 		//
 		// publish event
 		IcObjectClass objectClass = new IcObjectClassImpl(systemMapping.getObjectClass().getObjectClassName());
@@ -351,8 +367,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNull(existsConnectorObject);
 		// passwords are stored in confidential storage
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey(passwordAttributeMapping.getSchemaAttribute().getName(), 0)));
-		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMapping.getSchemaAttribute().getName()), 0)));
+		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createAccountObjectPropertyKey( passwordAttributeMappingKey.getKey(), 0)));
+		assertNotNull(confidentialStorage.get(operation, sysProvisioningOperationService.createConnectorObjectPropertyKey(operation.getProvisioningContext().getConnectorObject().getAttributeByName(passwordAttributeMappingKey.getSchemaAttributeName()), 0)));
 		//
 		system.setReadonly(false);
 		systemService.save(system);
@@ -368,9 +384,9 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 		//
 		assertNotNull(existsConnectorObject);
 		assertEquals(systemEntityUid, existsConnectorObject.getUidValue());
-		assertEquals(accoutObject.get(firstNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(firstNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(firstNameAttributeMapping.getName()).getValue());
-		assertEquals(accoutObject.get(lastNameAttributeMapping.getSchemaAttribute().getName()), 
+		assertEquals(accoutObject.get(lastNameAttributeMappingKey), 
 				existsConnectorObject.getAttributeByName(lastNameAttributeMapping.getName()).getValue());
 		// authenticate for password check
 		IcUidAttribute attribute = connectorFacade.authenticateObject(

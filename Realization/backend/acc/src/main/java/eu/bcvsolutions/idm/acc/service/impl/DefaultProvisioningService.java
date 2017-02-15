@@ -34,6 +34,7 @@ import eu.bcvsolutions.idm.acc.domain.ProvisioningOperationType;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.acc.dto.MappingAttributeDto;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.IdentityAccountFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
@@ -288,7 +289,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		}
 		//
 		// prepare all mapped attribute values (= account)
-		Map<String, Object> accountAttributes = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accountAttributes = new HashMap<>();
 		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
 			
 			// First we will resolve attribute without MERGE strategy
@@ -297,7 +298,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
 						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
 			}).forEach(attribute -> {
-				accountAttributes.put(attribute.getSchemaAttribute().getName(), getAttributeValue(entity, attribute));
+				accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attribute), getAttributeValue(entity, attribute));
 			});
 			
 			// Second we will resolve MERGE attributes
@@ -323,7 +324,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 					mergedValues.add(getAttributeValue(entity, attribute));
 				});
 				if(!accountAttributes.containsKey(attributeParent.getSchemaAttribute().getName())){
-					accountAttributes.put(attributeParent.getSchemaAttribute().getName(), mergedValues);
+					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attributeParent), mergedValues);
 				}
 			}
 		}

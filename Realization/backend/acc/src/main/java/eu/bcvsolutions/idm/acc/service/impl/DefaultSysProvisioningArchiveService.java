@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.acc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.acc.domain.ProvisioningOperation;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
@@ -27,6 +29,7 @@ public class DefaultSysProvisioningArchiveService
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public SysProvisioningArchive archive(ProvisioningOperation provisioningOperation) {
 		SysProvisioningArchive archive = new SysProvisioningArchive.Builder(provisioningOperation).build();
 		// preserve original operation creator

@@ -494,7 +494,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		SysSyncItemLog logItem = wrapper.getLogItem();
 		List<SysSyncActionLog> actionLogs = wrapper.getActionLogs();
 		
-		SynchronizationActionType actionType = null;
+		SynchronizationActionType actionType = SynchronizationActionType.IGNORE;
 		try {
 
 			// Find system entity for uid
@@ -503,6 +503,11 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			// Find acc account for uid or system entity
 			if (account == null) {
 				account = findAccount(uid, entityType, systemEntity, system, logItem);
+				if (systemEntity == null) {
+					addToItemLog(logItem, "SystemEntity for this uid not exist. We will create him.");
+					systemEntity = createSystemEntity(uid, entityType, system);
+				}
+
 			}
 
 			if (IcSyncDeltaTypeEnum.CREATE == type || IcSyncDeltaTypeEnum.UPDATE == type
@@ -1002,6 +1007,8 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		case CREATE_ENTITY:
 			// Create idm account
 			AccAccount account = doCreateIdmAccount(uid, system);
+			// Find and set SystemEntity (must exist)
+			account.setSystemEntity(this.findSystemEntity(uid, system, entityType));
 			accountService.save(account);
 
 			// Create new entity
@@ -1649,13 +1656,6 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 							uid, systemEntity.getId()));
 			accountFilter.setSystemEntityId(systemEntity.getId());
 			accounts = accountService.find(accountFilter, null).getContent();
-		} else {
-			addToItemLog(logItem, "SystemEntity for this uid not exist. We will create him.");
-			SysSystemEntity systemEntityNew = new SysSystemEntity();
-			systemEntityNew.setUid(uid);
-			systemEntityNew.setEntityType(entityType);
-			systemEntityNew.setSystem(system);
-			systemEntityService.save(systemEntityNew);
 		}
 		if (CollectionUtils.isEmpty(accounts)) {
 			// System entity was not found. We will find account by uid
@@ -1673,6 +1673,14 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 			account = accounts.get(0);
 		}
 		return account;
+	}
+	
+	private SysSystemEntity createSystemEntity(String uid, SystemEntityType entityType, SysSystem system) {
+		SysSystemEntity systemEntityNew = new SysSystemEntity();
+		systemEntityNew.setUid(uid);
+		systemEntityNew.setEntityType(entityType);
+		systemEntityNew.setSystem(system);
+		return systemEntityService.save(systemEntityNew);
 	}
 
 	private SysSystemEntity findSystemEntity(String uid, SysSystem system, SystemEntityType entityType) {

@@ -29,7 +29,8 @@ public class GroovySandboxFilter extends GroovyValueFilter {
 	
 	private static final Set<Class<?>> ALLOWED_TYPES = Sets.newHashSet(
 			String.class, Integer.class, Double.class, Long.class, Date.class, Enum.class, Boolean.class, 
-			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class, DateTimeFormat.class, DateTime.class);
+			BigDecimal.class, UUID.class, Character.class, GuardedString.class, DateTimeFormatter.class,
+			DateTimeFormat.class, DateTime.class, String[].class);
 
 	private final Set<Class<?>> allowedCustomTypes = new HashSet<>();
 	

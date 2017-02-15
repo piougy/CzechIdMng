@@ -32,6 +32,8 @@ class RoleDetail extends Basic.AbstractContent {
     const { entity } = this.props;
 
     if (Utils.Entity.isNew(entity)) {
+      entity.priorityEnum = RolePriorityEnum.NONE;
+      entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
       this._setSelectedEntity(entity);
     } else {
       this._setSelectedEntity(this._prepareEntity(entity));

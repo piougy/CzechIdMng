@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 //
 import { Basic, Utils, Domain} from 'czechidm-core';
 import { RoleSystemAttributeManager, RoleSystemManager, SystemAttributeMappingManager} from '../../redux';
+import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
 
 const uiKey = 'role-system-attribute';
 const roleSystemAttributeManager = new RoleSystemAttributeManager();
@@ -49,6 +50,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     if (this._getIsNew(props)) {
       this.setState({attribute: {
         roleSystem: roleSystemId,
+        strategyType: AttributeMappingStrategyTypeEnum.findKeyBySymbol(AttributeMappingStrategyTypeEnum.SET)
       },
       mappingId: props.location.query.mappingId});
     } else {
@@ -167,6 +169,11 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 helpBlock={this.i18n('acc:entity.RoleSystemAttribute.name.help')}
                 required
                 max={255}/>
+              <Basic.EnumSelectBox
+                ref="strategyType"
+                enum={AttributeMappingStrategyTypeEnum}
+                label={this.i18n('acc:entity.RoleSystemAttribute.strategyType')}
+                required/>
               <Basic.Checkbox
                 ref="uid"
                 readOnly = {_isDisabled}

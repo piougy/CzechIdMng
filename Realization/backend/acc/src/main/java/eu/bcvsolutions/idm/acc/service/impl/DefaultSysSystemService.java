@@ -191,7 +191,9 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		IcConnectorConfiguration connectorConfig = null;
 		// load connector properties, different between local and remote
 		IcConnectorInstance connectorInstance = system.getConnectorInstance();
-		connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+		if(connectorInstance.getConnectorServer() != null){
+			connectorInstance.getConnectorServer().setPassword(confidentialStorage.getGuardedString(system, SysSystemService.REMOTE_SERVER_PASSWORD));
+		}
 		connectorConfig = icConfigurationFacade.getConnectorConfiguration(connectorInstance);
 
 		// load filled form values

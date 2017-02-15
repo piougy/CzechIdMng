@@ -3,6 +3,8 @@ package eu.bcvsolutions.idm.acc.entity;
 import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -16,6 +18,8 @@ import org.hibernate.envers.Audited;
 import com.sun.istack.NotNull;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
+import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 
@@ -90,6 +94,12 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Type(type = "org.hibernate.type.StringClobType") // TODO: test on oracle/ mysql
 	@Column(name = "transform_to_res_script")
 	private String transformToResourceScript;
+	
+	@Audited
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@Column(name = "strategy_type", nullable = false)
+	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
 
 	@Override
 	public String getIdmPropertyName() {
@@ -197,6 +207,14 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Override
 	public void setDisabledAttribute(boolean disabledAttribute) {
 		this.disabledAttribute = disabledAttribute;
+	}
+
+	public AttributeMappingStrategyType getStrategyType() {
+		return strategyType;
+	}
+
+	public void setStrategyType(AttributeMappingStrategyType strategyType) {
+		this.strategyType = strategyType;
 	}
 
 }

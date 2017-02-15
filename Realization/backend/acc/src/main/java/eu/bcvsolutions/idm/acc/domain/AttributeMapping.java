@@ -53,4 +53,8 @@ public interface AttributeMapping extends Serializable {
 
 	void setDisabledAttribute(boolean disabled);
 
+	AttributeMappingStrategyType getStrategyType();
+
+	void setStrategyType(AttributeMappingStrategyType strategyType);
+
 }

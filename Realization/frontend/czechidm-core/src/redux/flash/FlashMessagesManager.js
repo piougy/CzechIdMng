@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
+import moment from 'moment';
 // api
 import { LocalizationService, AuthenticateService } from '../../services';
 // import SecurityManager from '../Security/SecurityManager';
@@ -273,6 +274,18 @@ export default class FlashMessagesManager {
   _prepareParams(params, defaultMessage) {
     let results = {};
     if (params) {
+      // iterate over all params do necessary converts TODO: add other converts
+      for (const key in params) {
+        if (params.hasOwnProperty(key)) {
+          if (!isNaN(Number(params[key]))) {
+            // nothing, just number
+          } else if (!isNaN(new Date(params[key])) && params) {
+            // convert to date
+            const date = moment(new Date(params[key]));
+            params[key] = date.format(LocalizationService.i18n('format.date'));
+          }
+        }
+      }
       results = _.merge({}, params);
     }
     if (defaultMessage) {

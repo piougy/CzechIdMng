@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -120,10 +122,12 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	private int minRulesToFulfill;
 	
 	@Audited
+	@Enumerated(EnumType.STRING)
 	@Column(name = "type")
 	private IdmPasswordPolicyType type = IdmPasswordPolicyType.VALIDATE;
 	
 	@Audited
+	@Enumerated(EnumType.STRING)
 	@Column(name = "generate_type")
 	private IdmPasswordPolicyGenerateType generateType = IdmPasswordPolicyGenerateType.RANDOM;
 	

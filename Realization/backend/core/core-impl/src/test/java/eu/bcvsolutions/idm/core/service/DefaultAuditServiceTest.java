@@ -185,7 +185,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 						parseSerializableToString(result.get(0).getId()),
 						parseSerializableToString(result.get(1).getId()));
 
-				assertEquals(3, diff.size());
+				// 3 modification from IdmIdentity and 3 modification from AbstractEntity
+				assertEquals(6, diff.size());
 				assertTrue(diff.containsKey("firstName"));
 				assertTrue(diff.containsKey("lastName"));
 				assertTrue(diff.containsKey("email"));
@@ -197,8 +198,9 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 				// test version #2 with #3
 				diff = auditService.getDiffBetweenVersion(parseSerializableToString(result.get(1).getId()),
 						parseSerializableToString(result.get(2).getId()));
-
-				assertEquals(3, diff.size());
+				
+				// 3 modification from IdmIdentity and 1 from abstract entity (date of modified)
+				assertEquals(4, diff.size());
 				assertTrue(diff.containsKey("firstName"));
 				assertTrue(diff.containsKey("lastName"));
 				assertTrue(diff.containsKey("email"));
@@ -210,7 +212,8 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 				// final test version #1 with #3
 				diff = auditService.getDiffBetweenVersion(parseSerializableToString(result.get(0).getId()),
 						parseSerializableToString(result.get(2).getId()));
-				assertEquals(0, diff.size());
+				// all diff values are from AbstractEntity modifier, modified date, modifier id
+				assertEquals(3, diff.size());
 
 				return null;
 			}

@@ -21,6 +21,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.envers.AuditReader;
@@ -29,6 +30,8 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -354,33 +357,44 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 			return Collections.emptyMap();
 		}
 		
-		Field[] fields = revisionObject.getClass().getDeclaredFields();
+		// for better debug and readable there is no stream
+		// we cannot use Introspector.getBeanInfo
+		
+		// getAllFieldsList get all field also with field from superclass
+		List<Field> fields = FieldUtils.getAllFieldsList(revisionObject.getClass());
+		
 		for (Field field : fields) {
 			try {
-				// check if field has Audited annotation
-				if (!field.isAnnotationPresent(Audited.class)) {
+				
+				// check if field has Audited annotation, or class
+				if (!field.isAnnotationPresent(Audited.class) && !field.getDeclaringClass().isAnnotationPresent(Audited.class)) {
 					continue;
 				}
-				
+				//
 				PropertyDescriptor propertyDescriptor = PropertyUtils.getPropertyDescriptor(revisionObject, field.getName());
-				
-				// not all property must have read method
+				//
+				// get property descriptor for readMethod
 				if (propertyDescriptor == null) {
 					continue;
 				}
-				
+				//
 				Method readMethod = propertyDescriptor.getReadMethod();
 				Object value = readMethod.invoke(revisionObject);
-				
+				//
 				// value can be null, but we want it
 				if (value == null) {
 					revisionValues.put(field.getName(), value);
 					continue;
 				}
-				
+				//
+				String className = null;
+				if (value instanceof HibernateProxy) {
+                    HibernateProxy proxy = (HibernateProxy) value;
+                    LazyInitializer li = proxy.getHibernateLazyInitializer();
+                    className = li.getEntityName();
+                }
 				// we have all audited class, then some not audited class (binding) and others primitive types
-				String className = value.getClass().getSimpleName();
-				if (className.indexOf('_', 0) > 0 && auditedClass.contains(className.substring(0, className.indexOf('_', 0)))) {
+				if (className != null) {
 					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
 				} else if (value instanceof AbstractEntity) {
 					// not audited class it not must exits
@@ -394,11 +408,12 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 				} else {
 					revisionValues.put(field.getName(), value);
 				}
-				
+				//
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				throw new ResultCodeException(CoreResultCode.BAD_REQUEST, ImmutableMap.of("field", field.getName()), e);
 			}
 		}
+		
 		return revisionValues;
 	}
 	

@@ -96,15 +96,25 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	 * @return true, if password policy attribute are valid, otherwise throw error
 	 */
 	private boolean validatePasswordPolicyAttributes(IdmPasswordPolicy entity) {
-		if (entity.getMaxPasswordLength() < entity.getMinPasswordLength()) {
+		if (entity.getMaxPasswordLength() != 0 && entity.getMaxPasswordLength() < entity.getMinPasswordLength()) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_LENGTH_LOWER);
 		}
-		if (entity.getMinLowerChar() + entity.getMinNumber() + entity.getMinSpecialChar() + entity.getMinUpperChar() > 
-				entity.getMaxPasswordLength()) {
+		if (entity.getMaxPasswordLength() != 0 && (entity.getMinLowerChar() + entity.getMinNumber() + entity.getMinSpecialChar() + entity.getMinUpperChar() > 
+				entity.getMaxPasswordLength())) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER);
 		}
-		if (entity.getMaxPasswordAge() < entity.getMinPasswordAge()) {
+		if (entity.getMaxPasswordAge() != 0 && entity.getMaxPasswordAge() < entity.getMinPasswordAge()) {
 			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_AGE_LOWER);
+		}
+		// check minRulesToFulfill and rules
+		if (entity.isEnchancedControl()) {
+			// get number of not required rules and compare to minFulfill rules
+			int rules = getNotRequiredRules(entity);
+			//
+			// check with minRulesToFulfill
+			if (entity.getMinRulesToFulfill() > rules) {
+				throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_RULE, ImmutableMap.of("rules", rules));
+			}
 		}
 		return true;
 	}
@@ -235,15 +245,18 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				validateNotSuccess = true;
 			}
 			
-			// if not success we want password policy name
-			if (validateNotSuccess) {
-				policyNames.add(passwordPolicy.getName());
+			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
+				int notRequiredRules = getNotRequiredRules(passwordPolicy);
+				int missingRules = notRequiredRules - notPassRules.size();
+				if (missingRules - minRulesToFulfill < 0) {
+					errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules);
+					errors.put(MIN_RULES_TO_FULFILL, notPassRules);
+				}
 			}
 			
-			// check how many required rules is not filled
-			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl() && notPassRules.size() >= minRulesToFulfill) {
-				errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill);
-				errors.put(MIN_RULES_TO_FULFILL, notPassRules);
+			// if not success we want password policy name
+			if (validateNotSuccess && !errors.isEmpty()) {
+				policyNames.add(passwordPolicy.getName());
 			}
 			
 			// check to similar identity attributes, enhanced control
@@ -379,6 +392,32 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			return 0;
 		}
 		return NumberUtils.toInt(object.toString());
+	}
+	
+	/**
+	 * Get how many rules in password policy isn't required
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	private int getNotRequiredRules(IdmPasswordPolicy entity) {
+		int rules = 0;
+		if (!entity.isLowerCharRequired()) {
+			rules++;
+		}
+		if (!entity.isNumberRequired()) {
+			rules++;
+		}
+		if (!entity.isPasswordLengthRequired()) {
+			rules++;
+		}
+		if (!entity.isSpecialCharRequired()) {
+			rules++;
+		}
+		if (!entity.isUpperCharRequired()) {
+			rules++;
+		}
+		return rules;
 	}
 
 	@Override

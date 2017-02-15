@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.model.repository.listener;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -60,7 +59,7 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
 	}
 
 	private void changeRevisionEntity(Class<AbstractEntity> entityClass, String entityName, UUID entityId, IdmAudit revisionEntity, RevisionType revisionType) {
-		List<String> changedColumns;
+		// List<String> changedColumns;
 		
         // name of entity class - full name. 
         revisionEntity.setType(entityName);
@@ -80,11 +79,14 @@ public class IdmAuditListener implements EntityTrackingRevisionListener {
      	revisionEntity.setEntityId((UUID)entityId);
      	
 	    // if revision type is MOD - modification, get and set changed columns
-		if (revisionType == RevisionType.MOD) {
-			AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
-			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
-			revisionEntity.addChanged(changedColumns);
-		}
+     	// Problem with two changes for one entity in one transaction
+     	// envers not found entity snapshot for previous version - this version is not committed
+     	// try to fix this problem with getting this entity from session?
+//		if (revisionType == RevisionType.MOD) {
+//			AbstractEntity currentEntity = (AbstractEntity) entityManger.find(entityClass, entityId);
+//			changedColumns = auditService.getNameChangedColumns(entityClass, entityId, null, currentEntity);
+//			revisionEntity.addChanged(changedColumns);
+//		}
 	}
 	
 	/**

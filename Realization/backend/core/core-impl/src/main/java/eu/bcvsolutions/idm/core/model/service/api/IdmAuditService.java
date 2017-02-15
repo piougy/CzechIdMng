@@ -86,7 +86,9 @@ public interface IdmAuditService extends ReadWriteEntityService<IdmAudit, AuditF
 	<T> T getVersion(Class<T> entityClass, UUID entityId, Long currentRevId);
 	
 	/**
-	 * Return last revizion number id.
+	 * Return last revision number id.
+	 * NOTE: this method works with commited transaction, not commited entity will be not found!!
+	 * Otherwise use getCurrentRevision from envers with persist parameter to found entity in transaction
 	 * 
 	 * @param entityClass
 	 * @param entityId

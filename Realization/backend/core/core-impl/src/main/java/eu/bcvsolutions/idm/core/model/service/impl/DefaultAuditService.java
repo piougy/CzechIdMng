@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.EntityType;
 
@@ -42,7 +41,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -150,7 +148,8 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 		T previousEntity = null;
 		
 		if (currentRevId == null) {
-			currentRevId = this.getLastRevisionNumber(entityClass, entityId).longValue();
+			// this.getLastRevisionNumber(entityClass, entityId).longValue();
+			currentRevId = Long.valueOf((this.getAuditReader().getCurrentRevision(IdmAudit.class, true)).getId().toString());
 		}
 		previousEntity = this.getPreviousVersion(entityClass, entityId, currentRevId);
 		
@@ -387,24 +386,17 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 					continue;
 				}
 				//
+				LazyInitializer hibernateLI = null;
 				String className = null;
 				if (value instanceof HibernateProxy) {
                     HibernateProxy proxy = (HibernateProxy) value;
-                    LazyInitializer li = proxy.getHibernateLazyInitializer();
-                    className = li.getEntityName();
+                    hibernateLI = proxy.getHibernateLazyInitializer();
+                    className = hibernateLI.getEntityName();
                 }
 				// we have all audited class, then some not audited class (binding) and others primitive types
 				if (className != null) {
-					revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
-				} else if (value instanceof AbstractEntity) {
-					// not audited class it not must exits
-					try {
-						revisionValues.put(field.getName(), ((AbstractEntity)value).getId());
-					} catch (EntityNotFoundException e) {
-						revisionValues.put(field.getName(), null);
-					} catch (Exception e) {
-						throw e;
-					}
+					// get id from hibernate lazy initializer, entity may no longer exist, but ID in DB is always
+					revisionValues.put(field.getName(), hibernateLI.getIdentifier());
 				} else {
 					revisionValues.put(field.getName(), value);
 				}
@@ -462,6 +454,7 @@ public class DefaultAuditService extends AbstractReadWriteEntityService<IdmAudit
 	 */
 	private <T> T find(Class<T> entityClass, UUID entityId, Long revisionId) {
 		AuditReader reader = this.getAuditReader();
+
 		return reader.find(entityClass, entityId, revisionId);
 	}
 }

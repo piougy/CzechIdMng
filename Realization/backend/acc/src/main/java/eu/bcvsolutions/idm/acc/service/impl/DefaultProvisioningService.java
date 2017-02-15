@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,11 +290,41 @@ public class DefaultProvisioningService implements ProvisioningService {
 		// prepare all mapped attribute values (= account)
 		Map<String, Object> accountAttributes = new HashMap<>();
 		if (ProvisioningOperationType.DELETE != operationType) { // delete - account attributes is not needed
-			for (AttributeMapping attributeHandling : attributes) {
-				if (attributeHandling.isDisabledAttribute()) {
-					continue;
+			
+			// First we will resolve attribute without MERGE strategy
+			attributes.stream().filter(attribute -> {
+				return !attribute.isDisabledAttribute() 
+						&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE != attribute.getStrategyType() 
+						&& AttributeMappingStrategyType.MERGE != attribute.getStrategyType() ;
+			}).forEach(attribute -> {
+				accountAttributes.put(attribute.getSchemaAttribute().getName(), getAttributeValue(entity, attribute));
+			});
+			
+			// Second we will resolve MERGE attributes
+			List<? extends AttributeMapping> attributesMerge = attributes.stream().filter(attribute -> {
+				return !attribute.isDisabledAttribute() 
+						&& (AttributeMappingStrategyType.AUTHORITATIVE_MERGE == attribute.getStrategyType() 
+						|| AttributeMappingStrategyType.MERGE == attribute.getStrategyType());
+				
+			}).collect(Collectors.toList());
+			
+			for(AttributeMapping attributeParent : attributesMerge){
+				if(!attributeParent.getSchemaAttribute().isMultivalued()){
+					throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
+							ImmutableMap.of("object", systemEntity.getUid(), "attribute", attributeParent.getSchemaAttribute().getName()));
 				}
-				accountAttributes.put(attributeHandling.getSchemaAttribute().getName(), getAttributeValue(entity, attributeHandling));
+				
+				List<Object> mergedValues = new ArrayList<>();
+				attributes.stream().filter(attribute -> {
+					return !accountAttributes.containsKey(attributeParent.getSchemaAttribute().getName())
+							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
+							&& attributeParent.getStrategyType() == attribute.getStrategyType();
+				}).forEach(attribute -> {
+					mergedValues.add(getAttributeValue(entity, attribute));
+				});
+				if(!accountAttributes.containsKey(attributeParent.getSchemaAttribute().getName())){
+					accountAttributes.put(attributeParent.getSchemaAttribute().getName(), mergedValues);
+				}
 			}
 		}
 		// public provisioning event 
@@ -496,6 +527,8 @@ public class DefaultProvisioningService implements ProvisioningService {
 	@Override
 	public List<AttributeMapping> compileAttributes(List<? extends AttributeMapping> defaultAttributes,
 			List<SysRoleSystemAttribute> overloadingAttributes) {
+		Assert.notNull(overloadingAttributes, "List of overloading attributes cannot be null!");
+		
 		List<AttributeMapping> finalAttributes = new ArrayList<>();
 		if (defaultAttributes == null) {
 			return null;
@@ -508,6 +541,13 @@ public class DefaultProvisioningService implements ProvisioningService {
 		return finalAttributes;
 	}
 
+	/**
+	 * Compile given attribute for strategy
+	 * @param strategy
+	 * @param defaultAttribute
+	 * @param overloadingAttributes
+	 * @return
+	 */
 	private List<AttributeMapping> compileAtributeForStrategy(AttributeMappingStrategyType strategy,
 			AttributeMapping defaultAttribute, List<SysRoleSystemAttribute> overloadingAttributes) {
 

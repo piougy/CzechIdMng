@@ -8,12 +8,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.entity.OperationResult;
@@ -21,11 +21,11 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
 import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskExecutor;
+import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.entity.IdmLongRunningTask;
 import eu.bcvsolutions.idm.core.scheduler.service.api.IdmLongRunningTaskService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractLongRunningTaskExecutor;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.DefaultLongRunningTaskManager;
-import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -39,23 +39,17 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultLongRunningTaskManagerIntegrationTest extends AbstractIntegrationTest {
 
 	@Autowired
+	private ApplicationContext context;
+	@Autowired
 	private IdmLongRunningTaskService service;
 	@Autowired
-	private Executor executor;
-	@Autowired
 	private ConfigurationService configurationService;
-	@Autowired
-	private SecurityService securityService;
 	//
-	private DefaultLongRunningTaskManager manager;
+	private LongRunningTaskManager manager;
 	
 	@Before
 	public void init() {		
-		manager = new DefaultLongRunningTaskManager(
-				service,
-				executor, 
-				configurationService,
-				securityService);
+		manager = context.getAutowireCapableBeanFactory().createBean(DefaultLongRunningTaskManager.class);
 	}
 	
 	@Test

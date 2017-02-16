@@ -53,27 +53,21 @@ import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.entity.TestResource;
 import eu.bcvsolutions.idm.acc.service.api.AccAccountService;
 import eu.bcvsolutions.idm.acc.service.api.AccIdentityAccountService;
+import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncActionLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncItemLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncLogService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
-import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.acc.service.impl.DefaultSynchronizationService;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.api.service.GroovyScriptService;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
-import eu.bcvsolutions.idm.core.workflow.service.WorkflowProcessInstanceService;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -101,16 +95,13 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 	private static final String IDENTITY_EMAIL_CORRECT = "email@test.cz";
 
 	@Autowired
+	private ApplicationContext context;
+	
+	@Autowired
 	private SysSystemService systemService;
 	
 	@Autowired
-	private SysSystemEntityService systemEntityService;
-	
-	@Autowired
 	private IdmIdentityService identityService;
-	
-	@Autowired
-	private IdmIdentityRoleService identityRoleService;
 
 	@Autowired
 	private AccIdentityAccountService identityAccoutnService;
@@ -150,42 +141,17 @@ public class DefaultSynchronizationServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	DataSource dataSource;
-	
-	@Autowired
-	private LongRunningTaskManager longRunningTaskManager;
-	
-	@Autowired
-	private IcConnectorFacade connectorFacade;
-	
-	@Autowired
-	private ConfidentialStorage confidentialStorage;
-	
-	@Autowired
-	private EntityEventManager entityEventManager;
-	
-	@Autowired
-	private GroovyScriptService groovyScriptService;
-	
-	@Autowired
-	private WorkflowProcessInstanceService workflowProcessInstanceService;
 
 	// Only for call method createTestSystem
 	@Autowired
 	private DefaultSysAccountManagementServiceTest defaultSysAccountManagementServiceTest;
 	private SysSystem system;
-	private DefaultSynchronizationService synchornizationService;
+	private SynchronizationService synchornizationService;
 
 	@Before
 	public void init() {
 		loginAsAdmin("admin");
-		synchornizationService = new DefaultSynchronizationService(
-				connectorFacade, systemService, 
-				schemaAttributeMappingService, syncConfigService, 
-				syncLogService, syncActionLogService, accountService, 
-				systemEntityService, confidentialStorage, formService, 
-				identityService, identityAccoutnService, syncItemLogService, 
-				identityRoleService, entityEventManager, groovyScriptService, 
-				workflowProcessInstanceService, entityManager, longRunningTaskManager);
+		synchornizationService = context.getAutowireCapableBeanFactory().createBean(DefaultSynchronizationService.class);
 	}
 
 	@After

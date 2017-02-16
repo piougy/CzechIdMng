@@ -62,6 +62,7 @@ public abstract class AbstractEntityEventProcessor<E extends BaseEntity> impleme
 	public String getName() {
 		String name = this.getClass().getCanonicalName();
 		if (StringUtils.isEmpty(name)) {
+			// TODO: inline classes ...
 			return null;
 		}
 		return name;

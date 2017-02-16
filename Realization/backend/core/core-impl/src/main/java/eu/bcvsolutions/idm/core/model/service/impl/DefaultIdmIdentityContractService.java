@@ -15,11 +15,13 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent.IdentityContractEventType;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityContractSaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmTreeTypeRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 /**
@@ -36,17 +38,21 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityContractService.class);
 	private final IdmIdentityContractRepository repository;
 	private final EntityEventManager entityEventManager;
+	private final IdmTreeTypeRepository treeTypeRepository;
 	
 	@Autowired
 	public DefaultIdmIdentityContractService(
 			IdmIdentityContractRepository repository,
-			EntityEventManager entityEventManager) {
+			EntityEventManager entityEventManager,
+			IdmTreeTypeRepository treeTypeRepository) {
 		super(repository);
 		//
 		Assert.notNull(entityEventManager);
+		Assert.notNull(treeTypeRepository);
 		//
 		this.repository = repository;
 		this.entityEventManager = entityEventManager;
+		this.treeTypeRepository = treeTypeRepository;
 	}
 	
 	public List<IdmIdentityContract> getContracts(IdmIdentity identity) {
@@ -97,5 +103,23 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	@Transactional(readOnly = true)
 	public Page<IdmIdentityContract> findExpiredContracts(LocalDate expiration, Pageable pageable) {
 		return repository.findExpiredContracts(expiration, pageable);
+	}
+
+	@Override
+	public IdmIdentityContract prepareDefaultContract(IdmIdentity identity) {
+		Assert.notNull(identity);
+		//
+		// set identity
+		IdmIdentityContract contract = new IdmIdentityContract();
+		contract.setIdentity(identity);
+		//
+		// set working position
+		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
+		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
+			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
+		} else {
+			contract.setPosition(DEFAULT_POSITION_NAME); // TODO: from configuration manager
+		}
+		return contract;
 	}
 }

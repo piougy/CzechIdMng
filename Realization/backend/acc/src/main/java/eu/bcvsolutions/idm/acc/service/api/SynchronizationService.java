@@ -125,6 +125,10 @@ public interface SynchronizationService extends LongRunningTaskExecutor<SysSyncC
 	SysSyncItemLog resolveMissingAccountSituation(String uid, SystemEntityType entityType, UUID accountId,
 			UUID configId, String actionType);
 
-
-
+	/**
+	 * Long running task input parameter
+	 * 
+	 * @param synchronizationConfigId
+	 */
+	void setSynchronizationConfigId(UUID synchronizationConfigId);
 }

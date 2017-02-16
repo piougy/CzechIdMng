@@ -1805,6 +1805,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				actionLog.getOperationCount()));
 	}
 	
+	@Override
 	public void setSynchronizationConfigId(UUID synchronizationConfigId) {
 		this.synchronizationConfigId = synchronizationConfigId;
 	}

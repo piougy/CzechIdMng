@@ -20,6 +20,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
  */
 public interface IdmIdentityContractService extends ReadWriteEntityService<IdmIdentityContract, IdentityContractFilter> {
 	
+	static final String DEFAULT_POSITION_NAME = "Default"; // TODO: to configuration manager?
+	
 	/**
 	 * Returns working positions for given identity
 	 * 
@@ -44,5 +46,14 @@ public interface IdmIdentityContractService extends ReadWriteEntityService<IdmId
 	 * @return
 	 */	
 	Page<IdmIdentityContract> findExpiredContracts(@Param("expiration") LocalDate expiration, Pageable pageable);
+	
+	/**
+	 * Constructs default contract for given identity by configuration.
+	 * 
+	 * @see {@link IdmTreeTypeService#getDefaultTreeType()}
+	 * @param identity
+	 * @return
+	 */
+	IdmIdentityContract prepareDefaultContract(IdmIdentity identity);
 	
 }

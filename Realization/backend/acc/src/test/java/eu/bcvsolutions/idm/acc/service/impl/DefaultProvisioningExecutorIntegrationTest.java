@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
@@ -28,11 +29,9 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemEntity;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
-import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.DefaultSysAccountManagementServiceTest;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
-import eu.bcvsolutions.idm.acc.service.api.SysProvisioningBatchService;
+import eu.bcvsolutions.idm.acc.service.api.ProvisioningExecutor;
+import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemEntityService;
@@ -40,8 +39,6 @@ import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemService;
 import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 import eu.bcvsolutions.idm.ic.api.IcObjectClass;
@@ -63,17 +60,7 @@ import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrationTest {
 	
 	@Autowired
-	private SysProvisioningOperationRepository repository;
-	@Autowired
-	private SysProvisioningRequestRepository provisioningRequestRepository;
-	@Autowired
-	private SysProvisioningArchiveService provisioningArchiveService;
-	@Autowired
-	private EntityEventManager entityEventManager;
-	@Autowired
-	private SysProvisioningBatchService batchService;
-	@Autowired
-	private NotificationManager notificationManager;
+	private ApplicationContext context;
 	@Autowired
 	private SysSystemService systemService;
 	@Autowired
@@ -89,8 +76,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Autowired
 	private ConfidentialStorage confidentialStorage;
 	//
-	private DefaultSysProvisioningOperationService sysProvisioningOperationService;
-	private DefaultProvisioningExecutor provisioningExecutor;
+	private SysProvisioningOperationService sysProvisioningOperationService;
+	private ProvisioningExecutor provisioningExecutor;
 	private SysSystem system = null;
 	private SysSystemMapping systemMapping = null;
 	private SysSystemAttributeMapping nameAttributeMapping = null;
@@ -105,19 +92,8 @@ public class DefaultProvisioningExecutorIntegrationTest extends AbstractIntegrat
 	@Before
 	public void init() {	
 		loginAsAdmin("admin");
-		sysProvisioningOperationService = new DefaultSysProvisioningOperationService(
-				repository, 
-				provisioningRequestRepository, 
-				provisioningArchiveService, 
-				batchService, 
-				notificationManager, 
-				confidentialStorage);
-		provisioningExecutor = new DefaultProvisioningExecutor(
-				repository,
-				entityEventManager, 
-				sysProvisioningOperationService, 
-				batchService, 
-				notificationManager);
+		sysProvisioningOperationService = context.getAutowireCapableBeanFactory().createBean(DefaultSysProvisioningOperationService.class);
+		provisioningExecutor = context.getAutowireCapableBeanFactory().createBean(DefaultProvisioningExecutor.class);
 	}
 	
 	@After

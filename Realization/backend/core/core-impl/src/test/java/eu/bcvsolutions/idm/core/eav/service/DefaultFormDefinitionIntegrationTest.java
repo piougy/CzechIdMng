@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.idm.InitTestData;
@@ -19,6 +20,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.repository.IdmFormAttributeRepository;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
+import eu.bcvsolutions.idm.core.eav.service.impl.DefaultIdmFormDefinitionService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
 
 /**
@@ -32,15 +34,18 @@ public class DefaultFormDefinitionIntegrationTest extends AbstractIntegrationTes
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultFormDefinitionIntegrationTest.class);
 
 	@Autowired
-	private IdmFormDefinitionService formDefinitionService;	
+	private ApplicationContext context;
 	@Autowired
 	private IdmFormAttributeRepository formAttributeRepository;
+	//
+	private IdmFormDefinitionService formDefinitionService;	
 	
 	private Random r = new Random();
 	
 	@Before
 	public void login() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
+		formDefinitionService = context.getAutowireCapableBeanFactory().createBean(DefaultIdmFormDefinitionService.class);
 	}
 	
 	@After 

@@ -22,6 +22,7 @@ import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
+import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.api.utils.PasswordGenerator;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyGenerateType;
 import eu.bcvsolutions.idm.core.model.domain.IdmPasswordPolicyIdentityAttributes;
@@ -31,6 +32,8 @@ import eu.bcvsolutions.idm.core.model.dto.filter.PasswordPolicyFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmPassword;
 import eu.bcvsolutions.idm.core.model.entity.IdmPasswordPolicy;
+import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent;
+import eu.bcvsolutions.idm.core.model.event.PasswordPolicyEvent.PasswordPolicyEvenType;
 import eu.bcvsolutions.idm.core.model.repository.IdmPasswordPolicyRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmPasswordPolicyService;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
@@ -44,6 +47,8 @@ import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
  */
 @Service
 public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityService<IdmPasswordPolicy, PasswordPolicyFilter> implements IdmPasswordPolicyService {
+	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmPasswordPolicyService.class);
 	
 	// TODO: better place for constant?
 	private static final String MIN_LENGTH = "minLength";
@@ -65,12 +70,21 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	private PasswordGenerator passwordGenerator;
 	private final IdmPasswordPolicyRepository passwordPolicyRepository;
 	private final SecurityService securityService;
+	private final EntityEventManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmPasswordPolicyService(
-			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository, IdmPasswordPolicyRepository passwordPolicyRepository,
+			AbstractEntityRepository<IdmPasswordPolicy, PasswordPolicyFilter> repository,
+			IdmPasswordPolicyRepository passwordPolicyRepository,
+			EntityEventManager entityEventProcessorService,
 			SecurityService securityService) {
 		super(repository);
+		//
+		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(passwordPolicyRepository);
+		Assert.notNull(securityService);
+		//
+		this.entityEventProcessorService = entityEventProcessorService;
 		this.passwordPolicyRepository = passwordPolicyRepository;
 		this.securityService = securityService;
 	}
@@ -78,45 +92,25 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	@Override
 	@Transactional
 	public IdmPasswordPolicy save(IdmPasswordPolicy entity) {
-		if (validatePasswordPolicyAttributes(entity)) {
-			if (entity.isDefaultPolicy()) {
-				this.passwordPolicyRepository.updateDefaultPolicyByType(entity.getType(), entity.getId());
-			}
-			return super.save(entity);
-		} else {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_DEFAULT_TYPE, ImmutableMap.of("name", entity.getName()));
+		Assert.notNull(entity);
+		//
+		LOG.debug("Saving entity [{}]", entity.getName());
+		if (entity.getId() == null) {
+			// throw event with create
+			return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.CREATE, entity)).getContent();
 		}
+		// else throw event with update
+		return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.UPDATE, entity)).getContent();
 	}
 	
-	/**
-	 * Method check attributes of password policy
-	 * TODO: send all error message at once?
-	 * 
-	 * @param entity
-	 * @return true, if password policy attribute are valid, otherwise throw error
-	 */
-	private boolean validatePasswordPolicyAttributes(IdmPasswordPolicy entity) {
-		if (entity.getMaxPasswordLength() != 0 && entity.getMaxPasswordLength() < entity.getMinPasswordLength()) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_LENGTH_LOWER);
-		}
-		if (entity.getMaxPasswordLength() != 0 && (entity.getMinLowerChar() + entity.getMinNumber() + entity.getMinSpecialChar() + entity.getMinUpperChar() > 
-				entity.getMaxPasswordLength())) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER);
-		}
-		if (entity.getMaxPasswordAge() != 0 && entity.getMaxPasswordAge() < entity.getMinPasswordAge()) {
-			throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_AGE_LOWER);
-		}
-		// check minRulesToFulfill and rules
-		if (entity.isEnchancedControl()) {
-			// get number of not required rules and compare to minFulfill rules
-			int rules = getNotRequiredRules(entity);
-			//
-			// check with minRulesToFulfill
-			if (entity.getMinRulesToFulfill() > rules) {
-				throw new ResultCodeException(CoreResultCode.PASSWORD_POLICY_MAX_RULE, ImmutableMap.of("rules", rules));
-			}
-		}
-		return true;
+	@Override
+	@Transactional
+	public void delete(IdmPasswordPolicy entity) {
+		Assert.notNull(entity);
+		//
+		LOG.debug("Delete entity [{}]", entity.getName());
+		//
+		entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.DELETE, entity)).getContent();
 	}
 	
 	@Override
@@ -246,7 +240,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			}
 			
 			if (!notPassRules.isEmpty() && passwordPolicy.isEnchancedControl()) {
-				int notRequiredRules = getNotRequiredRules(passwordPolicy);
+				int notRequiredRules = passwordPolicy.getNotRequiredRules();
 				int missingRules = notRequiredRules - notPassRules.size();
 				if (missingRules - minRulesToFulfill < 0) {
 					errors.put(MIN_RULES_TO_FULFILL_COUNT, minRulesToFulfill - missingRules);
@@ -393,32 +387,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		}
 		return NumberUtils.toInt(object.toString());
 	}
-	
-	/**
-	 * Get how many rules in password policy isn't required
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	private int getNotRequiredRules(IdmPasswordPolicy entity) {
-		int rules = 0;
-		if (!entity.isLowerCharRequired()) {
-			rules++;
-		}
-		if (!entity.isNumberRequired()) {
-			rules++;
-		}
-		if (!entity.isPasswordLengthRequired()) {
-			rules++;
-		}
-		if (!entity.isSpecialCharRequired()) {
-			rules++;
-		}
-		if (!entity.isUpperCharRequired()) {
-			rules++;
-		}
-		return rules;
-	}
+
 
 	@Override
 	public IdmPasswordPolicy findOneByName(String name) {

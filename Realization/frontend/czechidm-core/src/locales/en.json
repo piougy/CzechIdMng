@@ -1125,7 +1125,7 @@
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
       "identityContracts": {
-        "header": "labor-law relationships",
+        "header": "Labor-law relationships",
         "title": "$t(content.identity.identityContracts.header)",
         "detail": {
           "invalidContract":"Detail neplatného PPV",

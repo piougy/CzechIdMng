@@ -58,6 +58,8 @@ class Confirm extends AbstractContextComponent {
       message,
       title,
       func
+    }, () => {
+      this.refs.yesButton.focus();
     });
     return promise;
   }
@@ -79,7 +81,7 @@ class Confirm extends AbstractContextComponent {
           </Modal.Body>
           <Modal.Footer>
             <Button level="link" onClick={this.reject.bind(this)}>{this.i18n('button.no')}</Button>
-            <Button level={level} onClick={this.confirm.bind(this)}>{this.i18n('button.yes')}</Button>
+            <Button ref="yesButton" level={level} onClick={this.confirm.bind(this)}>{this.i18n('button.yes')}</Button>
           </Modal.Footer>
         </Modal>
       </div>

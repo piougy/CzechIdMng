@@ -541,7 +541,8 @@ AdvancedTable.defaultProps = {
   showRowSelection: false,
   selectedRows: [],
   filterCollapsible: true,
-  actions: []
+  actions: [],
+  buttons: []
 };
 
 function select(state, component) {

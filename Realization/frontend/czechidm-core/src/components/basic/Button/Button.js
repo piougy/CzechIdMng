@@ -16,6 +16,10 @@ class Button extends AbstractComponent {
     super(props);
   }
 
+  focus() {
+    this.refs.button.focus();
+  }
+
   render() {
     const {
       level,
@@ -54,6 +58,7 @@ class Button extends AbstractComponent {
     return (
       <Tooltip placement={titlePlacement} value={title} delayShow={titleDelayShow}>
         <button
+          ref="button"
           type={type ? type : 'button'}
           disabled={disabled || showLoading}
           className={classNames}

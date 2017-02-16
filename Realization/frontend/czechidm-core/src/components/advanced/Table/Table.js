@@ -352,7 +352,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return (
       <div className="advanced-table" style={style}>
         {
-          !filter && (actions === null || actions.length === 0 || !showRowSelection)
+          !filter && (actions === null || actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
             <div className="advanced-table-heading">

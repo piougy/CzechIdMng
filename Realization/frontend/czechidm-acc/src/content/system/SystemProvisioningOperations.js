@@ -24,7 +24,9 @@ export default class SystemProvisioningOparationContent extends Basic.AbstractCo
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
 
+        <Basic.Panel className="no-border">
         <ProvisioningOperations uiKey="system-provisioning-operation-table" systemId={this.props.params.entityId}/>
+        </Basic.Panel>
       </div>
     );
   }

@@ -371,16 +371,16 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               <div className="pull-right">
                 { buttons }
                 {' '}
+                <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
+                {' '}
                 <Basic.Button
                   className="btn-xs"
                   title={ this.i18n('button.refresh') }
                   titlePlacement="bottom"
-                  showLoading={_showLoading}
-                  onClick={this.fetchEntities.bind(this, _searchParameters, this.props)}>
-                  <Basic.Icon value="fa:refresh" showLoading={_showLoading}/>
+                  showLoading={ _showLoading }
+                  onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }>
+                  <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
                 </Basic.Button>
-                {' '}
-                <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
               </div>
               <div className="clearfix"></div>
             </div>

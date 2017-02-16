@@ -845,7 +845,7 @@
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "Mapovací atribut hesla nenalezen",
-      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{entity}}] nalezen!"
+      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
       "title": "Provisioning - atribut není upravitelný",

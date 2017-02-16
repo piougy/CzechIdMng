@@ -8,9 +8,9 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.domain.SynchronizationItemWrapper;
 import eu.bcvsolutions.idm.acc.entity.SysSyncItemLog;
-import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -51,16 +51,11 @@ public class SynchronizationItemProcessor extends AbstractEntityEventProcessor<S
 		// Start in new Transaction
 		boolean result = synchronizationService.doItemSynchronization(itemWrapper);
 		event.getProperties().put(SynchronizationService.RESULT_SYNC_ITEM, result);
-		return new DefaultEventResult<>(event, this, false);
-	}
-	
-	@Override
-	public boolean isClosable() {
-		return true;
+		return new DefaultEventResult<>(event, this);
 	}
 
 	@Override
 	public int getOrder() {
-		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
+		return CoreEvent.DEFAULT_ORDER;
 	}
 }

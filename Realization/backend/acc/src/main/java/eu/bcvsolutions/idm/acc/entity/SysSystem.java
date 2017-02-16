@@ -82,7 +82,7 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	@OneToMany(mappedBy = "system")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private List<SysRoleSystem> roleSystems; // only for auditing - is not used (without getter and setter)
+	private List<SysRoleSystem> roleSystems; // only for hibernate mappnig - we dont want lazy lists
 	
 	@Audited
 	@Embedded

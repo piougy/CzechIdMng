@@ -145,8 +145,8 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 	
 	@Override
 	public boolean updateState() {
-		// TODO: interface only + AOP
-		if (service == null) {
+		// TODO: interface only + AOP => task can be ran directly without executor
+		if (service == null || taskId == null) {
 			return true;
 		}
 		service.updateState(taskId, count, counter);

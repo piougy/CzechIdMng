@@ -1,11 +1,14 @@
-
-
 import EntityManager from './EntityManager';
 import { IdentityContractService, IdentityService } from '../../services';
 
 const service = new IdentityContractService();
 const identityService = new IdentityService();
 
+/**
+ * Identity contracts
+ *
+ * @author Radek Tomiška
+ */
 export default class IdentityContractManager extends EntityManager {
 
   constructor() {

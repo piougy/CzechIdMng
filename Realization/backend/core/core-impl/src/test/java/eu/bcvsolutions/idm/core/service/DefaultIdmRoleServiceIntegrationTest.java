@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleGuarantee;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleGuaranteeRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -36,6 +37,8 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmIdentityRoleService identityRoleService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 	@Autowired
 	private IdmRoleService roleService;
 	@Autowired
@@ -95,7 +98,7 @@ public class DefaultIdmRoleServiceIntegrationTest extends AbstractIntegrationTes
 		roleService.save(role);
 		// assigned role
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(identityContractService.getContracts(identity).get(0));
 		identityRole.setRole(role);
 		identityRoleService.save(identityRole);
 		

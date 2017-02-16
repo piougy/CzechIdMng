@@ -35,35 +35,23 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 	private SysProvisioningBatchService provisioningBatchService;
 	//
 	private DateTime start;	
-	private Long count;	
-	private Long counter;
 	
 	@Override
 	public void init(Map<String, Object> properties) {
 		super.init(properties);
 		//
 		start = new DateTime();
-		counter = 0L;
 		LOG.debug("Retry provisioning executor was inintialized for all next attmepts old than [{}]", start);
-	}
-	
-	@Override
-	public Long getCount() {
-		return count;
-	}
-	
-	@Override
-	public Long getCounter() {
-		return counter;
 	}
 	
 	@Override
 	public Boolean process() {
 		LOG.info("Retry provisioning executor starts for all next attmepts old than [{}]", start);
+		counter = 0L;
 		boolean canContinue = true;
 		while(canContinue) {
 			// we process all batches
-			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 10));
+			Page<SysProvisioningBatch> batches = provisioningBatchService.findBatchesToRetry(start, new PageRequest(0, 100));
 			// init count
 			if (count == null) {
 				count = batches.getTotalElements();
@@ -82,6 +70,6 @@ public class RetryProvisioningTaskExecutor extends AbstractSchedulableTaskExecut
 			}
 		}
 		LOG.info("Retry provisioning executor ended for all next attmepts old than [{}]", start);
-		return true;
+		return Boolean.TRUE;
 	}
 }

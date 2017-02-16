@@ -13,6 +13,8 @@ import NavigationSeparator from './NavigationSeparator';
 
 /**
  * Top navigation
+ *
+ * @author Radek Tomiška
  */
 export class Navigation extends Basic.AbstractContent {
 
@@ -261,12 +263,12 @@ export class Navigation extends Basic.AbstractContent {
         {'hidden': environment === 'production'}
       );
       environmentLabel = (
-        <p className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
+        <div className="navbar-text hidden-xs" title={this.i18n('environment.' + environment + '.title', { defaultValue: environment })}>
           <span className={environmentClassName}>
             <span className="hidden-sm">{this.i18n('environment.' + environment + '.label', { defaultValue: environment })}</span>
             <span className="visible-sm-inline">{this.i18n('environment.' + environment + '.short', { defaultValue: environment })}</span>
           </span>
-        </p>
+        </div>
       );
     }
 
@@ -274,7 +276,7 @@ export class Navigation extends Basic.AbstractContent {
     let flags = null;
     if (supportedLanguages && supportedLanguages.length > 1) {
       flags = (
-        <p className="navbar-text hidden-xs">
+        <div className="navbar-text hidden-xs">
           <div className="flags-container">
             <div className="flags">
               {
@@ -293,7 +295,7 @@ export class Navigation extends Basic.AbstractContent {
               }
             </div>
           </div>
-        </p>
+        </div>
       );
     }
 

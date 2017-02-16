@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.test.api.AbstractIntegrationTest;
@@ -49,6 +50,9 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 
 	@Autowired
 	private IdmIdentityRoleRepository identityRoleRepository;
+	
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -232,7 +236,7 @@ public class DefaultAuditServiceTest extends AbstractIntegrationTest {
 		IdmRole role = roleService.save(constructRole("aud_test_role"));
 
 		IdmIdentityRole identityRole = new IdmIdentityRole();
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(identityContractService.getContracts(identity).get(0));
 		identityRole.setRole(role);
 		identityRoleRepository.save(identityRole);
 

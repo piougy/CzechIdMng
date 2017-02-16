@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 
@@ -21,14 +22,12 @@ import com.google.common.collect.Lists;
 import eu.bcvsolutions.idm.InitDemoData;
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
 import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.eav.entity.AbstractFormValue;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
-import eu.bcvsolutions.idm.core.eav.service.api.FormValueService;
-import eu.bcvsolutions.idm.core.eav.service.api.IdmFormAttributeService;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.api.IdmFormDefinitionService;
 import eu.bcvsolutions.idm.core.eav.service.impl.DefaultFormService;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
@@ -51,27 +50,18 @@ public class DefaultFormServiceItegrationTest extends AbstractIntegrationTest {
 	private final static String FORM_VALUE_FOUR = "four";
 	
 	@Autowired
+	private ApplicationContext context;
+	@Autowired
 	private IdmIdentityService identityService;
 	@Autowired
 	private IdmFormDefinitionService formDefinitionService;	
-	@Autowired
-	private IdmFormAttributeService formAttributeService;	
-	@Autowired
-	private EntityEventManager entityEventManager;
-	@Autowired
-	private List<? extends FormValueService<?, ?>> formValueServices;
-	
 	//
-	private DefaultFormService formService;
+	private FormService formService;
 	
 	@Before
 	public void init() {
 		loginAsAdmin(InitTestData.TEST_USER_1);
-		formService = new DefaultFormService(
-				formDefinitionService, 
-				formAttributeService, 
-				formValueServices, 
-				entityEventManager);
+		formService = context.getAutowireCapableBeanFactory().createBean(DefaultFormService.class);
 	}
 	
 	@After 

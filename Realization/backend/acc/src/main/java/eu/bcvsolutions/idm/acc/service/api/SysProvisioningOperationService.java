@@ -5,6 +5,7 @@ import java.util.Map;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.ic.api.IcAttribute;
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 
 /**
@@ -47,4 +48,22 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @param operation
 	 */
 	void handleSuccessful(SysProvisioningOperation operation);
+	
+	/**
+	 * Creates account object property key into confidential storage
+	 * 
+	 * @param property
+	 * @param index
+	 * @return
+	 */
+	String createAccountObjectPropertyKey(String property, int index);
+	
+	/**
+	 * Creates connector object property key into confidential storage
+	 * 
+	 * @param property
+	 * @param index
+	 * @return
+	 */
+	String createConnectorObjectPropertyKey(IcAttribute property, int index);
 }

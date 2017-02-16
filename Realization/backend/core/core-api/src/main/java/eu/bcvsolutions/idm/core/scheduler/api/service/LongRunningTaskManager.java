@@ -12,6 +12,11 @@ import eu.bcvsolutions.idm.core.scheduler.api.dto.LongRunningFutureTask;
  *
  */
 public interface LongRunningTaskManager {
+	
+	/**
+	 * Cancels all previously ran tasks
+	 */
+	void init();
 
 	/**
 	 * Executes given task asynchronously

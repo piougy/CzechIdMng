@@ -180,8 +180,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
                   <div className="col-lg-6">
                     <Advanced.Filter.SelectBox
                       ref="treeNodeId"
-                      placeholder="Prvek v organizační struktuře"
-                      label="Org. struktura"
+                      label={ this.i18n('content.identities.filter.organization.label') }
+                      placeholder={ this.i18n('content.identities.filter.organization.placeholder') }
                       forceSearchParameters={forceTreeNodeSearchParams}
                       manager={this.treeNodeManager}
                       onChange={this._changeTreeNode.bind(this)}/>

@@ -15,7 +15,6 @@ import org.springframework.util.Assert;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaAttributeFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SchemaObjectClassFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SynchronizationConfigFilter;
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.acc.repository.SysProvisioningArchiveRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemEntityRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemRepository;
 import eu.bcvsolutions.idm.acc.service.api.FormPropertyManager;
-import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaAttributeService;
 import eu.bcvsolutions.idm.acc.service.api.SysSchemaObjectClassService;
 import eu.bcvsolutions.idm.acc.service.api.SysSyncConfigService;
@@ -70,7 +68,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 	private final IcConfigurationFacade icConfigurationFacade;
 	private final SysSchemaObjectClassService objectClassService;
 	private final SysSchemaAttributeService attributeService;
-	private final SysRoleSystemService roleSystemService;
 	private final SysSystemEntityRepository systemEntityRepository;
 	private final AccAccountRepository accountRepository;
 	private final SysSyncConfigService synchronizationConfigService;
@@ -85,7 +82,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 			IcConfigurationFacade icConfigurationFacade, 
 			SysSchemaObjectClassService objectClassService,
 			SysSchemaAttributeService attributeService,
-			SysRoleSystemService roleSystemService,
 			SysSystemEntityRepository systemEntityRepository,
 			AccAccountRepository accountRepository,
 			SysSyncConfigService synchronizationConfigService,
@@ -97,7 +93,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		Assert.notNull(icConfigurationFacade);
 		Assert.notNull(objectClassService);
 		Assert.notNull(attributeService);
-		Assert.notNull(roleSystemService);
 		Assert.notNull(systemEntityRepository);
 		Assert.notNull(accountRepository);
 		Assert.notNull(synchronizationConfigService);
@@ -109,7 +104,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		this.icConfigurationFacade = icConfigurationFacade;
 		this.objectClassService = objectClassService;
 		this.attributeService = attributeService;
-		this.roleSystemService = roleSystemService;
 		this.systemEntityRepository = systemEntityRepository;
 		this.accountRepository = accountRepository;
 		this.synchronizationConfigService = synchronizationConfigService;
@@ -151,12 +145,6 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (accountRepository.countBySystem(system) > 0) {
 			throw new ResultCodeException(AccResultCode.SYSTEM_DELETE_FAILED_HAS_ACCOUNTS, ImmutableMap.of("system", system.getName()));
 		}
-		// delete mapped roles
-		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
-		roleSystemFilter.setSystemId(system.getId());
-		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
-			roleSystemService.delete(roleSystem);
-		});
 		SchemaObjectClassFilter filter = new SchemaObjectClassFilter();
 		filter.setSystemId(system.getId());	
 		objectClassService.find(filter, null).forEach(schemaObjectClass -> {

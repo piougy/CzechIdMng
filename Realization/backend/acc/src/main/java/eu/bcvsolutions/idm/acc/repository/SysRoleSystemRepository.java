@@ -34,6 +34,8 @@ public interface SysRoleSystemRepository extends AbstractEntityRepository<SysRol
 	        " where" +
 	        " (?#{[0].roleId} is null or e.role.id = ?#{[0].roleId})" +
 	        " and" +
-	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})")
+	        " (?#{[0].systemId} is null or e.system.id = ?#{[0].systemId})" +
+	        " and" +
+	        " (?#{[0].systemMappingId} is null or e.systemMapping.id = ?#{[0].systemMappingId})")
 	Page<SysRoleSystem> find(RoleSystemFilter filter, Pageable pageable);
 }

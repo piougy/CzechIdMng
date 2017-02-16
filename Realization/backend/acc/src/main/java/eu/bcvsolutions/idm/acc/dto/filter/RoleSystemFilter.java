@@ -15,6 +15,8 @@ public class RoleSystemFilter implements BaseFilter {
 	private UUID roleId;
 	
 	private UUID systemId;
+	
+	private UUID systemMappingId;
 
 	public UUID getRoleId() {
 		return roleId;
@@ -32,4 +34,11 @@ public class RoleSystemFilter implements BaseFilter {
 		this.systemId = systemId;
 	}
 	
+	public UUID getSystemMappingId() {
+		return systemMappingId;
+	}
+	
+	public void setSystemMappingId(UUID systemMappingId) {
+		this.systemMappingId = systemMappingId;
+	}	
 }

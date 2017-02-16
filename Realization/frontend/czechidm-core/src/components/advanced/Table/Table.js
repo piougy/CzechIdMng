@@ -371,6 +371,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               <div className="pull-right">
                 { buttons }
                 {' '}
+                <Basic.Button
+                  className="btn-xs"
+                  title={ this.i18n('button.refresh') }
+                  titlePlacement="bottom"
+                  showLoading={_showLoading}
+                  onClick={this.fetchEntities.bind(this, _searchParameters, this.props)}>
+                  <Basic.Icon value="fa:refresh" showLoading={_showLoading}/>
+                </Basic.Button>
+                {' '}
                 <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
               </div>
               <div className="clearfix"></div>
@@ -516,6 +525,9 @@ AdvancedTable.propTypes = {
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _total: PropTypes.number,
+  /**
+   * Persisted / used search parameters in redux
+   */
   _searchParameters: PropTypes.object
 };
 AdvancedTable.defaultProps = {

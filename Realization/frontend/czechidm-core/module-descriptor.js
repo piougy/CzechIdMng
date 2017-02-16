@@ -135,7 +135,7 @@ module.exports = {
         'labelKey': 'content.organizations.header',
         'titleKey': 'content.organizations.title',
         'icon': 'tree-deciduous',
-        'order': 1050,
+        'order': 1020,
         'iconColor': '#419641',
         'path': '/organizations',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
@@ -154,7 +154,7 @@ module.exports = {
         'titleKey': 'content.roles.title',
         'icon': 'fa:universal-access',
         'iconColor': '#eb9316',
-        'order': 1020,
+        'order': 1030,
         'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [

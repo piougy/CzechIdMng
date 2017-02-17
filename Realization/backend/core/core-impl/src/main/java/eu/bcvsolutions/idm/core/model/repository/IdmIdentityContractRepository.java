@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.repository;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,8 +77,8 @@ public interface IdmIdentityContractRepository extends AbstractEntityRepository<
 	 * @return
 	 */
 	@Modifying
-	@Query("update #{#entityName} e set e.guarantee = null where e.guarantee = :identity")
-	int clearGuarantee(@Param("identity") IdmIdentity identity);
+	@Query("update #{#entityName} e set e.guarantee = null, e.modified = :modified where e.guarantee = :identity")
+	int clearGuarantee(@Param("identity") IdmIdentity identity, @Param("modified") DateTime modified);
 	
 	/**
 	 * Returns expired contracts

@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.model.service.impl;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -96,7 +97,7 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	@Override
 	@Transactional
 	public int clearGuarantee(IdmIdentity identity) {
-		return repository.clearGuarantee(identity);
+		return repository.clearGuarantee(identity, new DateTime());
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { routeActions } from 'react-router-redux';
-import moment from 'moment';
+// import moment from 'moment';
 // api
 import { LocalizationService, AuthenticateService } from '../../services';
 // import SecurityManager from '../Security/SecurityManager';

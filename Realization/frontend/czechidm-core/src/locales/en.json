@@ -167,7 +167,7 @@
       "logout": "Log Out",
       "system": "Settings",
       "workflow": {
-        "definitions": "Workflows definition",
+        "definitions": "Workflow definitions",
         "historicProcess": "Workflow history",
         "title": "Workflow"
       },
@@ -210,7 +210,7 @@
         "processed": "Processed"
       },
       "Dropzone": {
-        "infoText": "Drag files here, or click for select dialog."
+        "infoText": "Drag files here, or click to select files."
       },
       "TextField": {
         "confidential": {
@@ -398,7 +398,7 @@
   },
  "dashboard": {
     "profileDashboard" : {
-      "header": "Your basic informations",
+      "header": "Your basic information",
       "goToProfil": "Go to profile detail"
     }
   },
@@ -510,17 +510,17 @@
         }
       },
       "change": {
-        "header": "Password change",
-        "title": "Password change",
+        "header": "Change password",
+        "title": "Change password",
         "passwordOld": "Old password",
         "password": "New password",
-        "passwordChangeTooltip": "Password strength",
+        "passwordChangeTooltip": "Password strength:",
         "passwordAgain": {
-          "label": "New password againg",
+          "label": "Re-enter new password",
           "placeholder": "Password again"
         },
         "button": {
-          "passwordChange": "Password change"
+          "passwordChange": "Change password"
         },
         "message": {
           "passwordChange": {
@@ -555,11 +555,11 @@
       }
     },
     "passwordPolicies": {
-      "header": "Password policy",
-      "title": "Password policy",
+      "header": "Password policies",
+      "title": "Password policies",
       "edit": {
-        "header": "Password policy config detail",
-        "title": "Password policy config detail"
+        "header": "Password policy config details",
+        "title": "Password policy config details"
       },
       "basic": {
         "header": "Basic info",
@@ -700,13 +700,13 @@
           "title": "Unresolved tasks"
         },
         "instance": {
-          "header": "Task detail",
-          "title": "Task detail",
+          "header": "Task details",
+          "title": "Task details",
           "name": "Activity name",
           "description": "Task name",
-          "createdDate": "Task created",
+          "createdDate": "Created on",
           "applicantFullName": "Applicant name",
-          "applicant": "Applicant",
+          "applicant": "Requested for",
           "successComplete": "The task {{name}} was successfully solved.",
           "completeTaskConfirmTitle": "Confirmation of task completion",
           "completeTaskConfirmDetail": "o you really want this task to terminate?",
@@ -716,7 +716,7 @@
           }
         },
         "DefaultTaskDetail": {
-          "applicant": "Applicant",
+          "applicant": "Requested for",
           "createdDate": "Created date",
           "approvers": "Approvers of this task",
           "note": "$t(entity.ApprovalTask.note)",
@@ -770,7 +770,7 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, surname, name, email or description"
+          "placeholder": "Username, surname, name, e-mail or description"
         },
         "organization": {
           "label": "Org. structure",
@@ -847,11 +847,11 @@
       "title": "Roles"
     },
     "roleCatalogues": {
-      "header": "Roles catalogue",
-      "title": "Roles catague",
+      "header": "Role catalogs",
+      "title": "Role catalogs",
       "edit": {
-        "title": "Folder detail",
-        "header": "{{name}} folder detail"
+        "title": "Folder details",
+        "header": "{{name}} folder details"
       },
       "create": {
         "header": "New folder",
@@ -865,8 +865,8 @@
       "addRoleCatalogue": "Add now folder"
     },
     "scripts": {
-      "header": "Rules definition",
-      "header": "Rules definition",
+      "header": "Rule definitions",
+      "header": "Rule definitions",
       "edit": {
         "title": "Rule detail",
         "header": "{{name}} rule detail"
@@ -886,8 +886,8 @@
       "header": "Roles",
       "title": "Roles",
       "edit": {
-        "title": "Role detail",
-        "header": "{{name}} detail"
+        "title": "Role details",
+        "header": "{{name}} details"
       },
       "roleCataloguePick": "Select catalog",
       "create": {
@@ -899,7 +899,7 @@
       "processRoleChange": {
         "roleName": "Role name",
         "roleValidFrom": "Role valid from",
-        "roleValidTill": "Role valid till",
+        "roleValidTill": "Role valid to",
         "currentActivity": "application status"
       },
       "processPermissionChange": {
@@ -929,7 +929,7 @@
         }
       },
       "tabs": {
-        "basic": "Basic  informations"
+        "basic": "Basic  information"
       },
       "delete": {
         "identityAssigned": {
@@ -947,8 +947,8 @@
    "identity": {
       "sidebar": {
         "profile": "Personal data",
-        "password": "Password change",
-        "roles": "Assigned roles",
+        "password": "Change password",
+        "roles": "Manage roles",
         "accounts": "Accounts on systems",
         "approve": "Schvaluji role",
         "subordinates": "Subordinates",
@@ -957,8 +957,8 @@
       },
      "profile": {
         "header": "Personal data",
-        "title": "Můj profil",
-        "userDetail": "User detail",
+        "title": "My profile",
+        "userDetail": "User details",
         "username": "$t(entity.Identity.username)",
         "lastName": "$t(entity.Identity.lastName)",
         "firstName": "$t(entity.Identity.firstName)",
@@ -1036,7 +1036,7 @@
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
         "changePermissionProcesses": {
-          "header": "Change permissions requests"
+          "header": "Change permission requests"
         },
         "create": {
           "header": "Přiřazení nové role",
@@ -1044,7 +1044,7 @@
           "accepted": "Role [{{role}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Role musí býti před přiřazením nejdříve schválena."
         },
         "edit": {
-          "header": "{{role}} <small>assignment detail</small>",
+          "header": "{{role}} <small>assignment details</small>",
           "success": "Role [{{role}}] uživatele [{{username}}] byla úspěšně upravena."
         },
         "delete": {
@@ -1061,10 +1061,10 @@
         "header": "Password change",
         "title": "Password change",
         "password": {
-          "old": "Původní heslo",
-          "new": "Nové heslo",
-          "newAgain": "Heslo znovu",
-          "strength": "Síla hesla"
+          "old": "Current password",
+          "new": "New password",
+          "newAgain": "Re-enter new password",
+          "strength": "Password strength:"
         },
         "changeType": {
           "DISABLED": "Změna hesla není na tomto prostředí povolena.",
@@ -1078,7 +1078,7 @@
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
-          "isAdmin": "You are logged as administrator. Original password is not required for password change. Password can be change on selected accounts. Number of changes is not limited."
+          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected accounts. Number of changes is not limited."
         },
         "button": {
           "change": "Change password"
@@ -1125,7 +1125,7 @@
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
       "identityContracts": {
-        "header": "Labor-law relationships",
+        "header": "Employment relationships",
         "title": "$t(content.identity.identityContracts.header)",
         "detail": {
           "invalidContract":"Detail neplatného PPV",
@@ -1141,7 +1141,7 @@
           "accepted": "Pozice [{{position}}] pro uživatele [{{username}}] byla úspěšně předána ke zpracování. Pozice musí býti před přiřazením nejdříve schválena."
         },
         "edit": {
-          "header": "{{position}} <small>detail přiřazené pozice</small>",
+          "header": "{{position}} <small>Position details</small>",
           "success": "Pozice [{{position}}] uživatele [{{username}}] byla úspěšně upravena."
         },
         "delete": {
@@ -1160,7 +1160,7 @@
           "add": " Create user"
         },
         "message": {
-          "success": "Uživatel [{{username}}] byl úspěšně vytvořen."
+          "success": "User [{{username}}] was successfully created."
         }
       },
       "delegates": {
@@ -1199,8 +1199,8 @@
         "title": "$t(content.identity.subordinates.header)"
       },
       "eav": {
-        "header": "More informations",
-        "title": "More informations",
+        "header": "More information",
+        "title": "More information",
         "save": {
           "success": "Údaje identity [{{name}}] byly úspěšně uloženy."
         },
@@ -1209,8 +1209,8 @@
         }
       },
       "garanted-roles": {
-        "header": "Garant of roles <small>User is garant of these roles</small>",
-        "title": "Garant of roles"
+        "header": "Authorizer <small>User is authorizer of these roles</small>",
+        "title": "Authorize roles"
       }
     },
     "organizations": {
@@ -1298,12 +1298,12 @@
             "success": "Nová úloha [{{record}}] byla úspěšně vytvořena."
           },
           "task-edit": {
-            "header": "Task detail",
+            "header": "Task details",
             "success": "Task [{{record}}] was successfully updated.",
             "parameters": "Task parameters"
           },
           "task-run": {
-            "success": "Úloha [{{record}}] byla úspěšně spuštěna."
+            "success": "Úloha [{{record}}] was successfully started."
           },
           "task-delete": {
             "header": "Odebrat úlohu",
@@ -1311,7 +1311,7 @@
             "success": "Úloha [{{record}}] byla úspěšně odebrána."
           },
           "save": {
-            "success": "Uložení úlohy [{{record}}] úspěšně proběhlo."
+            "success": "Task [{{record}}] was successfully saved ."
           }
         }
       },
@@ -1341,7 +1341,7 @@
           }
         },
         "detail": {
-          "header": "Task detail",
+          "header": "Task details",
           "result": "Result",
           "resultCode": "Code"
         },
@@ -1385,10 +1385,10 @@
       }
     },
     "notification": {
-      "headerNew": "Notifikace",
-      "header": "Detail notifikace",
-      "title": "Detail notifikace",
-      "titleNew": "Notifikace",
+      "headerNew": "Notification",
+      "header": "Notification details",
+      "title": "Notification details",
+      "titleNew": "Notification",
       "relatedNotifications": "Záznamy při odeslání",
       "label": {
         "notSent": "Neodesláno",
@@ -1403,8 +1403,8 @@
       "title": "E-mails history"
     },
     "email": {
-      "header": "Detail emailu",
-      "title": "Detail emailu",
+      "header": "E-mail details",
+      "title": "E-mail details",
       "relatedNotifications": "Záznamy při odeslání",
       "label": {
         "notSent": "Neodesláno",
@@ -1416,15 +1416,15 @@
       "title": "Websocket history"
     },
     "websocket": {
-      "header": "Detail websocket zprávy",
-      "title": "Detail websocket zprávy"
+      "header": "Websocket message details",
+      "title": "Websocket message details"
     },
     "notificationConfigurations": {
       "label": "Configuration",
       "header": "Notifications configuration",
       "title": "Notifications configuration",
       "edit": {
-        "header": "{{name}} <small>detail položky konfigurace</small>"
+        "header": "{{name}} <small>item configuration details</small>"
       },
       "create": {
         "header": "New configuration item"
@@ -1435,18 +1435,18 @@
     },
     "workflow" : {
       "definition": {
-        "title": "Detail workflow definice",
-        "header": "Detail workflow definice",
+        "title": "Workflow definition details",
+        "header": "Workflow definition details",
         "name": "Name",
         "key": "Key",
         "version": "Version",
         "description": "Description",
-        "resourceName": "Název zdroje",
-        "category": "Kategorie",
-        "diagramResourceName": "Název schéma",
-        "deploymentId": "ID deploymentu",
-        "resourceName": "Source name",
-        "id":"Identifikátor",
+        "resourceName": "Resource name",
+        "category": "Category",
+        "diagramResourceName": "Schmena name",
+        "deploymentId": "Deployment ID",
+        "resourceName": "Resource name",
+        "id":"Identificator",
         "diagram": "Process preview",
         "fullscreenDiagram": "Process preview"
       },
@@ -1471,8 +1471,8 @@
         "process":{
           "title": "History of workflow process",
           "header": "History of workflow process",
-          "diagram": "Diagram of process",
-          "fullscreenDiagram": "Diagram of process",
+          "diagram": "Process diagram",
+          "fullscreenDiagram": "Process diagram",
           "startTime": "$t(entity.WorkflowHistoricProcessInstance.startTime)",
           "endTime": "$t(entity.WorkflowHistoricProcessInstance.endTime)",
           "deleteReason": "$t(entity.WorkflowHistoricProcessInstance.deleteReason)",
@@ -1482,7 +1482,7 @@
           "id": "$t(entity.WorkflowHistoricProcessInstance.id)",
           "applicant": "$t(entity.WorkflowHistoricProcessInstance.applicant)",
           "tasks": "User tasks in  process",
-          "subprocesses": "Sub processes",
+          "subprocesses": "Sub-processes",
           "filter": {
             "processDefinition":{
               "label": "Definition",
@@ -1513,7 +1513,7 @@
       "date": "Date of change",
       "empty": "Without records",
       "pickRevision": "Select revision",
-      "detail": "detail",
+      "detail": "Revision details",
       "id": "ID",
       "noPreviousRevision": "No previous revision",
       "profile": {
@@ -1558,11 +1558,11 @@
       "phone": "Phone",
       "description": "Description",
       "password": "Password",
-      "passwordAgain": "Heslo znovu",
-      "homeOrganisation": "Domovská organizace",
+      "passwordAgain": "Re-enter password",
+      "homeOrganisation": "Home organization",
       "disabled": "Inactive",
-      "internist": "Internist",
-      "externe": "Externist",
+      "internist": "Employee",
+      "externe": "Contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after"
     },
@@ -1594,19 +1594,19 @@
       "_type": "Role",
       "name": "Role name",
       "roleType": "Role type",
-      "priority": "Criticality",
-      "priorityEnum": "Criticality level",
+      "priority": "Priority",
+      "priorityEnum": "Priority level",
       "disabled": "Inactive",
-      "approvable": "Approvable",
+      "approvable": "Approval required",
       "superiorRoles": "Superior roles",
-      "subRoles": "Sub roles",
+      "subRoles": "Subordinate roles",
       "authorities": "Oprávnění",
-      "approveAddWorkflow": "Assignment approval (WF)",
-      "approveRemoveWorkflow": "Withdrawal approval (WF)",
-      "description": "Description",
-      "guarantees": "Role guarantes",
-      "roleCatalogue": {
-        "name": "Catalogue"
+      "approveAddWorkflow": "Assign approval (WF)",
+      "approveRemoveWorkflow": "Remove approval (WF)",
+      "description": "Role description",
+      "guarantees": "Role authorizers",
+      "roleCatalog": {
+        "name": "Catalog"
       }
     },
     "IdentityRole": {
@@ -1620,8 +1620,8 @@
     },
     "IdentityAccount": {
       "attribute": {
-        "name": "Atribut",
-        "value": "Hodnota"
+        "name": "Atributte",
+        "value": "Value"
       }
     },
     "Attachment": {
@@ -1636,26 +1636,26 @@
       "taskId": "Identifikátor",
       "taskName": "Task name",
       "createdDate": "Created",
-      "closedDate": "Ukončeno",
+      "closedDate": "Closed",
       "relatedTaskId": "ID WF instance",
       "approvedBy": "Schválil",
-      "taskState": "Stav",
-      "note": "Poznámka"
+      "taskState": "State",
+      "note": "Note"
     },
     "IdentityContract": {
-      "_type": "Work positions",
+      "_type": "Positions",
       "id": "Internal position ID",
-      "treeType": "Typ struktury",
+      "treeType": "Structure type",
       "workingPosition": "Position",
       "position": "Work position",
       "identity": "User",
       "validFrom": "Valid from",
       "validTill": "Valid to",
-      "guarantee": "Garant",
-      "externe": "Externist",
+      "guarantee": "Authorizer",
+      "externe": "Contractor",
       "managers": {
-        "label": "Garant / Manager",
-        "title": "Přiřazený garant a všichni vedoucí dle přiřazené pozice ve struktuře"
+        "label": "Authorizer",
+        "title": "Authorizer and all managers for position in structure"
       }
     },
     "TreeNode": {
@@ -1698,33 +1698,33 @@
     },
     "WorkflowTaskInstance": {
       "taskDescription": "Task subject",
-      "taskCreated": "Creation date",
+      "taskCreated": "Created on",
       "id": "task ID"
     },
     "WorkflowHistoricProcessInstance": {
       "name": "Name",
-      "startTime": "Creation date",
-      "endTime": "End date",
+      "startTime": "Created on",
+      "endTime": "Ends on",
       "startActivityId": "Started by activity",
       "deleteReason": "Reason for deletion",
       "superProcessInstanceId": "Parent process ID",
       "id": "ID",
-      "applicant": "Applicant"
+      "applicant": "Requested for"
     },
     "WorkflowHistoricTaskInstance": {
-      "name": "Název",
+      "name": "Task name",
       "startTime": "Creation date",
-      "endTime": "End date",
-      "assignee": "Assigned (solved by)",
-      "deleteReason": "Method of termination",
+      "endTime": "Ends on",
+      "assignee": "Assigned by",
+      "deleteReason": "Completed",
       "id": "ID",
       "priority": "Priority",
-      "createTime": "Creation date",
-      "completeTaskDecision": "Decision",
-      "candicateUsers": "Approvers"
+      "createTime": "Created on",
+      "completeTaskDecision": "Result",
+      "candicateUsers": "Authorizers"
     },
     "Notification": {
-      "topic": "Téma / Topic",
+      "topic": "Subject",
       "created": "$t(entity.created)",
       "message": {
         "level": "Level",
@@ -1743,8 +1743,8 @@
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
-      "level": "Typ notifikace",
-      "notificationType": "Kanál"
+      "level": "Type",
+      "notificationType": "Channel"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -1791,8 +1791,8 @@
     "Audit": {
       "label": "Audit",
       "id": "Revision ID",
-      "modification": "Modification type",
-      "modifier": "Action executor",
+      "modification": "Action",
+      "modifier": "Executed by",
       "revisionDate": "Date of revision",
       "changedAttributes": "Changed attributes",
       "type": "Entity type",
@@ -2109,7 +2109,7 @@
       "min_1" : "Zadejte minimálně jeden znak!",
       "min_2" : "Zadejte minimálně dva znaky!",
       "min_5" : "Zadejte minimálně {{count}} znaků!",
-      "base" : "Entry is requred!",
+      "base" : "Required field!",
       "email": "Formát emailu není validní!",
       "max_1" : "Zadejte maximálně {{count}} znak!",
       "max_2" : "Zadejte maximálně {{count}} znaky!",
@@ -2119,7 +2119,7 @@
       "base": "$t(validationError.string.base)"
     },
     "any": {
-      "allowOnly": "Entry is requred!",
+      "allowOnly": "Required field!",
       "empty" : "$t(validationError.string.base)"
     },
     "object" : {

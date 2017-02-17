@@ -274,18 +274,20 @@ export default class FlashMessagesManager {
   _prepareParams(params, defaultMessage) {
     let results = {};
     if (params) {
-      // iterate over all params do necessary converts TODO: add other converts
-      for (const key in params) {
-        if (params.hasOwnProperty(key)) {
-          if (!isNaN(Number(params[key]))) {
-            // nothing, just number
-          } else if (!isNaN(new Date(params[key])) && params) {
-            // convert to date
-            const date = moment(new Date(params[key]));
-            params[key] = date.format(LocalizationService.i18n('format.date'));
-          }
-        }
-      }
+      // iterate over all params do necessary converts
+      // TODO converter for date
+      // for (const key in params) {
+      //   if (params.hasOwnProperty(key)) {
+      //     console.log(params[key], 111);
+      //     if (!isNaN(Number(params[key]))) {
+      //       // nothing, just number
+      //     } else if (params[key] instanceof Date && !isNaN(new Date(params[key])) && params) {
+      //       // convert to date
+      //       const date = moment(new Date(params[key]));
+      //       params[key] = date.format(LocalizationService.i18n('format.date'));
+      //     }
+      //   }
+      // }
       results = _.merge({}, params);
     }
     if (defaultMessage) {

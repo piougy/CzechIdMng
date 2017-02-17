@@ -234,7 +234,7 @@ export class AuditTable extends Basic.AbstractContent {
           />
           <Advanced.Column property="modifier" sort face="text" rendered={_.includes(columns, 'modifier')}/>
           <Advanced.Column property="timestamp" header={this.i18n('entity.Audit.revisionDate')} sort face="datetime" rendered={_.includes(columns, 'revisionDate')}/>
-          <Advanced.Column
+          <Advanced.Column hidden
             property="changedAttributes"
             rendered={_.includes(columns, 'changedAttributes')}
             cell={
@@ -243,7 +243,7 @@ export class AuditTable extends Basic.AbstractContent {
               }
             }
           />
-          <Advanced.Column
+        <Advanced.Column hidden
             property="modifiedEntityNames" sort
             rendered={_.includes(columns, 'modifiedEntityNames')}
             cell={
@@ -272,7 +272,7 @@ AuditTable.propTypes = {
 };
 
 AuditTable.defaultProps = {
-  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId', 'changedAttributes'],
+  columns: ['id', 'type', 'modification', 'modifier', 'revisionDate', 'entityId'],
   isDetail: false,
   tableUiKey: 'audit-table'
 };

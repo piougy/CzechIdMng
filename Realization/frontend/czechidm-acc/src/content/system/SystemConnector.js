@@ -53,14 +53,18 @@ class SystemConnectorContent extends Basic.AbstractContent {
     this.context.router.push(`/system/${entityId}/detail`);
   }
 
-  saveConnector(event) {
+  saveConnector(value, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    //
     if (!this.refs.formConnector.isFormValid()) {
       return;
     }
     //
     const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
 
-    const data = event.value;
+    const data = value.value;
 
     if (data === null) {
       return;
@@ -205,7 +209,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     } else {
       // connector setting is ready
       content = (
-        <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this)}>
+        <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
           <Basic.PanelBody>
             <Advanced.EavForm ref="eav" formInstance={formInstance}/>
           </Basic.PanelBody>

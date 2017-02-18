@@ -279,7 +279,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')}>
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="form-horizontal">
+                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading}>
                   <Basic.Checkbox
                     ref="enabled"
                     label={this.i18n('acc:entity.SynchronizationConfig.enabled')}/>
@@ -390,7 +390,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
           <Basic.Tab eventKey={2} title={this.i18n('tabs.filterConfiguration.label')}>
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading} className="form-horizontal">
+                <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading}>
                   <Basic.Checkbox
                     ref="customFilter"
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}

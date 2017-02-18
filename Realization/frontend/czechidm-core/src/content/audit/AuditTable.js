@@ -84,7 +84,7 @@ export class AuditTable extends Basic.AbstractContent {
   _getAdvancedFilter(auditedEntities, showLoading, columns) {
     return (
       <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-        <Basic.AbstractForm ref="filterForm" className="form-horizontal" showLoading={showLoading}>
+        <Basic.AbstractForm ref="filterForm" showLoading={showLoading}>
           <Basic.Row>
             {
               !_.includes(columns, 'revisionDate')
@@ -93,8 +93,7 @@ export class AuditTable extends Basic.AbstractContent {
                 <Advanced.Filter.DateTimePicker
                   mode="date"
                   ref="from"
-                  placeholder={this.i18n('filter.dateFrom.placeholder')}
-                  label={this.i18n('filter.dateFrom.label')}/>
+                  placeholder={this.i18n('filter.dateFrom.placeholder')}/>
               </div>
             }
             {
@@ -104,15 +103,14 @@ export class AuditTable extends Basic.AbstractContent {
                 <Advanced.Filter.DateTimePicker
                   mode="date"
                   ref="till"
-                  placeholder={this.i18n('filter.dateTill.placeholder')}
-                  label={this.i18n('filter.dateTill.label')}/>
+                  placeholder={this.i18n('filter.dateTill.placeholder')}/>
               </div>
             }
             <div className="col-lg-4 text-right">
               <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
             </div>
           </Basic.Row>
-          <Basic.Row>
+          <Basic.Row className={!_.includes(columns, 'entityId') ? 'last' : ''}>
             {
               !_.includes(columns, 'type')
               ||
@@ -120,7 +118,6 @@ export class AuditTable extends Basic.AbstractContent {
                 <Advanced.Filter.EnumSelectBox
                   ref="type"
                   placeholder={this.i18n('entity.Audit.type')}
-                  label={this.i18n('entity.Audit.type')}
                   options={auditedEntities}/>
               </div>
             }
@@ -131,7 +128,6 @@ export class AuditTable extends Basic.AbstractContent {
                 <Advanced.Filter.EnumSelectBox
                   ref="modification"
                   placeholder={this.i18n('entity.Audit.modification')}
-                  label={this.i18n('entity.Audit.modification')}
                   enum={AuditModificationEnum}/>
               </div>
             }
@@ -142,24 +138,22 @@ export class AuditTable extends Basic.AbstractContent {
                 <Advanced.Filter.TextField
                   className="pull-right"
                   ref="modifier"
-                  label={this.i18n('entity.Audit.modifier')}
                   placeholder={this.i18n('entity.Audit.modifier')}
                   returnProperty="username"/>
               </div>
             }
           </Basic.Row>
-          <Basic.Row className="last">
-            {
-              !_.includes(columns, 'entityId')
-              ||
+          {
+            !_.includes(columns, 'entityId')
+            ||
+            <Basic.Row className="last">
               <div className="col-lg-4">
                 <Advanced.Filter.TextField
                   ref="entityId"
-                  label={this.i18n('entity.Audit.entityId')}
                   placeholder={this.i18n('entity.Audit.entityId')}/>
               </div>
-            }
-          </Basic.Row>
+            </Basic.Row>
+          }
         </Basic.AbstractForm>
       </Advanced.Filter>
     );

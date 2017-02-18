@@ -119,7 +119,7 @@ PasswordStrength.propTypes = {
 };
 
 PasswordStrength.defaultProps = {
-  spanClassName: 'col-sm-offset-3 col-sm-8',
+  spanClassName: null,
   triggerForTooltip: ['hover'],
   placementForTooltip: 'right',
   initialStrength: 0,

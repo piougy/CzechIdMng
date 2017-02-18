@@ -59,21 +59,19 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
         filterOpened={filterOpened}
         filter={
           <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-            <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+            <Basic.AbstractForm ref="filterForm">
               <Basic.Row>
                 <div className="col-lg-4">
                   <Advanced.Filter.DateTimePicker
                     mode="date"
                     ref="from"
-                    placeholder={this.i18n('filter.dateFrom.placeholder')}
-                    label={this.i18n('filter.dateFrom.label')}/>
+                    placeholder={this.i18n('filter.dateFrom.placeholder')}/>
                 </div>
                 <div className="col-lg-4">
                   <Advanced.Filter.DateTimePicker
                     mode="date"
                     ref="till"
-                    placeholder={this.i18n('filter.dateTill.placeholder')}
-                    label={this.i18n('filter.dateTill.label')}/>
+                    placeholder={this.i18n('filter.dateTill.placeholder')}/>
                 </div>
                 <div className="col-lg-4 text-right">
                   <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -84,13 +82,13 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
                     ref="resultState"
-                    label={this.i18n('acc:entity.ProvisioningOperation.resultState')}
+                    placeholder={this.i18n('acc:entity.ProvisioningOperation.resultState')}
                     enum={Enums.OperationStateEnum}/>
                 </div>
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
                     ref="operationType"
-                    label={this.i18n('acc:entity.ProvisioningOperation.operationType')}
+                    placeholder={this.i18n('acc:entity.ProvisioningOperation.operationType')}
                     enum={ProvisioningOperationTypeEnum}/>
                 </div>
                 <div className="col-lg-4">
@@ -99,7 +97,7 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                     ||
                     <Advanced.Filter.SelectBox
                       ref="systemId"
-                      label={this.i18n('acc:entity.System._type')}
+                      placeholder={this.i18n('acc:entity.System._type')}
                       multiSelect={false}
                       manager={systemManager}/>
                   }
@@ -110,20 +108,18 @@ export default class ProvisioningOperationTable extends Basic.AbstractContent {
                 <div className="col-lg-4">
                   <Advanced.Filter.EnumSelectBox
                     ref="entityType"
-                    label={this.i18n('acc:entity.SystemEntity.entityType')}
+                    placeholder={this.i18n('acc:entity.SystemEntity.entityType')}
                     enum={SystemEntityTypeEnum}/>
                 </div>
                 <div className="col-lg-4">
                   <Advanced.Filter.TextField
                     ref="entityIdentifier"
-                    placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}
-                    label={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
+                    placeholder={this.i18n('acc:entity.ProvisioningOperation.entityIdentifier')}/>
                 </div>
                 <div className="col-lg-4">
                   <Advanced.Filter.TextField
                     ref="systemEntityUid"
-                    placeholder={this.i18n('acc:entity.SystemEntity.uid')}
-                    label={this.i18n('acc:entity.SystemEntity.uid')}/>
+                    placeholder={this.i18n('acc:entity.SystemEntity.uid')}/>
                 </div>
               </Basic.Row>
             </Basic.AbstractForm>

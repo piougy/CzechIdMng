@@ -83,10 +83,10 @@ class IdentityEav extends Basic.AbstractContent {
     } else {
       // connector setting is ready
       content = (
-        <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this)}>
-          <Basic.PanelBody>
-            <Advanced.EavForm ref="eav" formInstance={formInstance} readOnly={!canEditMap.get('isSaveEnabled')}/>
-          </Basic.PanelBody>
+        <form className="abstract-form" onSubmit={this.save.bind(this)}>
+
+          <Advanced.EavForm ref="eav" formInstance={formInstance} readOnly={!canEditMap.get('isSaveEnabled')}/>
+
           <Basic.PanelFooter rendered={canEditMap.get('isSaveEnabled')}>
             <Basic.Button
               type="submit"

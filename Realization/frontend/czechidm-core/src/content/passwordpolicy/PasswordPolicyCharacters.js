@@ -136,46 +136,46 @@ class PasswordPolicyCharacters extends Basic.AbstractContent {
       <div>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-          <Basic.PanelHeader text={this.i18n('content.passwordPolicies.characters.title')} />
-          <Basic.PanelBody>
-          <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
-            <Basic.TextField ref="prohibitedCharacters"
-              helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
-              label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
+            <Basic.PanelHeader text={this.i18n('content.passwordPolicies.characters.title')} />
+            <Basic.PanelBody style={{ padding: 0 }}>
+              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+                <Basic.TextField ref="prohibitedCharacters"
+                  helpBlock={this.i18n('entity.PasswordPolicy.help.prohibitedCharacters')}
+                  label={this.i18n('entity.PasswordPolicy.prohibitedCharacters')} />
 
-            <Basic.Checkbox ref="weakPassRequired" hidden
-              label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
-            <Basic.TextField ref="weakPass" hidden
-              label={this.i18n('entity.PasswordPolicy.weakPass')} />
+                <Basic.Checkbox ref="weakPassRequired" hidden
+                  label={this.i18n('entity.PasswordPolicy.weakPassRequired')}/>
+                <Basic.TextField ref="weakPass" hidden
+                  label={this.i18n('entity.PasswordPolicy.weakPass')} />
 
-            <Basic.LabelWrapper label=" ">
-              <Basic.Alert
-                className="no-margin"
-                icon="exclamation-sign"
-                key="situationActionsAndWfInfo"
-                text={this.i18n('entity.PasswordPolicy.help.bases')} />
-            </Basic.LabelWrapper>
+                <Basic.LabelWrapper label=" ">
+                  <Basic.Alert
+                    className="no-margin"
+                    icon="exclamation-sign"
+                    key="situationActionsAndWfInfo"
+                    text={this.i18n('entity.PasswordPolicy.help.bases')} />
+                </Basic.LabelWrapper>
 
-            <Basic.TextField ref="lowerCharBase"
-              label={this.i18n('entity.PasswordPolicy.lowerCharBase')} />
-            <Basic.TextField ref="upperCharBase"
-              label={this.i18n('entity.PasswordPolicy.upperCharBase')} />
-            <Basic.TextField ref="numberBase"
-              label={this.i18n('entity.PasswordPolicy.numberBase')} />
-            <Basic.TextField ref="specialCharBase"
-              label={this.i18n('entity.PasswordPolicy.specialCharBase')} />
-          </Basic.AbstractForm>
-        </Basic.PanelBody>
-        <Basic.PanelFooter showLoading={showLoading} >
-          <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-          <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
-            onClick={this.save.bind(this, 'SAVE_CONTINUE')}
-            rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
-            showLoading={showLoading} pullRight dropup>
-            <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
-          </Basic.SplitButton>
-        </Basic.PanelFooter>
-      </Basic.Panel>
+                <Basic.TextField ref="lowerCharBase"
+                  label={this.i18n('entity.PasswordPolicy.lowerCharBase')} />
+                <Basic.TextField ref="upperCharBase"
+                  label={this.i18n('entity.PasswordPolicy.upperCharBase')} />
+                <Basic.TextField ref="numberBase"
+                  label={this.i18n('entity.PasswordPolicy.numberBase')} />
+                <Basic.TextField ref="specialCharBase"
+                  label={this.i18n('entity.PasswordPolicy.specialCharBase')} />
+              </Basic.AbstractForm>
+            </Basic.PanelBody>
+            <Basic.PanelFooter showLoading={showLoading} >
+              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+              <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
+                onClick={this.save.bind(this, 'SAVE_CONTINUE')}
+                rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
+                showLoading={showLoading} pullRight dropup>
+                <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>
+              </Basic.SplitButton>
+            </Basic.PanelFooter>
+          </Basic.Panel>
         </form>
       </div>
     );

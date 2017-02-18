@@ -96,24 +96,32 @@ export default class NodeDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')} >
+          <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('TREENODE_WRITE')} style={{ padding: '15px 15px 0px 15px' }}>
             <Basic.SelectBox
               ref="treeType"
               label={this.i18n('entity.TreeNode.treeType.name')}
               manager={this.treeTypeManager}
               required
               readOnly/>
-            <Basic.TextField
-              ref="code"
-              label={this.i18n('entity.TreeType.code')}
-              required
-              max={255}/>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.TreeNode.name')}
-              required
-              min={0}
-              max={255}/>
+
+            <Basic.Row>
+              <div className="col-lg-2">
+                <Basic.TextField
+                  ref="code"
+                  label={this.i18n('entity.TreeType.code')}
+                  required
+                  max={255}/>
+              </div>
+              <div className="col-lg-10">
+                <Basic.TextField
+                  ref="name"
+                  label={this.i18n('entity.TreeNode.name')}
+                  required
+                  min={0}
+                  max={255}/>
+              </div>
+            </Basic.Row>
+
             <Basic.SelectBox
               ref="parent"
               label={this.i18n('entity.TreeNode.parent.name')}

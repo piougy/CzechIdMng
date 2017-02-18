@@ -160,8 +160,7 @@ class RoleDetail extends Basic.AbstractContent {
               <Basic.AbstractForm ref="form" showLoading={ _showLoading || showLoading } readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')}>
                 <Basic.Row>
                   <div className="col-lg-8">
-                    <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{this.i18n('setting.basic.header')}</h3>
-                    <div className="form-horizontal">
+                    <div>
                       <Basic.TextField
                         ref="name"
                         label={this.i18n('entity.Role.name')}
@@ -214,9 +213,8 @@ class RoleDetail extends Basic.AbstractContent {
                         label={this.i18n('entity.Role.disabled')}/>
                     </div>
 
-                    <h3 style={{ margin: '20px 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>
-                      { this.i18n('setting.approval.header') }
-                    </h3>
+                    <Basic.ContentHeader text={ this.i18n('setting.approval.header') } />
+
                     <Basic.SelectBox
                       labelSpan=""
                       componentSpan=""

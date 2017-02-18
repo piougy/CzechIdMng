@@ -105,13 +105,12 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="name"
-                        placeholder={this.i18n('entity.PasswordPolicy.name')}
-                        label={this.i18n('entity.PasswordPolicy.name')} />
+                        placeholder={this.i18n('entity.PasswordPolicy.name')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -121,9 +120,7 @@ export class PasswordPolicyTable extends Basic.AbstractContent {
                     <div className="col-lg-6">
                       <Basic.EnumSelectBox
                         ref="category"
-                        labelSpan="col-lg-4"
-                        componentSpan="col-lg-8"
-                        label={this.i18n('entity.PasswordPolicy.type')}
+                        placeholder={this.i18n('entity.PasswordPolicy.type')}
                         enum={PasswordPolicyTypeEnum}/>
                     </div>
                   </Basic.Row>

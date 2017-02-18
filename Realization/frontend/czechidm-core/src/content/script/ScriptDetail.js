@@ -108,39 +108,39 @@ export default class ScriptDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('SCRIPT_WRITE')} >
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.Script.name')}
-                required
-                max={255}/>
-              <Basic.EnumSelectBox
-                ref="category"
-                label={this.i18n('entity.Script.category')}
-                enum={ScriptCategoryEnum}
-                max={255}
-                required/>
-              <Basic.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
-              <Basic.ScriptArea
-                ref="script"
-                mode="groovy"
-                height="25em"
-                helpBlock={this.i18n('entity.Script.script.help')}
-                label={this.i18n('entity.Script.script.label')}/>
-            </Basic.AbstractForm>
+          <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('SCRIPT_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.TextField
+              ref="name"
+              label={this.i18n('entity.Script.name')}
+              required
+              max={255}/>
+            <Basic.EnumSelectBox
+              ref="category"
+              label={this.i18n('entity.Script.category')}
+              enum={ScriptCategoryEnum}
+              max={255}
+              required/>
+            <Basic.RichTextArea ref="description" label={this.i18n('entity.Script.description')} />
+            <Basic.ScriptArea
+              ref="script"
+              mode="groovy"
+              height="25em"
+              helpBlock={this.i18n('entity.Script.script.help')}
+              label={this.i18n('entity.Script.script.label')}/>
+          </Basic.AbstractForm>
 
-            <Basic.PanelFooter showLoading={showLoading} >
-              <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
-              <Basic.Button
-                type="submit"
-                level="success"
-                showLoadingIcon
-                showLoadingText={this.i18n('button.saving')}
-                rendered={SecurityManager.hasAuthority('SCRIPT_WRITE')}>
-                {this.i18n('button.save')}
-              </Basic.Button>
-            </Basic.PanelFooter>
-          </form>
+          <Basic.PanelFooter showLoading={showLoading} >
+            <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
+            <Basic.Button
+              type="submit"
+              level="success"
+              showLoadingIcon
+              showLoadingText={this.i18n('button.saving')}
+              rendered={SecurityManager.hasAuthority('SCRIPT_WRITE')}>
+              {this.i18n('button.save')}
+            </Basic.Button>
+          </Basic.PanelFooter>
+        </form>
       </div>
     );
   }

@@ -91,22 +91,24 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} >
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.RoleCatalogue.name')}
-              required
-              min={0}
-              max={255}/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.RoleCatalogue.parent.name')}
-              manager={this.roleCatalogueManager}/>
-            <Basic.TextArea
-              ref="description"
-              label={this.i18n('entity.RoleCatalogue.description')}
-              max={255}/>
-          </Basic.AbstractForm>
+          <Basic.PanelBody>
+            <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('entity.RoleCatalogue.name')}
+                required
+                min={0}
+                max={255}/>
+              <Basic.SelectBox
+                ref="parent"
+                label={this.i18n('entity.RoleCatalogue.parent.name')}
+                manager={this.roleCatalogueManager}/>
+              <Basic.TextArea
+                ref="description"
+                label={this.i18n('entity.RoleCatalogue.description')}
+                max={255}/>
+            </Basic.AbstractForm>
+          </Basic.PanelBody>
 
           <Basic.PanelFooter showLoading={showLoading}>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

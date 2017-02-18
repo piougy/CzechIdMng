@@ -189,7 +189,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+            <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
               {/* readOnly for edit is necessary */}
               <Basic.EnumSelectBox
                 readOnly={!Utils.Entity.isNew(entity)}

@@ -80,19 +80,16 @@ export class HistoricProcessInstanceTable extends Basic.AbstractContent {
 
   _filter() {
     return (<Advanced.Filter onSubmit={this._useFilter.bind(this)}>
-      <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+      <Basic.AbstractForm ref="filterForm">
         <Basic.Row className="last">
           <div className="col-lg-4">
             <Advanced.Filter.TextField
               ref="name"
-              placeholder={this.i18n('name')}
-              value=""
-              label={this.i18n('name')}/>
+              placeholder={this.i18n('name')}/>
           </div>
           <div className="col-lg-5">
             <Advanced.Filter.SelectBox
               ref="processDefinition"
-              label={this.i18n('filter.processDefinition.label')}
               placeholder={this.i18n('filter.processDefinition.placeholder')}
               multiSelect={false}
               manager={workflowProcessDefinitionManager}/>

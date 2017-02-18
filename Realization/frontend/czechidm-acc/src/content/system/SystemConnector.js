@@ -209,10 +209,9 @@ class SystemConnectorContent extends Basic.AbstractContent {
     } else {
       // connector setting is ready
       content = (
-        <form className="form-horizontal" style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-          <Basic.PanelBody>
-            <Advanced.EavForm ref="eav" formInstance={formInstance}/>
-          </Basic.PanelBody>
+        <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
+
+          <Advanced.EavForm ref="eav" formInstance={formInstance}/>
           <Basic.PanelFooter>
             <Basic.Button
               type="submit"
@@ -229,35 +228,50 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
-        <Basic.Panel showLoading={_showLoading} className="no-border">
-          <Basic.ContentHeader style={{ marginBottom: 0 }}>
-            <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
-          </Basic.ContentHeader>
-          <Basic.PanelBody>
-            <Basic.AbstractForm showLoading={_showLoading} rendered={_availableConnectors.length !== 0} ref="formConnector" uiKey={uiKey}
-              className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
-              <Basic.EnumSelectBox
-                ref="connector"
-                label={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
-                value={pickConnector ? pickConnector.value : null}
-                options={_availableConnectors}
-                clearable={false}
-                onChange={this.saveConnector.bind(this)}/>
-            </Basic.AbstractForm>
-            <Basic.Button
-              style={{display: 'block', margin: 'auto'}}
-              level="success"
-              showLoading={_showLoading}
-              onClick={this.save.bind(this, true)}
-              rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
-              title={ this.i18n('button.checkSystemTooltip') }>
-              <Basic.Icon type="fa" icon="check-circle"/>
-              {' '}
-              { this.i18n('button.checkSystem') }
-            </Basic.Button>
-          </Basic.PanelBody>
-            { content }
+
+        <Basic.ContentHeader style={{ marginBottom: 0 }}>
+          <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
+        </Basic.ContentHeader>
+
+        <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
+          <Basic.AbstractForm
+            showLoading={_showLoading}
+            rendered={_availableConnectors.length !== 0}
+            ref="formConnector"
+            uiKey={uiKey}
+            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+            style={{ paddingBottom: 0 }}>
+
+            <Basic.Row className="last">
+              <div className="col-lg-10">
+                <Basic.EnumSelectBox
+                  ref="connector"
+                  placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
+                  value={pickConnector ? pickConnector.value : null}
+                  options={_availableConnectors}
+                  clearable={false}
+                  onChange={this.saveConnector.bind(this)}/>
+              </div>
+              <div className="col-lg-2">
+                <Basic.Button
+                  style={{ display: 'block', width: '100%'}}
+                  level="success"
+                  showLoading={_showLoading}
+                  onClick={this.save.bind(this, true)}
+                  rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
+                  title={ this.i18n('button.checkSystemTooltip') }
+                  titlePalcement="bottom">
+                  <Basic.Icon type="fa" icon="check-circle"/>
+                  {' '}
+                  { this.i18n('button.checkSystem') }
+                </Basic.Button>
+              </div>
+            </Basic.Row>
+          </Basic.AbstractForm>
+
+          <hr style={{ margin: 0 }}/>
+
+          { content }
         </Basic.Panel>
       </div>
     );

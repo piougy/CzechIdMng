@@ -203,7 +203,7 @@ class PasswordChangeForm extends Basic.AbstractContent {
                     rendered={SecurityManager.isAdmin(userContext)}
                     style={{ margin: '15px 0 0 0'}}/>
 
-                  <Basic.AbstractForm ref="form" className="form-horizontal">
+                  <Basic.AbstractForm ref="form">
                     <Basic.TextField type="password" ref="oldPassword" label={this.i18n('password.old')} hidden={!requireOldPassword || SecurityManager.isAdmin(userContext)} required={requireOldPassword && !SecurityManager.isAdmin(userContext)}/>
 
                     <Advanced.PasswordField className="form-control" ref="passwords" />
@@ -217,11 +217,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                       required
                       disabled={passwordChangeType === IdentityManager.PASSWORD_ALL_ONLY && !SecurityManager.isAdmin(userContext)}/>
 
-                      <div className={allOnlyWarningClassNames}>
-                        <div className="col-sm-offset-3 col-sm-8">
-                          <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
-                        </div>
-                      </div>
+                    <div className={allOnlyWarningClassNames}>
+                      <Basic.Alert key="changeAllOnly" icon="exclamation-sign" text={this.i18n('changeType.ALL_ONLY')} className="last no-margin"/>
+                    </div>
                   </Basic.AbstractForm>
                   <Basic.PanelFooter>
                     <Basic.Button
@@ -233,9 +231,9 @@ class PasswordChangeForm extends Basic.AbstractContent {
                 </div>
               }
             </Basic.Panel>
-            <Basic.Panel className="col-lg-5 no-border last">
+            <div className="col-lg-5 no-border last">
               <ValidationMessage error={validationError} />
-            </Basic.Panel>
+            </div>
           </Basic.Row>
         </form>
       </div>

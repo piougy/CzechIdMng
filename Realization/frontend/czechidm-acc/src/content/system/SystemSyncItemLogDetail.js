@@ -64,7 +64,7 @@ class SystemSyncItemLogDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm readOnly ref="form" data={syncItemLog} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm readOnly ref="form" data={syncItemLog} showLoading={_showLoading}>
               <Basic.TextField
                 ref="displayName"
                 label={this.i18n('acc:entity.SyncItemLog.displayName')}/>

@@ -177,19 +177,17 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
       style={{ borderLeft: '1px solid #ddd' }}
       filter={
         <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-          <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+          <Basic.AbstractForm ref="filterForm">
             <Basic.Row>
               <div className="col-lg-4">
                 <Advanced.Filter.TextField
                 ref="text"
-                placeholder={this.i18n('entity.RoleCatalogue.filter.namePlaceHolder')}
-                label={this.i18n('entity.RoleCatalogue.filter.name')}/>
+                placeholder={this.i18n('entity.RoleCatalogue.filter.namePlaceHolder')}/>
               </div>
               <div className="col-lg-4">
                 <Advanced.Filter.SelectBox
                   ref="parent"
                   placeholder={this.i18n('entity.RoleCatalogue.filter.parentPlaceHolder')}
-                  label={this.i18n('entity.RoleCatalogue.filter.parent')}
                   manager={roleCatalogueManager}/>
               </div>
               <div className="col-lg-4 text-right">

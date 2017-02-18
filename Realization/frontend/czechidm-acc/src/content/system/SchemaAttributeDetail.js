@@ -96,7 +96,7 @@ class SchemaAttributeDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
               <Basic.SelectBox
                 ref="objectClass"
                 manager={schemaObjectClassManager}

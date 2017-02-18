@@ -15,33 +15,49 @@ input[readonly].confidential {
   cursor: text;
 }
 
-.form-horizontal {
-  .form-group {
-    margin-bottom: 7px;
-
-    &.last {
-      margin-bottom: 0;
-    }
-
-    &.has-error {
-      label.control-label {
-        color: #333; // @panel-default-text;
-      }
-    }
-    .form-text {
-      margin-top: 6px;
-      margin-left: 2px;
-    }
-  }
-
-  .checkbox {
-    padding-top: 2px;
-  }
-}
-
 .abstract-form {
   // maybe will be useful in future ...
   // background-color: #FDFDFD;
+
+  .help-block {
+    margin-bottom: 5px;
+  }
+
+  .form-control-feedback {
+    top: 28px;
+  }
+
+  .checkbox {
+    margin-top: 2px;
+  }
+
+  &.form-horizontal {
+    .form-group {
+      margin-bottom: 7px;
+
+      &.last {
+        margin-bottom: 0;
+      }
+
+      &.has-error {
+        label.control-label {
+          color: #333; // @panel-default-text;
+        }
+      }
+      .form-text {
+        margin-top: 6px;
+        margin-left: 2px;
+      }
+    }
+
+    .checkbox {
+      padding-top: 2px;
+    }
+
+    .form-control-feedback {
+      top: 0px;
+    }
+  }
 }
 
 .panel {

@@ -90,21 +90,19 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
           manager={manager}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+              <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="from"
-                      placeholder={this.i18n('filter.dateFrom.placeholder')}
-                      label={this.i18n('filter.dateFrom.label')}/>
+                      placeholder={this.i18n('filter.dateFrom.placeholder')}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="till"
-                      placeholder={this.i18n('filter.dateTill.placeholder')}
-                      label={this.i18n('filter.dateTill.label')}/>
+                      placeholder={this.i18n('filter.dateTill.placeholder')}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -115,14 +113,12 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
                     <Advanced.Filter.EnumSelectBox
                       ref="operationState"
                       placeholder={this.i18n('filter.operationState.placeholder')}
-                      label={this.i18n('filter.operationState.label')}
                       enum={OperationStateEnum}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text.placeholder')}
-                      label={this.i18n('filter.text.label')}/>
+                      placeholder={this.i18n('filter.text.placeholder')}/>
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -203,7 +199,7 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
               !detail.entity
               ||
               <div>
-                <Basic.AbstractForm data={detail.entity} className="form-horizontal" readOnly>
+                <Basic.AbstractForm data={detail.entity} readOnly>
                   <Basic.LabelWrapper label={this.i18n('entity.created')}>
                     <div style={{ margin: '7px 0' }}>
                       <Advanced.DateValue value={detail.entity.created} showTime/>

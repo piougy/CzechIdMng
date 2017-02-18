@@ -228,13 +228,12 @@ class Configurations extends Basic.AbstractContent {
             showRowSelection={SecurityManager.hasAnyAuthority(['CONFIGURATION_DELETE', 'CONFIGURATIONSECURED_DELETE'])}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Configuration.name')}
-                        label={this.i18n('entity.Configuration.name')}/>
+                        placeholder={this.i18n('entity.Configuration.name')}/>
                     </div>
                     <div className="col-lg-4">
                     </div>
@@ -298,7 +297,7 @@ class Configurations extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" data={ detail.entity } showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" data={ detail.entity } showLoading={_showLoading}>
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('entity.Configuration.name')}

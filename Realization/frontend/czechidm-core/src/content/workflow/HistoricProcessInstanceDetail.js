@@ -87,7 +87,7 @@ class HistoricProcessInstanceDetail extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel showLoading={showLoadingInternal}>
-          <Basic.AbstractForm ref="form" data={_historicProcess} readOnly className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={_historicProcess} readOnly style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField ref="name" label={this.i18n('name')}/>
             <Basic.TextField ref="id" label={this.i18n('id')}/>
             <Basic.TextField ref="superProcessInstanceId" label={this.i18n('superProcessInstanceId')}/>

@@ -83,13 +83,12 @@ export class SystemTable extends Basic.AbstractContent {
           showRowSelection={Managers.SecurityManager.hasAuthority('SYSTEM_DELETE') && showRowSelection}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+              <Basic.AbstractForm ref="filterForm">
                 <Basic.Row className="last">
                   <div className="col-lg-4">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('acc:entity.System.name')}
-                      label={this.i18n('acc:entity.System.name')}/>
+                      placeholder={this.i18n('acc:entity.System.name')}/>
                   </div>
                   <div className="col-lg-4">
                   </div>

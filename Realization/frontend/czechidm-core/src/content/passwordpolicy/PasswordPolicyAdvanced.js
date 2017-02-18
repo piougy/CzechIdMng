@@ -137,8 +137,8 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('content.passwordPolicies.advanced.title')} />
-            <Basic.PanelBody>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+            <Basic.PanelBody style={{ padding: 0 }}>
+              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
                 <Basic.Checkbox ref="enchancedControl"
                   helpBlock={this.i18n('entity.PasswordPolicy.help.enchancedControl')}
                   label={this.i18n('entity.PasswordPolicy.enchancedControl')}/>

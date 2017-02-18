@@ -182,10 +182,10 @@ class DynamicTaskDetail extends Basic.AbstractContent {
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
           </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form" data={task} className="form-horizontal">
+          <Basic.AbstractForm ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
-              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+            <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
+              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin" style={{ width: '50%' }}/>
             </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>

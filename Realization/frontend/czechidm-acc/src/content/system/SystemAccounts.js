@@ -106,19 +106,17 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
             }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.EnumSelectBox
                         ref="accountType"
-                        label={this.i18n('acc:entity.Account.accountType')}
                         placeholder={this.i18n('acc:entity.Account.accountType')}
                         enum={AccountTypeEnum}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="uid"
-                        label={this.i18n('filter.uid.label')}
                         placeholder={this.i18n('filter.uid.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
@@ -165,7 +163,7 @@ class SystemAccountsContent extends Basic.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" showLoading={_showLoading} >
                 <Basic.SelectBox
                   ref="system"
                   manager={systemManager}

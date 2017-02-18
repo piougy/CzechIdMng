@@ -143,7 +143,7 @@ class SystemMappingDetail extends Basic.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={mapping} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={mapping} showLoading={_showLoading}>
               <Basic.SelectBox
                 ref="system"
                 manager={systemManager}
@@ -224,12 +224,11 @@ class SystemMappingDetail extends Basic.AbstractTableContent {
             }
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="idmPropertyName"
-                        label={this.i18n('filter.idmPropertyName.label')}
                         placeholder={this.i18n('filter.idmPropertyName.placeholder')}/>
                     </div>
                     <div className="col-lg-2"/>

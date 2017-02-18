@@ -277,21 +277,16 @@ export default class NodeTable extends Basic.AbstractContent {
             </div>
             <div className="clearfix"></div>
           </div>
-          <div style={{ paddingLeft: 15, paddingRight: 15 }}>
+          <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
             {
               (!type || !showTreeTypeSelect)
               ||
-              <Basic.AbstractForm ref="treePick" uiKey="tree-pick" className="form-horizontal" >
-                <span>
-                  <Basic.SelectBox
-                    ref="treeTypeId"
-                    value={type.name}
-                    manager={treeTypeManager}
-                    onChange={this._changeTree.bind(this)}
-                    componentSpan="col-sm-12"
-                    clearable={false} />
-                </span>
-              </Basic.AbstractForm>
+              <Basic.SelectBox
+                ref="treeTypeId"
+                value={type.name}
+                manager={treeTypeManager}
+                onChange={this._changeTree.bind(this)}
+                clearable={false} />
             }
             {
               !showTree
@@ -332,13 +327,12 @@ export default class NodeTable extends Basic.AbstractContent {
                 showLoading={showLoading}
                 filter={
                   <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                    <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                    <Basic.AbstractForm ref="filterForm">
                       <Basic.Row>
                         <div className="col-lg-6">
                           <Advanced.Filter.TextField
                             ref="text"
-                            placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }
-                            label={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
+                            placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
                         </div>
                         <div className="col-lg-6 text-right">
                           <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -349,7 +343,6 @@ export default class NodeTable extends Basic.AbstractContent {
                           <Advanced.Filter.SelectBox
                             ref="treeNodeId"
                             placeholder={this.i18n('entity.TreeNode.parentId')}
-                            label={this.i18n('entity.TreeNode.parent.name')}
                             forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type.id)}
                             manager={treeNodeManager}/>
                         </div>

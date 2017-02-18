@@ -79,8 +79,7 @@ Checkbox.propTypes = {
 };
 
 Checkbox.defaultProps = {
-  ...AbstractFormComponent.defaultProps,
-  labelSpan: 'col-sm-offset-3'
+  ...AbstractFormComponent.defaultProps
 };
 
 

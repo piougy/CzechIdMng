@@ -22,7 +22,5 @@ FilterBooleanSelectBox.propTypes = {
 const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.BooleanSelectBox.defaultProps; // labelSpan etc. override
 FilterBooleanSelectBox.defaultProps = {
   ...otherDefaultProps,
-  relation: 'EQ',
-  labelSpan: 'col-lg-4',
-  componentSpan: 'col-lg-8'
+  relation: 'EQ'
 };

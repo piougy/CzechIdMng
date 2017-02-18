@@ -249,8 +249,8 @@ AbstractFormComponent.propTypes = {
 };
 
 AbstractFormComponent.defaultProps = {
-  labelSpan: 'col-sm-3',
-  componentSpan: 'col-sm-8',
+  labelSpan: null,
+  componentSpan: null,
   required: false,
   hidden: false,
   readOnly: false,

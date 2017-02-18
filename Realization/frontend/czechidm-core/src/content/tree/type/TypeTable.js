@@ -100,13 +100,12 @@ export class TypeTable extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}
-                        label={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}/>
+                        placeholder={this.i18n('entity.TreeType.code') + ' / ' + this.i18n('entity.TreeType.name')}/>
                     </div>
                     <div className="col-lg-6 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

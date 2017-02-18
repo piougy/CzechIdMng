@@ -24,13 +24,13 @@ export default class NotificationRecipient extends Basic.AbstractComponent {
         {
           identityOnly
           ?
-          this.identityManager.getNiceLabel(recipient._embedded.identityRecipient)
+          this.identityManager.getNiceLabel(!recipient._embedded ? null : recipient._embedded.identityRecipient)
           :
           recipient.realRecipient
           ||
           !recipient._embedded
           ||
-          this.identityManager.getNiceLabel(recipient._embedded.identityRecipient)
+          this.identityManager.getNiceLabel(!recipient._embedded ? null : recipient._embedded.identityRecipient)
         }
       </div>
     );

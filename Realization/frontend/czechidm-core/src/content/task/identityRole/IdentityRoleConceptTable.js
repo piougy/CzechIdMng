@@ -463,7 +463,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm className="form-horizontal" ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
+              <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!detail.edit}>
                 <Basic.SelectBox
                   ref="identityContract"
                   manager={ identityContractManager }
@@ -481,16 +481,24 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
                   multiSelect={detail.entity._added && detail.add}
                   readOnly={!detail.entity._added}
                   required/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
-                  ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
-                  label={this.i18n('label.validFrom')}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
-                  ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
-                  label={this.i18n('label.validTill')}/>
+
+                <Basic.Row>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      className={detail.entity.hasOwnProperty('_validFromChanged') ? 'text-danger' : null}
+                      ref={detail.entity.hasOwnProperty('_validFromChanged') ? '_validFromChanged' : 'validFrom'}
+                      label={this.i18n('label.validFrom')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      className={detail.entity.hasOwnProperty('_validTillChanged') ? 'text-danger' : null}
+                      ref={detail.entity.hasOwnProperty('_validTillChanged') ? '_validTillChanged' : 'validTill'}
+                      label={this.i18n('label.validTill')}/>
+                  </div>
+                </Basic.Row>
+
               </Basic.AbstractForm>
             </Basic.Modal.Body>
             <Basic.Modal.Footer>

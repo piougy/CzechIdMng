@@ -197,14 +197,12 @@ class DateTimePicker extends AbstractFormComponent {
           </label>
         }
         <div className={componentSpan}>
-          {
-            (disabled || readOnly)
-            ?
-            <div className="basic-date-time-picker">
+          <div className="btn-group input-group basic-date-time-picker">
+            {
+              (disabled || readOnly)
+              ?
               <input type="text" value={value && value._isAMomentObject ? this._format(value) : value} readOnly className="form-control" style={style}/>
-            </div>
-            :
-            <div className="btn-group input-group basic-date-time-picker">
+              :
               <Datetime
                 ref="input"
                 onChange={this.onChange}
@@ -222,25 +220,25 @@ class DateTimePicker extends AbstractFormComponent {
                     zIndex: 0
                   }
                 }}/>
-              <Button type="button"
-                level="default"
-                className="btn-sm"
-                disabled={disabled}
-                style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
-                onClick={this._openDialog.bind(this)}>
-                <Icon type="fa" icon="calendar"/>
-              </Button>
-              <Button type="button"
-                level="default"
-                className="btn-sm"
-                disabled={disabled}
-                style={{marginTop: '0px', height: '34px'}}
-                onClick={this._clear.bind(this)}>
-                <Icon type="fa" icon="remove"/>
-              </Button>
-              { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
-            </div>
-          }
+            }
+            <Button type="button"
+              level="default"
+              className="btn-sm"
+              disabled={disabled || readOnly}
+              style={{marginTop: '0px', height: '34px', borderLeftWidth: '0px'}}
+              onClick={this._openDialog.bind(this)}>
+              <Icon type="fa" icon="calendar"/>
+            </Button>
+            <Button type="button"
+              level="default"
+              className="btn-sm"
+              disabled={disabled || readOnly}
+              style={{marginTop: '0px', height: '34px'}}
+              onClick={this._clear.bind(this)}>
+              <Icon type="fa" icon="remove"/>
+            </Button>
+            { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
+          </div>
           {
             !helpBlock
             ||
@@ -262,8 +260,7 @@ DateTimePicker.propTypes = {
 
 const { componentSpan, ...otherDefaultProps} = AbstractFormComponent.defaultProps; // componentSpan override
 DateTimePicker.defaultProps = {
-  ...otherDefaultProps,
-  componentSpan: 'col-sm-5'
+  ...otherDefaultProps
 };
 
 export default DateTimePicker;

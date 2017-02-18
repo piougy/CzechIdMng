@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import Joi from 'joi';
 //
 import { Basic, Managers, Utils, Enums } from 'czechidm-core';
 import { SystemManager } from '../../redux';
@@ -167,7 +166,7 @@ class SystemDetail extends Basic.AbstractContent {
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
             <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-              <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
+              <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
                 <Basic.TextField
                   ref="name"
                   label={this.i18n('acc:entity.System.name')}

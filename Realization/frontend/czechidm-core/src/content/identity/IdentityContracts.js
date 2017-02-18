@@ -287,7 +287,7 @@ class IdentityContracts extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { position: this.getManager().getNiceLabel(detail.entity) })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading}>
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.IdentityContract.position')}/>
@@ -306,14 +306,22 @@ class IdentityContracts extends Basic.AbstractContent {
                   ref="guarantee"
                   manager={this.identityManager}
                   label={this.i18n('entity.IdentityContract.guarantee')}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validFrom"
-                  label={this.i18n('label.validFrom')}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validTill"
-                  label={this.i18n('label.validTill')}/>
+
+                <Basic.Row>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="validFrom"
+                      label={this.i18n('label.validFrom')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="validTill"
+                      label={this.i18n('label.validTill')}/>
+                  </div>
+                </Basic.Row>
+
                 <Basic.Checkbox
                   ref="externe"
                   label={this.i18n('entity.IdentityContract.externe')}/>

@@ -66,7 +66,7 @@ class TextArea extends AbstractFormComponent {
         }
 
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement="bottom" value={title}>
             <span>
               <textarea
                 ref="input"

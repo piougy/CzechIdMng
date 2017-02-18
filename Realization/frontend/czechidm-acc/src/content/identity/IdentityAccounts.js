@@ -145,7 +145,7 @@ class IdentityAccountsContent extends Basic.AbstractTableContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.name })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
                 <Basic.SelectBox
                   ref="account"
                   manager={accountManager}

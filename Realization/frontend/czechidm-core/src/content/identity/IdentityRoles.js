@@ -506,7 +506,7 @@ class Roles extends Basic.AbstractContent {
                     <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={detail.entity.id === undefined}/>
                     <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { role: detail.entity.role })} rendered={detail.entity.id !== undefined}/>
                     <Basic.Modal.Body>
-                      <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal" readOnly={!TEST_ADD_ROLE_DIRECTLY}>
+                      <Basic.AbstractForm ref="form" showLoading={_showLoading} readOnly={!TEST_ADD_ROLE_DIRECTLY}>
                         <Basic.TextField
                           label={this.i18n('entity.IdentityRole.identityContract.label')}
                           helpBlock={this.i18n('entity.IdentityRole.identityContract.help')}
@@ -518,14 +518,20 @@ class Roles extends Basic.AbstractContent {
                           manager={roleManager}
                           label={this.i18n('entity.IdentityRole.role')}
                           required/>
-                        <Basic.DateTimePicker
-                          mode="date"
-                          ref="validFrom"
-                          label={this.i18n('label.validFrom')}/>
-                        <Basic.DateTimePicker
-                          mode="date"
-                          ref="validTill"
-                          label={this.i18n('label.validTill')}/>
+                          <Basic.Row>
+                            <div className="col-md-6">
+                              <Basic.DateTimePicker
+                                mode="date"
+                                ref="validFrom"
+                                label={this.i18n('label.validFrom')}/>
+                            </div>
+                            <div className="col-md-6">
+                              <Basic.DateTimePicker
+                                mode="date"
+                                ref="validTill"
+                                label={this.i18n('label.validTill')}/>
+                            </div>
+                          </Basic.Row>
                       </Basic.AbstractForm>
                     </Basic.Modal.Body>
 

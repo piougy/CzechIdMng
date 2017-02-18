@@ -65,7 +65,7 @@ class Definition extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel showLoading={showLoading}>
-          <Basic.AbstractForm ref="form" readOnly className="form-horizontal">
+          <Basic.AbstractForm ref="form" readOnly style={{ padding: '15px 15px 0 15px' }}>
             <Basic.TextField ref="key" label={this.i18n('key')}/>
             <Basic.TextField ref="name" label={this.i18n('name')}/>
             <Basic.TextField ref="resourceName" label={this.i18n('resourceName')}/>

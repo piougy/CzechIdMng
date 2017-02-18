@@ -1372,11 +1372,11 @@
         },
         "sender": {
           "label": "Sender",
-          "placeholder": ""
+          "placeholder": "Sender ..."
         },
         "recipient": {
           "label": "Recipient",
-          "placeholder": ""
+          "placeholder": "Recipient ..."
         },
         "sent": {
           "label": "Sent",

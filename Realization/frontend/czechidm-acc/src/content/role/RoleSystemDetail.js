@@ -174,7 +174,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
 
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm ref="form" data={roleSystem} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={roleSystem} showLoading={_showLoading} style={{ padding: 0 }}>
               <Basic.SelectBox
                 ref="role"
                 manager={roleManager}

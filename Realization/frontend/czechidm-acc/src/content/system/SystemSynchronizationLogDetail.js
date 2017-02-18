@@ -74,7 +74,7 @@ class SystemSynchronizationLogDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm readOnly ref="form" data={synchronizationLog} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm readOnly ref="form" data={synchronizationLog} showLoading={_showLoading}>
               <Basic.Checkbox
                 ref="running"
                 label={this.i18n('acc:entity.SynchronizationLog.running')}/>

@@ -132,41 +132,41 @@ class AuditDetail extends Basic.AbstractContent {
         </Basic.PageHeader>
 
         <Basic.Panel>
-          <div className="col-lg-12">
+          <Basic.PanelBody style={{ padding: '0 15px' }}>
             <Basic.Row >
-                <div className="col-md-6">
-                  <AuditDetailInfo
-                    ref="detailFirst"
-                    showLoading={auditDetailFirst === null}
-                    auditDetail={auditDetailFirst} />
-                </div>
-                <div className="col-md-6 last">
-                  <AuditDetailInfo ref="detailSecond"
-                    auditDetail={auditDetailSecondFinal} useAsSelect
-                    noVersion={noVersion}
-                    showLoading={showLoadingSelect}
-                    cbChangeSecondRev={this.changeSecondRevision.bind(this)}
-                    auditManager={auditManager}
-                    forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)} />
-                </div>
+              <div className="col-md-6">
+                <AuditDetailInfo
+                  ref="detailFirst"
+                  showLoading={auditDetailFirst === null}
+                  auditDetail={auditDetailFirst} />
+              </div>
+              <div className="col-md-6">
+                <AuditDetailInfo ref="detailSecond"
+                  auditDetail={auditDetailSecondFinal} useAsSelect
+                  noVersion={noVersion}
+                  showLoading={showLoadingSelect}
+                  cbChangeSecondRev={this.changeSecondRevision.bind(this)}
+                  auditManager={auditManager}
+                  forceSearchParameters={auditManager.getDefaultSearchParameters().setFilter('entityId', auditDetailFirst ? auditDetailFirst.entityId : null)} />
+              </div>
             </Basic.Row>
             <Basic.Row >
-            <AuditDetailTable detail={auditDetailFirst} showLoading={auditDetailFirst === null} />
+              <AuditDetailTable detail={auditDetailFirst} showLoading={auditDetailFirst === null} />
 
               {
                 noVersion
                 ?
                 <div className="col-md-6">
-                  <Basic.Alert text={this.i18n('noPreviousRevision')} />
+                  <Basic.Alert text={this.i18n('noPreviousRevision')} className="no-margin"/>
                 </div>
                 :
                 <AuditDetailTable
                   showLoading={showLoadingSelect}
                   detail={this._sameType(auditDetailFirst, auditDetailSecondFinal) ? auditDetailSecondFinal : null}
                   diffValues={diffValues ? diffValues.diffValues : null}/>
-          }
-        </Basic.Row>
-          </div>
+              }
+            </Basic.Row>
+          </Basic.PanelBody>
           <Basic.PanelFooter>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
           </Basic.PanelFooter>

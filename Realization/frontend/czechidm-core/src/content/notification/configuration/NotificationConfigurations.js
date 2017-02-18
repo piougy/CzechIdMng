@@ -128,7 +128,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { name: detail.entity.topic })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" showLoading={_showLoading}>
                 <Basic.TextField
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}

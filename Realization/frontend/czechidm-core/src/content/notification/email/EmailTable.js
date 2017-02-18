@@ -72,21 +72,19 @@ export class EmailTable extends Basic.AbstractContent {
           filterOpened={filterOpened}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+              <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="from"
-                      placeholder={this.i18n('content.notifications.filter.dateFrom.placeholder')}
-                      label={this.i18n('content.notifications.filter.dateFrom.label')}/>
+                      placeholder={this.i18n('content.notifications.filter.dateFrom.placeholder')}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.DateTimePicker
                       mode="date"
                       ref="till"
-                      placeholder={this.i18n('content.notifications.filter.dateTill.placeholder')}
-                      label={this.i18n('content.notifications.filter.dateTill.label')}/>
+                      placeholder={this.i18n('content.notifications.filter.dateTill.placeholder')}/>
                   </div>
                   <div className="col-lg-4 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -97,13 +95,11 @@ export class EmailTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('content.notifications.filter.text.placeholder')}
-                      label={this.i18n('content.notifications.filter.text.label')}/>
+                      placeholder={this.i18n('content.notifications.filter.text.placeholder')}/>
                   </div>
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
                       ref="recipient"
-                      label={this.i18n('content.notifications.filter.recipient.label')}
                       placeholder={this.i18n('content.notifications.filter.recipient.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
@@ -112,7 +108,6 @@ export class EmailTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.SelectBox
                       ref="sender"
-                      label={this.i18n('content.notifications.filter.sender.label')}
                       placeholder={this.i18n('content.notifications.filter.sender.placeholder')}
                       multiSelect={false}
                       manager={this.identityManager}
@@ -124,7 +119,6 @@ export class EmailTable extends Basic.AbstractContent {
                   <div className="col-lg-4">
                     <Advanced.Filter.BooleanSelectBox
                       ref="sent"
-                      label={this.i18n('content.notifications.filter.sent.label')}
                       placeholder={this.i18n('content.notifications.filter.sent.placeholder')}/>
                   </div>
                   <div className="col-lg-4">

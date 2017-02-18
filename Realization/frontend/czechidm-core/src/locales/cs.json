@@ -1372,11 +1372,11 @@
         },
         "sender": {
           "label": "Odesílatel",
-          "placeholder": ""
+          "placeholder": "Odesílatel ..."
         },
         "recipient": {
           "label": "Příjemce",
-          "placeholder": ""
+          "placeholder": "Příjemce ..."
         },
         "sent": {
           "label": "Odesláno",

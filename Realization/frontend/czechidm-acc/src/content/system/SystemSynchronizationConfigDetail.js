@@ -264,7 +264,6 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
     const synchronizationConfig = isNew ? this.state.synchronizationConfig : _synchronizationConfig;
     const attributeMappingIdFromEntity = synchronizationConfig && synchronizationConfig.systemMapping ? synchronizationConfig.systemMapping.id : null;
     const forceSearchCorrelationAttribute = new Domain.SearchParameters().setFilter('systemMappingId', systemMappingId || attributeMappingIdFromEntity || Domain.SearchParameters.BLANK_UUID);
-    const tabLogShow = activeKey === 3;
 
     return (
       <div>
@@ -276,10 +275,10 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
 
         <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
-          <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')}>
+          <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading}>
+                <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
                   <Basic.Checkbox
                     ref="enabled"
                     label={this.i18n('acc:entity.SynchronizationConfig.enabled')}/>
@@ -311,61 +310,65 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                        className="no-margin"
                        text={this.i18n('situationActionsAndWf')}/>
                   </Basic.LabelWrapper>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.linkedAction') }</h3>
-                    <Basic.EnumSelectBox
-                      className=""
-                      ref="linkedAction"
-                      enum={SynchronizationLinkedActionTypeEnum}
-                      label={this.i18n('situationAction')}
-                      required/>
-                    <Basic.SelectBox
-                      ref="linkedActionWfKey"
-                      label={this.i18n('situationActionWf')}
-                      forceSearchParameters={forceSearchSyncActionWfKey}
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.unlinkedAction') }</h3>
-                    <Basic.EnumSelectBox
-                      ref="unlinkedAction"
-                      enum={SynchronizationUnlinkedActionTypeEnum}
-                      label={this.i18n('situationAction')}
-                      required/>
-                    <Basic.SelectBox
-                      ref="correlationAttribute"
-                      manager={systemAttributeMappingManager}
-                      forceSearchParameters={forceSearchCorrelationAttribute}
-                      label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
-                      required/>
-                    <Basic.SelectBox
-                      ref="unlinkedActionWfKey"
-                      label={this.i18n('situationActionWf')}
-                      forceSearchParameters={forceSearchSyncActionWfKey}
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.missingEntityAction') }</h3>
-                    <Basic.EnumSelectBox
-                      ref="missingEntityAction"
-                      enum={SynchronizationMissingEntityActionTypeEnum}
-                      label={this.i18n('situationAction')}
-                      required/>
-                    <Basic.SelectBox
-                      ref="missingEntityActionWfKey"
-                      label={this.i18n('situationActionWf')}
-                      forceSearchParameters={forceSearchSyncActionWfKey}
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
-                  <h3 style={{ margin: '0 0 10px 0', padding: 0, borderBottom: '1px solid #ddd' }}>{ this.i18n('acc:entity.SynchronizationConfig.missingAccountAction') }</h3>
-                    <Basic.EnumSelectBox
-                      ref="missingAccountAction"
-                      enum={ReconciliationMissingAccountActionTypeEnum}
-                      label={this.i18n('situationAction')}
-                      required/>
-                    <Basic.SelectBox
-                      ref="missingAccountActionWfKey"
-                      label={this.i18n('situationActionWf')}
-                      forceSearchParameters={forceSearchSyncActionWfKey}
-                      multiSelect={false}
-                      manager={workflowProcessDefinitionManager}/>
+
+                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.linkedAction') } className="marginable"/>
+                  <Basic.EnumSelectBox
+                    className=""
+                    ref="linkedAction"
+                    enum={SynchronizationLinkedActionTypeEnum}
+                    label={this.i18n('situationAction')}
+                    required/>
+                  <Basic.SelectBox
+                    ref="linkedActionWfKey"
+                    label={this.i18n('situationActionWf')}
+                    forceSearchParameters={forceSearchSyncActionWfKey}
+                    multiSelect={false}
+                    manager={workflowProcessDefinitionManager}/>
+
+                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.unlinkedAction') } className="marginable"/>
+                  <Basic.EnumSelectBox
+                    ref="unlinkedAction"
+                    enum={SynchronizationUnlinkedActionTypeEnum}
+                    label={this.i18n('situationAction')}
+                    required/>
+                  <Basic.SelectBox
+                    ref="correlationAttribute"
+                    manager={systemAttributeMappingManager}
+                    forceSearchParameters={forceSearchCorrelationAttribute}
+                    label={this.i18n('acc:entity.SynchronizationConfig.correlationAttribute')}
+                    required/>
+                  <Basic.SelectBox
+                    ref="unlinkedActionWfKey"
+                    label={this.i18n('situationActionWf')}
+                    forceSearchParameters={forceSearchSyncActionWfKey}
+                    multiSelect={false}
+                    manager={workflowProcessDefinitionManager}/>
+
+                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.missingEntityAction') } className="marginable"/>
+                  <Basic.EnumSelectBox
+                    ref="missingEntityAction"
+                    enum={SynchronizationMissingEntityActionTypeEnum}
+                    label={this.i18n('situationAction')}
+                    required/>
+                  <Basic.SelectBox
+                    ref="missingEntityActionWfKey"
+                    label={this.i18n('situationActionWf')}
+                    forceSearchParameters={forceSearchSyncActionWfKey}
+                    multiSelect={false}
+                    manager={workflowProcessDefinitionManager}/>
+
+                  <Basic.ContentHeader text={ this.i18n('acc:entity.SynchronizationConfig.missingAccountAction') } className="marginable"/>
+                  <Basic.EnumSelectBox
+                    ref="missingAccountAction"
+                    enum={ReconciliationMissingAccountActionTypeEnum}
+                    label={this.i18n('situationAction')}
+                    required/>
+                  <Basic.SelectBox
+                    ref="missingAccountActionWfKey"
+                    label={this.i18n('situationActionWf')}
+                    forceSearchParameters={forceSearchSyncActionWfKey}
+                    multiSelect={false}
+                    manager={workflowProcessDefinitionManager}/>
                 </Basic.AbstractForm>
                 <Basic.PanelFooter>
                   <Basic.Button type="button" level="link"
@@ -387,10 +390,10 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
               </Basic.Panel>
             </form>
           </Basic.Tab>
-          <Basic.Tab eventKey={2} title={this.i18n('tabs.filterConfiguration.label')}>
+          <Basic.Tab eventKey={2} title={this.i18n('tabs.filterConfiguration.label')} className="bordered">
             <form onSubmit={this.save.bind(this)}>
               <Basic.Panel className="no-border">
-                <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading}>
+                <Basic.AbstractForm ref="formFilter" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
                   <Basic.Checkbox
                     ref="customFilter"
                     label={this.i18n('acc:entity.SynchronizationConfig.customFilter.label')}
@@ -456,68 +459,53 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
             </form>
           </Basic.Tab>
           <Basic.Tab eventKey={3} title={this.i18n('tabs.logs.label')}>
-            <Basic.ContentHeader rendered={synchronizationConfig && !isNew} style={{ marginBottom: 0 }}>
+            <Basic.ContentHeader rendered={synchronizationConfig && !isNew} style={{ marginBottom: 0, paddingLeft: 15 }}>
               <Basic.Icon value="transfer"/>
               {' '}
               <span dangerouslySetInnerHTML={{ __html: this.i18n('synchronizationLogsHeader') }}/>
             </Basic.ContentHeader>
-            <Basic.Panel rendered={tabLogShow && synchronizationConfig && !isNew} className="no-border">
-              <Advanced.Table
-                ref="table"
-                uiKey={uiKeyLogs}
-                manager={synchronizationLogManager}
-                showLoading={innerShowLoading}
-                forceSearchParameters={forceSearchParameters}
-                showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
-                rowClass={({rowIndex, data}) => { return data[rowIndex].containsError ? 'danger' : ''; }}
-                actions={
-                  Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
-                  ?
-                  [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
-                  :
-                  null
-                }
-                buttons={
-                  [
-                    <Basic.Button
-                      level="success"
-                      key="add_button"
-                      className="btn-xs"
-                      onClick={this.showDetail.bind(this, { }, true)}
-                      rendered={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.add')}
-                    </Basic.Button>
-                  ]
-                }>
+
+            <Advanced.Table
+              ref="table"
+              uiKey={uiKeyLogs}
+              manager={synchronizationLogManager}
+              showLoading={innerShowLoading}
+              forceSearchParameters={forceSearchParameters}
+              showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
+              rowClass={({rowIndex, data}) => { return data[rowIndex].containsError ? 'danger' : ''; }}
+              actions={
+                Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])
+                ?
+                [{ value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }]
+                :
+                null
+              }>
+              <Advanced.Column
+                property=""
+                header=""
+                className="detail-button"
+                cell={
+                  ({ rowIndex, data }) => {
+                    return (
+                      <Advanced.DetailButton
+                        title={this.i18n('button.detail')}
+                        onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
+                    );
+                  }
+                }/>
+                <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
                 <Advanced.Column
-                  property=""
-                  header=""
-                  className="detail-button"
+                  property="syncActionLogs"
+                  header={this.i18n('acc:entity.SynchronizationLog.results')}
                   cell={
                     ({ rowIndex, data }) => {
-                      return (
-                        <Advanced.DetailButton
-                          title={this.i18n('button.detail')}
-                          onClick={this.showDetail.bind(this, data[rowIndex], false)}/>
-                      );
+                      return this._generateResultCell(rowIndex, data);
                     }
-                  }/>
-                  <Advanced.Column property="running" face="boolean" header={this.i18n('acc:entity.SynchronizationLog.running')} sort/>
-                  <Advanced.Column
-                    property="syncActionLogs"
-                    header={this.i18n('acc:entity.SynchronizationLog.results')}
-                    cell={
-                      ({ rowIndex, data }) => {
-                        return this._generateResultCell(rowIndex, data);
-                      }
-                    }
-                    />
-                  <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
-                  <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
-                </Advanced.Table>
-              </Basic.Panel>
+                  }
+                  />
+                <Advanced.Column property="started" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.started')} sort/>
+                <Advanced.Column property="ended" face="datetime" header={this.i18n('acc:entity.SynchronizationLog.ended')} sort/>
+              </Advanced.Table>
             </Basic.Tab>
           </Basic.Tabs>
         </div>

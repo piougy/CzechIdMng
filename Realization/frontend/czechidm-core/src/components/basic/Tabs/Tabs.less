@@ -154,6 +154,8 @@
 .panel {
   .tab-horizontal {
 
+    margin-bottom: 15px;
+
     .nav.nav-tabs {
       // padding-top: 15px;
       background-color: @idm-form-bg;
@@ -161,7 +163,22 @@
 
     .tab-pane {
       background-color: transparent;
-      border: none;
+
+      &.no-border {
+        border: none;
+        margin-bottom: 0;
+      }
+
+      .panel {
+        &.no-border {
+          margin-bottom: 0;
+
+          .panel-footer {
+            padding-left: 15px;
+            padding-right: 15px;
+          }
+        }
+      }
     }
 
     .nav.nav-tabs {

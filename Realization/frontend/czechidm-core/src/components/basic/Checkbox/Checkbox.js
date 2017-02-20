@@ -4,7 +4,6 @@ import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
-import HelpIcon from '../HelpIcon/HelpIcon';
 
 class Checkbox extends AbstractFormComponent {
 
@@ -35,7 +34,7 @@ class Checkbox extends AbstractFormComponent {
   }
 
   getBody() {
-    const { labelSpan, label, componentSpan, tooltip, help, helpBlock } = this.props;
+    const { labelSpan, label, componentSpan, tooltip } = this.props;
     const { value, readOnly, disabled } = this.state;
     const title = this.getValidationResult() && this.getValidationResult().message ? this.getValidationResult().message + ' (' + tooltip + ')' : tooltip;
     const className = classNames(
@@ -59,15 +58,11 @@ class Checkbox extends AbstractFormComponent {
               <span>
                 {label}
               </span>
+              { this.renderHelpIcon() }
             </label>
           </Tooltip>
           {this.props.children}
-          <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

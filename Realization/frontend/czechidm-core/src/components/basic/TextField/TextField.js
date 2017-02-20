@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import HelpIcon from '../HelpIcon/HelpIcon';
 import Tooltip from '../Tooltip/Tooltip';
 import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
@@ -128,7 +127,7 @@ class TextField extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { type, labelSpan, label, componentSpan, placeholder, style, required, help, helpBlock } = this.props;
+    const { type, labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     const { value, disabled, readOnly } = this.state;
     //
     const className = classNames(
@@ -198,7 +197,8 @@ class TextField extends AbstractFormComponent {
           ||
           <label
             className={labelClassName}>
-            {label}
+            { label }
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
@@ -212,12 +212,8 @@ class TextField extends AbstractFormComponent {
               }
             </span>
           </Tooltip>
-          <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

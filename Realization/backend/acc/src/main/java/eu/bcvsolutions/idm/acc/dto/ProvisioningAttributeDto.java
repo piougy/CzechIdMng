@@ -18,6 +18,7 @@ public class ProvisioningAttributeDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String schemaAttributeName;
 	private AttributeMappingStrategyType strategyType;
+	private String transformValueFromResourceScript;
 
 	public ProvisioningAttributeDto(String schemaAttributeName, AttributeMappingStrategyType strategyType) {
 		super();
@@ -41,6 +42,14 @@ public class ProvisioningAttributeDto implements Serializable {
 		this.strategyType = strategyType;
 	}
 	
+	public String getTransformValueFromResourceScript() {
+		return transformValueFromResourceScript;
+	}
+
+	public void setTransformValueFromResourceScript(String transformValueFromResourceScript) {
+		this.transformValueFromResourceScript = transformValueFromResourceScript;
+	}
+
 	public String getKey(){
 		return MessageFormat.format("{0}_{1}", schemaAttributeName, strategyType);
 	}
@@ -85,7 +94,9 @@ public class ProvisioningAttributeDto implements Serializable {
 	}
 	
 	public static ProvisioningAttributeDto createProvisioningAttributeKey(AttributeMapping attribute){
-		return new ProvisioningAttributeDto(attribute.getSchemaAttribute().getName(), attribute.getStrategyType()); 
+		ProvisioningAttributeDto key =  new ProvisioningAttributeDto(attribute.getSchemaAttribute().getName(), attribute.getStrategyType()); 
+		key.setTransformValueFromResourceScript(attribute.getTransformFromResourceScript());
+		return key;
 	}
 
 }

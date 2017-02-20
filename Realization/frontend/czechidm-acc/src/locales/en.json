@@ -784,7 +784,7 @@
       "MERGE": "Merge",
       "AUTHORITATIVE_MERGE": "Authoritative merge",
       "CREATE": "Only on create",
-      "IF_NULL": "Only if value is null"
+      "WRITE_IF_NULL": "Only if value is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

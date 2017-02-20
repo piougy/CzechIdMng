@@ -220,8 +220,7 @@ public class DefaultSysSystemAttributeMappingService
 	 * @return
 	 */
 	@Override
-	public IcAttribute createIcAttribute(AttributeMapping attributeMapping, Object idmValue) {
-		SysSchemaAttribute schemaAttribute = attributeMapping.getSchemaAttribute();
+	public IcAttribute createIcAttribute(SysSchemaAttribute schemaAttribute, Object idmValue) {
 		// Check type of value
 		try {
 			Class<?> classType = Class.forName(schemaAttribute.getClassType());
@@ -231,7 +230,7 @@ public class DefaultSysSystemAttributeMappingService
 				((List<?>)idmValue).stream().forEachOrdered(value ->{
 					if (value != null && !(classType.isAssignableFrom(value.getClass()))) {
 						throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
-								ImmutableMap.of("attribute", attributeMapping.getIdmPropertyName(), "schemaAttributeType",
+								ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 										schemaAttribute.getClassType(), "valueType", value.getClass().getName()));
 					}
 				});
@@ -239,12 +238,12 @@ public class DefaultSysSystemAttributeMappingService
 			// Check single value on correct type
 			}else if (idmValue != null && !(classType.isAssignableFrom(idmValue.getClass()))) {
 				throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_VALUE_WRONG_TYPE,
-						ImmutableMap.of("attribute", attributeMapping.getName(), "schemaAttributeType",
+						ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 								schemaAttribute.getClassType(), "valueType", idmValue.getClass().getName()));
 			}
 		} catch (ClassNotFoundException | ProvisioningException e) {
 			throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_TYPE_NOT_FOUND,
-					ImmutableMap.of("attribute", attributeMapping.getName(), "schemaAttributeType",
+					ImmutableMap.of("attribute", schemaAttribute.getName(), "schemaAttributeType",
 							schemaAttribute.getClassType()),
 					e);
 		}

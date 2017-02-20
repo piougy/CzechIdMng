@@ -784,7 +784,7 @@
       "MERGE": "Sloučit",
       "AUTHORITATIVE_MERGE": "Autoritativní sloučení",
       "CREATE": "Pouze při vytvoření",
-      "IF_NULL": "Pouze pokud je hodnota null"
+      "WRITE_IF_NULL": "Pouze pokud je hodnota null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

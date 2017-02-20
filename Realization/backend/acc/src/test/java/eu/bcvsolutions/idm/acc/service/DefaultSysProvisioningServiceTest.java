@@ -164,10 +164,32 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 		Assert.assertNotNull(changedAccount);
 		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname());
 	}
+	
+	@Test
+	public void doIdentityProvisioningChangeAccountTransformFromResource() {
+		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		IdentityAccountFilter filter = new IdentityAccountFilter();
+		filter.setIdentityId(identity.getId());
+
+		AccIdentityAccount accountIdentityOne = identityAccoutnService.find(filter, null).getContent().get(0);
+		TestResource createdAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
+
+		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME.substring(1));
+		identity = idmIdentityService.save(identity);
+		Assert.assertNotEquals(identity.getFirstName(), createdAccount.getFirstname());
+
+		provisioningService.doProvisioning(identity);
+		TestResource changedAccount = entityManager.find(TestResource.class, accountIdentityOne.getAccount().getUid());
+		Assert.assertNotNull(changedAccount);
+		// Must be with "c" on target system, because we have set transformation from system!
+		Assert.assertEquals(identity.getFirstName(), changedAccount.getFirstname().substring(1));
+	}
 
 	@Test
 	public void doIdentityProvisioningChangeSingleAttribute() {
 		IdmIdentity identity = idmIdentityService.getByName(IDENTITY_USERNAME);
+		identity.setFirstName(IDENTITY_CHANGED_FIRST_NAME);
+		identity = idmIdentityService.save(identity);
 		Assert.assertEquals("Identity must have this first name!", IDENTITY_CHANGED_FIRST_NAME,
 				identity.getFirstName());
 
@@ -664,8 +686,9 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 			if ("__NAME__".equals(schemaAttr.getName())) {
 				SysSystemAttributeMapping attributeHandlingName = new SysSystemAttributeMapping();
 				attributeHandlingName.setUid(true);
-				attributeHandlingName.setEntityAttribute(false);
-				attributeHandlingName.setTransformToResourceScript("return \"" + "x" + IDENTITY_USERNAME + "\";");
+				attributeHandlingName.setEntityAttribute(true);
+				attributeHandlingName.setIdmPropertyName("username");
+				attributeHandlingName.setTransformToResourceScript("if(attributeValue){return \"x\"+ attributeValue;}");
 				attributeHandlingName.setName(schemaAttr.getName());
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
@@ -676,6 +699,7 @@ public class DefaultSysProvisioningServiceTest extends AbstractIntegrationTest {
 				attributeHandlingName.setIdmPropertyName("firstName");
 				attributeHandlingName.setSchemaAttribute(schemaAttr);
 				attributeHandlingName.setName(schemaAttr.getName());
+				attributeHandlingName.setTransformFromResourceScript("if(attributeValue){return attributeValue.substring(1);}");
 				attributeHandlingName.setSystemMapping(entityHandlingResult);
 				schemaAttributeHandlingService.save(attributeHandlingName);
 

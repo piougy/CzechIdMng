@@ -310,6 +310,8 @@ public class DefaultProvisioningService implements ProvisioningService {
 			}).collect(Collectors.toList());
 			
 			for(AttributeMapping attributeParent : attributesMerge){
+				ProvisioningAttributeDto attributeParentKey = ProvisioningAttributeDto.createProvisioningAttributeKey(attributeParent);
+			
 				if(!attributeParent.getSchemaAttribute().isMultivalued()){
 					throw new ProvisioningException(AccResultCode.PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE,
 							ImmutableMap.of("object", systemEntity.getUid(), "attribute", attributeParent.getSchemaAttribute().getName()));
@@ -317,14 +319,14 @@ public class DefaultProvisioningService implements ProvisioningService {
 				
 				List<Object> mergedValues = new ArrayList<>();
 				attributes.stream().filter(attribute -> {
-					return !accountAttributes.containsKey(attributeParent.getSchemaAttribute().getName())
+					return !accountAttributes.containsKey(attributeParentKey)
 							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
 							&& attributeParent.getStrategyType() == attribute.getStrategyType();
 				}).forEach(attribute -> {
 					mergedValues.add(getAttributeValue(entity, attribute));
 				});
-				if(!accountAttributes.containsKey(attributeParent.getSchemaAttribute().getName())){
-					accountAttributes.put(ProvisioningAttributeDto.createProvisioningAttributeKey(attributeParent), mergedValues);
+				if(!accountAttributes.containsKey(attributeParentKey)){
+					accountAttributes.put(attributeParentKey, mergedValues);
 				}
 			}
 		}
@@ -427,7 +429,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 		} else {
 			valueTransformed = attributeMappingService.transformValueToResource(value, attributeMapping, entity);
 		}
-		IcAttribute icAttributeForCreate = attributeMappingService.createIcAttribute(attributeMapping, valueTransformed);
+		IcAttribute icAttributeForCreate = attributeMappingService.createIcAttribute(attributeMapping.getSchemaAttribute(), valueTransformed);
 		//
 		// Call ic modul for update single attribute
 		IcConnectorObject connectorObject = new IcConnectorObjectImpl(systemEntity.getUid(), new IcObjectClassImpl(objectClassName), ImmutableList.of(icAttributeForCreate));		

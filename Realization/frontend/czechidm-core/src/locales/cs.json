@@ -1901,7 +1901,11 @@
         "fireTime": "Datum spuštění",
         "cron": {
           "label": "Cron výraz",
-          "help": "Quartz cron <a href=\"http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html\" target=\"_blank\">výraz</a>."
+          "help": "Quartz cron",
+          "link": {
+            "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
+            "text": "výraz"
+          }
         }
       }
     }

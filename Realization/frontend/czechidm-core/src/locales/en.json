@@ -1880,28 +1880,32 @@
       },
       "instanceId": {
         "label": "Instance",
-        "help": "Úloha spuštěna na serveru (identifikátor instance)"
+        "help": "Task will be executed on server (instance identifier)"
       },
-      "duration": "Trvání úlohy"
+      "duration": "Task duration"
     },
     "ScheduleTask": {
       "id": "Identifikátor",
       "taskType": "Task type",
       "instanceId": {
         "label": "Instance",
-        "help": "Spustit na serveru (identifikátor instance)"
+        "help": "Execute on server (instance identifier)"
       },
       "description": "Description",
       "triggers": "Scheduled starts",
       "trigger": {
         "_type": {
-          "label": "Typy",
+          "label": "Type",
           "help": "Scheduled start type"
         },
-        "fireTime": "Datum spuštění",
+        "fireTime": "Fire time",
         "cron": {
-          "label": "Cron výraz",
-          "help": "Quartz cron <a href=\"http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html\" target=\"_blank\">výraz</a>."
+          "label": "Cron expression",
+          "help": "Quartz cron",
+          "link": {
+            "href": "http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html",
+            "text": "expression"
+          }
         }
       }
     }

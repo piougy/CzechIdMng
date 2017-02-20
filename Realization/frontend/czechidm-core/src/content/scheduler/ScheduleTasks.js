@@ -510,7 +510,13 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="cron"
                   label={this.i18n('entity.ScheduleTask.trigger.cron.label')}
-                  helpBlock={<span dangerouslySetInnerHTML={{__html: this.i18n('entity.ScheduleTask.trigger.cron.help')}}/>}
+                  helpBlock={
+                    <span>
+                      { this.i18n('entity.ScheduleTask.trigger.cron.help') }
+                      {' '}
+                      <Basic.Link href={ this.i18n('entity.ScheduleTask.trigger.cron.link.href') } text={ this.i18n('entity.ScheduleTask.trigger.cron.link.text') }/>
+                    </span>
+                  }
                   hidden={triggerType !== 'CRON'}
                   required={triggerType === 'CRON'}/>
               </Basic.AbstractForm>

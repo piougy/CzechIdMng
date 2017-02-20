@@ -259,19 +259,19 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				IdmIdentity identity = passwordValidationDto.getIdentity();
 				for (int index = 0; index < attributes.length; index++) {
 					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
-						if (identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getEmail()!= null && identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_EMAIL, identity.getEmail());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
-						if (identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getFirstName() != null && identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_FIRSTNAME, identity.getFirstName());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
-						if (identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getLastName() != null && identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_LASTNAME, identity.getLastName());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
-						if (identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getUsername() != null && identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_USERNAME, identity.getUsername());
 						}
 					}

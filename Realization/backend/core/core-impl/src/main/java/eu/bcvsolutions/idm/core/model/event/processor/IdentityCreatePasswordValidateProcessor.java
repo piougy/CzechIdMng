@@ -46,11 +46,13 @@ public class IdentityCreatePasswordValidateProcessor extends CoreEventProcessor<
 	@Override
 	public EventResult<IdmIdentity> process(EntityEvent<IdmIdentity> event) {
 		GuardedString password = event.getContent().getPassword();
+		IdmIdentity identity = event.getContent();
 		
 		// when create identity password can be null
 		if (password != null) {
 			IdmPasswordValidationDto passwordValidationDto = new IdmPasswordValidationDto();
 			passwordValidationDto.setPassword(password);
+			passwordValidationDto.setIdentity(identity);
 			// validate create new password by default password policy
 			this.passwordPolicyService.validate(passwordValidationDto);
 		}

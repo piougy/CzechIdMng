@@ -1567,8 +1567,18 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Jmé role",
+      "_type": "Jméno role",
       "name": "Název složky",
+      "niceName": {
+        "name": "Jméno pro uživatele",
+        "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
+      },
+      "technicalName": {
+        "name": "Technické jméno/ID",
+        "help": "ID katalogu unikátní v rámci všech katalogů."
+      },
+      "ulr": "Odkaz",
+      "urlTitle": "Popis odkazu",
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"

@@ -1567,17 +1567,27 @@
       "titleAfter": "Titles after"
     },
     "RoleCatalogue": {
-      "_type": "Jmé role",
-      "name": "Název složky",
+      "_type": "Role name",
+      "name": "Folder name",
+      "niceName": {
+        "name": "Name for users",
+        "help": "Descriptive attribute for users. Unique within catalog level."
+      },
+      "technicalName": {
+        "name": "Technical name/ID",
+        "help": "Catalogue ID unique within all folder in catalogue."
+      },
+      "ulr": "URL",
+      "urlTitle": "URL title",
       "description": "description",
       "parent": {
-        "name": "Nadřazená složka v katalogu"
+        "name": "Parent folder in catalogue"
       },
       "filter": {
         "name": "Name",
-        "namePlaceHolder": "Jméno složky",
-        "parent": "Nadřazená složka",
-        "parentPlaceHolder": "Nadřezená složka"
+        "namePlaceHolder": "Folder name",
+          "parent": "Parent folder",
+        "parentPlaceHolder": "Parent folder"
       }
 
     },

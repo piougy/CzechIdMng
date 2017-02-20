@@ -6,6 +6,12 @@ Content title (h2). Renders children wrapped in h2 with proper css. Is used as s
 
 All parameters from AbstractComponent are supported.
 
+## Usable classnames
+
+| ClassName | Description |
+| --- | :--- |
+| marginable | Extends border to parent border |
+
 ## Usage
 
 ```html

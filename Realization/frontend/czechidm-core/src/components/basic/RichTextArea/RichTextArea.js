@@ -144,7 +144,7 @@ class RichTextArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, placeholder, style, required, helpBlock } = this.props;
+    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
     const { editorState, disabled, readOnly } = this.state;
     const labelClassName = classNames(
       labelSpan,
@@ -168,6 +168,7 @@ class RichTextArea extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan}>
@@ -194,11 +195,8 @@ class RichTextArea extends AbstractFormComponent {
               }
             </div>
           </Tooltip>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

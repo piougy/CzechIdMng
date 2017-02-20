@@ -172,8 +172,7 @@ class DateTimePicker extends AbstractFormComponent {
       style,
       locale,
       dateFormat,
-      timeFormat,
-      helpBlock
+      timeFormat
     } = this.props;
 
     const { readOnly, disabled, value } = this.state;
@@ -194,6 +193,7 @@ class DateTimePicker extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan}>
@@ -239,11 +239,8 @@ class DateTimePicker extends AbstractFormComponent {
             </Button>
             { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
           </div>
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

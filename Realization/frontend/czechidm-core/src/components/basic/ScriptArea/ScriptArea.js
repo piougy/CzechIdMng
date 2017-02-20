@@ -7,7 +7,6 @@ import Tooltip from '../Tooltip/Tooltip';
 import Button from '../Button/Button';
 import Icon from '../Icon/Icon';
 import Modal from '../Modal/Modal';
-import HelpIcon from '../HelpIcon/HelpIcon';
 
 
 class ScriptArea extends AbstractFormComponent {
@@ -73,7 +72,7 @@ class ScriptArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, mode, helpBlock, help, height, showMaximalizationBtn } = this.props;
+    const { labelSpan, label, componentSpan, required, mode, height, showMaximalizationBtn } = this.props;
     const {showModalEditor} = this.state;
     //
     const className = classNames('form-control');
@@ -98,6 +97,7 @@ class ScriptArea extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
 
@@ -134,16 +134,8 @@ class ScriptArea extends AbstractFormComponent {
             </Modal>
             </span>
           </Tooltip>
-          {
-            !help
-            ||
-            <HelpIcon content={help} style={{ marginRight: '3px' }}/>
-          }
-          {
-            !helpBlock
-            ||
-            <span className="help-block" style={{ whiteSpace: 'normal', display: 'inline'}}>{helpBlock}</span>
-          }
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

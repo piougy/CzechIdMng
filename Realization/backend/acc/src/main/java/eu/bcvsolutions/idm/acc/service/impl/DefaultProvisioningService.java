@@ -352,6 +352,8 @@ public class DefaultProvisioningService implements ProvisioningService {
 		overloadedAttribute.setUid(overloadingAttribute.isUid());
 		overloadedAttribute.setDisabledAttribute(overloadingAttribute.isDisabledDefaultAttribute());
 		overloadedAttribute.setStrategyType(overloadingAttribute.getStrategyType());
+		overloadedAttribute.setSendAlways(overloadingAttribute.isSendAlways());
+		overloadedAttribute.setSendOnlyIfNotNull(overloadingAttribute.isSendOnlyIfNotNull());
 	}
 
 	@Override

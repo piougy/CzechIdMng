@@ -531,6 +531,14 @@
         "label": "Je identifikátorem",
         "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
       },
+      "sendOnlyIfNotNull": {
+        "label": "Send IdM value only if is not null",
+        "tooltip": "Value for this attribute (computed by IdM), will be sent on target system only if value is not null."
+      },
+      "sendAlways": {
+        "label": "Send always",
+        "tooltip": "Value for this attribute will be send on target system always (even if not changed)."
+      },
       "disabledAttribute": {
         "label": "Je deaktivován",
         "tooltip": "Pokud je atribut deaktivován nebude se ve výchozím stavu využívat pro provisioning. Deaktivovaný atribut je ovšem možné přetížit a aktivovat v rámci konkrétní role."
@@ -780,11 +788,11 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Set",
+      "SET": "Set value computed by IdM",
       "MERGE": "Merge",
       "AUTHORITATIVE_MERGE": "Authoritative merge",
-      "CREATE": "Only on create",
-      "WRITE_IF_NULL": "Only if value is null"
+      "CREATE": "Write only on create",
+      "WRITE_IF_NULL": "Write if value (on resource) is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

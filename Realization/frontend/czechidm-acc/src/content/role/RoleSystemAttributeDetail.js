@@ -181,6 +181,16 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}/>
               <Basic.Checkbox
+                ref="sendAlways"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
+                ref="sendOnlyIfNotNull"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 readOnly = {_isDisabled}

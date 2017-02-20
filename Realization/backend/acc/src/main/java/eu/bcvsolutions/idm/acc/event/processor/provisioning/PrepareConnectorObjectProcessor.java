@@ -227,7 +227,49 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					throw new ProvisioningException(AccResultCode.PROVISIONING_SCHEMA_ATTRIBUTE_IS_FOUND, ImmutableMap.of("attribute", provisioningAttribute.getSchemaAttributeName()));
 				}
 				
+				Object idmValue = fullAccountObject.get(provisioningAttribute);
+				Object resultValue = idmValue;
+				
 				SysSchemaAttribute schemaAttribute = schemaAttributeOptional.get();
+				
+				
+				if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+					
+					boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
+					boolean existIfResourceNulltAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
+					if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
+				
+						if(existIfResourceNulltAttribute || existSetAttribute){
+							// Skip this attribute (with Create strategy), because exists same attribute with SET strategy 
+							// (SET strategy has higher priority) or with WRITE_IF_NULL strategy (WRITE_IF_NULL strategy has higher priority)								
+							continue;
+						}
+					}
+					if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+						
+						if(existSetAttribute){
+							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET strategy
+							// (SET strategy has higher priority)							
+							continue;
+						}
+					}
+//					if(AttributeMappingStrategyType.WRITE_IF_IDM_NOT_NULL == provisioningAttribute.getStrategyType()){
+//						if(idmValue == null || existSetAttribute){
+//							// Skip this attribute (with Write if not null strategy), because idm value is null
+//							// or exists same attribute with SET strategy (SET strategy has higher priority)								
+//							continue;
+//						}
+//					}
+					
+				}
 				
 				IcAttribute createdAttribute = createAttribute( 
 						schemaAttribute,
@@ -280,42 +322,53 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 					if (schemaAttribute.isReturnedByDefault()) {	
 						Object idmValue = fullAccountObject.get(provisioningAttribute);
 						IcAttribute attribute = existsConnectorObject.getAttributeByName(schemaAttribute.getName());
-						Object connectorValue = attribute.isMultiValue() ? attribute.getValues() : attribute.getValue();
+						Object connectorValue = attribute != null ? (attribute.isMultiValue() ? attribute.getValues() : attribute.getValue()) : null;
 						Object resultValue = idmValue;
+						
 						
 						if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
 							// We do update, attributes with create strategy will be skipped
 							continue;
 						}
 						
-				
-						
 						if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+							
 							boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
 								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
 										&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
 							}).findFirst().isPresent();
 							
-							List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
-							//
-							Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
-									.filter(ica -> {
-										return schemaAttribute.getName().equals(ica.getName());
+							if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
+								//
+								Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
+										.filter(ica -> {
+											return schemaAttribute.getName().equals(ica.getName());
 										})
-									.findFirst();
-							IcAttribute icAttribute = null;
-							if (icAttributeOptional.isPresent()) {
-								icAttribute = icAttributeOptional.get();
+										.findFirst();
+								IcAttribute icAttribute = null;
+								if (icAttributeOptional.isPresent()) {
+									icAttribute = icAttributeOptional.get();
+								}
+								// We need do transform from resource first
+								Object transformedConnectorValue = this.transformValueFromResource(provisioningAttribute.getTransformValueFromResourceScript()
+										, schemaAttribute, icAttribute, icAttributes, system);
+								
+								if(transformedConnectorValue != null || existSetAttribute){
+									// Skip this attribute (with Write if null strategy), because connector value is not null
+									// or exists same attribute with SET strategy (SET strategy has higher priority)								
+									continue;
+								}
 							}
-							// We need do transform from resource first
-							Object transformedConnectorValue = this.transformValueFromResource(provisioningAttribute.getTransformValueFromResourceScript()
-									, schemaAttribute, icAttribute, icAttributes, system);
 							
-							if(transformedConnectorValue != null || existSetAttribute){
-								// Skip this attribute (with Write if null strategy), because connector value is not null
-								// or exists same attribute with SET strategy (SET strategy has higher priority)								
-								continue;
-							}
+//							if(AttributeMappingStrategyType.WRITE_IF_IDM_NOT_NULL == provisioningAttribute.getStrategyType()){
+//								if(idmValue == null || existSetAttribute){
+//									// Skip this attribute (with Write if not null strategy), because idm value is null
+//									// or exists same attribute with SET strategy (SET strategy has higher priority)								
+//									continue;
+//								}
+//							}
+							
 						}
 						
 						if(AttributeMappingStrategyType.MERGE == provisioningAttribute.getStrategyType()){

@@ -19,6 +19,8 @@ public class ProvisioningAttributeDto implements Serializable {
 	private String schemaAttributeName;
 	private AttributeMappingStrategyType strategyType;
 	private String transformValueFromResourceScript;
+	private boolean sendAlways;
+	private boolean sendOnlyIfNotNull;
 
 	public ProvisioningAttributeDto(String schemaAttributeName, AttributeMappingStrategyType strategyType) {
 		super();
@@ -48,6 +50,22 @@ public class ProvisioningAttributeDto implements Serializable {
 
 	public void setTransformValueFromResourceScript(String transformValueFromResourceScript) {
 		this.transformValueFromResourceScript = transformValueFromResourceScript;
+	}
+
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
 
 	public String getKey(){
@@ -90,12 +108,14 @@ public class ProvisioningAttributeDto implements Serializable {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0} ({1})", schemaAttributeName, strategyType);
+		return MessageFormat.format("{0} ({1}) {2}/{3}", schemaAttributeName, strategyType, sendAlways,  sendOnlyIfNotNull);
 	}
 	
 	public static ProvisioningAttributeDto createProvisioningAttributeKey(AttributeMapping attribute){
 		ProvisioningAttributeDto key =  new ProvisioningAttributeDto(attribute.getSchemaAttribute().getName(), attribute.getStrategyType()); 
 		key.setTransformValueFromResourceScript(attribute.getTransformFromResourceScript());
+		key.setSendOnlyIfNotNull(attribute.isSendOnlyIfNotNull());
+		key.setSendAlways(attribute.isSendAlways());
 		return key;
 	}
 

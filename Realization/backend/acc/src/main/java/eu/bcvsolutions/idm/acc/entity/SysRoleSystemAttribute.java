@@ -93,6 +93,14 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "strategy_type", nullable = false)
 	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
+	
+	@Audited
+	@Column(name = "send_always", nullable = false)
+	private boolean sendAlways = false;
+	
+	@Audited
+	@Column(name = "send_only_if_not_null", nullable = false)
+	private boolean sendOnlyIfNotNull = false;
 
 
 	public String getName() {
@@ -181,6 +189,22 @@ public class SysRoleSystemAttribute extends AbstractEntity {
 
 	public void setStrategyType(AttributeMappingStrategyType strategyType) {
 		this.strategyType = strategyType;
+	}
+	
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+	
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
 	
 }

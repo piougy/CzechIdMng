@@ -855,7 +855,7 @@
       },
       "create": {
         "header": "Nová složka",
-        "title": "Nový složka"
+        "title": "Nová složka"
       },
       "save": {
         "success": "Složka [{{name}}] byla úspěšně uložena do katalogu rolí."

@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 
 /**
@@ -31,22 +31,22 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>  implements IdmRoleCatalogueService {
 	
 	private final IdmRoleCatalogueRepository roleCatalogueRepository;
-	private final IdmRoleRepository roleRepository;
+	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueService(
 			IdmRoleCatalogueRepository roleCatalogueRepository,
-			IdmRoleRepository roleRepository,
-			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService) {
+			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService,
+			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository) {
 		super(roleCatalogueRepository);
 		//
-		Assert.notNull(roleRepository);
 		Assert.notNull(baseTreeService);
+		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.roleCatalogueRepository = roleCatalogueRepository;
-		this.roleRepository = roleRepository;
 		this.baseTreeService = baseTreeService;
+		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
 	}
 	
 	@Override
@@ -72,8 +72,8 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		if (!findChildrenByParent(roleCatalogue.getId()).isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getName()));
 		}
-		// selected role catalogues - set to null
-		roleRepository.clearCatalogue(roleCatalogue);
+		// remove row from intersection table
+		roleCatalogueRoleRepository.deleteAllByRoleCatalogue(roleCatalogue);
 		//
 		super.delete(roleCatalogue);
 	}

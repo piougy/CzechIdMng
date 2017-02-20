@@ -279,7 +279,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable', 'description', 'roleCatalogue'],
+  columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
   filterOpened: false,
   showCatalogue: true,
   forceSearchParameters: null

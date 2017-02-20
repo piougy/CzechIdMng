@@ -99,6 +99,36 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
                 required
                 min={0}
                 max={255}/>
+              <Basic.TextField
+                ref="technicalName"
+                label={this.i18n('entity.RoleCatalogue.technicalName.name')}
+                helpBlock={this.i18n('entity.RoleCatalogue.technicalName.help')}
+                required
+                min={0}
+                max={255}/>
+              <Basic.TextField
+                ref="niceName"
+                label={this.i18n('entity.RoleCatalogue.niceName.name')}
+                helpBlock={this.i18n('entity.RoleCatalogue.niceName.help')}
+                required
+                min={0}
+                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Basic.TextField
+                    ref="urlTitle"
+                    label={this.i18n('entity.RoleCatalogue.urlTitle')}
+                    min={0}
+                    max={255}/>
+                </div>
+                <div className="col-lg-8">
+                  <Basic.TextField
+                    ref="url"
+                    label={this.i18n('entity.RoleCatalogue.url')}
+                    min={0}
+                    max={255}/>
+                </div>
+              </Basic.Row>
               <Basic.SelectBox
                 ref="parent"
                 label={this.i18n('entity.RoleCatalogue.parent.name')}

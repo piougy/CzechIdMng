@@ -2,19 +2,14 @@ package eu.bcvsolutions.idm.core.model.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import java.util.UUID;
-
-import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.ForeignKey;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -42,8 +37,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
  */
 @Entity
 @Table(name = "idm_role", indexes = { 
-		@Index(name = "ux_idm_role_name", columnList = "name", unique = true),
-		@Index(name = "idx_idm_role_catalogue", columnList = "role_catalogue_id")})
+		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
 public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
@@ -102,12 +96,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<IdmRoleGuarantee> guarantees;
 	
-	@Audited
-	@ManyToOne(optional = true)
-	@JoinColumn(name = "role_catalogue_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
-	@org.hibernate.annotations.ForeignKey( name = "none" )
-	private IdmRoleCatalogue roleCatalogue;
+	@JsonManagedReference
+	@OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<IdmRoleCatalogueRole> roleCatalogues;
 
 	public IdmRole() {
 	}
@@ -115,13 +106,21 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	public IdmRole(UUID id) {
 		super(id);
 	}
-	
-	public IdmRoleCatalogue getRoleCatalogue() {
-		return roleCatalogue;
+
+	public List<IdmRoleCatalogueRole> getRoleCatalogues() {
+		if (roleCatalogues == null) {
+			roleCatalogues = new ArrayList<>();
+		}
+		return roleCatalogues;
 	}
 
-	public void setRoleCatalogue(IdmRoleCatalogue roleCatalogue) {
-		this.roleCatalogue = roleCatalogue;
+	public void setRoleCatalogues(List<IdmRoleCatalogueRole> roleCatalogues) {
+		if (this.roleCatalogues == null) {
+	        this.roleCatalogues = roleCatalogues;
+	    } else {
+	        this.roleCatalogues.clear();
+	        this.roleCatalogues.addAll(roleCatalogues);
+	    }
 	}
 
 	@Override

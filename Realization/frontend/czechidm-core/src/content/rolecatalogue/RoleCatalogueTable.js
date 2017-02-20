@@ -167,74 +167,82 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
       <div className="col-lg-9">
       <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-      <Advanced.Table
-      ref="table"
-      uiKey={uiKey}
-      manager={roleCatalogueManager}
-      rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
-      filterOpened={filterOpened}
-      showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
-      style={{ borderLeft: '1px solid #ddd' }}
-      filter={
-        <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-          <Basic.AbstractForm ref="filterForm">
-            <Basic.Row>
-              <div className="col-lg-4">
-                <Advanced.Filter.TextField
-                ref="text"
-                placeholder={this.i18n('entity.RoleCatalogue.filter.namePlaceHolder')}/>
-              </div>
-              <div className="col-lg-4">
-                <Advanced.Filter.SelectBox
-                  ref="parent"
-                  placeholder={this.i18n('entity.RoleCatalogue.filter.parentPlaceHolder')}
-                  manager={roleCatalogueManager}/>
-              </div>
-              <div className="col-lg-4 text-right">
-                <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-              </div>
-            </Basic.Row>
-          </Basic.AbstractForm>
-        </Advanced.Filter>
-      }
-      actions={
-        [
-          { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-        ]
-      }
-      buttons={
-        [
-          <Basic.Button
-          level="success"
-          key="add_button"
-          className="btn-xs"
-          onClick={this.showDetail.bind(this, { })}
-          rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
-          <Basic.Icon type="fa" icon="plus"/>
-          {' '}
-          {this.i18n('button.add')}
-          </Basic.Button>
-        ]
-      }
-      >
-
-      <Advanced.Column
-      header=""
-      className="detail-button"
-      cell={
-        ({ rowIndex, data }) => {
-          return (
-            <Advanced.DetailButton
-            title={this.i18n('button.detail')}
-            onClick={this.showDetail.bind(this, data[rowIndex])}/>
-          );
+        <Advanced.Table
+        ref="table"
+        uiKey={uiKey}
+        manager={roleCatalogueManager}
+        rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+        filterOpened={filterOpened}
+        showRowSelection={SecurityManager.hasAuthority('ROLE_DELETE')}
+        style={{ borderLeft: '1px solid #ddd' }}
+        filter={
+          <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+            <Basic.AbstractForm ref="filterForm">
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Advanced.Filter.TextField
+                  ref="text"
+                  placeholder={this.i18n('entity.RoleCatalogue.filter.namePlaceHolder')}/>
+                </div>
+                <div className="col-lg-4">
+                  <Advanced.Filter.SelectBox
+                    ref="parent"
+                    placeholder={this.i18n('entity.RoleCatalogue.filter.parentPlaceHolder')}
+                    manager={roleCatalogueManager}/>
+                </div>
+                <div className="col-lg-4 text-right">
+                  <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                </div>
+              </Basic.Row>
+            </Basic.AbstractForm>
+          </Advanced.Filter>
         }
-      }
-      sort={false}/>
-      <Advanced.ColumnLink to="rolecatalogue/:id" property="name" width="15%" sort face="text"/>
-      <Advanced.Column property="parent.name" sort/>
-      <Advanced.Column property="description" sort face="text"/>
-      </Advanced.Table>
+        actions={
+          [
+            { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+          ]
+        }
+        buttons={
+          [
+            <Basic.Button
+            level="success"
+            key="add_button"
+            className="btn-xs"
+            onClick={this.showDetail.bind(this, { })}
+            rendered={SecurityManager.hasAuthority('ROLE_WRITE')}>
+            <Basic.Icon type="fa" icon="plus"/>
+            {' '}
+            {this.i18n('button.add')}
+            </Basic.Button>
+          ]
+        }
+        >
+
+        <Advanced.Column
+        header=""
+        className="detail-button"
+        cell={
+          ({ rowIndex, data }) => {
+            return (
+              <Advanced.DetailButton
+              title={this.i18n('button.detail')}
+              onClick={this.showDetail.bind(this, data[rowIndex])}/>
+            );
+          }
+        }
+        sort={false}/>
+        <Advanced.ColumnLink to="rolecatalogue/:id" property="name" width="15%" sort face="text"/>
+        <Advanced.Column property="niceName" sort face="text"/>
+        <Advanced.Column property="technicalName" sort face="text"/>
+        <Advanced.Column property="parent.name" sort/>
+        <Advanced.Column header={this.i18n('entity.RoleCatalogue.urlTitle')}
+          cell={
+            ({ rowIndex, data }) => {
+              return (<Basic.Link href={data[rowIndex].url} text={data[rowIndex].urlTitle} />);
+            }
+          }/>
+        <Advanced.Column property="description" sort face="text"/>
+        </Advanced.Table>
       </div>
       </Basic.Row>
     );

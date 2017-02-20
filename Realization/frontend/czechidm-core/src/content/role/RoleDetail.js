@@ -30,7 +30,6 @@ class RoleDetail extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entity } = this.props;
-
     if (Utils.Entity.isNew(entity)) {
       entity.priorityEnum = RolePriorityEnum.NONE;
       entity.priority = RolePriorityEnum.getPriority(RolePriorityEnum.NONE) + '';
@@ -53,9 +52,7 @@ class RoleDetail extends Basic.AbstractContent {
     copyOfEntity.subRoles = !entity.subRoles ? [] : entity.subRoles.map(subRole => { return subRole._embedded.sub; });
     copyOfEntity.superiorRoles = !entity.superiorRoles ? [] : entity.superiorRoles.map(superiorRole => { return superiorRole._embedded.superior; });
     copyOfEntity.guarantees = !entity.guarantees ? [] : entity.guarantees.map(guarantee => { return guarantee._embedded.guarantee; });
-    if (copyOfEntity._embedded !== undefined && copyOfEntity._embedded.roleCatalogue !== undefined) {
-      copyOfEntity.roleCatalogue = copyOfEntity._embedded.roleCatalogue.id;
-    }
+    copyOfEntity.roleCatalogues = !entity.roleCatalogues ? [] : entity.roleCatalogues.map(roleCatalogue => { return roleCatalogue._embedded.roleCatalogue; } );
     copyOfEntity.priorityEnum = RolePriorityEnum.getKeyByPriority(copyOfEntity.priority);
     copyOfEntity.priority = copyOfEntity.priority + ''; // We have to do convert form int to string (cause TextField and validator)
     return copyOfEntity;
@@ -98,9 +95,13 @@ class RoleDetail extends Basic.AbstractContent {
           };
         });
       }
-      // transform object roleCatalogue to self link
-      if (entity.roleCatalogue) {
-        entity.roleCatalogue = roleCatalogueManager.getSelfLink(entity.roleCatalogue);
+      // transform roleCatalogues to self links
+      if (entity.roleCatalogues) {
+        entity.roleCatalogues = entity.roleCatalogues.map(roleCatalogueId => {
+          return {
+            roleCatalogue: roleCatalogueManager.getSelfLink(roleCatalogueId)
+          };
+        });
       }
       // delete superior roles - we dont want to save them (they are ignored on BE anyway)
       delete entity.superiorRoles;
@@ -184,7 +185,8 @@ class RoleDetail extends Basic.AbstractContent {
                         readOnly
                         required/>
                       <Basic.SelectBox
-                        ref="roleCatalogue"
+                        multiSelect
+                        ref="roleCatalogues"
                         label={this.i18n('entity.Role.roleCatalogue.name')}
                         manager={roleCatalogueManager}/>
                       <Basic.SelectBox

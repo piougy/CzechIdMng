@@ -58,6 +58,22 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	@Column(insertable = false, updatable = false)
 	@Formula("(select coalesce(count(1),0) from idm_role_catalogue e where e.parent_id = id)")
 	private int childrenCount;
+	
+	@Audited
+	@Column(name = "nice_name")
+	private String niceName;
+	
+	@Audited
+	@Column(name = "technical_name")
+	private String technicalName;
+	
+	@Audited
+	@Column(name = "url")
+	private String url;
+	
+	@Audited
+	@Column(name = "url_title")
+	private String urlTitle;
 
 	public String getName() {
 		return name;
@@ -92,5 +108,37 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 
 	public int getChildrenCount() {
 		return childrenCount;
+	}
+
+	public String getNiceName() {
+		return niceName;
+	}
+
+	public String getTechnicalName() {
+		return technicalName;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getUrlTitle() {
+		return urlTitle;
+	}
+
+	public void setNiceName(String niceName) {
+		this.niceName = niceName;
+	}
+
+	public void setTechnicalName(String technicalName) {
+		this.technicalName = technicalName;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setUrlTitle(String urlTitle) {
+		this.urlTitle = urlTitle;
 	}
 }

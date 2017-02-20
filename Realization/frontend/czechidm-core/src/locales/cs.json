@@ -1587,7 +1587,9 @@
         "name": "Jméno",
         "namePlaceHolder": "Jméno složky",
         "parent": "Nadřazená složka",
-        "parentPlaceHolder": "Nadřezená složka"
+        "parentPlaceHolder": "Nadřezená složka",
+        "niceName": "Jméno pro uživatele",
+        "technicalName": "Technické jméno/ID"
       }
 
     },

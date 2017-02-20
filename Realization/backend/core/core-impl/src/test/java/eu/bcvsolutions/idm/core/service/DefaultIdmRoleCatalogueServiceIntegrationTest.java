@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.InitTestData;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogueRole;
@@ -79,5 +80,80 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		//
 		List<IdmRoleCatalogue> roleCatalogues = roleCatalogueRoleService.getRoleCatalogueByRole(role);
 		assertEquals(0, roleCatalogues.size());
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testDuplicitNiceNameRoots() {
+		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
+		String name = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue.setName(name);
+		roleCatalogue.setNiceName("test");
+		//
+		this.roleCatalogueService.save(roleCatalogue);
+		//
+		// create second
+		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
+		name = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue2.setName(name);
+		roleCatalogue2.setNiceName("test");
+		// throws error
+		this.roleCatalogueService.save(roleCatalogue);
+	}
+	
+	@Test(expected = ResultCodeException.class)
+	public void testDuplicitNiceNameChilds() {
+		IdmRoleCatalogue root = new IdmRoleCatalogue();
+		String name = "cat_one_" + System.currentTimeMillis();
+		root.setName(name);
+		root.setNiceName("test" + System.currentTimeMillis());
+		this.roleCatalogueService.save(root);
+		//
+		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
+		name = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue.setName(name);
+		roleCatalogue.setParent(root);
+		roleCatalogue.setNiceName("test");
+		//
+		this.roleCatalogueService.save(roleCatalogue);
+		//
+		// create second
+		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
+		name = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue2.setName(name);
+		roleCatalogue2.setParent(root);
+		roleCatalogue2.setNiceName("test");
+		// throws error
+		this.roleCatalogueService.save(roleCatalogue2);
+	}
+	
+	@Test
+	public void testNiceNameDiffLevel() {
+		IdmRoleCatalogue root = new IdmRoleCatalogue();
+		String name = "cat_one_" + System.currentTimeMillis();
+		root.setNiceName("test");
+		root.setName(name);
+		root = this.roleCatalogueService.save(root);
+		//
+		IdmRoleCatalogue child1 = new IdmRoleCatalogue();
+		name = "cat_one_" + System.currentTimeMillis();
+		child1.setNiceName("test");
+		child1.setParent(root);
+		child1.setName(name);
+		child1 = this.roleCatalogueService.save(child1);
+		//
+		IdmRoleCatalogue child2 = new IdmRoleCatalogue();
+		name = "cat_one_" + System.currentTimeMillis();
+		child2.setNiceName("test");
+		child2.setParent(child1);
+		child2.setName(name);
+		child2 = this.roleCatalogueService.save(child2);
+		/* excepted
+		 * - root
+		 * 		- child1
+		 * 				- child2
+		 */
+		assertEquals(1, this.roleCatalogueService.findChildrenByParent(root.getId()).size());
+		assertEquals(1, this.roleCatalogueService.findChildrenByParent(child1.getId()).size());
+		assertEquals(0, this.roleCatalogueService.findChildrenByParent(child2.getId()).size());
 	}
 }

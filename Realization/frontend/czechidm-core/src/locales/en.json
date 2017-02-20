@@ -1586,8 +1586,10 @@
       "filter": {
         "name": "Name",
         "namePlaceHolder": "Folder name",
-          "parent": "Parent folder",
-        "parentPlaceHolder": "Parent folder"
+        "parent": "Parent folder",
+        "parentPlaceHolder": "Parent folder",
+        "niceName": "Name for users",
+        "technicalName": "Technical name/ID"
       }
 
     },

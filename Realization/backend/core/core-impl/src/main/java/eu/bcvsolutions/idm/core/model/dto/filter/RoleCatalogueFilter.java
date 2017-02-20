@@ -14,6 +14,26 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 public class RoleCatalogueFilter extends QuickFilter {
 	
 	private UUID parentId;
+	
+	private String niceName;
+	
+	private String technicalName;
+	
+	public String getNiceName() {
+		return niceName;
+	}
+
+	public String getTechnicalName() {
+		return technicalName;
+	}
+
+	public void setNiceName(String niceName) {
+		this.niceName = niceName;
+	}
+
+	public void setTechnicalName(String technicalName) {
+		this.technicalName = technicalName;
+	}
 
 	public UUID getParentId() {
 		return parentId;

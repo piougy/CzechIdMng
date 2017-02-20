@@ -1577,7 +1577,7 @@
         "name": "Technical name/ID",
         "help": "Catalogue ID unique within all folder in catalogue."
       },
-      "ulr": "URL",
+      "url": "URL",
       "urlTitle": "URL title",
       "description": "description",
       "parent": {
@@ -2074,24 +2074,28 @@
       "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
     },
     "GROOVY_SCRIPT_VALIDATION": {
-      "title": "Groovy skript obsahuje kompilační chyby",
+      "title": "Groovy script contains compile errors",
       "message": ""
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
-      "title": "Groovy skript neprošel bezpečností kontrolou!",
-      "message": "Příčina: {{message}}"
+      "title": "Groovy script did not passt safety check!",
+      "message": "Reason: {{message}}"
     },
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Katalog rolí nelze odebrat",
-      "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
+      "title": "Role catalogue can't be removed",
+      "message": "Role catalogue [{{roleCatalogue}}] contains child catalogue. Remove all child catalogues first."
+    },
+    "ROLE_CATALOGUE_BAD_NICE_NAME" : {
+      "title": "Duplicate name for user",
+      "message": "At this level is already catalogue with this name for user: [{{name}}]."
     },
     "AUDIT_REVISION_NOT_SAME": {
-      "title": "Revize nelze porovnat",
-      "message": "Revize musí být stejného typu a od stejné entity."
+      "title": "Revisions aren't comparable",
+      "message": "Revisions must be same same type and from same entity."
     },
     "BAD_FILTER": {
-      "title": "Filter není validní",
-      "message": "Zkontrolujte vyplněné hodnoty filtru."
+      "title": "Filter isn't valid",
+      "message": "Please check filled values."
     },
     "LONG_RUNNING_TASK_FAILED": {
       "title": "Zpracování úlohy selhalo",

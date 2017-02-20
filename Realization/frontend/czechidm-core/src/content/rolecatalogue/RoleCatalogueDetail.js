@@ -110,23 +110,18 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
                 ref="niceName"
                 label={this.i18n('entity.RoleCatalogue.niceName.name')}
                 helpBlock={this.i18n('entity.RoleCatalogue.niceName.help')}
-                required
                 min={0}
                 max={255}/>
               <Basic.Row>
                 <div className="col-lg-4">
                   <Basic.TextField
                     ref="urlTitle"
-                    label={this.i18n('entity.RoleCatalogue.urlTitle')}
-                    min={0}
-                    max={255}/>
+                    label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
                 </div>
                 <div className="col-lg-8">
                   <Basic.TextField
                     ref="url"
-                    label={this.i18n('entity.RoleCatalogue.url')}
-                    min={0}
-                    max={255}/>
+                    label={this.i18n('entity.RoleCatalogue.url')}/>
                 </div>
               </Basic.Row>
               <Basic.SelectBox

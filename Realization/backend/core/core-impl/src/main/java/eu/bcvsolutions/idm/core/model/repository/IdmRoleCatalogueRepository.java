@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -43,9 +42,8 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	
 	IdmRoleCatalogue findOneByName(@Param("name") String name);
 	
-	// TODO: pageable - see treeNode
 	@Query(value = "select e from IdmRoleCatalogue e" +
 			" where" +
 			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")
-	List<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId);
+	Page<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId, Pageable pageable);
 }

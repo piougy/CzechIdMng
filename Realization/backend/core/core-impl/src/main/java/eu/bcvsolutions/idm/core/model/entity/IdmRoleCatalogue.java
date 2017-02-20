@@ -32,6 +32,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 @Entity
 @Table(name = "idm_role_catalogue", indexes = {
 		@Index(name = "ux_role_catalogue_name", columnList = "name", unique = true),
+		@Index(name = "ux_role_catalogue_technical_name", columnList = "technical_name", unique = true),
 		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
 public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByName, BaseTreeEntity<IdmRoleCatalogue> {
 

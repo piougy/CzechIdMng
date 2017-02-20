@@ -1577,7 +1577,7 @@
         "name": "Technické jméno/ID",
         "help": "ID katalogu unikátní v rámci všech katalogů."
       },
-      "ulr": "Odkaz",
+      "url": "Odkaz",
       "urlTitle": "Popis odkazu",
       "description": "Popis",
       "parent": {
@@ -2084,6 +2084,10 @@
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
       "title": "Katalog rolí nelze odebrat",
       "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
+    },
+    "ROLE_CATALOGUE_BAD_NICE_NAME" : {
+      "title": "Duplicitní jméno pro uživatele",
+      "message": "Na této úrovni se již nachází katalog s tímto jménem pro uživatele: [{{name}}]."
     },
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",

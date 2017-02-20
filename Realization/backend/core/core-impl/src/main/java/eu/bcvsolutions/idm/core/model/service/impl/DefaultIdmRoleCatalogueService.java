@@ -57,10 +57,8 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	
 	@Override
 	public IdmRoleCatalogue save(IdmRoleCatalogue entity) {
-		// test role catalogue to parent and children
-		if (this.baseTreeService.validateTreeNodeParents(entity)) {
-			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog ["+entity.getName() +"] have bad parent.");
-		}
+		// validate role
+		this.validate(entity);
 		return super.save(entity);
 	}
 	
@@ -81,13 +79,45 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findRoots() {
-		return this.roleCatalogueRepository.findChildren(null);
+		return this.roleCatalogueRepository.findChildren(null, null).getContent();
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findChildrenByParent(UUID parent) {
-		return this.roleCatalogueRepository.findChildren(parent);
+		return this.roleCatalogueRepository.findChildren(parent, null).getContent();
+	}
+	
+	/**
+	 * Method validate roleCatalogue before save (create/update).
+	 * 
+	 * @param roleCatalogue
+	 */
+	private void validate(IdmRoleCatalogue roleCatalogue) {
+		Assert.notNull(roleCatalogue);
+		//
+		// test role catalogue to parent and children
+		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {
+			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog [" + roleCatalogue.getName() + "] have bad parent.");
+		}
+		//
+		IdmRoleCatalogue parent = roleCatalogue.getParent();
+		List<IdmRoleCatalogue> roleCatalogues = null;
+		if (parent != null) { // get same level
+			roleCatalogues = this.findChildrenByParent(parent.getId());
+		} else { // get roots
+			roleCatalogues = this.findRoots();
+		}
+		// iterate over all found role catalogues and compare their names
+		for (IdmRoleCatalogue rc : roleCatalogues) {
+			if (rc.getNiceName() == null) {
+				continue;
+			}
+			// if names are same throw error + (check id)
+			if (rc.getNiceName().equals(roleCatalogue.getNiceName()) && !rc.getId().equals(roleCatalogue.getId())) {
+				throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", rc.getNiceName()));
+			}
+		}
 	}
 	
 }

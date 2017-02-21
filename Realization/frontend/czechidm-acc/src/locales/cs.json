@@ -511,6 +511,7 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
       "extendedAttribute": "Rozšířený atribut",
@@ -798,6 +799,17 @@
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "FIRSTNAME": "Jméno (String)",
+      "LASTNAME": "Příjmení (String)",
+      "TITLE_BEFORE": "Titul před (String)",
+      "TITLE_AFTER": "Titul za (String)",
+      "DESCRIPTION": "Poznámka (String)",
+      "PHONE": "Telefon (String)",
+      "EMAIL": "Email (String)"
     }
   },
   "permission": {

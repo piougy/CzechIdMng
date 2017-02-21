@@ -1,4 +1,5 @@
 import { Enums } from 'czechidm-core';
+import IdentityAttributeEnum from './IdentityAttributeEnum';
 
 /**
  * OperationType for adit operation etc.
@@ -33,6 +34,22 @@ export default class SystemEntityTypeEnum extends Enums.AbstractEnum {
       }
       default: {
         return 'default';
+      }
+    }
+  }
+  static getEntityEnum(key) {
+    if (!key) {
+      return null;
+    }
+
+    const sym = super.findSymbolByKey(this, key);
+
+    switch (sym) {
+      case this.IDENTITY: {
+        return IdentityAttributeEnum;
+      }
+      default: {
+        return null;
       }
     }
   }

@@ -241,9 +241,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 			return;
 		}
 		
-		// Validate attributes on incompatible strategies
-		validateAttributesStrategy(finalAttributes);
-		
 		doProvisioning(systemEntity, identity, operationType, finalAttributes);		
 	}
 
@@ -417,9 +414,6 @@ public class DefaultProvisioningService implements ProvisioningService {
 				return;
 			}
 			
-			// Validate attributes on incompatible strategies
-			validateAttributesStrategy(finalAttributes);
-
 			// We try find __PASSWORD__ attribute in mapped attributes
 			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
 					.filter((attribute) -> {
@@ -571,6 +565,10 @@ public class DefaultProvisioningService implements ProvisioningService {
 				finalAttributes.addAll(compileAtributeForStrategy(strategy, defaultAttribute, overloadingAttributes));
 			}
 		});
+		
+		// Validate attributes on incompatible strategies
+		validateAttributesStrategy(finalAttributes);
+		
 		return finalAttributes;
 	}
 

@@ -19,6 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -29,6 +30,7 @@ import eu.bcvsolutions.idm.ic.api.IcPasswordAttribute;
 @Description("After success provisioning send notification to identity with new generate password.")
 public class ProvisioningSendNotificationProcessor extends AbstractEntityEventProcessor<SysProvisioningOperation> {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProvisioningSendNotificationProcessor.class);
 	public static final String PROCESSOR_NAME = "provisioning-send-notification-processor";
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
@@ -77,12 +79,19 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 					parameters.put("uid", provisioningOperation.getSystemEntityUid());
 					parameters.put("password", password);
 					//
-					// send message with new password to identity
-					notificationManager.send(
-							AccModuleDescriptor.TOPIC_NEW_PASSWORD,
-							notificationTemplateService.getTemplateByCode("prov_pass"),
-							parameters, 
-							identity);
+					IdmNotificationTemplate template = notificationTemplateService.getTemplateByCode("prov_pass");
+					//
+					if (template != null) {
+						// send message with new password to identity
+						notificationManager.send(
+								AccModuleDescriptor.TOPIC_NEW_PASSWORD,
+								template,
+								parameters, 
+								identity);
+					} else {
+						// log missing templates
+						LOG.info("[SysProvisioningOperation] Password for new created account was not sent, missing notification template! Operation id: [{}].", provisioningOperation.getId());
+					}
 					break;
 				}
 				

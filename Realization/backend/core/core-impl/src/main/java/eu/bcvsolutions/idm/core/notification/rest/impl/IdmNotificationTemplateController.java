@@ -15,7 +15,6 @@ import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,17 +40,11 @@ import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/notification-templates")
 public class IdmNotificationTemplateController extends DefaultReadWriteEntityController<IdmNotificationTemplate, NotificationTemplateFilter> {
 	
-	private final IdmNotificationTemplateService notificationTemplateService;
-	
 	@Autowired
 	public IdmNotificationTemplateController(EntityLookupService entityLookupService,
 			IdmNotificationTemplateService notificationTemplateService) {
 		//
 		super(entityLookupService, notificationTemplateService);
-		//
-		Assert.notNull(notificationTemplateService);
-		//
-		this.notificationTemplateService = notificationTemplateService;
 	}
 	
 	@ResponseBody

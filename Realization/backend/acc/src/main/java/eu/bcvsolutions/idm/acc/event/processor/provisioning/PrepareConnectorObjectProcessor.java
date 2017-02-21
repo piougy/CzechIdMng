@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -228,12 +229,17 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 				}
 				
 				Object idmValue = fullAccountObject.get(provisioningAttribute);
-				Object resultValue = idmValue;
-				
 				SysSchemaAttribute schemaAttribute = schemaAttributeOptional.get();
 				
+				if(provisioningAttribute.isSendOnlyIfNotNull()){
+					if(this.isValueEmpty(idmValue)){
+						// Skip this attribute (marked with flag sendOnlyIfNotNull), because IdM value is null							
+						continue;
+					}
+				}
 				
-				if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
+				if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType() 
+						|| AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 					
 					boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
 						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
@@ -261,13 +267,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							continue;
 						}
 					}
-//					if(AttributeMappingStrategyType.WRITE_IF_IDM_NOT_NULL == provisioningAttribute.getStrategyType()){
-//						if(idmValue == null || existSetAttribute){
-//							// Skip this attribute (with Write if not null strategy), because idm value is null
-//							// or exists same attribute with SET strategy (SET strategy has higher priority)								
-//							continue;
-//						}
-//					}
 					
 				}
 				
@@ -331,6 +330,13 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 							continue;
 						}
 						
+						if(provisioningAttribute.isSendOnlyIfNotNull()){
+							if(this.isValueEmpty(idmValue)){
+								// Skip this attribute (marked with flag sendOnlyIfNotNull), because idm value is null							
+								continue;
+							}
+						}
+						
 						if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 							
 							boolean existSetAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
@@ -360,14 +366,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 									continue;
 								}
 							}
-							
-//							if(AttributeMappingStrategyType.WRITE_IF_IDM_NOT_NULL == provisioningAttribute.getStrategyType()){
-//								if(idmValue == null || existSetAttribute){
-//									// Skip this attribute (with Write if not null strategy), because idm value is null
-//									// or exists same attribute with SET strategy (SET strategy has higher priority)								
-//									continue;
-//								}
-//							}
 							
 						}
 						
@@ -440,7 +438,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								schemaAttribute, 
 								existsConnectorObject,
 								system,
-								provisioningAttribute.getTransformValueFromResourceScript());
+								provisioningAttribute);
 						if (updatedAttribute != null) {
 							updateConnectorObject.getAttributes().add(updatedAttribute);
 						}
@@ -451,6 +449,18 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 		//
 		provisioningOperation.getProvisioningContext().setConnectorObject(updateConnectorObject);
 		provisioningOperation.setOperationType(ProvisioningEventType.UPDATE);
+	}
+	
+	private boolean isValueEmpty(Object idmValue){
+		if(idmValue == null){
+			return true;
+		}
+		
+		if(idmValue instanceof String && Strings.isNullOrEmpty((String) idmValue)){
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private SysSystemMapping getMapping(SysSystem system, SystemEntityType entityType) {
@@ -508,7 +518,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * @param schemaAttribute
 	 * @param connectorObject
 	 */
-	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcConnectorObject existsConnectorObject, SysSystem system, String transformValueFromResourceScript) {
+	private IcAttribute updateAttribute(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcConnectorObject existsConnectorObject, SysSystem system, ProvisioningAttributeDto provisioningAttributeDto) {
 		List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 		//
 		Optional<IcAttribute> icAttributeOptional = icAttributes.stream()
@@ -521,7 +531,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			icAttribute = icAttributeOptional.get();
 		}
 	
-		return updateAttributeValue(uid, idmValue, schemaAttribute, icAttribute, icAttributes, system, transformValueFromResourceScript);
+		return updateAttributeValue(uid, idmValue, schemaAttribute, icAttribute, icAttributes, system, provisioningAttributeDto.getTransformValueFromResourceScript(), provisioningAttributeDto.isSendAlways());
 	}
 
 	/**
@@ -530,12 +540,13 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 	 * map
 	 * 
 	 */
-	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystem system, String transformValueFromResourceScript){
+	private IcAttribute updateAttributeValue(String uid, Object idmValue, SysSchemaAttribute schemaAttribute, IcAttribute icAttribute, List<IcAttribute> icAttributes, SysSystem system, String transformValueFromResourceScript, boolean sendAlways){
 
 		Object icValueTransformed = transformValueFromResource(transformValueFromResourceScript, schemaAttribute, icAttribute,
 				icAttributes, system);
-		if (!Objects.equals(idmValue, icValueTransformed)) {
+		if (sendAlways || (!Objects.equals(idmValue, icValueTransformed))) {
 			// values is not equals
+			// Or this attribute must be send every time (event if was not changed)
 			return attributeMappingService.createIcAttribute(schemaAttribute, idmValue);
 		}
 		return null;

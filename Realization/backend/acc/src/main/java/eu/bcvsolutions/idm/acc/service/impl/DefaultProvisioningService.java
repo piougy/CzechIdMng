@@ -240,7 +240,32 @@ public class DefaultProvisioningService implements ProvisioningService {
 			// nothing to do - mapping is empty
 			return;
 		}
+		
+		// Validate attributes on incompatible strategies
+		validateAttributesStrategy(finalAttributes);
+		
 		doProvisioning(systemEntity, identity, operationType, finalAttributes);		
+	}
+
+	/**
+	 * Validate attributes on incompatible strategies
+	 * @param finalAttributes
+	 */
+	private void validateAttributesStrategy(List<AttributeMapping> finalAttributes) {
+		if(finalAttributes == null){
+			return;
+		}
+		finalAttributes.forEach(parentAttribute -> {
+			if(AttributeMappingStrategyType.MERGE == parentAttribute.getStrategyType() || AttributeMappingStrategyType.AUTHORITATIVE_MERGE == parentAttribute.getStrategyType()){
+				Optional<AttributeMapping> conflictAttributeOptional = finalAttributes.stream().filter(att -> {
+					return att.getSchemaAttribute().equals(parentAttribute.getSchemaAttribute()) && att.getStrategyType() != parentAttribute.getStrategyType();
+				}).findFirst();
+				if(conflictAttributeOptional.isPresent()){
+					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT,
+							ImmutableMap.of("strategyParent", parentAttribute.getStrategyType(), "strategyConflict", conflictAttributeOptional.get().getStrategyType(), "attribute", conflictAttributeOptional.get().getName()));
+				}
+			}
+		});
 	}
 	
 	/**
@@ -391,6 +416,9 @@ public class DefaultProvisioningService implements ProvisioningService {
 			if (CollectionUtils.isEmpty(finalAttributes)) {
 				return;
 			}
+			
+			// Validate attributes on incompatible strategies
+			validateAttributesStrategy(finalAttributes);
 
 			// We try find __PASSWORD__ attribute in mapped attributes
 			Optional<? extends AttributeMapping> attriubuteHandlingOptional = finalAttributes.stream()
@@ -580,55 +608,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 				return finalAttributes;
 			}
 
-			// For merge strategies, will be add to final list all overloaded
-			// attributes
-			if (strategy == AttributeMappingStrategyType.AUTHORITATIVE_MERGE
-					|| strategy == AttributeMappingStrategyType.MERGE) {
-				attributesOrderedGivenStrategy.forEach(attribute -> {
-					// Disabled attribute will be skipped
-					if (!attribute.isDisabledDefaultAttribute()) {
-						// We can't use instance of SysSysteAttributeMapping and
-						// set
-						// up overloaded value (it is entity).
-						// We have to create own dto and set up all values
-						// (overloaded and default)
-						AttributeMapping overloadedAttribute = new MappingAttributeDto();
-						// Default values (values from schema attribute
-						// handling)
-						overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
-						overloadedAttribute
-								.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
-						// Overloaded values
-						fillOverloadedAttribute(attribute, overloadedAttribute);
-						// Add modified attribute to final list
-						finalAttributes.add(overloadedAttribute);
-					}
-				});
-				return finalAttributes;
-			}
-
 			// First element have role with max priority
 			int maxPriority = attributesOrderedGivenStrategy.get(0).getRoleSystem().getRole().getPriority();
 
-			// We will search for disabled overloaded attribute
-			Optional<SysRoleSystemAttribute> disabledOverloadedAttOptional = attributesOrderedGivenStrategy.stream()
-					.filter(attribute -> {
-						// Filter attributes by max priority
-						return maxPriority == attribute.getRoleSystem().getRole().getPriority();
-					}).filter(attribute -> {
-						// Second filtering, we will search for disabled
-						// overloaded attribute
-						return attribute.isDisabledDefaultAttribute();
-					}).findFirst();
-			if (disabledOverloadedAttOptional.isPresent()) {
-				// We found disabled overloaded attribute with highest
-				// priority
-				return finalAttributes;
-			}
-
-			// None overloaded attribute are disabled, we will search for
+			// We will search for
 			// attribute with highest priority (and role name)
-			Optional<SysRoleSystemAttribute> overloadingAttributeOptional = attributesOrderedGivenStrategy.stream()
+			Optional<SysRoleSystemAttribute> highestPriorityAttributeOptional = attributesOrderedGivenStrategy.stream()
 					.filter(attribute -> {
 						// Filter attributes by max priority
 						return maxPriority == attribute.getRoleSystem().getRole().getPriority();
@@ -640,10 +625,62 @@ public class DefaultProvisioningService implements ProvisioningService {
 								.compareTo(att1.getRoleSystem().getRole().getName());
 					}).findFirst();
 
-			if (overloadingAttributeOptional.isPresent()) {
-				SysRoleSystemAttribute overloadingAttribute = overloadingAttributeOptional.get();
+			if (highestPriorityAttributeOptional.isPresent()) {
+				SysRoleSystemAttribute highestPriorityAttribute = highestPriorityAttributeOptional.get();
+
+				// For merge strategies, will be add to final list all
+				// overloaded
+				// attributes
+				if (strategy == AttributeMappingStrategyType.AUTHORITATIVE_MERGE
+						|| strategy == AttributeMappingStrategyType.MERGE) {
+					attributesOrderedGivenStrategy.forEach(attribute -> {
+						// Disabled attribute will be skipped
+						if (!attribute.isDisabledDefaultAttribute()) {
+							// We can't use instance of SysSysteAttributeMapping and set
+							// up overloaded value (it is entity).
+							// We have to create own dto and set up all values
+							// (overloaded and default)
+							AttributeMapping overloadedAttribute = new MappingAttributeDto();
+							// Default values (values from schema attribute
+							// handling)
+							overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
+							overloadedAttribute
+									.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
+							// Overloaded values
+							fillOverloadedAttribute(attribute, overloadedAttribute);
+
+							// Common properties (for MERGE strategy) will be
+							// set from MERGE attribute with highest priority
+							overloadedAttribute.setSendAlways(highestPriorityAttribute.isSendAlways());
+							overloadedAttribute.setSendOnlyIfNotNull(highestPriorityAttribute.isSendOnlyIfNotNull());
+
+							// Add modified attribute to final list
+							finalAttributes.add(overloadedAttribute);
+						}
+					});
+					return finalAttributes;
+				}
+
+				// We will search for disabled overloaded attribute
+				Optional<SysRoleSystemAttribute> disabledOverloadedAttOptional = attributesOrderedGivenStrategy.stream()
+						.filter(attribute -> {
+							// Filter attributes by max priority
+							return maxPriority == attribute.getRoleSystem().getRole().getPriority();
+						}).filter(attribute -> {
+							// Second filtering, we will search for disabled
+							// overloaded attribute
+							return attribute.isDisabledDefaultAttribute();
+						}).findFirst();
+				if (disabledOverloadedAttOptional.isPresent()) {
+					// We found disabled overloaded attribute with highest
+					// priority
+					return finalAttributes;
+				}
+
+				// None overloaded attribute are disabled, we will search for
+				// attribute with highest priority (and role name)
 				// Disabled attribute will be skipped
-				if (!overloadingAttribute.isDisabledDefaultAttribute()) {
+				if (!highestPriorityAttribute.isDisabledDefaultAttribute()) {
 					// We can't use instance of SysSysteAttributeMapping and
 					// set
 					// up overloaded value (it is entity).
@@ -656,14 +693,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 					overloadedAttribute
 							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
 					// Overloaded values
-					fillOverloadedAttribute(overloadingAttribute, overloadedAttribute);
+					fillOverloadedAttribute(highestPriorityAttribute, overloadedAttribute);
 					// Add modified attribute to final list
 					finalAttributes.add(overloadedAttribute);
 					return finalAttributes;
 				}
-
 			}
-
 		}
 		// We don't have overloading attribute, we will use default
 		// if has given strategy

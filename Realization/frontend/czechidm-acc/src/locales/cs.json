@@ -891,6 +891,14 @@
       "title": "Provisioning - UID atribut nebyl nalezen",
       "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
     },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE atribut není více hodnotový",
+      "message": "Objekt [{{object}}]. Pro MERGE strategii musí být atribut [{{attribute}}] vícehodnotový!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Strategie atributu jsou konfliktní",
+      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribute [{{attribute}}] konfliktní!"
+    },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",
       "message": "Synchronizace [{{name}}] není povolená!"

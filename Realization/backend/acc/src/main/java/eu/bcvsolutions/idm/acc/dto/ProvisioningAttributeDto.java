@@ -108,7 +108,7 @@ public class ProvisioningAttributeDto implements Serializable {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0} ({1}) {2}/{3}", schemaAttributeName, strategyType, sendAlways,  sendOnlyIfNotNull);
+		return MessageFormat.format("{0} ({1}){2}{3}", schemaAttributeName, strategyType, sendAlways ? " sendAlways": "",  sendOnlyIfNotNull ? " sendOnlyIfNotNull" : "");
 	}
 	
 	public static ProvisioningAttributeDto createProvisioningAttributeKey(AttributeMapping attribute){

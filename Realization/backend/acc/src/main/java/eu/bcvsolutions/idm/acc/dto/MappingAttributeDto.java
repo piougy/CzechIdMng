@@ -23,6 +23,8 @@ public class MappingAttributeDto  implements AttributeMapping {
 	private String transformFromResourceScript;
 	private String transformToResourceScript;
 	private AttributeMappingStrategyType strategyType;
+	private boolean sendAlways = false;
+	private boolean sendOnlyIfNotNull = false;
 
 	@Override
 	public String getIdmPropertyName() {
@@ -134,5 +136,24 @@ public class MappingAttributeDto  implements AttributeMapping {
 		this.strategyType = strategyType;
 	}
 	
+	@Override
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	@Override
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+
+	@Override
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	@Override
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
+	}
 	
 }

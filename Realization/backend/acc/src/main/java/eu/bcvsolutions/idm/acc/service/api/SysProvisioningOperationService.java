@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.acc.service.api;
 
 import java.util.Map;
 
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
@@ -22,7 +23,7 @@ public interface SysProvisioningOperationService extends ReadWriteEntityService<
 	 * @param provisioningOperation
 	 * @return
 	 */
-	Map<String, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
+	Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation);
 	
 	/**
 	 * Returns fully loaded ConnectorObject with guarded strings.

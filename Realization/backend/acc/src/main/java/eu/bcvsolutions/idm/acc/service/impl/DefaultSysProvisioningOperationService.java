@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.dto.filter.ProvisioningOperationFilter;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningBatch;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
@@ -131,16 +132,16 @@ public class DefaultSysProvisioningOperationService
 	 * @return
 	 */
 	@Override
-	public Map<String, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation) {
+	public Map<ProvisioningAttributeDto, Object> getFullAccountObject(SysProvisioningOperation provisioningOperation) {
 		if (provisioningOperation == null 
 				|| provisioningOperation.getProvisioningContext() == null 
 				|| provisioningOperation.getProvisioningContext().getAccountObject() == null) {
 			return null;
 		}
 		//
-		Map<String, Object> fullAccountObject = new HashMap<>();
-		Map<String, Object> accountObject = provisioningOperation.getProvisioningContext().getAccountObject();
-		for (Entry<String, Object> entry : accountObject.entrySet()) {
+		Map<ProvisioningAttributeDto, Object> fullAccountObject = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accountObject = provisioningOperation.getProvisioningContext().getAccountObject();
+		for (Entry<ProvisioningAttributeDto, Object> entry : accountObject.entrySet()) {
 			if (entry.getValue() == null) {
 				fullAccountObject.put(entry.getKey(), entry.getValue());
 				continue;
@@ -287,9 +288,9 @@ public class DefaultSysProvisioningOperationService
 				return confidentialValues;
 			}
 			//
-			Map<String, Object> accountObject = context.getAccountObject();
+			Map<ProvisioningAttributeDto, Object> accountObject = context.getAccountObject();
 			if (accountObject != null) {
-				for (Entry<String, Object> entry : accountObject.entrySet()) {
+				for (Entry<ProvisioningAttributeDto, Object> entry : accountObject.entrySet()) {
 					if (entry.getValue() == null) {
 						continue;
 					}
@@ -298,7 +299,7 @@ public class DefaultSysProvisioningOperationService
 					if (idmValue instanceof GuardedString) {
 						GuardedString guardedString = (GuardedString) entry.getValue();
 						// save value into confidential storage
-						String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), 0);
+						String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey().getKey(), 0);
 						confidentialValues.put(confidentialStorageKey, guardedString.asString());
 						accountObject.put(entry.getKey(), new ConfidentialString(confidentialStorageKey));
 					}
@@ -312,7 +313,7 @@ public class DefaultSysProvisioningOperationService
 								if (singleValue instanceof GuardedString) {
 									GuardedString guardedString = (GuardedString) singleValue;
 									// save value into confidential storage
-									String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), j);
+									String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey().getKey(), j);
 									confidentialValues.put(confidentialStorageKey, guardedString.asString());
 									processedValues.add(new ConfidentialString(confidentialStorageKey));
 								}
@@ -330,7 +331,7 @@ public class DefaultSysProvisioningOperationService
 							if (singleValue instanceof GuardedString) {
 								GuardedString guardedString = (GuardedString) singleValue;
 								// save value into confidential storage
-								String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey(), processedValues.size());
+								String confidentialStorageKey = createAccountObjectPropertyKey(entry.getKey().getKey(), processedValues.size());
 								confidentialValues.put(confidentialStorageKey, guardedString.asString());							
 								processedValues.add(new ConfidentialString(confidentialStorageKey));
 							}
@@ -401,9 +402,9 @@ public class DefaultSysProvisioningOperationService
 			return;
 		}
 		
-		Map<String, Object> accountObject = context.getAccountObject();
+		Map<ProvisioningAttributeDto, Object> accountObject = context.getAccountObject();
 		if (accountObject != null) {
-			for (Entry<String, Object> entry : accountObject.entrySet()) {
+			for (Entry<ProvisioningAttributeDto, Object> entry : accountObject.entrySet()) {
 				Object idmValue = entry.getValue();
 				if (idmValue == null) {
 					continue;

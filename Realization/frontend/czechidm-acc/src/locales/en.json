@@ -511,6 +511,7 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "idmPropertyEnum": "Entity fields",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
       "extendedAttribute": "Rozšířený atribut",
@@ -530,6 +531,14 @@
       "uid": {
         "label": "Je identifikátorem",
         "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+      },
+      "sendOnlyIfNotNull": {
+        "label": "Send IdM value only if is not null",
+        "tooltip": "Value for this attribute (computed by IdM), will be sent on target system only if value is not null."
+      },
+      "sendAlways": {
+        "label": "Send always",
+        "tooltip": "Value for this attribute will be send on target system always (even if not changed)."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -780,16 +789,27 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Set",
+      "SET": "Set value computed by IdM",
       "MERGE": "Merge",
       "AUTHORITATIVE_MERGE": "Authoritative merge",
-      "CREATE": "Only on create",
-      "IF_NULL": "Only if value is null"
+      "CREATE": "Write only on create",
+      "WRITE_IF_NULL": "Write if value (on resource) is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "User name (String)",
+      "DISABLED": "Disabled (boolean)",
+      "FIRSTNAME": "First name (String)",
+      "LASTNAME": "Last name (String)",
+      "TITLE_BEFORE": "Title before (String)",
+      "TITLE_AFTER": "Title after (String)",
+      "DESCRIPTION": "Description (String)",
+      "PHONE": "Phone (String)",
+      "EMAIL": "Email (String)"
     }
   },
   "permission": {
@@ -882,6 +902,14 @@
     "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
       "title": "Provisioning - UID atribut nebyl nalezen",
       "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
+    },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE is not multivalued",
+      "message": "Object [{{object}}]. For MERGE strategy must be attribute [{{attribute}}] multivalued!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Attribute strategy conflict",
+      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are confilcted for attribute [{{attribute}}]!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",

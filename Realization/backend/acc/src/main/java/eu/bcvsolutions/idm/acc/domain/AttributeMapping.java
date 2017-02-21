@@ -13,6 +13,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 
 public interface AttributeMapping extends Serializable {
 
+	
 	String getIdmPropertyName();
 
 	void setIdmPropertyName(String idmPropertyName);
@@ -56,5 +57,13 @@ public interface AttributeMapping extends Serializable {
 	AttributeMappingStrategyType getStrategyType();
 
 	void setStrategyType(AttributeMappingStrategyType strategyType);
+	
+	public boolean isSendAlways();
+
+	public void setSendAlways(boolean sendAlways);
+
+	public boolean isSendOnlyIfNotNull();
+
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull);
 
 }

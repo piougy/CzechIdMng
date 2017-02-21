@@ -370,6 +370,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				synchronizationLogService.save(log);
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
 			} else {

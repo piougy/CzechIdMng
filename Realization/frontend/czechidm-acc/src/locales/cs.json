@@ -511,6 +511,7 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "idmPropertyEnum": "Položky entity",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
       "extendedAttribute": "Rozšířený atribut",
@@ -530,6 +531,14 @@
       "uid": {
         "label": "Je identifikátorem",
         "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+      },
+      "sendOnlyIfNotNull": {
+        "label": "Pošli pouze pokud existuje IdM hodnota",
+        "tooltip": "Hodnota tohoto atributu (kterou vypočítá IdM) bude na koncový systém odeslána, pouze pokud bude nabývát nějaké hodnoty."
+      },
+      "sendAlways": {
+        "label": "Pošli vždy",
+        "tooltip": "Hodnota tohto atributu, bude na koncový systém poslána vždy a to i když nebyla změněna."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -780,16 +789,27 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Nastavit",
+      "SET": "Nastavit, tak jak IdM vypočítá",
       "MERGE": "Sloučit",
       "AUTHORITATIVE_MERGE": "Autoritativní sloučení",
-      "CREATE": "Pouze při vytvoření",
-      "IF_NULL": "Pouze pokud je hodnota null"
+      "CREATE": "Nastavit pouze při vytvoření",
+      "WRITE_IF_NULL": "Nastavit pokud není hodnota na systému prázdná"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "Uživatelské jméno (String)",
+      "DISABLED": "Zakázaný (boolean)",
+      "FIRSTNAME": "Jméno (String)",
+      "LASTNAME": "Příjmení (String)",
+      "TITLE_BEFORE": "Titul před (String)",
+      "TITLE_AFTER": "Titul za (String)",
+      "DESCRIPTION": "Poznámka (String)",
+      "PHONE": "Telefon (String)",
+      "EMAIL": "Email (String)"
     }
   },
   "permission": {
@@ -882,6 +902,14 @@
     "PROVISIONING_DIFFERENT_UIDS_FROM_CONNECTOR": {
       "title": "Provisioning - UID atribut nebyl nalezen",
       "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
+    },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE atribut není více hodnotový",
+      "message": "Objekt [{{object}}]. Pro MERGE strategii musí být atribut [{{attribute}}] vícehodnotový!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Strategie atributu jsou konfliktní",
+      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribute [{{attribute}}] konfliktní!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",

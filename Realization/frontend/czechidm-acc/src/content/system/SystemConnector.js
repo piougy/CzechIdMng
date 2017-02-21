@@ -210,7 +210,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
       // connector setting is ready
       content = (
         <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-
           <Advanced.EavForm ref="eav" formInstance={formInstance}/>
           <Basic.PanelFooter>
             <Basic.Button

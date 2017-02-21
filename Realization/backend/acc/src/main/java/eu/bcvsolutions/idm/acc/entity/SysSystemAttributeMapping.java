@@ -100,6 +100,14 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Column(name = "strategy_type", nullable = false)
 	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
 
+	@Audited
+	@Column(name = "send_always", nullable = false)
+	private boolean sendAlways = false;
+	
+	@Audited
+	@Column(name = "send_only_if_not_null", nullable = false)
+	private boolean sendOnlyIfNotNull = false;
+	
 	@Override
 	public String getIdmPropertyName() {
 		return idmPropertyName;
@@ -208,12 +216,34 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 		this.disabledAttribute = disabledAttribute;
 	}
 
+	@Override
 	public AttributeMappingStrategyType getStrategyType() {
 		return strategyType;
 	}
 
+	@Override
 	public void setStrategyType(AttributeMappingStrategyType strategyType) {
 		this.strategyType = strategyType;
+	}
+
+	@Override
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	@Override
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+
+	@Override
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	@Override
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
 
 }

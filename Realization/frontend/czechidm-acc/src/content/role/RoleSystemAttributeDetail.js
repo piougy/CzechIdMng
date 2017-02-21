@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Basic, Utils, Domain} from 'czechidm-core';
 import { RoleSystemAttributeManager, RoleSystemManager, SystemAttributeMappingManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'role-system-attribute';
 const roleSystemAttributeManager = new RoleSystemAttributeManager();
@@ -117,6 +118,15 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
     }
   }
 
+  _onChangeEntityEnum(item) {
+    if (item) {
+      const field = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getField(item.value);
+      this.refs.idmPropertyName.setValue(field);
+    } else {
+      this.refs.idmPropertyName.setValue(null);
+    }
+  }
+
   render() {
     const { _showLoading, _attribute, _systemMappingId} = this.props;
     const { mappingId } = this.state;
@@ -144,7 +154,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="panel-body">
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"
                 onChange={this._disabledChanged.bind(this, 'disabledDefaultAttribute')}
@@ -181,6 +191,16 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
                 label={this.i18n('acc:entity.SystemAttributeMapping.uid.label')}/>
               <Basic.Checkbox
+                ref="sendAlways"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
+                ref="sendOnlyIfNotNull"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
                 ref="extendedAttribute"
                 onChange={this._checkboxChanged.bind(this, 'extendedAttribute', 'entityAttribute')}
                 readOnly = {_isDisabled}
@@ -194,13 +214,26 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
                 ref="confidentialAttribute"
                 readOnly = {_isDisabled || !_isRequiredIdmField}
                 label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}/>
-              <Basic.TextField
-                ref="idmPropertyName"
-                readOnly = {_isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
-                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
-                required = {_isRequiredIdmField}
-                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.EnumSelectBox
+                    ref="idmPropertyEnum"
+                    readOnly = {_isDisabled || !_isEntityAttribute}
+                    enum={SystemEntityTypeEnum.getEntityEnum('IDENTITY')}
+                    onChange={this._onChangeEntityEnum.bind(this)}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
+                    />
+                </div>
+                <div className="col-lg-6">
+                  <Basic.TextField
+                    ref="idmPropertyName"
+                    readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
+                    required = {_isRequiredIdmField}
+                    max={255}/>
+                </div>
+              </Basic.Row>
               <Basic.LabelWrapper label=" ">
                 <Basic.Alert
                    rendered={_showNoRepositoryAlert}
@@ -249,6 +282,7 @@ function select(state, component) {
   if (entity) {
     entity.roleSystem = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem : null;
     entity.systemAttributeMapping = entity._embedded && entity._embedded.systemAttributeMapping ? entity._embedded.systemAttributeMapping : null;
+    entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getEnum(entity.idmPropertyName);
     systemMappingId = entity._embedded && entity._embedded.roleSystem ? entity._embedded.roleSystem.systemMapping.id : null;
   }
   return {

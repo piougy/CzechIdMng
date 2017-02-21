@@ -1,6 +1,6 @@
 # Link Component
 
-Rendes basic html "a" link with icon. Can be used for external link primarily.
+Render basic html "a" link with icon. Can be used for external link primarily.
 
 ## Parameters
 

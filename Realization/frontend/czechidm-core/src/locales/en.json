@@ -1398,6 +1398,12 @@
         "success": "Odeslání notifikace bylo úspěšné"
       }
     },
+    "notificationTemplate": {
+      "headerNew": "New template",
+      "header": "Template",
+      "title": "Templates ",
+      "titleNew": "New template"
+    },
     "emails": {
       "header": "E-mails history",
       "title": "E-mails history"
@@ -1751,6 +1757,13 @@
       "sent": "Sent",
       "sentLog": "Zpráva při odeslání",
       "type": "Type"
+    },
+    "NotificationTemplate": {
+      "name": "Name",
+      "code": "Code",
+      "subject": "Subject",
+      "level": "Level",
+      "body": "Message body"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",

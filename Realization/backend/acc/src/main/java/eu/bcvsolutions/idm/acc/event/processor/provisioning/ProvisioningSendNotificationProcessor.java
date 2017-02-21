@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -16,8 +19,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -31,20 +33,24 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	private final NotificationManager notificationManager;
 	private final SysProvisioningOperationService provisioningOperationService;
 	private final IdmIdentityService identityService;
+	private final IdmNotificationTemplateService notificationTemplateService;
 	
 	@Autowired
 	public ProvisioningSendNotificationProcessor(NotificationManager notificationManager,
 			SysProvisioningOperationService provisioningOperationService,
-			IdmIdentityService identityService) {
+			IdmIdentityService identityService,
+			IdmNotificationTemplateService notificationTemplateService) {
 		super(ProvisioningEventType.CREATE);
 		//
 		Assert.notNull(notificationManager);
 		Assert.notNull(provisioningOperationService);
 		Assert.notNull(identityService);
+		Assert.notNull(notificationTemplateService);
 		//
 		this.identityService = identityService;
 		this.notificationManager = notificationManager;
 		this.provisioningOperationService = provisioningOperationService;
+		this.notificationTemplateService = notificationTemplateService;
 	}
 
 	@Override
@@ -65,14 +71,17 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 				// TODO: send password always, when create?
 				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
 					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
+					// prepare parameters for message template
+					Map<String, Object> parameters = new HashMap<>();
+					parameters.put("systemName", provisioningOperation.getSystem().getName());
+					parameters.put("uid", provisioningOperation.getSystemEntityUid());
+					parameters.put("password", password);
+					//
 					// send message with new password to identity
 					notificationManager.send(
-							AccModuleDescriptor.TOPIC_NEW_PASSWORD, 
-							new IdmMessage.Builder()
-								.setLevel(NotificationLevel.SUCCESS)
-								.setSubject("Provisioning success")
-								.setMessage("Provisioning on system: " + provisioningOperation.getSystem().getName() + ", with uid " + provisioningOperation.getSystemEntityUid() + ", was success. There is your new awesome password: '" + password.asString() + "'")
-								.build(), 
+							AccModuleDescriptor.TOPIC_NEW_PASSWORD,
+							notificationTemplateService.getTemplateByCode("prov_pass"),
+							parameters, 
 							identity);
 					break;
 				}

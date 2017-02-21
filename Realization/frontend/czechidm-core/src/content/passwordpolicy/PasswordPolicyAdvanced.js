@@ -188,6 +188,8 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
               </Basic.SplitButton>
             </Basic.PanelFooter>
           </Basic.Panel>
+          {/* onEnter action - is needed because SplitButton is used instead standard submit button */}
+          <input type="submit" className="hidden"/>
         </form>
       </div>
     );

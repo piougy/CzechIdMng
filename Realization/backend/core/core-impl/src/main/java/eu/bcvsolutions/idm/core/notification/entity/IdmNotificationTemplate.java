@@ -57,6 +57,7 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	@Column(name = "body")
 	private String body;
 	
+	// TODO: remove?
 	@Audited
 	@Column(name = "timestamp") 
 	private DateTime timestamp;

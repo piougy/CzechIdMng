@@ -17,9 +17,9 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
  */
 
 @RepositoryRestResource(//
-		collectionResourceRel = "notification-templates", //
+		collectionResourceRel = "notificationTemplates", //
 		path = "notification-templates", //
-		itemResourceRel = "notification-template",
+		itemResourceRel = "notificationTemplate",
 		exported = false
 	)
 public interface IdmNotificationTemplateRepository extends AbstractEntityRepository<IdmNotificationTemplate, NotificationTemplateFilter> {

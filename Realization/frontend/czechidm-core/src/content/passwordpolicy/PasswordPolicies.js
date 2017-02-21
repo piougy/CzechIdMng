@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import { PasswordPolicyManager } from '../../redux';
 import PasswordPolicyTable from './PasswordPolicyTable';
 
-const PASSWORD_POLICY_TABLE_UIKEY = 'ruleTableUikey';
+const PASSWORD_POLICY_TABLE_UIKEY = 'passwordPoliciesTableUikey';
 
 /**
 * Content with all password policy

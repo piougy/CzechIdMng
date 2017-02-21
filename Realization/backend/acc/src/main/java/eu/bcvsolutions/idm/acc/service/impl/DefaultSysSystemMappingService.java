@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
 import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.domain.SystemOperationType;
+import eu.bcvsolutions.idm.acc.dto.filter.RoleSystemFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemMappingFilter;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
@@ -20,6 +21,7 @@ import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.repository.SysSyncConfigRepository;
 import eu.bcvsolutions.idm.acc.repository.SysSystemMappingRepository;
+import eu.bcvsolutions.idm.acc.service.api.SysRoleSystemService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemAttributeMappingService;
 import eu.bcvsolutions.idm.acc.service.api.SysSystemMappingService;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -38,20 +40,24 @@ public class DefaultSysSystemMappingService extends
 	private final SysSystemMappingRepository repository;
 	private final SysSystemAttributeMappingService systemAttributeMappingService;
 	private final SysSyncConfigRepository syncConfigRepository;
+	private final SysRoleSystemService roleSystemService;
 
 	@Autowired
 	public DefaultSysSystemMappingService(
 			SysSystemMappingRepository repository,
 			SysSystemAttributeMappingService systemAttributeMappingService,
-			SysSyncConfigRepository syncConfigRepository) {
+			SysSyncConfigRepository syncConfigRepository,
+			SysRoleSystemService roleSystemService) {
 		super(repository);
 		//
 		Assert.notNull(systemAttributeMappingService);
 		Assert.notNull(syncConfigRepository);
+		Assert.notNull(roleSystemService);
 		//
 		this.repository = repository;
 		this.systemAttributeMappingService = systemAttributeMappingService;
 		this.syncConfigRepository = syncConfigRepository;
+		this.roleSystemService = roleSystemService;
 	}
 	
 	@Override
@@ -91,6 +97,13 @@ public class DefaultSysSystemMappingService extends
 		filter.setSystemMappingId(systemMapping.getId());
 		systemAttributeMappingService.find(filter, null).forEach(systemAttributeMapping -> {
 			systemAttributeMappingService.delete(systemAttributeMapping);
+		});
+		//
+		// delete mapped roles
+		RoleSystemFilter roleSystemFilter = new RoleSystemFilter();
+		roleSystemFilter.setSystemMappingId(systemMapping.getId());
+		roleSystemService.find(roleSystemFilter, null).forEach(roleSystem -> {
+			roleSystemService.delete(roleSystem);
 		});
 		//
 		super.delete(systemMapping);

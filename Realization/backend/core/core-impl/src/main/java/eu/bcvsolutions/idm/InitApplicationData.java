@@ -18,6 +18,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
@@ -46,6 +47,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 
 	@Autowired
 	private IdmIdentityService identityService;
+	@Autowired
+	private IdmIdentityContractService identityContractService;
 
 	@Autowired
 	private IdmRoleService roleService;
@@ -113,9 +116,8 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				identityAdmin = this.identityService.save(identityAdmin);
 				LOG.info(MessageFormat.format("Super admin identity created [id: {0}]", identityAdmin.getId()));
 		
-				
 				IdmIdentityRole identityRole = new IdmIdentityRole();
-				identityRole.setIdentity(identityAdmin);
+				identityRole.setIdentityContract(identityContractService.getContracts(identityAdmin).get(0));
 				identityRole.setRole(existsSuperAdminRole);
 				identityRoleService.save(identityRole);
 			}
@@ -136,7 +138,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				organizationRoot.setCode("root");
 				organizationRoot.setName("Root organization");
 				organizationRoot.setTreeType(treeType);
-				this.treeNodeService.save(organizationRoot);
+				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}
 			//
 			// init notification configuration

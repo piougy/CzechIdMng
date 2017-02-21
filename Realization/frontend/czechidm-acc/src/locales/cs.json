@@ -123,10 +123,10 @@
         "header": "Detail synchronizace",
         "title": "Detail synchronizace",
         "synchronizationLogsHeader": "Logy synchronizace",
-        "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je monžé ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
+        "situationActionsAndWf": "Níže je možné definovat, jak se synchronizace bude chovat v konkrétních situacích a jakou akci provede. Chování synchronizace v dané situaci, je možné ovlivnit výběrem workflow. Toto workflow bude spuštěné pro provedení standardní akce (pro každý příslušný element). Workflow musí zajistit uložení změn.",
         "situationAction": "Akce",
         "situationActionWf": "Workflow",
-        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a přísulšné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
+        "customFilterInfo": "Vlastní filtr je možné definovat jednoduše zvolením atributu (Filtrovat dle atributu) podle kterého chceme hledat a příslušné operace (Filtrovací operace). Složitější kritérium je možné definovat ve skriptu níže.",
         "edit": {
           "header": "Detail konfigurace synchronizace"
         },
@@ -853,7 +853,7 @@
     },
     "PROVISIONING_PASSWORD_FIELD_NOT_FOUND": {
       "title": "Mapovací atribut hesla nenalezen",
-      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{entity}}] nalezen!"
+      "message": "Mapovací atributu pro heslo (___PASSWORD__) nebyl pro entitu [{{uid}}] nalezen!"
     },
     "PROVISIONING_SCHEMA_ATTRIBUTE_IS_NOT_UPDATEABLE": {
       "title": "Provisioning - atribut není upravitelný",

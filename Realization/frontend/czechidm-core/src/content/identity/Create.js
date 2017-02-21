@@ -204,42 +204,42 @@ class Profile extends Basic.AbstractContent {
             <Basic.Panel>
               <Basic.PanelHeader text={this.i18n('content.identity.create.header')}/>
 
-              <Basic.PanelBody style={{ paddingTop: 0, paddingBottom: 0 }}>
-                <Basic.AbstractForm ref="form" data={detail.entity} className="form-horizontal">
-                  <div className="col-lg-7">
-                    <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={30}/>
-                    <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
-                    <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
-                    <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100}/>
-                    <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
-                    <Basic.TextField ref="email"
-                      label={this.i18n('content.identity.profile.email.label')}
-                      placeholder={this.i18n('content.identity.profile.email.placeholder')}
-                      validation={Joi.string().email()}/>
-                    <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
-                    <Basic.TextArea ref="description"
-                      label={this.i18n('content.identity.profile.description.label')}
-                      placeholder={this.i18n('content.identity.profile.description.placeholder')}
-                      rows={4}
-                      max={255}/>
-                  </div>
-                  <div className="col-lg-5">
-                    <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
 
-                    <Advanced.PasswordField
-                      className="form-control"
-                      ref="passwords"
-                      type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
-                      required={!generatePassword}
-                      readOnly={generatePassword}
-                      newPassword={password}
-                      newPasswordAgain={passwordAgain}/>
-                  </div>
-                  <Basic.Panel className="col-lg-5 no-border">
-                    <ValidationMessage error={validationError} />
-                  </Basic.Panel>
-                </Basic.AbstractForm>
-              </Basic.PanelBody>
+              <Basic.AbstractForm ref="form" data={detail.entity}>
+                <div className="col-lg-7">
+                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={30}/>
+                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
+                  <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
+                  <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100}/>
+                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
+                  <Basic.TextField ref="email"
+                    label={this.i18n('content.identity.profile.email.label')}
+                    placeholder={this.i18n('content.identity.profile.email.placeholder')}
+                    validation={Joi.string().email()}/>
+                  <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
+                  <Basic.TextArea ref="description"
+                    label={this.i18n('content.identity.profile.description.label')}
+                    placeholder={this.i18n('content.identity.profile.description.placeholder')}
+                    rows={4}
+                    max={255}/>
+                </div>
+                <div className="col-lg-5">
+                  <Basic.Checkbox ref="generatePassword" value={generatePassword} label={this.i18n('content.identity.create.button.generate')} onChange={this.generatePassword.bind(this)}/>
+
+                  <Advanced.PasswordField
+                    className="form-control"
+                    ref="passwords"
+                    type={generatePassword || generatePasswordShowLoading ? 'text' : 'password'}
+                    required={!generatePassword}
+                    readOnly={generatePassword}
+                    newPassword={password}
+                    newPasswordAgain={passwordAgain}/>
+                </div>
+                <Basic.Panel className="col-lg-5 no-border">
+                  <ValidationMessage error={validationError} />
+                </Basic.Panel>
+              </Basic.AbstractForm>
+
 
               <Basic.PanelFooter>
                 <Basic.Button type="button" level="link" onClick={this.context.router.goBack} showLoading={showLoading}>{this.i18n('button.back')}</Basic.Button>

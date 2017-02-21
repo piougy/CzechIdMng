@@ -70,6 +70,7 @@ public class DefaultLongRunningTaskManager implements LongRunningTaskManager {
 	/**
 	 * cancel all previously runned tasks
 	 */
+	@Override
 	@Transactional
 	@PostConstruct
 	public void init() {		

@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 //
@@ -38,10 +37,8 @@ class IdentityContracts extends Basic.AbstractContent {
     return 'content.identity.identityContracts';
   }
 
-  componentDidMount() {
-    this.selectSidebarItem('profile-contracts');
-    const { entityId } = this.props.params;
-    this.context.store.dispatch(this.getManager().fetchContracts(entityId, `${uiKey}-${entityId}`));
+  getNavigationKey() {
+    return 'profile-contracts';
   }
 
   showDetail(entity) {
@@ -119,6 +116,7 @@ class IdentityContracts extends Basic.AbstractContent {
       this.addError(error);
       return;
     }
+    this.refs.table.getWrappedInstance().reload();
     this.closeDetail();
   }
 
@@ -128,7 +126,7 @@ class IdentityContracts extends Basic.AbstractContent {
     }
     const { entityId } = this.props.params;
     this.refs['confirm-delete'].show(
-      this.i18n(`action.delete.message`, { count: 1, record: entity.position }),
+      this.i18n(`action.delete.message`, { count: 1, record: this.getManager().getNiceLabel(entity) }),
       this.i18n(`action.delete.header`, { count: 1 })
     ).then(() => {
       this.context.store.dispatch(this.getManager().deleteEntity(entity, `${uiKey}-${entityId}`, (deletedEntity, error) => {
@@ -155,132 +153,128 @@ class IdentityContracts extends Basic.AbstractContent {
   }
 
   render() {
-    const { _entities, _showLoading} = this.props;
+    const { _showLoading } = this.props;
     const { detail, forceSearchParameters, treeTypeId } = this.state;
+    const { entityId } = this.props.params;
+    //
     return (
       <div>
-        <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-        <Basic.ContentHeader style={{ marginBottom: 0 }}>
-          {this.i18n('header')}
-        </Basic.ContentHeader>
+        { this.renderContentHeader({ style: { marginBottom: 0 } }) }
 
-        {
-          _showLoading
-          ?
-          <Basic.Loading showLoading className="static"/>
-          :
-          <Basic.Panel className="no-border last">
-            <Basic.Toolbar rendered={SecurityManager.isAdmin()}>
-              <div className="pull-right">
-                <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})}>
+        <Basic.Panel className="no-border">
+          <Advanced.Table
+            ref="table"
+            uiKey={uiKey}
+            manager={ this.identityContractManager }
+            forceSearchParameters={ new SearchParameters().setFilter('identity', entityId) }
+            rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
+            buttons={
+              [
+                <Basic.Button level="success" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.isAdmin()}>
                   <Basic.Icon value="fa:plus"/>
                   {' '}
                   {this.i18n('button.add')}
                 </Basic.Button>
-              </div>
-              <div className="clearfix"></div>
-            </Basic.Toolbar>
-
-            <Basic.Table
-              data={_entities}
-              noData={this.i18n('identityContracts.empty')}
-              rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}>
-              <Basic.Column
-                className="detail-button"
-                cell={
-                  ({rowIndex, data}) => {
-                    return (
-                      <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                    );
-                  }
+              ]
+            }>
+            <Basic.Column
+              className="detail-button"
+              cell={
+                ({rowIndex, data}) => {
+                  return (
+                    <Advanced.DetailButton onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                  );
                 }
-                rendered={SecurityManager.isAdmin()}/>
-              <Basic.Column
-                property="workingPosition"
-                header={this.i18n('entity.IdentityContract.workingPosition')}
-                width="175px"
-                cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <span>
-                        {
-                          data[rowIndex]._embedded && data[rowIndex]._embedded.workingPosition
-                          ?
-                          this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition)
-                          :
-                          data[rowIndex].position
-                        }
-                      </span>
-                    );
-                  }
+              }
+              rendered={SecurityManager.isAdmin()}/>
+            <Basic.Column
+              property="workingPosition"
+              header={this.i18n('entity.IdentityContract.workingPosition')}
+              width="175px"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <span>
+                      {
+                        data[rowIndex]._embedded && data[rowIndex]._embedded.workingPosition
+                        ?
+                        this.treeNodeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition)
+                        :
+                        data[rowIndex].position
+                      }
+                    </span>
+                  );
                 }
-              />
-              <Basic.Column
-                property="treeType"
-                header={this.i18n('entity.IdentityContract.treeType')}
-                width="175px"
-                cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <span>
-                        {
-                          !data[rowIndex]._embedded || !data[rowIndex]._embedded.workingPosition
-                          ||
-                          this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
-                        }
-                      </span>
-                    );
-                  }
+              }
+            />
+            <Basic.Column
+              property="treeType"
+              header={this.i18n('entity.IdentityContract.treeType')}
+              width="175px"
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <span>
+                      {
+                        !data[rowIndex]._embedded || !data[rowIndex]._embedded.workingPosition
+                        ||
+                        this.treeTypeManager.getNiceLabel(data[rowIndex]._embedded.workingPosition.treeType)
+                      }
+                    </span>
+                  );
                 }
-              />
-              <Basic.Column
-                property="guarantee"
-                header={<span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span>}
-                cell={
-                  ({ rowIndex, data }) => {
-                    return (
-                      <ManagersInfo identityContract={data[rowIndex]}/>
-                    );
-                  }
+              }
+            />
+            <Basic.Column
+              property="guarantee"
+              header={<span title={this.i18n('entity.IdentityContract.managers.title')}>{this.i18n('entity.IdentityContract.managers.label')}</span>}
+              cell={
+                ({ rowIndex, data }) => {
+                  return (
+                    <ManagersInfo identityContract={data[rowIndex]}/>
+                  );
                 }
-              />
-              <Basic.Column
-                property="validFrom"
-                header={this.i18n('entity.IdentityContract.validFrom')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}
-              />
-              <Basic.Column
-                property="validTill"
-                header={this.i18n('entity.IdentityContract.validTill')}
-                cell={<Basic.DateCell format={this.i18n('format.date')}/>}/>
-              <Basic.Column
-                property="externe"
-                header={<Basic.Cell className="column-face-bool">{this.i18n('entity.IdentityContract.externe')}</Basic.Cell>}
-                cell={<Basic.BooleanCell className="column-face-bool"/>}
-                width="100px"/>
-              <Basic.Column
-                header={this.i18n('label.action')}
-                className="action"
-                cell={
-                  ({rowIndex, data}) => {
-                    return (
-                      <Basic.Button
-                        level="danger"
-                        onClick={this.onDelete.bind(this, data[rowIndex])}
-                        className="btn-xs"
-                        title={this.i18n('button.delete')}
-                        titlePlacement="bottom">
-                        <Basic.Icon icon="trash"/>
-                      </Basic.Button>
-                    );
-                  }
+              }
+            />
+            <Advanced.Column
+              property="validFrom"
+              header={this.i18n('entity.IdentityContract.validFrom')}
+              face="date"
+              sort
+            />
+            <Advanced.Column
+              property="validTill"
+              header={this.i18n('entity.IdentityContract.validTill')}
+              face="date"
+              sort/>
+            <Advanced.Column
+              property="externe"
+              header={this.i18n('entity.IdentityContract.externe')}
+              face="bool"
+              width={100}
+              sort/>
+            <Basic.Column
+              header={this.i18n('label.action')}
+              className="action"
+              cell={
+                ({rowIndex, data}) => {
+                  return (
+                    <Basic.Button
+                      level="danger"
+                      onClick={this.onDelete.bind(this, data[rowIndex])}
+                      className="btn-xs"
+                      title={this.i18n('button.delete')}
+                      titlePlacement="bottom">
+                      <Basic.Icon icon="trash"/>
+                    </Basic.Button>
+                  );
                 }
-                rendered={SecurityManager.isAdmin()}/>
-            </Basic.Table>
-          </Basic.Panel>
-        }
+              }
+              rendered={SecurityManager.isAdmin()}/>
+          </Advanced.Table>
+        </Basic.Panel>
 
         <Basic.Modal
           bsSize="default"
@@ -293,7 +287,7 @@ class IdentityContracts extends Basic.AbstractContent {
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('create.header')} rendered={Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Header closeButton={!_showLoading} text={this.i18n('edit.header', { position: this.getManager().getNiceLabel(detail.entity) })} rendered={!Utils.Entity.isNew(detail.entity)}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="form" data={detail.entity} showLoading={_showLoading}>
                 <Basic.TextField
                   ref="position"
                   label={this.i18n('entity.IdentityContract.position')}/>
@@ -312,14 +306,22 @@ class IdentityContracts extends Basic.AbstractContent {
                   ref="guarantee"
                   manager={this.identityManager}
                   label={this.i18n('entity.IdentityContract.guarantee')}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validFrom"
-                  label={this.i18n('label.validFrom')}/>
-                <Basic.DateTimePicker
-                  mode="date"
-                  ref="validTill"
-                  label={this.i18n('label.validTill')}/>
+
+                <Basic.Row>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="validFrom"
+                      label={this.i18n('label.validFrom')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <Basic.DateTimePicker
+                      mode="date"
+                      ref="validTill"
+                      label={this.i18n('label.validTill')}/>
+                  </div>
+                </Basic.Row>
+
                 <Basic.Checkbox
                   ref="externe"
                   label={this.i18n('entity.IdentityContract.externe')}/>
@@ -351,18 +353,15 @@ class IdentityContracts extends Basic.AbstractContent {
 }
 
 IdentityContracts.propTypes = {
-  _showLoading: PropTypes.bool,
-  _entities: PropTypes.arrayOf(React.PropTypes.object)
+  _showLoading: PropTypes.bool
 };
 IdentityContracts.defaultProps = {
   _showLoading: true,
-  _entities: []
 };
 
 function select(state, component) {
   return {
-    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${component.params.entityId}`),
-    _entities: Utils.Ui.getEntities(state, `${uiKey}-${component.params.entityId}`)
+    _showLoading: Utils.Ui.isShowLoading(state, `${uiKey}-${component.params.entityId}`)
   };
 }
 

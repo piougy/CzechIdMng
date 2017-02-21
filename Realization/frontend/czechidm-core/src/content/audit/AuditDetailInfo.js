@@ -33,7 +33,7 @@ class AuditDetailInfo extends Basic.AbstractContent {
     };
 
     return (
-      <Basic.AbstractForm ref="form" className="form-horizontal" data={noVersion ? {revisionDate: null} : data} showLoading={showLoading}>
+      <Basic.AbstractForm ref="form" data={noVersion ? {revisionDate: null} : data} showLoading={showLoading}>
         <Basic.TextField hidden={useAsSelect}
           ref="id" readOnly
           label={this.i18n('revision.id')}/>
@@ -49,20 +49,24 @@ class AuditDetailInfo extends Basic.AbstractContent {
             manager={auditManager}/>
         }
         <Basic.TextField
-          ref="entityId" readOnly
+          ref="entityId"
+          readOnly
           label={this.i18n('revision.entityId')}/>
         <Basic.TextField
-          ref="type" readOnly
+          ref="type"
+          readOnly
           label={this.i18n('revision.type')}/>
         <Basic.TextField
-          ref="modification" readOnly
+          ref="modification"
+          readOnly
           label={this.i18n('revision.modification')}/>
         <Basic.TextField
-          ref="modifier" readOnly
+          ref="modifier"
+          readOnly
           label={this.i18n('revision.modifier')}/>
         <Basic.DateTimePicker
-          componentSpan="col-sm-8"
-          ref="revisionDate" readOnly
+          ref="revisionDate"
+          readOnly
           label={this.i18n('revision.revisionDate')}
           format="d. M. Y  H:mm:ss"/>
       </Basic.AbstractForm>

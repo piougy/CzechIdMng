@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleCatalogueFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRepository;
-import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.repository.IdmRoleCatalogueRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 
 /**
@@ -31,22 +31,22 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueService;
 public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityService<IdmRoleCatalogue, RoleCatalogueFilter>  implements IdmRoleCatalogueService {
 	
 	private final IdmRoleCatalogueRepository roleCatalogueRepository;
-	private final IdmRoleRepository roleRepository;
+	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	private final DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService;
 	
 	@Autowired
 	public DefaultIdmRoleCatalogueService(
 			IdmRoleCatalogueRepository roleCatalogueRepository,
-			IdmRoleRepository roleRepository,
-			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService) {
+			DefaultBaseTreeService<IdmRoleCatalogue> baseTreeService,
+			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository) {
 		super(roleCatalogueRepository);
 		//
-		Assert.notNull(roleRepository);
 		Assert.notNull(baseTreeService);
+		Assert.notNull(roleCatalogueRoleRepository);
 		//
 		this.roleCatalogueRepository = roleCatalogueRepository;
-		this.roleRepository = roleRepository;
 		this.baseTreeService = baseTreeService;
+		this.roleCatalogueRoleRepository = roleCatalogueRoleRepository;
 	}
 	
 	@Override
@@ -57,10 +57,8 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	
 	@Override
 	public IdmRoleCatalogue save(IdmRoleCatalogue entity) {
-		// test role catalogue to parent and children
-		if (this.baseTreeService.validateTreeNodeParents(entity)) {
-			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog ["+entity.getName() +"] have bad parent.");
-		}
+		// validate role
+		this.validate(entity);
 		return super.save(entity);
 	}
 	
@@ -72,8 +70,8 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		if (!findChildrenByParent(roleCatalogue.getId()).isEmpty()) {
 			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN, ImmutableMap.of("roleCatalogue", roleCatalogue.getName()));
 		}
-		// selected role catalogues - set to null
-		roleRepository.clearCatalogue(roleCatalogue);
+		// remove row from intersection table
+		roleCatalogueRoleRepository.deleteAllByRoleCatalogue(roleCatalogue);
 		//
 		super.delete(roleCatalogue);
 	}
@@ -81,13 +79,45 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findRoots() {
-		return this.roleCatalogueRepository.findChildren(null);
+		return this.roleCatalogueRepository.findChildren(null, null).getContent();
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmRoleCatalogue> findChildrenByParent(UUID parent) {
-		return this.roleCatalogueRepository.findChildren(parent);
+		return this.roleCatalogueRepository.findChildren(parent, null).getContent();
+	}
+	
+	/**
+	 * Method validate roleCatalogue before save (create/update).
+	 * 
+	 * @param roleCatalogue
+	 */
+	private void validate(IdmRoleCatalogue roleCatalogue) {
+		Assert.notNull(roleCatalogue);
+		//
+		// test role catalogue to parent and children
+		if (this.baseTreeService.validateTreeNodeParents(roleCatalogue)) {
+			throw new TreeNodeException(CoreResultCode.ROLE_CATALOGUE_BAD_PARENT,  "Role catalog [" + roleCatalogue.getName() + "] have bad parent.");
+		}
+		//
+		IdmRoleCatalogue parent = roleCatalogue.getParent();
+		List<IdmRoleCatalogue> roleCatalogues = null;
+		if (parent != null) { // get same level
+			roleCatalogues = this.findChildrenByParent(parent.getId());
+		} else { // get roots
+			roleCatalogues = this.findRoots();
+		}
+		// iterate over all found role catalogues and compare their names
+		for (IdmRoleCatalogue rc : roleCatalogues) {
+			if (rc.getNiceName() == null) {
+				continue;
+			}
+			// if names are same throw error + (check id)
+			if (rc.getNiceName().equals(roleCatalogue.getNiceName()) && !rc.getId().equals(roleCatalogue.getId())) {
+				throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", rc.getNiceName()));
+			}
+		}
 	}
 	
 }

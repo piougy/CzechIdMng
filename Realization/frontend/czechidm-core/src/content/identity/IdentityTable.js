@@ -162,13 +162,12 @@ export class IdentityTable extends Basic.AbstractTableContent {
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm data={{ text, treeNodeId }} ref="filterForm" className="form-horizontal">
+              <Basic.AbstractForm data={{ text, treeNodeId }} ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
                       ref="text"
                       placeholder={this.i18n('content.identities.filter.name.placeholder')}
-                      label="Text"
                       onChange={this._changeText.bind(this)}
                       help={filterHelp}/>
                   </div>
@@ -180,8 +179,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
                   <div className="col-lg-6">
                     <Advanced.Filter.SelectBox
                       ref="treeNodeId"
-                      placeholder="Prvek v organizační struktuře"
-                      label="Org. struktura"
+                      placeholder={ this.i18n('content.identities.filter.organization.placeholder') }
                       forceSearchParameters={forceTreeNodeSearchParams}
                       manager={this.treeNodeManager}
                       onChange={this._changeTreeNode.bind(this)}/>

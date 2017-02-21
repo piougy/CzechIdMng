@@ -23,7 +23,5 @@ FilterSelectBox.propTypes = {
 const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.SelectBox.defaultProps; // labelSpan etc. override
 FilterSelectBox.defaultProps = {
   ...otherDefaultProps,
-  relation: 'EQ',
-  labelSpan: 'col-lg-4',
-  componentSpan: 'col-lg-8'
+  relation: 'EQ'
 };

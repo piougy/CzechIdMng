@@ -9,20 +9,22 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.filter.IdentityContractFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + "/identity-contracts")
-public class IdmIdentityContractController extends DefaultReadWriteEntityController<IdmIdentityContract, EmptyFilter> {
+public class IdmIdentityContractController extends DefaultReadWriteEntityController<IdmIdentityContract, IdentityContractFilter> {
 	
 	@Autowired
 	public IdmIdentityContractController(EntityLookupService entityLookupService, IdmIdentityContractService identityWorkingPositionService) {
@@ -59,5 +61,13 @@ public class IdmIdentityContractController extends DefaultReadWriteEntityControl
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
+	}
+	
+	@Override
+	protected IdentityContractFilter toFilter(MultiValueMap<String, Object> parameters) {
+		IdentityContractFilter filter = new IdentityContractFilter();
+		filter.setText(getParameterConverter().toString(parameters, "text"));
+		filter.setIdentity(getParameterConverter().toEntity(parameters, "identity", IdmIdentity.class));
+		return filter;
 	}
 }

@@ -2,7 +2,6 @@ package eu.bcvsolutions.idm.core.model.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -10,7 +9,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 import eu.bcvsolutions.idm.core.rest.projection.IdmRoleExcerpt;
 
 /**
@@ -34,11 +32,16 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	 * @see eu.bcvsolutions.idm.core.api.repository.BaseEntityRepository#find(eu.bcvsolutions.idm.core.api.dto.BaseFilter, Pageable)
 	 */
 	@Override
-	@Query(value = "select e from IdmRole e" +
+	@Query(value = "select e from #{#entityName} e" +
 	        " where"
 	        + " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})"
 	        + " and (?#{[0].roleType} is null or e.roleType = ?#{[0].roleType})"
-	        + " and (?#{[0].roleCatalogue} is null or e.roleCatalogue = ?#{[0].roleCatalogue})"
+	        + " and "
+	        + " ( "
+	        	+ "?#{[0].roleCatalogue} is null"
+	        	+ " or"
+	        	+ " exists (from IdmRoleCatalogueRole rc where rc.role = e and rc.roleCatalogue = ?#{[0].roleCatalogue})"
+	        + " ) "
 	        + " and"
 	        + "	("
 	        	+ "?#{[0].guarantee} is null"
@@ -48,14 +51,4 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	Page<IdmRole> find(RoleFilter filter, Pageable pageable);
 	
 	IdmRole findOneByName(@Param("name") String name);
-	
-	/**
-	 * Clears role catalogue
-	 * 
-	 * @param roleCatalogue
-	 * @return
-	 */
-	@Modifying
-	@Query("update #{#entityName} e set e.roleCatalogue = null where e.roleCatalogue = :roleCatalogue")
-	int clearCatalogue(@Param("roleCatalogue") IdmRoleCatalogue roleCatalogue);
 }

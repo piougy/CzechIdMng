@@ -184,18 +184,17 @@ export default class RoleTable extends Basic.AbstractContent {
             showLoading={showLoading}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.Role.name')}
-                        label={this.i18n('entity.Role.name')}/>
+                        placeholder={this.i18n('entity.Role.name')}/>
                     </div>
                     <div className="col-lg-4">
                       <Basic.EnumSelectBox
                         ref="roleType"
-                        label={this.i18n('entity.Role.roleType')}
+                        placeholder={this.i18n('entity.Role.roleType')}
                         enum={RoleTypeEnum}/>
                     </div>
                     <div className="col-lg-4 text-right">
@@ -280,7 +279,7 @@ RoleTable.propTypes = {
 };
 
 RoleTable.defaultProps = {
-  columns: ['name', 'roleType', 'disabled', 'approvable', 'description', 'roleCatalogue'],
+  columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
   filterOpened: false,
   showCatalogue: true,
   forceSearchParameters: null

@@ -107,11 +107,7 @@ public class DefaultLoginService implements LoginService {
 		if (identity.isDisabled()) {
 			throw new IdmAuthenticationException(MessageFormat.format("Check identity can login: The identity [{0}] is disabled.", identity.getUsername() ));
 		}
-		// TODO: for now is full access for admin, unskip test testBadCredentialsLogIn
-		if (identity.getUsername().equals("admin")) {
-			return true;
-		}
-		// GuardedString isn't nesessary password is in hash
+		// GuardedString isn't necessary password is in hash
 		IdmPassword idmPassword = passwordService.get(identity);
 		if (idmPassword == null) {
 			LOG.warn("Identity [{}] does not have pasword in idm", identity.getUsername());

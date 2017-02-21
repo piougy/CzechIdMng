@@ -74,7 +74,7 @@ class SystemSyncActionLogDetail extends Basic.AbstractTableContent {
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
         </Basic.ContentHeader>
           <Basic.Panel className="no-border">
-            <Basic.AbstractForm readOnly ref="form" data={syncActionLog} showLoading={_showLoading} className="form-horizontal">
+            <Basic.AbstractForm readOnly ref="form" data={syncActionLog} showLoading={_showLoading}>
               <Basic.EnumSelectBox
                 ref="syncAction"
                 enum={SynchronizationActionTypeEnum}
@@ -108,12 +108,11 @@ class SystemSyncActionLogDetail extends Basic.AbstractTableContent {
             forceSearchParameters={forceSearchParameters}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row className="last">
                     <div className="col-lg-6">
                       <Advanced.Filter.TextField
                         ref="displayName"
-                        label={this.i18n('filter.displayName.label')}
                         placeholder={this.i18n('filter.displayName.placeholder')}/>
                     </div>
                     <div className="col-lg-2"/>

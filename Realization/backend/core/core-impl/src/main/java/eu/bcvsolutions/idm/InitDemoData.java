@@ -193,14 +193,15 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				identity.setEmail("radek.tomiska@bcvsolutions.eu");
 				identity = this.identityService.save(identity);
 				LOG.info(MessageFormat.format("Identity created [id: {0}]", identity.getId()));
+				IdmIdentityContract defaultContract = identityContractService.getContracts(identity).get(0);
 				//
 				IdmIdentityRole identityRole1 = new IdmIdentityRole();
-				identityRole1.setIdentity(identity);
+				identityRole1.setIdentityContract(defaultContract);
 				identityRole1.setRole(role1);
 				identityRoleService.save(identityRole1);
 				//
 				IdmIdentityRole identityRole2 = new IdmIdentityRole();
-				identityRole2.setIdentity(identity);
+				identityRole2.setIdentityContract(defaultContract);
 				identityRole2.setRole(role2);
 				identityRoleService.save(identityRole2);
 				//

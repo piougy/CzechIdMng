@@ -374,7 +374,8 @@ public class DefaultSysProvisioningOperationService
 	 * @param index
 	 * @return
 	 */
-	protected String createAccountObjectPropertyKey(String property, int index) {
+	@Override
+	public String createAccountObjectPropertyKey(String property, int index) {
 		return String.format(CONFIDENTIAL_KEY_PATTERN, ACCOUNT_OBJECT_PROPERTY_PREFIX, property, index);
 	}
 	
@@ -385,7 +386,8 @@ public class DefaultSysProvisioningOperationService
 	 * @param index
 	 * @return
 	 */
-	protected String createConnectorObjectPropertyKey(IcAttribute property, int index) {
+	@Override
+	public String createConnectorObjectPropertyKey(IcAttribute property, int index) {
 		return String.format(CONFIDENTIAL_KEY_PATTERN, CONNECTOR_OBJECT_PROPERTY_PREFIX, property.getName(), index);
 	}
 	

@@ -106,7 +106,7 @@ export default class EntityUtils {
     if (entity.validFrom === undefined && entity.validTill === undefined) {
       return true;
     }
-    if ((entity.validFrom !== null && moment().isBefore(entity.validFrom)) || (entity.validTill !== null && moment().isAfter(entity.validTill))) {
+    if ((entity.validFrom !== null && moment().isBefore(entity.validFrom)) || (entity.validTill !== null && moment().subtract(1, 'days').isAfter(entity.validTill))) {
       return false;
     }
     return true;

@@ -7,9 +7,9 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.domain.SynchronizationEventType;
 import eu.bcvsolutions.idm.acc.entity.SysSyncConfig;
-import eu.bcvsolutions.idm.acc.event.ProvisioningEvent;
 import eu.bcvsolutions.idm.acc.service.api.SynchronizationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
+import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
@@ -47,16 +47,11 @@ public class SynchronizationStartProcessor extends AbstractEntityEventProcessor<
 		LOG.info("Synchronization event start");
 		SysSyncConfig config = event.getContent();
 		synchronizationService.startSynchronization(config);
-		return new DefaultEventResult<>(event, this, false);
-	}
-	
-	@Override
-	public boolean isClosable() {
-		return true;
+		return new DefaultEventResult<>(event, this);
 	}
 
 	@Override
 	public int getOrder() {
-		return ProvisioningEvent.DEFAULT_PROVISIONING_ORDER;
+		return CoreEvent.DEFAULT_ORDER;
 	}
 }

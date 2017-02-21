@@ -4,6 +4,9 @@
  */
 package eu.bcvsolutions.idm.core.api.utils;
 
+import java.io.Serializable;
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
 import org.springframework.util.Assert;
@@ -54,5 +57,21 @@ public class EntityUtils {
 			return packages[3];
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns {@link UUID} from given {@code string} or {@link UUID}.
+	 * 
+	 * @param identifier {@code string} or {@link UUID} 
+	 * @return
+	 * @throws  IllegalArgumentException
+     *          If identifier does not conform to the string representation as
+     *          described in {@link #toString}
+	 */
+	public static UUID toUuid(Serializable identifier) {
+		if (identifier instanceof String) {
+			return UUID.fromString((String) identifier);
+		}
+		return (UUID) identifier;
 	}
 }

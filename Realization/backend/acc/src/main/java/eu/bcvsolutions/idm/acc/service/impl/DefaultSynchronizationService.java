@@ -1374,7 +1374,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				// We will remove connected identity role
 				identityRoleService.delete(identityRole);
 				addToItemLog(logItem, MessageFormat.format("Identity-role relation deleted (username: {0}, id: {1})",
-						identityRole.getIdentity().getUsername(), identityRole.getId()));
+						identityRole.getIdentityContract().getIdentity().getUsername(), identityRole.getId()));
 			}
 
 		});
@@ -1806,6 +1806,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				actionLog.getOperationCount()));
 	}
 	
+	@Override
 	public void setSynchronizationConfigId(UUID synchronizationConfigId) {
 		this.synchronizationConfigId = synchronizationConfigId;
 	}

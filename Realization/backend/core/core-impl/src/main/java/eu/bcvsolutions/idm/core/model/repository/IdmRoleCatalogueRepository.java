@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.model.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -38,14 +37,17 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	@Query(value = "select e from IdmRoleCatalogue e left join e.parent p" +
 	        " where" +
 	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" + 
+	        " and " +
+	        " (?#{[0].niceName} is null or lower(e.niceName) like ?#{[0].niceName == null ? '%' : '%'.concat([0].niceName.toLowerCase()).concat('%')})" +
+	        " and " +
+	        " (?#{[0].technicalName} is null or lower(e.technicalName) like ?#{[0].technicalName == null ? '%' : '%'.concat([0].technicalName.toLowerCase()).concat('%')})" +
 	        " and (?#{[0].parentId} is null or p.id = ?#{[0].parentId})")
 	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
 	
 	IdmRoleCatalogue findOneByName(@Param("name") String name);
 	
-	// TODO: pageable - see treeNode
 	@Query(value = "select e from IdmRoleCatalogue e" +
 			" where" +
 			" (:parentId is null and e.parent.id IS NULL) or (e.parent.id = :parentId)")
-	List<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId);
+	Page<IdmRoleCatalogue> findChildren(@Param(value = "parentId") UUID parentId, Pageable pageable);
 }

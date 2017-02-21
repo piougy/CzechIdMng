@@ -1,6 +1,6 @@
 # <span class="glyphicon glyphicon-filter"></span> Definice vlastního filtru synchronizace.
 
-Vlastní filtr je možné definovat jednoduše zvolením atributu (**Filtrovat dle atributu**) podle kterého chceme hledat a přísulšné operace (**Filtrovací operace**).
+Vlastní filtr je možné definovat jednoduše zvolením atributu (**Filtrovat dle atributu**) podle kterého chceme hledat a příslušné operace (**Filtrovací operace**).
 
 Pokud potřebujeme vytvořit složitější filtrovací kritérium, je k tomu možné využít tento skript.
 V příkladu níže je uvedena situace, kdy chceme filtrovat dle vybraného atributu a operace (do skriptu vstupuje jako proměnná **filter**), ale zároveň chceme výsledky omezit další podmínkou. V tomto případě tak, že všechny výsledky musí mít atribut "**lastname**" rovný hodnotě "**Doe**".

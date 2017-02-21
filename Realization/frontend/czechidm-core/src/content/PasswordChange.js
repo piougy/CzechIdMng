@@ -149,7 +149,7 @@ class PasswordChange extends Basic.AbstractContent {
               <Basic.Panel showLoading={showLoading}>
                 <Basic.PanelHeader text={this.i18n('header')} help={help}/>
 
-                <Basic.AbstractForm ref="form" className="form-horizontal panel-body">
+                <Basic.AbstractForm ref="form" className="panel-body">
 
                   <Basic.Alert text={this.i18n('message.passwordChange.info')} className="no-margin"/>
 
@@ -157,22 +157,16 @@ class PasswordChange extends Basic.AbstractContent {
                     ref="username"
                     label={this.i18n('entity.Identity.username')}
                     placeholder={this.i18n('entity.Identity.username')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    required/>
                   <Basic.TextField
                     type={'password'}
                     ref="passwordOld"
                     label={this.i18n('passwordOld')}
                     placeholder={this.i18n('passwordOld')}
-                    required
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    required/>
                   <Advanced.PasswordField
                     className="form-control"
-                    ref="passwords"
-                    labelSpan="col-md-4"
-                    componentSpan="col-md-8"/>
+                    ref="passwords"/>
                 </Basic.AbstractForm>
                 <Basic.Panel className="no-border last">
                   <ValidationMessage error={validationError} />

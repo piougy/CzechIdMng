@@ -189,7 +189,7 @@ class ProvisioningOperations extends Basic.AbstractContent {
               !detail.entity
               ||
               <div>
-                <Basic.AbstractForm data={detail.entity} className="form-horizontal" readOnly>
+                <Basic.AbstractForm data={detail.entity} readOnly>
                   <Basic.LabelWrapper label={this.i18n('entity.created')}>
                     <div style={{ margin: '7px 0' }}>
                       <Advanced.DateValue value={detail.entity.created} showTime/>
@@ -197,7 +197,13 @@ class ProvisioningOperations extends Basic.AbstractContent {
                   </Basic.LabelWrapper>
                   <Basic.EnumLabel ref="operationType" label={this.i18n('acc:entity.ProvisioningOperation.operationType')} enum={ProvisioningOperationTypeEnum}/>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.ProvisioningOperation.entity')}>
-                    <EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
+                    {
+                      !detail.entity.entityIdentifier
+                      ?
+                      <span>N/A</span>
+                      :
+                      <EntityInfo entityType={detail.entity.entityType} entityIdentifier={detail.entity.entityIdentifier} style={{ margin: 0 }}/>
+                    }
                   </Basic.LabelWrapper>
                   <Basic.LabelWrapper label={this.i18n('acc:entity.System.name')}>
                     <div style={{ margin: '7px 0' }}>

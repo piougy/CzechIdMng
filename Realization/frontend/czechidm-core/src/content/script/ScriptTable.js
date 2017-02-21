@@ -98,13 +98,12 @@ export default class ScriptTable extends Basic.AbstractContent {
           rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+              <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('filter.text')}
-                      label={this.i18n('filter.text')}/>
+                      placeholder={this.i18n('filter.text')}/>
                   </div>
                   <div className="col-lg-6 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
@@ -114,9 +113,7 @@ export default class ScriptTable extends Basic.AbstractContent {
                   <div className="col-lg-6">
                     <Basic.EnumSelectBox
                       ref="category"
-                      labelSpan="col-lg-4"
-                      componentSpan="col-lg-8"
-                      label={this.i18n('entity.Script.category')}
+                      placeholder={this.i18n('entity.Script.category')}
                       enum={ScriptCategoryEnum}/>
                   </div>
                 </Basic.Row>

@@ -352,7 +352,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     return (
       <div className="advanced-table" style={style}>
         {
-          !filter && (actions === null || actions.length === 0 || !showRowSelection)
+          !filter && (actions === null || actions.length === 0 || !showRowSelection) && (buttons === null || buttons.length === 0)
           ||
           <Basic.Toolbar container={this} viewportOffsetTop={filterViewportOffsetTop}>
             <div className="advanced-table-heading">
@@ -372,6 +372,15 @@ class AdvancedTable extends Basic.AbstractContextComponent {
                 { buttons }
                 {' '}
                 <Filter.ToogleButton filterOpen={ (open)=> this.setState({ filterOpened: open }) } filterOpened={filterOpened} rendered={filter !== undefined && filterCollapsible} />
+                {' '}
+                <Basic.Button
+                  className="btn-xs"
+                  title={ this.i18n('button.refresh') }
+                  titlePlacement="bottom"
+                  showLoading={ _showLoading }
+                  onClick={ this.fetchEntities.bind(this, _searchParameters, this.props) }>
+                  <Basic.Icon value="fa:refresh" showLoading={ _showLoading }/>
+                </Basic.Button>
               </div>
               <div className="clearfix"></div>
             </div>
@@ -516,6 +525,9 @@ AdvancedTable.propTypes = {
   _showLoading: PropTypes.bool,
   _entities: PropTypes.arrayOf(React.PropTypes.object),
   _total: PropTypes.number,
+  /**
+   * Persisted / used search parameters in redux
+   */
   _searchParameters: PropTypes.object
 };
 AdvancedTable.defaultProps = {
@@ -529,7 +541,8 @@ AdvancedTable.defaultProps = {
   showRowSelection: false,
   selectedRows: [],
   filterCollapsible: true,
-  actions: []
+  actions: [],
+  buttons: []
 };
 
 function select(state, component) {

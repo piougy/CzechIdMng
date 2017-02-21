@@ -5,6 +5,7 @@ import Joi from 'joi';
 //
 import AbstractContextComponent from '../AbstractContextComponent/AbstractContextComponent';
 import Icon from '../Icon/Icon';
+import HelpIcon from '../HelpIcon/HelpIcon';
 
 class AbstractFormComponent extends AbstractContextComponent {
 
@@ -201,6 +202,29 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.state.validationResult;
   }
 
+  /**
+   * Help icon in label
+   */
+  renderHelpIcon() {
+    return (
+      <HelpIcon content={this.props.help} style={{ marginLeft: '3px' }}/>
+    );
+  }
+
+  /**
+   * Help block under input
+   */
+  renderHelpBlock() {
+    const { helpBlock } = this.props;
+    //
+    if (!helpBlock) {
+      return null;
+    }
+    return (
+      <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
+    );
+  }
+
   render() {
     const { hidden, className, rendered } = this.props;
     if (!rendered) {
@@ -249,8 +273,8 @@ AbstractFormComponent.propTypes = {
 };
 
 AbstractFormComponent.defaultProps = {
-  labelSpan: 'col-sm-3',
-  componentSpan: 'col-sm-8',
+  labelSpan: null,
+  componentSpan: null,
   required: false,
   hidden: false,
   readOnly: false,

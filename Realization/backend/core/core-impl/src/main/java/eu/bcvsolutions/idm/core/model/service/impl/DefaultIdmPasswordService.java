@@ -4,6 +4,7 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
@@ -38,6 +39,7 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 	}
 
 	@Override
+	@Transactional
 	public IdmPassword save(IdmIdentity identity, PasswordChangeDto passwordDto) {
 		Assert.notNull(identity);
 		Assert.notNull(passwordDto);
@@ -67,6 +69,7 @@ public class DefaultIdmPasswordService extends AbstractReadWriteEntityService<Id
 	}
 
 	@Override
+	@Transactional
 	public void delete(IdmIdentity identity) {
 		IdmPassword passwordEntity = getPasswordByIdentity(identity);
 		if (passwordEntity != null) {

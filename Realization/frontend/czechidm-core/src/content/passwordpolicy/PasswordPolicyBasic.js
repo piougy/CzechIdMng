@@ -41,7 +41,8 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
     if (this._getIsNew()) {
       // if entity is new, set default required rules
       this.context.store.dispatch(passwordPolicyManager.receiveEntity(entityId, {
-        type: PasswordPolicyTypeEnum.VALIDATE,
+        type: PasswordPolicyTypeEnum.findKeyBySymbol(PasswordPolicyTypeEnum.VALIDATE),
+        generateType: PasswordPolicyGenerateTypeEnum.findKeyBySymbol(PasswordPolicyGenerateTypeEnum.RANDOM),
         passwordLengthRequired: true,
         upperCharRequired: true,
         lowerCharRequired: true,
@@ -126,6 +127,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         identityAttributeCheck.push(PasswordPolicyIdentityAttributeEnum.findKeyBySymbol(entity.identityAttributeCheck[attribute]));
       }
     }
+    //
     identityAttributeCheck = _.join(identityAttributeCheck, ', ');
     entity.identityAttributeCheck = identityAttributeCheck;
 
@@ -187,8 +189,10 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
         <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
           <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('content.passwordPolicies.basic.title')} />
           <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
-            <Basic.AbstractForm ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+            <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')} showLoading={entity === null}>
+              {/* readOnly for edit is necessary */}
               <Basic.EnumSelectBox
+                readOnly={!Utils.Entity.isNew(entity)}
                 ref="type" onChange={this._changeType.bind(this)} required
                 enum={PasswordPolicyTypeEnum}
                 label={this.i18n('entity.PasswordPolicy.type')}/>
@@ -199,7 +203,7 @@ class PasswordPolicyBasic extends Basic.AbstractContent {
                 max={255}/>
               <Basic.EnumSelectBox
                 ref="generateType" required={!validateType} hidden={validateType}
-                enum={PasswordPolicyGenerateTypeEnum} clearable={false}
+                enum={PasswordPolicyGenerateTypeEnum}
                 label={this.i18n('entity.PasswordPolicy.generateType')}/>
 
               <Basic.TextField ref="passphraseWords"

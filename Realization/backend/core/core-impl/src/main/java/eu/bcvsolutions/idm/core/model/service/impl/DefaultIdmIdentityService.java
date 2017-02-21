@@ -24,44 +24,53 @@ import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.event.IdentityContractEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityDeleteProcessor;
 import eu.bcvsolutions.idm.core.model.event.processor.IdentityPasswordProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentitySaveProcessor;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 
 /**
  * Operations with IdmIdentity
+ * - supports {@link IdentityEvent}
  * 
  * @author Radek Tomiška
  *
  */
-@Service
+@Service("identityService")
 public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdentity, IdentityFilter> implements IdmIdentityService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
 	private final IdmIdentityRepository identityRepository;
 	private final IdmRoleRepository roleRepository;
-	private final EntityEventManager entityEventProcessorService;
+	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
 			IdmIdentityRepository identityRepository,
 			FormService formService,
 			IdmRoleRepository roleRepository,
-			EntityEventManager entityEventProcessorService) {
+			EntityEventManager entityEventManager) {
 		super(identityRepository, formService);
 		//
 		Assert.notNull(roleRepository);
-		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(entityEventManager);
 		//
 		this.identityRepository = identityRepository;
 		this.roleRepository = roleRepository;
-		this.entityEventProcessorService = entityEventProcessorService;
+		this.entityEventManager = entityEventManager;
 	}
 	
+	/**
+	 * Publish {@link IdentityContractEvent} only.
+	 * 
+	 * @see {@link IdentitySaveProcessor}
+	 */
 	@Override
 	@Transactional
 	public IdmIdentity save(IdmIdentity identity) {
@@ -69,18 +78,23 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
 		if (identity.getId() == null) { // create
-			return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
+			return entityEventManager.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
 		}
-		return entityEventProcessorService.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
+		return entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
 	}
 	
+	/**
+	 * Publish {@link IdentityContractEvent} only.
+	 * 
+	 * @see {@link IdentityDeleteProcessor}
+	 */
 	@Override
 	@Transactional
 	public void delete(IdmIdentity identity) {
 		Assert.notNull(identity);
 		//
 		LOG.debug("Deleting identity [{}]", identity.getUsername());
-		entityEventProcessorService.process(new IdentityEvent(IdentityEventType.DELETE, identity));
+		entityEventManager.process(new IdentityEvent(IdentityEventType.DELETE, identity));
 	}
 
 	@Override
@@ -107,7 +121,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(identity);
 		//
 		LOG.debug("Changing password for identity [{}]", identity.getUsername());
-		entityEventProcessorService.process(
+		entityEventManager.process(
 				new IdentityEvent(
 						IdentityEventType.PASSWORD, 
 						identity, 

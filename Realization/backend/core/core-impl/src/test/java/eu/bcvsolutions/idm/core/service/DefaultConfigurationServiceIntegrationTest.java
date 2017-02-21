@@ -8,11 +8,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.context.ApplicationContext;
 
 import eu.bcvsolutions.idm.InitTestData;
 import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
-import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.model.repository.IdmConfigurationRepository;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultConfigurationService;
@@ -25,18 +24,17 @@ public class DefaultConfigurationServiceIntegrationTest extends AbstractIntegrat
 	public static final String TEST_GUARDED_PROPERTY_KEY = "idm.sec.core.password.test";
 	private static final String TEST_GUARDED_PROPERTY_VALUE = "secret_password";
 
-	private ConfigurationService configurationService;
 	@Autowired
-	private ConfidentialStorage confidentialStorage;
-	@Autowired
-	private ConfigurableEnvironment env;
+	private ApplicationContext context;
 	@Autowired
 	private IdmConfigurationRepository configurationRepository;
+	//
+	private ConfigurationService configurationService;
 	
 	@Before
 	public void login() {
 		super.loginAsAdmin(InitTestData.TEST_USER_1);
-		configurationService = new DefaultConfigurationService(configurationRepository, confidentialStorage, env);
+		configurationService = context.getAutowireCapableBeanFactory().createBean(DefaultConfigurationService.class);
 	}
 	
 	@After

@@ -105,7 +105,7 @@ class NotificationDetail extends Basic.AbstractContent {
     //
     return (
       <div>
-        <Basic.AbstractForm ref="form" className="form-horizontal">
+        <Basic.AbstractForm ref="form" style={{ padding: 15 }}>
           <Basic.DateTimePicker ref="created" label={this.i18n('entity.Notification.created')} readOnly hidden={isNew}/>
 
           <Basic.LabelWrapper hidden={isNew}

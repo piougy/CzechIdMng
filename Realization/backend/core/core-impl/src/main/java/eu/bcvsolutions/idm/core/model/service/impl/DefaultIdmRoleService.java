@@ -51,6 +51,12 @@ public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRol
 	
 	@Override
 	@Transactional
+	public IdmRole save(IdmRole entity) {
+		return super.save(entity);
+	}
+	
+	@Override
+	@Transactional
 	public void delete(IdmRole role) {
 		Assert.notNull(role);
 		//

@@ -408,7 +408,7 @@ class ScheduleTasks extends Basic.AbstractTableContent {
           <form onSubmit={this.save.bind(this)}>
             <Basic.Modal.Header closeButton={!showLoading} text={detail.entity.id !== undefined ? this.i18n('action.task-edit.header') : this.i18n('action.task-create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="form" showLoading={showLoading} className="form-horizontal" readOnly={detail.entity.id !== undefined}>
+              <Basic.AbstractForm ref="form" showLoading={showLoading} readOnly={detail.entity.id !== undefined}>
                 <Basic.EnumSelectBox
                   ref="taskType"
                   label={this.i18n('entity.ScheduleTask.taskType')}
@@ -495,7 +495,7 @@ class ScheduleTasks extends Basic.AbstractTableContent {
           <form onSubmit={this.saveTrigger.bind(this)}>
             <Basic.Modal.Header closeButton={!showLoading} text={this.i18n('action.trigger-create.header')}/>
             <Basic.Modal.Body>
-              <Basic.AbstractForm ref="triggerForm" showLoading={showLoading} className="form-horizontal">
+              <Basic.AbstractForm ref="triggerForm" showLoading={showLoading}>
                 <Basic.EnumSelectBox
                   ref="type"
                   enum={TriggerTypeEnum}
@@ -510,7 +510,13 @@ class ScheduleTasks extends Basic.AbstractTableContent {
                 <Basic.TextField
                   ref="cron"
                   label={this.i18n('entity.ScheduleTask.trigger.cron.label')}
-                  helpBlock={<span dangerouslySetInnerHTML={{__html: this.i18n('entity.ScheduleTask.trigger.cron.help')}}/>}
+                  helpBlock={
+                    <span>
+                      { this.i18n('entity.ScheduleTask.trigger.cron.help') }
+                      {' '}
+                      <Basic.Link href={ this.i18n('entity.ScheduleTask.trigger.cron.link.href') } text={ this.i18n('entity.ScheduleTask.trigger.cron.link.text') }/>
+                    </span>
+                  }
                   hidden={triggerType !== 'CRON'}
                   required={triggerType === 'CRON'}/>
               </Basic.AbstractForm>

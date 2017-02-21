@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.domain.PasswordGenerate;
@@ -434,5 +436,33 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	
+	/**
+	 * Get how many rules in password policy isn't required
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	@JsonIgnore
+	public int getNotRequiredRules() {
+		int rules = 0;
+		if (!this.isLowerCharRequired()) {
+			rules++;
+		}
+		if (!this.isNumberRequired()) {
+			rules++;
+		}
+		if (!this.isPasswordLengthRequired()) {
+			rules++;
+		}
+		if (!this.isSpecialCharRequired()) {
+			rules++;
+		}
+		if (!this.isUpperCharRequired()) {
+			rules++;
+		}
+		return rules;
 	}
 }

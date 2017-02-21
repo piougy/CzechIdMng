@@ -31,9 +31,10 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourcesWrapper;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.rest.impl.IdmIdentityController;
 import eu.bcvsolutions.idm.core.workflow.api.dto.WorkflowDeploymentDto;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowTaskInstanceDto;
@@ -58,11 +59,13 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	@Autowired
 	private IdmIdentityController idmIdentityController;
 	@Autowired
-	private IdmIdentityRepository idmIdentityRepository;
+	private IdmIdentityService identityService;
 	@Autowired
 	private IdmRoleRepository idmRoleRepository;
 	@Autowired
 	private IdmIdentityRoleRepository idmIdentityRoleRepository;
+	@Autowired 
+	private IdmIdentityContractService identityContractService;
 	@Autowired
 	private WorkflowTaskInstanceController workflowTaskInstanceController;
 	private DateTimeFormatter sdf = DateTimeFormat.forPattern("yyyy-MM-dd");
@@ -79,12 +82,12 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 
 	@Test
 	public void addApprovableSuperAdminRole() {
-		IdmIdentity test1;
+		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
 		Page<IdmIdentityRole> idmIdentityRolePage;
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_ADMIN_ROLE, false);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		roles.add(createNewPermission(InitTestData.TEST_ADMIN_ROLE, null, null));
+		roles.add(createNewPermission(test1, InitTestData.TEST_ADMIN_ROLE, null, null));
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, roles);
 		variables.put(CHANGED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
 		variables.put(REMOVED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -121,8 +124,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		// For admin must be found no any task
 		Assert.assertTrue(wrappedUserTasksResult.getBody().getResources().size() == 0);
 		
-		test1 = idmIdentityRepository.findOneByUsername(InitTestData.TEST_USER_1);
-		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
+		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentityContract_Identity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
 		//User test 1 must have superAdminRole
@@ -250,13 +252,13 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	
 	@Test
 	public void addNotApprovableUserRole() {
-		IdmIdentity test1;
+		IdmIdentity test1 = identityService.getByName(InitTestData.TEST_USER_1);
 		Page<IdmIdentityRole> idmIdentityRolePage;
 		WorkflowTaskInstanceDto createChangeRequest = startChangePermissions(InitTestData.TEST_USER_1, InitTestData.TEST_USER_ROLE, false);
 		assertNotNull(createChangeRequest);
 		List<Map<String,Object>> roles = new ArrayList<>();
 		Map<String, Object> variables = new HashMap<>();
-		roles.add(createNewPermission(InitTestData.TEST_USER_ROLE, null, null));
+		roles.add(createNewPermission(test1, InitTestData.TEST_USER_ROLE, null, null));
 		variables.put(ADDED_IDENTITY_ROLES_VARIABLE, roles);
 		variables.put(CHANGED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
 		variables.put(REMOVED_IDENTITY_ROLES_VARIABLE, Lists.newArrayList());
@@ -285,8 +287,8 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		this.loginAsAdmin(InitTestData.TEST_USER_1);
 		
 		//UserRole is no approvable, therefore user test 1 must have userRole without any additional approving
-		test1 = idmIdentityRepository.findOneByUsername(InitTestData.TEST_USER_1);
-		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
+		test1 = identityService.getByName(InitTestData.TEST_USER_1);
+		idmIdentityRolePage = idmIdentityRoleRepository.findByIdentityContract_Identity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList2 = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList2.add(s));
 		//User test 1 must have user role
@@ -386,7 +388,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 	
 	
 	private IdmIdentityRole getPermission(String user, String roleName) {
-		Page<IdmIdentityRole> idmIdentityRolePage = idmIdentityRoleRepository.findByIdentityUsername(user, null);
+		Page<IdmIdentityRole> idmIdentityRolePage = idmIdentityRoleRepository.findByIdentityContract_Identity_Username(user, null);
 		final List<IdmIdentityRole> idmIdentityRoleList = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList.add(s));
 		IdmIdentityRole superAdminPermission = null;
@@ -405,9 +407,9 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		
 		//start change role process for TEST_USER_1
 		this.loginAsAdmin(user);
-		IdmIdentity test1 = idmIdentityRepository.findOneByUsername(user);
+		IdmIdentity test1 = identityService.getByUsername(user);
 		
-		Page<IdmIdentityRole> idmIdentityRolePage = idmIdentityRoleRepository.findByIdentity(test1, null);
+		Page<IdmIdentityRole> idmIdentityRolePage = idmIdentityRoleRepository.findByIdentityContract_Identity(test1, null);
 		final List<IdmIdentityRole> idmIdentityRoleList = new ArrayList<>();
 		idmIdentityRolePage.forEach(s -> idmIdentityRoleList.add(s));
 		//User test 1 don't have superAdminRole yet
@@ -419,7 +421,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		return createChangeRequest;
 	}
 
-	private Map<String, Object> createNewPermission(String roleName, LocalDate validFrom, LocalDate validTill) {
+	private Map<String, Object> createNewPermission(IdmIdentity identity, String roleName, LocalDate validFrom, LocalDate validTill) {
 		Map<String, Object> role = new HashMap<>();
 		Map<String, Object> roleEmbedded = new HashMap<>();
 		Map<String, Object> roleIdEmbedded = new HashMap<>();
@@ -428,6 +430,7 @@ public class ChangeIdentityPermissionTest extends AbstractWorkflowIntegrationTes
 		role.put("validTill", validTill == null ? "" : sdf.print(validTill));
 		role.put("validFrom", validFrom == null ? "" : sdf.print(validFrom));
 		role.put("_embedded", roleEmbedded);
+		role.put("identityContract", identityContractService.getContracts(identity).get(0));
 	
 		return role;
 	}

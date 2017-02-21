@@ -105,23 +105,21 @@ class Team extends Basic.AbstractContent {
             rowClass={({rowIndex, data}) => { return data[rowIndex]['disabled'] ? 'disabled' : ''}}
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                <Basic.AbstractForm ref="filterForm" className="form-horizontal">
+                <Basic.AbstractForm ref="filterForm">
                   <Basic.Row>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtFrom"
                         field="createdAt"
                         relation="GE"
-                        placeholder={this.i18n('filter.createdAtFrom.placeholder')}
-                        label={this.i18n('filter.createdAtFrom.label')}/>
+                        placeholder={this.i18n('filter.createdAtFrom.placeholder')}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="filterCreatedAtTill"
                         field="createdAt"
                         relation="LE"
-                        placeholder={this.i18n('filter.createdAtTill.placeholder')}
-                        label={this.i18n('filter.createdAtTill.label')}/>
+                        placeholder={this.i18n('filter.createdAtTill.placeholder')}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>

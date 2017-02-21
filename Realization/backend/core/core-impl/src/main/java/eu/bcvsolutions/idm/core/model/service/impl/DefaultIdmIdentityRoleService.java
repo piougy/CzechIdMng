@@ -15,11 +15,14 @@ import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
 import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
+import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityRoleEvent.IdentityRoleEventType;
-import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityRoleDeleteProcessor;
+import eu.bcvsolutions.idm.core.model.event.processor.IdentityRoleSaveProcessor;
+import eu.bcvsolutions.idm.core.model.repository.IdmIdentityContractRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
@@ -30,7 +33,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
  * @author svanda
  *
  */
-@Service
+@Service("identityRoleService")
 public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityService<IdmIdentityRole, IdentityRoleFilter>
 		implements IdmIdentityRoleService {
 	
@@ -38,54 +41,70 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 
 	private final IdmIdentityRoleRepository identityRoleRepository;
 	private final IdmRoleRepository roleRepository;
-	private final IdmIdentityRepository identityRepository;
-	private final EntityEventManager entityEventProcessorService;
+	private final IdmIdentityContractRepository identityContractRepository;
+	private final EntityEventManager entityEventManager;
 
 	@Autowired
 	public DefaultIdmIdentityRoleService(
 			IdmIdentityRoleRepository identityRoleRepository,
 			IdmRoleRepository roleRepository,
-			IdmIdentityRepository identityRepository,
-			EntityEventManager entityEventProcessorService) {
+			IdmIdentityContractRepository identityContractRepository,
+			EntityEventManager entityEventManager) {
 		super(identityRoleRepository);
 		//
 		Assert.notNull(roleRepository);
-		Assert.notNull(identityRepository);
-		Assert.notNull(entityEventProcessorService);
+		Assert.notNull(entityEventManager);
+		Assert.notNull(identityContractRepository);
 		//
 		this.identityRoleRepository = identityRoleRepository;
 		this.roleRepository = roleRepository;
-		this.identityRepository = identityRepository;
-		this.entityEventProcessorService = entityEventProcessorService;
+		this.entityEventManager = entityEventManager;
+		this.identityContractRepository = identityContractRepository;
 	}
 	
+	/**
+	 * Publish {@link IdentityRoleEvent} only.
+	 * 
+	 * @see {@link IdentityRoleSaveProcessor}
+	 */
 	@Override
 	@Transactional
 	public IdmIdentityRole save(IdmIdentityRole entity) {
 		Assert.notNull(entity);
 		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
+		Assert.notNull(entity.getIdentityContract());
 		//
-		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		return entityEventProcessorService.process(
+		LOG.debug("Saving role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentityContract().getIdentity().getUsername());
+		return entityEventManager.process(
 				new IdentityRoleEvent(entity.getId() == null ? IdentityRoleEventType.CREATE : IdentityRoleEventType.UPDATE, entity)).getContent();
 	}
 
+	/**
+	 * Publish {@link IdentityRoleEvent} only.
+	 * 
+	 * @see {@link IdentityRoleDeleteProcessor}
+	 */
 	@Override
 	@Transactional
 	public void delete(IdmIdentityRole entity) {
 		Assert.notNull(entity);
 		Assert.notNull(entity.getRole());
-		Assert.notNull(entity.getIdentity());
+		Assert.notNull(entity.getIdentityContract());
 		//
-		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentity().getUsername());
-		entityEventProcessorService.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
+		LOG.debug("Deleting role [{}] for identity [{}]", entity.getRole().getName(), entity.getIdentityContract().getIdentity().getUsername());
+		entityEventManager.process(new IdentityRoleEvent(IdentityRoleEventType.DELETE, entity));
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<IdmIdentityRole> getRoles(IdmIdentity identity) {
-		return identityRoleRepository.findAllByIdentity(identity, new Sort("role.name"));
+		return identityRoleRepository.findAllByIdentityContract_Identity(identity, new Sort("role.name"));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<IdmIdentityRole> getRoles(IdmIdentityContract identityContract) {
+		return identityRoleRepository.findAllByIdentityContract(identityContract, new Sort("role.name"));
 	}
 
 	@Override
@@ -124,17 +143,16 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		if (identityRoleDto == null || identityRole == null) {
 			return null;
 		}
-		IdmRole role = null;
-		IdmIdentity identity = null;
-		if (identityRoleDto.getRole() != null) {
-			role = roleRepository.findOne(identityRoleDto.getRole());
+		IdmRole role = identityRole.getRole();
+		IdmIdentityContract identityContract = identityRole.getIdentityContract();
+		if (identityRoleDto.getRoleId() != null) {
+			role = roleRepository.findOne(identityRoleDto.getRoleId());
 		}
-		if (identityRoleDto.getIdentity() != null) {
-			identity = identityRepository.findOne(identityRoleDto.getIdentity());
+		if (identityRoleDto.getIdentityContractId() != null) {
+			identityContract = identityContractRepository.findOne(identityRoleDto.getIdentityContractId());
 		}
-
 		identityRole.setRole(role);
-		identityRole.setIdentity(identity);
+		identityRole.setIdentityContract(identityContract);
 		identityRole.setValidFrom(identityRoleDto.getValidFrom());
 		identityRole.setValidTill(identityRoleDto.getValidTill());
 		identityRole.setOriginalCreator(identityRoleDto.getOriginalCreator());

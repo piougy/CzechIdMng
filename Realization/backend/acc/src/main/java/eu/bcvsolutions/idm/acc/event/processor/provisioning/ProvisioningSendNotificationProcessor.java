@@ -7,6 +7,7 @@ import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
+import eu.bcvsolutions.idm.acc.domain.SystemEntityType;
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningOperationService;
 import eu.bcvsolutions.idm.core.api.event.AbstractEntityEventProcessor;
@@ -55,7 +56,7 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 	public EventResult<SysProvisioningOperation> process(EntityEvent<SysProvisioningOperation> event) {
 		SysProvisioningOperation provisioningOperation = event.getContent();
 		IdmIdentity identity = null;
-		if (provisioningOperation.getEntityIdentifier() != null) {
+		if (provisioningOperation.getEntityIdentifier() != null && SystemEntityType.IDENTITY == provisioningOperation.getEntityType()) {
 			identity = identityService.get(provisioningOperation.getEntityIdentifier());
 		}
 		// TODO: identity or email null, send message to actual log user?
@@ -65,11 +66,14 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
 					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
 					// send message with new password to identity
-					notificationManager.send(AccModuleDescriptor.TOPIC_NEW_PASSWORD, new IdmMessage.Builder()
-							.setLevel(NotificationLevel.SUCCESS)
-							.setSubject("Provisioning success")
-							.setHtmlMessage(
-									"Provisioning on system: " + provisioningOperation.getSystem().getName() + ", with uid " + provisioningOperation.getSystemEntityUid() + ", was success. There is your new awesome password: '" + password.asString() + "'").build(), identity);
+					notificationManager.send(
+							AccModuleDescriptor.TOPIC_NEW_PASSWORD, 
+							new IdmMessage.Builder()
+								.setLevel(NotificationLevel.SUCCESS)
+								.setSubject("Provisioning success")
+								.setMessage("Provisioning on system: " + provisioningOperation.getSystem().getName() + ", with uid " + provisioningOperation.getSystemEntityUid() + ", was success. There is your new awesome password: '" + password.asString() + "'")
+								.build(), 
+							identity);
 					break;
 				}
 				

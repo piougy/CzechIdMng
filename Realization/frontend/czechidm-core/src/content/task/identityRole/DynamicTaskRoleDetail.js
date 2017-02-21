@@ -1,5 +1,3 @@
-
-
 import React, { PropTypes } from 'react';
 import Helmet from 'react-helmet';
 //
@@ -64,16 +62,17 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
       <div>
         <Helmet title={this.i18n('title')} />
         <Basic.Confirm ref="confirm"/>
+
         <Basic.PageHeader>{task.taskName}
           <small> {this.i18n('header')}</small>
         </Basic.PageHeader>
+
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden">
-          </Basic.PanelHeader>
-          <Basic.AbstractForm ref="form" data={task} className="form-horizontal">
+          <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
+          <Basic.AbstractForm ref="form" data={task} style={{ padding: 15 }}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
-            <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')} componentSpan="col-sm-5">
-              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
+            <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')}>
+              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin" style={{ width: '50%' }}/>
             </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>
@@ -91,7 +90,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
             />
         </Basic.Panel>
         <Basic.Panel showLoading = {showLoadingInternal}>
-          <Basic.AbstractForm ref="formData" className="form-horizontal">
+          <Basic.AbstractForm ref="formData" style={{ padding: '15px 15px 0px 15px' }}>
             {this._getFormDataComponents(task)}
           </Basic.AbstractForm>
           <Basic.PanelFooter>

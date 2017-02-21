@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import Joi from 'joi';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
-import HelpIcon from '../HelpIcon/HelpIcon';
 import Tooltip from '../Tooltip/Tooltip';
 
 class LabelWrapper extends AbstractFormComponent {
@@ -28,7 +27,7 @@ class LabelWrapper extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, required, help, rendered } = this.props;
+    const { labelSpan, label, componentSpan, required, rendered } = this.props;
     //
     if (!rendered) {
       return null;
@@ -49,6 +48,7 @@ class LabelWrapper extends AbstractFormComponent {
           <label
             className={labelClassName}>
             {label}
+            { this.renderHelpIcon() }
           </label>
         }
         <div className={componentSpan}>
@@ -66,7 +66,8 @@ class LabelWrapper extends AbstractFormComponent {
               }
             </span>
           </Tooltip>
-          <HelpIcon content={help} style={{ marginLeft: '3px' }}/>
+          { !label ? this.renderHelpIcon() : null }
+          { this.renderHelpBlock() }
         </div>
       </div>
     );

@@ -23,7 +23,5 @@ FilterDateTimePicker.propTypes = {
 const { labelSpan, componentSpan, ...otherDefaultProps } = Basic.DateTimePicker.defaultProps; // labelSpan etc. override
 FilterDateTimePicker.defaultProps = {
   ...otherDefaultProps,
-  relation: 'EQ',
-  labelSpan: 'col-lg-4',
-  componentSpan: 'col-lg-8'
+  relation: 'EQ'
 };

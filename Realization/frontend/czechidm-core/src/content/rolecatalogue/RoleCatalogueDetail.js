@@ -91,22 +91,49 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
     return (
       <div>
         <form onSubmit={this.save.bind(this)}>
-          <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} className="form-horizontal" readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} >
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.RoleCatalogue.name')}
-              required
-              min={0}
-              max={255}/>
-            <Basic.SelectBox
-              ref="parent"
-              label={this.i18n('entity.RoleCatalogue.parent.name')}
-              manager={this.roleCatalogueManager}/>
-            <Basic.TextArea
-              ref="description"
-              label={this.i18n('entity.RoleCatalogue.description')}
-              max={255}/>
-          </Basic.AbstractForm>
+          <Basic.PanelBody>
+            <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
+              <Basic.TextField
+                ref="name"
+                label={this.i18n('entity.RoleCatalogue.name')}
+                required
+                min={0}
+                max={255}/>
+              <Basic.TextField
+                ref="technicalName"
+                label={this.i18n('entity.RoleCatalogue.technicalName.name')}
+                helpBlock={this.i18n('entity.RoleCatalogue.technicalName.help')}
+                required
+                min={0}
+                max={255}/>
+              <Basic.TextField
+                ref="niceName"
+                label={this.i18n('entity.RoleCatalogue.niceName.name')}
+                helpBlock={this.i18n('entity.RoleCatalogue.niceName.help')}
+                min={0}
+                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Basic.TextField
+                    ref="urlTitle"
+                    label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
+                </div>
+                <div className="col-lg-8">
+                  <Basic.TextField
+                    ref="url"
+                    label={this.i18n('entity.RoleCatalogue.url')}/>
+                </div>
+              </Basic.Row>
+              <Basic.SelectBox
+                ref="parent"
+                label={this.i18n('entity.RoleCatalogue.parent.name')}
+                manager={this.roleCatalogueManager}/>
+              <Basic.TextArea
+                ref="description"
+                label={this.i18n('entity.RoleCatalogue.description')}
+                max={255}/>
+            </Basic.AbstractForm>
+          </Basic.PanelBody>
 
           <Basic.PanelFooter showLoading={showLoading}>
             <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>

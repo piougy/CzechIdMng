@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -18,12 +17,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.acc.AccModuleDescriptor;
 import eu.bcvsolutions.idm.acc.domain.AccResultCode;
-import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningEventType;
@@ -37,7 +34,6 @@ import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSchemaObjectClass;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
-import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
 import eu.bcvsolutions.idm.acc.exception.ProvisioningException;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -251,19 +247,29 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey.getStrategyType();
 					}).findFirst().isPresent();
 					
+					boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
+					boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
 					if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
 				
-						if(existIfResourceNulltAttribute || existSetAttribute){
-							// Skip this attribute (with Create strategy), because exists same attribute with SET strategy 
-							// (SET strategy has higher priority) or with WRITE_IF_NULL strategy (WRITE_IF_NULL strategy has higher priority)								
+						if(existIfResourceNulltAttribute || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
+							// Skip this attribute (with Create strategy), because exists same attribute with SET/WRITE_IF_NULL/MERGE/AUTH_MERGE strategy 
+							// (this strategies has higher priority)							
 							continue;
 						}
 					}
 					if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 						
-						if(existSetAttribute){
-							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET strategy
-							// (SET strategy has higher priority)							
+						if(existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
+							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET/MERGE/AUTH_MERGE strategy
+							// (this strategies has higher priority)							
 							continue;
 						}
 					}
@@ -344,6 +350,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 										&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
 							}).findFirst().isPresent();
 							
+							boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
+							}).findFirst().isPresent();
+							
+							boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
+							}).findFirst().isPresent();
+							
 							if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 								//
@@ -360,9 +376,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								Object transformedConnectorValue = this.transformValueFromResource(provisioningAttribute.getTransformValueFromResourceScript()
 										, schemaAttribute, icAttribute, icAttributes, system);
 								
-								if(transformedConnectorValue != null || existSetAttribute){
+								if(transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
 									// Skip this attribute (with Write if null strategy), because connector value is not null
-									// or exists same attribute with SET strategy (SET strategy has higher priority)								
+									// or exists same attribute with  SET/MERGE/AUTH_MERGE strategy (this strategies has higher priority)								
 									continue;
 								}
 							}

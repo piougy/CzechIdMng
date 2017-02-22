@@ -31,8 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "sys_system_attribute_mapping", indexes = {
-		@Index(name = "ux_sys_attr_m_attr", columnList = "system_mapping_id,schema_attribute_id", unique = true),
-		@Index(name = "ux_sys_attr_m_pname_enth", columnList = "idm_property_name,system_mapping_id", unique = true),
+		@Index(name = "ux_sys_attr_m_attr", columnList = "system_mapping_id,schema_attribute_id,strategy_type", unique = true),
 		@Index(name = "ux_sys_attr_m_name_enth", columnList = "name,system_mapping_id", unique = true)})
 public class SysSystemAttributeMapping extends AbstractEntity implements AttributeMapping {
 

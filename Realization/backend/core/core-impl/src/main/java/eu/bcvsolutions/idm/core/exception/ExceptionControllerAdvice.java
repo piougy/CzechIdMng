@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -132,12 +133,17 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
     }
 	
-	@ResponseBody
 	@ExceptionHandler(Exception.class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	ResultModels handle(Exception ex) {
-		ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
-		log.error("[" + errorModel.getId() + "] ", ex);
-        return new ResultModels(errorModel);
+	ResponseEntity<ResultModels> handle(Exception ex) {
+		Throwable cause = Throwables.getRootCause(ex);
+		// If is cause ResultCodeException, then we will log catched exception and throw only ResultCodeException (for better show on frontend)
+		if(cause instanceof ResultCodeException){
+			log.error(ex.getLocalizedMessage(), ex);
+			return handle((ResultCodeException)cause);
+		}else{
+			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
+			log.error("[" + errorModel.getId() + "] ", ex);
+			return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());
+		}
     }
 }

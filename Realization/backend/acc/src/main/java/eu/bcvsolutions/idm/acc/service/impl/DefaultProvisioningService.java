@@ -252,7 +252,10 @@ public class DefaultProvisioningService implements ProvisioningService {
 		finalAttributes.forEach(parentAttribute -> {
 			if(AttributeMappingStrategyType.MERGE == parentAttribute.getStrategyType() || AttributeMappingStrategyType.AUTHORITATIVE_MERGE == parentAttribute.getStrategyType()){
 				Optional<AttributeMapping> conflictAttributeOptional = finalAttributes.stream().filter(att -> {
-					return att.getSchemaAttribute().equals(parentAttribute.getSchemaAttribute()) && att.getStrategyType() != parentAttribute.getStrategyType();
+					return att.getSchemaAttribute().equals(parentAttribute.getSchemaAttribute()) 
+							&& !(att.getStrategyType() == parentAttribute.getStrategyType() 
+							|| att.getStrategyType() == AttributeMappingStrategyType.CREATE 
+							|| att.getStrategyType() == AttributeMappingStrategyType.WRITE_IF_NULL);
 				}).findFirst();
 				if(conflictAttributeOptional.isPresent()){
 					throw new ProvisioningException(AccResultCode.PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT,
@@ -342,7 +345,11 @@ public class DefaultProvisioningService implements ProvisioningService {
 							&& attributeParent.getSchemaAttribute().equals(attribute.getSchemaAttribute()) 
 							&& attributeParent.getStrategyType() == attribute.getStrategyType();
 				}).forEach(attribute -> {
-					mergedValues.add(getAttributeValue(entity, attribute));
+					Object value = getAttributeValue(entity, attribute);
+					// We don`t want null item in list (problem with provisioning in IC)
+					if(value != null){
+						mergedValues.add(value);
+					}
 				});
 				if(!accountAttributes.containsKey(attributeParentKey)){
 					accountAttributes.put(attributeParentKey, mergedValues);
@@ -606,8 +613,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 			// First element have role with max priority
 			int maxPriority = attributesOrderedGivenStrategy.get(0).getRoleSystem().getRole().getPriority();
 
-			// We will search for
-			// attribute with highest priority (and role name)
+			// We will search for attribute with highest priority (and role name)
 			Optional<SysRoleSystemAttribute> highestPriorityAttributeOptional = attributesOrderedGivenStrategy.stream()
 					.filter(attribute -> {
 						// Filter attributes by max priority
@@ -624,8 +630,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 				SysRoleSystemAttribute highestPriorityAttribute = highestPriorityAttributeOptional.get();
 
 				// For merge strategies, will be add to final list all
-				// overloaded
-				// attributes
+				// overloaded attributes
 				if (strategy == AttributeMappingStrategyType.AUTHORITATIVE_MERGE
 						|| strategy == AttributeMappingStrategyType.MERGE) {
 					attributesOrderedGivenStrategy.forEach(attribute -> {
@@ -636,8 +641,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 							// We have to create own dto and set up all values
 							// (overloaded and default)
 							AttributeMapping overloadedAttribute = new MappingAttributeDto();
-							// Default values (values from schema attribute
-							// handling)
+							// Default values (values from schema attribute handling)
 							overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
 							overloadedAttribute
 									.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());
@@ -667,8 +671,7 @@ public class DefaultProvisioningService implements ProvisioningService {
 							return attribute.isDisabledDefaultAttribute();
 						}).findFirst();
 				if (disabledOverloadedAttOptional.isPresent()) {
-					// We found disabled overloaded attribute with highest
-					// priority
+					// We found disabled overloaded attribute with highest priority
 					return finalAttributes;
 				}
 
@@ -676,14 +679,12 @@ public class DefaultProvisioningService implements ProvisioningService {
 				// attribute with highest priority (and role name)
 				// Disabled attribute will be skipped
 				if (!highestPriorityAttribute.isDisabledDefaultAttribute()) {
-					// We can't use instance of SysSysteAttributeMapping and
-					// set
+					// We can't use instance of SysSysteAttributeMapping and set
 					// up overloaded value (it is entity).
 					// We have to create own dto and set up all values
 					// (overloaded and default)
 					AttributeMapping overloadedAttribute = new MappingAttributeDto();
-					// Default values (values from schema attribute
-					// handling)
+					// Default values (values from schema attribute handling)
 					overloadedAttribute.setSchemaAttribute(defaultAttribute.getSchemaAttribute());
 					overloadedAttribute
 							.setTransformFromResourceScript(defaultAttribute.getTransformFromResourceScript());

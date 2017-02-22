@@ -793,7 +793,7 @@
       "MERGE": "Merge",
       "AUTHORITATIVE_MERGE": "Authoritative merge",
       "CREATE": "Write only on create",
-      "WRITE_IF_NULL": "Write if value (on resource) is null"
+      "WRITE_IF_NULL": "Write only if value (on resource) is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",

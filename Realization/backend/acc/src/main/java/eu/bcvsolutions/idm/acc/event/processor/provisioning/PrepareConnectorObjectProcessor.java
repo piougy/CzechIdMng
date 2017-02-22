@@ -248,19 +248,29 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								&& AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttributeKey.getStrategyType();
 					}).findFirst().isPresent();
 					
+					boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
+					boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+						return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+								&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
+					}).findFirst().isPresent();
+					
 					if(AttributeMappingStrategyType.CREATE == provisioningAttribute.getStrategyType()){
 				
-						if(existIfResourceNulltAttribute || existSetAttribute){
-							// Skip this attribute (with Create strategy), because exists same attribute with SET strategy 
-							// (SET strategy has higher priority) or with WRITE_IF_NULL strategy (WRITE_IF_NULL strategy has higher priority)								
+						if(existIfResourceNulltAttribute || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
+							// Skip this attribute (with Create strategy), because exists same attribute with SET/WRITE_IF_NULL/MERGE/AUTH_MERGE strategy 
+							// (this strategies has higher priority)							
 							continue;
 						}
 					}
 					if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 						
-						if(existSetAttribute){
-							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET strategy
-							// (SET strategy has higher priority)							
+						if(existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
+							// Skip this attribute (with WRITE_IF_NULL strategy), because exists same attribute with SET/MERGE/AUTH_MERGE strategy
+							// (this strategies has higher priority)							
 							continue;
 						}
 					}
@@ -341,6 +351,16 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 										&& AttributeMappingStrategyType.SET == provisioningAttributeKey.getStrategyType();
 							}).findFirst().isPresent();
 							
+							boolean existMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+										&& AttributeMappingStrategyType.MERGE == provisioningAttributeKey.getStrategyType();
+							}).findFirst().isPresent();
+							
+							boolean existAuthMergeAttribute = fullAccountObject.keySet().stream().filter(provisioningAttributeKey -> {
+								return provisioningAttributeKey.getSchemaAttributeName().equals(schemaAttribute.getName()) 
+										&& AttributeMappingStrategyType.AUTHORITATIVE_MERGE == provisioningAttributeKey.getStrategyType();
+							}).findFirst().isPresent();
+							
 							if(AttributeMappingStrategyType.WRITE_IF_NULL == provisioningAttribute.getStrategyType()){
 								List<IcAttribute> icAttributes = existsConnectorObject.getAttributes();
 								//
@@ -357,9 +377,9 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 								Object transformedConnectorValue = this.transformValueFromResource(provisioningAttribute.getTransformValueFromResourceScript()
 										, schemaAttribute, icAttribute, icAttributes, system);
 								
-								if(transformedConnectorValue != null || existSetAttribute){
+								if(transformedConnectorValue != null || existSetAttribute || existAuthMergeAttribute || existMergeAttribute){
 									// Skip this attribute (with Write if null strategy), because connector value is not null
-									// or exists same attribute with SET strategy (SET strategy has higher priority)								
+									// or exists same attribute with  SET/MERGE/AUTH_MERGE strategy (this strategies has higher priority)								
 									continue;
 								}
 							}
@@ -424,7 +444,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 									}
 								}
 							}
-							
 						}
 						
 					 	// Update attribute on resource by given mapping

@@ -43,7 +43,7 @@ public class DefaultEmailNotificationSender extends AbstractNotificationSender<I
 		//
 		LOG.info("Adding email notification to queue [{}]", notification);
 		IdmEmailLog log = createLog(notification);
-		// send notification to routing
+		// send notification to routing, generate new message
 		producerTemplate.sendBody("direct:emails", log);
 		return log;
 	}

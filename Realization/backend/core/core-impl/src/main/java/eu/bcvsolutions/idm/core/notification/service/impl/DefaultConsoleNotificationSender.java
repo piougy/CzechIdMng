@@ -40,7 +40,7 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 		//
 		LOG.info("Sending notification to console [{}]", notification);
 		IdmConsoleLog log = createLog(notification);
-		System.out.println(MessageFormat.format("Sending notification [{0}]", log));
+		System.out.println(MessageFormat.format("Sending notification [{0}]", createLogForSend(notification, true)));
 		return log;
 	}
 	
@@ -51,6 +51,17 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 	 * @return
 	 */
 	private IdmConsoleLog createLog(IdmNotification notification) {
+		return emailConsoleService.save(createLogForSend(notification, false));
+	}
+	
+	/**
+	 * Create email log for send, this record is not persist.
+	 * 
+	 * @param notification
+	 * @param showGuardedString
+	 * @return
+	 */
+	private IdmConsoleLog createLogForSend(IdmNotification notification, boolean showGuardedString) {
 		Assert.notNull(notification);
 		Assert.notNull(notification.getMessage());
 		//
@@ -58,14 +69,13 @@ public class DefaultConsoleNotificationSender extends AbstractNotificationSender
 		notificationLog.setSent(new DateTime());
 		notificationLog.setParent(notification);
 		// clone message
-		notificationLog.setMessage(cloneMessage(notification));
+		notificationLog.setMessage(getMessage(notification, showGuardedString));
 		// clone recipients - real recipient is console
 		notification.getRecipients().forEach(recipient -> {
 			notificationLog.getRecipients().add(new IdmNotificationRecipient(notificationLog, recipient.getIdentityRecipient(), IdmConsoleLog.NOTIFICATION_TYPE));
 		});
 		// clone from - resolve real email
 		notificationLog.setIdentitySender(notification.getIdentitySender());
-		//
-		return emailConsoleService.save(notificationLog);
+		return notificationLog;
 	}
 }

@@ -124,7 +124,7 @@ public class DefaultWebsocketNotificationSender extends AbstractNotificationSend
 	}
 	
 	private FlashMessage toFlashMessage(IdmWebsocketLog log) {
-		IdmMessage message = log.getMessage();
+		IdmMessage message = this.getMessage(log, true);
 		//
 		FlashMessage flashMessage = new FlashMessage();
 		flashMessage.setId(log.getId());

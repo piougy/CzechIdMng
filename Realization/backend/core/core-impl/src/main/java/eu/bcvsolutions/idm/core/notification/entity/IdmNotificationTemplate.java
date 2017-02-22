@@ -2,8 +2,6 @@ package eu.bcvsolutions.idm.core.notification.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -11,12 +9,10 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import org.joda.time.DateTime;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 
 /**
  * Entity that store email/text templates for apache velocity
@@ -51,23 +47,44 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	@Column(name = "subject")
 	private String subject;
 	
-	@NotNull
 	@Audited
 	@Type(type = "org.hibernate.type.StringClobType")
-	@Column(name = "body")
-	private String body;
+	@Column(name = "body_html")
+	private String bodyHtml;
 	
-	// TODO: remove?
 	@Audited
-	@Column(name = "timestamp") 
-	private DateTime timestamp;
+	@Type(type = "org.hibernate.type.StringClobType")
+	@Column(name = "body_text")
+	private String bodyText;
 	
-	@NotNull
 	@Audited
-	@Enumerated(EnumType.STRING)
-	@Column(name = "level", nullable = false, length = 45)
-	private NotificationLevel level = IdmMessage.DEFAULT_LEVEL;
+	@Column(name = "system_template", nullable = false)
+	private boolean systemTemplate = false;
 	
+	public boolean isSystemTemplate() {
+		return systemTemplate;
+	}
+
+	public void setSystemTemplate(boolean systemTemplate) {
+		this.systemTemplate = systemTemplate;
+	}
+
+	public String getBodyHtml() {
+		return bodyHtml;
+	}
+
+	public String getBodyText() {
+		return bodyText;
+	}
+
+	public void setBodyHtml(String bodyHtml) {
+		this.bodyHtml = bodyHtml;
+	}
+
+	public void setBodyText(String bodyText) {
+		this.bodyText = bodyText;
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -75,14 +92,6 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 
 	public String getCode() {
 		return code;
-	}
-
-	public String getBody() {
-		return body;
-	}
-
-	public DateTime getTimestamp() {
-		return timestamp;
 	}
 
 	public void setName(String name) {
@@ -93,27 +102,16 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 		this.code = code;
 	}
 
-	public void setBody(String body) {
-		this.body = body;
-	}
-
-	public void setTimestamp(DateTime timestamp) {
-		this.timestamp = timestamp;
-	}
-
 	public String getSubject() {
 		return subject;
-	}
-
-	public NotificationLevel getLevel() {
-		return level;
 	}
 
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-
-	public void setLevel(NotificationLevel level) {
-		this.level = level;
+	
+	public void setBody(String body) {
+		this.bodyHtml = body;
+		this.bodyText = body;
 	}
 }

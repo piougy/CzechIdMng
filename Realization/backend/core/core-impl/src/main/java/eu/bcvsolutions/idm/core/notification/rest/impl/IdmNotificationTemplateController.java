@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.core.notification.rest.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -30,7 +27,7 @@ import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplate
 import eu.bcvsolutions.idm.core.rest.impl.DefaultReadWriteEntityController;
 
 /**
- * Read and write email templates (apache velocit engine)
+ * Read and write email templates (Apache velocity engine)
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
@@ -43,7 +40,6 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	@Autowired
 	public IdmNotificationTemplateController(EntityLookupService entityLookupService,
 			IdmNotificationTemplateService notificationTemplateService) {
-		//
 		super(entityLookupService, notificationTemplateService);
 	}
 	
@@ -58,9 +54,6 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_READ + "')")
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		Map<String, Object> model = new HashMap<>();
-		model.put("test", "15955");
-		// notificationTemplateService.getStringTemplate("test", model);
 		return super.get(backendId, assembler);
 	}
 	
@@ -69,7 +62,6 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		// TODO Auto-generated method stub
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
@@ -78,7 +70,6 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
 	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		// TODO Auto-generated method stub
 		return super.create(nativeRequest, assembler);
 	}
 	
@@ -94,7 +85,6 @@ public class IdmNotificationTemplateController extends DefaultReadWriteEntityCon
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONTEMPLATE_WRITE + "')")
 	public ResponseEntity<?> patch(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		// TODO Auto-generated method stub
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 }

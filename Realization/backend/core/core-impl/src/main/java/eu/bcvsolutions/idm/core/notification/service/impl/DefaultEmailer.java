@@ -23,8 +23,10 @@ import org.springframework.util.ObjectUtils;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.config.domain.DefaultEmailerConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.service.api.Emailer;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmEmailLogService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 
 /**
  * Default email sender implementation
@@ -49,6 +51,9 @@ public class DefaultEmailer implements Emailer {
 	@Autowired
 	private DefaultEmailerConfiguration configuration;
 	
+	@Autowired
+	private IdmNotificationTemplateService notificationTemplateService;
+	
 	@Transactional
 	public boolean send(IdmEmailLog emailLog) {
 		log.debug("Sending email [{}]", emailLog);
@@ -61,15 +66,18 @@ public class DefaultEmailer implements Emailer {
 		
 		try {
 			Endpoint endpoint = configureEndpoint();
+			//
+			// If message contain template transform message, otherwise get simple message
+			IdmMessage idmMessage = notificationTemplateService.getMessage(emailLog.getMessage(), true);
 			
 			// create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
 			Exchange exchange = endpoint.createExchange();
 			Message in = exchange.getIn();
 			in.setHeaders(createEmailHeaders(emailLog));
 			// message - html has higher priority
-			String message = emailLog.getMessage().getHtmlMessage();
+			String message = idmMessage.getHtmlMessage();
 			if (StringUtils.isEmpty(message)) {
-				message = emailLog.getMessage().getTextMessage();
+				message = idmMessage.getTextMessage();
 			}
 			in.setBody(message);
 			

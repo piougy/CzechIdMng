@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.velocity.VelocityContext;
@@ -10,12 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.ImmutableMap;
+
+import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationTemplateRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Default implementation interface {@link IdmNotificationTemplateService} basic method
@@ -59,6 +65,9 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	@Override
 	@Transactional
 	public void delete(IdmNotificationTemplate entity) {
+		if (entity.isSystemTemplate()) {
+			throw new ResultCodeException(CoreResultCode.NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED, ImmutableMap.of("template", entity.getName()));
+		}
 		super.delete(entity);
 	}
 
@@ -70,12 +79,6 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	@Override
 	public IdmNotificationTemplate getTemplateByCode(String code) {
 		return this.repository.findOneByCode(code);
-	}
-
-	@Override
-	public IdmMessage getMessage(String code, Map<String, Object> model) {
-		IdmNotificationTemplate template = this.repository.findOneByCode(code);
-		return this.getMessage(template, model);
 	}
 	
 	/**
@@ -89,34 +92,57 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	}
 
 	@Override
-	public IdmMessage getMessage(IdmNotificationTemplate template, Map<String, Object> model) {
-		StringWriter body = new StringWriter();
+	public IdmMessage getMessage(IdmMessage message, boolean showGuardedString) {
+		StringWriter bodyHtml = new StringWriter();
+		StringWriter bodyText = new StringWriter();
 		StringWriter subject = new StringWriter();
+		IdmNotificationTemplate template = message.getTemplate();
 		//
-		// Same parameters as body
-		VelocityContext velocityContext = getContext(model);
+		// get parameters from messages
+		Map<String, Object> model = message.getParameters();
+		//
+		// create copy of parameters
+		Map<String, Object> parameters = new HashMap<>();
+		// iterate trough parameters and find GuardedStrings, there may be templates, but no parameters
+		if (model != null) {
+			for (String key : model.keySet()) {
+				if (model.get(key) instanceof GuardedString && showGuardedString) {
+					parameters.put(key, ((GuardedString) model.get(key)).asString());
+				} else if (model.get(key) instanceof GuardedString) {
+					parameters.put(key, ((GuardedString) model.get(key)).toString());
+				} else {
+					parameters.put(key, model.get(key));
+				}
+			}
+		}
+		// Same parameters for all (html, txt, subject)
+		VelocityContext velocityContext = getContext(parameters);
 		// TODO: get from DataSource?
-		velocityEngine.evaluate(velocityContext, body, template.getCode(), template.getBody());
+		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), template.getBodyHtml());
+		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), template.getBodyText());
 		velocityEngine.evaluate(velocityContext, subject, template.getCode(), template.getSubject());
 		//
 		// Build IdmMessage
-		IdmMessage message = new IdmMessage.Builder()
-				.setHtmlMessage(body.toString())
-				.setMessage(body.toString())
+		IdmMessage newMessage = new IdmMessage.Builder()
+				.setHtmlMessage(bodyHtml.toString())
+				.setTextMessage(bodyText.toString())
 				.setSubject(subject.toString())
-				.setLevel(template.getLevel())
+				.setLevel(message.getLevel()) // level get from old message
+				.setTemplate(template)
+				.setParameters(model)
+				// build without use template, but template and parameter is persisted
+				.buildWithoutUseTemplate()
 				.build();
 		//
-		return message;
+		return newMessage;
 	}
 
-	@Override
-	public IdmMessage getMessage(IdmNotificationTemplate template) {
-		return this.getMessage(template, null);
-	}
 
 	@Override
-	public IdmMessage getMessage(String code) {
-		return this.getMessage(code, null);
+	public IdmMessage getMessage(IdmMessage message) {
+		if (message.getTemplate() == null) {
+			return message;
+		}
+		return this.getMessage(message, false);
 	}
 }

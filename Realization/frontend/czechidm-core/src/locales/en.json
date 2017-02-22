@@ -1402,7 +1402,10 @@
       "headerNew": "New template",
       "header": "Template",
       "title": "Templates ",
-      "titleNew": "New template"
+      "titleNew": "New template",
+      "save": {
+        "success": "Template [{{name}}] was successfully saved."
+      }
     },
     "emails": {
       "header": "E-mails history",
@@ -1756,14 +1759,19 @@
       "recipients": "Recipients",
       "sent": "Sent",
       "sentLog": "Zpráva při odeslání",
-      "type": "Type"
+      "type": "Type",
+      "template": "Template"
     },
     "NotificationTemplate": {
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
-      "level": "Level",
-      "body": "Message body"
+      "systemTemplate": {
+        "name": "System template",
+        "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
+      },
+      "bodyHtml": "Message body (html)",
+      "bodyText": "Message body (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
@@ -2135,6 +2143,10 @@
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",
       "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
+    },
+    "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
+      "title": "System templates can§t be deleted",
+      "message": "Template [{{template}}] is system's, it can't be deleted."
     }
   },
   "validationError": {

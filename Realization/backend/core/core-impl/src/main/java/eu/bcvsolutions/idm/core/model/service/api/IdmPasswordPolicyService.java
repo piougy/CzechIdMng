@@ -21,32 +21,32 @@ public interface IdmPasswordPolicyService extends ReadWriteEntityService<IdmPass
 	/**
 	 * Method validate password by password policy,
 	 * {@link validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList)}}.
+	 * Method throw exception with all errors after complete validate if any validation problem.
 	 * 
 	 * @param passwordValidationDto
 	 * @param passwordPolicy
-	 * @return true if password is valid or throw exception
 	 */
-	boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy);
+	void validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy);
 	
 	/**
 	 * Method validate password by default validation policy. (Default IDM policy, must exist)
+	 * Method throw exception with all errors after complete validate if any validation problem.
 	 * 
 	 * @param passwordValidationDto
-	 * @return true if password is valid by default policy, or throw exception
 	 */
-	boolean validate(IdmPasswordValidationDto passwordValidationDto);
+	void validate(IdmPasswordValidationDto passwordValidationDto);
 	
 	/**
 	 * Validate password by list of password policies. Validate trought all polocies,
 	 * if found some error throw exception.
 	 * When isn't oldPassword null, validate for password age trought policies
 	 * minimal age
+	 * Method throw exception with all errors after complete validate if any validation problem.
 	 * 
 	 * @param passwordValidationDto
 	 * @param passwordPolicyList
-	 * @return true if password is valid or throw exception
 	 */
-	boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList);
+	void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList);
 	
 	/**
 	 * Method return default password policy, by given type, @see {@link IdmPasswordPolicyType}

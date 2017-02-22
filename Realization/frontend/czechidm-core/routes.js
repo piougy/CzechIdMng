@@ -336,6 +336,16 @@ module.exports = {
           path: 'configurations',
           component: require('./src/content/notification/configuration/NotificationConfigurations'),
           access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATIONCONFIGURATION_READ'] } ]
+        },
+        {
+          path: 'templates',
+          component: require('./src/content/notification/template/Templates'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATIONTEMPLATE_READ'] } ]
+        },
+        {
+          path: 'templates/:entityId',
+          component: require('./src/content/notification/template/TemplateContent'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['NOTIFICATIONTEMPLATE_READ'] } ]
         }
       ]
     },

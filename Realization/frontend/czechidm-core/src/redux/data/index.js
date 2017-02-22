@@ -24,6 +24,7 @@ import PasswordPolicyManager from './PasswordPolicyManager';
 import EntityEventProcessorManager from './EntityEventProcessorManager';
 import LongRunningTaskManager from './LongRunningTaskManager';
 import SchedulerManager from './SchedulerManager';
+import NotificationTemplateManager from './NotificationTemplateManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -51,7 +52,8 @@ const ManagerRoot = {
   PasswordPolicyManager,
   EntityEventProcessorManager,
   LongRunningTaskManager,
-  SchedulerManager
+  SchedulerManager,
+  NotificationTemplateManager
 };
 
 ManagerRoot.version = '0.0.1';

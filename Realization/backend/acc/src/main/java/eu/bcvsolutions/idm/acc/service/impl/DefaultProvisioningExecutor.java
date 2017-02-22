@@ -23,8 +23,6 @@ import eu.bcvsolutions.idm.core.api.entity.OperationResult;
 import eu.bcvsolutions.idm.core.api.event.CoreEvent;
 import eu.bcvsolutions.idm.core.api.event.EventContext;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 
 /**
@@ -91,8 +89,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			provisioningOperation = sysProvisioningOperationService.save(provisioningOperation);
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
-						AccModuleDescriptor.TOPIC_PROVISIONING, 
-						new IdmMessage.Builder(NotificationLevel.INFO).setModel(request.getResult().getModel()).build());
+						AccModuleDescriptor.TOPIC_PROVISIONING, request.getResult().getModel());
 				return provisioningOperation;
 			}
 		}

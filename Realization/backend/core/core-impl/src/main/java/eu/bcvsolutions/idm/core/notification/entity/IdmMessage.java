@@ -49,7 +49,7 @@ public class IdmMessage {
 
 	public IdmMessage() {
 	}
-	
+
 	private IdmMessage(Builder builder) {
 		level = builder.level == null ? DEFAULT_LEVEL : builder.level;
 		subject = builder.subject;

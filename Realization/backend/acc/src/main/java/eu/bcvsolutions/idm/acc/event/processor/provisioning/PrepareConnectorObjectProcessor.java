@@ -52,7 +52,6 @@ import eu.bcvsolutions.idm.core.api.event.DefaultEventResult;
 import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcAttribute;
@@ -189,8 +188,7 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 			provisioningOperationService.save(provisioningOperation);
 			//
 			notificationManager.send(
-					AccModuleDescriptor.TOPIC_PROVISIONING, 
-					new IdmMessage.Builder().setModel(resultModel).build());
+					AccModuleDescriptor.TOPIC_PROVISIONING, resultModel);
 			return new DefaultEventResult<>(event, this, true);
 		}
 	}

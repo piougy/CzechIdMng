@@ -441,7 +441,6 @@ public class PrepareConnectorObjectProcessor extends AbstractEntityEventProcesso
 									}
 								}
 							}
-							
 						}
 						
 					 	// Update attribute on resource by given mapping

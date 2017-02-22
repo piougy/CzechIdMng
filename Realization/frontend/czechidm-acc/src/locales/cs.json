@@ -793,7 +793,7 @@
       "MERGE": "Sloučit",
       "AUTHORITATIVE_MERGE": "Autoritativní sloučení",
       "CREATE": "Nastavit pouze při vytvoření",
-      "WRITE_IF_NULL": "Nastavit pokud není hodnota na systému prázdná"
+      "WRITE_IF_NULL": "Nastavit pouze pokud je hodnota na systému prázdná"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",
@@ -909,7 +909,7 @@
     },
     "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
       "title": "Provisioning - Strategie atributu jsou konfliktní",
-      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribute [{{attribute}}] konfliktní!"
+      "message": "Strategie [{{strategyParent}}] a [{{strategyConflict}}] jsou pro atribut [{{attribute}}] konfliktní!"
     },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",

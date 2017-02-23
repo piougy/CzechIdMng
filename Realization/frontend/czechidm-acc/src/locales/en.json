@@ -915,6 +915,10 @@
       "title": "Synchronizace není povolená",
       "message": "Synchronizace [{{name}}] není povolená!"
     },
+    "SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED": {
+      "title": "System is disabled",
+      "message": "Synchronization [{{name}}] cannot be started, becouse system [{{system}}] is disabled!"
+    },
     "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
       "title": "Tajný atributu není GuardedString",
       "message": "Tajný atributu [{{property}}] není GuardedString, ale je typu [{{class}}]!"

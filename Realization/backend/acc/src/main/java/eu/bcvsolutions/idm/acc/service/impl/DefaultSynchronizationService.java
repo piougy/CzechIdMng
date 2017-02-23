@@ -263,8 +263,14 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(mapping);
 		SysSystem system = mapping.getSystem();
 		Assert.notNull(system);
+		
+		// System must be enabled
+		if (system.isDisabled()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED,
+					ImmutableMap.of("name", config.getName(), "system", system.getName()));
+		}
+		
 		SystemEntityType entityType = mapping.getEntityType();
-
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)

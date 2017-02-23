@@ -889,7 +889,7 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
-      "roleCataloguePick": "Select catalog",
+      "roleCataloguePick": "Select from catalog",
       "create": {
         "header": "New role"
       },
@@ -1577,14 +1577,13 @@
     },
     "RoleCatalogue": {
       "_type": "Role name",
-      "name": "Folder name",
+      "name": {
+        "name": "Code",
+        "help": "Catalogue code, unique within all folder codes in catalogue."
+      },
       "niceName": {
         "name": "Name for users",
         "help": "Descriptive attribute for users. Unique within catalog level."
-      },
-      "technicalName": {
-        "name": "Technical name/ID",
-        "help": "Catalogue ID unique within all folder in catalogue."
       },
       "url": "URL",
       "urlTitle": "URL title",
@@ -1593,12 +1592,11 @@
         "name": "Parent folder in catalogue"
       },
       "filter": {
-        "name": "Name",
+        "name": "Code",
         "namePlaceHolder": "Folder name",
         "parent": "Parent folder",
         "parentPlaceHolder": "Parent folder",
-        "niceName": "Name for users",
-        "technicalName": "Technical name/ID"
+        "niceName": "Name for users"
       }
 
     },

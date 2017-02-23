@@ -25,8 +25,6 @@ public interface IdmRoleCatalogueExcerpt extends AbstractDtoProjection {
 	
 	public String getNiceName();
 
-	public String getTechnicalName();
-
 	public String getUrl();
 	
 	public String getUrlTitle();

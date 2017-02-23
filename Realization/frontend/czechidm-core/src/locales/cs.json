@@ -889,7 +889,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
-      "roleCataloguePick": "Vyberte katalog",
+      "roleCataloguePick": "Vyberte z katalogu",
       "create": {
         "header": "Nová role"
       },
@@ -1577,14 +1577,13 @@
     },
     "RoleCatalogue": {
       "_type": "Jméno role",
-      "name": "Název složky",
+      "name": {
+        "name": "Kód",
+        "help": "Kód katalogu unikátní v rámci všech katalogů."
+      },
       "niceName": {
         "name": "Jméno pro uživatele",
         "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
-      },
-      "technicalName": {
-        "name": "Technické jméno/ID",
-        "help": "ID katalogu unikátní v rámci všech katalogů."
       },
       "url": "Odkaz",
       "urlTitle": "Popis odkazu",
@@ -1593,12 +1592,11 @@
         "name": "Nadřazená složka v katalogu"
       },
       "filter": {
-        "name": "Jméno",
+        "name": "Kód",
         "namePlaceHolder": "Jméno složky",
         "parent": "Nadřazená složka",
         "parentPlaceHolder": "Nadřezená složka",
-        "niceName": "Jméno pro uživatele",
-        "technicalName": "Technické jméno/ID"
+        "niceName": "Jméno pro uživatele"
       }
 
     },

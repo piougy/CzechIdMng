@@ -98,6 +98,9 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		StringWriter subject = new StringWriter();
 		IdmNotificationTemplate template = message.getTemplate();
 		//
+		if (template == null) {
+			return message;
+		}
 		// get parameters from messages
 		Map<String, Object> model = message.getParameters();
 		//

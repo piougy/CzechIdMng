@@ -95,14 +95,8 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
             <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
               <Basic.TextField
                 ref="name"
-                label={this.i18n('entity.RoleCatalogue.name')}
-                required
-                min={0}
-                max={255}/>
-              <Basic.TextField
-                ref="technicalName"
-                label={this.i18n('entity.RoleCatalogue.technicalName.name')}
-                helpBlock={this.i18n('entity.RoleCatalogue.technicalName.help')}
+                label={this.i18n('entity.RoleCatalogue.name.name')}
+                helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
                 required
                 min={0}
                 max={255}/>

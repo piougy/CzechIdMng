@@ -32,7 +32,6 @@ import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
 @Entity
 @Table(name = "idm_role_catalogue", indexes = {
 		@Index(name = "ux_role_catalogue_name", columnList = "name", unique = true),
-		@Index(name = "ux_role_catalogue_technical_name", columnList = "technical_name", unique = true),
 		@Index(name = "idx_idm_role_cat_parent", columnList = "parent_id")})
 public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByName, BaseTreeEntity<IdmRoleCatalogue> {
 
@@ -63,10 +62,6 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	@Audited
 	@Column(name = "nice_name")
 	private String niceName;
-	
-	@Audited
-	@Column(name = "technical_name")
-	private String technicalName;
 	
 	@Audited
 	@Column(name = "url")
@@ -115,10 +110,6 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 		return niceName;
 	}
 
-	public String getTechnicalName() {
-		return technicalName;
-	}
-
 	public String getUrl() {
 		return url;
 	}
@@ -129,10 +120,6 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 
 	public void setNiceName(String niceName) {
 		this.niceName = niceName;
-	}
-
-	public void setTechnicalName(String technicalName) {
-		this.technicalName = technicalName;
 	}
 
 	public void setUrl(String url) {

@@ -182,7 +182,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.RoleCatalogue.filter.namePlaceHolder')}/>
+                        placeholder={this.i18n('entity.RoleCatalogue.filter.code')}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.SelectBox
@@ -199,11 +199,6 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                       <Advanced.Filter.TextField
                         ref="niceName"
                         placeholder={this.i18n('entity.RoleCatalogue.filter.niceName')}/>
-                    </div>
-                    <div className="col-lg-4">
-                      <Advanced.Filter.TextField
-                        ref="technicalName"
-                        placeholder={this.i18n('entity.RoleCatalogue.filter.technicalName')}/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -243,9 +238,10 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.ColumnLink to="rolecatalogue/:id" property="name" width="15%" sort face="text"/>
+            <Advanced.ColumnLink to="rolecatalogue/:id"
+              header={this.i18n('entity.RoleCatalogue.name.name')}
+              property="name" width="15%" sort face="text"/>
             <Advanced.Column property="niceName" header={this.i18n('entity.RoleCatalogue.niceName.name')} sort face="text"/>
-            <Advanced.Column property="technicalName" header={this.i18n('entity.RoleCatalogue.technicalName.name')} sort face="text"/>
             <Advanced.Column property="parent.name" sort/>
             <Advanced.Column header={this.i18n('entity.RoleCatalogue.url')}
               cell={

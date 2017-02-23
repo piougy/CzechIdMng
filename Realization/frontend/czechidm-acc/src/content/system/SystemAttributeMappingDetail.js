@@ -110,6 +110,10 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
           this.forceUpdate();
         });
       }
+      if (key === 'entityAttribute') {
+        this.refs.idmPropertyName.setValue(null);
+        this.refs.idmPropertyEnum.setValue(null);
+      }
     });
   }
 

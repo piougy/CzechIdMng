@@ -115,12 +115,16 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 				}
 			}
 		}
+		// prepare html, text, subject
+		String html = template != null ? template.getBodyHtml() : message.getHtmlMessage();
+		String text = template != null ? template.getBodyText() : message.getTextMessage();
+		String subjectString = template != null ? template.getSubject() : message.getSubject();
 		// Same parameters for all (html, txt, subject)
 		VelocityContext velocityContext = getContext(parameters);
 		// TODO: get from DataSource?
-		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), template.getBodyHtml());
-		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), template.getBodyText());
-		velocityEngine.evaluate(velocityContext, subject, template.getCode(), template.getSubject());
+		velocityEngine.evaluate(velocityContext, bodyHtml, template.getCode(), html);
+		velocityEngine.evaluate(velocityContext, bodyText, template.getCode(), text);
+		velocityEngine.evaluate(velocityContext, subject, template.getCode(), subjectString);
 		//
 		// Build IdmMessage
 		IdmMessage newMessage = new IdmMessage.Builder()

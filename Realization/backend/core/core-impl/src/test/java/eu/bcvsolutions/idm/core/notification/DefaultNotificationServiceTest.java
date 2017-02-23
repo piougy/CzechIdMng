@@ -14,6 +14,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRepository;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmEmailLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.repository.IdmEmailLogRepository;
@@ -84,7 +85,10 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
-		notificationManager.send(TOPIC, template, null,  identity);
+		notificationManager.send(TOPIC, new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);
 		
 		assertEquals(1, idmNotificationRepository.count());
 		assertEquals(1, emailLogRepository.count());
@@ -98,8 +102,14 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		
 		DateTime start = new DateTime();
-		notificationManager.send(TOPIC, template, null, identity);		
-		notificationManager.send(TOPIC, template, null,  identity);	
+		notificationManager.send(TOPIC, new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);		
+		notificationManager.send(TOPIC, new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);	
 		
 		NotificationFilter filter = new NotificationFilter();
 		assertEquals(2, idmNotificationRepository.find(filter, null).getTotalElements());
@@ -128,7 +138,10 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		// send some email
 		IdmIdentity identity = identityRepository.findOneByUsername(InitTestData.TEST_USER_1);
 		IdmIdentity identity2 = identityRepository.findOneByUsername(InitTestData.TEST_USER_2);
-		emailService.send(TOPIC, template, null,  identity);
+		emailService.send(TOPIC,new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);
 		
 		filter.setSender(null);
 		assertEquals(1, emailLogRepository.find(filter, null).getTotalElements());
@@ -148,11 +161,17 @@ public class DefaultNotificationServiceTest extends AbstractIntegrationTest {
 		// create templates
 		IdmNotificationTemplate template = createTestTemplate("Idm notification", "subject");
 		//
-		emailService.send(template, null, identity);
+		emailService.send(new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);
 		filter.setSent(true);
 		assertEquals(0, emailLogRepository.find(filter, null).getTotalElements());
 		
-		emailService.send(template, null, identity);
+		emailService.send(new IdmMessage.Builder()
+				.setTemplate(template)
+				.build(),
+				identity);
 		filter.setSent(false);
 		assertEquals(2, emailLogRepository.find(filter, null).getTotalElements());
 	}

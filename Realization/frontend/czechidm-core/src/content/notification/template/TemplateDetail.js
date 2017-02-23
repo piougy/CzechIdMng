@@ -3,7 +3,6 @@ import _ from 'lodash';
 //
 import * as Basic from '../../../components/basic';
 import { NotificationTemplateManager, SecurityManager } from '../../../redux';
-import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 /**
 * Basic detail for template detail,
@@ -22,7 +21,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   }
 
   getContentKey() {
-    return 'content.notificationTemplates';
+    return 'content.notificationTemplate';
   }
 
   componentDidMount() {
@@ -102,6 +101,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
     this.setState({
       showLoading: false
     });
+    this.context.router.replace('notification/templates/');
   }
 
   render() {
@@ -117,22 +117,21 @@ export default class TemplateDetail extends Basic.AbstractContent {
               required
               max={255}/>
             <Basic.TextField
-              ref="code"
+              ref="code" readOnly={entity.systemTemplate}
               label={this.i18n('entity.NotificationTemplate.code')}
               required
               max={255}/>
-            <Basic.EnumSelectBox
-              ref="level" closeable={false}
-              required
-              enum={NotificationLevelEnum}
-              useSymbol={false}
-              label={this.i18n('entity.NotificationTemplate.level')}/>
+            <Basic.Checkbox readOnly={entity.systemTemplate}
+              ref="systemTemplate"
+              label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
+              helpBlock={this.i18n('entity.NotificationTemplate.systemTemplate.help')}/>
             <Basic.TextField
               ref="subject"
               label={this.i18n('entity.NotificationTemplate.subject')}
               required
               max={255}/>
-            <Basic.RichTextArea ref="body" label={this.i18n('entity.NotificationTemplate.body')} />
+            <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml')} />
+            <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

@@ -1,12 +1,11 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
-import java.util.Map;
-
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 
 /**
  * Interface with basic method for apache velocity templates engine
@@ -25,39 +24,25 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @return
 	 */
 	IdmNotificationTemplate getTemplateByCode(String code);
-	
+
 	/**
-	 * Return {@link IdmMessage} with evaluated template and parameters given in model.
-	 * Entity {@link IdmNotificationTemplate} is get from repository by given code.
+	 * Return {@link IdmMessage}, generate by {@link IdmNotificationTemplate} from {@link IdmMessage}.
+	 * For generate new message will be used parameters given in {@link IdmMessage}.
+	 * Object instance of {@link GuardedString} is show or hide by parameter showGuardedString
 	 * 
-	 * @param code
-	 * @param model
+	 * @param message
+	 * @param showGuardedString
 	 * @return
 	 */
-	IdmMessage getMessage(String code, Map<String, Object> model);
+	IdmMessage getMessage(IdmMessage message, boolean showGuardedString);
 	
 	/**
-	 * Return {@link IdmMessage} evaluated template and parameters given in model.
-	 * 
-	 * @param template
-	 * @param model
-	 * @return
-	 */
-	IdmMessage getMessage(IdmNotificationTemplate template, Map<String, Object> model);
-	
-	/**
-	 * Return {@link IdmMessage} by given {@link IdmNotificationTemplate}
+	 * Return {@link IdmMessage} generate by {@link IdmNotificationTemplate} from {@link IdmMessage}.
+	 * Object instance of {@link GuardedString} will be replace by asterix.
+	 * For generate new message will be used parameters given in {@link IdmMessage}.
 	 * 
 	 * @param template
 	 * @return
 	 */
-	IdmMessage getMessage(IdmNotificationTemplate template);
-	
-	/**
-	 * Return {@link IdmMessage} by given code.
-	 * 
-	 * @param code
-	 * @return
-	 */
-	IdmMessage getMessage(String code);
+	IdmMessage getMessage(IdmMessage message);
 }

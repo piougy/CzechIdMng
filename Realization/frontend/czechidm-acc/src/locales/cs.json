@@ -448,8 +448,8 @@
         "bundleVersion": "Verze konektoru"
       },
       "remoteConnector": {
-        "label": "Vzdálený konektor server",
-        "help": "Při zaškrknutí budou načteny konektory ze vzdáleného serveru."
+        "label": "Použít vzdálený konektor server",
+        "help": "Po zaškrknutí neboudou použity lokální konektory a zobrazí se nabídka s informacemi o vzdáleném konektor serveru."
       },
       "connectorHost": "Server s konektory"
     },

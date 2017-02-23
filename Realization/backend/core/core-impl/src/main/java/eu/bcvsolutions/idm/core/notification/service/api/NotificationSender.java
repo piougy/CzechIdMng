@@ -1,15 +1,13 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.plugin.core.Plugin;
 
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
-import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 
 /**
  * Notification system
@@ -31,72 +29,57 @@ public interface NotificationSender<N extends BaseNotification> extends Plugin<S
 	String getType();
 
 	/**
-	 * Sends message by given template to given identity. Template message will be enhance by messageParameters.
+	 * Sends given message to given identity.
 	 * 
 	 * @param message
-	 * @param messageParameters - can be null, or empty
 	 * @param recipient
 	 * @return sent IdmNotification or ex
 	 */
-	N send(IdmNotificationTemplate template, Map<String, Object> messageParameters, IdmIdentity recipient);
+	N send(IdmMessage message, IdmIdentity recipient);
 	
 	/**
-	 * Sends message by given template to given identities. Template message will be enhance by messageParameters.
+	 * Sends given message to given identities.
 	 * 
-	 * @param template
-	 * @param messageParameters - can be null, or empty
+	 * @param message
 	 * @param recipients
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(IdmNotificationTemplate template, Map<String, Object> messageParameters, List<IdmIdentity> recipients);
+	N send(IdmMessage message, List<IdmIdentity> recipients);
 	
 	/**
-	 * Sends message by given template with given topic to given identity. Template message will be enhance by messageParameters.
+	 * Sends given message with given topic to given identity.
 	 * 
 	 * @param topic
-	 * @param template
-	 * @param messageParameters - can be null, or empty
+	 * @param message
 	 * @param recipient
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters, IdmIdentity recipient);
+	N send(String topic, IdmMessage message, IdmIdentity recipient);
 	
 	/**
-	 * Sends message by given template with given topic to given identities. Template message will be enhance by messageParameters.
+	 * Sends given message with given topic to given identities.
 	 * 
 	 * @param topic
-	 * @param template
-	 * @param messageParameters - can be null, or empty
+	 * @param message
 	 * @param recipients
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters, List<IdmIdentity> recipients);
+	N send(String topic, IdmMessage message, List<IdmIdentity> recipients);
 	
 	/**
-	 * Sends IdmNotification.
+	 * Sends given notification
 	 * 
-	 * @param template
+	 * @param notification
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(IdmNotification template);
+	N send(IdmNotification notification);
 	
 	/**
-	 * Sends message by given template with given topic to currently logged identity.
+	 * Sends given message with given topic to currently logged identity.
 	 * 
 	 * @param topic
-	 * @param template
-	 * @param messageParameters - can be null, or empty
+	 * @param message
 	 * @return sent IdmNotification if notification was sent. Otherwise returns  null (not sent quietly) or ex (not sent and some error occurs).
 	 */
-	N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters);
-	
-	/**
-	 * Send message from result model cot currently logged identity.
-	 * IdmNotificationTempla will be temporary create.
-	 * 
-	 * @param topic
-	 * @param model
-	 * @return
-	 */
-	N send(String topic, ResultModel model);
+	N send(String topic, IdmMessage message);
 }

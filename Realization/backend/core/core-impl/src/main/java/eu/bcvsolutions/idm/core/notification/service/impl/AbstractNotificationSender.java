@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,8 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Lists;
 
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
-import eu.bcvsolutions.idm.core.api.dto.ResultModel;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
@@ -23,6 +20,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -79,25 +77,25 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	
 	@Override
 	@Transactional
-	public N send(IdmNotificationTemplate template, Map<String, Object> messageParameters, IdmIdentity recipient) {
-		return send(DEFAULT_TOPIC, template, messageParameters, recipient);
+	public N send(IdmMessage message, IdmIdentity recipient) {
+		return send(DEFAULT_TOPIC, message, recipient);
 	}
 
 	@Override
 	@Transactional
-	public N send(IdmNotificationTemplate template, Map<String, Object> messageParameters, List<IdmIdentity> recipients) {
-		return send(DEFAULT_TOPIC, template, messageParameters, recipients);
+	public N send(IdmMessage message, List<IdmIdentity> recipients) {
+		return send(DEFAULT_TOPIC, message, recipients);
 	}
 
 	@Override
 	@Transactional
-	public N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters, IdmIdentity recipient) {
-		return send(topic, template, messageParameters, Lists.newArrayList(recipient));
+	public N send(String topic, IdmMessage message, IdmIdentity recipient) {
+		return send(topic, message, Lists.newArrayList(recipient));
 	}
 	
 	@Override
 	@Transactional
-	public N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters) {
+	public N send(String topic, IdmMessage message) {
 		Assert.notNull(securityService, "Security service is required for this operation");
 		Assert.notNull(identityService, "Identity service is required for this operation");
 		//
@@ -107,67 +105,39 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 			return null;
 		}
 		IdmIdentity recipient = identityService.get(currentIdentityDto.getId());
-		return send(topic, template, messageParameters, Lists.newArrayList(recipient));
+		return send(topic, message, Lists.newArrayList(recipient));
 	}
 
 	@Override
 	@Transactional
-	public N send(String topic, IdmNotificationTemplate template, Map<String, Object> messageParameters, List<IdmIdentity> recipients) {
-		Assert.notNull(template, "Template is required");
+	public N send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
+		Assert.notNull(message, "Message is required");
 		//
 		IdmNotificationLog notification = new IdmNotificationLog();
 		notification.setTopic(topic);
-		notification.setMessage(notificationTemplateService.getMessage(template));
+		// transform message parent
+		notification.setMessage(this.notificationTemplateService.getMessage(message, false));
 		recipients.forEach(recipient ->
 			{
 				notification.getRecipients().add(new IdmNotificationRecipient(notification, recipient));
 			});
 		return send(notification);
 	}
-	
-	@Override
-	@Transactional
-	public N send(String topic, ResultModel model) {
-		Assert.notNull(model);
-		NotificationLevel level;
-		if (model.getStatus().is5xxServerError()) {
-			level = NotificationLevel.ERROR;
-		} else if(model.getStatus().is2xxSuccessful()) {
-			level = NotificationLevel.SUCCESS;
-		} else {
-			level = NotificationLevel.WARNING;
-		}
-		//
-		IdmMessage message = new IdmMessage.Builder()
-				.setMessage(model.getMessage())
-				.setLevel(level)
-				.setModel(model)
-				.setSubject(model.getStatusEnum())
-				.build();
-		//
-		IdentityDto currentIdentityDto = securityService.getAuthentication().getCurrentIdentity();	
-		if (currentIdentityDto == null || currentIdentityDto.getId() == null) {
-			// system, guest, etc.
-			return null;
-		}
-		IdmIdentity recipient = identityService.get(currentIdentityDto.getId());
-		//
-		IdmNotificationLog notification = new IdmNotificationLog();
-		notification.setTopic(topic);
-		notification.setMessage(message);
-		notification.getRecipients().add(new IdmNotificationRecipient(notification, recipient));
-		//
-		return send(notification);
-	}
 
 	/**
-	 * Clone notification message
+	 * Clone notification message. Method just clone {@link IdmMessage}, or if object {@link IdmMessage}
+	 * contain {@link IdmNotificationTemplate} it will be generate new message from templates and parameters if any.
+	 * Clone message from template will not contain plain text of object {@link GuardedString}, just asterix.
+	 * For show {@link GuardedString} in plain text use method for generate from template.
 	 * 
 	 * @param notification
 	 * @return
 	 */
 	protected IdmMessage cloneMessage(IdmNotification notification) {
 		IdmMessage message = notification.getMessage();
+		if (message.getTemplate() != null) {
+			return this.getMessage(notification, false);
+		}
 		return new IdmMessage.Builder()
 				.setLevel(message.getLevel())
 				.setSubject(message.getSubject())
@@ -175,6 +145,27 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 				.setHtmlMessage(message.getHtmlMessage())
 				.setModel(message.getModel())
 				.build();
+	}
+	
+	/**
+	 * Return {@link IdmMessage} from notification, or generate new copy of {@link IdmMessage} from template. 
+	 * {@link IdmMessage} is required. For generate {@link IdmMessage} from template is
+	 * required object {@link IdmNotificationTemplate}
+	 * Return {@link IdmMessage} or new generate instance from template.
+	 * If not used generating from template, the parameter showGuardedString is irrelevant. Message is in plain text,
+	 * it not possible to show or hide {@link GuardedString}
+	 * 
+	 * @param notification - notification that contain {@link IdmMessage} and {@ IdmNotificationTemplate}
+	 * @param showGuardedString - flag for hide or show {@link GuardedString}
+	 * @return
+	 */
+	protected IdmMessage getMessage(IdmNotification notification, boolean showGuardedString) {
+		Assert.notNull(notification.getMessage());
+		if (notification.getMessage().getTemplate() == null) {
+			return notification.getMessage();
+		}
+		
+		return this.notificationTemplateService.getMessage(notification.getMessage(), showGuardedString);
 	}
 
 	/**

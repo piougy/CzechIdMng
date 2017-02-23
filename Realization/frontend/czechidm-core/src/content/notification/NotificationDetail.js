@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 //
-import { IdentityManager, NotificationManager } from '../../redux';
+import { IdentityManager, NotificationManager, NotificationTemplateManager } from '../../redux';
 import * as Basic from '../../components/basic';
 import NotificationRecipient from './NotificationRecipient';
 import NotificationRecipientsCell from './NotificationRecipientsCell';
@@ -15,9 +15,13 @@ class NotificationDetail extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {showLoading: false};
+    this.state = {
+      showLoading: false,
+      templateActive: false // if is choose template deactivate some fields
+    };
     this.identityManager = new IdentityManager();
     this.notificationManager = new NotificationManager();
+    this.notificationTemplateManager = new NotificationTemplateManager();
   }
 
   getContentKey() {
@@ -37,7 +41,8 @@ class NotificationDetail extends Basic.AbstractContent {
         subject: notification.message.subject,
         textMessage: notification.message.textMessage,
         htmlMessage: notification.message.htmlMessage,
-        level: notification.message.level
+        level: notification.message.level,
+        template: notification.message.template
       };
     }
     this.refs.form.setData(data);
@@ -66,6 +71,7 @@ class NotificationDetail extends Basic.AbstractContent {
       });
     }
     const sender = this.identityManager.getSelfLink(entity.sender);
+    const template = this.notificationTemplateManager.getSelfLink(entity.template);
     const saveEntity = {
       ...entity,
       sender,
@@ -74,7 +80,8 @@ class NotificationDetail extends Basic.AbstractContent {
         subject: entity.subject,
         textMessage: entity.textMessage,
         htmlMessage: entity.htmlMessage,
-        level: entity.level
+        level: entity.level,
+        template
       }
     };
 
@@ -93,6 +100,28 @@ class NotificationDetail extends Basic.AbstractContent {
     }
     this.addMessage({ message: this.i18n('sent.success', { name: entity.name }) });
     this.context.router.replace('notification/notifications/');
+  }
+
+  _pickTemplate(template, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (template) {
+      this.setState({
+        templateActive: true
+      });
+      const data = {
+        ...this.refs.form.getData(),
+        subject: template.subject,
+        textMessage: template.bodyText,
+        htmlMessage: template.bodyHtml
+      };
+      this.refs.form.setData(data);
+    } else {
+      this.setState({
+        templateActive: false
+      });
+    }
   }
 
   render() {
@@ -140,6 +169,13 @@ class NotificationDetail extends Basic.AbstractContent {
             ref="sender"
             label={this.i18n('entity.Notification.sender')}
             manager={this.identityManager}/>
+
+          <Basic.SelectBox
+            readOnly={!isNew}
+            onChange={this._pickTemplate.bind(this)}
+            ref="template"
+            label={this.i18n('entity.Notification.template')}
+            manager={this.notificationTemplateManager}/>
 
           <Basic.LabelWrapper hidden={isNew || !notification._embedded || !notification._embedded.sender}
             label={this.i18n('entity.Notification.sender')}>

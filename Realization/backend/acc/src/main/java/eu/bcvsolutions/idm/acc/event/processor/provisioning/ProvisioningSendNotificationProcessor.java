@@ -1,8 +1,5 @@
 package eu.bcvsolutions.idm.acc.event.processor.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
@@ -19,6 +16,7 @@ import eu.bcvsolutions.idm.core.api.event.EntityEvent;
 import eu.bcvsolutions.idm.core.api.event.EventResult;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationManager;
@@ -73,11 +71,6 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 				// TODO: send password always, when create?
 				if (attribute instanceof IcPasswordAttribute && attribute.getValue() != null) {
 					GuardedString password = ((IcPasswordAttribute) attribute).getPasswordValue();
-					// prepare parameters for message template
-					Map<String, Object> parameters = new HashMap<>();
-					parameters.put("systemName", provisioningOperation.getSystem().getName());
-					parameters.put("uid", provisioningOperation.getSystemEntityUid());
-					parameters.put("password", password);
 					//
 					IdmNotificationTemplate template = notificationTemplateService.getTemplateByCode("prov_pass");
 					//
@@ -85,8 +78,12 @@ public class ProvisioningSendNotificationProcessor extends AbstractEntityEventPr
 						// send message with new password to identity
 						notificationManager.send(
 								AccModuleDescriptor.TOPIC_NEW_PASSWORD,
-								template,
-								parameters, 
+								new IdmMessage.Builder()
+								.addParameter("systemName", provisioningOperation.getSystem().getName())
+								.addParameter("uid", provisioningOperation.getSystemEntityUid())
+								.addParameter("password", password)
+								.setTemplate(template)
+								.build(),
 								identity);
 					} else {
 						// log missing templates

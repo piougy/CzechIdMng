@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -348,7 +349,15 @@ public class DefaultProvisioningService implements ProvisioningService {
 					Object value = getAttributeValue(entity, attribute);
 					// We don`t want null item in list (problem with provisioning in IC)
 					if(value != null){
-						mergedValues.add(value);
+						// If is value collection, then we add all its items to main list!
+						if(value instanceof Collection){
+							Collection<?> collectionNotNull = ((Collection<?>)value).stream().filter(item -> {
+								return item != null;
+							}).collect(Collectors.toList());
+							mergedValues.addAll(collectionNotNull);
+						}else {
+							mergedValues.add(value);
+						}
 					}
 				});
 				if(!accountAttributes.containsKey(attributeParentKey)){

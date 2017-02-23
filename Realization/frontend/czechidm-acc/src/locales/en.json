@@ -448,8 +448,8 @@
         "bundleVersion": "Verze konektoru"
       },
       "remoteConnector": {
-        "label": "Remote connector server",
-        "help": "After check, will be loaded connectors from remote connector server"
+        "label": "Use a remote connector server",
+        "help": "After check, will not be used local connectors and show form with info about remote connector server."
       },
       "connectorHost": "Server with connectors"
     },

@@ -14,7 +14,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      error: null
+      error: null,
+      emptyConnector: false // for first time is not choosen connector -> show alert block with info
     };
   }
 
@@ -38,11 +39,18 @@ class SystemConnectorContent extends Basic.AbstractContent {
         if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
           this.addErrorMessage({ hidden: true, level: 'info' }, error);
           this.setState({ error });
+        } else if (error.statusEnum === 'CONNECTOR_FORM_DEFINITION_NOT_FOUND') {
+          // dont set error, just show alert block
+          this.addErrorMessage({ hidden: true, level: 'info' }, error);
+          this.setState({ error });
         } else {
           this.addError(error);
           this.setState({ error: null });
         }
       } else {
+        this.setState({
+          emptyConnector: false
+        });
         this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
       }
     }));
@@ -234,7 +242,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
         <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
           <Basic.AbstractForm
-            showLoading={_showLoading}
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
             uiKey={uiKey}
@@ -253,13 +260,13 @@ class SystemConnectorContent extends Basic.AbstractContent {
               </div>
               <div className="col-lg-2">
                 <Basic.Button
-                  style={{ display: 'block', width: '100%'}}
+                  style={{ width: '100%'}}
                   level="success"
-                  showLoading={_showLoading}
+                  disabled={error}
                   onClick={this.save.bind(this, true)}
                   rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
                   title={ this.i18n('button.checkSystemTooltip') }
-                  titlePalcement="bottom">
+                  titlePlacement="bottom">
                   <Basic.Icon type="fa" icon="check-circle"/>
                   {' '}
                   { this.i18n('button.checkSystem') }

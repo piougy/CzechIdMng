@@ -315,7 +315,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
  			for (IcConfigurationService config: icConfiguration.getIcConfigs().values()) {
 				SysConnectorServer server = entity.getConnectorServer();
 				server.setPassword(this.confidentialStorage.getGuardedString(entity, SysSystemService.REMOTE_SERVER_PASSWORD));
-				infos.put(config.getImplementationType(), config.getAvailableRemoteConnectors(server));
+				infos.put(config.getFramework(), config.getAvailableRemoteConnectors(server));
 			}
 		} catch (IcInvalidCredentialException e) {
 			throw new ResultCodeException(AccResultCode.REMOTE_SERVER_INVALID_CREDENTIAL, ImmutableMap.of("server", e.getHost() + ":" + e.getPort()));

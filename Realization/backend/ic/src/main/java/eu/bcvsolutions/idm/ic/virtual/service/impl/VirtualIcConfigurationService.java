@@ -50,7 +50,7 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public String getImplementationType() {
+	public String getFramework() {
 		return IMPLEMENTATION_TYPE;
 	}
 
@@ -62,7 +62,7 @@ public class VirtualIcConfigurationService implements IcConfigurationService {
 	@Override
 	public List<IcConnectorInfo> getAvailableLocalConnectors() {
 		List<IcConnectorInfo> localConnectorInfos = new ArrayList<>();
-		IcConnectorInfoImpl dto = new IcConnectorInfoImpl("Testovací konektor", "categori test", new IcConnectorKeyImpl(getImplementationType(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
+		IcConnectorInfoImpl dto = new IcConnectorInfoImpl("Testovací konektor", "categori test", new IcConnectorKeyImpl(getFramework(), "eu.bcvsolutions.connectors.test", "0.0.1", "Test connector"));
 		localConnectorInfos.add(dto);
 		return localConnectorInfos;
 	}

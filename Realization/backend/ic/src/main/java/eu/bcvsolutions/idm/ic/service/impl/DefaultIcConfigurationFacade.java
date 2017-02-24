@@ -50,10 +50,20 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		if (icLocalConnectorInfos == null) {
 			icLocalConnectorInfos = new HashMap<>();
 			for (IcConfigurationService config : icConfigs.values()) {
-				icLocalConnectorInfos.put(config.getImplementationType(), config.getAvailableLocalConnectors());
+				icLocalConnectorInfos.put(config.getFramework(), config.getAvailableLocalConnectors());
 			}
 		}
 		return icLocalConnectorInfos;
+	}
+
+	@Override
+	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
+		List<IcConnectorInfo> remoteConnectors = new ArrayList<>();
+		// get service from icConfig, get all available remote connector for service in configs
+		for (IcConfigurationService config : icConfigs.values()) {
+			remoteConnectors.addAll(config.getAvailableRemoteConnectors(connectorInstance.getConnectorServer()));
+		}
+		return remoteConnectors;
 	}
 
 	@Override
@@ -89,15 +99,6 @@ public class DefaultIcConfigurationFacade implements IcConfigurationFacade {
 		return true;
 	}
 	
-	@Override
-	public List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance) {
-		List<IcConnectorInfo> remoteConnectors = new ArrayList<>();
-		// get service from icConfig, get all available remote connector for service in configs
-		for (IcConfigurationService config : icConfigs.values()) {
-			remoteConnectors.addAll(config.getAvailableRemoteConnectors(connectorInstance.getConnectorServer()));
-		}
-		return remoteConnectors;
-	}
 
 	@Override
 	public IcConnectorConfiguration getConnectorConfiguration(IcConnectorInstance connectorInstance) {

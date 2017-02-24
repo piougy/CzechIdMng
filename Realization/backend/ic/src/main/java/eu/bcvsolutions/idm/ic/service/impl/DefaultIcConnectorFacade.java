@@ -22,7 +22,7 @@ import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.domain.IcResultCode;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
-import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorFacade;
 import eu.bcvsolutions.idm.ic.service.api.IcConnectorService;
 

@@ -14,13 +14,22 @@ public interface IcConfigurationService {
 	 * Return key defined IC implementation
 	 * @return
 	 */
-	String getImplementationType();
+	String getFramework();
 
 	/**
 	 * Return available local connectors for this IC implementation
 	 * @return
 	 */
 	List<IcConnectorInfo> getAvailableLocalConnectors();
+
+	/**
+	 * Return available remote connectors
+	 * 
+	 * @param server
+	 * @param framework 
+	 * @return
+	 */
+	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server);
 
 	/**
 	 * Return find connector default configuration by connector key
@@ -45,14 +54,6 @@ public interface IcConfigurationService {
 	 */
 	IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration);
 	
-	/**
-	 * Return available remote connectors
-	 * 
-	 * @param server
-	 * @param framework 
-	 * @return
-	 */
-	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorServer server);
 
 	/**
 	 * Check if is connector configuration valid

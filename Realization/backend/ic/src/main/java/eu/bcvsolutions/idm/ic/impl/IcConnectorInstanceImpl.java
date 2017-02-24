@@ -66,14 +66,4 @@ public class IcConnectorInstanceImpl implements IcConnectorInstance {
 	public boolean isRemote() {
 		return remote;
 	}
-
-	@Override
-	public String getFullServerName() {
-		StringBuilder name = new StringBuilder();
-		name.append(this.connectorServer.getHost());
-		name.append(SERVER_NAME_DELIMITER);
-		name.append(this.connectorServer.getPort());
-		return name.toString();
-	}
-
 }

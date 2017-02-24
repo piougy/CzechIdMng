@@ -134,5 +134,4 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	public void setUrlTitle(String urlTitle) {
 		this.urlTitle = urlTitle;
 	}
-	
 }

@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 
 /**
@@ -90,5 +91,10 @@ public class SysConnectorServer implements IcConnectorServer, Serializable {
 
 	public void setPassword(GuardedString password) {
 		this.password = password;
+	}
+
+	@Override
+	public String getFullServerName() {
+		return this.getHost() + IcConnectorInstance.SERVER_NAME_DELIMITER + this.getPort();
 	}
 }

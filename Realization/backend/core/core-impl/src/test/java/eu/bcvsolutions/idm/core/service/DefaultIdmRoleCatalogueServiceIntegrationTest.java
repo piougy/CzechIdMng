@@ -98,7 +98,7 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		roleCatalogue2.setCode(name);
 		roleCatalogue2.setName("test");
 		// throws error
-		this.roleCatalogueService.save(roleCatalogue);
+		this.roleCatalogueService.save(roleCatalogue2);
 	}
 	
 	@Test(expected = ResultCodeException.class)

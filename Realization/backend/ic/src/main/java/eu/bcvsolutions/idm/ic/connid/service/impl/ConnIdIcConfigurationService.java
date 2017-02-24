@@ -213,7 +213,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+			log.debug("Validate remote connector - ConnId ({})",
+					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
 			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
@@ -228,7 +229,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
 			Assert.notNull(connectorInstance.getConnectorServer());
-			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+			log.debug("Validate remote connector - ConnId ({})",
+					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
 			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
@@ -242,7 +244,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", connectorInstance.getFullServerName()));
+			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", 
+					connectorInstance.getConnectorServer().getFullServerName()));
 		} else {
 			log.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
 		}

@@ -1577,12 +1577,12 @@
     },
     "RoleCatalogue": {
       "_type": "Role name",
-      "name": {
+      "code": {
         "name": "Code",
-        "help": "Catalogue code, unique within all folder codes in catalogue."
+        "help": "Catalogue code is unique within all folder codes in catalogue."
       },
-      "niceName": {
-        "name": "Name for users",
+      "name": {
+        "name": "Catalogue name",
         "help": "Descriptive attribute for users. Unique within catalog level."
       },
       "url": "URL",

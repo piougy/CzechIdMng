@@ -11,7 +11,7 @@ class RoleCatalogueService extends AbstractService {
     if (!roleCatalogue) {
       return '';
     }
-    return `${roleCatalogue.name}`;
+    return `${roleCatalogue.name} (${roleCatalogue.code})`;
   }
 
   /**

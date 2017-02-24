@@ -5,22 +5,29 @@ package eu.bcvsolutions.idm.core.api.entity;
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
- * @param <E> extends from @AbstractEntity
+ * @param <E>
  */
-public interface BaseTreeEntity<E>  {
+public interface BaseTreeEntity<E> {
 	
 	/**
 	 * Getter for parent of node
 	 * 
 	 * @return <E>
 	 */
-	public E getParent();
+	E getParent();
 	
 	/**
 	 * Setter for parent
 	 * 
 	 * @param parent
 	 */
-	public void setParent(E parent);
+	void setParent(E parent);
 	
+	/**
+	 * Getter for name of node
+	 * - name is unique for all children of parent.
+	 * 
+	 * @return String
+	 */
+	String getName();
 }

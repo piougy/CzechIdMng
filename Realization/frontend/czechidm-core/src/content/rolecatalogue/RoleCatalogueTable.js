@@ -239,9 +239,9 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
               }
               sort={false}/>
             <Advanced.ColumnLink to="rolecatalogue/:id"
-              header={this.i18n('entity.RoleCatalogue.name.name')}
-              property="name" width="15%" sort face="text"/>
-            <Advanced.Column property="niceName" header={this.i18n('entity.RoleCatalogue.niceName.name')} sort face="text"/>
+              header={this.i18n('entity.RoleCatalogue.code.name')}
+              property="code" width="15%" sort face="text"/>
+            <Advanced.Column property="name" header={this.i18n('entity.RoleCatalogue.name.name')} sort face="text"/>
             <Advanced.Column property="parent.name" sort/>
             <Advanced.Column header={this.i18n('entity.RoleCatalogue.url')}
               cell={

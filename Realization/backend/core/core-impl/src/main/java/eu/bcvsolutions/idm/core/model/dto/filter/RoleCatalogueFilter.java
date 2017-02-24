@@ -15,24 +15,24 @@ public class RoleCatalogueFilter extends QuickFilter {
 	
 	private UUID parentId;
 	
-	private String niceName;
+	private String name;
 	
-	private String technicalName;
-	
-	public String getNiceName() {
-		return niceName;
+	private String code;
+
+	public String getName() {
+		return name;
 	}
 
-	public String getTechnicalName() {
-		return technicalName;
+	public String getCode() {
+		return code;
 	}
 
-	public void setNiceName(String niceName) {
-		this.niceName = niceName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public void setTechnicalName(String technicalName) {
-		this.technicalName = technicalName;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public UUID getParentId() {

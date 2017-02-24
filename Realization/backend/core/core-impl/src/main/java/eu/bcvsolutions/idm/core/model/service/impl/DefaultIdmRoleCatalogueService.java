@@ -108,15 +108,9 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		} else { // get roots
 			roleCatalogues = this.findRoots();
 		}
-		// iterate over all found role catalogues and compare their names
-		for (IdmRoleCatalogue rc : roleCatalogues) {
-			if (rc.getNiceName() == null) {
-				continue;
-			}
-			// if names are same throw error + (check id)
-			if (rc.getNiceName().equals(roleCatalogue.getNiceName()) && !rc.getId().equals(roleCatalogue.getId())) {
-				throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", rc.getNiceName()));
-			}
+		//
+		if (this.baseTreeService.validateUniqueName(roleCatalogues, roleCatalogue)) {
+			throw new ResultCodeException(CoreResultCode.ROLE_CATALOGUE_BAD_NICE_NAME, ImmutableMap.of("name", roleCatalogue.getName()));
 		}
 	}
 	

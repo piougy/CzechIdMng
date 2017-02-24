@@ -1577,12 +1577,12 @@
     },
     "RoleCatalogue": {
       "_type": "Jméno role",
-      "name": {
+      "code": {
         "name": "Kód",
-        "help": "Kód katalogu unikátní v rámci všech katalogů."
+        "help": "Kód katalogu je unikátní v rámci všech katalogů."
       },
-      "niceName": {
-        "name": "Jméno pro uživatele",
+      "name": {
+        "name": "Jméno katalogu",
         "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
       },
       "url": "Odkaz",

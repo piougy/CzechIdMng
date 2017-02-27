@@ -107,6 +107,10 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
         let saveEntity = { };
 
+        const connectorServer = {
+          ...entity.connectorServer,
+          password: null
+        };
         if (connector !== null) {
           saveEntity = {
             ...entity,
@@ -116,11 +120,10 @@ class SystemConnectorContent extends Basic.AbstractContent {
               bundleName: connector.connectorKey.bundleName,
               bundleVersion: connector.connectorKey.bundleVersion
             },
-            connectorServer: {
-              password: null // from BE is password asterix
-            }
+            connectorServer
           };
         }
+
         // we dont must check is new, on this component will be always old entity
         this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
           this.reloadConnectorConfiguration(patchedEntity.id);
@@ -263,7 +266,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
             uiKey={uiKey}
-            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE') || remoteConnectorError}
+            readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
             style={{ paddingBottom: 0 }}>
 
             <Basic.Row className="last">
@@ -273,7 +276,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                   placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
                   value={pickConnector ? pickConnector.value : null}
                   options={_availableConnectors}
-                  readOnly={error || remoteConnectorError}
+                  readOnly={remoteConnectorError}
                   clearable={false}
                   onChange={this.saveConnector.bind(this)}/>
               </div>

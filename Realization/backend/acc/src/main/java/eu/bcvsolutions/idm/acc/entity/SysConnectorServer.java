@@ -10,13 +10,13 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringDeserializer;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedStringSerializer;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInstance;
 import eu.bcvsolutions.idm.ic.api.IcConnectorServer;
 
@@ -42,8 +42,8 @@ public class SysConnectorServer implements IcConnectorServer, Serializable {
 	private int port;
 	
 	@Transient
-	@JsonProperty(access = Access.WRITE_ONLY)
 	@JsonDeserialize(using = GuardedStringDeserializer.class)
+	@JsonSerialize(using = GuardedStringSerializer.class)
 	private transient GuardedString password;
 	
 	@NotNull

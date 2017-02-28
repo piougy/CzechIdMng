@@ -47,4 +47,10 @@ public interface IcConnectorServer {
 	 * @return
 	 */
 	int getTimeout();
+	
+	/**
+	 * Return full server name. SERVER:PORT.
+	 * @return
+	 */
+	String getFullServerName();
 }

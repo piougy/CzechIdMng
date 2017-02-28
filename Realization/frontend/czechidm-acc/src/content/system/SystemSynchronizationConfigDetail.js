@@ -60,6 +60,9 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   // Did mount only call initComponent method
   componentDidMount() {
     this._initComponent(this.props);
+    if (this.refs.name) {
+      this.refs.name.focus();
+    }
   }
 
   /**
@@ -86,7 +89,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
   /**
    * Saves give entity
    */
-  save(startSynchronization = false, event) {
+  save(startSynchronization = false, close = false, event) {
     if (event) {
       event.preventDefault();
     }
@@ -119,7 +122,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         if (startSynchronization) {
           this.afterSaveAndStartSynchronization.bind(createdEntity, error);
         } else {
-          this.afterSave(createdEntity, error);
+          this.afterSave(createdEntity, error, close);
         }
         if (!error && this.refs.table) {
           this.refs.table.getWrappedInstance().reload();
@@ -127,19 +130,21 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
       }));
     } else {
       this.context.store.dispatch(synchronizationConfigManager.patchEntity(formEntity, `${uiKey}-detail`,
-         startSynchronization ? this.afterSaveAndStartSynchronization.bind(this) : this.afterSave.bind(this)));
+         startSynchronization ? this.afterSaveAndStartSynchronization.bind(this, formEntity, null) : this.afterSave.bind(this, formEntity, null, close)));
     }
   }
 
-  afterSave(entity, error) {
+  afterSave(entity, error, close) {
     if (!error) {
       if (this._getIsNew()) {
         this.addMessage({ message: this.i18n('create.success', { name: entity.name}) });
       } else {
         this.addMessage({ message: this.i18n('save.success', {name: entity.name}) });
       }
-      const { entityId } = this.props.params;
-      this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
+      if (close) {
+        const { entityId } = this.props.params;
+        this.context.router.replace(`/system/${entityId}/synchronization-configs/`);
+      }
     } else {
       this.addError(error);
     }
@@ -179,7 +184,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         this.setState({
           showLoading: false
         });
-        this.addMessage({ message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.success', { name: json.name }) });
+        this.addMessage({ message: this.i18n('acc:content.system.systemSynchronizationConfigs.action.startSynchronization.started', { name: json.name }) });
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       }).catch(ex => {
         this.setState({
@@ -189,7 +194,9 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
         this.context.store.dispatch(synchronizationConfigManager.fetchEntity(id));
       });
     }, () => {
-      // Rejected
+      this.setState({
+        showLoading: false
+      });
     });
     return;
   }
@@ -376,16 +383,29 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     showLoading={innerShowLoading}>
                     {this.i18n('button.back')}
                   </Basic.Button>
-                  <Basic.Button
+                  <Basic.SplitButton
                     level="success"
-                    onClick={this.save.bind(this, false)}
+                    title={this.i18n('button.saveAndContinue')}
+                    onClick={this.save.bind(this, false, false)}
                     showLoading={innerShowLoading}
                     type="submit"
                     showLoadingIcon
                     showLoadingText={this.i18n('button.saving')}
-                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}t>
-                    {this.i18n('button.save')}
-                  </Basic.Button>
+                    rendered={Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')}
+                    pullRight
+                    dropup>
+                    <Basic.MenuItem
+                      eventKey="1"
+                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
+                      onClick={this.save.bind(this, true, false)}>
+                      {this.i18n('button.saveAndStartSynchronization')}
+                    </Basic.MenuItem>
+                    <Basic.MenuItem
+                      eventKey="1"
+                      onClick={this.save.bind(this, false, true)}>
+                      {this.i18n('button.saveAndClose')}
+                    </Basic.MenuItem>
+                  </Basic.SplitButton>
                 </Basic.PanelFooter>
               </Basic.Panel>
             </form>
@@ -439,7 +459,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                   <Basic.SplitButton
                     level="success"
                     title={this.i18n('button.saveAndContinue')}
-                    onClick={this.save.bind(this, false)}
+                    onClick={this.save.bind(this, false, false)}
                     showLoading={innerShowLoading}
                     type="submit"
                     showLoadingIcon
@@ -449,9 +469,14 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                     dropup>
                     <Basic.MenuItem
                       eventKey="1"
-                      rendered={!isNew && Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
-                      onClick={this.save.bind(this, true)}>
+                      rendered={Managers.SecurityManager.hasAuthority('SYNCHRONIZATION_WRITE')}
+                      onClick={this.save.bind(this, true, false)}>
                       {this.i18n('button.saveAndStartSynchronization')}
+                    </Basic.MenuItem>
+                    <Basic.MenuItem
+                      eventKey="1"
+                      onClick={this.save.bind(this, false, true)}>
+                      {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>
                   </Basic.SplitButton>
                 </Basic.PanelFooter>
@@ -459,7 +484,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
             </form>
           </Basic.Tab>
           <Basic.Tab eventKey={3} title={this.i18n('tabs.logs.label')}>
-            <Basic.ContentHeader rendered={synchronizationConfig && !isNew} style={{ marginBottom: 0, paddingLeft: 15 }}>
+            <Basic.ContentHeader rendered={synchronizationConfig} style={{ marginBottom: 0, paddingLeft: 15 }}>
               <Basic.Icon value="transfer"/>
               {' '}
               <span dangerouslySetInnerHTML={{ __html: this.i18n('synchronizationLogsHeader') }}/>

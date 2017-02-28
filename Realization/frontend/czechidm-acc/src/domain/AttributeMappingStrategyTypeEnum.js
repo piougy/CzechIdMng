@@ -37,7 +37,7 @@ export default class AttributeMappingStrategyTypeEnum extends Enums.AbstractEnum
       case this.CREATE: {
         return 'success';
       }
-      case this.IF_NULL: {
+      case this.WRITE_IF_NULL: {
         return 'success';
       }
       default: {
@@ -51,4 +51,4 @@ AttributeMappingStrategyTypeEnum.MERGE = Symbol('MERGE');
 AttributeMappingStrategyTypeEnum.AUTHORITATIVE_MERGE = Symbol('AUTHORITATIVE_MERGE');
 AttributeMappingStrategyTypeEnum.SET = Symbol('SET');
 AttributeMappingStrategyTypeEnum.CREATE = Symbol('CREATE');
-AttributeMappingStrategyTypeEnum.IF_NULL = Symbol('IF_NULL');
+AttributeMappingStrategyTypeEnum.WRITE_IF_NULL = Symbol('WRITE_IF_NULL');

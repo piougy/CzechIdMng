@@ -17,7 +17,10 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
@@ -34,6 +37,9 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	
 	@Autowired(required = false)
 	private SecurityService securityService;
+	
+	@Autowired
+	private IdmNotificationTemplateService notificationTemplateService;
 	
 	@Autowired(required = false)
 	@Deprecated // will be removed after recipient refactoring
@@ -109,7 +115,8 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		//
 		IdmNotificationLog notification = new IdmNotificationLog();
 		notification.setTopic(topic);
-		notification.setMessage(message);
+		// transform message parent
+		notification.setMessage(this.notificationTemplateService.getMessage(message, false));
 		recipients.forEach(recipient ->
 			{
 				notification.getRecipients().add(new IdmNotificationRecipient(notification, recipient));
@@ -118,13 +125,19 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	}
 
 	/**
-	 * Clone notification message
+	 * Clone notification message. Method just clone {@link IdmMessage}, or if object {@link IdmMessage}
+	 * contain {@link IdmNotificationTemplate} it will be generate new message from templates and parameters if any.
+	 * Clone message from template will not contain plain text of object {@link GuardedString}, just asterix.
+	 * For show {@link GuardedString} in plain text use method for generate from template.
 	 * 
 	 * @param notification
 	 * @return
 	 */
 	protected IdmMessage cloneMessage(IdmNotification notification) {
 		IdmMessage message = notification.getMessage();
+		if (message.getTemplate() != null) {
+			return this.getMessage(notification, false);
+		}
 		return new IdmMessage.Builder()
 				.setLevel(message.getLevel())
 				.setSubject(message.getSubject())
@@ -132,6 +145,27 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 				.setHtmlMessage(message.getHtmlMessage())
 				.setModel(message.getModel())
 				.build();
+	}
+	
+	/**
+	 * Return {@link IdmMessage} from notification, or generate new copy of {@link IdmMessage} from template. 
+	 * {@link IdmMessage} is required. For generate {@link IdmMessage} from template is
+	 * required object {@link IdmNotificationTemplate}
+	 * Return {@link IdmMessage} or new generate instance from template.
+	 * If not used generating from template, the parameter showGuardedString is irrelevant. Message is in plain text,
+	 * it not possible to show or hide {@link GuardedString}
+	 * 
+	 * @param notification - notification that contain {@link IdmMessage} and {@ IdmNotificationTemplate}
+	 * @param showGuardedString - flag for hide or show {@link GuardedString}
+	 * @return
+	 */
+	protected IdmMessage getMessage(IdmNotification notification, boolean showGuardedString) {
+		Assert.notNull(notification.getMessage());
+		if (notification.getMessage().getTemplate() == null) {
+			return notification.getMessage();
+		}
+		
+		return this.notificationTemplateService.getMessage(notification.getMessage(), showGuardedString);
 	}
 
 	/**

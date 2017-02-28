@@ -880,7 +880,7 @@
       },
       "create": {
         "header": "Nová složka",
-        "title": "Nový složka"
+        "title": "Nová složka"
       },
       "save": {
         "success": "Složka [{{name}}] byla úspěšně uložena do katalogu rolí."
@@ -914,7 +914,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
-      "roleCataloguePick": "Vyberte katalog",
+      "roleCataloguePick": "Vyberte z katalogu",
       "create": {
         "header": "Nová role"
       },
@@ -1426,6 +1426,15 @@
         "success": "Odeslání notifikace bylo úspěšné"
       }
     },
+    "notificationTemplate": {
+      "headerNew": "Nová šablona",
+      "header": "Šablony",
+      "title": "Šablony",
+      "titleNew": "Nová šablona",
+      "save": {
+        "success": "Šablona [{{name}}] byla úspěšně uložena."
+      }
+    },
     "emails": {
       "header": "Emaily",
       "title": "Emaily"
@@ -1595,17 +1604,27 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Jmé role",
-      "name": "Název složky",
+      "_type": "Jméno role",
+      "code": {
+        "name": "Kód",
+        "help": "Kód katalogu je unikátní v rámci všech katalogů."
+      },
+      "name": {
+        "name": "Jméno katalogu",
+        "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
+      },
+      "url": "Odkaz",
+      "urlTitle": "Popis odkazu",
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"
       },
       "filter": {
-        "name": "Jméno",
+        "name": "Kód",
         "namePlaceHolder": "Jméno složky",
         "parent": "Nadřazená složka",
-        "parentPlaceHolder": "Nadřezená složka"
+        "parentPlaceHolder": "Nadřezená složka",
+        "niceName": "Jméno pro uživatele"
       }
 
     },
@@ -1766,7 +1785,19 @@
       "recipients": "Příjemci",
       "sent": "Odesláno",
       "sentLog": "Zpráva při odeslání",
-      "type": "Typ"
+      "type": "Typ",
+      "template": "Šablona"
+    },
+    "NotificationTemplate": {
+      "name": "Jméno",
+      "code": "Kód",
+      "subject": "Předmět",
+      "systemTemplate": {
+        "name": "Systémová šablona",
+        "help": "Systémová šablona je nezbytná pro správný chod aplikace, nelze odstranit a změnit její kód."
+      },
+      "bodyHtml": "Tělo zprávy (html)",
+      "bodyText": "Tělo zprávy (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
@@ -2103,6 +2134,10 @@
       "title": "Katalog rolí nelze odebrat",
       "message": "Katalog rolí [{{roleCatalogue}}] obsahuje podřízené katalogy. Před odebráním tohoto katalogu odeberte všechny podřízené katalogy."
     },
+    "ROLE_CATALOGUE_BAD_NICE_NAME" : {
+      "title": "Duplicitní jméno pro uživatele",
+      "message": "Na této úrovni se již nachází katalog s tímto jménem pro uživatele: [{{name}}]."
+    },
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revize nelze porovnat",
       "message": "Revize musí být stejného typu a od stejné entity."
@@ -2142,6 +2177,10 @@
     "FOREST_INDEX_RUNNING": {
       "title": "Reindexování již běží",
       "message": "Reindexování pro stromovou strukturu {{treeType}} je již spuštěno. Nebude spuštěno opakovaně."
+    },
+    "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
+      "title": "Systémová šablona nemůže být smazána",
+      "message": "Šablona [{{template}}] je systémová a nemůže být odebrána."
     }
   },
   "validationError": {

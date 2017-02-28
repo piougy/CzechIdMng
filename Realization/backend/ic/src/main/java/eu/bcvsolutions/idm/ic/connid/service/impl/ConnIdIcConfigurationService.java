@@ -70,7 +70,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 	 * @return
 	 */
 	@Override
-	public String getImplementationType() {
+	public String getFramework() {
 		return IMPLEMENTATION_TYPE;
 	}
 
@@ -95,7 +95,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 				if (key == null) {
 					continue;
 				}
-				IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getImplementationType(), key.getBundleName(),
+				IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getFramework(), key.getBundleName(),
 						key.getBundleVersion(), key.getConnectorName());
 				IcConnectorInfoImpl infoDto = new IcConnectorInfoImpl(info.getConnectorDisplayName(),
 						info.getConnectorCategory(), keyDto);
@@ -148,7 +148,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 				continue;
 			}			
 			// transform
-			IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getImplementationType(), key.getBundleName(),
+			IcConnectorKeyImpl keyDto = new IcConnectorKeyImpl(getFramework(), key.getBundleName(),
 					key.getBundleVersion(), key.getConnectorName());
 			IcConnectorInfoImpl infoDto = new IcConnectorInfoImpl(info.getConnectorDisplayName(),
 					info.getConnectorCategory(), keyDto);
@@ -156,7 +156,6 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 			result.add(infoDto);
 		}
 		
-			
 		return result;
 	}
 	
@@ -200,7 +199,7 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		} else {
 			for (ConnectorInfoManager manager : findAllLocalConnectorManagers()) {
 				ConnectorInfo i = manager.findConnectorInfo(
-						ConnIdIcConvertUtil.convertConnectorKeyFromDto(connectorInstance.getConnectorKey(), this.getImplementationType()));
+						ConnIdIcConvertUtil.convertConnectorKeyFromDto(connectorInstance.getConnectorKey(), this.getFramework()));
 				if (i != null) {
 					return i;
 				}
@@ -214,7 +213,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+			log.debug("Validate remote connector - ConnId ({})",
+					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
 			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
@@ -229,7 +229,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
 			Assert.notNull(connectorInstance.getConnectorServer());
-			log.debug("Validate remote connector - ConnId ({})", connectorInstance.getFullServerName());
+			log.debug("Validate remote connector - ConnId ({})",
+					connectorInstance.getConnectorServer().getFullServerName());
 		} else {
 			log.debug("Validate connector - ConnId ({})", connectorInstance.getConnectorKey().toString());
 		}
@@ -243,7 +244,8 @@ public class ConnIdIcConfigurationService implements IcConfigurationService {
 		Assert.notNull(connectorInstance.getConnectorKey());
 		Assert.notNull(connectorConfiguration);
 		if (connectorInstance.isRemote()) {
-			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", connectorInstance.getFullServerName()));
+			log.info(MessageFormat.format("Get Schema of remote connector - ConnId ({0})", 
+					connectorInstance.getConnectorServer().getFullServerName()));
 		} else {
 			log.info(MessageFormat.format("Get Schema - ConnId ({0})", connectorInstance.getConnectorKey().toString()));
 		}

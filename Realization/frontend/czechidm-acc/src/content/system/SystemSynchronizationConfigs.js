@@ -162,6 +162,7 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
             uiKey={uiKey}
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
+            rowClass={({rowIndex, data}) => { return !(data[rowIndex].enabled) ? 'disabled' : ''; }}
             showRowSelection={Managers.SecurityManager.hasAnyAuthority(['SYSTEM_WRITE'])}
             actions={this._getBulkActions()}
             buttons={
@@ -230,45 +231,45 @@ class SystemSynchronizationConfigs extends Basic.AbstractTableContent {
               face="boolean"
               header={this.i18n('acc:entity.SynchronizationConfig.enabled')}
               sort/>
-              <Advanced.Column
-                property=""
-                header=""
-                width="55px"
-                className="detail-button"
-                cell={
-                  ({ rowIndex, data }) => {
-                    const configs = this.state.configs;
-                    const running = configs && configs[data[rowIndex].id] !== null ? configs[data[rowIndex].id] : '';
-                    return (
-                      <span>
-                        <Basic.Button
-                          ref="startButton"
-                          type="button"
-                          level="success"
-                          rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && !running}
-                          style={{marginRight: '2px'}}
-                          title={this.i18n('button.start')}
-                          titlePlacement="bottom"
-                          onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
-                          className="btn-xs">
-                          <Basic.Icon type="fa" icon="play"/>
-                        </Basic.Button>
-                        <Basic.Button
-                          ref="cancelButton"
-                          type="button"
-                          level="danger"
-                          rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && running}
-                          style={{marginRight: '2px'}}
-                          title={this.i18n('button.cancel')}
-                          titlePlacement="bottom"
-                          onClick={this._cancelSynchronization.bind(this, data[rowIndex].id)}
-                          className="btn-xs">
-                          <Basic.Icon type="fa" icon="remove"/>
-                        </Basic.Button>
-                      </span>
-                    );
-                  }
-                }/>
+            <Advanced.Column
+              property=""
+              header=""
+              width="55px"
+              className="detail-button"
+              cell={
+                ({ rowIndex, data }) => {
+                  const configs = this.state.configs;
+                  const running = configs && configs[data[rowIndex].id] !== null ? configs[data[rowIndex].id] : '';
+                  return (
+                    <span>
+                      <Basic.Button
+                        ref="startButton"
+                        type="button"
+                        level="success"
+                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && !running}
+                        style={{marginRight: '2px'}}
+                        title={this.i18n('button.start')}
+                        titlePlacement="bottom"
+                        onClick={this._startSynchronization.bind(this, null, [data[rowIndex].id])}
+                        className="btn-xs">
+                        <Basic.Icon type="fa" icon="play"/>
+                      </Basic.Button>
+                      <Basic.Button
+                        ref="cancelButton"
+                        type="button"
+                        level="danger"
+                        rendered={Managers.SecurityManager.hasAnyAuthority(['SYNCHRONIZATION_WRITE']) && running}
+                        style={{marginRight: '2px'}}
+                        title={this.i18n('button.cancel')}
+                        titlePlacement="bottom"
+                        onClick={this._cancelSynchronization.bind(this, data[rowIndex].id)}
+                        className="btn-xs">
+                        <Basic.Icon type="fa" icon="remove"/>
+                      </Basic.Button>
+                    </span>
+                  );
+                }
+              }/>
           </Advanced.Table>
         </Basic.Panel>
       </div>

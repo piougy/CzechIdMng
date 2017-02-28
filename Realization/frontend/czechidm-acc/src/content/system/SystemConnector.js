@@ -14,7 +14,9 @@ class SystemConnectorContent extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      error: null
+      error: null,
+      emptyConnector: false, // for first time is not choosen connector -> show alert block with info
+      remoteConnectorError: false // dont show options for invalid password
     };
   }
 
@@ -27,7 +29,16 @@ class SystemConnectorContent extends Basic.AbstractContent {
     // load definition and values
     const { entityId } = this.props.params;
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
-    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
+    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId, (remoteConnectors, error) => {
+      if (error) {
+        if (error.statusEnum === 'REMOTE_SERVER_INVALID_CREDENTIAL' ||
+                  error.statusEnum === 'REMOTE_SERVER_CANT_CONNECT') {
+          this.setState({
+            remoteConnectorError: true
+          });
+        }
+      }
+    }));
     this.context.store.dispatch(manager.fetchEntity(entityId));
     this.reloadConnectorConfiguration(entityId);
   }
@@ -38,11 +49,18 @@ class SystemConnectorContent extends Basic.AbstractContent {
         if (error.statusEnum === 'CONNECTOR_CONFIGURATION_FOR_SYSTEM_NOT_FOUND') {
           this.addErrorMessage({ hidden: true, level: 'info' }, error);
           this.setState({ error });
+        } else if (error.statusEnum === 'CONNECTOR_FORM_DEFINITION_NOT_FOUND') {
+          // dont set error, just show alert block
+          this.addErrorMessage({ hidden: true, level: 'info' }, error);
+          this.setState({ error });
         } else {
           this.addError(error);
           this.setState({ error: null });
         }
       } else {
+        this.setState({
+          emptyConnector: false
+        });
         this.getLogger().debug(`[EavForm]: Loaded form definition [${formInstance.getDefinition().type}|${formInstance.getDefinition().name}]`);
       }
     }));
@@ -62,43 +80,58 @@ class SystemConnectorContent extends Basic.AbstractContent {
       return;
     }
     //
-    const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    // modal window with confirm
+    this.refs[`confirm-change-connector`].show(
+      this.i18n(`action.changeConnector.message`),
+      this.i18n(`action.changeConnector.header`)
+    ).then(() => {
+      //
+      const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
 
-    const data = value.value;
+      const data = value.value;
 
-    if (data === null) {
-      return;
-    }
-
-    this.setState({
-      showLoading: true,
-      error: null
-    }, () => {
-      let connector = null;
-      if (entity.remote) {
-        connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
-      } else {
-        connector = availableFrameworks.get(data.split(':')[0]).get(data);
+      if (data === null) {
+        return;
       }
 
-      let saveEntity = { };
+      this.setState({
+        showLoading: true,
+        error: null
+      }, () => {
+        let connector = null;
+        if (entity.remote) {
+          connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
+        } else {
+          connector = availableFrameworks.get(data.split(':')[0]).get(data);
+        }
 
-      if (connector !== null) {
-        saveEntity = {
-          ...entity,
-          connectorKey: {
-            framework: connector.connectorKey.framework,
-            connectorName: connector.connectorKey.connectorName,
-            bundleName: connector.connectorKey.bundleName,
-            bundleVersion: connector.connectorKey.bundleVersion
-          }
+        let saveEntity = { };
+
+        const connectorServer = {
+          ...entity.connectorServer,
+          password: null
         };
-      }
-      // we dont must check is new, on this component will be always old entity
-      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
-        this.reloadConnectorConfiguration(patchedEntity.id);
-        this._afterSave(patchedEntity, newError);
-      }));
+        if (connector !== null) {
+          saveEntity = {
+            ...entity,
+            connectorKey: {
+              framework: connector.connectorKey.framework,
+              connectorName: connector.connectorKey.connectorName,
+              bundleName: connector.connectorKey.bundleName,
+              bundleVersion: connector.connectorKey.bundleVersion
+            },
+            connectorServer
+          };
+        }
+
+        // we dont must check is new, on this component will be always old entity
+        this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+          this.reloadConnectorConfiguration(patchedEntity.id);
+          this._afterSave(patchedEntity, newError);
+        }));
+      });
+    }, () => {
+      // Rejected
     });
   }
 
@@ -181,7 +214,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
   render() {
     const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
-    const { error, showLoading } = this.state;
+    const { error, showLoading, remoteConnectorError } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
 
@@ -196,21 +229,15 @@ class SystemConnectorContent extends Basic.AbstractContent {
       content = (
         <Basic.Alert level="info">
           {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
-          <div style={{ marginTop: 15 }}>
-            <Basic.Button level="info" onClick={this.showDetail.bind(this)}>
-              {this.i18n('button.showBasicInfo')}
-            </Basic.Button>
-          </div>
         </Basic.Alert>
       );
-    } else if (!formInstance && !_showLoading) {
+    } else if (!formInstance && !_showLoading || remoteConnectorError) {
       // connector not found on BE
       content = null;
     } else {
       // connector setting is ready
       content = (
         <form style={{ marginTop: 15 }} onSubmit={this.save.bind(this, false)}>
-
           <Advanced.EavForm ref="eav" formInstance={formInstance}/>
           <Basic.PanelFooter>
             <Basic.Button
@@ -228,6 +255,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
+        <Basic.Confirm ref="confirm-change-connector" level="danger"/>
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
@@ -235,7 +263,6 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
         <Basic.Panel showLoading={_showLoading} className="no-border no-margin">
           <Basic.AbstractForm
-            showLoading={_showLoading}
             rendered={_availableConnectors.length !== 0}
             ref="formConnector"
             uiKey={uiKey}
@@ -249,18 +276,19 @@ class SystemConnectorContent extends Basic.AbstractContent {
                   placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
                   value={pickConnector ? pickConnector.value : null}
                   options={_availableConnectors}
+                  readOnly={remoteConnectorError}
                   clearable={false}
                   onChange={this.saveConnector.bind(this)}/>
               </div>
               <div className="col-lg-2">
                 <Basic.Button
-                  style={{ display: 'block', width: '100%'}}
+                  style={{ width: '100%'}}
                   level="success"
-                  showLoading={_showLoading}
+                  disabled={error || remoteConnectorError}
                   onClick={this.save.bind(this, true)}
                   rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
                   title={ this.i18n('button.checkSystemTooltip') }
-                  titlePalcement="bottom">
+                  titlePlacement="bottom">
                   <Basic.Icon type="fa" icon="check-circle"/>
                   {' '}
                   { this.i18n('button.checkSystem') }

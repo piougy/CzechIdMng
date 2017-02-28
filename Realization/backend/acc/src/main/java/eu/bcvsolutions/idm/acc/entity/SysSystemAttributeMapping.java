@@ -31,8 +31,7 @@ import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
  */
 @Entity
 @Table(name = "sys_system_attribute_mapping", indexes = {
-		@Index(name = "ux_sys_attr_m_attr", columnList = "system_mapping_id,schema_attribute_id", unique = true),
-		@Index(name = "ux_sys_attr_m_pname_enth", columnList = "idm_property_name,system_mapping_id", unique = true),
+		@Index(name = "ux_sys_attr_m_attr", columnList = "system_mapping_id,schema_attribute_id,strategy_type", unique = true),
 		@Index(name = "ux_sys_attr_m_name_enth", columnList = "name,system_mapping_id", unique = true)})
 public class SysSystemAttributeMapping extends AbstractEntity implements AttributeMapping {
 
@@ -100,6 +99,14 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 	@Column(name = "strategy_type", nullable = false)
 	private AttributeMappingStrategyType strategyType = AttributeMappingStrategyType.SET;
 
+	@Audited
+	@Column(name = "send_always", nullable = false)
+	private boolean sendAlways = false;
+	
+	@Audited
+	@Column(name = "send_only_if_not_null", nullable = false)
+	private boolean sendOnlyIfNotNull = false;
+	
 	@Override
 	public String getIdmPropertyName() {
 		return idmPropertyName;
@@ -208,12 +215,34 @@ public class SysSystemAttributeMapping extends AbstractEntity implements Attribu
 		this.disabledAttribute = disabledAttribute;
 	}
 
+	@Override
 	public AttributeMappingStrategyType getStrategyType() {
 		return strategyType;
 	}
 
+	@Override
 	public void setStrategyType(AttributeMappingStrategyType strategyType) {
 		this.strategyType = strategyType;
+	}
+
+	@Override
+	public boolean isSendAlways() {
+		return sendAlways;
+	}
+
+	@Override
+	public void setSendAlways(boolean sendAlways) {
+		this.sendAlways = sendAlways;
+	}
+
+	@Override
+	public boolean isSendOnlyIfNotNull() {
+		return sendOnlyIfNotNull;
+	}
+
+	@Override
+	public void setSendOnlyIfNotNull(boolean sendOnlyIfNotNull) {
+		this.sendOnlyIfNotNull = sendOnlyIfNotNull;
 	}
 
 }

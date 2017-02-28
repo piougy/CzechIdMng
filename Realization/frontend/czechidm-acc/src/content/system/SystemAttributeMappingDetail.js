@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Basic, Utils, Domain} from 'czechidm-core';
 import { SystemMappingManager, SystemAttributeMappingManager, SchemaAttributeManager} from '../../redux';
 import AttributeMappingStrategyTypeEnum from '../../domain/AttributeMappingStrategyTypeEnum';
+import SystemEntityTypeEnum from '../../domain/SystemEntityTypeEnum';
 
 const uiKey = 'system-attribute-mapping';
 const manager = new SystemAttributeMappingManager();
@@ -109,12 +110,25 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
           this.forceUpdate();
         });
       }
+      if (key === 'entityAttribute') {
+        this.refs.idmPropertyName.setValue(null);
+        this.refs.idmPropertyEnum.setValue(null);
+      }
     });
   }
 
   _schemaAttributeChange(value) {
     if (!this.refs.name.getValue()) {
       this.refs.name.setValue(value.name);
+    }
+  }
+
+  _onChangeEntityEnum(item) {
+    if (item) {
+      const field = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getField(item.value);
+      this.refs.idmPropertyName.setValue(field);
+    } else {
+      this.refs.idmPropertyName.setValue(null);
     }
   }
 
@@ -175,6 +189,16 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
                 label={this.i18n('acc:entity.SystemAttributeMapping.strategyType')}
                 required/>
               <Basic.Checkbox
+                ref="sendAlways"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendAlways.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
+                ref="sendOnlyIfNotNull"
+                tooltip={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.tooltip')}
+                label={this.i18n('acc:entity.SystemAttributeMapping.sendOnlyIfNotNull.label')}
+                readOnly = {_isDisabled}/>
+              <Basic.Checkbox
                 ref="uid"
                 onChange={this._checkboxChanged.bind(this, 'uid', null)}
                 tooltip={this.i18n('acc:entity.SystemAttributeMapping.uid.tooltip')}
@@ -194,13 +218,26 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
                 ref="confidentialAttribute"
                 label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}
                 readOnly = {_isDisabled || !_isRequiredIdmField}/>
-              <Basic.TextField
-                ref="idmPropertyName"
-                readOnly = {_isDisabled || !_isRequiredIdmField}
-                label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
-                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
-                required = {_isRequiredIdmField}
-                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-6">
+                  <Basic.EnumSelectBox
+                    ref="idmPropertyEnum"
+                    readOnly = {_isDisabled || !_isEntityAttribute}
+                    enum={SystemEntityTypeEnum.getEntityEnum('IDENTITY')}
+                    onChange={this._onChangeEntityEnum.bind(this)}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyEnum')}
+                    />
+                </div>
+                <div className="col-lg-6">
+                  <Basic.TextField
+                    ref="idmPropertyName"
+                    readOnly = {_isDisabled || !_isRequiredIdmField || _isEntityAttribute}
+                    label={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.label')}
+                    helpBlock={this.i18n('acc:entity.SystemAttributeMapping.idmPropertyName.help')}
+                    required = {_isRequiredIdmField}
+                    max={255}/>
+                </div>
+              </Basic.Row>
               <Basic.LabelWrapper label=" ">
                 <Basic.Alert
                    rendered={_showNoRepositoryAlert}
@@ -256,6 +293,7 @@ function select(state, component) {
     entity.systemMapping = systemMapping;
     entity.schemaAttribute = schemaAttribute;
     entity.objectClassId = systemMapping ? systemMapping.objectClass.id : Domain.SearchParameters.BLANK_UUID;
+    entity.idmPropertyEnum = SystemEntityTypeEnum.getEntityEnum('IDENTITY').getEnum(entity.idmPropertyName);
   }
   return {
     _attribute: entity,

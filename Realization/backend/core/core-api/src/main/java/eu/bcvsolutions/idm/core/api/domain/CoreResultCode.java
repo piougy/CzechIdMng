@@ -57,6 +57,7 @@ public enum CoreResultCode implements ResultCode {
 	// role catalogs
 	ROLE_CATALOGUE_BAD_PARENT(HttpStatus.BAD_REQUEST, "Role catalogue [%s] has bad parent."),
 	ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN(HttpStatus.CONFLICT, "Role catalogue [%s] has children, cannot be deleted. Remove them at first."),
+	ROLE_CATALOGUE_BAD_NICE_NAME(HttpStatus.CONFLICT, "Nice name [%s] is found at same level."),
 	//
 	MODULE_NOT_DISABLEABLE(HttpStatus.BAD_REQUEST, "Module [%s] is not disableable."),
 	MODULE_DISABLED(HttpStatus.BAD_REQUEST, "Module [%s] is disabled."),
@@ -103,6 +104,9 @@ public enum CoreResultCode implements ResultCode {
 	// forest index
 	FOREST_INDEX_DISABLED(HttpStatus.BAD_REQUEST, "Forest index is disabled. Enable configuration property [%s]."),
 	FOREST_INDEX_RUNNING(HttpStatus.CONFLICT, "Rebuilding index for tree type [%s] already running."),
+	//
+	// notification
+	NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "System template [%s] can't be deleted."),
 	//
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),

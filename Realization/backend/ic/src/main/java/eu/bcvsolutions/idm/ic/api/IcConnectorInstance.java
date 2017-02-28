@@ -10,13 +10,29 @@ package eu.bcvsolutions.idm.ic.api;
 
 public interface IcConnectorInstance {
 	
+	/**
+	 * Default server delimitier
+	 */
 	public static char SERVER_NAME_DELIMITER = ':';
 	
+	/**
+	 * Return connector key. Connector key define connector version, framework and etc.
+	 * 
+	 * @return
+	 */
 	IcConnectorKey getConnectorKey();
 	
+	/**
+	 * Return connector server. Connector server define server with connectors.
+	 * 
+	 * @return
+	 */
 	IcConnectorServer getConnectorServer();
 	
-	String getFullServerName();
-	
+	/**
+	 * This flag defined if connector is on remote server or is local.
+	 * 
+	 * @return
+	 */
 	boolean isRemote();
 }

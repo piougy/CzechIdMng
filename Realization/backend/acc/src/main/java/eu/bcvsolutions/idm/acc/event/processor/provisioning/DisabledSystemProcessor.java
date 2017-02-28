@@ -74,7 +74,9 @@ public class DisabledSystemProcessor extends AbstractEntityEventProcessor<SysPro
 			provisioningOperationService.save(provisioningOperation);
 			//
 			LOG.info(resultModel.toString());
-			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder().setModel(resultModel).build());
+			notificationManager.send(AccModuleDescriptor.TOPIC_PROVISIONING, new IdmMessage.Builder()
+					.setModel(resultModel)
+					.build());
 			//
 			closed = true;
 		} 

@@ -103,10 +103,10 @@ import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.domain.IcFilterOperationType;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.filter.impl.IcAndFilter;
 import eu.bcvsolutions.idm.ic.filter.impl.IcFilterBuilder;
 import eu.bcvsolutions.idm.ic.filter.impl.IcOrFilter;
-import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcObjectClassImpl;
 import eu.bcvsolutions.idm.ic.impl.IcSyncDeltaTypeEnum;
@@ -263,8 +263,14 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 		Assert.notNull(mapping);
 		SysSystem system = mapping.getSystem();
 		Assert.notNull(system);
+		
+		// System must be enabled
+		if (system.isDisabled()) {
+			throw new ProvisioningException(AccResultCode.SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED,
+					ImmutableMap.of("name", config.getName(), "system", system.getName()));
+		}
+		
 		SystemEntityType entityType = mapping.getEntityType();
-
 		SystemAttributeMappingFilter attributeHandlingFilter = new SystemAttributeMappingFilter();
 		attributeHandlingFilter.setSystemMappingId(mapping.getId());
 		List<SysSystemAttributeMapping> mappedAttributes = attributeHandlingService.find(attributeHandlingFilter, null)
@@ -370,6 +376,7 @@ public class DefaultSynchronizationService extends AbstractLongRunningTaskExecut
 				
 				IcFilter filter = resolveSynchronizationFilter(config);
 				log.addToLog(MessageFormat.format("Start search with filter {0}.", filter != null ? filter : "NONE"));
+				synchronizationLogService.save(log);
 
 				connectorFacade.search(system.getConnectorInstance(), connectorConfig, objectClass, filter, resultHandler);
 			} else {

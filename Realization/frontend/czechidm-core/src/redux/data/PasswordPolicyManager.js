@@ -1,7 +1,7 @@
 import EntityManager from './EntityManager';
 import { PasswordPolicyService } from '../../services';
 
-export default class TreeTypeManager extends EntityManager {
+export default class PasswordPolicyManager extends EntityManager {
 
   constructor() {
     super();

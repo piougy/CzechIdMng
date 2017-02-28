@@ -4,6 +4,7 @@ import java.util.List;
 
 import eu.bcvsolutions.idm.acc.domain.AttributeMapping;
 import eu.bcvsolutions.idm.acc.dto.filter.SystemAttributeMappingFilter;
+import eu.bcvsolutions.idm.acc.entity.SysSchemaAttribute;
 import eu.bcvsolutions.idm.acc.entity.SysSystem;
 import eu.bcvsolutions.idm.acc.entity.SysSystemAttributeMapping;
 import eu.bcvsolutions.idm.acc.entity.SysSystemMapping;
@@ -61,9 +62,9 @@ public interface SysSystemAttributeMappingService extends ReadWriteEntityService
 	 * Create instance of IC attribute for given name. Given idm value will be
 	 * transformed to resource.
 	 * 
-	 * @param attributeMapping
+	 * @param schemaAttribute
 	 * @param idmValue
 	 * @return
 	 */
-	IcAttribute createIcAttribute(AttributeMapping attributeMapping, Object idmValue);
+	IcAttribute createIcAttribute(SysSchemaAttribute schemaAttribute, Object idmValue);
 }

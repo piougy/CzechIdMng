@@ -69,7 +69,7 @@ class DynamicTaskRoleDetail extends DynamicTaskDetail {
 
         <Basic.Panel showLoading = {showLoadingInternal}>
           <Basic.PanelHeader text={<span>{taskManager.getNiceLabel(task)} <small>this.i18n('taskDetail')</small></span>} className="hidden"/>
-          <Basic.AbstractForm ref="form" data={task} style={{ padding: 15 }}>
+          <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper readOnly ref="applicant" label={this.i18n('applicant')}>
               <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin" style={{ width: '50%' }}/>

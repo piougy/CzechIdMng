@@ -261,6 +261,19 @@ module.exports = {
             ]
           },
           {
+            'id': 'notification-templates',
+            'labelKey': 'content.notificationTemplate.title',
+            'icon': 'fa:envelope-square',
+            'order': 900,
+            'path': '/notification/templates',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATIONTEMPLATE_READ']
+              }
+            ]
+          },
+          {
             'id': 'notification-configurations',
             'labelKey': 'content.notificationConfigurations.label',
             'titleKey': 'content.notificationConfigurations.title',

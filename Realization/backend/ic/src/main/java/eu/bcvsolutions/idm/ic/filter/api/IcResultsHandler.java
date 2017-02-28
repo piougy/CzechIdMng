@@ -21,7 +21,7 @@
  * ====================
  * Portions Copyrighted 2010-2013 ForgeRock AS.
  */
-package eu.bcvsolutions.idm.ic.filter.impl;
+package eu.bcvsolutions.idm.ic.filter.api;
 
 import eu.bcvsolutions.idm.ic.api.IcConnectorObject;
 

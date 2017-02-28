@@ -17,7 +17,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 public enum NotificationGroupPermission implements GroupPermission {
 	
 	NOTIFICATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
-	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	NOTIFICATIONCONFIGURATION(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	NOTIFICATIONTEMPLATE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -27,6 +28,10 @@ public enum NotificationGroupPermission implements GroupPermission {
 	public static final String NOTIFICATIONCONFIGURATION_READ = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "READ";
 	public static final String NOTIFICATIONCONFIGURATION_WRITE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "WRITE";
 	public static final String NOTIFICATIONCONFIGURATION_DELETE = "NOTIFICATIONCONFIGURATION" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String NOTIFICATIONTEMPLATE_READ = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "READ";
+	public static final String NOTIFICATIONTEMPLATE_WRITE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "WRITE";
+	public static final String NOTIFICATIONTEMPLATE_DELETE = "NOTIFICATIONTEMPLATE" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

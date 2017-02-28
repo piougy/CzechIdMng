@@ -93,12 +93,38 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
         <form onSubmit={this.save.bind(this)}>
           <Basic.PanelBody>
             <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.RoleCatalogue.name')}
-                required
-                min={0}
-                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-2">
+                  <Basic.TextField
+                    ref="code"
+                    label={this.i18n('entity.RoleCatalogue.code.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+                <div className="col-lg-10">
+                  <Basic.TextField
+                    ref="name"
+                    label={this.i18n('entity.RoleCatalogue.name.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+              </Basic.Row>
+              <Basic.Row>
+                <div className="col-lg-4">
+                  <Basic.TextField
+                    ref="urlTitle"
+                    label={this.i18n('entity.RoleCatalogue.urlTitle')}/>
+                </div>
+                <div className="col-lg-8">
+                  <Basic.TextField
+                    ref="url"
+                    label={this.i18n('entity.RoleCatalogue.url')}/>
+                </div>
+              </Basic.Row>
               <Basic.SelectBox
                 ref="parent"
                 label={this.i18n('entity.RoleCatalogue.parent.name')}

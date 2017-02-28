@@ -12,7 +12,7 @@ import eu.bcvsolutions.idm.ic.api.IcSyncResultsHandler;
 import eu.bcvsolutions.idm.ic.api.IcSyncToken;
 import eu.bcvsolutions.idm.ic.api.IcUidAttribute;
 import eu.bcvsolutions.idm.ic.filter.api.IcFilter;
-import eu.bcvsolutions.idm.ic.filter.impl.IcResultsHandler;
+import eu.bcvsolutions.idm.ic.filter.api.IcResultsHandler;
 
 public interface IcConnectorService {
 

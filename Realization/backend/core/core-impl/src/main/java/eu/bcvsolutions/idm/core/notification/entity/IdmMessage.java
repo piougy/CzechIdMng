@@ -1,16 +1,27 @@
 package eu.bcvsolutions.idm.core.notification.entity;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
+import org.springframework.data.annotation.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.dto.ResultModel;
@@ -46,16 +57,44 @@ public class IdmMessage {
 
 	@Column(name = "result_model", length = Integer.MAX_VALUE)
 	private ResultModel model;
+	
+	@JsonProperty(access = Access.READ_ONLY)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "notification_template_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmNotificationTemplate template;
+	
+	@JsonIgnore
+	@Transient
+	private transient Map<String, Object> parameters;
 
 	public IdmMessage() {
 	}
-	
+
 	private IdmMessage(Builder builder) {
+		// TODO: unite parameters in model with parameters
+		// if set template use generate from template
+		if (builder.buildWithoutTemplate) {
+			subject = builder.subject;
+			textMessage = builder.textMessage;
+			htmlMessage = builder.htmlMessage;
+			model = builder.model;
+			parameters = builder.parameters;
+			template = builder.template;
+		} else if (builder.template != null) {
+			template = builder.template;
+			subject = builder.template.getSubject();
+			textMessage = builder.template.getBodyText();
+			htmlMessage = builder.template.getBodyHtml();
+			parameters = builder.parameters;
+		} else {
+			subject = builder.subject;
+			textMessage = builder.textMessage;
+			htmlMessage = builder.htmlMessage;
+			model = builder.model;
+		}
 		level = builder.level == null ? DEFAULT_LEVEL : builder.level;
-		subject = builder.subject;
-		textMessage = builder.textMessage;
-		htmlMessage = builder.htmlMessage;
-		model = builder.model;
 	}
 
 	public String getSubject() {
@@ -98,6 +137,22 @@ public class IdmMessage {
 		this.level = level;
 	}
 
+	public IdmNotificationTemplate getTemplate() {
+		return template;
+	}
+
+	public Map<String, Object> getParameters() {
+		return parameters;
+	}
+
+	public void setTemplate(IdmNotificationTemplate template) {
+		this.template = template;
+	}
+
+	public void setParameters(Map<String, Object> parameters) {
+		this.parameters = parameters;
+	}
+
 	@Override
 	public String toString() {
 		if (StringUtils.equals(textMessage, htmlMessage)) {
@@ -119,6 +174,10 @@ public class IdmMessage {
 		private String textMessage;
 		private String htmlMessage;
 		private ResultModel model;
+		private IdmNotificationTemplate template;
+		private Map<String, Object> parameters;
+		// Build IdmMessage without template, use textMessage and etc, but template and parameter will be saved
+		private boolean buildWithoutTemplate = false; 
 		
 		public Builder() {
 		}
@@ -141,12 +200,40 @@ public class IdmMessage {
 			this.textMessage = textMessage;
 			return this;
 		}
+		
+		/**
+		 * Build without use attribute from template, but template and parameters will be saved.
+		 * 
+		 * @return this
+		 */
+		public Builder buildWithoutUseTemplate() {
+			this.buildWithoutTemplate = true;
+			return this;
+		}
 
 		public Builder setHtmlMessage(String htmlMessage) {
 			this.htmlMessage = htmlMessage;
 			return this;
 		}
 		
+		public Builder setParameters(Map<String, Object> parameters) {
+			this.parameters = parameters;
+			return this;
+		}
+		
+		public Builder addParameter(String key, Object value) {
+			if (this.parameters == null) {
+				this.parameters = new HashMap<>();
+			}
+			this.parameters.put(key, value);
+			return this;
+		}
+
+		public Builder setTemplate(IdmNotificationTemplate template) {
+			this.template = template;
+			return this;
+		}
+
 		/**
 		 * Sets all messages (text, html ...)
 		 * @param message

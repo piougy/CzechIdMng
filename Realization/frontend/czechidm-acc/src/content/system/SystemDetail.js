@@ -149,6 +149,9 @@ class SystemDetail extends Basic.AbstractContent {
         // reload options with remote connectors
         this.context.router.replace(`systems`);
       } else {
+        this._initForm(entity);
+        // set again confidential to password
+        this.refs.form.getComponent('password').openConfidential(false);
         this.context.router.replace(`system/${entity.id}/detail`);
       }
     });
@@ -161,11 +164,11 @@ class SystemDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('edit.title')} />
 
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('basic')} />
 
-            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }}>
+            <Basic.PanelBody style={Utils.Entity.isNew(entity) ? { paddingTop: 0, paddingBottom: 0 } : { padding: 0 }} showLoading={_showLoading} >
               <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!Managers.SecurityManager.hasAuthority('SYSTEM_WRITE')} >
                 <Basic.TextField
                   ref="name"
@@ -194,6 +197,7 @@ class SystemDetail extends Basic.AbstractContent {
                   hidden={!showConfigurationRemoteServer}/>
                 <Basic.TextField
                   ref="password"
+                  type="password"
                   confidential
                   label={this.i18n('acc:entity.ConnectorServer.password')}
                   hidden={!showConfigurationRemoteServer}/>
@@ -202,9 +206,6 @@ class SystemDetail extends Basic.AbstractContent {
                   label={this.i18n('acc:entity.ConnectorServer.timeout')}
                   hidden={!showConfigurationRemoteServer}/>
                 {/* end for connector server definition */}
-                <Basic.Checkbox
-                  ref="disabled"
-                  label={this.i18n('acc:entity.System.disabled')}/>
                 <Basic.SelectBox
                   ref="passwordPolicyValidate"
                   label={this.i18n('acc:entity.System.passwordPolicyValidate')}
@@ -231,6 +232,9 @@ class SystemDetail extends Basic.AbstractContent {
                   ref="readonly"
                   label={this.i18n('acc:entity.System.readonly.label')}
                   helpBlock={this.i18n('acc:entity.System.readonly.help')}/>
+                <Basic.Checkbox
+                  ref="disabled"
+                  label={this.i18n('acc:entity.System.disabled')}/>
                 <Basic.Checkbox
                   ref="queue"
                   label={this.i18n('acc:entity.System.queue.label')}

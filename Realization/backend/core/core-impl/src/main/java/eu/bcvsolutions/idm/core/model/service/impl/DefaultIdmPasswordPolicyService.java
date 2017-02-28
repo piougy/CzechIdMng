@@ -114,23 +114,23 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 	}
 	
 	@Override
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto) {
-		return this.validate(passwordValidationDto, this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE));
+	public void validate(IdmPasswordValidationDto passwordValidationDto) {
+		this.validate(passwordValidationDto, this.getDefaultPasswordPolicy(IdmPasswordPolicyType.VALIDATE));
 	}
 	
 	@Override
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy) {
+	public void validate(IdmPasswordValidationDto passwordValidationDto, IdmPasswordPolicy passwordPolicy) {
 		List<IdmPasswordPolicy> passwordPolicyList = new ArrayList<IdmPasswordPolicy>();
 		
 		if (passwordPolicy != null) {
 			passwordPolicyList.add(passwordPolicy);
 		}
 		
-		return this.validate(passwordValidationDto, passwordPolicyList);
+		this.validate(passwordValidationDto, passwordPolicyList);
 	}
 
 	@Override
-	public boolean validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList) {
+	public void validate(IdmPasswordValidationDto passwordValidationDto, List<IdmPasswordPolicy> passwordPolicyList) {
 		Assert.notNull(passwordPolicyList);
 		Assert.notNull(passwordValidationDto);
 		
@@ -145,7 +145,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		// if list with password policies is empty, validate is always true
 		if (passwordPolicyList.isEmpty()) {
 			// this state means that system idm hasn't default password policy
-			return true;
+			return;
 		}
 		
 		IdmPassword oldPassword = passwordValidationDto.getOldPassword();
@@ -259,19 +259,19 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 				IdmIdentity identity = passwordValidationDto.getIdentity();
 				for (int index = 0; index < attributes.length; index++) {
 					if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.EMAIL.name())) {
-						if (identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getEmail()!= null && identity.getEmail().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_EMAIL, identity.getEmail());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.FIRSTNAME.name())) {
-						if (identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getFirstName() != null && identity.getFirstName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_FIRSTNAME, identity.getFirstName());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.LASTNAME.name())) {
-						if (identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getLastName() != null && identity.getLastName().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_LASTNAME, identity.getLastName());
 						}
 					} else if (attributes[index].equals(IdmPasswordPolicyIdentityAttributes.USERNAME.name())) {
-						if (identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
+						if (identity.getUsername() != null && identity.getUsername().toLowerCase().matches("(?i).*" + password.toLowerCase() + ".*")) {
 							errors.put(PASSWORD_SIMILAR_USERNAME, identity.getUsername());
 						}
 					}
@@ -295,8 +295,6 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 			// TODO: password policy audit
 			throw new ResultCodeException(CoreResultCode.PASSWORD_DOES_NOT_MEET_POLICY, errors);
 		}
-		
-		return true;
 	}
 
 	@Override

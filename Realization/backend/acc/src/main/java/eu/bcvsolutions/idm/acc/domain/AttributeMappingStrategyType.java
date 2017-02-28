@@ -11,6 +11,6 @@ public enum AttributeMappingStrategyType {
 	MERGE,
 	AUTHORITATIVE_MERGE,
 	CREATE,
-	IF_NULL
+	WRITE_IF_NULL
 
 }

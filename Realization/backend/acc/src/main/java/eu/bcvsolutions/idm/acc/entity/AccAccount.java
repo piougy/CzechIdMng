@@ -43,6 +43,7 @@ public class AccAccount extends AbstractEntity {
 	
 	private static final long serialVersionUID = -565558977675057360L;
 
+	@Audited
 	@NotEmpty
 	@Size(min = 1, max = DefaultFieldLengths.UID)
 	@Column(name = "uid", length = DefaultFieldLengths.UID, nullable = false)

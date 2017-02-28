@@ -75,7 +75,9 @@ public class ReadonlySystemProcessor extends AbstractEntityEventProcessor<SysPro
 			LOG.info(resultModel.toString());
 			notificationManager.send(
 					AccModuleDescriptor.TOPIC_PROVISIONING,
-					new IdmMessage.Builder().setModel(resultModel).build());
+					new IdmMessage.Builder()
+					.setModel(resultModel)
+					.build());
 			//
 			closed = true;
 		} 

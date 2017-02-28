@@ -206,6 +206,12 @@
         "checkSystem": {
           "success": "Test konektoru proběhl v pořádku.",
           "error": "Test konektoru neproběhl v pořádku!"
+        },
+        "action": {
+          "changeConnector": {
+            "message": "<b>Immediate exectute save system with new connector.</b> Original connector will no longer be active and may cause malfunction of the system.<br/><br/><b>Do you really want to change the connector?</b>",
+            "header": "Connector change"
+          }
         }
       },
       "objectClassDetail": {
@@ -448,8 +454,8 @@
         "bundleVersion": "Verze konektoru"
       },
       "remoteConnector": {
-        "label": "Remote connector server",
-        "help": "After check, will be loaded connectors from remote connector server"
+        "label": "Use a remote connector server",
+        "help": "After check, will not be used local connectors and show form with info about remote connector server."
       },
       "connectorHost": "Server with connectors"
     },
@@ -511,6 +517,7 @@
         "label": "IdM klíč",
         "help": "Název atributu u entity, název rozšířeného attributu či klíč do šifrovaného úložiště."
       },
+      "idmPropertyEnum": "Entity fields",
       "schemaAttribute": "Atribut ve schéma",
       "systemMapping": "Název mapování",
       "extendedAttribute": "Rozšířený atribut",
@@ -530,6 +537,14 @@
       "uid": {
         "label": "Je identifikátorem",
         "tooltip": "Určuje, zdali je atribut primárním idetifikátorem objektu."
+      },
+      "sendOnlyIfNotNull": {
+        "label": "Send IdM value only if is not null",
+        "tooltip": "Value for this attribute (computed by IdM), will be sent on target system only if value is not null."
+      },
+      "sendAlways": {
+        "label": "Send always",
+        "tooltip": "Value for this attribute will be send on target system always (even if not changed)."
       },
       "disabledAttribute": {
         "label": "Je deaktivován",
@@ -780,16 +795,27 @@
       "WARNING": "Varování"
     },
     "AttributeMappingStrategyTypeEnum": {
-      "SET": "Set",
+      "SET": "Set value computed by IdM",
       "MERGE": "Merge",
       "AUTHORITATIVE_MERGE": "Authoritative merge",
-      "CREATE": "Only on create",
-      "IF_NULL": "Only if value is null"
+      "CREATE": "Write only on create",
+      "WRITE_IF_NULL": "Write only if value (on resource) is null"
     },
     "ProvisioningOperationTypeEnum": {
       "CREATE": "Vytvoření",
       "UPDATE": "Úprava",
       "DELETE": "Smazání"
+    },
+    "IdentityAttributeEnum": {
+      "USERNAME": "User name (String)",
+      "DISABLED": "Disabled (boolean)",
+      "FIRSTNAME": "First name (String)",
+      "LASTNAME": "Last name (String)",
+      "TITLE_BEFORE": "Title before (String)",
+      "TITLE_AFTER": "Title after (String)",
+      "DESCRIPTION": "Description (String)",
+      "PHONE": "Phone (String)",
+      "EMAIL": "Email (String)"
     }
   },
   "permission": {
@@ -883,9 +909,21 @@
       "title": "Provisioning - UID atribut nebyl nalezen",
       "message": "Konektor vrátil více různých UIDů (pro různé object classes)!"
     },
+    "PROVISIONING_MERGE_ATTRIBUTE_IS_NOT_MULTIVALUE": {
+      "title": "Provisioning - MERGE is not multivalued",
+      "message": "Object [{{object}}]. For MERGE strategy must be attribute [{{attribute}}] multivalued!"
+    },
+    "PROVISIONING_ATTRIBUTE_STRATEGY_CONFLICT": {
+      "title": "Provisioning - Attribute strategy conflict",
+      "message": "Strategies [{{strategyParent}}] and [{{strategyConflict}}] are confilcted for attribute [{{attribute}}]!"
+    },
     "SYNCHRONIZATION_IS_NOT_ENABLED": {
       "title": "Synchronizace není povolená",
       "message": "Synchronizace [{{name}}] není povolená!"
+    },
+    "SYNCHRONIZATION_SYSTEM_IS_NOT_ENABLED": {
+      "title": "System is disabled",
+      "message": "Synchronization [{{name}}] cannot be started, becouse system [{{system}}] is disabled!"
     },
     "CONFIDENTIAL_VALUE_IS_NOT_GUARDED_STRING": {
       "title": "Tajný atributu není GuardedString",

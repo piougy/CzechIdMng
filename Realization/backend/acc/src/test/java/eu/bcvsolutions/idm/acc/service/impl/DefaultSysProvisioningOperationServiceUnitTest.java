@@ -14,7 +14,9 @@ import org.mockito.Mock;
 
 import com.google.common.collect.Lists;
 
+import eu.bcvsolutions.idm.acc.domain.AttributeMappingStrategyType;
 import eu.bcvsolutions.idm.acc.domain.ProvisioningContext;
+import eu.bcvsolutions.idm.acc.dto.ProvisioningAttributeDto;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningOperationRepository;
 import eu.bcvsolutions.idm.acc.repository.SysProvisioningRequestRepository;
 import eu.bcvsolutions.idm.acc.service.api.SysProvisioningArchiveService;
@@ -69,7 +71,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceGuardedStringsInEmptyAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<String, Object> accoutObjet = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accoutObjet = new HashMap<>();
 		context.setAccountObject(accoutObjet);		
 		Map<String, Serializable> confidentialValues = service.replaceGuardedStrings(context);		
 		assertEquals(0, confidentialValues.size());
@@ -78,14 +80,14 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceSingleGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<String, Object> accoutObject = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		String normal = "normal";
+		ProvisioningAttributeDto normal = new ProvisioningAttributeDto("normal", AttributeMappingStrategyType.SET);
 		String normalValue = "one";
 		accoutObject.put(normal, normalValue);
-		String guarded = "guarded";
+		ProvisioningAttributeDto guarded = new ProvisioningAttributeDto("guarded", AttributeMappingStrategyType.SET);
 		GuardedString guardedValue = new GuardedString("one");
 		accoutObject.put(guarded, guardedValue);
 		//
@@ -94,7 +96,7 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 		//
 		// check
 		assertEquals(1, confidentiaValues.size());
-		assertEquals(guardedValue.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded, 0)));
+		assertEquals(guardedValue.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 0)));
 		assertEquals(normalValue, accoutObject.get(normal));
 		assertNotEquals(guardedValue, accoutObject.get(guardedValue));
 	}
@@ -127,11 +129,11 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 	@Test
 	public void testReplaceArrayGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<String, Object> accoutObject = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		String guarded = "guarded";
+		ProvisioningAttributeDto guarded = new ProvisioningAttributeDto("guarded", AttributeMappingStrategyType.SET);
 		GuardedString guardedOne = new GuardedString("one");
 		GuardedString guardedTwo = new GuardedString("two");
 		accoutObject.put(guarded, new GuardedString[]{ guardedOne, guardedTwo });
@@ -141,21 +143,21 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 		//
 		// check
 		assertEquals(2, confidentiaValues.size());
-		assertEquals(guardedOne.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded, 0)));
-		assertEquals(guardedTwo.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded, 1)));
+		assertEquals(guardedOne.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 0)));
+		assertEquals(guardedTwo.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 1)));
 		assertEquals(2, ((Object[])accoutObject.get(guarded)).length);
-		assertEquals(service.createAccountObjectPropertyKey(guarded, 0), ((ConfidentialString)((Object[])accoutObject.get(guarded))[0]).getKey());
-		assertEquals(service.createAccountObjectPropertyKey(guarded, 1), ((ConfidentialString)((Object[])accoutObject.get(guarded))[1]).getKey());
+		assertEquals(service.createAccountObjectPropertyKey(guarded.getKey(), 0), ((ConfidentialString)((Object[])accoutObject.get(guarded))[0]).getKey());
+		assertEquals(service.createAccountObjectPropertyKey(guarded.getKey(), 1), ((ConfidentialString)((Object[])accoutObject.get(guarded))[1]).getKey());
 	}
 	
 	@Test
 	public void testReplaceCollectionGuardedStringsInAccountObject() {
 		ProvisioningContext context = new ProvisioningContext();
-		Map<String, Object> accoutObject = new HashMap<>();
+		Map<ProvisioningAttributeDto, Object> accoutObject = new HashMap<>();
 		context.setAccountObject(accoutObject);	
 		//
 		// fill properties
-		String guarded = "guarded";
+		ProvisioningAttributeDto guarded = new ProvisioningAttributeDto("guarded", AttributeMappingStrategyType.SET);
 		GuardedString guardedOne = new GuardedString("one");
 		GuardedString guardedTwo = new GuardedString("two");
 		accoutObject.put(guarded, Lists.newArrayList(guardedOne, guardedTwo));
@@ -165,10 +167,10 @@ public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnit
 		//
 		// check
 		assertEquals(2, confidentiaValues.size());
-		assertEquals(guardedOne.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded, 0)));
-		assertEquals(guardedTwo.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded, 1)));
+		assertEquals(guardedOne.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 0)));
+		assertEquals(guardedTwo.asString(), confidentiaValues.get(service.createAccountObjectPropertyKey(guarded.getKey(), 1)));
 		assertEquals(2, ((List<?>)accoutObject.get(guarded)).size());
-		assertEquals(service.createAccountObjectPropertyKey(guarded, 0), ((ConfidentialString)((List<?>)accoutObject.get(guarded)).get(0)).getKey());
-		assertEquals(service.createAccountObjectPropertyKey(guarded, 1), ((ConfidentialString)((List<?>)accoutObject.get(guarded)).get(1)).getKey());
+		assertEquals(service.createAccountObjectPropertyKey(guarded.getKey(), 0), ((ConfidentialString)((List<?>)accoutObject.get(guarded)).get(0)).getKey());
+		assertEquals(service.createAccountObjectPropertyKey(guarded.getKey(), 1), ((ConfidentialString)((List<?>)accoutObject.get(guarded)).get(1)).getKey());
 	}
 }

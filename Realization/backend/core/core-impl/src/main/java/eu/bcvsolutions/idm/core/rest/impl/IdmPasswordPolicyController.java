@@ -105,10 +105,11 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	@RequestMapping(value = "/{entityId}/validate", method = RequestMethod.POST)
 	public ResourceWrapper<IdmPasswordValidationDto> validate(@Valid @RequestBody(required = true) IdmPasswordValidationDto password, @PathVariable String entityId) {
 		IdmPasswordPolicy passwordPolicy = getPasswordPolicy(entityId);
-		
-		if (this.passwordPolicyService.validate(password, passwordPolicy)) {
-			password.setValid(true);
-		}
+		//
+		this.passwordPolicyService.validate(password, passwordPolicy);
+		//
+		password.setValid(true);
+		//
 		return new ResourceWrapper<IdmPasswordValidationDto>(password);
 	}
 	
@@ -119,9 +120,10 @@ public class IdmPasswordPolicyController extends DefaultReadWriteEntityControlle
 	 */
 	@RequestMapping(value = "/validate/default", method = RequestMethod.POST)
 	public ResourceWrapper<IdmPasswordValidationDto> validateByDefault(@Valid @RequestBody(required = true) IdmPasswordValidationDto password) {
-		if (this.passwordPolicyService.validate(password)) {
-			password.setValid(true);
-		}
+		this.passwordPolicyService.validate(password);
+		//
+		password.setValid(true);
+		//
 		return new ResourceWrapper<IdmPasswordValidationDto>(password);
 	}
 	

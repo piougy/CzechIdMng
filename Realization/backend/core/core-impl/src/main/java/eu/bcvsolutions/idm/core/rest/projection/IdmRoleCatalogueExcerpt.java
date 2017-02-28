@@ -15,6 +15,8 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 @Projection(name = "excerpt", types = IdmRoleCatalogue.class)
 public interface IdmRoleCatalogueExcerpt extends AbstractDtoProjection {
 	
+	String getCode();
+	
 	String getName();
 	
 	IdmRoleCatalogue getParent();
@@ -22,4 +24,8 @@ public interface IdmRoleCatalogueExcerpt extends AbstractDtoProjection {
 	String getDescription();
 	
 	int getChildrenCount();
+
+	String getUrl();
+	
+	String getUrlTitle();
 }

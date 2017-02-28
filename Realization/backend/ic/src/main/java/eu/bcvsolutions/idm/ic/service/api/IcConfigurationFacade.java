@@ -22,6 +22,14 @@ public interface IcConfigurationFacade {
 	Map<String, List<IcConnectorInfo>> getAvailableLocalConnectors();
 
 	/**
+	 * Return list of available remote connectors for IcConnectorServer
+	 * 
+	 * @param server
+	 * @return
+	 */
+	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance);
+
+	/**
 	 * Return all registered IC configuration service implementations
 	 * @return
 	 */
@@ -44,13 +52,6 @@ public interface IcConfigurationFacade {
 	 */
 	IcSchema getSchema(IcConnectorInstance connectorInstance, IcConnectorConfiguration connectorConfiguration);
 	
-	/**
-	 * Return list of available remote connectors for IcConnectorServer
-	 * 
-	 * @param server
-	 * @return
-	 */
-	List<IcConnectorInfo> getAvailableRemoteConnectors(IcConnectorInstance connectorInstance);
 
 	
 	/**

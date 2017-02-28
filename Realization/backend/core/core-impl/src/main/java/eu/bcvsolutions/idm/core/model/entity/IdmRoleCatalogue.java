@@ -44,6 +44,7 @@ public class IdmRoleCatalogue extends AbstractEntity implements IdentifiableByNa
 	private String name;
 	
 	@Audited
+	@JsonProperty("parent") // required - BaseTreeEntity vs ForestContent setter are in conflict
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4

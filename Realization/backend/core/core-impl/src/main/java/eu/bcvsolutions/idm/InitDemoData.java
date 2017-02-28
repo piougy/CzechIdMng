@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -104,7 +105,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 			IdmRole superAdminRole = this.roleService.getByName(InitApplicationData.ADMIN_ROLE);
 			IdmIdentity identityAdmin = this.identityService.getByName(InitApplicationData.ADMIN_USERNAME);
 			//
-			Page<IdmTreeNode> rootsList = treeNodeService.findRoots(null, new PageRequest(0, 1));
+			Page<IdmTreeNode> rootsList = treeNodeService.findRoots((UUID) null, new PageRequest(0, 1));
 			IdmTreeNode rootOrganization = null;
 			if (!rootsList.getContent().isEmpty()) {
 				rootOrganization = rootsList.getContent().get(0);

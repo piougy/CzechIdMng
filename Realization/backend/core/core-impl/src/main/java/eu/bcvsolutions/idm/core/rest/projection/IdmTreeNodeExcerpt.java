@@ -26,7 +26,7 @@ public interface IdmTreeNodeExcerpt extends AbstractDtoProjection {
 	
 	IdmTreeType getTreeType();
 	
-	int getChildrenCount();
+	Integer getChildrenCount();
 	
 	@Value("#{target.equals(target.treeType.defaultTreeNode)}")
 	boolean isDefaultTreeNode();

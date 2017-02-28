@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.Description;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import eu.bcvsolutions.forest.index.repository.BaseForestContentRepository;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
@@ -29,7 +30,7 @@ import eu.bcvsolutions.idm.core.rest.projection.IdmTreeNodeExcerpt;
 	excerptProjection = IdmTreeNodeExcerpt.class,
 	exported = false
 )
-public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter> {
+public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeNode, TreeNodeFilter>, BaseForestContentRepository<IdmTreeNode, UUID> {
 	
 	@Override
 	@Query(value = "select e from IdmTreeNode e"
@@ -59,4 +60,15 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 			+ " and"
 			+ " (:treeTypeId is null or e.treeType.id = :treeTypeId)")
 	Page<IdmTreeNode> findChildren(@Param(value = "treeTypeId") UUID treeTypeId, @Param(value = "parentId") UUID parentId, Pageable pageable);
+	
+	
+	/**
+	 * Finds roots 
+	 * 
+	 * @param treeTypeCode
+	 * @param pageable
+	 * @return
+	 */
+	@Query("select e from #{#entityName} e where e.parent is null and e.treeType.id = :treeTypeId")
+	Page<IdmTreeNode> findRoots(@Param("treeTypeId") UUID treeTypeId, Pageable pageable);
 }

@@ -14,6 +14,8 @@ import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -72,10 +74,21 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	
 	@Override
 	@Transactional
-	public void saveValue(String key, String value) {
+	public void setValue(String key, String value) {
 		Assert.hasText(key);
 		//
 		saveConfiguration(new ConfigurationDto(key, value));
+	}
+	
+	@Override
+	@Transactional
+	public String deleteValue(String key) {
+		IdmConfiguration entity = repository.get(key);
+		if (entity == null) {
+			return null;
+		}
+		delete(entity);
+		return entity.getValue();
 	}
 	
 	@Override
@@ -197,7 +210,7 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 	@Override
 	@Transactional
 	public void setBooleanValue(String key, boolean value) {
-		saveValue(key, Boolean.valueOf(value).toString());
+		setValue(key, Boolean.valueOf(value).toString());
 	}
 	
 	@Override
@@ -236,6 +249,12 @@ public class DefaultConfigurationService extends AbstractReadWriteEntityService<
 			LOG.warn("Property [{}] for key [{}] is not integer, returning default value [{}]", value, key, defaultValue, ex);
 			return defaultValue; 
 		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Page<IdmConfiguration> findByPrefix(String keyPrefix, Pageable pageable) {
+		return repository.findByNameStartingWith(keyPrefix, pageable);
 	}
 
 	/**

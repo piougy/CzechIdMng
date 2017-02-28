@@ -23,7 +23,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
     this.state = {
       filterOpened: props.filterOpened,
       text: null,
-      treeNodeId: props.treeNodeId
+      treeNodeId: props.treeNodeId,
+      recursively: 'true'
     };
     this.dataManager = new DataManager();
     this.treeNodeManager = new TreeNodeManager();
@@ -69,6 +70,15 @@ export class IdentityTable extends Basic.AbstractTableContent {
       event.preventDefault();
     }
     this.setTreeNodeId(entity ? entity.id : null);
+  }
+
+  _changeRecursively(recursively, event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.setState({
+      recursively
+    });
   }
 
   /**
@@ -134,7 +144,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
       rendered,
       treeType
     } = this.props;
-    const { filterOpened, treeNodeId, text } = this.state;
+    const { filterOpened, treeNodeId, text, recursively } = this.state;
     if (!rendered) {
       return null;
     }
@@ -162,7 +172,7 @@ export class IdentityTable extends Basic.AbstractTableContent {
           rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm data={{ text, treeNodeId }} ref="filterForm">
+              <Basic.AbstractForm data={{ text, treeNodeId, recursively }} ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
@@ -185,6 +195,10 @@ export class IdentityTable extends Basic.AbstractTableContent {
                       onChange={this._changeTreeNode.bind(this)}/>
                   </div>
                   <div className="col-lg-6">
+                    <Advanced.Filter.BooleanSelectBox
+                      ref="recursively"
+                      placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }
+                      onChange={ this._changeRecursively.bind(this) }/>
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>

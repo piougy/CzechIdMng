@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,8 +38,10 @@ import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 
 /**
  * 
@@ -48,20 +53,28 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-nodes")
 public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmTreeNode, TreeNodeFilter> {
 	
+	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(IdmTreeNodeController.class);
 	private final IdmTreeNodeService treeNodeService;
+	private final IdmTreeTypeService treeTypeService;
 	private final IdmAuditService auditService; 
+	//
+	private Random r = new Random();
+	private List<IdmTreeNode> children = new ArrayList<>();
 	
 	@Autowired
 	public IdmTreeNodeController(
 			EntityLookupService entityLookupService, 
 			IdmTreeNodeService treeNodeService,
+			IdmTreeTypeService treeTypeService,
 			IdmAuditService auditService) {
 		super(entityLookupService, treeNodeService);
 		//
 		Assert.notNull(treeNodeService);
+		Assert.notNull(treeTypeService);
 		Assert.notNull(auditService);
 		//
 		this.treeNodeService = treeNodeService;
+		this.treeTypeService = treeTypeService;
 		this.auditService = auditService;
 	}
 	
@@ -147,4 +160,59 @@ public class IdmTreeNodeController extends DefaultReadWriteEntityController<IdmT
 		Page<IdmTreeNode> children = this.treeNodeService.findChildrenByParent(UUID.fromString(parent), pageable);
 		return toResources(children, assembler, IdmTreeNode.class, null);
 	}
+	
+	/**
+	 * Test tree generate
+	 * 
+	 * @param count
+	 * @return
+	 */
+	@Deprecated
+	@ResponseBody
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
+	@RequestMapping(value = "/test/create-test-tree/{count}", method = RequestMethod.POST)
+	public ResponseEntity<?> createTestTree(@PathVariable("count") Integer count) {	
+		LOG.info("Generating new tree with [{}] nodes", count);
+		//
+		children.clear();
+		String treeTypeCode = "t-" + System.currentTimeMillis();
+		IdmTreeType treeType = new IdmTreeType();
+		treeType.setCode(treeTypeCode);
+		treeType.setName(treeTypeCode);
+		treeType = treeTypeService.save(treeType);
+		//
+		long startTime = System.currentTimeMillis();		
+		int counter = generateChildren(count, 0, treeType, null);
+		LOG.info("[{}] nodes generated: {}ms", counter, (System.currentTimeMillis() - startTime));
+		//
+		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
+	}
+	
+	private int generateChildren(int total, int counter, IdmTreeType treeType, IdmTreeNode parent) {
+		int childrenCount = r.nextInt(250) + 1;
+		for(int i = 0; i < childrenCount; i++) {
+			IdmTreeNode node = new IdmTreeNode();
+			node.setTreeType(treeType);
+			node.setParent(parent);
+			node.setName((parent == null ? "" : parent.getName() + "-") + i);
+			node.setCode("n-" + i + "-" + System.currentTimeMillis());
+			node = treeNodeService.save(node);
+			if(children.size() < 25) {
+				children.add(node);
+			}
+			if ((i + counter + 1) >= total) {
+				return i + counter + 1;
+			}
+			if((i + counter + 1) % 1000 == 0) {
+				LOG.info("[{}] nodes generated ...", (i + counter + 1));
+			}
+		}
+		IdmTreeNode firstChild = children.remove(0);
+		counter = generateChildren(total, counter + childrenCount, treeType, firstChild);
+		if (counter >= total) {
+			return counter;
+		}
+		return counter;		
+	}
+	
 }

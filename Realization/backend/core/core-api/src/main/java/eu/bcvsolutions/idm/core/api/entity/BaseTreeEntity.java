@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Default interface class for entity with tree structure
  * 
@@ -21,6 +23,7 @@ public interface BaseTreeEntity<E>  {
 	 * 
 	 * @param parent
 	 */
+	@JsonIgnore
 	public void setParent(E parent);
 	
 }

@@ -1,5 +1,8 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.List;
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
@@ -10,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,13 +21,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
+import eu.bcvsolutions.idm.core.api.dto.ConfigurationDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
+import eu.bcvsolutions.idm.core.scheduler.rest.impl.IdmLongRunningTaskController;
 
 /**
  * Tree type structures
@@ -36,6 +42,9 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 @RepositoryRestController
 @RequestMapping(value = BaseEntityController.BASE_PATH + BaseEntityController.TREE_BASE_PATH + "-types")
 public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmTreeType, QuickFilter> {
+	
+	@Autowired
+	private IdmLongRunningTaskController longRunningTaskController;
 	
 	@Autowired
 	public IdmTreeTypeController(EntityLookupService entityLookupService) {
@@ -89,11 +98,41 @@ public class IdmTreeTypeController extends DefaultReadWriteEntityController<IdmT
 		return new ResponseEntity<>(toResource(defaultTreeType, assembler), HttpStatus.OK);
 	}
 	
+	/**
+	 * Returns all configuration properties for given tree type.
+	 * 
+	 * @param backendId
+	 * @return list of granted authorities
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/configurations", method = RequestMethod.GET)
+	public List<ConfigurationDto> getConfigurations(@PathVariable String backendId) {
+		IdmTreeType treeType = getEntity(backendId);
+		if (treeType == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		return entityLookupService.getEntityService(IdmTreeType.class, IdmTreeTypeService.class).getConfigurations(treeType);
+	}
 	
-	@Override
-	protected QuickFilter toFilter(MultiValueMap<String, Object> parameters) {
-		QuickFilter filter = new QuickFilter();
-		filter.setText((String)parameters.toSingleValueMap().get("text"));
-		return filter;
+	/**
+	 * Rebuild (drop and create) all indexes for given treeType.
+	 * 
+	 * @param backendId tree type id
+	 * @param assembler
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{backendId}/index/rebuild", method = RequestMethod.PUT)
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.SCHEDULER_WRITE + "')")
+	public ResponseEntity<?> rebuildIndex(@PathVariable String backendId, PersistentEntityResourceAssembler assembler) {
+		IdmTreeType treeType = getEntity(backendId);
+		if (treeType == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
+		}
+		//
+		UUID longRunningTaskId = entityLookupService.getEntityService(IdmTreeNode.class, IdmTreeNodeService.class).rebuildIndexes(treeType);
+		//
+		return longRunningTaskController.get(longRunningTaskId.toString(), assembler);
 	}
 }

@@ -132,7 +132,7 @@ module.exports = {
       },
       {
         'id': 'organizations',
-        'labelKey': 'content.organizations.header',
+        'labelKey': 'content.organizations.label',
         'titleKey': 'content.organizations.title',
         'icon': 'tree-deciduous',
         'order': 1020,

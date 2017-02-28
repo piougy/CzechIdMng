@@ -40,8 +40,12 @@ public class AccModuleDescriptor extends AbstractModuleDescriptor {
 	
 	public List<NotificationConfigurationDto> getDefaultNotificationConfigurations() {
 		List<NotificationConfigurationDto> configs = new ArrayList<>();
-		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING, null, IdmWebsocketLog.NOTIFICATION_TYPE));
-		configs.add(new NotificationConfigurationDto(TOPIC_NEW_PASSWORD, null, IdmEmailLog.NOTIFICATION_TYPE));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_PROVISIONING,
+				null, IdmWebsocketLog.NOTIFICATION_TYPE, "Notification with new provisioning", "provisioningSuccess"));
+		//
+		configs.add(new NotificationConfigurationDto(TOPIC_NEW_PASSWORD, null, IdmEmailLog.NOTIFICATION_TYPE,
+				"This message contains new password and information about new account.", "newPassword"));
 		return configs;
 	}
 }

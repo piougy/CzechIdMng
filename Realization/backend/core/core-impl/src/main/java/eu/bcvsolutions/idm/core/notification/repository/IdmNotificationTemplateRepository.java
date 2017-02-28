@@ -31,9 +31,11 @@ public interface IdmNotificationTemplateRepository extends AbstractEntityReposit
 	        	+ "?#{[0].text} is null "
 	        	+ "or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
 	        	+ "or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')} "
-        	+ ") ")
+        	+ ") "
+        	+ "AND "
+        		+ " ?#{[0].systemTemplate} is null or e.systemTemplate = ?#{[0].systemTemplate} ")
 	Page<IdmNotificationTemplate> find(NotificationTemplateFilter filter, Pageable pageable);
-	
+
 	/**
 	 * Find one {@link IdmNotificationTemplate} by name given in parameter
 	 * 

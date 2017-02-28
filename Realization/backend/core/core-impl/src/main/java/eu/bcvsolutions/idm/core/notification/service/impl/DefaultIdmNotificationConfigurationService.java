@@ -20,8 +20,10 @@ import eu.bcvsolutions.idm.core.api.service.ModuleService;
 import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
 import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 
 /**
@@ -38,20 +40,24 @@ public class DefaultIdmNotificationConfigurationService
 	private final IdmNotificationConfigurationRepository repository;
 	private final PluginRegistry<NotificationSender<?>, String> notificationSenders;
 	private final ModuleService moduleService;
+	private final IdmNotificationTemplateService notificationTemplateService;
 	
 	@Autowired
 	public DefaultIdmNotificationConfigurationService(
 			IdmNotificationConfigurationRepository repository,
 			List<? extends NotificationSender<?>> notificationSenders,
-			ModuleService moduleService) {
+			ModuleService moduleService,
+			IdmNotificationTemplateService notificationTemplateService) {
 		super(repository);		
 		//
 		Assert.notEmpty(notificationSenders);
 		Assert.notNull(moduleService);
+		Assert.notNull(notificationTemplateService);
 		//
 		this.repository = repository;
 		this.notificationSenders = OrderAwarePluginRegistry.create(notificationSenders);
 		this.moduleService = moduleService;
+		this.notificationTemplateService = notificationTemplateService;
 	}
 	
 	/**
@@ -67,7 +73,10 @@ public class DefaultIdmNotificationConfigurationService
 				Long count = repository.countByTopic(topic);
 				if (topicToCreate.contains(topic) || count == 0) {
 					topicToCreate.add(topic);
-					repository.save(new IdmNotificationConfiguration(config));
+					IdmNotificationTemplate template = notificationTemplateService.getTemplateByCode(config.getNotificationTemplateCode());
+					IdmNotificationConfiguration notConfiguration = new IdmNotificationConfiguration(config);
+					notConfiguration.setTemplate(template);
+					repository.save(notConfiguration);
 				}
 			});
 		});

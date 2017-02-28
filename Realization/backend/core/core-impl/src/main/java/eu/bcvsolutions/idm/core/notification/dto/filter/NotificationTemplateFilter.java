@@ -11,5 +11,15 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  */
 
 public class NotificationTemplateFilter extends QuickFilter {
+	
+	private Boolean systemTemplate;
 
+	public Boolean getSystemTemplate() {
+		return systemTemplate;
+	}
+
+	public void setSystemTemplate(Boolean systemTemplate) {
+		this.systemTemplate = systemTemplate;
+	}
+	
 }

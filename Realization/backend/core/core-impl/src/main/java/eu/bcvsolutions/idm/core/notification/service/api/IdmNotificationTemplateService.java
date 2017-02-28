@@ -1,5 +1,7 @@
 package eu.bcvsolutions.idm.core.notification.service.api;
 
+import java.util.List;
+
 import eu.bcvsolutions.idm.core.api.service.IdentifiableByNameEntityService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.notification.dto.filter.NotificationTemplateFilter;
@@ -16,6 +18,8 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  */
 
 public interface IdmNotificationTemplateService extends ReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter>, IdentifiableByNameEntityService<IdmNotificationTemplate> {
+	
+	public static String PARAMETER_DELIMITIER = ",";
 	
 	/**
 	 * Return {@link IdmNotificationTemplate} by given code.
@@ -45,4 +49,18 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @return
 	 */
 	IdmMessage getMessage(IdmMessage message);
+	
+	/**
+	 * Method find all system templates.
+	 * 
+	 * @return
+	 */
+	List<IdmNotificationTemplate> findAllSystemTemplates();
+	
+	/**
+	 * Method load system templates from resources by all classpath defined by application property,
+	 * save all new templates into database, all found templates will be saved as systems.
+	 * 
+	 */
+	void initSystemTemplates();
 }

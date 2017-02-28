@@ -5,11 +5,12 @@ import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
 import * as Utils from '../../../utils';
-import { NotificationConfigurationManager, SecurityManager, DataManager } from '../../../redux';
+import { NotificationConfigurationManager, SecurityManager, DataManager, NotificationTemplateManager } from '../../../redux';
 import NotificationLevelEnum from '../../../enums/NotificationLevelEnum';
 
 const uiKey = 'notification-configurations-table';
 const manager = new NotificationConfigurationManager();
+const notificationTemplateManager = new NotificationTemplateManager();
 
 /**
  * List of notifications
@@ -111,6 +112,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                 }
               }/>
             <Advanced.Column property="topic" width="30%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
+            <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort />
             <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
             <Advanced.Column property="notificationType" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
           </Advanced.Table>
@@ -133,6 +135,14 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}
                   required/>
+                <Basic.TextField
+                  ref="parameter"
+                  label={this.i18n('entity.NotificationConfiguration.parameter.name')}
+                  helpBlock={this.i18n('entity.NotificationConfiguration.parameter.help')}/>
+                <Basic.SelectBox
+                  ref="template"
+                  label={this.i18n('entity.NotificationConfiguration.template')}
+                  manager={notificationTemplateManager}/>
                 <Basic.EnumSelectBox
                   ref="level"
                   enum={NotificationLevelEnum}
@@ -142,6 +152,11 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   ref="notificationType"
                   label={this.i18n('entity.NotificationConfiguration.notificationType')}
                   options={!_supportedNotificationTypes ? null : _supportedNotificationTypes.map(type => { return { value: type, niceLabel: type }; })}
+                  required/>
+                <Basic.TextArea
+                  ref="description"
+                  label={this.i18n('entity.NotificationConfiguration.description')}
+                  helpBlock={this.i18n('entity.NotificationConfiguration.description')}
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

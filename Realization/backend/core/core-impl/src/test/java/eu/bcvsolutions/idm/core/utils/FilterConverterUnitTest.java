@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Rest filter converter test. Parameters are in strings.
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class FilterConverterUnitTest extends AbstractUnitTest {
+public class FilterConverterUnitTest extends AbstractVerifiableUnitTest {
 
 	@Mock
 	private EntityLookupService entityLookupService;

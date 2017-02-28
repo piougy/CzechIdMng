@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.acc.entity.SysProvisioningOperation;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * ProvisioningOperationBuilder test
@@ -15,7 +15,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class ProvisioningOperationBuilderUnitTest extends AbstractUnitTest {
+public class ProvisioningOperationBuilderUnitTest extends AbstractVerifiableUnitTest {
 
 	@Test
 	public void testBuildEmpty() {

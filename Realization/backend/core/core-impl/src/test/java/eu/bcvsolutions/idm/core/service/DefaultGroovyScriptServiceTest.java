@@ -17,10 +17,10 @@ import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleAuthority;
 import eu.bcvsolutions.idm.core.model.service.impl.DefaultGroovyScriptService;
 import eu.bcvsolutions.idm.core.security.exception.IdmSecurityException;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 import groovy.lang.MissingPropertyException;
 
-public class DefaultGroovyScriptServiceTest extends AbstractUnitTest {
+public class DefaultGroovyScriptServiceTest extends AbstractVerifiableUnitTest {
 
 	private static final String TEST_ONE = "testOne";
 	private GroovyScriptService groovyScriptService;

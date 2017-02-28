@@ -23,7 +23,7 @@ export default class NodeTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: true,
+      filterOpened: false,
       showLoading: true,
       type: props.type,
       rootNodes: null,
@@ -316,7 +316,7 @@ export default class NodeTable extends Basic.AbstractContent {
                     ref="identityTable"
                     uiKey={`${uiKey}-identity`}
                     identityManager={identityManager}
-                    filterOpened
+                    filterOpened={filterOpened}
                     treeType={type}
                     showRowSelection/>
                 </Basic.Tab>
@@ -352,6 +352,11 @@ export default class NodeTable extends Basic.AbstractContent {
                                 forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type.id)}
                                 manager={treeNodeManager}/>
                             </div>
+                            <div className="col-lg-6">
+                              <Advanced.Filter.BooleanSelectBox
+                                ref="recursively"
+                                placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }/>
+                            </div>
                           </Basic.Row>
                         </Basic.AbstractForm>
                       </Advanced.Filter>
@@ -386,7 +391,11 @@ export default class NodeTable extends Basic.AbstractContent {
                       sort={false}/>
                     <Advanced.Column property="code" width="125px" sort face="text"/>
                     <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
-                    <Advanced.Column property="parent.name" sort/>
+                    <Advanced.ColumnLink
+                      to="/tree/nodes/:_target"
+                      target="parent.id"
+                      property="parent.name"
+                      sort/>
                     <Advanced.Column property="treeType.name" sort rendered={false}/>
                     <Advanced.Column property="disabled" sort face="bool"/>
                     <Advanced.Column property="shortName" sort rendered={false}/>

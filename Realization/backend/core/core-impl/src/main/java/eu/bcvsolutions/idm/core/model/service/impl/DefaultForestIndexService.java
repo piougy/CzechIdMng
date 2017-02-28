@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmForestIndexEntityRepository;
 @Service("forestIndexService")
 public class DefaultForestIndexService extends AbstractForestIndexService<IdmForestIndexEntity, UUID> {
 
-	public static final String PROPERTY_INDEX_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "core.forest.index.";
+	public static final String PROPERTY_INDEX_PREFIX = ConfigurationService.IDM_PRIVATE_PROPERTY_PREFIX + "app.forest.index.";
 	public static final String PROPERTY_INDEX_ENABLED = PROPERTY_INDEX_PREFIX + "enabled";
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultForestIndexService.class);
 	private final ConfigurationService configurationService;

@@ -41,8 +41,11 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	        	+ " or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
 	        	+ " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}"
         	+ " )"
-	        + " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
-	        + " and (?#{[0].treeNodeId} is null or e.parent.id = ?#{[0].treeNodeId})"
+        	+ " and (?#{[0].treeTypeId} is null or e.treeType.id = ?#{[0].treeTypeId})"
+         		// on selected tree node recursively - given node is included true
+	        + " and (?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or e.forestIndex.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft + 1} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt - 1})"
+	        	// on selected tree node
+        	+ " and (?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or e.parent = ?#{[0].treeNode})"
 	        + " and (?#{[0].defaultTreeType} is null or e.treeType = (select tt from IdmTreeType tt where tt.defaultTreeType = ?#{[0].defaultTreeType}))")
 	Page<IdmTreeNode> find(TreeNodeFilter filter, Pageable pageable);
 

@@ -1,12 +1,16 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
 
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -36,6 +40,10 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	private UUID originalModifierId;
+	private boolean trimmed = false;
+	@JsonProperty(value = "_embedded")
+	private Map<String, AbstractDto> embedded;
+	
 
 	public AbstractDto() {
 	}
@@ -170,6 +178,27 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalModifierId = originalModifierId;
 	}
 	
+	public boolean isTrimmed() {
+		return trimmed;
+	}
+
+	public void setTrimmed(boolean trimmed) {
+		this.trimmed = trimmed;
+	}
+	
+	
+
+	public Map<String, AbstractDto> getEmbedded() {
+		if(embedded == null){
+			embedded = new HashMap<>();
+		}
+		return embedded;
+	}
+
+	public void setEmbedded(Map<String, AbstractDto> emmbedded) {
+		this.embedded = emmbedded;
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";

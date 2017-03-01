@@ -158,7 +158,6 @@ class RichTextArea extends AbstractFormComponent {
     if (required && !feedback) {
       showAsterix = true;
     }
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
     //
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
@@ -172,7 +171,7 @@ class RichTextArea extends AbstractFormComponent {
           </label>
         }
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <div className={containerClassName}>
               <Editor
                 ref="input"

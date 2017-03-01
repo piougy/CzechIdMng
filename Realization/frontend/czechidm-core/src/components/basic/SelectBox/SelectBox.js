@@ -338,7 +338,7 @@ class SelectBox extends AbstractFormComponent {
               <Icon type="fa" icon="refresh" className="icon-loading" rendered={this.state.isLoading === true} showLoading/>
             </div>
             :
-            <Tooltip ref="popover" placement="right" value={title}>
+            <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
               <span>
                 {this.getSelectComponent()}
                 {

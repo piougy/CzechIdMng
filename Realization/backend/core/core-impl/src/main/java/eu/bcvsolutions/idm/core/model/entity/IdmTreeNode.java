@@ -136,17 +136,19 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	}
 	
 	@JsonIgnore
-	public Long getLft() {
-		if (forestIndex == null) {
-			return null;
+	public long getLft() {
+		if (forestIndex == null || forestIndex.getLft() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
 		}
 		return forestIndex.getLft();
 	}
 	
 	@JsonIgnore
-	public Long getRgt() {
-		if (forestIndex == null) {
-			return null;
+	public long getRgt() {
+		if (forestIndex == null || forestIndex.getRgt() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
 		}
 		return forestIndex.getRgt();
 	}

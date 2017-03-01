@@ -63,6 +63,13 @@
 		<additionalparam>-Xdoclint:none</additionalparam>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
+	
+	<repositories>
+		<repository>
+		    <id>nexus</id>
+		    <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>

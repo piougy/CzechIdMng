@@ -17,7 +17,7 @@ class TreeNodeService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return `${entity.name}`;
+    return `${entity.name} (${entity.code})`;
   }
 
   /**

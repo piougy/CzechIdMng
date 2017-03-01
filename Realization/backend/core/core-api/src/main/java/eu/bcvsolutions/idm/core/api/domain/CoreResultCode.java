@@ -103,7 +103,7 @@ public enum CoreResultCode implements ResultCode {
 	//
 	// forest index
 	FOREST_INDEX_DISABLED(HttpStatus.BAD_REQUEST, "Forest index is disabled. Enable configuration property [%s]."),
-	FOREST_INDEX_RUNNING(HttpStatus.CONFLICT, "Rebuilding index for tree type [%s] already running."),
+	FOREST_INDEX_RUNNING(HttpStatus.CONFLICT, "Rebuilding index for forest tree type [%s] already running."),
 	//
 	// notification
 	NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED(HttpStatus.BAD_REQUEST, "System template [%s] can't be deleted."),

@@ -2177,7 +2177,7 @@
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindex already running",
-      "message": "Reindex for tree structure {{treeType}} already running."
+      "message": "Reindex for tree structure {{type}} already running."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "System templates can§t be deleted",

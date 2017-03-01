@@ -28,7 +28,7 @@ export default class Roles extends Basic.AbstractContent {
         {this.renderPageHeader()}
 
         <Basic.Panel>
-          <RoleTable uiKey="role_table" roleManager={this.roleManager} filterOpened={false}/>
+          <RoleTable uiKey="role_table" roleManager={this.roleManager}/>
         </Basic.Panel>
 
       </div>

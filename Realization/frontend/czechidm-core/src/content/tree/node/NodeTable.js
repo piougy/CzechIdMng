@@ -23,7 +23,7 @@ export default class NodeTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: false,
+      filterOpened: true,
       showLoading: true,
       type: props.type,
       rootNodes: null,

@@ -313,12 +313,11 @@ class SelectBox extends AbstractFormComponent {
   getBody(feedback) {
     const { labelSpan, label, componentSpan, required } = this.props;
     const labelClassName = classNames(labelSpan, 'control-label');
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
     let showAsterix = false;
     if (required && !this.state.value) {
       showAsterix = true;
     }
-
+    //
     return (
       <div className={showAsterix ? 'has-feedback' : ''}>
         {

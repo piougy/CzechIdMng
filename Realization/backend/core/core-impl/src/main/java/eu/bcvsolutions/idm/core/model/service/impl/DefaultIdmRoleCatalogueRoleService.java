@@ -24,12 +24,12 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleCatalogueRoleService;
  */
 
 @Service
-public class DefaultIdmRoleCatalogueRole extends AbstractReadWriteEntityService<IdmRoleCatalogueRole, RoleCatalogueRoleFilter> implements IdmRoleCatalogueRoleService {
+public class DefaultIdmRoleCatalogueRoleService extends AbstractReadWriteEntityService<IdmRoleCatalogueRole, RoleCatalogueRoleFilter> implements IdmRoleCatalogueRoleService {
 	
 	private final IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository;
 	
 	@Autowired
-	public DefaultIdmRoleCatalogueRole(
+	public DefaultIdmRoleCatalogueRoleService(
 			IdmRoleCatalogueRoleRepository roleCatalogueRoleRepository) {
 		super(roleCatalogueRoleRepository);
 		//

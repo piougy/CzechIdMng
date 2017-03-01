@@ -4,7 +4,7 @@ import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
 import * as Utils from '../../utils';
 //
-import {SecurityManager} from '../../redux';
+import { SecurityManager } from '../../redux';
 import uuid from 'uuid';
 
 // Root nodes  key for tree
@@ -19,7 +19,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: this.props.filterOpened,
+      filterOpened: props.filterOpened,
       showLoading: true
     };
   }
@@ -99,7 +99,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
       ... this.refs.filterForm.getData(),
       parent: nodeId
     };
-    // this.refs.parent.setValue(nodeId);
+    this.refs.parent.setValue(nodeId);
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
 
@@ -151,15 +151,13 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
           {
             !(rootNodes !== undefined && rootNodes.length !== 0)
             ||
-            <div style={{ paddingLeft: 15, paddingRight: 15 }}>
-              <Basic.Panel style={{ marginTop: 15 }}>
-                <Advanced.Tree
-                  ref="roleCatalogueTree"
-                  rootNodes={ rootNodes }
-                  headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-                  uiKey="roleCatalogueTree"
-                  manager={roleCatalogueManager}/>
-              </Basic.Panel>
+            <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+              <Advanced.Tree
+                ref="roleCatalogueTree"
+                rootNodes={ rootNodes }
+                headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
+                uiKey="roleCatalogueTree"
+                manager={roleCatalogueManager}/>
             </div>
           }
         </div>
@@ -264,5 +262,5 @@ RoleCatalogueTable.propTypes = {
 };
 
 RoleCatalogueTable.defaultProps = {
-  filterOpened: false,
+  filterOpened: true,
 };

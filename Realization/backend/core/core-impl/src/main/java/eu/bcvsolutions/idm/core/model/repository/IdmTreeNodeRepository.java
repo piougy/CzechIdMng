@@ -87,6 +87,7 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	 * @param pageable
 	 * @return
 	 */
+	@Override
 	@Query("select e from #{#entityName} e join e.forestIndex i where i.forestTreeType = ?#{[0].forestTreeType} and i.lft BETWEEN ?#{[0].lft + 1} and ?#{[0].rgt - 1}")
 	Page<IdmTreeNode> findAllChildren(IdmTreeNode parentContent, Pageable pageable);
 	
@@ -98,6 +99,7 @@ public interface IdmTreeNodeRepository extends AbstractEntityRepository<IdmTreeN
 	 * @param content
 	 * @return
 	 */
+	@Override
 	@Query("select e from #{#entityName} e join e.forestIndex i where i.forestTreeType = ?#{[0].forestTreeType} and i.lft < ?#{[0].lft} and i.rgt > ?#{[0].rgt}")
 	List<IdmTreeNode> findAllParents(IdmTreeNode content, Sort sort);
 }

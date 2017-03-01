@@ -1605,7 +1605,7 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Jméno role",
+      "_type": "Složka katalogu",
       "code": {
         "name": "Kód",
         "help": "Kód katalogu je unikátní v rámci všech katalogů."
@@ -1654,7 +1654,7 @@
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {
-        "name": "Katalog"
+        "name": "Složka v katalogu"
       }
     },
     "IdentityRole": {
@@ -2221,7 +2221,7 @@
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindexování již běží",
-      "message": "Reindexování pro stromovou strukturu {{treeType}} je již spuštěno. Nebude spuštěno opakovaně."
+      "message": "Reindexování pro stromovou strukturu {{type}}}} je již spuštěno. Nebude spuštěno opakovaně."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",

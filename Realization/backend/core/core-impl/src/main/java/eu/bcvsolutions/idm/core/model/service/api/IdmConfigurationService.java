@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmConfiguration;
  * @see ConfigurationService
  *
  */
-public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter>, IdentifiableByNameEntityService<IdmConfiguration> {
+public interface IdmConfigurationService extends ReadWriteEntityService<IdmConfiguration, QuickFilter>, IdentifiableByNameEntityService<IdmConfiguration>, ConfigurationService {
 	
 	static final String CONFIDENTIAL_PROPERTY_VALUE = "config:value";
 	

@@ -9,10 +9,7 @@
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="createRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
-          <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
-          <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
-        </activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
@@ -23,12 +20,8 @@
         <activiti:formProperty id="disapprove" type="decision"></activiti:formProperty>
         <activiti:formProperty id="backToApplicant" type="decision"></activiti:formProperty>
         <activiti:formProperty id="approve" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="managerDescription" name="Poznámka pro žadatele" type="textArea">
-          <activiti:value id="placeholder" name="Poznámka, která bude žadateli zobrazena při várcení žádosti."></activiti:value>
-        </activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea" writable="false">
-          <activiti:value id="placeholder" name="Poznámka vyplněná žadatelem při založení žádosti"></activiti:value>
-        </activiti:formProperty>
+        <activiti:formProperty id="managerDescriptionForApplicant" type="textArea" variable="managerDescription"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea" writable="false"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
@@ -49,11 +42,8 @@
       <extensionElements>
         <activiti:formProperty id="cancelRequest" type="decision"></activiti:formProperty>
         <activiti:formProperty id="repairedRequest" type="decision"></activiti:formProperty>
-        <activiti:formProperty id="managerDescription" name="Poznámka vedoucího" type="textArea" writable="false"></activiti:formProperty>
-        <activiti:formProperty id="applicantDescription" name="Poznámka žadatele" type="textArea">
-          <activiti:value id="placeholder" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
-          <activiti:value id="tooltip" name="Poznámka zadaná žadatelem při založení žádosti"></activiti:value>
-        </activiti:formProperty>
+        <activiti:formProperty id="managerDescription" type="textArea" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="applicantDescription" type="textArea"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow15" sourceRef="applicantReturnedTask" targetRef="exclusivegateway1"></sequenceFlow>
@@ -221,37 +211,6 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
     <sequenceFlow id="flow29" sourceRef="scripttask3" targetRef="startRemoveSubWorkflow"></sequenceFlow>
     <sequenceFlow id="flow30" sourceRef="parallelgateway1" targetRef="scripttask3"></sequenceFlow>
     <sequenceFlow id="flow31" sourceRef="startRemoveSubWorkflow" targetRef="parallelgateway2"></sequenceFlow>
-    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Schválit","showWarning":false,"warningMessage":"Opravdu chcete úkol schválit?","level":"success","tooltip":"Schválit úkol a předat na administrátora"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Zamítnout","showWarning":true,"warningMessage":"Opravdu chcete žádost zamítnout?","level":"danger","tooltip":"Zamítnout úkolu"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Vrátit žadateli","showWarning":true,"warningMessage":"Opravdu chcete žádost vrátit žadateli k přepracování?","level":"warning","tooltip":"Vrátit žádost žadateli k přepracování"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
-    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Vytvořit žádost","showWarning":false,"warningMessage":"Opravdu chcete žádost podat ke schválení?","level":"success","tooltip":"Vytvořit žádsot a předat ke schválení"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Smazat žádost","showWarning":true,"warningMessage":"Opravdu chcete tuto žádost o změnu oprávnění smazat?","level":"danger","tooltip":"Smazat žádost o změnu oprávnění"}</activiti:value>
-      </extensionElements>
-    </dataObject>
-    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
-      <extensionElements>
-        <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
-      </extensionElements>
-    </dataObject>
     <serviceTask id="mailTask1" name="Vráceno žadateli" activiti:type="mail">
       <extensionElements>
         <activiti:field name="to">
@@ -277,6 +236,37 @@ execution.setVariable("removeIdentityRoleWrapperList", removeIdentityRoleWrapper
       </extensionElements>
     </serviceTask>
     <sequenceFlow id="flow32" sourceRef="mailTask1" targetRef="applicantReturnedTask"></sequenceFlow>
+    <dataObject id="approve" name="approve" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "decision.approve.label","showWarning":false,"warningMessage":"decesion.approve.warning","level":"success","tooltip":"decision.approve.tooltip"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="disapprove" name="disapprove" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "decision.disapprove.label","showWarning":true,"warningMessage":"decision.disapprove.warning","level":"danger","tooltip":"decision.disapprove.tooltip"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="backToApplicant" name="backToApplicant" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "decision.backToApplicant.label","showWarning":true,"warningMessage":"decision.backToApplicant.warning","level":"warning","tooltip":"decision.backToApplicant.tooltip"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="decision" name="decision" itemSubjectRef="xsd:string"></dataObject>
+    <dataObject id="createRequest" name="createRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":false,"level":"success"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="cancelRequest" name="cancelRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"showWarning":true,"level":"danger"}</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="repairedRequest" name="repairedRequest" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>{"label": "Žádost opravena","showWarning":false,"warningMessage":"Opravdu chcete opravenou žádost podat ke schválení?","level":"success","tooltip":"Opravenou žádost a předat ke schválení"}</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_changeIdentityRoles">
     <bpmndi:BPMNPlane bpmnElement="changeIdentityRoles" id="BPMNPlane_changeIdentityRoles">

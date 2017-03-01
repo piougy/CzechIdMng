@@ -103,9 +103,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
+              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
+              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
           );
           break;
         }
@@ -118,9 +118,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               mode="date"
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
+              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
+              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
           );
           break;
         }
@@ -131,9 +131,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
+              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
+              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
           );
           break;
         }
@@ -144,9 +144,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
+              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
+              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
           );
           break;
         }
@@ -157,9 +157,9 @@ class DynamicTaskDetail extends Basic.AbstractContent {
               ref={formData.id}
               readOnly={!formData.writable}
               required={formData.required}
-              tooltip={formData.tooltip}
-              placeholder={formData.placeholder}
-              label={this.i18n(formData.name)}/>
+              tooltip={this.i18n(formData.tooltip ? formData.tooltip : `formData.${formData.id}.tooltip`)}
+              placeholder={this.i18n(formData.placeholder ? formData.placeholder : `formData.${formData.id}.placeholder`)}
+              label={this.i18n(formData.name ? formData.name : `formData.${formData.id}.name`)}/>
           );
         }
       }

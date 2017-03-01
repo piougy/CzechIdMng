@@ -12,7 +12,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.config.domain.DynamicCorsConfiguration;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test configuration change for DynamicCorsConfiguration
@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DynamicCorsConfigurationUnitTest extends AbstractUnitTest {
+public class DynamicCorsConfigurationUnitTest extends AbstractVerifiableUnitTest {
 	
 	private static final String ORIGIN_VALUE = "http://localhost";
 	

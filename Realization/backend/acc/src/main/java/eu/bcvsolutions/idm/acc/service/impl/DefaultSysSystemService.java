@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.acc.service.impl;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
+import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.api.IcAttributeInfo;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperties;
 import eu.bcvsolutions.idm.ic.api.IcConfigurationProperty;
@@ -129,8 +131,24 @@ public class DefaultSysSystemService extends AbstractFormableService<SysSystem, 
 		if (entity.getConnectorServer().getPassword() != null) {
 			// save for newSystem
 			confidentialStorage.save(newSystem, REMOTE_SERVER_PASSWORD, entity.getConnectorServer().getPassword().asString());
+			//
+			// set asterix
+			newSystem.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
 		}
 		return newSystem;
+	}
+	
+	@Override
+	public SysSystem get(Serializable id) {
+		SysSystem entity = super.get(id);
+		//
+		// found if entity has filled password
+		Object password = confidentialStorage.get(entity, SysSystemService.REMOTE_SERVER_PASSWORD);
+		if (password != null && entity.getConnectorServer() != null) {
+			entity.getConnectorServer().setPassword(new GuardedString(GuardedString.SECRED_PROXY_STRING));
+		}
+		//
+		return entity;
 	}
 
 	@Override

@@ -36,9 +36,14 @@ public interface IdmRoleCatalogueRepository extends AbstractEntityRepository<Idm
 	@Override
 	@Query(value = "select e from IdmRoleCatalogue e left join e.parent p" +
 	        " where" +
-	        " (?#{[0].text} is null or lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')})" + 
+	        " (" +
+				" lower(e.name) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+		        " or lower(e.code) like ?#{[0].text == null ? '%' : '%'.concat([0].text.toLowerCase()).concat('%')}" +
+	        " )" +
 	        " and " +
-	        " (?#{[0].niceName} is null or lower(e.niceName) like ?#{[0].niceName == null ? '%' : '%'.concat([0].niceName.toLowerCase()).concat('%')})" +
+	        " (?#{[0].code} is null or lower(e.code) like ?#{[0].code == null ? '%' : '%'.concat([0].code.toLowerCase()).concat('%')})" +
+	        " and " +
+	        " (?#{[0].name} is null or lower(e.name) like ?#{[0].name == null ? '%' : '%'.concat([0].name.toLowerCase()).concat('%')})" +
 	        " and (?#{[0].parentId} is null or p.id = ?#{[0].parentId})")
 	Page<IdmRoleCatalogue> find(RoleCatalogueFilter filter, Pageable pageable);
 	

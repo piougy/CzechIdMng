@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.acc.scheduler.impl;
+package eu.bcvsolutions.idm.acc.scheduler.task.impl;
 
 import java.util.Map;
 

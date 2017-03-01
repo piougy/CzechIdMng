@@ -73,7 +73,6 @@ public class AccAccount extends AbstractEntity {
 	@JsonIgnore
 	@OneToMany(mappedBy = "account")
 	private List<AccIdentityAccount> identityAccounts;  // only for hibernate mappnig - we dont want lazy lists
-	
 
 	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;

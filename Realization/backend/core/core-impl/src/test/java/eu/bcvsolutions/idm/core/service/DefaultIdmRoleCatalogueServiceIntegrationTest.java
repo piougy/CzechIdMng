@@ -52,13 +52,14 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		// catalogue
 		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
 		String catalogueName = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue.setCode(catalogueName);
 		roleCatalogue.setName(catalogueName);
 		roleCatalogue = roleCatalogueService.save(roleCatalogue);
 		// role
 		IdmRole role = new IdmRole();
 		String roleName = "test_r_" + System.currentTimeMillis();
 		role.setName(roleName);		
-
+		//
 		IdmRoleCatalogueRole roleCatalogueRole = new IdmRoleCatalogueRole();
 		roleCatalogueRole.setRole(role);
 		roleCatalogueRole.setRoleCatalogue(roleCatalogue);
@@ -83,69 +84,71 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 	}
 	
 	@Test(expected = ResultCodeException.class)
-	public void testDuplicitNiceNameRoots() {
+	public void testDuplicitNamesRoots() {
 		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
 		String name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue.setName(name);
-		roleCatalogue.setNiceName("test");
+		roleCatalogue.setCode(name);
+		roleCatalogue.setName("test");
 		//
 		this.roleCatalogueService.save(roleCatalogue);
 		//
 		// create second
 		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
 		name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue2.setName(name);
-		roleCatalogue2.setNiceName("test");
+		roleCatalogue2.setCode(name);
+		roleCatalogue2.setName("test");
 		// throws error
-		this.roleCatalogueService.save(roleCatalogue);
+		this.roleCatalogueService.save(roleCatalogue2);
 	}
 	
 	@Test(expected = ResultCodeException.class)
-	public void testDuplicitNiceNameChilds() {
+	public void testDuplicitNamesChilds() {
 		IdmRoleCatalogue root = new IdmRoleCatalogue();
-		String name = "cat_one_" + System.currentTimeMillis();
-		root.setName(name);
-		root.setNiceName("test" + System.currentTimeMillis());
+		String code = "cat_one_" + System.currentTimeMillis();
+		root.setCode(code);
+		root.setName("test" + System.currentTimeMillis());
 		this.roleCatalogueService.save(root);
 		//
 		IdmRoleCatalogue roleCatalogue = new IdmRoleCatalogue();
-		name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue.setName(name);
+		code = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue.setCode(code);
 		roleCatalogue.setParent(root);
-		roleCatalogue.setNiceName("test");
+		roleCatalogue.setName("test");
 		//
 		this.roleCatalogueService.save(roleCatalogue);
 		//
 		// create second
 		IdmRoleCatalogue roleCatalogue2 = new IdmRoleCatalogue();
-		name = "cat_one_" + System.currentTimeMillis();
-		roleCatalogue2.setName(name);
+		code = "cat_one_" + System.currentTimeMillis();
+		roleCatalogue2.setCode(code);
 		roleCatalogue2.setParent(root);
-		roleCatalogue2.setNiceName("test");
+		roleCatalogue2.setName("test");
 		// throws error
 		this.roleCatalogueService.save(roleCatalogue2);
 	}
 	
 	@Test
-	public void testNiceNameDiffLevel() {
+	public void testNameDiffLevel() {
+		// code must be unique for all nodes,
+		// name must be unique for all children of parent.
 		IdmRoleCatalogue root = new IdmRoleCatalogue();
-		String name = "cat_one_" + System.currentTimeMillis();
-		root.setNiceName("test");
-		root.setName(name);
+		String code = "cat_one_" + System.currentTimeMillis();
+		root.setName("test_01");
+		root.setCode(code);
 		root = this.roleCatalogueService.save(root);
 		//
 		IdmRoleCatalogue child1 = new IdmRoleCatalogue();
-		name = "cat_one_" + System.currentTimeMillis();
-		child1.setNiceName("test");
+		code = "cat_one_" + System.currentTimeMillis();
+		child1.setName("test_02");
 		child1.setParent(root);
-		child1.setName(name);
+		child1.setCode(code);
 		child1 = this.roleCatalogueService.save(child1);
 		//
 		IdmRoleCatalogue child2 = new IdmRoleCatalogue();
-		name = "cat_one_" + System.currentTimeMillis();
-		child2.setNiceName("test");
+		code = "cat_one_" + System.currentTimeMillis();
+		child2.setName("test_02");
 		child2.setParent(child1);
-		child2.setName(name);
+		child2.setCode(code);
 		child2 = this.roleCatalogueService.save(child2);
 		/* excepted
 		 * - root

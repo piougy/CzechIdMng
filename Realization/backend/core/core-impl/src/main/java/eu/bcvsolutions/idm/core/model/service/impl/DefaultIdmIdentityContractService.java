@@ -7,6 +7,7 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -57,7 +58,7 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 	}
 	
 	public List<IdmIdentityContract> getContracts(IdmIdentity identity) {
-		return repository.findAllByIdentity(identity, null);
+		return repository.findAllByIdentity(identity, new Sort("validFrom"));
 	}
 	
 	/**

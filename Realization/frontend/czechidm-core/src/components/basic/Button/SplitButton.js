@@ -3,6 +3,11 @@ import { SplitButton } from 'react-bootstrap';
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 import Icon from '../Icon/Icon';
 
+/**
+ * Quick continue button
+ *
+ * @author Radek Tomiška
+ */
 class BasicSplitButton extends AbstractComponent {
 
   constructor(props) {

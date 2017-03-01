@@ -11,6 +11,8 @@ import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resources;
@@ -53,6 +55,8 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
+import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -77,9 +81,11 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
 	private final FormService formService;
+	private final IdmTreeNodeService treeNodeService;
+	private final IdmTreeTypeService treeTypeService;
 	
 	@Autowired 
-	private IdmFormDefinitionController formDefinitionController; // TODO: is used for serialize to json only => should be removed
+	private IdmFormDefinitionController formDefinitionController; // TODO: is used for serialize to json only => should be removed and assembler should be used
 	
 	@Autowired
 	public IdmIdentityController(
@@ -90,7 +96,9 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			IdmIdentityRoleService identityRoleService,
 			WorkflowTaskInstanceService workflowTaskInstanceService,
 			WorkflowProcessInstanceService workflowProcessInstanceService,
-			IdmAuditService auditService) {
+			IdmAuditService auditService,
+			IdmTreeNodeService treeNodeService,
+			IdmTreeTypeService treeTypeService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(formService);
@@ -100,6 +108,8 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(workflowTaskInstanceService);
 		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(auditService);
+		Assert.notNull(treeNodeService);
+		Assert.notNull(treeTypeService);
 		//
 		this.formService = formService;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -108,6 +118,8 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		this.workflowTaskInstanceService = workflowTaskInstanceService;
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.auditService = auditService;
+		this.treeNodeService = treeNodeService;
+		this.treeTypeService = treeTypeService;
 	}
 	
 	@Override
@@ -201,6 +213,50 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}		
 		return toResources((Iterable<?>) identityContractService.getContracts(identity), assembler, IdmIdentityContract.class, null);
+	}
+	
+	/**
+	 * Get given identity's main position in organization.
+	 * 
+	 * @param identityId
+	 * @param assembler
+	 * @return Positions from root to closest parent
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/{identityId}/organization-position", method = RequestMethod.GET)
+	public Resources<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
+		IdmIdentity identity = getEntity(identityId);
+		if (identity == null) {
+			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
+		}
+		// find all identity working position
+		List<IdmIdentityContract> contracts = identityContractService.getContracts(identity);
+		if (contracts.isEmpty()) {
+			return toResources((Iterable<?>) null, assembler, IdmTreeNode.class, null);
+		}
+		IdmTreeNode workingPosition = null;
+		IdmTreeType defaultTreeType = treeTypeService.getDefaultTreeType();
+		for (IdmIdentityContract contract : contracts) {
+			// find first contract with working position
+			if (contract.getWorkingPosition() != null) { // TODO: prioritize identity contracts by external too
+				workingPosition = contract.getWorkingPosition();
+				//
+				if (defaultTreeType == null || defaultTreeType.equals(workingPosition.getTreeType())) {
+					break;
+				}
+			}
+		}
+		if (workingPosition == null) {
+			return toResources((Iterable<?>) null, assembler, IdmTreeNode.class, null);
+		}
+		List<IdmTreeNode> positions = treeNodeService.findAllParents(workingPosition, new Sort(Direction.ASC, "forestIndex.lft"));
+		positions.add(workingPosition);
+		//
+		return toResources((Iterable<?>)
+				positions, 
+				assembler, 
+				IdmTreeNode.class, 
+				null);		
 	}
 	
 	@ResponseBody
@@ -318,7 +374,8 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		filter.setManagersFor(getParameterConverter().toEntity(parameters, "managersFor", IdmIdentity.class));
 		filter.setManagersByTreeType(getParameterConverter().toEntity(parameters, "managersByTreeType", IdmTreeType.class));
 		filter.setManagersByTreeNode(getParameterConverter().toEntity(parameters, "managersByTreeNode", IdmTreeNode.class));
-		filter.setTreeNodeId(getParameterConverter().toUuid(parameters, "treeNodeId"));
+		filter.setTreeNode(getParameterConverter().toEntity(parameters, "treeNodeId", IdmTreeNode.class));
+		filter.setRecursively(getParameterConverter().toBoolean(parameters, "recursively", true));
 		filter.setTreeTypeId(getParameterConverter().toUuid(parameters, "treeTypeId"));
 		// TODO: or / and in multivalues? OR is supported now
 		if (parameters.containsKey("role")) {

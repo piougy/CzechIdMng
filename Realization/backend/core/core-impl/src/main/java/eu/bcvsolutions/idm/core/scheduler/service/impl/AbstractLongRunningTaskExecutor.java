@@ -110,11 +110,16 @@ public abstract class AbstractLongRunningTaskExecutor<V> implements LongRunningT
 		setStateProperties(task);
 		//
 		if (ex != null) {
-			ResultModel resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
+			ResultModel resultModel;
+			if (ex instanceof ResultCodeException) {
+				resultModel = ((ResultCodeException) ex).getError().getError();
+			} else {
+				resultModel = new DefaultResultModel(CoreResultCode.LONG_RUNNING_TASK_FAILED, 
 					ImmutableMap.of(
 							"taskId", taskId, 
 							"taskType", task.getTaskType(),
-							"instanceId", task.getInstanceId()));	
+							"instanceId", task.getInstanceId()));
+			}
 			LOG.error(resultModel.toString(), ex);
 			task.setResult(new OperationResult.Builder(OperationState.EXCEPTION).setModel(resultModel).setCause(ex).build());
 		} else if(OperationState.isRunnable(task.getResultState())) { 

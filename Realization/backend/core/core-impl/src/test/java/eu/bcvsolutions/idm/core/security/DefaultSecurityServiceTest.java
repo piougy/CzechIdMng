@@ -24,7 +24,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.AbstractAuthentication;
 import eu.bcvsolutions.idm.core.security.api.domain.IdmJwtAuthentication;
 import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test for {@link DefaultSecurityService}
@@ -32,7 +32,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DefaultSecurityServiceTest extends AbstractUnitTest {
+public class DefaultSecurityServiceTest extends AbstractVerifiableUnitTest {
 	
 	private static final String CURRENT_USERNAME = "current_username";
 	private static final String ORIGINAL_USERNAME = "original_username";

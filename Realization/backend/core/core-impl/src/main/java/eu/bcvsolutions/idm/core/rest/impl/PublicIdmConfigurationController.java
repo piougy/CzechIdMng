@@ -68,7 +68,7 @@ public class PublicIdmConfigurationController implements BaseEntityController<Id
 		Properties p = new Properties();
 	    p.load(new StringReader(configuration));
 	    p.forEach((name, value) -> {
-	    	configurationService.saveValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
+	    	configurationService.setValue(name.toString(), value == null ? null : value.toString().split("#")[0].trim());
 	    });
 	}
 

@@ -775,6 +775,10 @@
         "organization": {
           "label": "Org. structure",
           "placeholder": "Node in organization structure"
+        },
+        "recursively": {
+          "label": "Recursively",
+          "placeholder": "Recursively by tree structure down"
         }
       },
       "action": {
@@ -830,7 +834,11 @@
           "success": "The element [{{name}}] was successfully saved."
         },
         "addType": "Add element",
-        "reloadTree": "Cancel the filter and reload the tree"
+        "reloadTree": "Cancel the filter and reload the tree",
+        "tab": {
+          "identities": "Users",
+          "nodes": "Elements of the tree"
+        }
       },
       "types": {
         "header": "Types of structures",
@@ -839,6 +847,23 @@
         "create": "New type of tree structure",
         "save": {
           "success": "The type [{{name}}] was successfully saved."
+        },
+        "configuration": {
+          "button": {
+            "rebuild": "Reindex"
+          },
+          "action": {
+            "rebuild" : {
+              "header": "Reindex",
+              "message": "Do you really want to rebuild index for tree type structure [{{record}}]",
+              "success": "Rebuil index for tree type structure [{{record}}] was scheduled."
+            }
+          },
+          "index": {
+            "valid": "Tree type structure index is valid.",
+            "invalid": "Tree type structure index is invalid. Index rebuild is needed. Search on invalid index will not return relevant results.",
+            "rebuild": "Index rebuild is in progress <small>Tree nodes editation is not possible for now</small>"
+          }
         }
       }
     },
@@ -1023,6 +1048,9 @@
               "proceed": "Přerušuji operaci ..."
             }
           }
+        },
+        "organizationPosition": {
+          "title": "Position in organization structure"
         }
       },
       "roles": {
@@ -1216,6 +1244,7 @@
     "organizations": {
       "header": "Organization structure",
       "title": "Organization structure",
+      "label": "Organization",
       "defaultTreeType": {
         "empty": {
           "message": "Default tree type is not configured.",
@@ -1262,18 +1291,18 @@
         "empty": "No running tasks found",
         "button": {
           "cancel": "End task",
-          "interrupt": "Kill task"
+          "interrupt": "Interrupt task"
         },
         "action": {
           "task-cancel": {
-            "header": "Ukončit spuštěnou úlohu",
-            "message": "Opravdu chcete ukončit úlohu [<strong>{{record}}</strong>]?",
-            "success": "Bylo požádáno o ukončení úlohy [{{record}}]. Úloha se sama ukončí po dokončení aktuálně zpracovávaného záznamu."
+            "header": "Cancel running task",
+            "message": "Do you really was to cancel task [<strong>{{record}}</strong>]?",
+            "success": "Task [{{record}}] will be canceled as soon is possilbe (after current item is processed)."
           },
           "task-interrupt": {
-            "header": "Kill running task",
-            "message": "Opravdu chcete ukončit úlohu [<strong>{{record}}</strong>]?",
-            "success": "Úloha [{{record}}] byla ukončena."
+            "header": "Interrupt running task",
+            "message": "Do you really was to interupt task [<strong>{{record}}</strong>]?",
+            "success": "Task [{{record}}] was interrupted."
           }
         }
       },
@@ -1577,12 +1606,12 @@
     },
     "RoleCatalogue": {
       "_type": "Role name",
-      "name": {
+      "code": {
         "name": "Code",
-        "help": "Catalogue code, unique within all folder codes in catalogue."
+        "help": "Catalogue code is unique within all folder codes in catalogue."
       },
-      "niceName": {
-        "name": "Name for users",
+      "name": {
+        "name": "Catalogue name",
         "help": "Descriptive attribute for users. Unique within catalog level."
       },
       "url": "URL",
@@ -2141,6 +2170,14 @@
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",
       "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
+    },
+    "FOREST_INDEX_DISABLED": {
+      "title": "Index is disabled",
+      "message": "Tree stucture indexing is disabled. Enable configuration property {{property}}."
+    },
+    "FOREST_INDEX_RUNNING": {
+      "title": "Reindex already running",
+      "message": "Reindex for tree structure {{treeType}} already running."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "System templates can§t be deleted",

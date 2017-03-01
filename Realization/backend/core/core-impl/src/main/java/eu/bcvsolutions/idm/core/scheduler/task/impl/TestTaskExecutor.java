@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler.service.impl;
+package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.api.exception.CoreException;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
  * Test task executor implementation

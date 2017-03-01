@@ -7,6 +7,8 @@ import Tooltip from '../Tooltip/Tooltip';
 import Icon from '../Icon/Icon';
 import Button from '../Button/Button';
 
+const CONFIDENTIAL_VALUE = '*****';
+
 class TextField extends AbstractFormComponent {
 
   constructor(props) {
@@ -57,10 +59,26 @@ class TextField extends AbstractFormComponent {
 
   onChange(event) {
     super.onChange(event);
-    this.refs.popover.show();
+    if (this.refs.popover) {
+      this.refs.popover.show();
+    }
     this.setState( {
       confidentialState: {
         showInput: true
+      }
+    });
+  }
+
+  /**
+   * Show / hide confidential. Call after save form.
+   *
+   * @param  {bool} showInput
+   */
+  openConfidential(showInput) {
+    this.setState({
+      value: CONFIDENTIAL_VALUE,
+      confidentialState: {
+        showInput
       }
     });
   }
@@ -147,7 +165,7 @@ class TextField extends AbstractFormComponent {
     let _readOnly = readOnly;
     if (this._showConfidentialWrapper()) {
       if (value) {
-        _value = '*****'; // asterix will be shown, when value is filled
+        _value = CONFIDENTIAL_VALUE; // asterix will be shown, when value is filled
       } else {
         _value = '';
       }

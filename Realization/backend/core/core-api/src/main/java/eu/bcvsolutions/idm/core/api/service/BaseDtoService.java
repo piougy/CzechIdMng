@@ -11,12 +11,12 @@ import eu.bcvsolutions.idm.core.api.dto.BaseDto;
  *
  * @param <T> {@link BaseDto} type
  */
-public interface BaseDtoService<E extends BaseDto> extends Plugin<Class<?>> {
+public interface BaseDtoService<DTO extends BaseDto> extends Plugin<Class<?>> {
 
 	/**
 	 * Returns {@link BaseDto} type class, which is controlled by this service
 	 * 
 	 * @return
 	 */
-	public Class<E> getDtoClass();
+	public Class<DTO> getDtoClass();
 }

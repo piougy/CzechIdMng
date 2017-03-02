@@ -14,10 +14,10 @@ import org.mockito.Mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.FilterConverter;
-import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Rest filter converter test. Parameters are in strings.
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class FilterConverterUnitTest extends AbstractUnitTest {
+public class FilterConverterUnitTest extends AbstractVerifiableUnitTest {
 
 	@Mock
 	private EntityLookupService entityLookupService;
@@ -40,7 +40,7 @@ public class FilterConverterUnitTest extends AbstractUnitTest {
 	public void testEmptyFilter() {
 		Map<String, Object> parameters = new HashMap<>();
 		//
-		assertNull(filterConverter.toFilter(parameters, TreeNodeFilter.class));
+		assertNull(filterConverter.toFilter(parameters, TestFilter.class));
 	}
 	
 	@Test
@@ -49,15 +49,46 @@ public class FilterConverterUnitTest extends AbstractUnitTest {
 		UUID treeTypeId = UUID.randomUUID();
 		parameters.put("treeTypeId", treeTypeId.toString());
 		//
-		TreeNodeFilter filter = filterConverter.toFilter(parameters, TreeNodeFilter.class);
+		TestFilter filter = filterConverter.toFilter(parameters, TestFilter.class);
 		assertEquals(treeTypeId, filter.getTreeTypeId());
 		assertNull(filter.getTreeNodeId());
 		assertNull(filter.getDefaultTreeType());
 		//
 		parameters.put("defaultTreeType", "true");
-		filter = filterConverter.toFilter(parameters, TreeNodeFilter.class);
+		filter = filterConverter.toFilter(parameters, TestFilter.class);
 		assertEquals(treeTypeId, filter.getTreeTypeId());
 		assertNull(filter.getTreeNodeId());
 		assertTrue(filter.getDefaultTreeType());
+	}
+	
+	public static class TestFilter extends QuickFilter {
+		
+		private UUID treeTypeId;	
+		private UUID treeNodeId;	
+		private Boolean defaultTreeType;
+
+		public UUID getTreeTypeId() {
+			return treeTypeId;
+		}
+
+		public void setTreeTypeId(UUID treeTypeId) {
+			this.treeTypeId = treeTypeId;
+		}
+		
+		public UUID getTreeNodeId() {
+			return treeNodeId;
+		}
+		
+		public void setTreeNodeId(UUID treeNodeId) {
+			this.treeNodeId = treeNodeId;
+		}
+		
+		public Boolean getDefaultTreeType() {
+			return defaultTreeType;
+		}
+		
+		public void setDefaultTreeType(Boolean defaultTreeType) {
+			this.defaultTreeType = defaultTreeType;
+		}
 	}
 }

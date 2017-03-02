@@ -313,12 +313,11 @@ class SelectBox extends AbstractFormComponent {
   getBody(feedback) {
     const { labelSpan, label, componentSpan, required } = this.props;
     const labelClassName = classNames(labelSpan, 'control-label');
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
     let showAsterix = false;
     if (required && !this.state.value) {
       showAsterix = true;
     }
-
+    //
     return (
       <div className={showAsterix ? 'has-feedback' : ''}>
         {
@@ -338,7 +337,7 @@ class SelectBox extends AbstractFormComponent {
               <Icon type="fa" icon="refresh" className="icon-loading" rendered={this.state.isLoading === true} showLoading/>
             </div>
             :
-            <Tooltip ref="popover" placement="right" value={title}>
+            <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
               <span>
                 {this.getSelectComponent()}
                 {

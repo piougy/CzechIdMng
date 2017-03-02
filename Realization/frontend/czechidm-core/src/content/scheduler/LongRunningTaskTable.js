@@ -124,7 +124,7 @@ export default class LongRunningTaskTable extends Basic.AbstractContent {
               </Basic.AbstractForm>
             </Advanced.Filter>
           }
-          filterOpened={!filterOpened}
+          filterOpened={filterOpened}
           buttons={
             [
               <Basic.Button

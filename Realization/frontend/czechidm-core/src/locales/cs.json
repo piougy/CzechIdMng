@@ -775,6 +775,10 @@
         "organization": {
           "label": "Org. struktura",
           "placeholder": "Prvek v organizační struktuře"
+        },
+        "recursively": {
+          "label": "Rekurzivně",
+          "placeholder": "Rekurzivně dle struktury dolů"
         }
       },
       "action": {
@@ -830,7 +834,11 @@
           "success": "Prvek [{{name}}] byl úspěšně uložen"
         },
         "addType": "Přidat typ",
-        "reloadTree": "Zrušení filtru a znovunačtení stromu"
+        "reloadTree": "Zrušení filtru a znovunačtení stromu",
+        "tab": {
+          "identities": "Uživatelé",
+          "nodes": "Prvky struktury"
+        }
       },
       "types": {
         "header": "Typy struktur",
@@ -839,6 +847,23 @@
         "create": "Nový typ stromové struktury",
         "save": {
           "success": "Typ [{{name}}] byl úspěšně uložen"
+        },
+        "configuration": {
+          "button": {
+            "rebuild": "Reindexovat"
+          },
+          "action": {
+            "rebuild" : {
+              "header": "Spuštení reindexace",
+              "message": "Opravdu chcete spustit reindexaci pro typ stuktury [{{record}}]",
+              "success": "Byl naplánován rebuild indexu pro typ struktury [{{record}}]."
+            }
+          },
+          "index": {
+            "valid": "Index struktury je validní",
+            "invalid": "Index struktury není validní. Vyhledávání nad indexem nebude vracet relevantní výsledky. Je třeba provést reindexaci.",
+            "rebuild": "Probíhá rebuild indexu stromové struktury <small>V průběhu operace není možné editovat prvky struktury</small>"
+          }
         }
       }
     },
@@ -1023,6 +1048,9 @@
               "proceed": "Přerušuji operaci ..."
             }
           }
+        },
+        "organizationPosition": {
+          "title": "Pozice v organizační struktuře"
         }
       },
       "roles": {
@@ -1216,6 +1244,7 @@
     "organizations": {
       "header": "Organizační struktura",
       "title": "Organizační struktura",
+      "label": "Organizace",
       "defaultTreeType": {
         "empty": {
           "message": "Výchozí organizační struktura není nakonfigurována.",
@@ -1576,7 +1605,7 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Jméno role",
+      "_type": "Složka katalogu",
       "code": {
         "name": "Kód",
         "help": "Kód katalogu je unikátní v rámci všech katalogů."
@@ -1625,7 +1654,7 @@
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {
-        "name": "Katalog"
+        "name": "Složka v katalogu"
       }
     },
     "IdentityRole": {
@@ -1950,6 +1979,50 @@
       }
     }
   },
+  "decision" : {
+    "approve": {
+      "label" : "Schválit",
+      "tooltip": "Provede schválení tohoto úkolu.",
+      "warning": "Opravdu chcete provést schválení?"
+    },
+    "disapprove": {
+      "label" : "Zamítnout",
+      "tooltip": "Zamítnout úkol.",
+      "warning": "Opravdu chcete zamítnout úkol?"
+    },
+    "backToApplicant": {
+      "label" : "Vrátit žadateli",
+      "tooltip": "Vrátí žádost žadateli.",
+      "warning": "Opravdu chcete vrátit žádost žadateli?"
+    },
+    "createRequest": {
+      "label" : "Vytvořit žádost",
+      "tooltip": "Vytvoří žádost.",
+      "warning": "Opravdu chcete vytvořit žádost?"
+    },
+    "cancelRequest": {
+      "label" : "Smazat žádost",
+      "tooltip": "Zruší tuto žádost.",
+      "warning": "Opravdu chcete zrušit tuto žádost?"
+    }
+  },
+  "formData" : {
+    "applicantDescription": {
+      "name" : "Poznámka žadatele",
+      "tooltip": "Poznámka zadaná žadatelem při založení žádosti",
+      "placeholder": "Poznámka zadaná žadatelem při založení žádosti"
+    },
+    "managerDescriptionForApplicant": {
+      "name" : "Poznámka pro žadatele",
+      "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
+      "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
+    },
+    "managerDescription": {
+      "name" : "Poznámka vedoucího",
+      "tooltip": "Poznámka od vedoucího.",
+      "placeholder": "Poznámka od vedoucího."
+    }
+  },
   "error": {
     "AUTH_FAILED": {
       "title": "Chybné přihlašovací údaje",
@@ -2149,7 +2222,15 @@
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
       "title": "Úloha je chybně nakonfigurovaná",
-      "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
+      "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná."
+    },
+    "FOREST_INDEX_DISABLED": {
+      "title": "Index je vypnutý",
+      "message": "Indexování stromových struktur je vypnuté. Je mozné ho zapnout konfigurační položkou {{property}}."
+    },
+    "FOREST_INDEX_RUNNING": {
+      "title": "Reindexování již běží",
+      "message": "Reindexování pro stromovou strukturu {{type}}}} je již spuštěno. Nebude spuštěno opakovaně."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",

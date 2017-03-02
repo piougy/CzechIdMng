@@ -8,6 +8,7 @@ import * as Utils from '../../../utils';
 import { SecurityManager, TreeTypeManager, IdentityManager } from '../../../redux';
 import SearchParameters from '../../../domain/SearchParameters';
 import IdentityTable from '../../identity/IdentityTable';
+import TypeConfiguration from '../type/TypeConfiguration';
 
 // Root nodes  key for tree
 const rootNodesKey = 'tree-node-table-roots';
@@ -239,157 +240,173 @@ export default class NodeTable extends Basic.AbstractContent {
     const showTree = !showLoading && rootNodes && rootNodes.length !== 0;
     //
     return (
-      <Basic.Row>
-        <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
-          <div className="basic-toolbar">
-            <div className="pull-left">
-              <h3 style={{ margin: 0 }}>
-                { showTreeTypeSelect ? this.i18n('content.tree.typePick') : this.i18n('entity.TreeType._type') }
-              </h3>
-            </div>
-            <div className="pull-right">
-              <Basic.Button
-                level="success"
-                className="btn-xs"
-                style={{ marginRight: 3 }}
-                onClick={this.test.bind(this)}
-                rendered={false}>
-                T
-              </Basic.Button>
-              <Basic.Button
-                level="success"
-                title={this.i18n('addType')}
-                titlePlacement="bottom"
-                className="btn-xs"
-                style={{ marginRight: 3 }}
-                onClick={this.showTypeDetail.bind(this, {})}
-                rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_WRITE')}>
-                <Basic.Icon value="fa:plus"/>
-              </Basic.Button>
-              <Basic.Button
-                level="primary"
-                title={this.i18n('reloadTree')}
-                titlePlacement="bottom"
-                className="btn-xs"
-                onClick={this._changeTree.bind(this, type)}>
-                <Basic.Icon value="fa:refresh"/>
-              </Basic.Button>
-            </div>
-            <div className="clearfix"></div>
-          </div>
-          <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
-            {
-              (!type || !showTreeTypeSelect)
-              ||
-              <Basic.SelectBox
-                ref="treeTypeId"
-                value={type.name}
-                manager={treeTypeManager}
-                onChange={this._changeTree.bind(this)}
-                clearable={false} />
-            }
-            {
-              !showTree
-              ||
-              <Advanced.Tree
-                ref="organizationTree"
-                rootNodes={ rootNodes }
-                rootNodesCount={ rootNodesCount }
-                headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
-                uiKey="orgTree"
-                manager={treeNodeManager}
-                />
-            }
-          </div>
-        </div>
-        <div className="col-lg-9">
-          <Basic.Confirm ref="confirm-delete" level="danger"/>
+      <div>
+        <TypeConfiguration treeTypeId={type.id}/>
 
-          <Basic.Tabs activeKey={activeTab} onSelect={this._onChangeSelectTabs.bind(this)} className="tab-embedded">
-            <Basic.Tab eventKey={1} title={'Uživatelé'} style={{ borderLeft: '1px solid #ddd' }}>
-              <IdentityTable
-                ref="identityTable"
-                uiKey={`${uiKey}-identity`}
-                identityManager={identityManager}
-                filterOpened
-                treeType={type}
-                showRowSelection/>
-            </Basic.Tab>
+        <Basic.Panel>
+          <Basic.Row>
+            <div className="col-lg-3" style={{ paddingRight: 0, paddingLeft: 0, marginLeft: 15, marginRight: -15 }}>
+              <div className="basic-toolbar">
+                <div className="pull-left">
+                  <h3 style={{ margin: 0 }}>
+                    { showTreeTypeSelect ? this.i18n('content.tree.typePick') : this.i18n('entity.TreeType._type') }
+                  </h3>
+                </div>
+                <div className="pull-right">
+                  <Basic.Button
+                    level="success"
+                    className="btn-xs"
+                    style={{ marginRight: 3 }}
+                    onClick={this.test.bind(this)}
+                    rendered={false}>
+                    T
+                  </Basic.Button>
+                  <Basic.Button
+                    level="success"
+                    title={this.i18n('addType')}
+                    titlePlacement="bottom"
+                    className="btn-xs"
+                    style={{ marginRight: 3 }}
+                    onClick={this.showTypeDetail.bind(this, {})}
+                    rendered={showTreeTypeSelect && SecurityManager.hasAuthority('TREETYPE_WRITE')}>
+                    <Basic.Icon value="fa:plus"/>
+                  </Basic.Button>
+                  <Basic.Button
+                    level="primary"
+                    title={this.i18n('reloadTree')}
+                    titlePlacement="bottom"
+                    className="btn-xs"
+                    onClick={this._changeTree.bind(this, type)}>
+                    <Basic.Icon value="fa:refresh"/>
+                  </Basic.Button>
+                </div>
+                <div className="clearfix"></div>
+              </div>
+              <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+                {
+                  (!type || !showTreeTypeSelect)
+                  ||
+                  <Basic.SelectBox
+                    ref="treeTypeId"
+                    value={type.name}
+                    manager={treeTypeManager}
+                    onChange={this._changeTree.bind(this)}
+                    clearable={false} />
+                }
+                {
+                  !showTree
+                  ||
+                  <Advanced.Tree
+                    ref="organizationTree"
+                    rootNodes={ rootNodes }
+                    rootNodesCount={ rootNodesCount }
+                    headerDecorator={this._orgTreeHeaderDecorator.bind(this)}
+                    uiKey="orgTree"
+                    manager={treeNodeManager}
+                    />
+                }
+              </div>
+            </div>
+            <div className="col-lg-9">
+              <Basic.Confirm ref="confirm-delete" level="danger"/>
 
-            <Basic.Tab eventKey={2} title={'Prvky struktury'} style={{ borderLeft: '1px solid #ddd' }}>
-              <Advanced.Table
-                ref="table"
-                uiKey={uiKey}
-                forceSearchParameters={new SearchParameters().setFilter('treeTypeId', type.id)}
-                manager={treeNodeManager}
-                showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
-                rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
-                showLoading={showLoading}
-                filter={
-                  <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-                    <Basic.AbstractForm ref="filterForm">
-                      <Basic.Row>
-                        <div className="col-lg-6">
-                          <Advanced.Filter.TextField
-                            ref="text"
-                            placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
-                        </div>
-                        <div className="col-lg-6 text-right">
-                          <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
-                        </div>
-                      </Basic.Row>
-                      <Basic.Row className="last">
-                        <div className="col-lg-6">
-                          <Advanced.Filter.SelectBox
-                            ref="treeNodeId"
-                            placeholder={this.i18n('entity.TreeNode.parentId')}
-                            forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type.id)}
-                            manager={treeNodeManager}/>
-                        </div>
-                      </Basic.Row>
-                    </Basic.AbstractForm>
-                  </Advanced.Filter>
-                }
-                filterOpened={filterOpened}
-                actions={
-                  [
-                    { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
-                  ]
-                }
-                buttons={
-                  [
-                    <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}>
-                      <Basic.Icon type="fa" icon="plus"/>
-                      {' '}
-                      {this.i18n('button.add')}
-                    </Basic.Button>
-                  ]
-                }>
-                <Advanced.Column
-                  header=""
-                  className="detail-button"
-                  cell={
-                    ({ rowIndex, data }) => {
-                      return (
-                        <Advanced.DetailButton
-                          title={this.i18n('button.detail')}
-                          onClick={this.showDetail.bind(this, data[rowIndex])}/>
-                      );
+              <Basic.Tabs activeKey={activeTab} onSelect={this._onChangeSelectTabs.bind(this)} className="tab-embedded" style={{ marginBottom: 0 }}>
+                <Basic.Tab eventKey={1} title={ this.i18n('tab.identities') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
+                  <IdentityTable
+                    ref="identityTable"
+                    uiKey={`${uiKey}-identity`}
+                    identityManager={identityManager}
+                    filterOpened={filterOpened}
+                    treeType={type}
+                    showRowSelection/>
+                </Basic.Tab>
+
+                <Basic.Tab eventKey={2} title={ this.i18n('tab.nodes') } style={{ borderBottom: 0, borderRight: 0, borderRadius: 0 }}>
+
+                  <Advanced.Table
+                    ref="table"
+                    uiKey={uiKey}
+                    forceSearchParameters={new SearchParameters().setFilter('treeTypeId', type.id)}
+                    manager={treeNodeManager}
+                    showRowSelection={SecurityManager.hasAuthority('TREENODE_DELETE')}
+                    rowClass={({rowIndex, data}) => { return data[rowIndex].disabled ? 'disabled' : ''; }}
+                    showLoading={showLoading}
+                    filter={
+                      <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
+                        <Basic.AbstractForm ref="filterForm">
+                          <Basic.Row>
+                            <div className="col-lg-6">
+                              <Advanced.Filter.TextField
+                                ref="text"
+                                placeholder={this.i18n('entity.TreeNode.code') + ' / ' + this.i18n('entity.TreeNode.name') }/>
+                            </div>
+                            <div className="col-lg-6 text-right">
+                              <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                            </div>
+                          </Basic.Row>
+                          <Basic.Row className="last">
+                            <div className="col-lg-6">
+                              <Advanced.Filter.SelectBox
+                                ref="treeNodeId"
+                                placeholder={this.i18n('entity.TreeNode.parentId')}
+                                forceSearchParameters={treeNodeManager.getDefaultSearchParameters().setFilter('treeTypeId', type.id)}
+                                manager={treeNodeManager}/>
+                            </div>
+                            <div className="col-lg-6">
+                              <Advanced.Filter.BooleanSelectBox
+                                ref="recursively"
+                                placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }/>
+                            </div>
+                          </Basic.Row>
+                        </Basic.AbstractForm>
+                      </Advanced.Filter>
                     }
-                  }
-                  sort={false}/>
-                <Advanced.Column property="code" width="125px" sort face="text"/>
-                <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
-                <Advanced.Column property="parent.name" sort/>
-                <Advanced.Column property="treeType.name" sort rendered={false}/>
-                <Advanced.Column property="disabled" sort face="bool"/>
-                <Advanced.Column property="shortName" sort rendered={false}/>
-                <Advanced.Column property="parentId" sort rendered={false}/>
-              </Advanced.Table>
-            </Basic.Tab>
-          </Basic.Tabs>
-        </div>
-      </Basic.Row>
+                    filterOpened={filterOpened}
+                    actions={
+                      [
+                        { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: false }
+                      ]
+                    }
+                    buttons={
+                      [
+                        <Basic.Button level="success" key="add_button" className="btn-xs" onClick={this.showDetail.bind(this, {})} rendered={SecurityManager.hasAuthority('TREENODE_WRITE')}>
+                          <Basic.Icon type="fa" icon="plus"/>
+                          {' '}
+                          {this.i18n('button.add')}
+                        </Basic.Button>
+                      ]
+                    }>
+                    <Advanced.Column
+                      header=""
+                      className="detail-button"
+                      cell={
+                        ({ rowIndex, data }) => {
+                          return (
+                            <Advanced.DetailButton
+                              title={this.i18n('button.detail')}
+                              onClick={this.showDetail.bind(this, data[rowIndex])}/>
+                          );
+                        }
+                      }
+                      sort={false}/>
+                    <Advanced.Column property="code" width="125px" sort face="text"/>
+                    <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
+                    <Advanced.ColumnLink
+                      to="/tree/nodes/:_target"
+                      target="parent.id"
+                      property="parent.name"
+                      sort/>
+                    <Advanced.Column property="treeType.name" sort rendered={false}/>
+                    <Advanced.Column property="disabled" sort face="bool"/>
+                    <Advanced.Column property="shortName" sort rendered={false}/>
+                    <Advanced.Column property="parentId" sort rendered={false}/>
+                  </Advanced.Table>
+                </Basic.Tab>
+              </Basic.Tabs>
+            </div>
+          </Basic.Row>
+        </Basic.Panel>
+      </div>
     );
   }
 }

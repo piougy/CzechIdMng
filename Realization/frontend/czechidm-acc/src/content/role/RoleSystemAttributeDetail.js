@@ -154,7 +154,7 @@ class RoleSystemAttributeDetail extends Basic.AbstractTableContent {
         </Basic.ContentHeader>
         <form onSubmit={this.save.bind(this)}>
           <Basic.Panel className="no-border last">
-            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading} className="panel-body">
+            <Basic.AbstractForm ref="form" data={attribute} showLoading={_showLoading}>
               <Basic.Checkbox
                 ref="disabledDefaultAttribute"
                 onChange={this._disabledChanged.bind(this, 'disabledDefaultAttribute')}

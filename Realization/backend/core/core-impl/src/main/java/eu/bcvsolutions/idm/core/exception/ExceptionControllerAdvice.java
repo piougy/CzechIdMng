@@ -134,11 +134,11 @@ public class ExceptionControllerAdvice {
 	@ExceptionHandler(Exception.class)
 	ResponseEntity<ResultModels> handle(Exception ex) {
 		Throwable cause = Throwables.getRootCause(ex);
-		// If is cause ResultCodeException, then we will log catched exception and throw only ResultCodeException (for better show on frontend)
-		if(cause instanceof ResultCodeException){
+		// If is cause ResultCodeExce	ption, then we will log catched exception and throw only ResultCodeException (for better show on frontend)
+		if (cause instanceof ResultCodeException){
 			log.error(ex.getLocalizedMessage(), ex);
 			return handle((ResultCodeException)cause);
-		}else{
+		} else {
 			ErrorModel errorModel = new DefaultErrorModel(CoreResultCode.INTERNAL_SERVER_ERROR, ex.getMessage());
 			log.error("[" + errorModel.getId() + "] ", ex);
 			return new ResponseEntity<>(new ResultModels(errorModel), new HttpHeaders(), errorModel.getStatus());

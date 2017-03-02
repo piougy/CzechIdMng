@@ -60,6 +60,16 @@ public interface FormService {
 	IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass);
 	
 	/**
+	 * Finds definition by given type and name (optional) 
+	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
+	 * @param ownerClass
+	 * @param name [optional] - if no name given, then returns default definition
+	 * @return
+	 */
+	IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String name);
+	
+	/**
 	 * Return default definition name for given owner type.
 	 * 
 	 * @param ownerClass owner type
@@ -80,6 +90,7 @@ public interface FormService {
 	/**
 	 * Creates form definition
 	 * 
+	 * @see {@link #getDefaultDefinitionType(Class)}
 	 * @param type definition type
 	 * @param name [optional] definition name (default will be created, if no definition name is given)
 	 * @param formAttributes
@@ -96,6 +107,16 @@ public interface FormService {
 	 * @return
 	 */
 	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, List<IdmFormAttribute> formAttributes);
+	
+	/**
+	 * Creates form definition
+	 * 
+	 * @param ownerClass owner type
+	 * @param name [optional] definition name (default will be created, if no definition name is given)
+	 * @param formAttributes
+	 * @return
+	 */
+	IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, String name, List<IdmFormAttribute> formAttributes);
 	
 	/**
 	 * Persists given form attribute.

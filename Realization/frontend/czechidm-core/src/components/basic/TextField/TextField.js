@@ -157,8 +157,6 @@ class TextField extends AbstractFormComponent {
     if (required && !feedback && !this._showConfidentialWrapper()) {
       showAsterix = true;
     }
-    const validationResult = this.getValidationResult();
-    const title = validationResult != null ? validationResult.message : null;
     //
     // value and readonly properties depends on confidential wrapper
     let _value = value || '';
@@ -190,7 +188,7 @@ class TextField extends AbstractFormComponent {
     let confidentialWrapper = component;
     if (this._showConfidentialWrapper()) {
       confidentialWrapper = (
-        <Tooltip ref="popover" placement="bottom" value={this.i18n('confidential.edit')}>
+        <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={this.i18n('confidential.edit')}>
           <div className="input-group">
             { component }
             <span className="input-group-btn">
@@ -220,7 +218,7 @@ class TextField extends AbstractFormComponent {
           </label>
         }
         <div className={componentSpan} style={{ whiteSpace: 'nowrap' }}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               {confidentialWrapper}
               {

@@ -127,6 +127,26 @@ export default class IdentityManager extends EntityManager {
   }
 
   /**
+   * Get given identity's main position in organization
+   *
+   * @param  {string} username
+   * @param  {string} uiKey
+   * @return {array[object]}
+   */
+  fetchOrganizationPosition(username, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getOrganizationPosition(username)
+        .then(json => {
+          dispatch(this.dataManager.receiveData(uiKey, json._embedded && json._embedded.treeNodes ? json._embedded.treeNodes : []));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
    * Load form instance (definition + values) by given identity
    *
    * @param  {string} id identity identifier

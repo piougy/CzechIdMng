@@ -225,6 +225,38 @@ class AbstractFormComponent extends AbstractContextComponent {
     );
   }
 
+  /**
+   * Returns title placement for validations tooltips etc.
+   *
+   * @return {string} tittle position
+   */
+  getTitlePlacement() {
+    return 'top';
+  }
+
+  /**
+   *  Returns title - could be shown in tooltips (validations etc)
+   *
+   * @return {string}
+   */
+  getTitle() {
+    const { label, placeholder, tooltip } = this.props;
+    const propertyName = label || placeholder;
+    const validationResult = this.getValidationResult();
+    //
+    let title = null;
+    if (validationResult && validationResult.message) {
+      title = `${propertyName}: ${validationResult.message}`;
+    } else if (!label) {
+      title = propertyName;
+    }
+    if (tooltip) {
+      title = !title ? tooltip : `${title} (${tooltip})`;
+    }
+    //
+    return title;
+  }
+
   render() {
     const { hidden, className, rendered } = this.props;
     if (!rendered) {

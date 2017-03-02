@@ -30,7 +30,7 @@ export default class RoleCatalogues extends Basic.AbstractContent {
         {this.renderPageHeader()}
 
         <Basic.Panel>
-          <RoleCatalogueTable uiKey="role_catalogue_table" roleCatalogueManager={this.roleCatalogueManager} filterOpened={false}/>
+          <RoleCatalogueTable uiKey="role_catalogue_table" roleCatalogueManager={this.roleCatalogueManager}/>
         </Basic.Panel>
 
       </div>

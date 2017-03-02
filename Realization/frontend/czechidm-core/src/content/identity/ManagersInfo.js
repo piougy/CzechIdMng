@@ -11,7 +11,9 @@ import SearchParameters from '../../domain/SearchParameters';
 const uiKey = 'managers-info';
 
 /**
- * Notification detail content
+ * Renders all managers by identity contract
+ *
+ * @author Radek Tomiška
  */
 class ManagersInfo extends Basic.AbstractContextComponent {
 

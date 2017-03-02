@@ -19,7 +19,7 @@ public class SpinalCase {
 	 * @param input
 	 * @return
 	 */
-	public static String parse(String input) {
+	public static String format(String input) {
 		if (isEmptyOrNull(input)) {
 			return "";
 		}

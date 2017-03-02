@@ -77,9 +77,7 @@ export default class LongRunningTaskManager extends EntityManager {
       this.getService().interrupt(task)
         .then(() => {
           dispatch(this.dataManager.stopRequest(uiKey));
-          if (cb) {
-            cb();
-          }
+          dispatch(this.deletedEntity(task.id, task, uiKey, cb));
         })
         .catch(error => {
           // TODO: data uiKey

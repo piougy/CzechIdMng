@@ -88,7 +88,6 @@ class ScriptArea extends AbstractFormComponent {
     require('brace/mode/groovy');
     require('brace/theme/github');
     const AceEditorInstance = this._getAceEditor(AceEditor, mode, className, height, showModalEditor);
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
         {
@@ -102,7 +101,7 @@ class ScriptArea extends AbstractFormComponent {
         }
 
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="right" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               <Button
                 type="button"

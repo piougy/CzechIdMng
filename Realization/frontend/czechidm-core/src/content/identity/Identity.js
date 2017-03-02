@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import * as Basic from '../../components/basic';
 import { IdentityManager } from '../../redux';
 import * as Advanced from '../../components/advanced';
+import OrganizationPosition from './OrganizationPosition';
 
 const identityManager = new IdentityManager();
 
@@ -19,6 +20,10 @@ class IdentityContent extends Basic.AbstractContent {
 
   componentDidUpdate() {
     this._selectNavigationItem();
+    // TODO: move to componentWillReceiveNextProps
+    const { entityId } = this.props.params;
+    //
+    this.context.store.dispatch(identityManager.fetchEntityIfNeeded(entityId));
   }
 
   _selectNavigationItem() {
@@ -33,6 +38,7 @@ class IdentityContent extends Basic.AbstractContent {
 
   render() {
     const { identity } = this.props;
+    const { entityId } = this.props.params;
 
     return (
       <div>
@@ -41,6 +47,8 @@ class IdentityContent extends Basic.AbstractContent {
         <Basic.PageHeader>
           {identityManager.getNiceLabel(identity)} <small> {this.i18n('content.identity.profile.userDetail')}</small>
         </Basic.PageHeader>
+
+        <OrganizationPosition identity={entityId}/>
 
         <Advanced.TabPanel position="left" parentId="identity-profile" params={this.props.params}>
           {this.props.children}

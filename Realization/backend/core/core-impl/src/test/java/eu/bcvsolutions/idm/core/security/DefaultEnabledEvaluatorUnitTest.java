@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.api.exception.ConfigurationDisabledException;
 import eu.bcvsolutions.idm.core.security.api.exception.ModuleDisabledException;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultEnabledEvaluator;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test for {@link DefaultEnabledEvaluator}
@@ -25,7 +25,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class DefaultEnabledEvaluatorUnitTest extends AbstractUnitTest {
+public class DefaultEnabledEvaluatorUnitTest extends AbstractVerifiableUnitTest {
 
 	private static final String MODULE_ONE = "test-module-one";
 	private static final String MODULE_TWO = "test-module-two";

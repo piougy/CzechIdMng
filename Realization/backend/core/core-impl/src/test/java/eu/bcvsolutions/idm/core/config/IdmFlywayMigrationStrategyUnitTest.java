@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import eu.bcvsolutions.idm.core.api.config.flyway.IdmFlywayMigrationStrategy;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Resolving location by jdbc database name
@@ -17,7 +17,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class IdmFlywayMigrationStrategyUnitTest extends AbstractUnitTest {
+public class IdmFlywayMigrationStrategyUnitTest extends AbstractVerifiableUnitTest {
 
 	private IdmFlywayMigrationStrategy flywayMigrationStrategy = new IdmFlywayMigrationStrategy();
 	

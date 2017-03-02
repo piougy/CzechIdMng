@@ -188,7 +188,7 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	 */
 	@Deprecated
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.APP_ADMIN + "')")
 	@RequestMapping(value = "/test/create-test-system", method = RequestMethod.POST)
 	public ResponseEntity<?> createTestSystem() {
 		systemService.createTestSystem();

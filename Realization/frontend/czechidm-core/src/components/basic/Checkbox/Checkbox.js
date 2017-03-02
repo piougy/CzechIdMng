@@ -34,9 +34,8 @@ class Checkbox extends AbstractFormComponent {
   }
 
   getBody() {
-    const { labelSpan, label, componentSpan, tooltip } = this.props;
+    const { labelSpan, label, componentSpan } = this.props;
     const { value, readOnly, disabled } = this.state;
-    const title = this.getValidationResult() && this.getValidationResult().message ? this.getValidationResult().message + ' (' + tooltip + ')' : tooltip;
     const className = classNames(
       labelSpan,
       componentSpan
@@ -46,7 +45,7 @@ class Checkbox extends AbstractFormComponent {
       <div className={className}>
         <div className="checkbox">
           {/* focus can not be added for checkbox - event colision when checkbox  */}
-          <Tooltip trigger={['click', 'hover']} ref="popover" placement="left" value={title}>
+          <Tooltip trigger={['click', 'hover']} ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <label>
               <input
                 type="checkbox"

@@ -1,8 +1,7 @@
 package eu.bcvsolutions.idm.core.model.dto.filter;
 
-import java.util.UUID;
-
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmRoleCatalogue;
 
 /**
  * Default filter for role catalogue, parent
@@ -13,7 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
 
 public class RoleCatalogueFilter extends QuickFilter {
 	
-	private UUID parentId;
+	private IdmRoleCatalogue parent;
 	
 	private String name;
 	
@@ -35,11 +34,11 @@ public class RoleCatalogueFilter extends QuickFilter {
 		this.code = code;
 	}
 
-	public UUID getParentId() {
-		return parentId;
+	public IdmRoleCatalogue getParent() {
+		return parent;
 	}
 
-	public void setParent(UUID parentId) {
-		this.parentId = parentId;
+	public void setParent(IdmRoleCatalogue parent) {
+		this.parent = parent;
 	}
 }

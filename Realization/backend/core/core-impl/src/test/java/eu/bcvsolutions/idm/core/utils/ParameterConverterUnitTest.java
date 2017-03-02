@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.api.domain.OperationState;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.api.utils.ParameterConverter;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Rest parameter converter test. Parameters are in strings.
@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class ParameterConverterUnitTest extends AbstractUnitTest {
+public class ParameterConverterUnitTest extends AbstractVerifiableUnitTest {
 
 	private static final String PARAMETER_NAME = "test-parameter";
 	//

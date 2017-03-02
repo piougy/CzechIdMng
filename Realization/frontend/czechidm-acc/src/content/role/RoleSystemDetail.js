@@ -260,7 +260,7 @@ class RoleSystemDetail extends Basic.AbstractTableContent {
                 }
               }/>
               <Advanced.ColumnLink
-                to={`role/${roleSystem ? roleSystem.role : null }/systems/${roleSystem ? roleSystem.id : null}/attributes/:id/detail`}
+                to={`role/${roleSystem ? roleSystem.role.id : null }/systems/${roleSystem ? roleSystem.id : null}/attributes/:id/detail`}
                 property="name"
                 header={this.i18n('acc:entity.RoleSystemAttribute.name.label')}
                 sort />

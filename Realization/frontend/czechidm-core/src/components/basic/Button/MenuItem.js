@@ -3,6 +3,11 @@ import React from 'react';
 //
 import AbstractComponent from '../AbstractComponent/AbstractComponent';
 
+/**
+ * Split button item
+ *
+ * @author Radek Tomiška
+ */
 class ButtonMenuItem extends AbstractComponent {
   constructor(props) {
     super(props);

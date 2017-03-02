@@ -142,7 +142,7 @@ class RichTextArea extends AbstractFormComponent {
 
   getBody(feedback) {
     const { labelSpan, label, componentSpan, placeholder, style, required, showToolbar, mentions } = this.props;
-    const { editorState, disabled, readOnly } = this.state;
+    const { editorState, readOnly } = this.state;
     const labelClassName = classNames(
       labelSpan,
       'control-label'
@@ -178,7 +178,6 @@ class RichTextArea extends AbstractFormComponent {
                 editorState={editorState}
                 onEditorStateChange={this.onChange}
                 className="form-control"
-                disabled={disabled}
                 mention={mentions}
                 style={style}
                 toolbar={this._getToolbar()}

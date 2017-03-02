@@ -144,7 +144,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
               required
               max={255}/>
             <Basic.TextField
-              ref="parameter" readOnly={entity.systemTemplate}
+              ref="parameter" readOnly={entity.systemTemplate} max={255}
               label={this.i18n('entity.NotificationTemplate.parameter.name')}
               helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
             <Basic.Checkbox readOnly={entity.systemTemplate}
@@ -157,10 +157,10 @@ export default class TemplateDetail extends Basic.AbstractContent {
               required
               max={255}/>
             <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
-              showToolbar required
+              showToolbar
               helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
               mentions={this.getParameters()}/>
-            <Basic.TextArea ref="bodyText" required label={this.i18n('entity.NotificationTemplate.bodyText')} />
+            <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
           </Basic.AbstractForm>
 
           <Basic.PanelFooter showLoading={showLoading} >

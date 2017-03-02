@@ -779,6 +779,10 @@
         "recursively": {
           "label": "Rekurzivně",
           "placeholder": "Rekurzivně dle struktury dolů"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Má přiřazenu roli"
         }
       },
       "action": {

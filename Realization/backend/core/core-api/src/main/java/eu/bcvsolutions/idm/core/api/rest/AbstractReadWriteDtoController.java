@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.dto.filter.BaseFilter;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
@@ -23,7 +23,7 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteDtoService;
  * @author Svanda
  *
  */
-public abstract class AbstractReadWriteDtoController<DTO extends AbstractDto, F extends BaseFilter>
+public abstract class AbstractReadWriteDtoController<DTO extends BaseDto, F extends BaseFilter>
 		extends AbstractReadDtoController<DTO, F> {
 
 	public AbstractReadWriteDtoController(ReadWriteDtoService<DTO, ?, F> entityService) {

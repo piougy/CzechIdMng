@@ -1,6 +1,6 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
-import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 
 /**
  * Basic interface for DTO controllers..
@@ -10,7 +10,7 @@ import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
  * @param <E>
  */
 
-public interface BaseDtoController<E extends AbstractDto> extends BaseController {
+public interface BaseDtoController<E extends BaseDto> extends BaseController {
 	
 	static final String TREE_BASE_PATH = "/tree";
 }

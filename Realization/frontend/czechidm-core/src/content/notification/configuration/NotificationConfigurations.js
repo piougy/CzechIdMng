@@ -135,10 +135,6 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   ref="topic"
                   label={this.i18n('entity.NotificationConfiguration.topic')}
                   required/>
-                <Basic.TextField
-                  ref="parameter"
-                  label={this.i18n('entity.NotificationConfiguration.parameter.name')}
-                  helpBlock={this.i18n('entity.NotificationConfiguration.parameter.help')}/>
                 <Basic.SelectBox
                   ref="template"
                   label={this.i18n('entity.NotificationConfiguration.template')}
@@ -156,7 +152,6 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                 <Basic.TextArea
                   ref="description"
                   label={this.i18n('entity.NotificationConfiguration.description')}
-                  helpBlock={this.i18n('entity.NotificationConfiguration.description')}
                   required/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>

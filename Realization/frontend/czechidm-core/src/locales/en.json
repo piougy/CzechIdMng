@@ -1764,18 +1764,27 @@
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
+      "parameter": {
+        "name": "Parameters",
+        "help": "List of template parameters. Parameters separate by comma."
+      },
       "systemTemplate": {
         "name": "System template",
         "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
       },
-      "bodyHtml": "Message body (html)",
+      "bodyHtml": {
+      "name": "Message body (html)",
+      "help": "For a list of available templates write character '$'"
+      },
       "bodyText": "Message body (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
       "level": "Type",
-      "notificationType": "Channel"
+      "notificationType": "Channel",
+      "template": "Template",
+      "description": "Description"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

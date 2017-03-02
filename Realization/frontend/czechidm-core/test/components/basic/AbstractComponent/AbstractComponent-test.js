@@ -90,7 +90,7 @@ describe('Basic AbstractComponent', function abstractComponent() {
         // for now we must skip test for SelectBox and ScriptArea
         // SelectBox want use this.context.store and
         // ScriptArea has 'global leak detected' with react-ace
-        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea')) {
+        if (component.endsWith('SelectBox') || component.endsWith('ScriptArea') || component.endsWith('RichTextArea')) {
           continue;
         }
         const ComponentType = componentLibrary[component];

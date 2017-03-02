@@ -231,7 +231,7 @@ class AbstractFormComponent extends AbstractContextComponent {
    * @return {string} tittle position
    */
   getTitlePlacement() {
-    return 'bottom';
+    return 'top';
   }
 
   /**

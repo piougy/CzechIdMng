@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyMapping;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
@@ -24,13 +25,22 @@ import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
  * @author svandav
  *
  */
+
 public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 	private EntityLookupService lookupService;
+	private ApplicationContext applicationContext;
 
-	public UiidToEntityConverter(EntityLookupService lookupService) {
-		Assert.notNull(lookupService, "Entity lookup service is required!");
-		this.lookupService = lookupService;
+	/**
+	 * {@link ApplicationContext} is required, because we need use
+	 * {@link EntityLookupService}. This service but is not initialised in model
+	 * mapper create phase.
+	 * 
+	 * @param applicationContext
+	 */
+	public UiidToEntityConverter(ApplicationContext applicationContext) {
+		Assert.notNull(applicationContext, "Application context is required!");
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -51,7 +61,7 @@ public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
 				if (fieldTyp.isAnnotationPresent(Embedded.class)) {
 					Embedded embeddedAnnotation = fieldTyp.getAnnotation(Embedded.class);
 					if (embeddedAnnotation.enabled()) {
-						dtoService = lookupService.getDtoService(embeddedAnnotation.dtoClass());
+						dtoService = getLookupService().getDtoService(embeddedAnnotation.dtoClass());
 					}
 				}
 			} catch (NoSuchFieldException | SecurityException e) {
@@ -60,7 +70,7 @@ public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 			if (dtoService == null) {
 				// We do not have dto service. We try load service for entity
-				ReadEntityService<?, ?> entityService = lookupService.getEntityService(entityClass);
+				ReadEntityService<?, ?> entityService = getLookupService().getEntityService(entityClass);
 				return entityService.get(sourceUUID);
 			} else {
 				if (dtoService instanceof ReadDtoService) {
@@ -70,5 +80,12 @@ public class UiidToEntityConverter implements Converter<UUID, BaseEntity> {
 
 		}
 		return null;
+	}
+
+	private EntityLookupService getLookupService() {
+		if (this.lookupService == null) {
+			this.lookupService = this.applicationContext.getBean(EntityLookupService.class);
+		}
+		return this.lookupService;
 	}
 }

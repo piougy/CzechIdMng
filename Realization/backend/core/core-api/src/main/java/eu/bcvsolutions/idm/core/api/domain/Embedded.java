@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.model.domain;
+package eu.bcvsolutions.idm.core.api.domain;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 
 /**
- * Mark field for convert BaseEntity to UUID and embedded DTO entity.
+ * Mark field for convert BaseEntity to UUID (and conversely) and embedded DTO entity.
  * 
  * @author svandav
  *
@@ -29,7 +29,7 @@ public @interface Embedded {
 	boolean enabled() default true;
 
 	/**
-	 * Define class of DTO for transform object to embedded DTO entity
+	 * Define class of DTO for transform object to embedded DTO entity (and conversely)
 	 * 
 	 * @return
 	 */

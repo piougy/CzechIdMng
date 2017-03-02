@@ -15,17 +15,17 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 public interface ReadWriteDtoService<DTO extends BaseDto, E extends BaseEntity, F extends BaseFilter> extends ReadDtoService<DTO, E, F> {
 
 	/**
-	 * Saves a given dto.
+	 * Saves a given DTO.
 	 * @param entity
-	 * @return the saved dto
+	 * @return the saved DTO
 	 */
 	DTO saveDto(DTO entity);
 	
 	/**
-	 * Saves all given dto.
+	 * Saves all given DTO.
 	 * 
 	 * @param dtos
-	 * @return the saved dtos
+	 * @return the saved DTOs
 	 * @throws IllegalArgumentException in case the given entity is {@literal null}.
 	 */
 	Iterable<DTO> saveAllDto(Iterable<DTO> dtos);

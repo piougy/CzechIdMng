@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -19,7 +20,6 @@ import org.springframework.core.annotation.Order;
 
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
-import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.config.domain.EntityToUiidConverter;
 import eu.bcvsolutions.idm.core.config.domain.UiidToEntityConverter;
 
@@ -35,11 +35,9 @@ public class WebModelMapperConfig {
 
 	@PersistenceContext
 	private EntityManager entityManager;
-	
 	@Autowired
-	private EntityLookupService lookupService;
-
-
+	private ApplicationContext applicationContext;
+	
 	@SuppressWarnings("unchecked")
 	@Bean
 	public ModelMapper modelMapper() {
@@ -49,7 +47,7 @@ public class WebModelMapperConfig {
 		Converter<? extends BaseEntity, UUID> entityToUiid = new EntityToUiidConverter(modeler);
 		
 		// Convert UIID to Entity
-		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UiidToEntityConverter(lookupService);
+		Converter<UUID, ? extends BaseEntity> uiidToEntity = new UiidToEntityConverter(applicationContext);
 
 
 		// Condition for property ... if is property list and dto is trimmed,

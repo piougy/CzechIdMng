@@ -27,7 +27,7 @@ export default class FilterButtons extends Basic.AbstractContextComponent {
     //
     return (
       <span>
-        <Basic.Button level="link" onClick={this._cancelFilter.bind(this)}>
+        <Basic.Button onClick={this._cancelFilter.bind(this)} style={{ marginRight: 5 }}>
           {this.i18n('button.filter.cancel')}
         </Basic.Button>
         <Basic.Button level="primary" type="submit">

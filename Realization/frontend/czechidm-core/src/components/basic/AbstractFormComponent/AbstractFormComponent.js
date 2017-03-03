@@ -139,7 +139,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.i18n('validationError.' + type, params);
   }
 
-  validate(showValidationError) {
+  validate(showValidationError, cb) {
     const{value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
     if (!validation) {
@@ -168,21 +168,35 @@ class AbstractFormComponent extends AbstractContextComponent {
         }
       }
       const message = this._localizationValidation(key, params);
-      this.setState({validationResult:
-         {status: 'error',
+      this.setState({
+        validationResult: {
+          status: 'error',
           class: 'has-error has-feedback',
           isValid: false,
-          message},
-        showValidationError: showValidations}); // show validation error on UI
+          message
+        },
+        showValidationError: showValidations
+      }, () => {
+        if (cb) {
+          cb(result);
+        }
+      }); // show validation error on UI
       return false;
     }
-    this.setState({validationResult:
-        {status: null,
-           class: '',
-           isValid: true,
-           message: null,
-           showValidationError: true},
-        showValidationError: showValidations}); // show validation error on UI
+    this.setState({
+      validationResult: {
+        status: null,
+        class: '',
+        isValid: true,
+        message: null,
+        showValidationError: true
+      },
+      showValidationError: showValidations
+    }, () => {
+      if (cb) {
+        cb(result);
+      }
+    }); // show validation error on UI
     return true;
   }
 
@@ -190,8 +204,10 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.state.value;
   }
 
-  setValue(value) {
-    this.setState({value}, this.validate.bind(this, false));
+  setValue(value, cb) {
+    this.setState({
+      value
+    }, this.validate.bind(this, false, cb));
   }
 
   getBody() {

@@ -17,4 +17,5 @@ parameters:
 	<bodyText>Provisioning uctu $name na system $system uspesne probehl.</bodyText>
 	<parameter>name, system, operationType, objectClass</parameter>
 	<systemTemplate>true</systemTemplate>
+	<moduleId>acc</moduleId>
 </template>

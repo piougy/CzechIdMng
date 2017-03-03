@@ -16,7 +16,7 @@ ________________________________________________________________________________
 	bodyText		|	true		|	message body for text message and etc.
 	parameter		|	true		|	list of parameters for message. Split by ','
 	systemTemplate	|	true		|	flag if this template is system, if you want to add some non system templates use, rest or FE form.
-
+	moduleId		|	true		|	Module ID information propagate to FE
 
 EXAMPLE:
 _____________________________________________________________________________________________________________________
@@ -35,6 +35,7 @@ parametes description...
 	<bodyText>Provisioning uctu $name na system $system uspesne probehl.</bodyText>
 	<parameter>name, system, operationType, objectClass</parameter>
 	<systemTemplate>true</systemTemplate>
+	<moduleId>core</moduleId>
 </template>
 _____________________________________________________________________________________________________________________
 

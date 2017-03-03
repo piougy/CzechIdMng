@@ -214,7 +214,7 @@ RichTextArea.propTypes = {
 RichTextArea.defaultProps = {
   ...AbstractFormComponent.defaultProps,
   showToolbar: false,
-  toolbarOptions: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'emoji', 'remove', 'history'], // + order of component  ; remove: 'image', 'link', 'embedded',
+  toolbarOptions: ['inline', 'blockType', 'list', 'emoji', 'remove', 'history'], // + order of component  ; remove: 'image', 'link', 'embedded', 'fontSize', 'fontFamily', 'colorPicker', 'textAlign',
   fontSizeOptions: {
     options: [7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96],
     className: undefined,

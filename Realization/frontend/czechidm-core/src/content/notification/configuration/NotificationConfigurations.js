@@ -112,7 +112,15 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                 }
               }/>
             <Advanced.Column property="topic" width="30%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
-            <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort />
+            <Advanced.Column property="template.name" header={this.i18n('entity.NotificationConfiguration.template')} sort
+              cell={
+                ({ rowIndex, data }) => {
+                  if (data[rowIndex].template.module) {
+                    return (data[rowIndex].template.name + ' ' + '(' + data[rowIndex].template.module + ')');
+                  }
+                  return (data[rowIndex].template.name);
+                }
+              }/>
             <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
             <Advanced.Column property="notificationType" header={this.i18n('entity.NotificationConfiguration.notificationType')} sort face="text" />
           </Advanced.Table>

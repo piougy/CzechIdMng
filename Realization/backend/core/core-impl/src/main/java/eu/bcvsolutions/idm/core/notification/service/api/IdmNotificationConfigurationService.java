@@ -5,6 +5,7 @@ import java.util.Set;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 
@@ -30,6 +31,16 @@ public interface IdmNotificationConfigurationService extends ReadWriteEntityServ
 	 * @return
 	 */
 	List<NotificationSender<?>> getSenders(BaseNotification notification);
+	
+	/**
+	 * Method return {@link IdmNotificationConfiguration} by topic, level, notification type.
+	 * All parameters must exits. 
+	 * @param topic
+	 * @param level
+	 * @param notificationType
+	 * @return
+	 */
+	IdmNotificationConfiguration getConfigurationByTopicLevelNotification(String topic, NotificationLevel level);
 	
 	/**
 	 * Returns registered senders notification types.

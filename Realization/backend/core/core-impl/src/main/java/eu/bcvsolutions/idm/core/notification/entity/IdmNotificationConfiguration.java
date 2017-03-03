@@ -8,7 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -55,7 +55,7 @@ public class IdmNotificationConfiguration extends AbstractEntity {
 	private String notificationType;
 	
 	@Audited
-	@OneToOne(optional = true)
+	@ManyToOne(optional = true)
 	@JoinColumn(name = "template_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )

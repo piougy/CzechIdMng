@@ -36,13 +36,14 @@ class NotificationDetail extends Basic.AbstractContent {
       data = { ...notification };
       this.refs.subject.focus();
     } else {
+      const template = notification.message.template ? notification.message.template : notification.message._embedded.template;
       data = {
         ...notification,
         subject: notification.message.subject,
         textMessage: notification.message.textMessage,
         htmlMessage: notification.message.htmlMessage,
         level: notification.message.level,
-        template: notification.message.template
+        template
       };
     }
     this.refs.form.setData(data);

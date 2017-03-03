@@ -12,6 +12,7 @@ import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
+import eu.bcvsolutions.idm.core.notification.rest.projection.IdmNotificationConfigurationExcerpt;
 
 /**
  * Configuration for notification routing
@@ -23,6 +24,7 @@ import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration
 		collectionResourceRel = "notificationConfigurations", //
 		path = "notification-configurations", //
 		itemResourceRel = "notificationConfiguration",
+		excerptProjection = IdmNotificationConfigurationExcerpt.class,
 		exported = false
 	)
 public interface IdmNotificationConfigurationRepository extends AbstractEntityRepository<IdmNotificationConfiguration, EmptyFilter> {
@@ -35,6 +37,12 @@ public interface IdmNotificationConfigurationRepository extends AbstractEntityRe
 	
 	@Query(value = "select distinct(e.notificationType) from IdmNotificationConfiguration e where e.topic = :topic and (e.level is null or e.level = :level)")
 	List<String> findTypes(@Param("topic") String topic, @Param("level") NotificationLevel level);
+	
+	@Query(value = "SELECT e FROM IdmNotificationConfiguration e WHERE "
+			+ "(:topic is null or e.topic = :topic) "
+			+ "AND  "
+			+ "(:level is null or e.level = :level) ")
+	IdmNotificationConfiguration findNotificationByTopicLevel(@Param("topic") String topic, @Param("level") NotificationLevel level);
 	
 	Long countByTopic(@Param("topic") String topic);
 }

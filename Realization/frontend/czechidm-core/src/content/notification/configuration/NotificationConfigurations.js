@@ -46,8 +46,13 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
 
   save(entity, event) {
     const formEntity = this.refs.form.getData();
+    // transform template id
+    const savedEntity = {
+      ...formEntity,
+      template: notificationTemplateManager.getSelfLink(formEntity.template)
+    };
     //
-    super.save(formEntity, event);
+    super.save(savedEntity, event);
   }
 
   afterSave(entity, error) {
@@ -112,13 +117,13 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                 }
               }/>
             <Advanced.Column property="topic" width="30%" header={this.i18n('entity.NotificationConfiguration.topic')} sort face="text" />
-            <Advanced.Column property="template.name" header={this.i18n('entity.NotificationConfiguration.template')} sort
+            <Advanced.Column property="template" header={this.i18n('entity.NotificationConfiguration.template')} sort
               cell={
                 ({ rowIndex, data }) => {
-                  if (data[rowIndex].template.module) {
+                  if (data[rowIndex].template && data[rowIndex].template.module) {
                     return (data[rowIndex].template.name + ' ' + '(' + data[rowIndex].template.module + ')');
                   }
-                  return (data[rowIndex].template.name);
+                  return data[rowIndex].template ? data[rowIndex].template.name : '';
                 }
               }/>
             <Advanced.Column property="level" width="75px" header={this.i18n('entity.NotificationConfiguration.level')} sort face="enum" enumClass={NotificationLevelEnum} />
@@ -159,8 +164,7 @@ export default class NotificationConfigurations extends Basic.AbstractTableConte
                   required/>
                 <Basic.TextArea
                   ref="description"
-                  label={this.i18n('entity.NotificationConfiguration.description')}
-                  required/>
+                  label={this.i18n('entity.NotificationConfiguration.description')}/>
               </Basic.AbstractForm>
             </Basic.Modal.Body>
 

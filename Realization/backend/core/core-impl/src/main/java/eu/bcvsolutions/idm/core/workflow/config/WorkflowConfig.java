@@ -72,6 +72,14 @@ public class WorkflowConfig {
 				if (bean instanceof ProcessEngineFactoryBean) {
 					processEngineConfiguration = (ProcessEngineConfigurationImpl) (((ProcessEngineFactoryBean) bean)
 							.getProcessEngineConfiguration());
+					
+					//Resource[] resources = new Resource[1];
+					//resources[0] = new ClassPathResource("classpath*:/eu/bcvsolutions/idm/workflow/**/**.bpmn20.xml");
+
+					/*((SpringProcessEngineConfiguration) processEngineConfiguration)
+							.setDeploymentResources(resources);*/
+					
+					
 					((SpringProcessEngineConfiguration) processEngineConfiguration)
 							.setDeploymentMode(SingleResourceAutoDeploymentStrategy.DEPLOYMENT_MODE);
 									

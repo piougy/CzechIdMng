@@ -122,7 +122,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	}
 
 	@Override
-	public IdmMessage getMessage(IdmMessage message, boolean showGuardedString) {
+	public IdmMessage buildMessage(IdmMessage message, boolean showGuardedString) {
 		StringWriter bodyHtml = new StringWriter();
 		StringWriter bodyText = new StringWriter();
 		StringWriter subject = new StringWriter();
@@ -167,8 +167,6 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 				.setLevel(message.getLevel()) // level get from old message
 				.setTemplate(template)
 				.setParameters(model)
-				// build without use template, but template and parameter is persisted
-				.buildWithoutUseTemplate()
 				.build();
 		//
 		return newMessage;
@@ -176,11 +174,11 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 
 
 	@Override
-	public IdmMessage getMessage(IdmMessage message) {
+	public IdmMessage buildMessage(IdmMessage message) {
 		if (message.getTemplate() == null) {
 			return message;
 		}
-		return this.getMessage(message, false);
+		return this.buildMessage(message, false);
 	}
 
 	@Override
@@ -216,6 +214,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 							newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
 							newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
 							newTemplate.setSystemTemplate(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+							newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
 							//
 							entities.add(newTemplate);
 						}

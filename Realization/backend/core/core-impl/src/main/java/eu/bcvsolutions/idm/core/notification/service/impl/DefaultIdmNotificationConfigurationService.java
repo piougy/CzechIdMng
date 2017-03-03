@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.idm.core.api.dto.filter.EmptyFilter;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ModuleService;
+import eu.bcvsolutions.idm.core.notification.api.domain.NotificationLevel;
 import eu.bcvsolutions.idm.core.notification.domain.BaseNotification;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
@@ -121,6 +122,11 @@ public class DefaultIdmNotificationConfigurationService
 			}
 		});
 		return types;
+	}
+
+	@Override
+	public IdmNotificationConfiguration getConfigurationByTopicLevelNotification(String topic, NotificationLevel level) {
+		return this.repository.findNotificationByTopicLevel(topic, level);
 	}
 
 }

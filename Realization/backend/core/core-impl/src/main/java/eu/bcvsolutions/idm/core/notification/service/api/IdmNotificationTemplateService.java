@@ -38,7 +38,7 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @param showGuardedString
 	 * @return
 	 */
-	IdmMessage getMessage(IdmMessage message, boolean showGuardedString);
+	IdmMessage buildMessage(IdmMessage message, boolean showGuardedString);
 	
 	/**
 	 * Return {@link IdmMessage} generate by {@link IdmNotificationTemplate} from {@link IdmMessage}.
@@ -48,7 +48,7 @@ public interface IdmNotificationTemplateService extends ReadWriteEntityService<I
 	 * @param template
 	 * @return
 	 */
-	IdmMessage getMessage(IdmMessage message);
+	IdmMessage buildMessage(IdmMessage message);
 	
 	/**
 	 * Method find all system templates.

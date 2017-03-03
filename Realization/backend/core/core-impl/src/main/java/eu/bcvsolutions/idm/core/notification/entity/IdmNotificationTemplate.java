@@ -65,6 +65,11 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	@Column(name = "system_template", nullable = false)
 	private boolean systemTemplate = false;
 	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "module")
+	private String module;
+	
 	public boolean isSystemTemplate() {
 		return systemTemplate;
 	}
@@ -125,5 +130,13 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 }

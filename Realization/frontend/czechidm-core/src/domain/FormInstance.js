@@ -3,6 +3,8 @@ import Immutable from 'immutable';
 
 /**
  * EAV form instance (definition + values)
+ *
+ * @author Radek Tomiška
  */
 export default class FormInstance {
 

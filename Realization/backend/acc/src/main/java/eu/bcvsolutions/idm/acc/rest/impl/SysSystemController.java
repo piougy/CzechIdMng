@@ -45,7 +45,6 @@ import eu.bcvsolutions.idm.core.api.service.ConfidentialStorage;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.ic.api.IcConnectorInfo;
@@ -69,29 +68,27 @@ import eu.bcvsolutions.idm.ic.service.api.IcConfigurationService;;
 public class SysSystemController extends AbstractReadWriteEntityController<SysSystem, SysSystemFilter> {
 
 	private final SysSystemService systemService;
-	private final FormService formService;
 	private final IcConfigurationFacade icConfiguration;
 	private final ConfidentialStorage confidentialStorage;
-	
-	@Autowired 
-	private IdmFormDefinitionController formDefinitionController;
+	//
+	private final IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public SysSystemController(
 			EntityLookupService entityLookupService, 
 			SysSystemService systemService, 
-			FormService formService,
+			IdmFormDefinitionController formDefinitionController,
 			IcConfigurationFacade icConfiguration,
 			ConfidentialStorage confidentialStorage) {
 		super(entityLookupService);
 		//
 		Assert.notNull(systemService);
-		Assert.notNull(formService);
+		Assert.notNull(formDefinitionController);
 		Assert.notNull(icConfiguration);
 		Assert.notNull(confidentialStorage);
 		//
 		this.systemService = systemService;
-		this.formService = formService;
+		this.formDefinitionController = formDefinitionController;
 		this.icConfiguration = icConfiguration;
 		this.confidentialStorage = confidentialStorage;
 	}
@@ -227,12 +224,12 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")
 	@RequestMapping(value = "/{backendId}/connector-form-values", method = RequestMethod.GET)
 	public Resources<?> getConnectorFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		SysSystem system = getEntity(backendId);
-		if (system == null) {
+		SysSystem entity = getEntity(backendId);
+		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
-		return toResources(formService.getValues(system, formDefinition), assembler, getEntityClass(), null);
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.getFormValues(entity, formDefinition, assembler);
 	}
 	
 	/**
@@ -250,13 +247,12 @@ public class SysSystemController extends AbstractReadWriteEntityController<SysSy
 			@PathVariable @NotNull String backendId,
 			@RequestBody @Valid List<SysSystemFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		SysSystem system = getEntity(backendId);
-		if (system == null) {
+		SysSystem entity = getEntity(backendId);
+		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getConnectorFormDefinition(system);
-		formService.saveValues(system, formDefinition, formValues);
-		return getConnectorFormValues(backendId, assembler);
+		IdmFormDefinition formDefinition = getConnectorFormDefinition(entity);
+		return formDefinitionController.saveFormValues(entity, formDefinition, formValues, assembler);
 	}
 	
 	@PreAuthorize("hasAuthority('" + AccGroupPermission.SYSTEM_READ + "')")

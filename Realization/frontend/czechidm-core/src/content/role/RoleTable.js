@@ -184,7 +184,7 @@ export default class RoleTable extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row>
+                  <Basic.Row className={ showTree ? '' : 'last'}>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
@@ -200,7 +200,7 @@ export default class RoleTable extends Basic.AbstractContent {
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                     </div>
                   </Basic.Row>
-                  <Basic.Row className="last">
+                  <Basic.Row className="last" rendered={showTree}>
                     <div className="col-lg-4">
                       <Advanced.Filter.SelectBox
                         ref="roleCatalogue"

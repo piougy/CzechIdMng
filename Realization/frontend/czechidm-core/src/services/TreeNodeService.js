@@ -1,8 +1,8 @@
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import SearchParameters from '../domain/SearchParameters';
 import TreeTypeService from './TreeTypeService';
 
-class TreeNodeService extends AbstractService {
+class TreeNodeService extends FormableEntityService {
 
   constructor() {
     super();

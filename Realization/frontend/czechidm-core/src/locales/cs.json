@@ -832,16 +832,38 @@
       "nodes": {
         "header": "Prvky stromové struktury",
         "title": "Prvky",
-        "edit": "detail prvku",
-        "create": "Nový prvek",
-        "save": {
-          "success": "Prvek [{{name}}] byl úspěšně uložen"
-        },
         "addType": "Přidat typ",
         "reloadTree": "Zrušení filtru a znovunačtení stromu",
         "tab": {
           "identities": "Uživatelé",
           "nodes": "Prvky struktury"
+        }
+      },
+      "node": {
+        "detail": {
+          "header": "Detail prvku",
+          "title": "Detail prvku",
+          "label": "Základní údaje",
+          "edit": {
+            "title": "Detail prvku",
+            "header": "{{name}} detail prvku"
+          },
+          "create": {
+            "header": "Nový prvek"
+          },
+          "save": {
+            "success": "Prvek [{{name}}] byl úspěšně uložen"
+          }
+        },
+        "eav": {
+          "header": "Další údaje",
+          "title": "Další údaje",
+          "save": {
+            "success": "Údaje prvku [{{name}}] byly úspěšně uloženy."
+          },
+          "error" : {
+            "notFound": "Definice dalších atributů pro prvek stromové struktury nebyla nalezena."
+          }
         }
       },
       "types": {
@@ -971,6 +993,16 @@
       "identities": {
         "header": "Uživatelé s přiřazenou rolí",
         "title": "Uživatelé"
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "save": {
+          "success": "Údaje role [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro roli nebyla nalezena."
+        }
       }
     },
     "identity": {

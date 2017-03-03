@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import * as Basic from '../../../components/basic';
 import { TreeNodeManager } from '../../../redux';
 import NodeDetail from './NodeDetail';
@@ -29,7 +28,7 @@ class NodeContent extends Basic.AbstractContent {
 
   componentDidMount() {
     const { entityId } = this.props.params;
-    const isNew = this._getIsNew();
+    const isNew = this._isNew();
 
     if (isNew) {
       this.context.store.dispatch(treeNodeManager.receiveEntity(entityId, { }, null, entity => {
@@ -49,7 +48,7 @@ class NodeContent extends Basic.AbstractContent {
     }
   }
 
-  _getIsNew() {
+  _isNew() {
     const { query } = this.props.location;
     return (query) ? query.new : null;
   }
@@ -69,36 +68,17 @@ class NodeContent extends Basic.AbstractContent {
   }
 
   render() {
-    const { node, showLoading } = this.state;
+    const { node } = this.state;
     return (
-      <div>
-        <Helmet title={this.i18n('title')} rendered={!this._getIsNew()} />
-        <Basic.Confirm ref="confirm-delete" level="danger"/>
-        {
-          !node
-          ||
-          <Basic.PageHeader>
-            <Basic.Icon value="apple"/>
-            {' '}
-            {
-              this._getIsNew()
-              ?
-              this.i18n('create')
-              :
-              <span>{node.name} <small>{this.i18n('edit')}</small></span>
-            }
-          </Basic.PageHeader>
-        }
-        <Basic.Panel>
-          <Basic.Loading isStatic showLoading={showLoading} />
+      <Basic.Row>
+        <div className={this._isNew() ? 'col-lg-offset-1 col-lg-10' : 'col-lg-12'}>
           {
             !node
             ||
-            <NodeDetail node={node} type={this._getDefaultType()} />
+            <NodeDetail entity={node} type={this._getDefaultType()} />
           }
-        </Basic.Panel>
-
-      </div>
+        </div>
+      </Basic.Row>
     );
   }
 }

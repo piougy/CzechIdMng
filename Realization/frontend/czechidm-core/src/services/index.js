@@ -1,5 +1,6 @@
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import AuthenticateService from './AuthenticateService';
 import IdentityService from './IdentityService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
@@ -31,6 +32,7 @@ import NotificationTemplateService from './NotificationTemplateService';
 const ServiceRoot = {
   RestApiService,
   AbstractService,
+  FormableEntityService,
   AuthenticateService,
   IdentityService,
   WorkflowProcessDefinitionService,

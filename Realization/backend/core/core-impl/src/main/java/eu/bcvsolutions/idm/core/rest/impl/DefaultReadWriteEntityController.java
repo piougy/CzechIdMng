@@ -39,9 +39,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		super(entityLookupService, entityService);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -67,9 +64,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.find(parameters, pageable, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
@@ -77,9 +71,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.get(backendId, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
@@ -87,9 +78,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.create(nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
@@ -100,9 +88,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.update(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -111,9 +96,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)

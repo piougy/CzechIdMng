@@ -1,4 +1,5 @@
 import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import TreeNodeManager from './TreeNodeManager';
@@ -28,6 +29,7 @@ import NotificationTemplateManager from './NotificationTemplateManager';
 
 const ManagerRoot = {
   EntityManager,
+  FormableEntityManager,
   DataManager,
   IdentityManager,
   TreeNodeManager,

@@ -78,6 +78,7 @@ class RoleDetail extends Basic.AbstractContent {
       _showLoading: true
     }, () => {
       const entity = this.refs.form.getData();
+      this.refs.form.processStarted();
       // append selected authorities
       entity.authorities = this.refs.authorities.getWrappedInstance().getSelectedAuthorities();
       // append subroles
@@ -120,21 +121,22 @@ class RoleDetail extends Basic.AbstractContent {
   }
 
   _afterSave(entity, error, afterAction = 'CLOSE') {
-    if (error) {
-      this.setState({
-        _showLoading: false
-      }, () => {
-        this.refs.form.processEnded();
+    this.setState({
+      _showLoading: false
+    }, () => {
+      this.refs.form.processEnded();
+      if (error) {
         this.addError(error);
-      });
-      return;
-    }
-    this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
-    if (afterAction === 'CLOSE') {
-      this.context.router.replace(`roles`);
-    } else {
-      this.context.router.replace(`role/${entity.id}/detail`);
-    }
+        return;
+      }
+      //
+      this.addMessage({ message: this.i18n('save.success', { name: entity.name }) });
+      if (afterAction === 'CLOSE') {
+        this.context.router.replace(`roles`);
+      } else {
+        this.context.router.replace(`role/${entity.id}/detail`);
+      }
+    });
   }
 
   _onChangePriorityEnum(item) {

@@ -25,14 +25,21 @@ import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
+/**
+ * Tree nodes
+ * 
+ * @author Ondřej Kopr
+ */
 @Entity
 @Table(name = "idm_tree_node", indexes = { 
 		@Index(name = "ux_tree_node_code", columnList = "tree_type_id,code", unique = true),
 		@Index(name = "idx_idm_tree_node_parent", columnList = "parent_id"),
 		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
 })
-public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, IdmForestIndexEntity, UUID> {
+public class IdmTreeNode extends AbstractEntity 
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, IdmForestIndexEntity, UUID>, FormableEntity {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";

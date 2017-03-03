@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.eav.api.domain.PersistentType;
@@ -252,7 +254,7 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				//				
 				configurationService.setBooleanValue(PARAMETER_DEMO_DATA_CREATED, true);
 				//
-				// test idendentity form
+				// demo eav identity form
 				List<IdmFormAttribute> attributes = new ArrayList<>();
 				
 				IdmFormAttribute letter = new IdmFormAttribute();
@@ -365,6 +367,28 @@ public class InitDemoData implements ApplicationListener<ContextRefreshedEvent> 
 				values.add(phoneValue);
 				
 				formService.saveValues(identity, formDefinition, values);
+				
+				//
+				// demo eav role form
+				IdmFormAttribute roleExt = new IdmFormAttribute();
+				roleExt.setName("extAttr");
+				roleExt.setDisplayName("Ext.attr");
+				roleExt.setPersistentType(PersistentType.TEXT);
+				roleExt.setConfidential(false);
+				roleExt.setDescription("Role's custom extended attribute");
+				
+				formService.createDefinition(IdmRole.class, Lists.newArrayList(roleExt));
+				
+				//
+				// demo eav tree node form
+				IdmFormAttribute treeNodeExt = new IdmFormAttribute();
+				treeNodeExt.setName("extAttr");
+				treeNodeExt.setDisplayName("Ext.attr");
+				treeNodeExt.setPersistentType(PersistentType.TEXT);
+				treeNodeExt.setConfidential(false);
+				treeNodeExt.setDescription("Tree node's custom extended attribute");
+				
+				formService.createDefinition(IdmTreeNode.class, Lists.newArrayList(treeNodeExt));
 			}
 		} catch(Exception ex) {
 			LOG.warn("Demo data was not created", ex);

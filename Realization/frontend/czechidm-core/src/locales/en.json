@@ -832,16 +832,38 @@
       "nodes": {
         "header": "Elements of the tree",
         "title": "Elements",
-        "edit": "Element detail",
-        "create": "New element",
-        "save": {
-          "success": "The element [{{name}}] was successfully saved."
-        },
         "addType": "Add element",
         "reloadTree": "Cancel the filter and reload the tree",
         "tab": {
           "identities": "Users",
           "nodes": "Elements of the tree"
+        }
+      },
+      "node": {
+        "detail": {
+          "header": "Element detail",
+          "title": "Element detail",
+          "label": "Basic information",
+          "edit": {
+            "title": "Element detail",
+            "header": "{{name}} element detail"
+          },
+          "create": {
+            "header": "New element"
+          },
+          "save": {
+            "success": "Element [{{name}}] was successfully saved"
+          }
+        },
+        "eav": {
+          "header": "More information",
+          "title": "More information",
+          "save": {
+            "success": "Extended attributes for element [{{name}}] was successfully saved."
+          },
+          "error" : {
+            "notFound": "Extended attributes definition for element not found."
+          }
         }
       },
       "types": {
@@ -971,6 +993,16 @@
       "identities": {
         "header": "Users with assigned role",
         "title": "Users with role"
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "save": {
+          "success": "Extended attributes for role [{{name}}] was successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for role not found."
+        }
       }
     },
    "identity": {
@@ -1234,10 +1266,10 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Údaje identity [{{name}}] byly úspěšně uloženy."
+          "success": "Extended attributes for identity [{{name}}] was successfully saved."
         },
         "error" : {
-          "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
+          "notFound": "Extended attributes definition for identity not found."
         }
       },
       "garanted-roles": {

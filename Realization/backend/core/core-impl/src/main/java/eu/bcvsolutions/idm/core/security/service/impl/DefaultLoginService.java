@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.service.LoginService;
 public class DefaultLoginService implements LoginService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultLoginService.class);
-	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.core.security.jwt.expirationTimeout";
+	public static final String PROPERTY_EXPIRATION_TIMEOUT = "idm.sec.security.jwt.expirationTimeout";
 	public static final int DEFAULT_EXPIRATION_TIMEOUT = 36000000;
 
 	@Autowired

@@ -37,9 +37,7 @@ import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
 import eu.bcvsolutions.idm.core.api.rest.BaseEntityController;
 import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
-import eu.bcvsolutions.idm.core.eav.entity.IdmFormDefinition;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
-import eu.bcvsolutions.idm.core.eav.service.api.FormService;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
@@ -80,17 +78,15 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
-	private final FormService formService;
 	private final IdmTreeNodeService treeNodeService;
 	private final IdmTreeTypeService treeTypeService;
-	
-	@Autowired 
-	private IdmFormDefinitionController formDefinitionController; // TODO: is used for serialize to json only => should be removed and assembler should be used
+	//
+	private final IdmFormDefinitionController formDefinitionController;
 	
 	@Autowired
 	public IdmIdentityController(
 			EntityLookupService entityLookupService, 
-			FormService formService,
+			IdmFormDefinitionController formDefinitionController,
 			GrantedAuthoritiesFactory grantedAuthoritiesFactory,
 			IdmIdentityContractService identityContractService,
 			IdmIdentityRoleService identityRoleService,
@@ -101,7 +97,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			IdmTreeTypeService treeTypeService) {
 		super(entityLookupService);
 		//
-		Assert.notNull(formService);
+		Assert.notNull(formDefinitionController);
 		Assert.notNull(grantedAuthoritiesFactory);
 		Assert.notNull(identityContractService);
 		Assert.notNull(identityRoleService);
@@ -111,7 +107,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(treeNodeService);
 		Assert.notNull(treeTypeService);
 		//
-		this.formService = formService;
+		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
 		this.identityContractService = identityContractService;
 		this.identityRoleService = identityRoleService;
@@ -302,8 +298,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-definition", method = RequestMethod.GET)
 	public ResponseEntity<?> getFormDefinition(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmFormDefinition formDefinition = getFormDefinition();
-		return formDefinitionController.get(formDefinition.getId().toString(), assembler);
+		return formDefinitionController.getDefinition(IdmIdentity.class, assembler);
 	}
 	
 	/**
@@ -316,12 +311,11 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}/form-values", method = RequestMethod.GET)
 	public Resources<?> getFormValues(@PathVariable @NotNull String backendId, PersistentEntityResourceAssembler assembler) {
-		IdmIdentity identity = getEntity(backendId);
-		if (identity == null) {
+		IdmIdentity entity = getEntity(backendId);
+		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition();
-		return toResources(formService.getValues(identity, formDefinition), assembler, getEntityClass(), null);
+		return formDefinitionController.getFormValues(entity, null, assembler);
 	}
 	
 	/**
@@ -339,31 +333,12 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			@PathVariable @NotNull String backendId,
 			@RequestBody @Valid List<IdmIdentityFormValue> formValues,
 			PersistentEntityResourceAssembler assembler) {		
-		IdmIdentity identity = getEntity(backendId);
-		if (identity == null) {
+		IdmIdentity entity = getEntity(backendId);
+		if (entity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		IdmFormDefinition formDefinition = getFormDefinition();
-		formService.saveValues(identity, formDefinition, formValues);
-		return getFormValues(backendId, assembler);
-	}
-	
-	/**
-	 * Returns form definition for given identity
-	 *
-	 * 
-	 * @param identity
-	 * @return
-	 */
-	private IdmFormDefinition getFormDefinition() {
-		// find default definition only (maybe we will need to customize form definition to custom entity instance)
-		IdmFormDefinition formDefinition = formService.getDefinition(IdmIdentity.class.getCanonicalName(), null);
-		if (formDefinition == null) {			
-			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("formDefinition", IdmIdentity.class.getCanonicalName()));
-		}			
-		return formDefinition;	
-	}
-	
+		return formDefinitionController.saveFormValues(entity, null, formValues, assembler);
+	}	
 	
 	@Override
 	protected IdentityFilter toFilter(MultiValueMap<String, Object> parameters) {

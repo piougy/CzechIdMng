@@ -1,8 +1,13 @@
-import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import { RoleService } from '../../services';
 import DataManager from './DataManager';
 
-export default class RoleManager extends EntityManager {
+/**
+ * Operations with RoleService
+ *
+ * @author Radek Tomiška
+ */
+export default class RoleManager extends FormableEntityManager {
 
   constructor() {
     super();

@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
 /**
@@ -38,7 +39,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 @Entity
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
-public class IdmRole extends AbstractEntity implements IdentifiableByName {
+public class IdmRole extends AbstractEntity implements IdentifiableByName, FormableEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 

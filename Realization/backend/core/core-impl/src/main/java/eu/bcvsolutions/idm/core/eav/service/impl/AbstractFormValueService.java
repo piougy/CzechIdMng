@@ -5,7 +5,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,6 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
  *
  * @param <O> values owner
  * @param <E> values entity
- * @param <F> filter
  */
 public abstract class AbstractFormValueService<O extends FormableEntity, E extends AbstractFormValue<O>> implements FormValueService<O, E> {
 
@@ -39,15 +37,17 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	private final Class<O> ownerClass;
 	private final Class<E> formValueClass;
 	private final ConfidentialStorage confidentialStorage;
+	private final AbstractFormValueRepository<O, E> repository;
 
-	@Autowired
 	@SuppressWarnings("unchecked")
-	public AbstractFormValueService(ConfidentialStorage confidentialStorage) {
+	public AbstractFormValueService(AbstractFormValueRepository<O, E> repository, ConfidentialStorage confidentialStorage) {
+		Assert.notNull(repository);
 		Assert.notNull(confidentialStorage);
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), FormValueService.class);
 		this.ownerClass = (Class<O>)genericTypes[0];
 		this.formValueClass = (Class<E>)genericTypes[1];
+		this.repository = repository;
 		this.confidentialStorage = confidentialStorage;
 	}
 	
@@ -85,7 +85,9 @@ public abstract class AbstractFormValueService<O extends FormableEntity, E exten
 	 * 
 	 * @return
 	 */
-	protected abstract AbstractFormValueRepository<O, E> getRepository();
+	protected AbstractFormValueRepository<O, E> getRepository() {
+		return repository;
+	}
 	
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists. For AbstractEntity uuid or string could be given.

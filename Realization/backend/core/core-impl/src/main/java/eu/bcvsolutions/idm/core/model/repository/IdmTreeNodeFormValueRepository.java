@@ -3,11 +3,11 @@ package eu.bcvsolutions.idm.core.model.repository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNodeFormValue;
 
 /**
- * Extended attributes for identity
+ * Extended attributes for tree node
  * 
  * @author Radek Tomiška
  *
@@ -17,6 +17,6 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 		collectionResourceRel = "formValues",
 		exported = false
 		)
-public interface IdmIdentityFormValueRepository extends AbstractFormValueRepository<IdmIdentity, IdmIdentityFormValue> {
+public interface IdmTreeNodeFormValueRepository extends AbstractFormValueRepository<IdmTreeNode, IdmTreeNodeFormValue> {
 	
 }

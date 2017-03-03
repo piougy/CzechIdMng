@@ -127,9 +127,9 @@ export default class NodeTable extends Basic.AbstractContent {
     if (entity.id === undefined) {
       const { type } = this.state;
       const uuidId = uuid.v1();
-      this.context.router.push(`/tree/nodes/${uuidId}?new=1&type=${type.id}`);
+      this.context.router.push(`/tree/nodes/${uuidId}/new?new=1&type=${type.id}`);
     } else {
-      this.context.router.push(`/tree/nodes/${entity.id}`);
+      this.context.router.push(`/tree/nodes/${entity.id}/detail`);
     }
   }
 

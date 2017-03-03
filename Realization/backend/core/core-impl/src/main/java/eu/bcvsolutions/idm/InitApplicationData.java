@@ -25,6 +25,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationConfigurationService;
+import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
@@ -67,6 +68,9 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 	
 	@Autowired
 	private IdmNotificationConfigurationService notificationConfigurationService;
+	
+	@Autowired
+	private IdmNotificationTemplateService notificationTemplateService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -140,8 +144,11 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 				organizationRoot.setTreeType(treeType);
 				organizationRoot = this.treeNodeService.save(organizationRoot);
 			}
-			//
-			// init notification configuration
+			// if dont exist any system templates init - first start of application, TODO: save only missing.
+			if (notificationTemplateService.findAllSystemTemplates().isEmpty()) {
+				notificationTemplateService.initSystemTemplates();
+			}
+			// init notification configuration, initialization topic need exists system templates!
 			notificationConfigurationService.initDefaultTopics();
 		} finally {
 			SecurityContextHolder.clearContext();

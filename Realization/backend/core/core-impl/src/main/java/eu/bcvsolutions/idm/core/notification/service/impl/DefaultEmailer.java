@@ -68,7 +68,7 @@ public class DefaultEmailer implements Emailer {
 			Endpoint endpoint = configureEndpoint();
 			//
 			// If message contain template transform message, otherwise get simple message
-			IdmMessage idmMessage = notificationTemplateService.getMessage(emailLog.getMessage(), true);
+			IdmMessage idmMessage = notificationTemplateService.buildMessage(emailLog.getMessage(), true);
 			
 			// create the exchange with the mail message that is multipart with a file and a Hello World text/plain message.
 			Exchange exchange = endpoint.createExchange();

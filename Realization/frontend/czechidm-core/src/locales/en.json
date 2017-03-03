@@ -288,7 +288,7 @@
       "DEFAULT": "Standard",
       "TRANSFORM_FROM": "Transformation from",
       "TRANSFORM_TO": "Transformation to",
-      "SYSTEM": "SystemovĂ©"
+      "SYSTEM": "System"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "not assigned",
@@ -356,9 +356,9 @@
       "MOD": "update",
       "DEL": "delete"
     },
-   "PasswordPolicyTypeEnum": {
+    "PasswordPolicyTypeEnum": {
       "VALIDATE": "validation",
-      "GENERATE": "Generating"
+      "GENERATE": "Generated"
     },
     "PasswordPolicyGenerateTypeEnum": {
       "RANDOM": "Random",
@@ -399,7 +399,7 @@
  "dashboard": {
     "profileDashboard" : {
       "header": "Your basic information",
-      "goToProfil": "Go to profile detail"
+      "goToProfil": "Go to profile details"
     }
   },
   "permission": {
@@ -558,20 +558,20 @@
       "header": "Password policies",
       "title": "Password policies",
       "edit": {
-        "header": "Password policy config details",
-        "title": "Password policy config details"
+        "header": "Password policy details",
+        "title": "Password policy details"
       },
       "basic": {
-        "header": "Basic info",
-        "title": "Basic info"
+        "header": "Configuration",
+        "title": "Configuration"
       },
       "advanced": {
-        "header": "Extended rules",
-        "title": "Extended rules"
+        "header": "Additional rules",
+        "title": "Additional rules"
       },
       "characters": {
-        "header": "Letters",
-        "title": "Letters"
+        "header": "Characters",
+        "title": "Characters"
       },
       "create": {
         "title": "New configuration of password policies",
@@ -774,7 +774,7 @@
         },
         "organization": {
           "label": "Org. structure",
-          "placeholder": "Node in organization structure"
+          "placeholder": "Element in organization structure"
         },
         "recursively": {
           "label": "Recursively",
@@ -782,7 +782,7 @@
         },
         "role": {
           "label": "Role",
-          "placeholder": "Has assigned a role"
+          "placeholder": "Assigned role"
         }
       },
       "action": {
@@ -818,11 +818,11 @@
       }
     },
     "tree": {
-      "header": "Tree structure",
-      "title": "Tree structure",
+      "header": "Organizational tree",
+      "title": "Organizational tree",
       "filter": {
         "parentId": {
-          "label": "Parent unit"
+          "label": "Superior element"
         }
       },
       "typeNotFound": "Element not found.",
@@ -830,23 +830,23 @@
       "typePick": "Select the element",
       "typePickPlaceHolder": "Select the element.",
       "nodes": {
-        "header": "Elements of the tree",
-        "title": "Elements",
+        "header": "Structure elements",
+        "title": "Structure elements",
         "addType": "Add element",
         "reloadTree": "Cancel the filter and reload the tree",
         "tab": {
           "identities": "Users",
-          "nodes": "Elements of the tree"
+          "nodes": "Structure elements"
         }
       },
       "node": {
         "detail": {
-          "header": "Element detail",
-          "title": "Element detail",
+          "header": "Element details",
+          "title": "Element details",
           "label": "Basic information",
           "edit": {
-            "title": "Element detail",
-            "header": "{{name}} element detail"
+            "title": "Element details",
+            "header": "{{name}} element details"
           },
           "create": {
             "header": "New element"
@@ -867,8 +867,8 @@
         }
       },
       "types": {
-        "header": "Types of structures",
-        "title": "Types of structures",
+        "header": "Structure types",
+        "title": "Structure types",
         "edit": "detail the type of structure",
         "create": "New type of tree structure",
         "save": {
@@ -1092,7 +1092,7 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
-        "changePermissions": "Change roles",
+        "changePermissions": "Manage roles",
         "authorities": "Přidělená oprávnění <small>from assigned roles</small>",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
@@ -1142,7 +1142,7 @@
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
-          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected accounts. Number of changes is not limited."
+          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
           "change": "Change password"
@@ -1278,8 +1278,8 @@
       }
     },
     "organizations": {
-      "header": "Organization structure",
-      "title": "Organization structure",
+      "header": "Organizational structure overview",
+      "title": "Organizational structure overview",
       "label": "Organization",
       "defaultTreeType": {
         "empty": {
@@ -1722,7 +1722,7 @@
       "createdDate": "Created",
       "closedDate": "Closed",
       "relatedTaskId": "ID WF instance",
-      "approvedBy": "Schválil",
+      "approvedBy": "Approved by",
       "taskState": "State",
       "note": "Note"
     },
@@ -1745,16 +1745,16 @@
     "TreeNode": {
       "_type": "Tree node",
       "id": "Identifikátor",
-      "code": "Kód",
-      "name": "Název",
-      "disabled": "Neaktivní",
+      "code": "Code",
+      "name": "Name",
+      "disabled": "Inactive",
       "shortName": "Název",
-      "parentId": "Nadřazený prvek",
+      "parentId": "Superior element",
       "parent": {
-          "name": "Nadřazený prvek"
+          "name": "Superior element"
       },
       "treeType": {
-        "name": "Typ struktury"
+        "name": "Structure type"
       }
     },
     "TreeType": {
@@ -1766,8 +1766,8 @@
         "help": "This tree type will be used as default organization structure."
       },
       "defaultTreeNode": {
-        "label": "Default tree node",
-        "help": "This tree node will be used as default, e.g. for default working position."
+        "label": "Default tree element",
+        "help": "This tree element will be used as default, e.g. for default work position."
       }
     },
     "Delegate": {
@@ -1781,7 +1781,7 @@
       "isDateUnlimited": "Na dobu neurčitou"
     },
     "WorkflowTaskInstance": {
-      "taskDescription": "Task subject",
+      "taskDescription": "Subject",
       "taskCreated": "Created on",
       "id": "task ID"
     },
@@ -1829,18 +1829,27 @@
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
+      "parameter": {
+        "name": "Parameters",
+        "help": "List of template parameters. Parameters separate by comma."
+      },
       "systemTemplate": {
         "name": "System template",
         "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
       },
-      "bodyHtml": "Message body (html)",
+      "bodyHtml": {
+      "name": "Message body (html)",
+      "help": "For a list of available templates write character '$'"
+      },
       "bodyText": "Message body (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
       "level": "Type",
-      "notificationType": "Channel"
+      "notificationType": "Channel",
+      "template": "Template",
+      "description": "Description"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -1902,47 +1911,47 @@
       "basic": "Základní údaje",
       "bases": "Znaky",
       "generateType": "Generation type",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "defaultPolicy": "Standardní politika",
-      "passwordLengthRequired": "Povinná délka hesla",
+      "disabled": "Disabled",
+      "description": "Description",
+      "defaultPolicy": "Default policy",
+      "passwordLengthRequired": "Password length requirement",
       "minPasswordLength": "Minimum length",
       "maxPasswordLength": "Maximum length",
-      "upperCharRequired": "Povinné velké znaky",
-      "minUpperChar": "Minimum velkých znaků",
-      "lowerCharRequired": "Povinné malé znaky",
-      "minLowerChar": "Minimum malých znaků",
-      "numberRequired": "Povinná čísla",
-      "minNumber": "Minimum čísel",
-      "specialCharRequired": "Povinné speciální znaky",
-      "minSpecialChar": "Minimum speciálních znaků",
-      "prohibitedCharacters": "Zakázané znaky",
+      "upperCharRequired": "Uppercase letters requirement",
+      "minUpperChar": "Minimum number of uppercase letters",
+      "lowerCharRequired": "Lowercase letters requirement",
+      "minLowerChar": "Minimum number of lowercase letters",
+      "numberRequired": "Digits requirement",
+      "minNumber": "Minimum number of digits",
+      "specialCharRequired": "Special characters requirement",
+      "minSpecialChar": "Minimum number of special characters",
+      "prohibitedCharacters": "Forbidden characters",
       "weakPassRequired": "Povinné slabé hesla",
       "weakPass": "Slabé hesla",
-      "passphraseWords": "Počet slov pro passphrase",
-      "maxPasswordAge": "Maximální doba pro změnu hesla",
-      "minPasswordAge": "Minimální doba pro změnu hesla",
+      "passphraseWords": "Number of words in passphrase",
+      "maxPasswordAge": "Maximum number of days for password validity.",
+      "minPasswordAge": "Minimum number of days for password validity.",
       "enchancedControl": "Enhanced control",
-      "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
-      "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
-      "lowerCharBase": "Povolené malé znaky",
-      "upperCharBase": "Povolené velké znaky",
-      "numberBase": "Povolené číslice",
-      "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu",
+      "minRulesToFulfill": "Minimum number of additional rules for policy",
+      "maxHistorySimilar": "Nuber of checked old passwords  zpětně kontrolovaných hesel na shodu",
+      "lowerCharBase": "Lowercase letters",
+      "upperCharBase": "Uppercase letters",
+      "numberBase": "Digits",
+      "specialCharBase": "Special characters",
+      "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
-        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
-        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
+        "defaultPolicy": "Defaul policy is used for password validation for IdM system and all systems without set password policy.",
+        "maxPasswordAge": "Maximum number of days for password validity.",
+        "minPasswordAge": "Minimum number of days for password validity.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
         "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
-        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
-        "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
-        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
-        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
-        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
-        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
-        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
+        "minRulesToFulfill": "Minimum number of the requirements which password must match to be valid.",
+        "maxHistorySimilar": "Number of retroactively checked passwords, which cannot be same as new.",
+        "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
+        "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
+        "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",
+        "emptyValues": "To omit any field, leave it empty or set value to 0.",
+        "passphraseWords": "Select number of words passphrase contains."
       }
     },
     "Module": {
@@ -2004,6 +2013,50 @@
           }
         }
       }
+    }
+  },
+  "decision" : {
+    "approve": {
+      "label" : "Approve",
+      "tooltip": "Provede schválení tohoto úkolu.",
+      "warning": "Opravdu chcete provést schválení?"
+    },
+    "disapprove": {
+      "label" : "Zamítnout",
+      "tooltip": "Zamítnout úkol.",
+      "warning": "Opravdu chcete zamítnout úkol?"
+    },
+    "backToApplicant": {
+      "label" : "Vrátit žadateli",
+      "tooltip": "Vrátí žádost žadateli.",
+      "warning": "Opravdu chcete vrátit žádost žadateli?"
+    },
+    "createRequest": {
+      "label" : "Create request",
+      "tooltip": "Vytvoří žádost.",
+      "warning": "Opravdu chcete vytvořit žádost?"
+    },
+    "cancelRequest": {
+      "label" : "Delete request",
+      "tooltip": "Zruší tuto žádost.",
+      "warning": "Opravdu chcete zrušit tuto žádost?"
+    }
+  },
+  "formData" : {
+    "applicantDescription": {
+      "name" : "Poznámka žadatele",
+      "tooltip": "Poznámka zadaná žadatelem při založení žádosti",
+      "placeholder": "Poznámka zadaná žadatelem při založení žádosti"
+    },
+    "managerDescriptionForApplicant": {
+      "name" : "Poznámka pro žadatele",
+      "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
+      "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
+    },
+    "managerDescription": {
+      "name" : "Poznámka vedoucího",
+      "tooltip": "Poznámka od vedoucího.",
+      "placeholder": "Poznámka od vedoucího."
     }
   },
   "error": {
@@ -2222,11 +2275,11 @@
   },
   "validationError": {
     "string": {
-      "min_1" : "Zadejte minimálně jeden znak!",
-      "min_2" : "Zadejte minimálně dva znaky!",
-      "min_5" : "Zadejte minimálně {{count}} znaků!",
+      "min_1" : "Enter at least one character!",
+      "min_2" : "Enter at least two characters!",
+      "min_5" : "Enter at least {{count}} characters!",
       "base" : "Required field!",
-      "email": "Formát emailu není validní!",
+      "email": "format of e-mail is not valid!",
       "max_1" : "Zadejte maximálně {{count}} znak!",
       "max_2" : "Zadejte maximálně {{count}} znaky!",
       "max_5" : "Zadejte maximálně {{count}} znaků!"

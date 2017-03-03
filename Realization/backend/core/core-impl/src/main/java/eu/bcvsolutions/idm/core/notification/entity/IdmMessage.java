@@ -73,27 +73,27 @@ public class IdmMessage {
 	}
 
 	private IdmMessage(Builder builder) {
-		// TODO: unite parameters in model with parameters
-		// if set template use generate from template
-		if (builder.buildWithoutTemplate) {
+		if (builder.subject != null) {
 			subject = builder.subject;
-			textMessage = builder.textMessage;
-			htmlMessage = builder.htmlMessage;
-			model = builder.model;
-			parameters = builder.parameters;
-			template = builder.template;
-		} else if (builder.template != null) {
-			template = builder.template;
+		} else if (builder.template != null && builder.template.getSubject() != null) {
 			subject = builder.template.getSubject();
-			textMessage = builder.template.getBodyText();
-			htmlMessage = builder.template.getBodyHtml();
-			parameters = builder.parameters;
-		} else {
-			subject = builder.subject;
-			textMessage = builder.textMessage;
-			htmlMessage = builder.htmlMessage;
-			model = builder.model;
 		}
+		//
+		if (builder.textMessage != null) {
+			textMessage = builder.textMessage;
+		} else if (builder.template != null && builder.template.getBodyText() != null) {
+			textMessage = builder.template.getBodyText();
+		}
+		//
+		if (builder.htmlMessage != null) {
+			htmlMessage = builder.htmlMessage;
+		} else if (builder.template != null && builder.template.getBodyHtml() != null) {
+			htmlMessage = builder.template.getBodyHtml();
+		}
+		//
+		template = builder.template;
+		parameters = builder.parameters;
+		model = builder.model;
 		level = builder.level == null ? DEFAULT_LEVEL : builder.level;
 	}
 
@@ -176,8 +176,6 @@ public class IdmMessage {
 		private ResultModel model;
 		private IdmNotificationTemplate template;
 		private Map<String, Object> parameters;
-		// Build IdmMessage without template, use textMessage and etc, but template and parameter will be saved
-		private boolean buildWithoutTemplate = false; 
 		
 		public Builder() {
 		}
@@ -198,16 +196,6 @@ public class IdmMessage {
 
 		public Builder setTextMessage(String textMessage) {
 			this.textMessage = textMessage;
-			return this;
-		}
-		
-		/**
-		 * Build without use attribute from template, but template and parameters will be saved.
-		 * 
-		 * @return this
-		 */
-		public Builder buildWithoutUseTemplate() {
-			this.buildWithoutTemplate = true;
 			return this;
 		}
 

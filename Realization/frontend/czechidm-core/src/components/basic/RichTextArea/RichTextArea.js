@@ -1,16 +1,20 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import Joi from 'joi';
-import { Editor, EditorState, ContentState, RichUtils, convertFromHTML, DefaultDraftBlockRenderMap, getSafeBodyFromHTML } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import { EditorState, ContentState, convertFromHTML, DefaultDraftBlockRenderMap, getSafeBodyFromHTML } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 //
 import AbstractFormComponent from '../AbstractFormComponent/AbstractFormComponent';
 import Tooltip from '../Tooltip/Tooltip';
 
 /**
- * Based on Draf.js
- * TODO: custom styles and controlls
+ * Based on Draf.js and react draft wysiwyg editor
+ * TODO: export to markdown and json, custom upload image
+ * onFocus and onBlur.
  *
+ * All potions for props can be found at
+ * https://jpuri.github.io/react-draft-wysiwyg/#/docs
  */
 class RichTextArea extends AbstractFormComponent {
 
@@ -20,47 +24,9 @@ class RichTextArea extends AbstractFormComponent {
     this.state = {
       ...this.state,
       editorState,
-      value: editorState.getCurrentContent().getPlainText()
+      value: editorState.getCurrentContent().getPlainText(),
+      activeControls: []
     };
-  }
-
-  _handleKeyCommand(command) {
-    const { editorState } = this.state;
-    const newState = RichUtils.handleKeyCommand(editorState, command);
-    if (newState) {
-      this.onChange(newState);
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Creates EditorState from given value
-   *
-   * @param  {string} value html or plaintext value
-   * @return {EditorState}
-   */
-  _createEditorState(value) {
-    if (!value) {
-      return EditorState.createEmpty();
-    }
-    try {
-      //
-      // paragraph is block (need for rich - html conversions)
-      const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
-      const blocksFromHTML = convertFromHTML(value, getSafeBodyFromHTML, blockRenderMap)
-        .map(block => (block.get('type') === 'p' ? block.set('type', 'unstyled') : block));
-      // set converted content
-      const state = ContentState.createFromBlockArray(blocksFromHTML);
-      return EditorState.createWithContent(state);
-    } catch (err) {
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`, err);
-      } else {
-        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`);
-      }
-      return EditorState.createWithContent(ContentState.createFromText(value));
-    }
   }
 
   getValidationDefinition(required) {
@@ -88,11 +54,26 @@ class RichTextArea extends AbstractFormComponent {
     return Joi.string().required();
   }
 
-  /**
-   * Focus input field
-   */
-  focus() {
-    this.refs.input.focus();
+  _createEditorState(value) {
+    if (!value) {
+      return EditorState.createEmpty();
+    }
+    try {
+      //
+      // paragraph is block (need for rich - html conversions)
+      const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
+      const blocksFromHTML = convertFromHTML(value, getSafeBodyFromHTML, blockRenderMap);
+      // set converted content
+      const state = ContentState.createFromBlockArray(blocksFromHTML);
+      return EditorState.createWithContent(state);
+    } catch (err) {
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`, err);
+      } else {
+        LOGGER.warn(`[RichTextArea]: value [${value}] will be rendered as plain text.`);
+      }
+      return EditorState.createWithContent(ContentState.createFromText(value));
+    }
   }
 
   onChange(editorState) {
@@ -104,13 +85,19 @@ class RichTextArea extends AbstractFormComponent {
     if (result === false) {
       return;
     }
-    //
+
     this.setState({
-      editorState,
-      value: editorState.getCurrentContent().getPlainText()
-    }, () => {
-      this.validate();
+      editorState
     });
+    //
+    this.validate();
+  }
+
+  /**
+   * Focus input field
+   */
+  focus() {
+    this.refs.input.focus();
   }
 
   setValue(value) {
@@ -119,6 +106,16 @@ class RichTextArea extends AbstractFormComponent {
       editorState,
       value: editorState.getCurrentContent().getPlainText()
     });
+  }
+
+  _getToolbar() {
+    const { toolbarOptions, fontSizeOptions, fontFamilyOptions } = this.props;
+    const toolbar = {
+      options: toolbarOptions,
+      fontSize: fontSizeOptions,
+      fontFamily: fontFamilyOptions
+    };
+    return toolbar;
   }
 
   /**
@@ -144,8 +141,8 @@ class RichTextArea extends AbstractFormComponent {
   }
 
   getBody(feedback) {
-    const { labelSpan, label, componentSpan, placeholder, style, required } = this.props;
-    const { editorState, disabled, readOnly } = this.state;
+    const { labelSpan, label, componentSpan, placeholder, style, required, showToolbar, mentions } = this.props;
+    const { editorState, readOnly } = this.state;
     const labelClassName = classNames(
       labelSpan,
       'control-label'
@@ -175,15 +172,15 @@ class RichTextArea extends AbstractFormComponent {
             <div className={containerClassName}>
               <Editor
                 ref="input"
-                editorState={editorState}
-                onChange={this.onChange}
-                handleKeyCommand={this._handleKeyCommand.bind(this)}
-                className="form-control"
-                title={this.getValidationResult() != null ? this.getValidationResult().message : ''}
-                disabled={disabled}
-                placeholder={placeholder}
-                style={style}
                 readOnly={readOnly}
+                placeholder={placeholder}
+                toolbarOnFocus={!showToolbar}
+                editorState={editorState}
+                onEditorStateChange={this.onChange}
+                className="form-control"
+                mention={mentions}
+                style={style}
+                toolbar={this._getToolbar()}
                 spellCheck/>
               {
                 feedback
@@ -195,8 +192,8 @@ class RichTextArea extends AbstractFormComponent {
             </div>
           </Tooltip>
           { !label ? this.renderHelpIcon() : null }
-          { this.renderHelpBlock() }
         </div>
+        { this.renderHelpBlock() }
       </div>
     );
   }
@@ -206,11 +203,28 @@ RichTextArea.propTypes = {
   ...AbstractFormComponent.propTypes,
   placeholder: PropTypes.string,
   min: PropTypes.number,
-  max: PropTypes.number
+  max: PropTypes.number,
+  showToolbar: PropTypes.boolean,
+  mentions: PropTypes.object,
+  toolbarOptions: PropTypes.object,
+  fontSizeOptions: PropTypes.object,
+  fontFamilyOptions: PropTypes.object
 };
 
 RichTextArea.defaultProps = {
-  ...AbstractFormComponent.defaultProps
+  ...AbstractFormComponent.defaultProps,
+  showToolbar: false,
+  toolbarOptions: ['inline', 'blockType', 'list', 'emoji', 'remove', 'history'], // + order of component  ; remove: 'image', 'link', 'embedded', 'fontSize', 'fontFamily', 'colorPicker', 'textAlign',
+  fontSizeOptions: {
+    options: [7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96],
+    className: undefined,
+    dropdownClassName: undefined,
+  },
+  fontFamilyOptions: {
+    options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'],
+    className: undefined,
+    dropdownClassName: undefined,
+  },
 };
 
 export default RichTextArea;

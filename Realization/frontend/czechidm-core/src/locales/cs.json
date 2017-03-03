@@ -1829,18 +1829,27 @@
       "name": "Jméno",
       "code": "Kód",
       "subject": "Předmět",
+      "parameter": {
+        "name": "Parametry",
+        "help": "Seznam parametrů šablony. Parametry oddělujte čárkou."
+      },
       "systemTemplate": {
         "name": "Systémová šablona",
         "help": "Systémová šablona je nezbytná pro správný chod aplikace, nelze odstranit a změnit její kód."
       },
-      "bodyHtml": "Tělo zprávy (html)",
+      "bodyHtml": {
+        "name": "Tělo zprávy (html)",
+        "help": "Pro seznam dostupných parametrů šablony napište znak '$'"
+      },
       "bodyText": "Tělo zprávy (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
       "level": "Typ notifikace",
-      "notificationType": "Kanál"
+      "notificationType": "Kanál",
+      "template": "Šablona",
+      "description": "Popis"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",

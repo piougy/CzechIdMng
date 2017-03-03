@@ -133,7 +133,12 @@ export class Navigation extends Basic.AbstractContent {
         return null;
       }
       case 'SEPARATOR': {
-        return <NavigationSeparator text={this._resolveNavigationItemText(item, userContext)} />;
+        return (
+          <NavigationSeparator
+            id={`nav-item-${item.id}`}
+            key={`nav-item-${item.id}`}
+            text={this._resolveNavigationItemText(item, userContext)} />
+        );
       }
       default: {
         this.getLogger().warn('[Advanced.Navigation] ' + item.type + ' type not implemeted for item id [' + item.id + ']');
@@ -288,7 +293,10 @@ export class Navigation extends Basic.AbstractContent {
                     { 'last': i === supportedLanguages.length - 1 }
                   );
                   return (
-                    <span className={lgnClassName} onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { this.reloadRoute(); } )); }}>
+                    <span
+                      key={`locale-${lng}`}
+                      className={lgnClassName}
+                      onClick={() => { this.context.store.dispatch(i18nChange(lng, () => { this.reloadRoute(); } )); }}>
                     </span>
                   );
                 })

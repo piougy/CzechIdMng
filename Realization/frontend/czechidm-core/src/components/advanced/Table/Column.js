@@ -25,7 +25,7 @@ AdvancedColumn.propTypes = {
   /**
    * Property from json data object. Nested properties can be used e.g. `identityManager.name`.
    */
-  property: PropTypes.string.isRequired,
+  property: PropTypes.string,
   /**
    * Pixel or percent width of table. If number is given, then pixels is used.
    */

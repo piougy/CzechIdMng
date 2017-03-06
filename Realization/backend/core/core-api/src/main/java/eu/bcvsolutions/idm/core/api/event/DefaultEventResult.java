@@ -1,6 +1,5 @@
 package eu.bcvsolutions.idm.core.api.event;
 
-import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 
 /**
@@ -8,7 +7,7 @@ import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
  * 
  * @author Radek Tomiška
  *
- * @param <E> {@link AbstractEntity} type
+ * @param <E> {@link BaseEntity} type
  */
 public class DefaultEventResult<E extends BaseEntity> implements EventResult<E> {
 	
@@ -27,7 +26,7 @@ public class DefaultEventResult<E extends BaseEntity> implements EventResult<E> 
 		this(event, processor, false);
 	}
 	
-	private DefaultEventResult(Builder<E> builder) {
+	protected DefaultEventResult(Builder<E> builder) {
 		this(builder.event, builder.processor, builder.closed);
 		this.suspended = builder.suspended;
 	}

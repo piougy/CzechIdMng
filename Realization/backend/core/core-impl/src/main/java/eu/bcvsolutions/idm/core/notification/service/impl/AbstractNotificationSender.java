@@ -113,6 +113,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		return send(topic, message, Lists.newArrayList(recipient));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public N send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
@@ -140,13 +141,13 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 			if (message == null || (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null)) {
 				LOG.info("Notification has empty template and message. Default message will be send! [topic:{}]", topic);
 				// send default message
-				return this.send(topic, 
+				notification.setMessage(
 						new IdmMessage.Builder()
 						.setLevel(message.getLevel())
 						.setSubject("Message for notification not found!")
 						.setMessage("System CzechIdM v7 try to send empty message, please contact system administrator.")
-						.build()
-						, recipients);
+						.build());
+				return (N) notification;
 			}
 		}
 		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));

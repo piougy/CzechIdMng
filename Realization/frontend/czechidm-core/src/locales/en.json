@@ -913,7 +913,15 @@
       },
       "parentPick": "Select folder",
       "reloadTree": "Reload tree catalog roles",
-      "addRoleCatalogue": "Add now folder"
+      "addRoleCatalogue": "Add now folder",
+      "filter": {
+        "name": "Name",
+        "namePlaceHolder": "Folder name",
+        "parent": "Folder parent",
+        "parentPlaceHolder": "Folder parent",
+        "niceName": "Name for users",
+        "code": "Code"
+      }
     },
     "scripts": {
       "header": "Rule definitions",
@@ -940,7 +948,7 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
-      "roleCataloguePick": "Select from catalog",
+      "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"
       },
@@ -1647,7 +1655,7 @@
         "help": "Catalogue code is unique within all folder codes in catalogue."
       },
       "name": {
-        "name": "Catalogue name",
+        "name": "Folder name",
         "help": "Descriptive attribute for users. Unique within catalog level."
       },
       "url": "URL",
@@ -2158,7 +2166,7 @@
       "title": "Chybný identifikátor",
       "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
     },
-    "ROLE_CATALOG_BAD_PARENT": {
+    "ROLE_CATALOGUE_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },

@@ -111,7 +111,7 @@ public class InitApplicationData implements ApplicationListener<ContextRefreshed
 			//
 			// create super admin
 			IdmIdentity existsSuperAdmin = this.identityService.getByUsername("admin");
-			if (existsSuperAdmin == null && this.identityService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
+			if (existsSuperAdmin == null || this.identityService.find(new PageRequest(0, 1)).getTotalElements() == 0) {
 				//
 				IdmIdentity identityAdmin = new IdmIdentity();
 				identityAdmin.setUsername(ADMIN_USERNAME);

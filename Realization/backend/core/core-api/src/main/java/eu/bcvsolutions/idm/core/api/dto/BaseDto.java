@@ -1,7 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * Any dto has identifier
@@ -23,6 +22,6 @@ public interface BaseDto {
 	 *
 	 * @param id
 	 */
-	void setId(UUID id);
+	void setId(Serializable id);
 
 }

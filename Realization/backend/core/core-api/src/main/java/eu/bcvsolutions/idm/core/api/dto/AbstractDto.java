@@ -10,7 +10,9 @@ import javax.validation.constraints.Size;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -21,10 +23,12 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * @author Radek Tomiška 
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
+	@JsonDeserialize(as = UUID.class)
 	private UUID id;
 	private DateTime created;
 	private DateTime modified;
@@ -74,8 +78,11 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 
 	@Override
-	public void setId(UUID	 id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "AbstractDto supports only UUID identifier. For different identifier generalize BaseEntity.");
+		}
+		this.id = (UUID) id;
 	}
 
 	@Override

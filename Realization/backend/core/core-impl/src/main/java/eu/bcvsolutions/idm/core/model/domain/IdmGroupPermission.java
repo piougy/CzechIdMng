@@ -26,7 +26,8 @@ public enum IdmGroupPermission implements GroupPermission {
 	SCRIPT(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
-	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	ROLE_REQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -67,6 +68,10 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String SCHEDULER_READ = "SCHEDULER" + BasePermission.SEPARATOR + "READ";
 	public static final String SCHEDULER_WRITE = "SCHEDULER" + BasePermission.SEPARATOR + "WRITE";
 	public static final String SCHEDULER_DELETE = "SCHEDULER" + BasePermission.SEPARATOR + "DELETE";
+	//
+	public static final String ROLE_REQUEST_READ = "ROLE_REQUEST" + BasePermission.SEPARATOR + "READ";
+	public static final String ROLE_REQUEST_WRITE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "WRITE";
+	public static final String ROLE_REQUEST_DELETE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "DELETE";
 	
 	private final List<BasePermission> permissions;
 

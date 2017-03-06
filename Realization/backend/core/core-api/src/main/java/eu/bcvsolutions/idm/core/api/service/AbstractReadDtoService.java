@@ -26,8 +26,8 @@ import eu.bcvsolutions.idm.core.api.exception.CoreException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 
 /**
- * Provide additional methods to retrieve DTOs and entities using the pagination and
- * sorting abstraction.
+ * Provide additional methods to retrieve DTOs and entities using the pagination
+ * and sorting abstraction.
  * 
  * @author Svanda
  * @see Sort
@@ -65,10 +65,9 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	protected AbstractEntityRepository<E, F> getRepository() {
 		return repository;
 	}
-	
+
 	/**
-	 * Returns {@link BaseDto} type class, which is controlled by this
-	 * service
+	 * Returns {@link BaseDto} type class, which is controlled by this service
 	 * 
 	 * @return
 	 */
@@ -108,7 +107,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		E entity = get(id);
 		return toDto(entity);
 	}
-	
 
 	@Override
 	public Page<DTO> findDto(Pageable pageable) {
@@ -122,7 +120,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return toDtoPage(page);
 	}
 
-	
 	/**
 	 * Returns entity by given id. Returns null, if entity is not exists. For
 	 * AbstractEntity uuid or string could be given.
@@ -144,7 +141,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		return getRepository().findOne((UUID) id);
 	}
 
-
 	@Override
 	@Transactional(readOnly = true)
 	public Page<E> find(F filter, Pageable pageable) {
@@ -159,7 +155,6 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	public Page<E> find(Pageable pageable) {
 		return getRepository().findAll(pageable);
 	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -190,13 +185,17 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 	@Override
 	public Page<DTO> toDtoPage(Page<E> entityPage) {
 		List<DTO> dtos = this.toDtos(entityPage.getContent(), true);
-		PageRequest pageRequest = new PageRequest(entityPage.getNumber(), entityPage.getSize(), entityPage.getSort());
+		PageRequest pageRequest = null;
+		if (entityPage.getSize() > 0) {
+			pageRequest = new PageRequest(entityPage.getNumber(), entityPage.getSize(), entityPage.getSort());
+		}
 		Page<DTO> dtoPage = new PageImpl<>(dtos, pageRequest, entityPage.getTotalElements());
 		return dtoPage;
 	}
 
 	/**
 	 * Converts list of entities to list of DTOs
+	 * 
 	 * @param entities
 	 * @param trimmed
 	 * @return
@@ -232,5 +231,5 @@ public abstract class AbstractReadDtoService<DTO extends BaseDto, E extends Base
 		E createdEntity = modelMapper.map(dto, entityClass);
 		return createdEntity;
 	}
-	
+
 }

@@ -180,12 +180,12 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
-                        placeholder={this.i18n('entity.RoleCatalogue.filter.code')}/>
+                        placeholder={this.i18n('filter.code')}/>
                     </div>
                     <div className="col-lg-4">
                       <Advanced.Filter.SelectBox
                         ref="parent"
-                        placeholder={this.i18n('entity.RoleCatalogue.filter.parentPlaceHolder')}
+                        placeholder={this.i18n('filter.parentPlaceHolder')}
                         manager={roleCatalogueManager}/>
                     </div>
                     <div className="col-lg-4 text-right">
@@ -196,7 +196,7 @@ export default class RoleCatalogueTable extends Basic.AbstractContent {
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="niceName"
-                        placeholder={this.i18n('entity.RoleCatalogue.filter.niceName')}/>
+                        placeholder={this.i18n('filter.niceName')}/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>

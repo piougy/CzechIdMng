@@ -913,7 +913,15 @@
       },
       "parentPick": "Vyberte složku",
       "reloadTree": "Obnov strom katalogu rolí",
-      "addRoleCatalogue": "Přidat novou složku"
+      "addRoleCatalogue": "Přidat novou složku",
+      "filter": {
+        "name": "Jméno",
+        "namePlaceHolder": "Jméno složky",
+        "parent": "Nadřazená složka",
+        "parentPlaceHolder": "Nadřezená složka",
+        "niceName": "Jméno pro uživatele",
+        "code": "Kód"
+      }
     },
     "scripts": {
       "header": "Definice pravidel",
@@ -940,7 +948,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
-      "roleCataloguePick": "Vyberte z katalogu",
+      "roleCataloguePick": "Vyberte složku",
       "create": {
         "header": "Nová role"
       },
@@ -1647,7 +1655,7 @@
         "help": "Kód katalogu je unikátní v rámci všech katalogů."
       },
       "name": {
-        "name": "Jméno katalogu",
+        "name": "Jméno složky",
         "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
       },
       "url": "Odkaz",
@@ -1655,13 +1663,6 @@
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"
-      },
-      "filter": {
-        "name": "Kód",
-        "namePlaceHolder": "Jméno složky",
-        "parent": "Nadřazená složka",
-        "parentPlaceHolder": "Nadřezená složka",
-        "niceName": "Jméno pro uživatele"
       }
 
     },
@@ -2158,7 +2159,7 @@
       "title": "Chybný identifikátor",
       "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
     },
-    "ROLE_CATALOG_BAD_PARENT": {
+    "ROLE_CATALOGUE_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },

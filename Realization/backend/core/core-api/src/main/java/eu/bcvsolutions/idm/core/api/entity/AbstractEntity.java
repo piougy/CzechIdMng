@@ -42,7 +42,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@Id
 	@JsonDeserialize(as = UUID.class)
 	@GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "eu.bcvsolutions.idm.core.api.repository.generator.PreserveUuidGenerator")
 	@Column(name = "id")
 	private UUID id;
 

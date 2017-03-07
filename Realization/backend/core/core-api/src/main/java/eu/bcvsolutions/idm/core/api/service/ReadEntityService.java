@@ -51,4 +51,12 @@ public interface ReadEntityService<E extends BaseEntity, F extends BaseFilter> e
 	 * @return
 	 */
 	Page<E> find(F filter, Pageable pageable);
+	
+	/**
+	 * Returns whether the given entity is considered to be new.
+	 * 
+	 * @param entity must never be {@literal null}
+	 * @return
+	 */
+	boolean isNew(E entity);
 }

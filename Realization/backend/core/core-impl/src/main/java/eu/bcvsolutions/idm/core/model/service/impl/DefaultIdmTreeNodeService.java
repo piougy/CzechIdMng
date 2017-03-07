@@ -106,7 +106,7 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 		//
 		this.validate(treeNode);
 		//
-		if (treeNode.getId() == null) {
+		if (isNew(treeNode)) {
 			// create new
 			return createIndex(super.save(treeNode));
 		} else {
@@ -145,7 +145,7 @@ public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNo
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
 	 */
 	private boolean checkCorrectType(IdmTreeNode treeNode) {
-		if (treeNode.getId() == null) {
+		if (isNew(treeNode)) {
 			return false;
 		}
 		

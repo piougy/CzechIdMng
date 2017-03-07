@@ -1,6 +1,6 @@
 
 module.exports = {
-  'id': 'acc',
+  'id': 'accc',
   'name': 'Account managment',
   'description': 'Components for account managment module',
   'components': [

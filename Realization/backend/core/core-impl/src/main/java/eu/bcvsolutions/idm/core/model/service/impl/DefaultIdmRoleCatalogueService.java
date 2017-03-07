@@ -85,7 +85,7 @@ public class DefaultIdmRoleCatalogueService extends AbstractReadWriteEntityServi
 		// validate role
 		this.validate(entity);
 		//
-		if (entity.getId() == null) {
+		if (isNew(entity)) {
 			// create new
 			return createIndex(super.save(entity));
 		} else {

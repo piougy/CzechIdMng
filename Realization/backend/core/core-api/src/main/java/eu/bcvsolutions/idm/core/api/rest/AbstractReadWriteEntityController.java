@@ -1,6 +1,13 @@
 package eu.bcvsolutions.idm.core.api.rest;
 
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +30,8 @@ import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 
 /**
  * CRUD operations
+ * 
  * @author Radek Tomiška
- *
  * @param <E> {@link BaseEntity} type
  * @param <F> {@link BaseFilter} type
  */
@@ -49,8 +56,8 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
-		E createdIdentity = createEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null));
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {		
+		E createdIdentity = postEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityClass(), null)));
 		return new ResponseEntity<>(toResource(createdIdentity, assembler), HttpStatus.CREATED);
 	}
 	
@@ -60,8 +67,9 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @param entity
 	 * @return
 	 */
-	public E createEntity(E entity) {
-		// TODO: events
+	public E postEntity(E entity) {
+		Assert.notNull(entity, "Entity is required");	
+		//
 		return getEntityService().save(entity);
 	}
 	
@@ -74,14 +82,14 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @return
 	 * @throws HttpMessageNotReadableException
 	 */
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
 		E updateEntity = getEntity(backendId);
 		if (updateEntity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", backendId));
 		}
-		E updatedEntity = updateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity));
+		E updatedEntity = putEntity(validateEntity((E) requestResourceResolver.resolve(nativeRequest, getEntityService().getEntityClass(), updateEntity)));
 		return new ResponseEntity<>(toResource(updatedEntity, assembler), HttpStatus.OK);
 	}
 	
@@ -91,8 +99,9 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	 * @param entity
 	 * @return
 	 */
-	public E updateEntity(E entity) {
-		Assert.notNull(entity, "Entity is required");		
+	public E putEntity(E entity) {
+		Assert.notNull(entity, "Entity is required");	
+		//
 		return getEntityService().save(entity);
 	}
 	
@@ -117,16 +126,31 @@ public abstract class AbstractReadWriteEntityController<E extends BaseEntity, F 
 	}
 	
 	/**
-	 * Updates given entity.
-	 * 
-	 * TODO: is this redundant? Or diferent event will be thrown in future?
+	 * Patch given entity.
 	 * 
 	 * @param entity
 	 * @return
 	 */
 	public E patchEntity(E entity) {
 		Assert.notNull(entity, "Entity is required");
+		//
 		return getEntityService().save(entity);
+	}
+	
+	/**
+	 * Invokes JSR 303 validations programatically
+	 *  
+	 * @param entity
+	 * @return
+	 */
+	protected E validateEntity(E entity) {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	    Validator validator = factory.getValidator();
+		Set<ConstraintViolation<E>> errors = validator.validate(entity);
+		if(!errors.isEmpty()) {
+			throw new ConstraintViolationException("Validation failed for entity [" + getEntityClass().getSimpleName() +"]", errors);
+		}
+		return entity;
 	}
 	
 	/**

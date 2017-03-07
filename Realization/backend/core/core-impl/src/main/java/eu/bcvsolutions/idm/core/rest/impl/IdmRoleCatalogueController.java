@@ -52,9 +52,9 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
@@ -75,9 +75,9 @@ public class IdmRoleCatalogueController extends DefaultReadWriteEntityController
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_WRITE + "')")
-	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
+	public ResponseEntity<?> put(@PathVariable @NotNull String backendId, HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@ResponseBody

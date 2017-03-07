@@ -114,5 +114,11 @@ public abstract class AbstractReadEntityService<E extends BaseEntity, F extends 
 	public boolean supports(Class<?> delimiter) {
 		return entityClass.isAssignableFrom(delimiter);
 	}
-
+	
+	@Override
+	public boolean isNew(E entity) {
+		Assert.notNull(entity);
+		//
+		return entity.getId() == null || !getRepository().exists((UUID) entity.getId());
+	}
 }

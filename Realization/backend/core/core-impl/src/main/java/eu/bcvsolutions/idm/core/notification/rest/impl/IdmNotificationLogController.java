@@ -81,9 +81,9 @@ public class IdmNotificationLogController extends AbstractReadWriteEntityControl
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATION_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler)
 			throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+		return super.post(nativeRequest, assembler);
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class IdmNotificationLogController extends AbstractReadWriteEntityControl
 	 * @param notificationLog
 	 */
 	@Override
-	public IdmNotificationLog createEntity(IdmNotificationLog entity) {
+	public IdmNotificationLog postEntity(IdmNotificationLog entity) {
 		LOG.debug("Notification log [{}] was created and notificatio will be send.", entity);
 		notificationManager.send(entity);
 		// TODO: send method should result notification or ex to prevent another loading

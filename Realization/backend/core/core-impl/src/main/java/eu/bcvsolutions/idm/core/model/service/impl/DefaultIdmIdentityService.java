@@ -46,22 +46,22 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmIdentityService.class);
 
-	private final IdmIdentityRepository identityRepository;
+	private final IdmIdentityRepository repository;
 	private final IdmRoleRepository roleRepository;
 	private final EntityEventManager entityEventManager;
 	
 	@Autowired
 	public DefaultIdmIdentityService(
-			IdmIdentityRepository identityRepository,
+			IdmIdentityRepository repository,
 			FormService formService,
 			IdmRoleRepository roleRepository,
 			EntityEventManager entityEventManager) {
-		super(identityRepository, formService);
+		super(repository, formService);
 		//
 		Assert.notNull(roleRepository);
 		Assert.notNull(entityEventManager);
 		//
-		this.identityRepository = identityRepository;
+		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.entityEventManager = entityEventManager;
 	}
@@ -77,7 +77,8 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		Assert.notNull(identity);
 		//
 		LOG.debug("Saving identity [{}]", identity.getUsername());
-		if (identity.getId() == null) { // create
+		
+		if (isNew(identity)) { // create
 			return entityEventManager.process(new IdentityEvent(IdentityEventType.CREATE, identity)).getContent();
 		}
 		return entityEventManager.process(new IdentityEvent(IdentityEventType.UPDATE, identity)).getContent();
@@ -100,7 +101,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	@Override
 	@Transactional(readOnly = true)
 	public IdmIdentity getByUsername(String username) {
-		return identityRepository.findOneByUsername(username);
+		return repository.findOneByUsername(username);
 	}
 	
 	@Override
@@ -181,7 +182,7 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 	public List<IdmIdentity> findAllByRole(IdmRole role) {
 		Assert.notNull(role, "RoleIs required");
 		//
-		return identityRepository.findAllByRole(role);
+		return repository.findAllByRole(role);
 	}
 
 	/**
@@ -221,10 +222,10 @@ public class DefaultIdmIdentityService extends AbstractFormableService<IdmIdenti
 		filter.setManagersByTreeType(byTreeType);
 		//
 		List<IdmIdentity> results = new ArrayList<IdmIdentity>();		
-		Page<IdmIdentity> managers = identityRepository.find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
+		Page<IdmIdentity> managers = repository.find(filter, new PageRequest(0, 50, Sort.Direction.ASC, "username"));
 		results.addAll(managers.getContent());
 		while (managers.hasNext()) {
-			managers = identityRepository.find(filter, managers.nextPageable());
+			managers = repository.find(filter, managers.nextPageable());
 			results.addAll(managers.getContent());
 		}
 		//

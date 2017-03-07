@@ -27,7 +27,8 @@ public enum IdmGroupPermission implements GroupPermission {
 	AUDIT(IdmBasePermission.ADMIN, IdmBasePermission.READ),
 	MODULE(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE),
 	SCHEDULER(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
-	ROLE_REQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE);
+	ROLE_REQUEST(IdmBasePermission.ADMIN, IdmBasePermission.READ, IdmBasePermission.WRITE, IdmBasePermission.DELETE),
+	ROLE_REQUEST_IMMEDIATELY(IdmBasePermission.ADMIN, IdmBasePermission.WRITE);
 	
 	// String constants could be used in pre / post authotize SpEl expressions
 	
@@ -72,6 +73,7 @@ public enum IdmGroupPermission implements GroupPermission {
 	public static final String ROLE_REQUEST_READ = "ROLE_REQUEST" + BasePermission.SEPARATOR + "READ";
 	public static final String ROLE_REQUEST_WRITE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "WRITE";
 	public static final String ROLE_REQUEST_DELETE = "ROLE_REQUEST" + BasePermission.SEPARATOR + "DELETE";
+	public static final String ROLE_REQUEST_IMMEDIATELY_WRITE = "ROLE_REQUEST_IMMEDIATELY" + BasePermission.SEPARATOR + "WRITE";
 	
 	private final List<BasePermission> permissions;
 

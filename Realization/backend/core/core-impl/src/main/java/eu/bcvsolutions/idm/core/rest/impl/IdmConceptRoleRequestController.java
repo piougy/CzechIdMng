@@ -67,7 +67,7 @@ public class IdmConceptRoleRequestController
 	protected ConceptRoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		ConceptRoleRequestFilter filter = new ConceptRoleRequestFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setRoleRequest(getParameterConverter().toUuid(parameters, "roleRequestId"));
+		filter.setRoleRequestId(getParameterConverter().toUuid(parameters, "roleRequestId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		return filter;
 	}

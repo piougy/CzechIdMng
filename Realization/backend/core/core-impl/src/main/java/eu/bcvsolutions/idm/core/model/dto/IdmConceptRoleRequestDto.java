@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto;
 import java.util.UUID;
 
 import org.joda.time.LocalDate;
+import org.springframework.hateoas.core.Relation;
 
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
@@ -15,6 +16,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  * @author svandav
  *
  */
+@Relation(collectionRelation = "conecptRoleRequests")
 public class IdmConceptRoleRequestDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;

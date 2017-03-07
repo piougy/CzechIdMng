@@ -22,7 +22,7 @@ public interface IdmConceptRoleRequestRepository extends AbstractEntityRepositor
 	@Override
 	@Query(value = "select e from IdmConceptRoleRequest e" +
 	        " where " +
-	        " (?#{[0].roleRequest} is null or e.roleRequest.id = ?#{[0].roleRequest})" +
+	        " (?#{[0].roleRequestId} is null or e.roleRequest.id = ?#{[0].roleRequestId})" +
 	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmConceptRoleRequest> find(ConceptRoleRequestFilter filter, Pageable pageable);

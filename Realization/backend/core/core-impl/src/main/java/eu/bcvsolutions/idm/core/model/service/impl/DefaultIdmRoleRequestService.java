@@ -6,30 +6,36 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.RoleRequestException;
 import eu.bcvsolutions.idm.core.api.repository.AbstractEntityRepository;
 import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteDtoService;
+import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
 import eu.bcvsolutions.idm.core.model.dto.IdmConceptRoleRequestDto;
+import eu.bcvsolutions.idm.core.model.dto.IdmIdentityContractDto;
 import eu.bcvsolutions.idm.core.model.dto.IdmRoleRequestDto;
 import eu.bcvsolutions.idm.core.model.dto.filter.ConceptRoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleRequestFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmConceptRoleRequest;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
-import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRoleRequest;
 import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmRoleRequestService;
+import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 
 /**
  * Default implementation of role request service
@@ -42,24 +48,35 @@ public class DefaultIdmRoleRequestService
 		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, RoleRequestFilter>
 		implements IdmRoleRequestService {
 
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
+	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
+	private final ObjectMapper objectMapper;
+	private final SecurityService securityService;
+	private IdmRoleRequestService roleRequestService;
+	private final ApplicationContext applicationContext;
 
 	@Autowired
 	public DefaultIdmRoleRequestService(AbstractEntityRepository<IdmRoleRequest, RoleRequestFilter> repository,
 			IdmConceptRoleRequestService conceptRoleRequestService, IdmIdentityRoleService identityRoleService,
-			IdmIdentityService identityService) {
+			IdmIdentityService identityService, ObjectMapper objectMapper, SecurityService securityService,
+			ApplicationContext applicationContext) {
 		super(repository);
 
 		Assert.notNull(conceptRoleRequestService, "Concept role request service is required!");
 		Assert.notNull(identityRoleService, "Identity role service is required!");
 		Assert.notNull(identityService, "Identity service is required!");
+		Assert.notNull(objectMapper, "Object mapper is required!");
+		Assert.notNull(securityService, "Security service is required!");
+		Assert.notNull(applicationContext, "Application context is required!");
 
 		this.conceptRoleRequestService = conceptRoleRequestService;
 		this.identityRoleService = identityRoleService;
 		this.identityService = identityService;
+		this.objectMapper = objectMapper;
+		this.securityService = securityService;
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -68,14 +85,31 @@ public class DefaultIdmRoleRequestService
 		if (dto.getId() == null) {
 			created = true;
 		}
-		IdmRoleRequestDto savedRequest = super.saveDto(dto);
+		// Load applicant (check read right)
+		IdmIdentity applicant = identityService.get(dto.getApplicant());
 		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
+
+		IdmRoleRequestDto savedRequest = super.saveDto(dto);
 		concepts.forEach(concept -> {
 			concept.setRoleRequest(savedRequest.getId());
 		});
 		this.conceptRoleRequestService.saveAllDto(concepts);
+
+		// Check on same applicants in all role concepts
+		boolean identityNotSame = this.getDto(savedRequest.getId()).getConceptRoles().stream().filter(concept -> {
+			// get contract dto from embedded map
+			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
+					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			return !dto.getApplicant().equals(contract.getIdentity());
+		}).findFirst().isPresent();
+
+		if (identityNotSame) {
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
+					ImmutableMap.of("request", dto, "applicant", applicant.getUsername()));
+		}
+
 		if (created) {
-			this.startRequest(this.getDto(savedRequest.getId()));
+			this.startRequest(savedRequest.getId());
 		}
 		return this.getDto(savedRequest.getId());
 	}
@@ -85,21 +119,44 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto requestDto = super.toDto(entity, dto);
 		if (requestDto != null) {
 			ConceptRoleRequestFilter conceptFilter = new ConceptRoleRequestFilter();
-			conceptFilter.setRoleRequest(requestDto.getId());
+			conceptFilter.setRoleRequestId(requestDto.getId());
 			requestDto.setConceptRoles(conceptRoleRequestService.findDto(conceptFilter, null).getContent());
 		}
 		return requestDto;
 	}
 
-	public void startRequest(IdmRoleRequestDto request) {
-		Assert.notNull(request, "Role request dto is required!");
+	@Override
+	public IdmRoleRequest toEntity(IdmRoleRequestDto dto, IdmRoleRequest entity) {
+		if (entity == null || entity.getId() == null) {
+			try {
+				dto.setOriginalRequest(objectMapper.writeValueAsString(dto));
+			} catch (JsonProcessingException e) {
+				throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
+			}
+		}
+		return super.toEntity(dto, entity);
+	}
+
+	@Override
+	public void startRequest(UUID requestId) {
+		// Request will be started in new transaction
+		this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void startRequestInternal(UUID requestId, boolean checkRight) {
+		Assert.notNull(requestId, "Role request ID is required!");
+		// Load request ... check right for read
+		IdmRoleRequestDto request = getDto(requestId);
+		Assert.notNull(request, "Role request DTO is required!");
 		Assert.isTrue(RoleRequestState.CREATED == request.getState(),
 				"Only role request with CREATED state can be started!");
 
 		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
 
 		RoleRequestFilter requestFilter = new RoleRequestFilter();
-		requestFilter.setIdentityUUID(request.getIdentity());
+		requestFilter.setApplicantId(request.getApplicant());
 		requestFilter.setState(RoleRequestState.IN_PROGRESS);
 		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
 
@@ -115,22 +172,21 @@ public class DefaultIdmRoleRequestService
 			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_DUPLICATE_REQUEST,
 					ImmutableMap.of("new", request, "duplicant", duplicatedRequestOptional.get()));
 		}
-		
+
 		// TODO: check on same identities
 
 		request.setState(RoleRequestState.IN_PROGRESS);
 		this.saveDto(request);
 
 		if (request.isExecuteImmediately()) {
-			boolean haveRightExecuteImmediately = true;
+			boolean haveRightExecuteImmediately = securityService
+					.hasAnyAuthority(IdmGroupPermission.ROLE_REQUEST_IMMEDIATELY_WRITE);
 
-			// TODO: check right
-
-			if (!haveRightExecuteImmediately) {
+			if (checkRight && !haveRightExecuteImmediately) {
 				throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_NO_EXECUTE_IMMIDIATELY_RIGHT,
 						ImmutableMap.of("new", request));
 			}
-			
+
 			// Execute request immediately
 			executeRequest(request.getId());
 
@@ -143,16 +199,28 @@ public class DefaultIdmRoleRequestService
 		IdmRoleRequestDto request = this.getDto(requestId);
 		Assert.notNull(request, "Role request is required!");
 
-		IdmIdentity identity = identityService.get(request.getId());
-		
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
+		IdmIdentity identity = identityService.get(request.getApplicant());
+ 
+		boolean identityNotSame = concepts.stream().filter(concept -> {
+			// get contract dto from embedded map
+			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()
+					.get(IdmConceptRoleRequestService.IDENTITY_CONTRACT_FIELD);
+			return !identity.getId().equals(contract.getIdentity());
+		}).findFirst().isPresent();
+
+		if (identityNotSame) {
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_APPLICANTS_NOT_SAME,
+					ImmutableMap.of("request", request, "applicant", identity.getUsername()));
+		}
+
 		List<IdmIdentityRole> identityRoles = new ArrayList<>();
 		concepts.forEach(concept -> {
 			IdmIdentityRole identityRole = new IdmIdentityRole();
-			identityRoles.add(convertConceptRoleToIdentityRole(
-					conceptRoleRequestService.get(concept.getId()), identityRole));
+			identityRoles.add(
+					convertConceptRoleToIdentityRole(conceptRoleRequestService.get(concept.getId()), identityRole));
 		});
-		
+
 		identityRoleService.saveAll(identityRoles);
 		request.setState(RoleRequestState.EXECUTED);
 		this.saveDto(request);
@@ -172,17 +240,18 @@ public class DefaultIdmRoleRequestService
 		} else if (!request.getConceptRoles().equals(duplicant.getConceptRoles())) {
 			return false;
 		}
-		if (request.getIdentity() == null) {
-			if (duplicant.getIdentity() != null) {
+		if (request.getApplicant() == null) {
+			if (duplicant.getApplicant() != null) {
 				return false;
 			}
-		} else if (!request.getIdentity().equals(duplicant.getIdentity())) {
+		} else if (!request.getApplicant().equals(duplicant.getApplicant())) {
 			return false;
 		}
 		return true;
 	}
-	
-	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole, IdmIdentityRole identityRole) {
+
+	private IdmIdentityRole convertConceptRoleToIdentityRole(IdmConceptRoleRequest conceptRole,
+			IdmIdentityRole identityRole) {
 		if (conceptRole == null || identityRole == null) {
 			return null;
 		}
@@ -193,6 +262,13 @@ public class DefaultIdmRoleRequestService
 		identityRole.setOriginalCreator(conceptRole.getOriginalCreator());
 		identityRole.setOriginalModifier(conceptRole.getOriginalModifier());
 		return identityRole;
+	}
+
+	private IdmRoleRequestService getIdmRoleRequestService() {
+		if (this.roleRequestService == null) {
+			this.roleRequestService = applicationContext.getBean(IdmRoleRequestService.class);
+		}
+		return this.roleRequestService;
 	}
 
 }

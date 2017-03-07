@@ -37,21 +37,22 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_READ + "')")
 	public ResponseEntity<?> get(@PathVariable @NotNull String backendId) {
 		return super.get(backendId);
 	}
 
 	
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> create(@RequestBody @NotNull IdmRoleRequestDto dto) {
 		return super.create(dto);
 	}
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_WRITE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_WRITE + "')")
 	public ResponseEntity<?> update(@PathVariable @NotNull String backendId, @RequestBody @NotNull IdmRoleRequestDto dto) {
 		return super.update(backendId, dto);
 	}
@@ -59,7 +60,8 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	
 	@Override
 	@ResponseBody
-	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "')")
+	@PreAuthorize("hasAuthority('" + IdmGroupPermission.ROLE_REQUEST_DELETE + "') or hasAuthority('"
+			+ IdmGroupPermission.IDENTITY_DELETE + "')")
 	public ResponseEntity<?> delete(@PathVariable @NotNull String backendId) {
 		return super.delete(backendId);
 	}
@@ -69,7 +71,7 @@ public class IdmRoleRequestController extends DefaultReadWriteDtoController<IdmR
 	protected RoleRequestFilter toFilter(MultiValueMap<String, Object> parameters) {
 		RoleRequestFilter filter = new RoleRequestFilter();
 		filter.setText(getParameterConverter().toString(parameters, "text"));
-		filter.setIdentityUUID(getParameterConverter().toUuid(parameters, "identityId"));
+		filter.setApplicantId(getParameterConverter().toUuid(parameters, "applicantId"));
 		filter.setState(getParameterConverter().toEnum(parameters, "state", RoleRequestState.class));
 		return filter;
 	}

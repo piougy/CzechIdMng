@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConceptRoleRequestService;
 public class DefaultIdmConceptRoleRequestService extends AbstractReadWriteDtoService<IdmConceptRoleRequestDto, IdmConceptRoleRequest, ConceptRoleRequestFilter>
 		implements IdmConceptRoleRequestService {
 	
-	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConceptRoleRequestService.class);
+	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmConceptRoleRequestService.class);
 
 	@Autowired
 	public DefaultIdmConceptRoleRequestService(AbstractEntityRepository<IdmConceptRoleRequest, ConceptRoleRequestFilter> repository) {

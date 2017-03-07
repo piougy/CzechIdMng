@@ -12,16 +12,15 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  *
  */
 public class ConceptRoleRequestFilter extends QuickFilter {
-	private UUID roleRequest;
+	private UUID roleRequestId;
 	private RoleRequestState state;
-
-
-	public UUID getRoleRequest() {
-		return roleRequest;
+	
+	public UUID getRoleRequestId() {
+		return roleRequestId;
 	}
 
-	public void setRoleRequest(UUID roleRequest) {
-		this.roleRequest = roleRequest;
+	public void setRoleRequestId(UUID roleRequestId) {
+		this.roleRequestId = roleRequestId;
 	}
 
 	public RoleRequestState getState() {

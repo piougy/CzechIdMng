@@ -16,6 +16,7 @@ import org.hibernate.envers.Audited;
 
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 
 /**
  * Request for roles
@@ -32,17 +33,22 @@ public class IdmRoleRequest extends AbstractEntity {
 	@Audited
 	@NotNull
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "identity_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
+	@JoinColumn(name = "applicant_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey(name = "none")
-	private IdmIdentity identity;
+	private IdmIdentity applicant;
 
 	@Audited
 	@NotNull
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
 	private RoleRequestState state = RoleRequestState.CREATED;
+
+	@Audited
+	@NotNull
+	@Column(name = "requested_by_type")
+	@Enumerated(EnumType.STRING)
+	private RoleRequestedByType requestedByType = RoleRequestedByType.MANUALLY;
 
 	@Audited
 	@Column(name = "wf_process_id")
@@ -64,16 +70,16 @@ public class IdmRoleRequest extends AbstractEntity {
 	@Audited
 	@ManyToOne(optional = true)
 	@JoinColumn(name = "duplicated_to_request", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT), nullable = true)
-	@SuppressWarnings("deprecation") // jpa FK constraint does not work in
-										// hibernate 4
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey(name = "none")
 	private IdmRoleRequest duplicatedToRequest;
 
-	public IdmIdentity getIdentity() {
-		return identity;
+	public IdmIdentity getApplicant() {
+		return applicant;
 	}
 
-	public void setIdentity(IdmIdentity identity) {
-		this.identity = identity;
+	public void setApplicant(IdmIdentity applicant) {
+		this.applicant = applicant;
 	}
 
 	public RoleRequestState getState() {
@@ -122,6 +128,14 @@ public class IdmRoleRequest extends AbstractEntity {
 
 	public void setLog(String log) {
 		this.log = log;
+	}
+
+	public RoleRequestedByType getRequestedByType() {
+		return requestedByType;
+	}
+
+	public void setRequestedByType(RoleRequestedByType requestedByType) {
+		this.requestedByType = requestedByType;
 	}
 
 }

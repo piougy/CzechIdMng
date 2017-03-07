@@ -23,7 +23,7 @@ public interface IdmRoleRequestRepository extends AbstractEntityRepository<IdmRo
 	@Override
 	@Query(value = "select e from IdmRoleRequest e" +
 	        " where " +
-	        " (?#{[0].identityUUID} is null or e.identity.id = ?#{[0].identityUUID})" +
+	        " (?#{[0].applicantId} is null or e.applicant.id = ?#{[0].applicantId})" +
 	        " and" +
 	        " (?#{[0].state} is null or e.state = ?#{[0].state})")
 	Page<IdmRoleRequest> find(RoleRequestFilter filter, Pageable pageable);

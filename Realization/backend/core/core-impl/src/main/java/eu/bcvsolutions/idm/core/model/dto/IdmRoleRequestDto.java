@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.hateoas.core.Relation;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
 import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
+import eu.bcvsolutions.idm.core.model.domain.RoleRequestedByType;
 
 /**
  * Dto for role request
@@ -15,13 +18,16 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  * @author svandav
  *
  */
+@Relation(collectionRelation = "roleRequests")
 public class IdmRoleRequestDto extends AbstractDto {
+	
 
 	private static final long serialVersionUID = 1L;
 
 	@Embedded(dtoClass = IdentityDto.class)
-	private UUID identity;
+	private UUID applicant;
 	private RoleRequestState state;
+	private RoleRequestedByType requestedByType;
 	private String wfProcessId;
 	private String originalRequest;
 	private List<IdmConceptRoleRequestDto> conceptRoles;
@@ -54,12 +60,12 @@ public class IdmRoleRequestDto extends AbstractDto {
 		this.originalRequest = originalRequest;
 	}
 
-	public UUID getIdentity() {
-		return identity;
+	public UUID getApplicant() {
+		return applicant;
 	}
 
-	public void setIdentity(UUID identity) {
-		this.identity = identity;
+	public void setApplicant(UUID applicant) {
+		this.applicant = applicant;
 	}
 
 	public List<IdmConceptRoleRequestDto> getConceptRoles() {
@@ -95,6 +101,14 @@ public class IdmRoleRequestDto extends AbstractDto {
 
 	public void setLog(String log) {
 		this.log = log;
+	}
+
+	public RoleRequestedByType getRequestedByType() {
+		return requestedByType;
+	}
+
+	public void setRequestedByType(RoleRequestedByType requestedByType) {
+		this.requestedByType = requestedByType;
 	}
 
 }

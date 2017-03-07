@@ -1,219 +1,224 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <groupId>eu.bcvsolutions.idm</groupId>
-   <version>7.1.0-SNAPSHOT</version>
-	 <artifactId>idm-gui</artifactId>
-   <packaging>war</packaging>
-   <name>CzechIdM GUI</name>
-   <description>CzechIdM GUI - builds frontend as deployable .war application</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-   <build>
-		  <finalName>idm-frontend</finalName>
-      <plugins>
-        <!-- plugin sequentionaly runs commands which are needed for build of frontend -->
-        <plugin>
-           <groupId>com.github.eirslett</groupId>
-           <artifactId>frontend-maven-plugin</artifactId>
-           <version>1.0</version>
-           <configuration>
-              <workingDirectory>../../frontend/czechidm-app</workingDirectory>
-              <installDirectory>target</installDirectory>
-           </configuration>
-           <executions>
-              <execution>
-                 <id>install node and npm</id>
-                 <goals>
-                    <goal>install-node-and-npm</goal>
-                 </goals>
-                 <configuration>
-                    <nodeVersion>v6.4.0</nodeVersion>
-                    <npmVersion>3.6.0</npmVersion>
-                 </configuration>
-              </execution>
-              <!-- script within package.json checks whether node_modules directory and its symlink exist and creates them if they do not exist -->
-              <execution>
-                 <id>link node-modules or skip if exists</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <!-- used command depends on OS environment -->
-                    <arguments>run ${script.environment}</arguments>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>npm install modules</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>install .</arguments>
-                 </configuration>
-                 <phase>generate-resources</phase>
-              </execution>
-              <execution>
-                 <id>npm run-script czechidm-modules-link</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>run-script czechidm-modules-link</arguments>
-                    <workingDirectory>../../frontend/czechidm-app/</workingDirectory>
-                 </configuration>
-                 <phase>generate-resources</phase>
-              </execution>
-              <!-- TODO installing dependencies are currently set only for czechidm-core module, this step is requested for every used module  -->
-              <execution>
-                 <id>install czechidm-core dependencies</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>install</arguments>
-                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>install czechidm-acc dependencies</id>
-                 <goals>
-                    <goal>npm</goal>
-                 </goals>
-                 <configuration>
-                    <arguments>install</arguments>
-                    <workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>make all modules together</id>
-                 <goals>
-                    <goal>gulp</goal>
-                 </goals>
-                 <phase>generate-resources</phase>
-                 <configuration>
-                    <arguments>makeModules</arguments>
-                 </configuration>
-              </execution>
-              <execution>
-                 <id>gulp build</id>
-                 <goals>
-                    <goal>gulp</goal>
-                 </goals>
-                 <phase>generate-resources</phase>
-                 <configuration>
-                    <arguments>build -p default -s production</arguments>
-                    <workingDirectory>../../frontend/czechidm-app</workingDirectory>
-                    <installDirectory>target</installDirectory>
-                 </configuration>
-              </execution>
-           </executions>
-        </plugin>
-				 <plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>3.0.1</version>
-						<executions>
-							 <execution>
-									<id>copy-resources</id>
-									<phase>prepare-package</phase>
-									<goals>
-										 <goal>copy-resources</goal>
-									</goals>
-									<configuration>
-										 <outputDirectory>target/idm-frontend</outputDirectory>
-										 <resources>
-												<resource>
-													 <directory>../../frontend/czechidm-app/dist</directory>
-													 <filtering>false</filtering>
-												</resource>
-										 </resources>
-									</configuration>
-							 </execution>
-						</executions>
-				 </plugin>
-				 <plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>2.6</version>
+	<groupId>eu.bcvsolutions.idm</groupId>
+	<artifactId>idm-gui</artifactId>
+	<version>7.1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+	
+	<name>CzechIdM GUI</name>
+	<description>CzechIdM GUI - builds frontend as deployable .war application</description>
+
+	<build>
+		<finalName>idm-frontend</finalName>
+		<plugins>
+			<!-- plugin sequentionaly runs commands which are needed for build of 
+				frontend -->
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.0</version>
+				<configuration>
+					<workingDirectory>../../frontend/czechidm-app</workingDirectory>
+					<installDirectory>target</installDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
 						<configuration>
-							 <failOnMissingWebXml>false</failOnMissingWebXml>
+							<nodeVersion>v6.4.0</nodeVersion>
+							<npmVersion>3.6.0</npmVersion>
 						</configuration>
-				 </plugin>
-      </plugins>
-   </build>
-   <profiles>
-      <profile>
-         <id>separatedApp</id>
-         <properties>
-            <spring.profiles.active>separatedApp</spring.profiles.active>
-         </properties>
-         <distributionManagement>
-            <snapshotRepository>
-               <id>nexus</id>
-               <name>Nexus Staging repo</name>
-               <url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
-            </snapshotRepository>
-         </distributionManagement>
-      </profile>
-      <profile>
-         <id>release</id>
-         <properties>
-            <spring.profiles.active>release</spring.profiles.active>
-         </properties>
-         <build>
-            <plugins>
-							<plugin>
-		             <groupId>com.atlassian.maven.plugins</groupId>
-		             <artifactId>maven-jgitflow-plugin</artifactId>
-		             <version>1.0-m4.3</version>
-		             <configuration>
-		                <pushReleases>true</pushReleases>
-		                <keepBranch>false</keepBranch>
-		                <autoVersionSubmodules>true</autoVersionSubmodules>
-		                <noTag>true</noTag>
-		                <allowUntracked>true</allowUntracked>
-		                <pullDevelop>true</pullDevelop>
-		                <pullMaster>true</pullMaster>
-		                <allowSnapshots>true</allowSnapshots>
-		                <flowInitContext>
-		                   <masterBranchName>master</masterBranchName>
-		                   <developBranchName>develop</developBranchName>
-		                </flowInitContext>
-		             </configuration>
-		          </plugin>
-            </plugins>
-         </build>
-         <distributionManagement>
-            <repository>
-               <id>nexus</id>
-               <name>Nexus Staging repo</name>
-               <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
-            </repository>
-         </distributionManagement>
-      </profile>
-      <profile>
-         <id>Windows</id>
-         <activation>
-            <os>
-               <family>Windows</family>
-            </os>
-         </activation>
-         <properties>
-            <script.environment />
-         </properties>
-      </profile>
-      <profile>
-         <id>unix</id>
-         <activation>
-            <os>
-               <family>unix</family>
-            </os>
-         </activation>
-         <properties>
-            <script.environment>modules-link-or-skip</script.environment>
-         </properties>
-      </profile>
-   </profiles>
+					</execution>
+					<!-- script within package.json checks whether node_modules directory 
+						and its symlink exist and creates them if they do not exist -->
+					<execution>
+						<id>link node-modules or skip if exists</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<!-- used command depends on OS environment -->
+							<arguments>run ${script.environment}</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install modules</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install .</arguments>
+						</configuration>
+						<phase>generate-resources</phase>
+					</execution>
+					<execution>
+						<id>npm run-script czechidm-modules-link</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>run-script czechidm-modules-link</arguments>
+							<workingDirectory>../../frontend/czechidm-app/</workingDirectory>
+						</configuration>
+						<phase>generate-resources</phase>
+					</execution>
+					<!-- TODO installing dependencies are currently set only for czechidm-core 
+						module, this step is requested for every used module -->
+					<execution>
+						<id>install czechidm-core dependencies</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-core</workingDirectory>
+							<installDirectory>target</installDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install czechidm-acc dependencies</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>../../frontend/czechidm-app/czechidm-modules/czechidm-acc</workingDirectory>
+							<installDirectory>target</installDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>make all modules together</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>makeModules</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>gulp build</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>build -p default -s production</arguments>
+							<workingDirectory>../../frontend/czechidm-app</workingDirectory>
+							<installDirectory>target</installDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/idm-frontend</outputDirectory>
+							<resources>
+								<resource>
+									<directory>../../frontend/czechidm-app/dist</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>separatedApp</id>
+			<properties>
+				<spring.profiles.active>separatedApp</spring.profiles.active>
+			</properties>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>release</id>
+			<properties>
+				<spring.profiles.active>release</spring.profiles.active>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.atlassian.maven.plugins</groupId>
+						<artifactId>maven-jgitflow-plugin</artifactId>
+						<version>1.0-m4.3</version>
+						<configuration>
+							<pushReleases>true</pushReleases>
+							<keepBranch>false</keepBranch>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<noTag>true</noTag>
+							<allowUntracked>true</allowUntracked>
+							<pullDevelop>true</pullDevelop>
+							<pullMaster>true</pullMaster>
+							<allowSnapshots>true</allowSnapshots>
+							<flowInitContext>
+								<masterBranchName>master</masterBranchName>
+								<developBranchName>develop</developBranchName>
+							</flowInitContext>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<repository>
+					<id>nexus</id>
+					<name>Nexus Staging repo</name>
+					<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>Windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<script.environment />
+			</properties>
+		</profile>
+		<profile>
+			<id>unix</id>
+			<activation>
+				<os>
+					<family>unix</family>
+				</os>
+			</activation>
+			<properties>
+				<script.environment>modules-link-or-skip</script.environment>
+			</properties>
+		</profile>
+	</profiles>
 </project>

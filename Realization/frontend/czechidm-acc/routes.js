@@ -1,5 +1,5 @@
 module.exports = {
-  module: 'accc',
+  module: 'acc',
   component: 'div',
   childRoutes: [
     {

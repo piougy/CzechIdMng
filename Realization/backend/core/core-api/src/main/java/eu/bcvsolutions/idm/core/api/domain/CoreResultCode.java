@@ -107,6 +107,7 @@ public enum CoreResultCode implements ResultCode {
 	// Role request
 	ROLE_REQUEST_DUPLICATE_REQUEST(HttpStatus.CONFLICT, "Request [%] is a duplicated of another request [%s]!"),
 	ROLE_REQUEST_NO_EXECUTE_IMMIDIATELY_RIGHT(HttpStatus.CONFLICT, "You do not have right for immidiately execute role request [%]!"),
+	ROLE_REQUEST_APPLICANTS_NOT_SAME(HttpStatus.BAD_REQUEST, "Some concept/s role in role request [%] have different applicant than [%]!"),
 	//
 	// 5xx	
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),

@@ -883,8 +883,9 @@
       }
     },
     "roles": {
-      "header": "Role",
-      "title": "Role",
+      "menu-title": "Role",
+      "header": "Správa rolí",
+      "title": "Správa rolí",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -937,6 +938,10 @@
           "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
         }
       }
+    },
+    "requestRoles": {
+      "header": "Žádosti o role",
+      "title": "Žádosti o role"
     },
     "role": {
       "identities": {

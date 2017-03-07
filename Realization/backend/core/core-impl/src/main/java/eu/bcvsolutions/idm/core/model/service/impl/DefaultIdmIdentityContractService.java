@@ -72,7 +72,7 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		Assert.notNull(entity);
 		Assert.notNull(entity.getIdentity());
 		//
-		if (entity.getId() == null) { // create
+		if (isNew(entity)) { // create
 			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity().getUsername());
 			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();
 		} 

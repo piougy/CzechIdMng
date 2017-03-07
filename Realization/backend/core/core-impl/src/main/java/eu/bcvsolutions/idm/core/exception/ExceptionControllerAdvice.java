@@ -99,6 +99,17 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(new ResultModels(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 	
+	@ExceptionHandler(javax.validation.ConstraintViolationException.class)
+	ResponseEntity<ResultModels> handle(javax.validation.ConstraintViolationException ex) {		
+		List<ErrorModel> errorModels = ex.getConstraintViolations().stream()
+			.map(constraintViolation -> new FieldErrorModel(constraintViolation))
+			.peek(errorModel -> log.warn("[" + errorModel.getId() + "] ", ex))
+			.collect(Collectors.toList());
+		// TODO: global errors
+		// TODO: better errorModel logging - move source exception to errorModel?
+        return new ResponseEntity<>(new ResultModels(errorModels), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+	
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	ResponseEntity<ResultModels> handle(DataIntegrityViolationException ex) {
 		ErrorModel errorModel = null;

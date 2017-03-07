@@ -74,18 +74,18 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override

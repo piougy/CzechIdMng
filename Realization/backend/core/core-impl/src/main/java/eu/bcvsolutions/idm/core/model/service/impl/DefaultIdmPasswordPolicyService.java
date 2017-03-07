@@ -95,7 +95,7 @@ public class DefaultIdmPasswordPolicyService extends AbstractReadWriteEntityServ
 		Assert.notNull(entity);
 		//
 		LOG.debug("Saving entity [{}]", entity.getName());
-		if (entity.getId() == null) {
+		if (isNew(entity)) {
 			// throw event with create
 			return entityEventProcessorService.process(new PasswordPolicyEvent(PasswordPolicyEvenType.CREATE, entity)).getContent();
 		}

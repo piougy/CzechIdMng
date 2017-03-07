@@ -1,5 +1,5 @@
 module.exports = {
-  'id': 'acc',
+  'id': 'accc',
   'npmName': 'czechidm-acc',
   'backendId': 'acc',
   'disableable': true,

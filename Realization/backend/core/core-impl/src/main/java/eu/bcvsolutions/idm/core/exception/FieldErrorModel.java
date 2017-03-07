@@ -2,6 +2,8 @@ package eu.bcvsolutions.idm.core.exception;
 
 import java.text.MessageFormat;
 
+import javax.validation.ConstraintViolation;
+
 import org.springframework.validation.FieldError;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,8 +35,26 @@ public class FieldErrorModel extends DefaultErrorModel {
 		this.code = code;
 	}
 	
+	/**
+	 * Creates {@link FieldErrorModel} from {@link FieldError}.
+	 * 
+	 * @param fieldError required
+	 */
 	public FieldErrorModel(FieldError fieldError) {
 		this(fieldError.getObjectName(), fieldError.getField(), fieldError.getCode(), fieldError.getDefaultMessage());
+	}
+	
+	/**
+	 * Creates {@link FieldErrorModel} from {@link ConstraintViolation}.
+	 * 
+	 * @param violation required
+	 */
+	public FieldErrorModel(ConstraintViolation<?> violation) {
+		this(
+				violation.getRootBeanClass() == null ? "entity" : violation.getRootBeanClass().getSimpleName(), 
+				violation.getPropertyPath() == null ? "field" : violation.getPropertyPath().toString(), 
+						violation.getConstraintDescriptor() == null ? "invalid" : violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName(), 
+				violation.getMessage());
 	}
 	
 	@Override

@@ -29,10 +29,10 @@ class Loading extends AbstractComponent {
       }
       // TODO: offset, scroll
       loading.css({
-        top: panel.position().top + 1, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
-        left: panel.position().left + 1,
-        width: panel.width() - 1,
-        height: panel.height() - 1
+        top: panel.position().top, // TODO: check, if panel contains top header and calculate with header height (now 50 hardcoded)
+        left: panel.position().left,
+        width: panel.width(),
+        height: panel.height()
       });
     }
   }

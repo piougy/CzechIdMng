@@ -58,7 +58,7 @@ class OrganizationPosition extends Basic.AbstractContextComponent {
             // link to tree node detail
             return (
               <li key={`op-${treeNode.id}`}>
-                <Link to={`/tree/nodes/${treeNode.id}`}>
+                <Link to={`/tree/nodes/${treeNode.id}/detail`}>
                   { this.treeNodeManager.getNiceLabel(treeNode) }
                 </Link>
               </li>

@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormValueService;
  *
  */
 @Configuration
-public class ServiceConfiguration {
+public class AccServiceConfiguration {
 
 	/**
 	 * Eav attributes for target system configuration

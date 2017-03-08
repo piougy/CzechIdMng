@@ -133,16 +133,22 @@ export default class TemplateDetail extends Basic.AbstractContent {
       <div>
         <form onSubmit={this.save.bind(this)}>
           <Basic.AbstractForm data={entity} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
-            <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.NotificationTemplate.name')}
-              required
-              max={255}/>
-            <Basic.TextField
-              ref="code" readOnly={entity.systemTemplate}
-              label={this.i18n('entity.NotificationTemplate.code')}
-              required
-              max={255}/>
+            <Basic.Row>
+              <div className="col-lg-3">
+                <Basic.TextField
+                  ref="code" readOnly={entity.systemTemplate}
+                  label={this.i18n('entity.NotificationTemplate.code')}
+                  required
+                  max={255}/>
+              </div>
+              <div className="col-lg-9">
+                <Basic.TextField
+                  ref="name"
+                  label={this.i18n('entity.NotificationTemplate.name')}
+                  required
+                  max={255}/>
+              </div>
+            </Basic.Row>
             <Basic.TextField
               ref="parameter" readOnly={entity.systemTemplate} max={255}
               label={this.i18n('entity.NotificationTemplate.parameter.name')}

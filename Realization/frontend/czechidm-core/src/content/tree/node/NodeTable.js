@@ -390,9 +390,9 @@ export default class NodeTable extends Basic.AbstractContent {
                       }
                       sort={false}/>
                     <Advanced.Column property="code" width="125px" sort face="text"/>
-                    <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
+                    <Advanced.ColumnLink to="/tree/nodes/:id/detail" property="name" width="20%" sort face="text"/>
                     <Advanced.ColumnLink
-                      to="/tree/nodes/:_target"
+                      to="/tree/nodes/:_target/detail"
                       target="parent.id"
                       property="parent.name"
                       sort/>

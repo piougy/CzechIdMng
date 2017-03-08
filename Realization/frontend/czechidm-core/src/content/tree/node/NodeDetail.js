@@ -116,7 +116,7 @@ export default class NodeDetail extends Basic.AbstractContent {
       <div>
         <Helmet title={Utils.Entity.isNew(entity) ? this.i18n('create.title') : this.i18n('edit.title')} />
 
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className={Utils.Entity.isNew(entity) ? '' : 'no-border last'}>
             <Basic.PanelHeader text={Utils.Entity.isNew(entity) ? this.i18n('create.header') : this.i18n('label')} />
 

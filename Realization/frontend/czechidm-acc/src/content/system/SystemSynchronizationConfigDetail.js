@@ -283,7 +283,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
 
         <Basic.Tabs activeKey={activeKey} onSelect={this._onChangeSelectTabs.bind(this)}>
           <Basic.Tab eventKey={1} title={this.i18n('tabs.basicConfiguration.label')} className="bordered">
-            <form onSubmit={this.save.bind(this)}>
+            <form onSubmit={this.save.bind(this, false, false)}>
               <Basic.Panel className="no-border">
                 <Basic.AbstractForm ref="form" data={synchronizationConfig} showLoading={innerShowLoading} className="panel-body">
                   <Basic.Checkbox
@@ -474,7 +474,7 @@ class SystemSynchronizationConfigDetail extends Basic.AbstractTableContent {
                       {this.i18n('button.saveAndStartSynchronization')}
                     </Basic.MenuItem>
                     <Basic.MenuItem
-                      eventKey="1"
+                      eventKey="2"
                       onClick={this.save.bind(this, false, true)}>
                       {this.i18n('button.saveAndClose')}
                     </Basic.MenuItem>

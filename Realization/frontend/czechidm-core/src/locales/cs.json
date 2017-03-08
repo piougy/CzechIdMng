@@ -120,6 +120,10 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Záznam [{{record}}] byl úspěšně uložen"
     }
   },
   "environment": {
@@ -394,6 +398,11 @@
       "MAJOR": "Velká",
       "CRITICAL": "Kritická",
       "TRIVIAL": "Triviální"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Bez šíření",
+      "DOWN": "Šířit dle struktury dolů",
+      "UP": "Šířit dle struktury nahoru"
     }
   },
   "dashboard": {
@@ -1010,6 +1019,20 @@
         },
         "error" : {
           "notFound": "Definice dalších atributů pro roli nebyla nalezena."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatické role",
+        "title": "Automatické role",
+        "label": "Automatické role",
+        "edit": {
+          "header": "{{name}} <small>detail automatické role</small>"
+        },
+        "create": {
+          "header": "Nová automatická role"
+        },
+        "save": {
+          "success": "Automatická role [{{record}}] byla úspěšně uložena"
         }
       }
     },
@@ -1693,6 +1716,12 @@
       "roleCatalogue": {
         "name": "Složka v katalogu"
       }
+    },
+    "RoleTreeNode": {
+      "_type": "Automatická role",
+      "role": "Role",
+      "treeNode": "Prvek stromové struktury",
+      "recursionType": "Typ rerkurze"
     },
     "IdentityRole": {
       "role" : "Role",

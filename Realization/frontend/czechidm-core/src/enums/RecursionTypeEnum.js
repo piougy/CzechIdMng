@@ -1,16 +1,14 @@
-
-
 import AbstractEnum from '../enums/AbstractEnum';
 
 /**
- * OperationType for adit operation etc.
+ * Recursion type - used for automatic role etc.
  *
  * @author Radek Tomiška
  */
-export default class RoleTypeEnum extends AbstractEnum {
+export default class RecursionTypeEnum extends AbstractEnum {
 
   static getNiceLabel(key) {
-    return super.getNiceLabel(`core:enums.RoleTypeEnum.${key}`);
+    return super.getNiceLabel(`core:enums.RecursionTypeEnum.${key}`);
   }
 
   static findKeyBySymbol(sym) {
@@ -29,20 +27,17 @@ export default class RoleTypeEnum extends AbstractEnum {
     const sym = super.findSymbolByKey(this, key);
 
     switch (sym) {
-      case this.BUSINESS: {
-        return 'info';
-      }
-      case this.TECHNICAL: {
+      case this.NO: {
         return 'success';
       }
       default: {
-        return 'default';
+        return 'info';
       }
     }
   }
 }
 
-RoleTypeEnum.SYSTEM = Symbol('SYSTEM');
-RoleTypeEnum.BUSINESS = Symbol('BUSINESS');
-RoleTypeEnum.TECHNICAL = Symbol('TECHNICAL');
-RoleTypeEnum.LOGIN = Symbol('LOGIN');
+RecursionTypeEnum.NO = Symbol('NO');
+RecursionTypeEnum.DOWN = Symbol('DOWN');
+// not implemented for now
+// RecursionTypeEnum.UP = Symbol('UP');

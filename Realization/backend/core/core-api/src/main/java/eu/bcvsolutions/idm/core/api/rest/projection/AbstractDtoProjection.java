@@ -13,14 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public interface AbstractDtoProjection extends BaseDtoProjection {
 
-	DateTime getCreated();
-	
-	String getCreator();
-	
-	String getModifier();
-	
-	DateTime getModified();	
-	
 	/**
 	 * All projections are considered as trimmed view on entity (does not contain all properties) 
 	 * 
@@ -29,4 +21,14 @@ public interface AbstractDtoProjection extends BaseDtoProjection {
 	@JsonProperty("_trimmed")
 	@Value("#{true}") 
     boolean isTrimmed();
+	
+	DateTime getCreated();
+	
+	String getCreator();
+	
+	String getModifier();
+	
+	DateTime getModified();
+	
+	boolean isDisabled();
 }

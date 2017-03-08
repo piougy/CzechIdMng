@@ -63,7 +63,8 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	private IdmRoleCatalogue parent;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	// TODO: formule for roles in folder count

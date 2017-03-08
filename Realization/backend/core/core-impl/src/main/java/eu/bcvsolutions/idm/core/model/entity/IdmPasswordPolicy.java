@@ -48,12 +48,9 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 	private String name;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
-
-	@Audited
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
 
 	@Audited
 	@Column(name = "password_length_required", nullable = false)
@@ -315,14 +312,6 @@ public class IdmPasswordPolicy extends AbstractEntity implements IdentifiableByN
 
 	public void setDefaultPolicy(boolean defaultPolicy) {
 		this.defaultPolicy = defaultPolicy;
-	}
-	
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	public IdmPasswordPolicyGenerateType getGenerateType() {

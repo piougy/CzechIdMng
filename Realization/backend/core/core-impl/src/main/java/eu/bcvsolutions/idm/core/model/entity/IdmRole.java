@@ -49,11 +49,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
 	
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
-	
 	@Version
 	@JsonIgnore
 	private Long version; // Optimistic lock - will be used with ETag
@@ -78,7 +73,8 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	private String approveRemoveWorkflow;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	@JsonManagedReference
@@ -131,14 +127,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	public void setRoleType(IdmRoleType roleType) {

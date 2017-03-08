@@ -114,13 +114,14 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		// set identity
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
+		contract.setMain(true);
 		//
 		// set working position
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
 			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
 		} else {
-			contract.setPosition(DEFAULT_POSITION_NAME); // TODO: from configuration manager
+			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
 		return contract;
 	}

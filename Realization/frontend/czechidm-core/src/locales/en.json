@@ -121,6 +121,10 @@
       "success_1": "Selected record [{{record}}] were successfully deactivated",
       "success_2": "Selected records [{{records}}] were successfully deactivated",
       "success_5": "Selected records [{{records}}] were successfully deactivated"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Record [{{record}}] was successfully saved"
     }
   },
   "environment": {
@@ -394,6 +398,11 @@
       "MAJOR": "Major",
       "CRITICAL": "Critical",
       "TRIVIAL": "Trivial"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Without recursion",
+      "DOWN": "By structure down",
+      "UP": "By structure up"
     }
   },
  "dashboard": {
@@ -1010,6 +1019,20 @@
         },
         "error" : {
           "notFound": "Extended attributes definition for role not found."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatic roles",
+        "title": "Automatic roles",
+        "label": "Automatic roles",
+        "edit": {
+          "header": "{{name}} <small>automatic role detail</small>"
+        },
+        "create": {
+          "header": "New automatic role"
+        },
+        "save": {
+          "success": "Automatic role [{{record}}] was successfully saved"
         }
       }
     },
@@ -1699,6 +1722,12 @@
       "guarantees": "Role authorizers",
       "roleCatalog": {
         "name": "Catalog"
+      },
+      "RoleTreeNode": {
+        "_type": "Automatic role",
+        "role": "Role",
+        "treeNode": "Tree node",
+        "recursionType": "Reursion type"
       }
     },
     "IdentityRole": {
@@ -1752,7 +1781,7 @@
     },
     "TreeNode": {
       "_type": "Tree node",
-      "id": "Identifikátor",
+      "id": "Identifier",
       "code": "Code",
       "name": "Name",
       "disabled": "Inactive",

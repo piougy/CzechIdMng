@@ -8,6 +8,8 @@ import javax.validation.constraints.Size;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
@@ -36,6 +38,8 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	private UUID originalModifierId;
+	@JsonIgnore
+	private UUID transactionId;
 
 	public AbstractDto() {
 	}
@@ -58,6 +62,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalCreatorId = auditable.getOriginalCreatorId();
 		this.originalModifier = auditable.getOriginalModifier();
 		this.originalModifierId = auditable.getOriginalModifierId();
+		this.transactionId = auditable.getTransactionId();
 	}
 
 	@Override
@@ -171,6 +176,16 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 	
 	@Override
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+	
+	@Override
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;	
+	}
+	
+	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
 	}
@@ -193,5 +208,4 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 				|| (this.getId() != null && !this.getId().equals(other.getId()))
 				|| (this.getId() == null && other.getId() == null && this != other));
 	}
-
 }

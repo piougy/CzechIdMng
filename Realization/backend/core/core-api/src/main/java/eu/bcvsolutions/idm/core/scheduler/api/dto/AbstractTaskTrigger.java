@@ -1,6 +1,7 @@
 package eu.bcvsolutions.idm.core.scheduler.api.dto;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.joda.time.DateTime;
@@ -9,6 +10,8 @@ import org.quartz.Trigger;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
+import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 
 /**
  * Base class for task triggers
@@ -23,6 +26,7 @@ public abstract class AbstractTaskTrigger {
 	private String id;
 	@NotNull
 	private String taskId;
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	private String description;	
 	private DateTime nextFireTime;
 	private DateTime previousFireTime;

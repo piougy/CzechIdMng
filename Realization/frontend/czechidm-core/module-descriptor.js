@@ -181,6 +181,14 @@ module.exports = {
             'order': 20,
             'path': '/role/:entityId/identities',
             'icon': 'fa:group'
+          },
+          {
+            'id': 'role-tree-nodes',
+            'type': 'TAB',
+            'labelKey': 'content.role.tree-nodes.label',
+            'titleKey': 'content.role.tree-nodes.title',
+            'order': 30,
+            'path': '/role/:entityId/tree-nodes'
           }
         ]
       },

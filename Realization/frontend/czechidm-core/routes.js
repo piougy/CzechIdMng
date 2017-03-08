@@ -163,6 +163,10 @@ module.exports = {
           path: 'eav',
           component: require('./src/content/role/RoleEav')
         },
+        {
+          path: 'tree-nodes',
+          component: require('./src/content/role/RoleTreeNodes')
+        }
       ]
     },
     {

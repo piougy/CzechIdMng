@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _ from 'lodash';
 //
 import * as Basic from '../../basic';
+import * as Utils from '../../../utils';
 import Filter from '../Filter/Filter';
 import SearchParameters from '../../../domain/SearchParameters';
 
@@ -348,6 +349,12 @@ class AdvancedTable extends Basic.AbstractContextComponent {
           cell={cell}/>
       );
     }
+    //
+    let _rowClass = rowClass;
+    if (!_rowClass) {
+      // automatic rowClass by entities common attributes
+      _rowClass = ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); };
+    }
 
     return (
       <div className="advanced-table" style={style}>
@@ -419,7 +426,7 @@ class AdvancedTable extends Basic.AbstractContextComponent {
               showRowSelection={showRowSelection}
               selectedRows={selectedRows}
               onRowSelect={this._onRowSelect.bind(this)}
-              rowClass={rowClass}
+              rowClass={_rowClass}
               noData={this.getNoData(noData)}>
               {renderedColumns}
             </Basic.BasicTable.Table>

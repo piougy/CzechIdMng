@@ -236,17 +236,6 @@ gulp.task('watchify', () => {
       .on('error', notify.onError())
       .pipe(source(paths.bundle))
       .pipe(buffer())
-      .pipe(sourcemaps.init())
-      .pipe(
-        uglify({
-          compress: {
-            global_defs: {
-              DEBUG: true
-            }
-          }
-        })
-      )
-      .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest(paths.distJs))
       .pipe(reload({stream: true}));
   }

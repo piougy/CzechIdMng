@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
@@ -45,7 +46,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	private String originalModifier;
 	private UUID originalModifierId;
 	private boolean trimmed = false;
-	@JsonProperty(value = "_embedded")
+	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
 	private Map<String, AbstractDto> embedded;
 	
 

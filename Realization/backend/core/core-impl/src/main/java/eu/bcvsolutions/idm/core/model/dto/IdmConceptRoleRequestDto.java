@@ -16,7 +16,7 @@ import eu.bcvsolutions.idm.core.model.domain.RoleRequestState;
  * @author svandav
  *
  */
-@Relation(collectionRelation = "conecptRoleRequests")
+@Relation(collectionRelation = "conceptRoleRequests")
 public class IdmConceptRoleRequestDto extends AbstractDto {
 
 	private static final long serialVersionUID = 1L;
@@ -27,6 +27,8 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 	private UUID identityContract;
 	@Embedded(dtoClass = IdmRoleDto.class)
 	private UUID role;
+	@Embedded(dtoClass = IdmIdentityRoleDto.class)
+	private UUID identityRole; // For update and delete operations
 	private LocalDate validFrom;
 	private LocalDate validTill;
 	private ConceptRoleRequestOperation operation;
@@ -97,6 +99,14 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 		this.wfProcessId = wfProcessId;
 	}
 
+	public UUID getIdentityRole() {
+		return identityRole;
+	}
+
+	public void setIdentityRole(UUID identityRole) {
+		this.identityRole = identityRole;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -126,6 +136,13 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 				return false;
 			}
 		} else if (!identityContract.equals(other.identityContract)) {
+			return false;
+		}
+		if (identityRole == null) {
+			if (other.identityRole != null) {
+				return false;
+			}
+		} else if (!identityRole.equals(other.identityRole)) {
 			return false;
 		}
 		if (operation != other.operation) {
@@ -165,5 +182,4 @@ public class IdmConceptRoleRequestDto extends AbstractDto {
 		return true;
 	}
 
-	
 }

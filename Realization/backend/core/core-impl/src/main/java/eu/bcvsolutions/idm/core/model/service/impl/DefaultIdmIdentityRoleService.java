@@ -147,11 +147,11 @@ public class DefaultIdmIdentityRoleService extends AbstractReadWriteEntityServic
 		}
 		IdmRole role = identityRole.getRole();
 		IdmIdentityContract identityContract = identityRole.getIdentityContract();
-		if (identityRoleDto.getRoleId() != null) {
-			role = roleRepository.findOne(identityRoleDto.getRoleId());
+		if (identityRoleDto.getRole() != null) {
+			role = roleRepository.findOne(identityRoleDto.getRole());
 		}
-		if (identityRoleDto.getIdentityContractId() != null) {
-			identityContract = identityContractRepository.findOne(identityRoleDto.getIdentityContractId());
+		if (identityRoleDto.getIdentityContract() != null) {
+			identityContract = identityContractRepository.findOne(identityRoleDto.getIdentityContract());
 		}
 		identityRole.setRole(role);
 		identityRole.setIdentityContract(identityContract);

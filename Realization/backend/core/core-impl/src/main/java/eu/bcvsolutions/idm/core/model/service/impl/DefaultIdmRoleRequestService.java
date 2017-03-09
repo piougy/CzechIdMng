@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
@@ -48,7 +49,8 @@ public class DefaultIdmRoleRequestService
 		extends AbstractReadWriteDtoService<IdmRoleRequestDto, IdmRoleRequest, RoleRequestFilter>
 		implements IdmRoleRequestService {
 
-	// private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
+	// private static final org.slf4j.Logger LOG =
+	// org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleRequestService.class);
 	private final IdmConceptRoleRequestService conceptRoleRequestService;
 	private final IdmIdentityRoleService identityRoleService;
 	private final IdmIdentityService identityService;
@@ -88,12 +90,17 @@ public class DefaultIdmRoleRequestService
 		// Load applicant (check read right)
 		IdmIdentity applicant = identityService.get(dto.getApplicant());
 		List<IdmConceptRoleRequestDto> concepts = dto.getConceptRoles();
-
+		
+		validateOnDuplicity(dto);
 		IdmRoleRequestDto savedRequest = super.saveDto(dto);
-		concepts.forEach(concept -> {
-			concept.setRoleRequest(savedRequest.getId());
-		});
-		this.conceptRoleRequestService.saveAllDto(concepts);
+
+		// Concepts will be save only on create request
+		if (created && concepts != null) {
+			concepts.forEach(concept -> {
+				concept.setRoleRequest(savedRequest.getId());
+			});
+			this.conceptRoleRequestService.saveAllDto(concepts);
+		}
 
 		// Check on same applicants in all role concepts
 		boolean identityNotSame = this.getDto(savedRequest.getId()).getConceptRoles().stream().filter(concept -> {
@@ -109,6 +116,7 @@ public class DefaultIdmRoleRequestService
 		}
 
 		if (created) {
+			// TODO: Separate start request to own schedule task
 			this.startRequest(savedRequest.getId());
 		}
 		return this.getDto(savedRequest.getId());
@@ -134,17 +142,49 @@ public class DefaultIdmRoleRequestService
 				throw new RoleRequestException(CoreResultCode.BAD_REQUEST, e);
 			}
 		}
+		// Set persisted value to read only properties
+		// TODO: Create converter for skip fields mark as read only
+		if (dto.getId() != null) {
+			IdmRoleRequestDto dtoPersisited = this.getDto(dto.getId());
+			if (dto.getState() == null) {
+				dto.setState(dtoPersisited.getState());
+			}
+			if (dto.getLog() == null) {
+				dto.setLog(dtoPersisited.getLog());
+			}
+			if (dto.getDuplicatedToRequest() == null) {
+				dto.setDuplicatedToRequest(dtoPersisited.getDuplicatedToRequest());
+			}
+			if (dto.getWfProcessId() == null) {
+				dto.setWfProcessId(dtoPersisited.getWfProcessId());
+			}
+			if (dto.getOriginalRequest() == null) {
+				dto.setOriginalRequest(dtoPersisited.getOriginalRequest());
+			}
+		} else {
+			dto.setState(RoleRequestState.CREATED);
+		}
+
 		return super.toEntity(dto, entity);
+
 	}
 
 	@Override
 	public void startRequest(UUID requestId) {
-		// Request will be started in new transaction
-		this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+
+		try {
+			// Request will be started in new transaction
+			this.getIdmRoleRequestService().startRequestInternal(requestId, true);
+		} catch (Exception ex) {
+			IdmRoleRequestDto request = getDto(requestId);
+			request.setLog(Throwables.getStackTraceAsString(ex));
+			request.setState(RoleRequestState.EXCEPTION);
+			saveDto(request);
+		}
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
 	public void startRequestInternal(UUID requestId, boolean checkRight) {
 		Assert.notNull(requestId, "Role request ID is required!");
 		// Load request ... check right for read
@@ -153,25 +193,7 @@ public class DefaultIdmRoleRequestService
 		Assert.isTrue(RoleRequestState.CREATED == request.getState(),
 				"Only role request with CREATED state can be started!");
 
-		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
-
-		RoleRequestFilter requestFilter = new RoleRequestFilter();
-		requestFilter.setApplicantId(request.getApplicant());
-		requestFilter.setState(RoleRequestState.IN_PROGRESS);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
-		requestFilter.setState(RoleRequestState.APPROVED);
-		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
-
-		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
-				.filter(requestDuplicate -> {
-					return isDuplicated(request, requestDuplicate);
-				}).findFirst();
-
-		if (duplicatedRequestOptional.isPresent()) {
-			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_DUPLICATE_REQUEST,
-					ImmutableMap.of("new", request, "duplicant", duplicatedRequestOptional.get()));
-		}
+		validateOnDuplicity(request);
 
 		// TODO: check on same identities
 
@@ -191,7 +213,31 @@ public class DefaultIdmRoleRequestService
 			executeRequest(request.getId());
 
 		}
+	}
 
+	private void validateOnDuplicity(IdmRoleRequestDto request) {
+		List<IdmRoleRequestDto> potentialDuplicatedRequests = new ArrayList<>();
+
+		RoleRequestFilter requestFilter = new RoleRequestFilter();
+		requestFilter.setApplicantId(request.getApplicant());
+		requestFilter.setState(RoleRequestState.IN_PROGRESS);
+		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
+
+		requestFilter.setState(RoleRequestState.APPROVED);
+		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
+		
+		requestFilter.setState(RoleRequestState.CREATED);
+		potentialDuplicatedRequests.addAll(this.findDto(requestFilter, null).getContent());
+
+		Optional<IdmRoleRequestDto> duplicatedRequestOptional = potentialDuplicatedRequests.stream()
+				.filter(requestDuplicate -> {
+					return isDuplicated(request, requestDuplicate) && !(request.getId() != null && requestDuplicate.getId() != null && request.getId().equals(requestDuplicate.getId()));
+				}).findFirst();
+
+		if (duplicatedRequestOptional.isPresent()) {
+			throw new RoleRequestException(CoreResultCode.ROLE_REQUEST_DUPLICATE_REQUEST,
+					ImmutableMap.of("new", request, "duplicant", duplicatedRequestOptional.get()));
+		}
 	}
 
 	public void executeRequest(UUID requestId) {
@@ -201,7 +247,7 @@ public class DefaultIdmRoleRequestService
 
 		List<IdmConceptRoleRequestDto> concepts = request.getConceptRoles();
 		IdmIdentity identity = identityService.get(request.getApplicant());
- 
+
 		boolean identityNotSame = concepts.stream().filter(concept -> {
 			// get contract dto from embedded map
 			IdmIdentityContractDto contract = (IdmIdentityContractDto) concept.getEmbedded()

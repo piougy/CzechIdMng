@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import org.springframework.hateoas.core.Relation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import eu.bcvsolutions.idm.core.api.domain.Embedded;
 import eu.bcvsolutions.idm.core.api.dto.AbstractDto;
 import eu.bcvsolutions.idm.core.api.dto.IdentityDto;
@@ -26,14 +29,19 @@ public class IdmRoleRequestDto extends AbstractDto {
 
 	@Embedded(dtoClass = IdentityDto.class)
 	private UUID applicant;
+	@JsonProperty(access=Access.READ_ONLY)
 	private RoleRequestState state;
 	private RoleRequestedByType requestedByType;
+	@JsonProperty(access=Access.READ_ONLY)
 	private String wfProcessId;
+	@JsonProperty(access=Access.READ_ONLY)
 	private String originalRequest;
 	private List<IdmConceptRoleRequestDto> conceptRoles;
 	private boolean executeImmediately = false;
+	@JsonProperty(access=Access.READ_ONLY)
 	@Embedded(dtoClass = IdmRoleRequestDto.class)
 	private UUID duplicatedToRequest;
+	@JsonProperty(access=Access.READ_ONLY)
 	private String log;
 
 	public RoleRequestState getState() {

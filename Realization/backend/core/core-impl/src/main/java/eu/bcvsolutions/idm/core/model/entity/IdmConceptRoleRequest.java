@@ -61,6 +61,13 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private IdmRole role;
 	
+	@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "identity_role_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
+	private IdmIdentityRole identityRole;
+	
 	@Audited
 	@Column(name = "valid_from")
 	private LocalDate validFrom;
@@ -146,4 +153,14 @@ public class IdmConceptRoleRequest extends AbstractEntity implements ValidableEn
 	public void setWfProcessId(String wfProcessId) {
 		this.wfProcessId = wfProcessId;
 	}
+
+	public IdmIdentityRole getIdentityRole() {
+		return identityRole;
+	}
+
+	public void setIdentityRole(IdmIdentityRole identityRole) {
+		this.identityRole = identityRole;
+	}
+	
+	
 }

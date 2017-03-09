@@ -11,8 +11,8 @@
       <script>import eu.bcvsolutions.idm.core.model.dto.IdmIdentityRoleDto;
 
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentityContractId(identityContractIdentifier);
-ir.setRoleId(roleIdentifier);
+ir.setIdentityContract(identityContractIdentifier);
+ir.setRole(roleIdentifier);
 ir.setValidFrom(validFrom);
 ir.setValidTill(validTill);
 

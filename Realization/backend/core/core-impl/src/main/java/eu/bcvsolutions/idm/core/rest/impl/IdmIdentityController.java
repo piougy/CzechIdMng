@@ -2,6 +2,7 @@ package eu.bcvsolutions.idm.core.rest.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.ImmutableMap;
 
+import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.config.domain.IdentityConfiguration;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
@@ -44,6 +46,7 @@ import eu.bcvsolutions.idm.core.model.dto.WorkPosition;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
@@ -55,7 +58,6 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -79,7 +81,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final WorkflowTaskInstanceService workflowTaskInstanceService;	
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
-	private final IdmTreeNodeService treeNodeService;
+	private final ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -93,7 +95,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			WorkflowTaskInstanceService workflowTaskInstanceService,
 			WorkflowProcessInstanceService workflowProcessInstanceService,
 			IdmAuditService auditService,
-			IdmTreeNodeService treeNodeService) {
+			ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> treeNodeService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(formDefinitionController);

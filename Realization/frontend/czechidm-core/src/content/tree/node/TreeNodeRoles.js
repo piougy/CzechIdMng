@@ -8,11 +8,11 @@ import SearchParameters from '../../../domain/SearchParameters';
 import RoleTreeNodeTableComponent, {RoleTreeNodeTable} from '../../role/RoleTreeNodeTable';
 
 /**
- * Automatic roles - tab on role detail
+ * Automatic roles - tab on tree node detail
  *
  * @author Radek Tomiška
  */
-export default class RoleTreeNodes extends Basic.AbstractContent {
+export default class TreeNodeRoles extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -44,10 +44,10 @@ export default class RoleTreeNodes extends Basic.AbstractContent {
 
         <Basic.Panel className="no-border last">
           <RoleTreeNodeTableComponent
-            uiKey="role-tree-nodes-table"
+            uiKey="tree-node-roles-table"
             manager={this.getManager()}
             forceSearchParameters={forceSearchParameters}
-            columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'role') }/>
+            columns={ _.without(RoleTreeNodeTable.defaultProps.columns, 'treeNode') }/>
         </Basic.Panel>
 
       </div>

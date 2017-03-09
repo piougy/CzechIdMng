@@ -7,7 +7,9 @@ import java.util.Collection;
  * @author svandav
  *
  * @param <T>
+ * @deprecated use Resource or Resources from spring instead
  */
+@Deprecated
 public class EmbeddedsWrapper<T> {
 
 	private final Collection<T> resources;

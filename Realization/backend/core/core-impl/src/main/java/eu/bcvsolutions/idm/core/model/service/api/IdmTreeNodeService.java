@@ -6,10 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
-import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
@@ -21,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
  *
  */
 @Service
-public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter>, ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> {
+public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter> {
 	
 	/**
 	 * Method return all roots - @param treeType = null, or one root for treeType.

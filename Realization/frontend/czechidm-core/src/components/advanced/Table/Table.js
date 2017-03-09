@@ -352,8 +352,8 @@ class AdvancedTable extends Basic.AbstractContextComponent {
     //
     let _rowClass = rowClass;
     if (!_rowClass) {
-      // automatic rowClass by entities common attributes
-      _rowClass = ({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); };
+      // automatic rowClass by entity's "disabled" attribute
+      _rowClass = ({rowIndex, data}) => { return Utils.Ui.getDisabledRowClass(data[rowIndex]); };
     }
 
     return (

@@ -107,6 +107,24 @@ export default class UiUtils {
   }
 
   /**
+   * Returns css row class for given entity
+   * - when entity is disabled - returns `disabled`
+   * - otherwise: empty string
+   *
+   * @param  {object} entity
+   * @return {string} css row class
+   */
+  static getDisabledRowClass(entity) {
+    if (!entity) {
+      return '';
+    }
+    if (EntityUtils.isDisabled(entity)) {
+      return 'disabled';
+    }
+    return '';
+  }
+
+  /**
    * Returns random css level
    *
    * @return {string}

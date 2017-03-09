@@ -47,7 +47,7 @@ public class IdentityContractSaveProcessor extends CoreEventProcessor<IdmIdentit
 		if (entity.isMain()) {
 			this.repository.clearMain(entity.getIdentity(), entity.getId(), new DateTime());
 		}
-		repository.save(event.getContent());
+		repository.save(entity);
 		//
 		// TODO: clone content - mutable previous event content :/
 		return new DefaultEventResult<>(event, this);

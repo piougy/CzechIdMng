@@ -19,7 +19,7 @@ import eu.bcvsolutions.idm.core.model.repository.IdmIdentityRoleRepository;
 import eu.bcvsolutions.idm.core.model.repository.IdmRoleRepository;
 
 /**
- * Delete role
+ * Deletes role - ensures referential integrity.
  * 
  * @author Radek Tomiška
  *

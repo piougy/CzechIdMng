@@ -394,6 +394,20 @@
       "MAJOR": "Velká",
       "CRITICAL": "Kritická",
       "TRIVIAL": "Triviální"
+    },
+    "RoleRequestStateEnum": {
+      "CREATED": "Vytvořeno",
+      "EXECUTED": "Provedeno",
+      "CANCELED": "Zrušeno",
+      "APPROVED": "Schváleno",
+      "IN_PROGRESS": "Probíhá",
+      "EXCEPTION": "Chyba",
+      "DUPLICATED": "Duplicitní"
+    },
+    "ConceptRoleRequestStateEnum": {
+      "ADD": "Přidaní",
+      "UPDATE": "Úprava",
+      "REMOVE": "Odstranění"
     }
   },
   "dashboard": {
@@ -939,9 +953,14 @@
         }
       }
     },
-    "requestRoles": {
-      "header": "Žádosti o role",
+    "roleRequests": {
+      "header": "Žádosti o změnu oprávnění",
       "title": "Žádosti o role"
+    },
+    "roleRequestDetail": {
+      "header": "Žádost o změnu oprávnění",
+      "title": "Změny oprávnění",
+      "conceptHeader": "Požadované změny oprávnění"
     },
     "role": {
       "identities": {
@@ -1944,7 +1963,27 @@
           }
         }
       }
+    },
+    "RoleRequest": {
+      "applicant": "Žadatel",
+      "state": "Stav",
+      "executeImmediately": "Provést bez schválení",
+      "log": "Log",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
+    },
+    "ConceptRoleRequest": {
+      "identityContract": "Vztah",
+      "operation": "Operace",
+      "role": "Role",
+      "validFrom": "Od",
+      "validTill": "Do",
+      "wfProcessId": "Id WF procesu",
+      "state": "Stav",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
     }
+
   },
   "error": {
     "AUTH_FAILED": {

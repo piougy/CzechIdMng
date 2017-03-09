@@ -1,5 +1,6 @@
 import RestApiService from './RestApiService';
 import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import AuthenticateService from './AuthenticateService';
 import IdentityService from './IdentityService';
 import WorkflowProcessDefinitionService from './WorkflowProcessDefinitionService';
@@ -29,10 +30,12 @@ import SchedulerService from './SchedulerService';
 import NotificationTemplateService from './NotificationTemplateService';
 import RoleRequestService from './RoleRequestService';
 import ConceptRoleRequestService from './ConceptRoleRequestService';
+import RoleTreeNodeService from './RoleTreeNodeService';
 
 const ServiceRoot = {
   RestApiService,
   AbstractService,
+  FormableEntityService,
   AuthenticateService,
   IdentityService,
   WorkflowProcessDefinitionService,
@@ -61,7 +64,8 @@ const ServiceRoot = {
   SchedulerService,
   NotificationTemplateService,
   RoleRequestService,
-  ConceptRoleRequestService
+  ConceptRoleRequestService,
+  RoleTreeNodeService
 };
 
 ServiceRoot.version = '0.0.1';

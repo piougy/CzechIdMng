@@ -139,7 +139,7 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.i18n('validationError.' + type, params);
   }
 
-  validate(showValidationError) {
+  validate(showValidationError, cb) {
     const{value, validation} = this.state;
     const showValidations = showValidationError != null ? showValidationError : true;
     if (!validation) {
@@ -168,21 +168,35 @@ class AbstractFormComponent extends AbstractContextComponent {
         }
       }
       const message = this._localizationValidation(key, params);
-      this.setState({validationResult:
-         {status: 'error',
+      this.setState({
+        validationResult: {
+          status: 'error',
           class: 'has-error has-feedback',
           isValid: false,
-          message},
-        showValidationError: showValidations}); // show validation error on UI
+          message
+        },
+        showValidationError: showValidations
+      }, () => {
+        if (cb) {
+          cb(result);
+        }
+      }); // show validation error on UI
       return false;
     }
-    this.setState({validationResult:
-        {status: null,
-           class: '',
-           isValid: true,
-           message: null,
-           showValidationError: true},
-        showValidationError: showValidations}); // show validation error on UI
+    this.setState({
+      validationResult: {
+        status: null,
+        class: '',
+        isValid: true,
+        message: null,
+        showValidationError: true
+      },
+      showValidationError: showValidations
+    }, () => {
+      if (cb) {
+        cb(result);
+      }
+    }); // show validation error on UI
     return true;
   }
 
@@ -190,8 +204,10 @@ class AbstractFormComponent extends AbstractContextComponent {
     return this.state.value;
   }
 
-  setValue(value) {
-    this.setState({value}, this.validate.bind(this, false));
+  setValue(value, cb) {
+    this.setState({
+      value
+    }, this.validate.bind(this, false, cb));
   }
 
   getBody() {
@@ -223,6 +239,38 @@ class AbstractFormComponent extends AbstractContextComponent {
     return (
       <span className="help-block" style={{ whiteSpace: 'normal' }}>{helpBlock}</span>
     );
+  }
+
+  /**
+   * Returns title placement for validations tooltips etc.
+   *
+   * @return {string} tittle position
+   */
+  getTitlePlacement() {
+    return 'top';
+  }
+
+  /**
+   *  Returns title - could be shown in tooltips (validations etc)
+   *
+   * @return {string}
+   */
+  getTitle() {
+    const { label, placeholder, tooltip } = this.props;
+    const propertyName = label || placeholder;
+    const validationResult = this.getValidationResult();
+    //
+    let title = null;
+    if (validationResult && validationResult.message) {
+      title = `${propertyName}: ${validationResult.message}`;
+    } else if (!label) {
+      title = propertyName;
+    }
+    if (tooltip) {
+      title = !title ? tooltip : `${title} (${tooltip})`;
+    }
+    //
+    return title;
   }
 
   render() {

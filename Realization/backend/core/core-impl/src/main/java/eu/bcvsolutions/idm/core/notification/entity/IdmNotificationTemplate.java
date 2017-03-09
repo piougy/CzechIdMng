@@ -58,8 +58,17 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	private String bodyText;
 	
 	@Audited
+	@Column(name = "parameter")
+	private String parameter; // TODO: better place/table? Only information characters
+	
+	@Audited
 	@Column(name = "system_template", nullable = false)
 	private boolean systemTemplate = false;
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.NAME)
+	@Column(name = "module")
+	private String module;
 	
 	public boolean isSystemTemplate() {
 		return systemTemplate;
@@ -113,5 +122,21 @@ public class IdmNotificationTemplate extends AbstractEntity implements Identifia
 	public void setBody(String body) {
 		this.bodyHtml = body;
 		this.bodyText = body;
+	}
+
+	public String getParameter() {
+		return parameter;
+	}
+
+	public void setParameter(String parameter) {
+		this.parameter = parameter;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 }

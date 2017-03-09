@@ -1,15 +1,30 @@
 package eu.bcvsolutions.idm.core.notification.service.impl;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -33,6 +48,10 @@ import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 @Service
 public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEntityService<IdmNotificationTemplate, NotificationTemplateFilter> implements IdmNotificationTemplateService {
 	
+	private static final String TEMPLATE_FOLDER = "idm.pub.core.notification.template.folder";
+	
+	private static final String TEMPLATE_FILE_SUFIX = "idm.pub.core.notification.template.fileSuffix";
+	
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmNotificationTemplateService.class);
 	
 	// private static final String ENCODING = "UTF-8";
@@ -41,11 +60,20 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	
 	private final VelocityEngine velocityEngine;
 	
+	private final ApplicationContext applicationContext;
+	
+	private final ConfigurableEnvironment env;
+	
 	@Autowired
-	public DefaultIdmNotificationTemplateService(IdmNotificationTemplateRepository repository) {
+	public DefaultIdmNotificationTemplateService(
+			IdmNotificationTemplateRepository repository,
+			ConfigurableEnvironment env,
+			ApplicationContext applicationContext) {
 		super(repository);
 		//
 		Assert.notNull(repository);
+		Assert.notNull(env);
+		Assert.notNull(applicationContext);
 		//
 		this.repository = repository;
 		//
@@ -54,6 +82,8 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 		velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, LOG);
 		velocityEngine.init();
 		this.velocityEngine = velocityEngine;
+		this.env = env;
+		this.applicationContext = applicationContext;
 	}
 	
 	@Override
@@ -92,7 +122,7 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 	}
 
 	@Override
-	public IdmMessage getMessage(IdmMessage message, boolean showGuardedString) {
+	public IdmMessage buildMessage(IdmMessage message, boolean showGuardedString) {
 		StringWriter bodyHtml = new StringWriter();
 		StringWriter bodyText = new StringWriter();
 		StringWriter subject = new StringWriter();
@@ -137,8 +167,6 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 				.setLevel(message.getLevel()) // level get from old message
 				.setTemplate(template)
 				.setParameters(model)
-				// build without use template, but template and parameter is persisted
-				.buildWithoutUseTemplate()
 				.build();
 		//
 		return newMessage;
@@ -146,10 +174,65 @@ public class DefaultIdmNotificationTemplateService extends AbstractReadWriteEnti
 
 
 	@Override
-	public IdmMessage getMessage(IdmMessage message) {
+	public IdmMessage buildMessage(IdmMessage message) {
 		if (message.getTemplate() == null) {
 			return message;
 		}
-		return this.getMessage(message, false);
+		return this.buildMessage(message, false);
+	}
+
+	@Override
+	@Transactional
+	public void initSystemTemplates() {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+		try {
+			builder = factory.newDocumentBuilder();
+			//
+			// found all resources on all classpath by properties from configuration file
+			Resource[] resources = applicationContext.getResources(env.getProperty(TEMPLATE_FOLDER) + env.getProperty(TEMPLATE_FILE_SUFIX));
+			//
+        	List<IdmNotificationTemplate> entities = new ArrayList<>();
+        	// iterate trough all found resources
+			for (Resource resource : resources) {
+	        	Document doc = builder.parse(resource.getInputStream());
+	        	doc.getDocumentElement().normalize();
+	        	NodeList templates = (NodeList) doc.getElementsByTagName("template");
+	        	if (templates != null) {
+		        	//
+		        	// iterate trough templates, now can one file contains only one templates, but in future...
+		        	for (int i = 0; i < templates.getLength(); i++) {
+						Node template = templates.item(i);
+						if (template.getNodeType() == Node.ELEMENT_NODE) {
+							IdmNotificationTemplate newTemplate = new IdmNotificationTemplate();
+							//
+							Element temp = (Element) template;
+							newTemplate.setName(temp.getElementsByTagName("name").item(0).getTextContent());
+							newTemplate.setCode(temp.getElementsByTagName("code").item(0).getTextContent());
+							newTemplate.setSubject(temp.getElementsByTagName("subject").item(0).getTextContent());
+							newTemplate.setBodyHtml(temp.getElementsByTagName("bodyHtml").item(0).getTextContent());
+							newTemplate.setBodyText(temp.getElementsByTagName("bodyText").item(0).getTextContent());
+							newTemplate.setParameter(temp.getElementsByTagName("parameter").item(0).getTextContent());
+							newTemplate.setSystemTemplate(new Boolean(temp.getElementsByTagName("systemTemplate").item(0).getTextContent()));
+							newTemplate.setModule(temp.getElementsByTagName("moduleId").item(0).getTextContent());
+							//
+							entities.add(newTemplate);
+						}
+					}
+	        	}
+			}
+			//
+        	this.saveAll(entities);
+		} catch (ParserConfigurationException | IOException | SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public List<IdmNotificationTemplate> findAllSystemTemplates() {
+		NotificationTemplateFilter filter = new NotificationTemplateFilter();
+		filter.setSystemTemplate(true);
+		return this.find(filter, null).getContent();
 	}
 }

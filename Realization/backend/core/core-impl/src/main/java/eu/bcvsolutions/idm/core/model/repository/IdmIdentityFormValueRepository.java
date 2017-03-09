@@ -12,7 +12,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(exported = false)
+@RepositoryRestResource(
+		itemResourceRel = "formValue",
+		collectionResourceRel = "formValues",
+		exported = false
+		)
 public interface IdmIdentityFormValueRepository extends AbstractFormValueRepository<IdmIdentity, IdmIdentityFormValue> {
 	
 }

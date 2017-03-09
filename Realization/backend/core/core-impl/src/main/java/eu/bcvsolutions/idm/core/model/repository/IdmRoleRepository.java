@@ -40,7 +40,7 @@ public interface IdmRoleRepository extends AbstractEntityRepository<IdmRole, Rol
 	        + " ( "
 	        	+ "?#{[0].roleCatalogue} is null"
 	        	+ " or"
-	        	+ " exists (from IdmRoleCatalogueRole rc where rc.role = e and rc.roleCatalogue = ?#{[0].roleCatalogue})"
+	        	+ " exists (from IdmRoleCatalogueRole rc where rc.role = e and rc.roleCatalogue.forestIndex.lft BETWEEN ?#{[0].roleCatalogue == null ? null : [0].roleCatalogue.lft} and ?#{[0].roleCatalogue == null ? null : [0].roleCatalogue.rgt})"
 	        + " ) "
 	        + " and"
 	        + "	("

@@ -8,6 +8,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -19,12 +20,14 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
+import eu.bcvsolutions.idm.core.api.domain.Disableable;
 import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
 
 /**
@@ -35,14 +38,14 @@ import eu.bcvsolutions.idm.core.api.repository.listener.AuditableEntityListener;
  */
 @MappedSuperclass
 @EntityListeners(AuditableEntityListener.class)
-public abstract class AbstractEntity implements BaseEntity, Auditable {
+public abstract class AbstractEntity implements BaseEntity, Auditable, Disableable {
 
 	private static final long serialVersionUID = 1969969154030951507L;
 
 	@Id
 	@JsonDeserialize(as = UUID.class)
 	@GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "eu.bcvsolutions.idm.core.api.repository.generator.PreserveUuidGenerator")
 	@Column(name = "id")
 	private UUID id;
 
@@ -103,6 +106,16 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@Column(name = "original_modifier_id")
 	@JsonProperty(access = Access.READ_ONLY)
 	private UUID originalModifierId;
+	
+	@Audited
+	@Column(name = "transaction_id")
+	@JsonIgnore
+	private UUID transactionId;
+	
+	@Audited
+	@NotNull
+	@Column(name = "disabled", nullable = false)
+	private boolean disabled;
 
 	public AbstractEntity() {
 	}
@@ -139,7 +152,7 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	public void setCreated(DateTime created) {
 		this.created = created;
 	}
-
+	
 	@Override
 	public DateTime getModified() {
 		return modified;
@@ -228,6 +241,26 @@ public abstract class AbstractEntity implements BaseEntity, Auditable {
 	@Override
 	public void setOriginalModifierId(UUID originalModifierId) {
 		this.originalModifierId = originalModifierId;
+	}
+	
+	@Override
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+	
+	@Override
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;
+	}
+	
+	@Override
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 	
 	/**

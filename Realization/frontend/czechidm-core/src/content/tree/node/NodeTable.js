@@ -23,7 +23,7 @@ export default class NodeTable extends Basic.AbstractContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: false,
+      filterOpened: true,
       showLoading: true,
       type: props.type,
       rootNodes: null,
@@ -127,9 +127,9 @@ export default class NodeTable extends Basic.AbstractContent {
     if (entity.id === undefined) {
       const { type } = this.state;
       const uuidId = uuid.v1();
-      this.context.router.push(`/tree/nodes/${uuidId}?new=1&type=${type.id}`);
+      this.context.router.push(`/tree/nodes/${uuidId}/new?new=1&type=${type.id}`);
     } else {
-      this.context.router.push(`/tree/nodes/${entity.id}`);
+      this.context.router.push(`/tree/nodes/${entity.id}/detail`);
     }
   }
 
@@ -390,9 +390,9 @@ export default class NodeTable extends Basic.AbstractContent {
                       }
                       sort={false}/>
                     <Advanced.Column property="code" width="125px" sort face="text"/>
-                    <Advanced.ColumnLink to="/tree/nodes/:id" property="name" width="20%" sort face="text"/>
+                    <Advanced.ColumnLink to="/tree/nodes/:id/detail" property="name" width="20%" sort face="text"/>
                     <Advanced.ColumnLink
-                      to="/tree/nodes/:_target"
+                      to="/tree/nodes/:_target/detail"
                       target="parent.id"
                       property="parent.name"
                       sort/>

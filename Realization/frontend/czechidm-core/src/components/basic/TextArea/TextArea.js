@@ -52,8 +52,7 @@ class TextArea extends AbstractFormComponent {
     if (required && !feedback) {
       showAsterix = true;
     }
-    const title = this.getValidationResult() != null ? this.getValidationResult().message : null;
-
+    //
     return (
       <div className={ showAsterix ? 'has-feedback' : ''}>
         {
@@ -67,7 +66,7 @@ class TextArea extends AbstractFormComponent {
         }
 
         <div className={componentSpan}>
-          <Tooltip ref="popover" placement="bottom" value={title}>
+          <Tooltip ref="popover" placement={ this.getTitlePlacement() } value={ this.getTitle() }>
             <span>
               <textarea
                 ref="input"

@@ -134,7 +134,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
     const { showLoading } = this.state;
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this, 'CONTINUE')}>
           <Basic.Panel className="no-border last">
             <Basic.PanelHeader text={this.i18n('content.passwordPolicies.advanced.title')} />
             <Basic.PanelBody style={{ padding: 0 }}>
@@ -181,7 +181,7 @@ class PasswordPolicyAdvanced extends Basic.AbstractContent {
             <Basic.PanelFooter showLoading={showLoading} >
               <Basic.Button type="button" level="link" onClick={this.context.router.goBack}>{this.i18n('button.back')}</Basic.Button>
               <Basic.SplitButton level="success" title={this.i18n('button.saveAndContinue')}
-                onClick={this.save.bind(this, 'SAVE_CONTINUE')}
+                onClick={this.save.bind(this, 'CONTINUE')}
                 rendered={SecurityManager.hasAuthority('PASSWORDPOLICY_WRITE')}
                 showLoading={showLoading} pullRight dropup>
                 <Basic.MenuItem eventKey="1" onClick={this.save.bind(this, 'SAVE')}>{this.i18n('button.saveAndClose')}</Basic.MenuItem>

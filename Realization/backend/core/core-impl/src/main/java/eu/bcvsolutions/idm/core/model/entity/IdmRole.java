@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.domain.IdentifiableByName;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 
 /**
@@ -38,7 +39,7 @@ import eu.bcvsolutions.idm.core.model.domain.IdmRoleType;
 @Entity
 @Table(name = "idm_role", indexes = { 
 		@Index(name = "ux_idm_role_name", columnList = "name", unique = true)})
-public class IdmRole extends AbstractEntity implements IdentifiableByName {
+public class IdmRole extends AbstractEntity implements IdentifiableByName, FormableEntity {
 	
 	private static final long serialVersionUID = -3099001738101202320L;
 
@@ -47,11 +48,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	@Size(min = 1, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
-	
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
 	
 	@Version
 	@JsonIgnore
@@ -77,7 +73,8 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 	private String approveRemoveWorkflow;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	@JsonManagedReference
@@ -132,14 +129,6 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	public void setRoleType(IdmRoleType roleType) {

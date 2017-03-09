@@ -12,7 +12,11 @@ import eu.bcvsolutions.idm.core.eav.repository.AbstractFormValueRepository;
  * @author Radek Tomiška
  *
  */
-@RepositoryRestResource(exported = false)
+@RepositoryRestResource(
+		itemResourceRel = "formValue",
+		collectionResourceRel = "formValues",
+		exported = false
+		)
 public interface SysSystemFormValueRepository extends AbstractFormValueRepository<SysSystem, SysSystemFormValue> {
 	
 }

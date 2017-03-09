@@ -155,8 +155,8 @@ public class DefaultIdmRoleCatalogueServiceIntegrationTest extends AbstractInteg
 		 * 		- child1
 		 * 				- child2
 		 */
-		assertEquals(1, this.roleCatalogueService.findChildrenByParent(root.getId()).size());
-		assertEquals(1, this.roleCatalogueService.findChildrenByParent(child1.getId()).size());
-		assertEquals(0, this.roleCatalogueService.findChildrenByParent(child2.getId()).size());
+		assertEquals(1, this.roleCatalogueService.findDirectChildren(root, null).getTotalElements());
+		assertEquals(1, this.roleCatalogueService.findDirectChildren(child1, null).getTotalElements());
+		assertEquals(0, this.roleCatalogueService.findDirectChildren(child2, null).getTotalElements());
 	}
 }

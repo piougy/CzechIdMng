@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.core.security.domain.DefaultGrantedAuthority;
 public class JwtAuthenticationMapper {
 
 	public static final String AUTHENTICATION_TOKEN_NAME = "CIDMST";
-	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.core.security.jwt.secret.token";
+	public static final String PROPERTY_SECRET_TOKEN = "idm.sec.security.jwt.secret.token";
 	public static final String DEFAULT_SECRET_TOKEN = "idmSecret";
 	//
 	private final ObjectMapper mapper;

@@ -90,22 +90,34 @@ module.exports = {
         {
           path: 'nodes',
           component: require('./src/content/tree/node/Nodes'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ],
         },
         {
           path: 'nodes/:entityId',
-          component: require('./src/content/tree/node/NodeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+          component: require('./src/content/tree/node/Node'),
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ],
+          childRoutes: [
+            {
+              path: 'detail',
+              component: require('./src/content/tree/node/NodeContent'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+            },
+            {
+              path: 'eav',
+              component: require('./src/content/tree/node/NodeEav'),
+              access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+            }
+          ]
         },
         {
-          path: 'nodes/new',
+          path: 'nodes/:entityId/new',
           component: require('./src/content/tree/node/NodeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE' ] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
         },
         {
           path: 'types',
           component: require('./src/content/tree/type/Types'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ],
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ],
         },
         {
           path: 'types/new',
@@ -115,7 +127,7 @@ module.exports = {
         {
           path: 'types/:entityId',
           component: require('./src/content/tree/type/TypeContent'),
-          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_WRITE'] } ]
+          access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREETYPE_READ'] } ]
         },
       ]
     },
@@ -127,7 +139,7 @@ module.exports = {
     {
       path: 'rolecatalogue/:entityId',
       component: require('./src/content/rolecatalogue/RoleCatalogueContent'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
     },
     {
       path: 'roles',
@@ -146,7 +158,7 @@ module.exports = {
     {
       path: 'role/:entityId/',
       component: require('./src/content/role/Role'),
-      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_WRITE'] } ],
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
       childRoutes: [
         {
           path: 'detail',
@@ -155,6 +167,14 @@ module.exports = {
         {
           path: 'identities',
           component: require('./src/content/role/RoleIdentities')
+        },
+        {
+          path: 'eav',
+          component: require('./src/content/role/RoleEav')
+        },
+        {
+          path: 'tree-nodes',
+          component: require('./src/content/role/RoleTreeNodes')
         }
       ]
     },

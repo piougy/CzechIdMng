@@ -61,7 +61,7 @@ public class IdmFormAttribute extends AbstractEntity {
 	@Column(name = "display_name", nullable = false, length = DefaultFieldLengths.NAME)
 	private String displayName;
 	
-	@Size(max = DefaultFieldLengths.LOG)
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
 	@Column(name = "description", nullable = true)
 	private String description;	
 	

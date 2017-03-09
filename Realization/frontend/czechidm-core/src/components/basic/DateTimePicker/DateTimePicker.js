@@ -237,7 +237,11 @@ class DateTimePicker extends AbstractFormComponent {
               onClick={this._clear.bind(this)}>
               <Icon type="fa" icon="remove"/>
             </Button>
-            { feedback != null ? <span className="glyphicon glyphicon-warning-sign form-control-feedback" style={{ right: -30, zIndex: 0 }}/> : '' }
+            {
+              !feedback
+              ||
+              <Icon icon="warning-sign" className="form-control-feedback" style={{ right: -30, top: 0, zIndex: 0 }}/>
+            }
           </div>
           { !label ? this.renderHelpIcon() : null }
           { this.renderHelpBlock() }

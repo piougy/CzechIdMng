@@ -33,7 +33,7 @@
   },
   "label": {
     "id": "Id",
-    "action": "Action",
+    "action": "Actions",
     "otherAttributes": "Other attributes",
     "selectAll": "Select / deselect all",
     "validFrom": "Valid from",
@@ -121,6 +121,10 @@
       "success_1": "Selected record [{{record}}] were successfully deactivated",
       "success_2": "Selected records [{{records}}] were successfully deactivated",
       "success_5": "Selected records [{{records}}] were successfully deactivated"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Record [{{record}}] was successfully saved"
     }
   },
   "environment": {
@@ -288,7 +292,7 @@
       "DEFAULT": "Standard",
       "TRANSFORM_FROM": "Transformation from",
       "TRANSFORM_TO": "Transformation to",
-      "SYSTEM": "SystemovĂ©"
+      "SYSTEM": "System"
     },
     "RoleAssignTypeEnum": {
       "UNASSIGNED": "not assigned",
@@ -356,9 +360,9 @@
       "MOD": "update",
       "DEL": "delete"
     },
-   "PasswordPolicyTypeEnum": {
+    "PasswordPolicyTypeEnum": {
       "VALIDATE": "validation",
-      "GENERATE": "Generating"
+      "GENERATE": "generation"
     },
     "PasswordPolicyGenerateTypeEnum": {
       "RANDOM": "Random",
@@ -408,12 +412,17 @@
       "ADD": "Add",
       "UPDATE": "Update",
       "REMOVE": "Remove"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Without recursion",
+      "DOWN": "By structure down",
+      "UP": "By structure up"
     }
   },
  "dashboard": {
     "profileDashboard" : {
       "header": "Your basic information",
-      "goToProfil": "Go to profile detail"
+      "goToProfil": "Go to profile"
     }
   },
   "permission": {
@@ -511,7 +520,7 @@
         },
         "message": {
           "generateResetToken": {
-            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press I have already received",
+            "info": "This form can be used to reset the password for your user identity. After sending you will receive a verification code that you can use to reset your password. The password can be reset only once every 24 hours. If you already have a valid verification code, press 'I have already received'",
             "success": "Verification code will be sent via SMS"
           },
           "passwordReset": {
@@ -572,20 +581,20 @@
       "header": "Password policies",
       "title": "Password policies",
       "edit": {
-        "header": "Password policy config details",
-        "title": "Password policy config details"
+        "header": "Password policy details",
+        "title": "Password policy details"
       },
       "basic": {
-        "header": "Basic info",
-        "title": "Basic info"
+        "header": "Configuration",
+        "title": "Configuration"
       },
       "advanced": {
-        "header": "Extended rules",
-        "title": "Extended rules"
+        "header": "Additional rules",
+        "title": "Additional rules"
       },
       "characters": {
-        "header": "Letters",
-        "title": "Letters"
+        "header": "Characters",
+        "title": "Characters"
       },
       "create": {
         "title": "New configuration of password policies",
@@ -624,8 +633,8 @@
       "save": {
         "success": "Configuration items [{{name}}] successfully saved"
       },
-      "fromFile": "Configuring the application of the configuration files <small>application.properties</small>",
-      "fromEnvironment": "Configuring the environment of <small>backend</small>",
+      "fromFile": "Application configuration from configuration files <small>application.properties</small>",
+      "fromEnvironment": "Environment configuration <small>backend</small>",
       "guarded": "The values of configuration items containing key [<strong>{{guarded}}</strong>] The values of configuration items containing key will automatically set the secret and invisible. Values beginning with the prefix [<strong>idm.sec.</strong>] can not be visible.",
       "confidential": {
         "help": "The setting will be stored in an encrypted vault"
@@ -664,7 +673,7 @@
           "placeholder": "Task state"
         },
         "taskName": {
-          "label": "Name",
+          "label": "Task name",
           "placeholder": "Task name"
         },
         "taskId": {
@@ -784,15 +793,19 @@
       "title": "Users",
       "filter": {
         "name": {
-          "placeholder": "Username, surname, name, e-mail or description"
+          "placeholder": "Username, surname, name, e-mail or note"
         },
         "organization": {
           "label": "Org. structure",
-          "placeholder": "Node in organization structure"
+          "placeholder": "Element in organization structure"
         },
         "recursively": {
           "label": "Recursively",
           "placeholder": "Recursively by tree structure down"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Assigned role"
         }
       },
       "action": {
@@ -828,35 +841,57 @@
       }
     },
     "tree": {
-      "header": "Tree structure",
-      "title": "Tree structure",
+      "header": "Organizational trees",
+      "title": "Organizational trees",
       "filter": {
         "parentId": {
-          "label": "Parent unit"
+          "label": "Superior element"
         }
       },
       "typeNotFound": "Element not found.",
-      "newType": "Please continue creating a new element.",
+      "newType": "Please, continue creating a new element.",
       "typePick": "Select the element",
       "typePickPlaceHolder": "Select the element.",
       "nodes": {
-        "header": "Elements of the tree",
-        "title": "Elements",
-        "edit": "Element detail",
-        "create": "New element",
-        "save": {
-          "success": "The element [{{name}}] was successfully saved."
-        },
+        "header": "Structure elements",
+        "title": "Structure elements",
         "addType": "Add element",
         "reloadTree": "Cancel the filter and reload the tree",
         "tab": {
           "identities": "Users",
-          "nodes": "Elements of the tree"
+          "nodes": "Structure elements"
+        }
+      },
+      "node": {
+        "detail": {
+          "header": "Element details",
+          "title": "Element details",
+          "label": "Basic information",
+          "edit": {
+            "title": "Element details",
+            "header": "{{name}} element details"
+          },
+          "create": {
+            "header": "New element"
+          },
+          "save": {
+            "success": "Element [{{name}}] was successfully saved"
+          }
+        },
+        "eav": {
+          "header": "More information",
+          "title": "More information",
+          "save": {
+            "success": "Extended attributes for element [{{name}}] was successfully saved."
+          },
+          "error" : {
+            "notFound": "Extended attributes definition for element not found."
+          }
         }
       },
       "types": {
-        "header": "Types of structures",
-        "title": "Types of structures",
+        "header": "Structure types",
+        "title": "Structure types",
         "edit": "detail the type of structure",
         "create": "New type of tree structure",
         "save": {
@@ -901,7 +936,15 @@
       },
       "parentPick": "Select folder",
       "reloadTree": "Reload tree catalog roles",
-      "addRoleCatalogue": "Add now folder"
+      "addRoleCatalogue": "Add now folder",
+      "filter": {
+        "name": "Name",
+        "namePlaceHolder": "Folder name",
+        "parent": "Folder parent",
+        "parentPlaceHolder": "Folder parent",
+        "niceName": "Name for users",
+        "code": "Code"
+      }
     },
     "scripts": {
       "header": "Rule definitions",
@@ -929,7 +972,7 @@
         "title": "Role details",
         "header": "{{name}} details"
       },
-      "roleCataloguePick": "Select from catalog",
+      "roleCataloguePick": "Select folder",
       "create": {
         "header": "New role"
       },
@@ -938,30 +981,30 @@
       },
       "processRoleChange": {
         "roleName": "Role name",
-        "roleValidFrom": "Role valid from",
-        "roleValidTill": "Role valid to",
+        "roleValidFrom": "Valid from",
+        "roleValidTill": "Valid to",
         "currentActivity": "application status"
       },
       "processPermissionChange": {
-        "currentActivity": "Application status",
-        "processInstanceName": "Application name"
+        "currentActivity": "Status",
+        "processInstanceName": "Request subject"
       },
       "setting": {
         "basic": {
           "header": "Default role settings"
         },
         "system": {
-          "info": "Systémové role jsou určeny pro procesy samotné aplikace. U systémové role lze měnit pouze nastavení nezávislé na aplikační logice."
+          "info": "System roles are used for application processes. For system roles its possible to change just settings independent on application logic."
         },
         "authority": {
-          "header": "Přidělená oprávnění <small>(kategorie)</small>",
+          "header": "Granted permissions <small>(category)</small>",
           "select": {
-            "none": "Odebrat všechna nastavená oprávnění v dané kategorii",
-            "all": "Přidat všechna oprávnění v dané kategorii"
+            "none": "Remove all permissions in category",
+            "all": "Add all permisions on category"
           },
           "group": {
-            "hide": "Skrýt nastavení základních oprávnění v dané kategorii",
-            "show": "Zobrazit nastavení základních oprávnění v dané kategorii"
+            "hide": "Hide settigs of bacic permissions in category",
+            "show": "Show settigs of bacis permissions in category"
           }
         },
         "approval": {
@@ -973,8 +1016,8 @@
       },
       "delete": {
         "identityAssigned": {
-          "title": "Odebíraná role je přiřazena uživatelům",
-          "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
+          "title": "Removing role is assign on users",
+          "message": "Role [{{role}}] is assign to users. Befor removing the role you need to take it from users."
         }
       }
     },
@@ -991,18 +1034,42 @@
       "identities": {
         "header": "Users with assigned role",
         "title": "Users with role"
+      },
+      "eav": {
+        "header": "More information",
+        "title": "More information",
+        "save": {
+          "success": "Extended attributes for role [{{name}}] was successfully saved."
+        },
+        "error" : {
+          "notFound": "Extended attributes definition for role not found."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatic roles",
+        "title": "Automatic roles",
+        "label": "Automatic roles",
+        "edit": {
+          "header": "{{name}} <small>automatic role detail</small>"
+        },
+        "create": {
+          "header": "New automatic role"
+        },
+        "save": {
+          "success": "Automatic role [{{record}}] was successfully saved"
+        }
       }
     },
    "identity": {
       "sidebar": {
         "profile": "Personal data",
         "password": "Change password",
-        "roles": "Manage roles",
+        "roles": "Roles",
         "accounts": "Accounts on systems",
         "approve": "Schvaluji role",
         "subordinates": "Subordinates",
-        "positions": "Pracovně právní vztahy",
-        "approve": "Schvalovatelem pro role"
+        "positions": "Contracted positions",
+        "approve": "Approver of roles"
       },
      "profile": {
         "header": "Personal data",
@@ -1034,12 +1101,12 @@
             "message": "Vyberte prosím jiného uživatele, který má býti nastaven jako nový vedoucí"
           },
           "newIdmManagerIsRequired": {
-            "title": "Vyberte prosím uživatele",
-            "message": "Vyberte prosím uživatele, který má býti nastaven jako nový vedoucí"
+            "title": "Please select user",
+            "message": "Please select user, which will be new authorizer"
           }
         },
         "messages": {
-          "deactiveDisabled": "Není možné deaktivovat sebe sama.",
+          "deactiveDisabled": "You cannot inactivate yourself.",
           "subordinatesCount": "Uživatel <strong>{{username}}</strong>, který má býti deaktivovaný, je vedoucím pro <strong>{{subordinatesCount}}</strong> uživatelů. <br/> Vyberte prosím nového vedoucího pro všechny zobrazené uživatele.",
           "saved": "Uživatel {{username}} byl úspěšně uložen",
           "deactivated": "Uživatel {{username}} byl úspěšně deaktivován",
@@ -1080,15 +1147,15 @@
       "roles": {
         "header": "$t(navigation.menu.roles.label)",
         "title": "$t(navigation.menu.roles.label)",
-        "changePermissions": "Change roles",
-        "authorities": "Přidělená oprávnění <small>from assigned roles</small>",
+        "changePermissions": "Manage authorizations",
+        "authorities": "Granted authorizations <small>from assigned roles</small>",
         "changeRoleProcesses": {
           "header": "Roles pending approval",
           "deleteConfirm": "Opravdu chcete smazat vybranou žádost o změnu oprávnění?",
           "deleteSuccess": "Žádost o změnu oprávnění byla úspěšně smazána."
         },
         "changePermissionProcesses": {
-          "header": "Change permission requests"
+          "header": "Requests for authorization change "
         },
         "create": {
           "header": "Přiřazení nové role",
@@ -1110,8 +1177,8 @@
         }
       },
       "passwordChange": {
-        "header": "Password change",
-        "title": "Password change",
+        "header": "Password",
+        "title": "Password",
         "password": {
           "old": "Current password",
           "new": "New password",
@@ -1130,7 +1197,7 @@
         "message": {
           "wrongUser": "Změna hesla pro podřízeného není podporována",
           "success": "Heslo na účtech [{{accounts}}] pro uživatele [{{username}}] bylo úspěšně změněno.",
-          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected accounts. Number of changes is not limited."
+          "isAdmin": "You are logged in as administrator. Original password is not required for password change. Password can be changed on selected systems. Number of changes is not limited."
         },
         "button": {
           "change": "Change password"
@@ -1177,7 +1244,7 @@
         "empty": "Nenalezeny žádné účty na koncových systémech."
       },
       "identityContracts": {
-        "header": "Employment relationships",
+        "header": "Contracted positions",
         "title": "$t(content.identity.identityContracts.header)",
         "detail": {
           "invalidContract":"Detail neplatného PPV",
@@ -1254,10 +1321,10 @@
         "header": "More information",
         "title": "More information",
         "save": {
-          "success": "Údaje identity [{{name}}] byly úspěšně uloženy."
+          "success": "Extended attributes for identity [{{name}}] was successfully saved."
         },
         "error" : {
-          "notFound": "Definice dalších atributů pro identitu nebyla nalezena."
+          "notFound": "Extended attributes definition for identity not found."
         }
       },
       "garanted-roles": {
@@ -1266,8 +1333,8 @@
       }
     },
     "organizations": {
-      "header": "Organization structure",
-      "title": "Organization structure",
+      "header": "Organizational structure overview",
+      "title": "Organizational structure overview",
       "label": "Organization",
       "defaultTreeType": {
         "empty": {
@@ -1531,8 +1598,8 @@
           "header": "History of worfklow processes <small>approving, tasks</small>"
         },
         "process":{
-          "title": "History of workflow process",
-          "header": "History of workflow process",
+          "title": "History of process",
+          "header": "History of process",
           "diagram": "Process diagram",
           "fullscreenDiagram": "Process diagram",
           "startTime": "$t(entity.WorkflowHistoricProcessInstance.startTime)",
@@ -1618,13 +1685,13 @@
       "lastName": "Surname",
       "email": "E-mail",
       "phone": "Phone",
-      "description": "Description",
+      "description": "Note",
       "password": "Password",
       "passwordAgain": "Re-enter password",
       "homeOrganisation": "Home organization",
       "disabled": "Inactive",
       "internist": "Employee",
-      "externe": "Contractor",
+      "externe": "External contractor",
       "titleBefore": "Titles before",
       "titleAfter": "Titles after"
     },
@@ -1635,7 +1702,7 @@
         "help": "Catalogue code is unique within all folder codes in catalogue."
       },
       "name": {
-        "name": "Catalogue name",
+        "name": "Folder name",
         "help": "Descriptive attribute for users. Unique within catalog level."
       },
       "url": "URL",
@@ -1679,15 +1746,21 @@
       "guarantees": "Role authorizers",
       "roleCatalog": {
         "name": "Catalog"
+      },
+      "RoleTreeNode": {
+        "_type": "Automatic role",
+        "role": "Role",
+        "treeNode": "Tree node",
+        "recursionType": "Reursion type"
       }
     },
     "IdentityRole": {
-      "role" : "Role",
+      "role" : "Role name",
       "identityContract": {
-        "label": "Work position",
-        "title": "Work position",
-        "placeholder": "Work position",
-        "help": "Vazba na organizační či jinou stromovou strukturu"
+        "label": "Contracted position",
+        "title": "Contracted position",
+        "placeholder": "Contracted position",
+        "help": "Connection to organization or another tree strucure"
       }
     },
     "IdentityAccount": {
@@ -1697,20 +1770,20 @@
       }
     },
     "Attachment": {
-      "name": "Název",
-      "description": "Popis",
-      "mimetype": "Typ",
-      "encoding": "Kódování",
-      "filesize": "Velikost [B]",
-      "versionLabel": "Verze"
+      "name": "Name",
+      "description": "Description",
+      "mimetype": "Type",
+      "encoding": "Coding",
+      "filesize": "Size [B]",
+      "versionLabel": "Version"
     },
     "ApprovalTask": {
       "taskId": "Identifikátor",
       "taskName": "Task name",
       "createdDate": "Created",
       "closedDate": "Closed",
-      "relatedTaskId": "ID WF instance",
-      "approvedBy": "Schválil",
+      "relatedTaskId": "ID of WF instance",
+      "approvedBy": "Approved by",
       "taskState": "State",
       "note": "Note"
     },
@@ -1724,7 +1797,7 @@
       "validFrom": "Valid from",
       "validTill": "Valid to",
       "guarantee": "Authorizer",
-      "externe": "Contractor",
+      "externe": "External contractor",
       "managers": {
         "label": "Authorizer",
         "title": "Authorizer and all managers for position in structure"
@@ -1732,17 +1805,17 @@
     },
     "TreeNode": {
       "_type": "Tree node",
-      "id": "Identifikátor",
-      "code": "Kód",
-      "name": "Název",
-      "disabled": "Neaktivní",
-      "shortName": "Název",
-      "parentId": "Nadřazený prvek",
+      "id": "Identifier",
+      "code": "Code",
+      "name": "Name",
+      "disabled": "Inactive",
+      "shortName": "Name",
+      "parentId": "Superior element",
       "parent": {
-          "name": "Nadřazený prvek"
+          "name": "Superior element"
       },
       "treeType": {
-        "name": "Typ struktury"
+        "name": "Structure type"
       }
     },
     "TreeType": {
@@ -1754,34 +1827,34 @@
         "help": "This tree type will be used as default organization structure."
       },
       "defaultTreeNode": {
-        "label": "Default tree node",
-        "help": "This tree node will be used as default, e.g. for default working position."
+        "label": "Default tree element",
+        "help": "This tree element will be used as default, e.g. for default work position."
       }
     },
     "Delegate": {
       "_type": "Delegace",
       "id": "Interní id",
-      "identity": "Uživatel",
-      "delegate": "Na uživatele",
-      "from": "Od",
-      "till": "Do",
-      "state": "Stav delegace",
-      "isDateUnlimited": "Na dobu neurčitou"
+      "identity": "User",
+      "delegate": "To user",
+      "from": "from",
+      "till": "to",
+      "state": "Delegation state",
+      "isDateUnlimited": "Unlimited date"
     },
     "WorkflowTaskInstance": {
-      "taskDescription": "Task subject",
+      "taskDescription": "Subject",
       "taskCreated": "Created on",
       "id": "task ID"
     },
     "WorkflowHistoricProcessInstance": {
-      "name": "Name",
+      "name": "Process name",
       "startTime": "Created on",
       "endTime": "Ends on",
       "startActivityId": "Started by activity",
       "deleteReason": "Reason for deletion",
       "superProcessInstanceId": "Parent process ID",
       "id": "ID",
-      "applicant": "Requested for"
+      "applicant": "Applicant"
     },
     "WorkflowHistoricTaskInstance": {
       "name": "Task name",
@@ -1817,18 +1890,27 @@
       "name": "Name",
       "code": "Code",
       "subject": "Subject",
+      "parameter": {
+        "name": "Parameters",
+        "help": "List of template parameters. Parameters separate by comma."
+      },
       "systemTemplate": {
         "name": "System template",
         "help": "System templates is necessary for correct functioning application. System templates can't be removed or change their code."
       },
-      "bodyHtml": "Message body (html)",
+      "bodyHtml": {
+      "name": "Message body (html)",
+      "help": "For a list of available templates write character '$'"
+      },
       "bodyText": "Message body (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
       "level": "Type",
-      "notificationType": "Channel"
+      "notificationType": "Channel",
+      "template": "Template",
+      "description": "Description"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -1875,7 +1957,7 @@
     "Audit": {
       "label": "Audit",
       "id": "Revision ID",
-      "modification": "Action",
+      "modification": "Actions",
       "modifier": "Executed by",
       "revisionDate": "Date of revision",
       "changedAttributes": "Changed attributes",
@@ -1890,47 +1972,47 @@
       "basic": "Základní údaje",
       "bases": "Znaky",
       "generateType": "Generation type",
-      "disabled": "Neaktivní",
-      "description": "Popis",
-      "defaultPolicy": "Standardní politika",
-      "passwordLengthRequired": "Povinná délka hesla",
+      "disabled": "Disabled",
+      "description": "Description",
+      "defaultPolicy": "Default policy",
+      "passwordLengthRequired": "Password length requirement",
       "minPasswordLength": "Minimum length",
       "maxPasswordLength": "Maximum length",
-      "upperCharRequired": "Povinné velké znaky",
-      "minUpperChar": "Minimum velkých znaků",
-      "lowerCharRequired": "Povinné malé znaky",
-      "minLowerChar": "Minimum malých znaků",
-      "numberRequired": "Povinná čísla",
-      "minNumber": "Minimum čísel",
-      "specialCharRequired": "Povinné speciální znaky",
-      "minSpecialChar": "Minimum speciálních znaků",
-      "prohibitedCharacters": "Zakázané znaky",
+      "upperCharRequired": "Uppercase letters requirement",
+      "minUpperChar": "Minimum number of uppercase letters",
+      "lowerCharRequired": "Lowercase letters requirement",
+      "minLowerChar": "Minimum number of lowercase letters",
+      "numberRequired": "Digits requirement",
+      "minNumber": "Minimum number of digits",
+      "specialCharRequired": "Special characters requirement",
+      "minSpecialChar": "Minimum number of special characters",
+      "prohibitedCharacters": "Forbidden characters",
       "weakPassRequired": "Povinné slabé hesla",
       "weakPass": "Slabé hesla",
-      "passphraseWords": "Počet slov pro passphrase",
-      "maxPasswordAge": "Maximální doba pro změnu hesla",
-      "minPasswordAge": "Minimální doba pro změnu hesla",
+      "passphraseWords": "Number of words in passphrase",
+      "maxPasswordAge": "Maximum number of days for password validity.",
+      "minPasswordAge": "Minimum number of days for password validity.",
       "enchancedControl": "Enhanced control",
-      "minRulesToFulfill": "Minimum pravidel pro splnění politiky",
-      "maxHistorySimilar": "Počet zpětně kontrolovaných hesel na shodu",
-      "lowerCharBase": "Povolené malé znaky",
-      "upperCharBase": "Povolené velké znaky",
-      "numberBase": "Povolené číslice",
-      "specialCharBase": "Povolené speciální znaky",
-      "identityAttributeCheck": "Atributy identity pro kontrolu",
+      "minRulesToFulfill": "Minimum number of additional rules for policy",
+      "maxHistorySimilar": "Nuber of checked old passwords  zpětně kontrolovaných hesel na shodu",
+      "lowerCharBase": "Lowercase letters",
+      "upperCharBase": "Uppercase letters",
+      "numberBase": "Digits",
+      "specialCharBase": "Special characters",
+      "identityAttributeCheck": "User attributes not allowed in password",
       "help": {
-        "defaultPolicy": "Standardní politika je použita pro validaci hesel proti systému IDM a zároveň validuje všechny hesla na systémech, kde není určena jiná politika.",
-        "maxPasswordAge": "Maximální počet dnů platnosti hesla.",
-        "minPasswordAge": "Minimální počet dnů platnost hesla, po tuto dobu není možné heslo změnit.",
+        "defaultPolicy": "Defaul policy is used for password validation for IdM system and all systems without set password policy.",
+        "maxPasswordAge": "Maximum number of days for password validity.",
+        "minPasswordAge": "Minimum number of days for password validity.",
         "enchancedControl": "Rozšířená kontrola hesla zkvalitňuje základní validaci hesla a to o kontrolu podobnosti na minulé hesla a kontrolu podobnosti s uživatelskými atributy. Také je možnost nastavit povinná pouze některá pravidla.",
         "rules": "Pravidla označená jako nepovinná budou kontrolovány v závislosti na minimálním početu pravidel pro splnění politiky. Aby heslo prošlo validací politky, musí projít minimálním počtem z nepovinných pravidel.",
-        "minRulesToFulfill": "Minimální počet pravidel pro splnění politiky, pokud heslo splní minimální počet je označeno jako validní.",
-        "maxHistorySimilar": "Počet zpětně konrolovaných hesel na podobnost.",
-        "prohibitedCharacters": "Zakázané znaky budou kontrolovány při validaci a při generování hesla budou zcela vypuštěny. Vkládejte bez mezer jednotlivé znaky přímo za sebou, například: 1LliIo0!",
-        "bases": "Znakové sady pro generování hesel, ze sad jsou odstraněny zakázané znaky.",
-        "identityAttributeCheck": "Atributy uživatele, které budou kontrolovány na podobnost s heslem.",
-        "emptyValues": "Pro vynechání jednotlivých validací nechte pole prázdné, případně nastavte na číslici 0.",
-        "passphraseWords": "Počet slov které bude obsahovat nově vygenerované passphrase."
+        "minRulesToFulfill": "Minimum number of the requirements which password must match to be valid.",
+        "maxHistorySimilar": "Number of retroactively checked passwords, which cannot be same as new.",
+        "prohibitedCharacters": "Listed characters are not allowed for generating and validating passwords. Enter characters without spaces, e.g. 1LliIo0!",
+        "bases": "Character set allowed for password generation. Forbidden characters are excluded from sets.",
+        "identityAttributeCheck": "Password may not contain any listed attributes or variations thereof.",
+        "emptyValues": "To omit any field, leave it empty or set value to 0.",
+        "passphraseWords": "Select number of words passphrase contains."
       }
     },
     "Module": {
@@ -2013,10 +2095,54 @@
       "modified": "Modified"
     }
   },
+  "decision" : {
+    "approve": {
+      "label" : "Approve",
+      "tooltip": "Executes approval of this task.",
+      "warning": "Do you want to approve this request?"
+    },
+    "disapprove": {
+      "label" : "Disapprove",
+      "tooltip": "Disapprove task.",
+      "warning": "Do you want to disapprove this request?"
+    },
+    "backToApplicant": {
+      "label" : "Return to requester",
+      "tooltip": "Executes returning of this request.",
+      "warning": "Do you want to return this request?"
+    },
+    "createRequest": {
+      "label" : "Create request",
+      "tooltip": "Creates request.",
+      "warning": "Opravdu chcete vytvořit žádost?"
+    },
+    "cancelRequest": {
+      "label" : "Delete request",
+      "tooltip": "Delete this request.",
+      "warning": "Do you really want to delete this request?"
+    }
+  },
+  "formData" : {
+    "applicantDescription": {
+      "name" : "Requester's note",
+      "tooltip": "Requester's note in created request",
+      "placeholder": "Requester's note in created request"
+    },
+    "managerDescriptionForApplicant": {
+      "name" : "Note for requester",
+      "tooltip": "Poznámka, která bude žadateli zobrazena při várcení žádosti.",
+      "placeholder": "Poznámka, která bude žadateli zobrazena při várcení žádosti."
+    },
+    "managerDescription": {
+      "name" : "Authorizers note",
+      "tooltip": "Note from authorizer.",
+      "placeholder": "Note from authorizer."
+    }
+  },
   "error": {
     "AUTH_FAILED": {
-      "title": "Chybné přihlašovací údaje",
-      "message": "Zadány chybné přihlašovací údaje."
+      "title": "Login failed",
+      "message": "Invalid login or password."
     },
     "FORBIDDEN": {
       "title": "Nedostatečná oprávnění",
@@ -2031,12 +2157,12 @@
       "message": "Zadáno chybné původní heslo."
     },
     "LOG_IN": {
-      "title": "Přihlášení vypršelo",
-      "message": "Přihlaste se prosím znovu."
+      "title": "Session timeout",
+      "message": "Please log-in again."
     },
     "XSRF": {
-      "title": "Přihlášení vypršelo",
-      "message": "Váš přihlášovací token vypršel. Přihlaste se prosím znovu."
+      "title": "Session timeout",
+      "message": "Your login token timeouted. Please log-in again."
     },
     "MUST_CHANGE_IDM_PASSWORD": {
       "title": "Je vyžadována změna Vašeho hesla",
@@ -2059,40 +2185,40 @@
       "message": "{{0}}"
     },
     "PASSWORD_CANNOT_CHANGE": {
-      "title": "Heslo nebylo změněno",
-      "message": "Zkuste to znovu po {{date}}."
+      "title": "Password wasn't changed",
+      "message": "Try it again after {{date}}."
     },
     "PASSWORD_POLICY_MAX_LENGTH_LOWER": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Maximální délka nesmí být menší než minimální délka."
     },
     "PASSWORD_POLICY_ALL_MIN_REQUEST_ARE_HIGHER": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Součet všech minimálních délek je větší než maximální délka."
     },
     "PASSWORD_POLICY_MAX_AGE_LOWER": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Maximální doba pro změnu hesla nesmí být menší než minimální."
     },
     "PASSWORD_POLICY_DEFAULT_TYPE": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Standardní politika již existuje."
     },
     "PASSWORD_POLICY_DEFAULT_TYPE_NOT_EXIST": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Neexistuje standardní politika."
     },
     "PASSWORD_POLICY_BAD_TYPE": {
-      "title": "Politika hesel nebyla uložena",
+      "title": "Password policy wasn't saved",
       "message": "Politika má špatný typ, pro validaci využívejte pouze validační politiky, pro generování pouze politiky pro generování."
     },
     "PASSWORD_POLICY_VALIDATION": {
-      "title": "Politika hesel nebyla uložena",
-      "message": "Problém s validací politiky."
+      "title": "Password policy wasn't saved",
+      "message": "Problem with validation of password policy."
     },
     "PASSWORD_POLICY_MAX_RULE": {
       "title": "Exceeded the number of rules",
-      "message": "Minimum rules to fulfill must be {{rules}} or lower."
+      "message": "Minimum rules to fulfill can be {{rules}} or less."
     },
     "TASK_SAME_DELEGATE_AS_CURRENT_IDENTITY": {
       "title": "Uložení delegace selhalo",
@@ -2112,7 +2238,7 @@
       "title": "Chybný identifikátor",
       "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
     },
-    "ROLE_CATALOG_BAD_PARENT": {
+    "ROLE_CATALOGUE_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },
@@ -2128,15 +2254,15 @@
       "message": "Záznam s tímto jménem již existuje."
     },
     "IDENTITY_NOT_FOUND": {
-      "message": "Identita [{{identity}}] neexistuje"
+      "message": "Identity [{{identity}}] does not exist"
     },
     "MODULE_NOT_DISABLEABLE": {
       "title": "Modul [{{module}}] není možné disablovat",
       "message": "Funkce modulu jsou pro aplikaci nepostradatelné."
     },
     "MODULE_DISABLED": {
-      "title": "Modul je deaktivovaný",
-      "message": "Modul [{{module}}] není nainstalovaný nebo je deaktivovaný."
+      "title": "The module is deactivated",
+      "message": "Module [{{module}}] is deactivated or isn't installed."
     },
     "CONFIGURATION_DISABLED": {
       "title": "Funkce je deaktivovaná",
@@ -2159,32 +2285,32 @@
       "message": "Prvek struktury [{{treeNode}}] je již použit v pracovně právních vztazích. Před odebráním tohoto prvku upravte všechny vztahy."
     },
     "TREE_NODE_BAD_TYPE": {
-      "title": "Špatný typ prvku",
-      "message": "Zvolte prosím jiný typ prvku."
+      "title": "Wrong element type",
+      "message": "Please select different element type."
     },
     "TREE_NODE_BAD_PARENT": {
-      "title": "Nadřazený prvek nelze přiřadit",
-      "message": "Neplatný nadřazený prvek. Vyberte prosím jiný."
+      "title": "Superior element cannot be set",
+      "message": "Invalid superior element, please select another."
     },
     "GROOVY_SCRIPT_VALIDATION": {
       "title": "Groovy script contains compile errors",
       "message": ""
     },
     "GROOVY_SCRIPT_SECURITY_VALIDATION": {
-      "title": "Groovy script did not passt safety check!",
+      "title": "Groovy script did not past safety check!",
       "message": "Reason: {{message}}"
     },
     "ROLE_CATALOGUE_DELETE_FAILED_HAS_CHILDREN": {
-      "title": "Role catalogue can't be removed",
-      "message": "Role catalogue [{{roleCatalogue}}] contains child catalogue. Remove all child catalogues first."
+      "title": "Role catalog cannot be removed",
+      "message": "Role catalog [{{roleCatalogue}}] contains child catalog. Remove all child catalogues first."
     },
     "ROLE_CATALOGUE_BAD_NICE_NAME" : {
       "title": "Duplicate name for user",
-      "message": "At this level is already catalogue with this name for user: [{{name}}]."
+      "message": "This level already contains this catalog name for user: [{{name}}]."
     },
     "AUDIT_REVISION_NOT_SAME": {
       "title": "Revisions aren't comparable",
-      "message": "Revisions must be same same type and from same entity."
+      "message": "Revisions must be the same type and from the same entity."
     },
     "BAD_FILTER": {
       "title": "Filter isn't valid",
@@ -2207,12 +2333,12 @@
       "message": "Zpracování úlohy [{{taskType}}] na instanci [{{instanceId}}] bylo přerušeno - instance byla v průběhu zpracování vypnuta."
     },
     "LONG_RUNNING_TASK_NOT_RUNNING": {
-      "title": "Úloha již neběží",
-      "message": "Úloha [{{taskType}}] na instanci [{{instanceId}}] již byla ukončena."
+      "title": "The task is already running",
+      "message": "Task [{{taskType}}] on instance [{{instanceId}}] already ended."
     },
     "LONG_RUNNING_TASK_INIT_FAILED": {
-      "title": "Úloha je chybně nakonfigurovaná",
-      "message": "Úloha [{{taskType}}] je chybně nakonfigurovaná ."
+      "title": "Task has invalid configuration",
+      "message": "Task [{{taskType}}] has invalid configuration."
     },
     "FOREST_INDEX_DISABLED": {
       "title": "Index is disabled",
@@ -2220,23 +2346,23 @@
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindex already running",
-      "message": "Reindex for tree structure {{treeType}} already running."
+      "message": "Reindex for tree structure {{type}} already running."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
-      "title": "System templates can§t be deleted",
-      "message": "Template [{{template}}] is system's, it can't be deleted."
+      "title": "System template cant be deleted",
+      "message": "[{{template}}] is system template, it can't be deleted."
     }
   },
   "validationError": {
     "string": {
-      "min_1" : "Zadejte minimálně jeden znak!",
-      "min_2" : "Zadejte minimálně dva znaky!",
-      "min_5" : "Zadejte minimálně {{count}} znaků!",
+      "min_1" : "Enter at least one character!",
+      "min_2" : "Enter at least two characters!",
+      "min_5" : "Enter at least {{count}} characters!",
       "base" : "Required field!",
-      "email": "Formát emailu není validní!",
-      "max_1" : "Zadejte maximálně {{count}} znak!",
-      "max_2" : "Zadejte maximálně {{count}} znaky!",
-      "max_5" : "Zadejte maximálně {{count}} znaků!"
+      "email": "format of e-mail is not valid!",
+      "max_1" : "Enter the maximum {{count}} character!",
+      "max_2" : "Enter the maximum {{count}} characters!",
+      "max_5" : "Enter the maximum {{count}} characters!"
     },
     "boolean": {
       "base": "$t(validationError.string.base)"
@@ -2250,21 +2376,21 @@
     },
     "array" : {
       "base" : "$t(validationError.string.base)",
-      "min_1" : "Zadejte minimálně jednu položku!",
-      "min_2" : "Zadejte minimálně dvě položky!",
-      "min_5" : "Zadejte minimálně {{count}} položek!"
+      "min_1" : "Enter at least one item!",
+      "min_2" : "Enter at least two items!",
+      "min_5" : "Enter at least {{count}} items!"
     },
     "date" : {
-     "unvalid" : "Date isn't valid!"
+     "unvalid" : "Invalid date!"
     },
     "passwords_not_same": "Passwords must be the same!",
-    "configurationSecured": "Nemáte oprávnění pro editaci systémové konfigurace"
+    "configurationSecured": "You dont have permissions to edit system configuration"
   },
   "security": {
     "access": {
-      "denied": "Nedostatečná oprávnění",
+      "denied": "Insufficient permissions",
       "link": {
-        "denied": "Pro zobrazení detailu záznamu nemáte oprávnění"
+        "denied": "You dont have perrmisions to see record details"
       }
     }
   }

@@ -18,9 +18,10 @@ import com.google.common.collect.ImmutableMap;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 import eu.bcvsolutions.idm.core.api.domain.CoreResultCode;
 import eu.bcvsolutions.idm.core.api.exception.ResultCodeException;
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.ConfigurationService;
 import eu.bcvsolutions.idm.core.api.utils.AutowireHelper;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.exception.TreeNodeException;
 import eu.bcvsolutions.idm.core.exception.TreeTypeException;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.scheduler.api.service.LongRunningTaskManager;
 import eu.bcvsolutions.idm.core.scheduler.task.impl.RebuildTreeNodeIndexTaskExecutor;
 
 @Service
-public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<IdmTreeNode, TreeNodeFilter> 
+public class DefaultIdmTreeNodeService extends AbstractFormableService<IdmTreeNode, TreeNodeFilter> 
 		implements IdmTreeNodeService {
 	
 	private final IdmTreeNodeRepository repository;
@@ -54,8 +55,9 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 			DefaultBaseTreeService<IdmTreeNode> baseTreeService,
 			ForestIndexService<IdmForestIndexEntity, UUID> forestIndexService,
 			ConfigurationService configurationService,
-			LongRunningTaskManager longRunningTaskManager) {
-		super(treeNodeRepository);
+			LongRunningTaskManager longRunningTaskManager,
+			FormService formService) {
+		super(treeNodeRepository, formService);
 		//
 		Assert.notNull(treeTypeService);
 		Assert.notNull(identityContractRepository);
@@ -104,7 +106,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 		//
 		this.validate(treeNode);
 		//
-		if (treeNode.getId() == null) {
+		if (isNew(treeNode)) {
 			// create new
 			return createIndex(super.save(treeNode));
 		} else {
@@ -143,7 +145,7 @@ public class DefaultIdmTreeNodeService extends AbstractReadWriteEntityService<Id
 	 * @return bool. True - if current and saved node is not same, false - if everything ist OK. When is node new return false;
 	 */
 	private boolean checkCorrectType(IdmTreeNode treeNode) {
-		if (treeNode.getId() == null) {
+		if (isNew(treeNode)) {
 			return false;
 		}
 		

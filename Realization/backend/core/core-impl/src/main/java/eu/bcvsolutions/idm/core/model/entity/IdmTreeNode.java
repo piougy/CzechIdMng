@@ -25,14 +25,21 @@ import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
+/**
+ * Tree nodes
+ * 
+ * @author Ondřej Kopr
+ */
 @Entity
 @Table(name = "idm_tree_node", indexes = { 
 		@Index(name = "ux_tree_node_code", columnList = "tree_type_id,code", unique = true),
 		@Index(name = "idx_idm_tree_node_parent", columnList = "parent_id"),
 		@Index(name = "idx_idm_tree_node_type", columnList = "tree_type_id")
 })
-public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, IdmForestIndexEntity, UUID> {
+public class IdmTreeNode extends AbstractEntity 
+		implements BaseTreeEntity<IdmTreeNode>, ForestContent<IdmTreeNode, IdmForestIndexEntity, UUID>, FormableEntity {
 
 	private static final long serialVersionUID = -3099001738101202320L;
 	public static final String TREE_TYPE_PREFIX = "tree-type-";
@@ -48,11 +55,6 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	@Size(min = 0, max = DefaultFieldLengths.NAME)
 	@Column(name = "name", length = DefaultFieldLengths.NAME, nullable = false)
 	private String name;
-
-	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled = false;
 
 	@Version
 	@JsonIgnore
@@ -87,14 +89,6 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 	
 	@Override
@@ -136,17 +130,19 @@ public class IdmTreeNode extends AbstractEntity implements BaseTreeEntity<IdmTre
 	}
 	
 	@JsonIgnore
-	public Long getLft() {
-		if (forestIndex == null) {
-			return null;
+	public long getLft() {
+		if (forestIndex == null || forestIndex.getLft() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
 		}
 		return forestIndex.getLft();
 	}
 	
 	@JsonIgnore
-	public Long getRgt() {
-		if (forestIndex == null) {
-			return null;
+	public long getRgt() {
+		if (forestIndex == null || forestIndex.getRgt() == null) {
+			// we don't need check null pointers in all queries
+			return 0L;
 		}
 		return forestIndex.getRgt();
 	}

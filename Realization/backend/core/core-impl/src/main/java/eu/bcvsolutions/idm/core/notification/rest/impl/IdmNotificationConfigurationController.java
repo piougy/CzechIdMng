@@ -77,19 +77,19 @@ public class IdmNotificationConfigurationController extends AbstractReadWriteEnt
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONCONFIGURATION_WRITE + "')")
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
 	@Override
 	@ResponseBody
 	@PreAuthorize("hasAuthority('" + NotificationGroupPermission.NOTIFICATIONCONFIGURATION_WRITE + "')")
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
 	@Override

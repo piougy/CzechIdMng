@@ -120,6 +120,10 @@
       "success_1": "Vybraný záznam [{{record}}] byl úspěšně deaktivován",
       "success_2": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány",
       "success_5": "Vybrané záznamy [{{records}}] byly úspěšně deaktivovány"
+    },
+    "save": {
+      "success_0": "N/A",
+      "success_1": "Záznam [{{record}}] byl úspěšně uložen"
     }
   },
   "environment": {
@@ -408,6 +412,11 @@
       "ADD": "Přidaní",
       "UPDATE": "Úprava",
       "REMOVE": "Odstranění"
+    },
+    "RecursionTypeEnum": {
+      "NO": "Bez šíření",
+      "DOWN": "Šířit dle struktury dolů",
+      "UP": "Šířit dle struktury nahoru"
     }
   },
   "dashboard": {
@@ -793,6 +802,10 @@
         "recursively": {
           "label": "Rekurzivně",
           "placeholder": "Rekurzivně dle struktury dolů"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Má přiřazenu roli"
         }
       },
       "action": {
@@ -842,16 +855,38 @@
       "nodes": {
         "header": "Prvky stromové struktury",
         "title": "Prvky",
-        "edit": "detail prvku",
-        "create": "Nový prvek",
-        "save": {
-          "success": "Prvek [{{name}}] byl úspěšně uložen"
-        },
         "addType": "Přidat typ",
         "reloadTree": "Zrušení filtru a znovunačtení stromu",
         "tab": {
           "identities": "Uživatelé",
           "nodes": "Prvky struktury"
+        }
+      },
+      "node": {
+        "detail": {
+          "header": "Detail prvku",
+          "title": "Detail prvku",
+          "label": "Základní údaje",
+          "edit": {
+            "title": "Detail prvku",
+            "header": "{{name}} detail prvku"
+          },
+          "create": {
+            "header": "Nový prvek"
+          },
+          "save": {
+            "success": "Prvek [{{name}}] byl úspěšně uložen"
+          }
+        },
+        "eav": {
+          "header": "Další údaje",
+          "title": "Další údaje",
+          "save": {
+            "success": "Údaje prvku [{{name}}] byly úspěšně uloženy."
+          },
+          "error" : {
+            "notFound": "Definice dalších atributů pro prvek stromové struktury nebyla nalezena."
+          }
         }
       },
       "types": {
@@ -901,7 +936,15 @@
       },
       "parentPick": "Vyberte složku",
       "reloadTree": "Obnov strom katalogu rolí",
-      "addRoleCatalogue": "Přidat novou složku"
+      "addRoleCatalogue": "Přidat novou složku",
+      "filter": {
+        "name": "Jméno",
+        "namePlaceHolder": "Jméno složky",
+        "parent": "Nadřazená složka",
+        "parentPlaceHolder": "Nadřezená složka",
+        "niceName": "Jméno pro uživatele",
+        "code": "Kód"
+      }
     },
     "scripts": {
       "header": "Definice pravidel",
@@ -929,7 +972,7 @@
         "title": "Detail role",
         "header": "{{name}} detail role"
       },
-      "roleCataloguePick": "Vyberte z katalogu",
+      "roleCataloguePick": "Vyberte složku",
       "create": {
         "header": "Nová role"
       },
@@ -991,6 +1034,30 @@
       "identities": {
         "header": "Uživatelé s přiřazenou rolí",
         "title": "Uživatelé"
+      },
+      "eav": {
+        "header": "Další údaje",
+        "title": "Další údaje",
+        "save": {
+          "success": "Údaje role [{{name}}] byly úspěšně uloženy."
+        },
+        "error" : {
+          "notFound": "Definice dalších atributů pro roli nebyla nalezena."
+        }
+      },
+      "tree-nodes": {
+        "header": "Automatické role",
+        "title": "Automatické role",
+        "label": "Automatické role",
+        "edit": {
+          "header": "{{name}} <small>detail automatické role</small>"
+        },
+        "create": {
+          "header": "Nová automatická role"
+        },
+        "save": {
+          "success": "Automatická role [{{record}}] byla úspěšně uložena"
+        }
       }
     },
     "identity": {
@@ -1629,13 +1696,13 @@
       "titleAfter": "Titul za"
     },
     "RoleCatalogue": {
-      "_type": "Jméno role",
+      "_type": "Složka katalogu",
       "code": {
         "name": "Kód",
         "help": "Kód katalogu je unikátní v rámci všech katalogů."
       },
       "name": {
-        "name": "Jméno katalogu",
+        "name": "Jméno složky",
         "help": "Popisný atribut pro uživatele. Unikátní v rámci úrovně katalogu."
       },
       "url": "Odkaz",
@@ -1643,13 +1710,6 @@
       "description": "Popis",
       "parent": {
         "name": "Nadřazená složka v katalogu"
-      },
-      "filter": {
-        "name": "Kód",
-        "namePlaceHolder": "Jméno složky",
-        "parent": "Nadřazená složka",
-        "parentPlaceHolder": "Nadřezená složka",
-        "niceName": "Jméno pro uživatele"
       }
 
     },
@@ -1678,8 +1738,14 @@
       "description": "Popis",
       "guarantees": "Garanti role",
       "roleCatalogue": {
-        "name": "Katalog"
+        "name": "Složka v katalogu"
       }
+    },
+    "RoleTreeNode": {
+      "_type": "Automatická role",
+      "role": "Role",
+      "treeNode": "Prvek stromové struktury",
+      "recursionType": "Typ rerkurze"
     },
     "IdentityRole": {
       "role" : "Role",
@@ -1817,18 +1883,27 @@
       "name": "Jméno",
       "code": "Kód",
       "subject": "Předmět",
+      "parameter": {
+        "name": "Parametry",
+        "help": "Seznam parametrů šablony. Parametry oddělujte čárkou."
+      },
       "systemTemplate": {
         "name": "Systémová šablona",
         "help": "Systémová šablona je nezbytná pro správný chod aplikace, nelze odstranit a změnit její kód."
       },
-      "bodyHtml": "Tělo zprávy (html)",
+      "bodyHtml": {
+        "name": "Tělo zprávy (html)",
+        "help": "Pro seznam dostupných parametrů šablony napište znak '$'"
+      },
       "bodyText": "Tělo zprávy (text)"
     },
     "NotificationConfiguration": {
       "_type": "Konfigurace notifikace",
       "topic": "$t(entity.Notification.topic)",
       "level": "Typ notifikace",
-      "notificationType": "Kanál"
+      "notificationType": "Kanál",
+      "template": "Šablona",
+      "description": "Popis"
     },
     "Email": {
       "topic": "$t(entity.Notification.topic)",
@@ -2157,7 +2232,7 @@
       "title": "Chybný identifikátor",
       "message": "Identifikátor [{{uuid}}] není validní. Očekáváno uuid."
     },
-    "ROLE_CATALOG_BAD_PARENT": {
+    "ROLE_CATALOGUE_BAD_PARENT": {
       "title": "Nadřazená složka nelze přiřadit.",
       "message": "Neplatná nadřazená složka. Vyberte prosím jinou složku."
     },
@@ -2265,7 +2340,7 @@
     },
     "FOREST_INDEX_RUNNING": {
       "title": "Reindexování již běží",
-      "message": "Reindexování pro stromovou strukturu {{treeType}} je již spuštěno. Nebude spuštěno opakovaně."
+      "message": "Reindexování pro stromovou strukturu {{type}}}} je již spuštěno. Nebude spuštěno opakovaně."
     },
     "NOTIFICATION_SYSTEM_TEMPLATE_DELETE_FAILED": {
       "title": "Systémová šablona nemůže být smazána",

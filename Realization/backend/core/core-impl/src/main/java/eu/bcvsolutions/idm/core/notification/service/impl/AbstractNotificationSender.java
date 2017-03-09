@@ -15,9 +15,11 @@ import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.notification.entity.IdmMessage;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotification;
+import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationConfiguration;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationLog;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationRecipient;
 import eu.bcvsolutions.idm.core.notification.entity.IdmNotificationTemplate;
+import eu.bcvsolutions.idm.core.notification.repository.IdmNotificationConfigurationRepository;
 import eu.bcvsolutions.idm.core.notification.service.api.IdmNotificationTemplateService;
 import eu.bcvsolutions.idm.core.notification.service.api.NotificationSender;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
@@ -40,6 +42,9 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 	
 	@Autowired
 	private IdmNotificationTemplateService notificationTemplateService;
+	
+	@Autowired
+	private IdmNotificationConfigurationRepository notificationConfigurationRepository;
 	
 	@Autowired(required = false)
 	@Deprecated // will be removed after recipient refactoring
@@ -108,6 +113,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		return send(topic, message, Lists.newArrayList(recipient));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public N send(String topic, IdmMessage message, List<IdmIdentity> recipients) {
@@ -115,12 +121,36 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		//
 		IdmNotificationLog notification = new IdmNotificationLog();
 		notification.setTopic(topic);
+		//
+		notification.setMessage(message);
 		// transform message parent
-		notification.setMessage(this.notificationTemplateService.getMessage(message, false));
 		recipients.forEach(recipient ->
 			{
 				notification.getRecipients().add(new IdmNotificationRecipient(notification, recipient));
 			});
+		// try to find template
+		if (message.getTemplate() == null) {
+			IdmNotificationConfiguration configuration = notificationConfigurationRepository.findNotificationByTopicLevel(notification.getTopic(), message.getLevel());
+			
+			if (configuration != null) {
+				message.setTemplate(configuration.getTemplate());
+				notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
+				return send(notification);
+			}
+			// if configurations is null check if exist text for message, TODO: send only subject?
+			if (message == null || (message.getHtmlMessage() == null && message.getSubject() == null && message.getTextMessage() == null)) {
+				LOG.info("Notification has empty template and message. Default message will be send! [topic:{}]", topic);
+				// send default message
+				notification.setMessage(
+						new IdmMessage.Builder()
+						.setLevel(message.getLevel())
+						.setSubject("Message for notification not found!")
+						.setMessage("System CzechIdM v7 try to send empty message, please contact system administrator.")
+						.build());
+				return (N) notification;
+			}
+		}
+		notification.setMessage(this.notificationTemplateService.buildMessage(message, false));
 		return send(notification);
 	}
 
@@ -138,13 +168,18 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 		if (message.getTemplate() != null) {
 			return this.getMessage(notification, false);
 		}
-		return new IdmMessage.Builder()
+		//
+		message = new IdmMessage.Builder()
 				.setLevel(message.getLevel())
 				.setSubject(message.getSubject())
 				.setTextMessage(message.getTextMessage())
 				.setHtmlMessage(message.getHtmlMessage())
 				.setModel(message.getModel())
+				.setParameters(message.getParameters())
 				.build();
+		//
+		// build message, message may contain some parameters
+		return this.notificationTemplateService.buildMessage(message, false);
 	}
 	
 	/**
@@ -165,7 +200,7 @@ public abstract class AbstractNotificationSender<N extends IdmNotification> impl
 			return notification.getMessage();
 		}
 		
-		return this.notificationTemplateService.getMessage(notification.getMessage(), showGuardedString);
+		return this.notificationTemplateService.buildMessage(notification.getMessage(), showGuardedString);
 	}
 
 	/**

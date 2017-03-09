@@ -56,7 +56,8 @@ public class IdmScript extends AbstractEntity implements IdentifiableByName {
 	private IdmScriptCategory category = IdmScriptCategory.DEFAULT;
 	
 	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 
 	public String getScript() {

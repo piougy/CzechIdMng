@@ -72,7 +72,7 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		Assert.notNull(entity);
 		Assert.notNull(entity.getIdentity());
 		//
-		if (entity.getId() == null) { // create
+		if (isNew(entity)) { // create
 			LOG.debug("Saving new contract for identity [{}]", entity.getIdentity().getUsername());
 			return entityEventManager.process(new IdentityContractEvent(IdentityContractEventType.CREATE, entity)).getContent();
 		} 
@@ -114,13 +114,14 @@ public class DefaultIdmIdentityContractService extends AbstractReadWriteEntitySe
 		// set identity
 		IdmIdentityContract contract = new IdmIdentityContract();
 		contract.setIdentity(identity);
+		contract.setMain(true);
 		//
 		// set working position
 		IdmTreeType defaultTreeType = treeTypeRepository.findOneByDefaultTreeTypeIsTrue();
 		if (defaultTreeType != null && defaultTreeType.getDefaultTreeNode() != null) {
 			contract.setWorkingPosition(defaultTreeType.getDefaultTreeNode());
 		} else {
-			contract.setPosition(DEFAULT_POSITION_NAME); // TODO: from configuration manager
+			contract.setPosition(DEFAULT_POSITION_NAME);
 		}
 		return contract;
 	}

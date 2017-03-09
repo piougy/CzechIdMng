@@ -113,6 +113,7 @@ export default class RoleTable extends Basic.AbstractContent {
       ... this.refs.filterForm.getData(),
       roleCatalogue: nodeId
     };
+    this.refs.roleCatalogue.setValue(nodeId);
     this.refs.table.getWrappedInstance().useFilterData(data);
   }
 
@@ -155,16 +156,14 @@ export default class RoleTable extends Basic.AbstractContent {
               </div>
               <div className="clearfix"></div>
             </div>
-            <div style={{ paddingLeft: 15, paddingRight: 15 }}>
-              <Basic.Panel style={{ marginTop: 15 }}>
-                <Advanced.Tree
-                  ref="roleCatalogueTree"
-                  rootNodes={ rootNodes }
-                  headerDecorator={this._roleTreeHeaderDecorator.bind(this)}
-                  uiKey="roleCatalogueTree"
-                  manager={this.roleCatalogueManager}
-                  />
-              </Basic.Panel>
+            <div style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 15 }}>
+              <Advanced.Tree
+                ref="roleCatalogueTree"
+                rootNodes={ rootNodes }
+                headerDecorator={this._roleTreeHeaderDecorator.bind(this)}
+                uiKey="roleCatalogueTree"
+                manager={this.roleCatalogueManager}
+                />
             </div>
           </div>
         }
@@ -185,20 +184,28 @@ export default class RoleTable extends Basic.AbstractContent {
             filter={
               <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
                 <Basic.AbstractForm ref="filterForm">
-                  <Basic.Row className="last">
+                  <Basic.Row className={ showTree ? '' : 'last'}>
                     <div className="col-lg-4">
                       <Advanced.Filter.TextField
                         ref="text"
                         placeholder={this.i18n('entity.Role.name')}/>
                     </div>
                     <div className="col-lg-4">
-                      <Basic.EnumSelectBox
+                      <Advanced.Filter.EnumSelectBox
                         ref="roleType"
                         placeholder={this.i18n('entity.Role.roleType')}
                         enum={RoleTypeEnum}/>
                     </div>
                     <div className="col-lg-4 text-right">
                       <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
+                    </div>
+                  </Basic.Row>
+                  <Basic.Row className="last" rendered={showTree}>
+                    <div className="col-lg-4">
+                      <Advanced.Filter.SelectBox
+                        ref="roleCatalogue"
+                        placeholder={this.i18n('entity.Role.roleCatalogue.name')}
+                        manager={ this.roleCatalogueManager }/>
                     </div>
                   </Basic.Row>
                 </Basic.AbstractForm>
@@ -280,7 +287,7 @@ RoleTable.propTypes = {
 
 RoleTable.defaultProps = {
   columns: ['name', 'roleType', 'disabled', 'approvable', 'description'],
-  filterOpened: false,
+  filterOpened: true,
   showCatalogue: true,
   forceSearchParameters: null
 };

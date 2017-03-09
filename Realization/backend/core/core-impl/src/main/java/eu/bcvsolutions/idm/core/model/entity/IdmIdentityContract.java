@@ -78,11 +78,21 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	@Column(name = "externe", nullable = false)
 	private boolean externe;
 	
+	@Audited
+	@NotNull
+	@Column(name = "main", nullable = false)
+	private boolean main = true;
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "identityContract")
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private List<IdmIdentityRole> roles; // only for hibernate mappnig - we dont want lazy lists (many roles)
+	
+	@Audited
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
+	private String description;
 	
 	public IdmIdentityContract() {
 	}
@@ -160,5 +170,31 @@ public class IdmIdentityContract extends AbstractEntity implements ValidableEnti
 	
 	public void setExterne(boolean externe) {
 		this.externe = externe;
+	}
+	
+	/**
+	 * main ~= default identity contract
+	 * 
+	 * @return
+	 */
+	public boolean isMain() {
+		return main;
+	}
+	
+	public void setMain(boolean main) {
+		this.main = main;
+	}
+	
+	/**
+	 * Custom description
+	 * 
+	 * @return
+	 */
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -39,9 +39,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		super(entityLookupService, entityService);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET)
@@ -67,9 +64,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.find(parameters, pageable, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.GET)
@@ -77,32 +71,23 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.get(backendId, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> create(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.create(nativeRequest, assembler);
+	public ResponseEntity<?> post(HttpServletRequest nativeRequest, PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
+		return super.post(nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> update(
+	public ResponseEntity<?> put(
 			@PathVariable @NotNull String backendId,
 			HttpServletRequest nativeRequest,
 			PersistentEntityResourceAssembler assembler) throws HttpMessageNotReadableException {
-		return super.update(backendId, nativeRequest, assembler);
+		return super.put(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.PATCH)
@@ -111,9 +96,6 @@ public abstract class DefaultReadWriteEntityController<E extends BaseEntity, F e
 		return super.patch(backendId, nativeRequest, assembler);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@ResponseBody
 	@RequestMapping(value = "/{backendId}", method = RequestMethod.DELETE)

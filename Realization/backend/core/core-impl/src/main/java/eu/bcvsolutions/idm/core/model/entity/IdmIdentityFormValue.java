@@ -21,9 +21,9 @@ import eu.bcvsolutions.idm.core.eav.entity.IdmFormAttribute;
  */
 @Entity
 @Table(name = "idm_identity_form_value", indexes = {
-		@Index(name = "idx_sys_sys_form_a", columnList = "owner_id"),
-		@Index(name = "idx_sys_sys_form_a_def", columnList = "attribute_id"),
-		@Index(name = "idx_sys_sys_form_a_str", columnList = "string_value") })
+		@Index(name = "idx_idm_identity_form_a", columnList = "owner_id"),
+		@Index(name = "idx_idm_identity_form_a_def", columnList = "attribute_id"),
+		@Index(name = "idx_idm_identity_form_a_str", columnList = "string_value") })
 public class IdmIdentityFormValue extends AbstractFormValue<IdmIdentity> {
 
 	private static final long serialVersionUID = -6873566385389649927L;

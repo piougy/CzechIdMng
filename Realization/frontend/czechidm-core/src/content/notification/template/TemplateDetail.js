@@ -47,7 +47,7 @@ export default class TemplateDetail extends Basic.AbstractContent {
   _initForm(entity) {
     if (entity && this.refs.form) {
       const loadedEntity = _.merge({}, entity);
-
+      //
       this.refs.form.setData(loadedEntity);
       this.refs.name.focus();
     }
@@ -104,6 +104,28 @@ export default class TemplateDetail extends Basic.AbstractContent {
     this.context.router.replace('notification/templates/');
   }
 
+  getParameters() {
+    const { entity } = this.props;
+    let components = {};
+    if (entity.parameter) {
+      const suggestions = [];
+      const parameters = _.split(entity.parameter, ',');
+      parameters.forEach( (parameter) => {
+        suggestions.push({ text: _.trim(parameter), value: _.trim(parameter) });
+      });
+      components = {
+        separator: ' ',
+        trigger: '$',
+        caseSensitive: true,
+        mentionClassName: 'mention-className',
+        dropdownClassName: 'dropdown-className',
+        optionClassName: 'option-className',
+        suggestions
+      };
+    }
+    return components;
+  }
+
   render() {
     const { uiKey, entity } = this.props;
     const { showLoading } = this.state;
@@ -111,16 +133,26 @@ export default class TemplateDetail extends Basic.AbstractContent {
       <div>
         <form onSubmit={this.save.bind(this)}>
           <Basic.AbstractForm data={entity} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('NOTIFICATIONTEMPLATE_WRITE')} style={{ padding: '15px 15px 0 15px' }}>
+            <Basic.Row>
+              <div className="col-lg-3">
+                <Basic.TextField
+                  ref="code" readOnly={entity.systemTemplate}
+                  label={this.i18n('entity.NotificationTemplate.code')}
+                  required
+                  max={255}/>
+              </div>
+              <div className="col-lg-9">
+                <Basic.TextField
+                  ref="name"
+                  label={this.i18n('entity.NotificationTemplate.name')}
+                  required
+                  max={255}/>
+              </div>
+            </Basic.Row>
             <Basic.TextField
-              ref="name"
-              label={this.i18n('entity.NotificationTemplate.name')}
-              required
-              max={255}/>
-            <Basic.TextField
-              ref="code" readOnly={entity.systemTemplate}
-              label={this.i18n('entity.NotificationTemplate.code')}
-              required
-              max={255}/>
+              ref="parameter" readOnly={entity.systemTemplate} max={255}
+              label={this.i18n('entity.NotificationTemplate.parameter.name')}
+              helpBlock={this.i18n('entity.NotificationTemplate.parameter.help')} />
             <Basic.Checkbox readOnly={entity.systemTemplate}
               ref="systemTemplate"
               label={this.i18n('entity.NotificationTemplate.systemTemplate.name')}
@@ -130,7 +162,10 @@ export default class TemplateDetail extends Basic.AbstractContent {
               label={this.i18n('entity.NotificationTemplate.subject')}
               required
               max={255}/>
-            <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml')} />
+            <Basic.RichTextArea ref="bodyHtml" label={this.i18n('entity.NotificationTemplate.bodyHtml.name')}
+              showToolbar
+              helpBlock={this.i18n('entity.NotificationTemplate.bodyHtml.help')}
+              mentions={this.getParameters()}/>
             <Basic.TextArea ref="bodyText" label={this.i18n('entity.NotificationTemplate.bodyText')} />
           </Basic.AbstractForm>
 

@@ -172,7 +172,7 @@ IdentityInfo.propTypes = {
 IdentityInfo.defaultProps = {
   ...Basic.AbstractContextComponent.defaultProps,
   identity: null,
-  face: 'FULL',
+  face: 'full',
   showLink: true,
   _showLoading: true,
 };

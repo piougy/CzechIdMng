@@ -37,7 +37,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultProvisioningExecutor.class);
 	private final EntityEventManager entityEventManager;
-	private final SysProvisioningOperationService sysProvisioningOperationService;
+	private final SysProvisioningOperationService provisioningOperationService;
 	private final SysProvisioningBatchService batchService;
 	private final NotificationManager notificationManager;
 
@@ -45,16 +45,16 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 	public DefaultProvisioningExecutor(
 			SysProvisioningOperationRepository repository,
 			EntityEventManager entityEventManager,
-			SysProvisioningOperationService sysProvisioningOperationService,
+			SysProvisioningOperationService provisioningOperationService,
 			SysProvisioningBatchService batchService,
 			NotificationManager notificationManager) {
 		Assert.notNull(entityEventManager);
-		Assert.notNull(sysProvisioningOperationService);
+		Assert.notNull(provisioningOperationService);
 		Assert.notNull(batchService);
 		Assert.notNull(notificationManager);
 		//
 		this.entityEventManager = entityEventManager;
-		this.sysProvisioningOperationService = sysProvisioningOperationService;
+		this.provisioningOperationService = provisioningOperationService;
 		this.batchService = batchService;
 		this.notificationManager = notificationManager;
 	}
@@ -65,7 +65,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 		Assert.notNull(provisioningOperation.getSystem());
 		Assert.notNull(provisioningOperation.getProvisioningContext());
 		//
-		if (provisioningOperation.getId() == null) {
+		if (provisioningOperationService.isNew(provisioningOperation)) {
 			// save new operation to provisioning log / queue
 			SysProvisioningBatch batch = batchService.findBatch(provisioningOperation);
 			SysProvisioningRequest request = new SysProvisioningRequest(provisioningOperation);
@@ -87,7 +87,7 @@ public class DefaultProvisioningExecutor implements ProvisioningExecutor {
 			request.setBatch(batch);
 			provisioningOperation.setRequest(request);
 			//
-			provisioningOperation = sysProvisioningOperationService.save(provisioningOperation);
+			provisioningOperation = provisioningOperationService.save(provisioningOperation);
 			if (OperationState.NOT_EXECUTED == request.getResult().getState()) {
 				notificationManager.send(
 						AccModuleDescriptor.TOPIC_PROVISIONING,

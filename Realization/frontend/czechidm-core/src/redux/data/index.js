@@ -1,4 +1,5 @@
 import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import DataManager from './DataManager';
 import IdentityManager from './IdentityManager';
 import TreeNodeManager from './TreeNodeManager';
@@ -27,9 +28,11 @@ import SchedulerManager from './SchedulerManager';
 import NotificationTemplateManager from './NotificationTemplateManager';
 import RoleRequestManager from './RoleRequestManager';
 import ConceptRoleRequestManager from './ConceptRoleRequestManager';
+import RoleTreeNodeManager from './RoleTreeNodeManager';
 
 const ManagerRoot = {
   EntityManager,
+  FormableEntityManager,
   DataManager,
   IdentityManager,
   TreeNodeManager,
@@ -57,7 +60,8 @@ const ManagerRoot = {
   SchedulerManager,
   NotificationTemplateManager,
   RoleRequestManager,
-  ConceptRoleRequestManager
+  ConceptRoleRequestManager,
+  RoleTreeNodeManager
 };
 
 ManagerRoot.version = '0.0.1';

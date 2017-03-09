@@ -22,6 +22,7 @@ public interface Auditable {
 	final String PROPERTY_MODIFIER_ID = "modifierId";
 	final String PROPERTY_ORIGINAL_MODIFIER = "originalModifier";
 	final String PROPERTY_ORIGINAL_MODIFIER_ID = "originalModifierId";
+	final String PROPERTY_TRANSACTION_ID = "transactionId";
 	
 	/**
 	 * Entity identifier
@@ -72,28 +73,28 @@ public interface Auditable {
 	void setCreated(DateTime created);
 
 	/**
-	 * Original last entity modifier (logged as modifier)
+	 * Original last entity modifier (logged identity before authentication was switched)
 	 * 
 	 * @return
 	 */
 	String getOriginalModifier();
 	
 	/**
-	 * Original last entity modifier (logged as modifier)
+	 * Original last entity modifier (logged identity before authentication was switched)
 	 * 
 	 * @param modifier
 	 */
 	void setOriginalModifier(String modifier);
 	
 	/**
-	 * Last entity modifier
+	 * Last entity modifier. When entity is not modified returns {@code null}.
 	 * 
 	 * @return
 	 */
 	String getModifier();
 	
 	/**
-	 * Last entity modifier
+	 * Last entity modifier.
 	 * 
 	 * @param modifier
 	 */
@@ -128,44 +129,59 @@ public interface Auditable {
 	void setCreatorId(UUID creatorId);
 
 	/**
-	 * Original Entity author identifier (logged as creator)
+	 * Original Entity author identifier (logged identity before authentication was switched).
 	 * 
 	 * @return
 	 */
 	UUID getOriginalCreatorId();
 
 	/**
-	 * Original Entity author identifier (logged as creator)
+	 * Original Entity author identifier (logged identity before authentication was switched).
 	 * 
 	 * @param originalCreatorId
 	 */
 	void setOriginalCreatorId(UUID originalCreatorId);
 
 	/**
-	 * Last entity modifier identifier
+	 * Last entity modifier identifier. When entity is not modified returns {@code null}.
 	 * 
 	 * @param modified
 	 */
 	UUID getModifierId();
 
 	/**
-	 * Last entity modifier identifier
+	 * Last entity modifier identifier.
 	 * 
 	 * @param modifierId
 	 */
 	void setModifierId(UUID modifierId);
 
 	/**
-	 * Original last entity modifier identifier (logged as modifier)
+	 * Original last entity modifier identifier (logged identity before authentication was switched). When entity is not modified returns {@code null}.
 	 * 
 	 * @return
 	 */
 	UUID getOriginalModifierId();
 
 	/**
-	 * Original last entity modifier identifier (logged as modifier)
+	 * Original last entity modifier identifier (logged identity before authentication was switched).
 	 * 
 	 * @param originalModifierId
 	 */
 	void setOriginalModifierId(UUID originalModifierId);
+	
+	/**
+	 * Returns batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @return
+	 */
+	UUID getTransactionId();
+
+	/**
+	 * Sets batch transaction id (entity was created or modified in given transaction).
+	 * 
+	 * @param originalModifierId
+	 */
+	void setTransactionId(UUID transactionId);	
+	
 }

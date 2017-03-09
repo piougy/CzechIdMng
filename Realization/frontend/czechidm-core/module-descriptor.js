@@ -186,6 +186,30 @@ module.exports = {
             ]
           },
           {
+            'id': 'role-eav',
+            'type': 'TAB',
+            'labelKey': 'content.role.eav.title',
+            'order': 11,
+            'priority': 0,
+            'path': '/role/:entityId/eav',
+          },
+          {
+            'id': 'role-identities',
+            'type': 'TAB',
+            'labelKey': 'content.role.identities.title',
+            'order': 20,
+            'path': '/role/:entityId/identities',
+            'icon': 'fa:group'
+          },
+          {
+            'id': 'role-tree-nodes',
+            'type': 'TAB',
+            'labelKey': 'content.role.tree-nodes.label',
+            'titleKey': 'content.role.tree-nodes.title',
+            'order': 30,
+            'path': '/role/:entityId/tree-nodes'
+          },
+          {
             'id': 'role-requests',
             'labelKey': 'content.roleRequests.title',
             'order': 20,
@@ -421,7 +445,25 @@ module.exports = {
                 'order': 15,
                 'icon': 'apple',
                 'path': '/tree/nodes',
-                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ]
+                'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_WRITE'] } ],
+                'items': [
+                  {
+                    'id': 'tree-node-detail',
+                    'type': 'TAB',
+                    'labelKey': 'content.tree.node.detail.label',
+                    'order': 10,
+                    'path': '/tree/nodes/:entityId/detail',
+                    'icon': 'fa:newspaper-o'
+                  },
+                  {
+                    'id': 'tree-node-eav',
+                    'type': 'TAB',
+                    'labelKey': 'content.tree.node.eav.title',
+                    'order': 11,
+                    'priority': 0,
+                    'path': '/tree/nodes/:entityId/eav',
+                  }
+                ]
               },
               {
                 'id': 'tree-types',

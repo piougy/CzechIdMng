@@ -12,6 +12,9 @@ class NotificationTemplateService extends AbstractService {
     if (!entity) {
       return '';
     }
+    if (entity.module) {
+      return `${entity.name} (${entity.module})`;
+    }
     return entity.name;
   }
 

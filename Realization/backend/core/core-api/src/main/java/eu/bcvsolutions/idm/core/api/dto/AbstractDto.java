@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -48,7 +49,8 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	private boolean trimmed = false;
 	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
 	private Map<String, AbstractDto> embedded;
-	
+	@JsonIgnore
+	private UUID transactionId;
 
 	public AbstractDto() {
 	}
@@ -71,6 +73,7 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalCreatorId = auditable.getOriginalCreatorId();
 		this.originalModifier = auditable.getOriginalModifier();
 		this.originalModifierId = auditable.getOriginalModifierId();
+		this.transactionId = auditable.getTransactionId();
 	}
 
 	@Override
@@ -208,6 +211,16 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 
 	@Override
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+	
+	@Override
+	public void setTransactionId(UUID transactionId) {
+		this.transactionId = transactionId;	
+	}
+	
+	@Override
 	public String toString() {
 		return getClass().getCanonicalName() + "[ id=" + getId() + " ]";
 	}
@@ -230,5 +243,4 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 				|| (this.getId() != null && !this.getId().equals(other.getId()))
 				|| (this.getId() == null && other.getId() == null && this != other));
 	}
-
 }

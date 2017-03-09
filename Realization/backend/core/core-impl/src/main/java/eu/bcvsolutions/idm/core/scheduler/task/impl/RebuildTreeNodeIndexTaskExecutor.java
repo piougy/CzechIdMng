@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultForestIndexService;
 import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
- * Test task executor implementation
+ * Rebuild forest index for tree type
  * 
  * @author Radek Tomiška
  *
@@ -68,7 +68,7 @@ public class RebuildTreeNodeIndexTaskExecutor extends AbstractSchedulableTaskExe
 		IdmTreeType treeType = getTreeType();
 		String longRunningTaskId = configurationService.getValue(treeTypeService.getConfigurationPropertyName(treeTypeCode, IdmTreeTypeService.CONFIGURATION_PROPERTY_REBUILD));
 		if (StringUtils.hasLength(longRunningTaskId) && !longRunningTaskId.equals(getLongRunningTaskId().toString())) {
-			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("treeType", treeTypeCode));
+			throw new ResultCodeException(CoreResultCode.FOREST_INDEX_RUNNING, ImmutableMap.of("type", IdmTreeNode.toForestTreeType(treeType)));
 		}
 		//
 		LOG.info("Starting rebuilding tree node index for tree type code [" + treeTypeCode + "].");

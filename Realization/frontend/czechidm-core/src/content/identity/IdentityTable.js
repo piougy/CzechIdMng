@@ -5,8 +5,7 @@ import _ from 'lodash';
 //
 import * as Basic from '../../components/basic';
 import * as Advanced from '../../components/advanced';
-import * as Utils from '../../utils';
-import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager } from '../../redux';
+import { DataManager, TreeNodeManager, SecurityManager, ConfigurationManager, RoleManager } from '../../redux';
 import SearchParameters from '../../domain/SearchParameters';
 // TODO: LocalizationService.getCurrentLanguage()
 import filterHelp from '../../components/advanced/Filter/README_cs.md';
@@ -21,29 +20,31 @@ export class IdentityTable extends Basic.AbstractTableContent {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filterOpened: props.filterOpened,
-      text: null,
-      treeNodeId: props.treeNodeId,
-      recursively: 'true'
+      filterOpened: props.filterOpened
     };
     this.dataManager = new DataManager();
     this.treeNodeManager = new TreeNodeManager();
+    this.roleManager = new RoleManager();
   }
 
   componentDidMount() {
+    // TODO: filters from redux
+    // this.refs.recursively.setValue('true');
   }
 
   componentDidUpdate() {
+  }
+
+  getContentKey() {
+    return 'content.identities';
   }
 
   getManager() {
     return this.props.identityManager;
   }
 
-  setTreeNodeId(treeNodeId) {
-    this.setState({
-      treeNodeId
-    });
+  setTreeNodeId(treeNodeId, cb) {
+    this.refs.treeNodeId.setValue(treeNodeId, cb);
   }
 
   /**
@@ -52,32 +53,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
    * @param  {string} treeNodeId
    */
   filterByTreeNodeId(treeNodeId) {
-    this.setState({
-      treeNodeId
-    }, () => {
+    this.setTreeNodeId(treeNodeId, () => {
       this.useFilter();
-    });
-  }
-
-  _changeText(event) {
-    this.setState({
-      text: event.currentTarget.value
-    });
-  }
-
-  _changeTreeNode(entity, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.setTreeNodeId(entity ? entity.id : null);
-  }
-
-  _changeRecursively(recursively, event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.setState({
-      recursively
     });
   }
 
@@ -116,8 +93,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
     const { identityManager } = this.props;
     //
     this.refs['confirm-' + bulkActionValue].show(
-      this.i18n(`content.identities.action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
-      this.i18n(`content.identities.action.${bulkActionValue}.header`, { count: usernames.length})
+      this.i18n(`action.${bulkActionValue}.message`, { count: usernames.length, username: identityManager.getEntity(this.context.store.getState(), usernames[0]).username }),
+      this.i18n(`action.${bulkActionValue}.header`, { count: usernames.length})
     ).then(() => {
       this.context.store.dispatch(identityManager.setUsersActivity(usernames, bulkActionValue));
     }, () => {
@@ -144,7 +121,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
       rendered,
       treeType
     } = this.props;
-    const { filterOpened, treeNodeId, text, recursively } = this.state;
+    const { filterOpened } = this.state;
+    //
     if (!rendered) {
       return null;
     }
@@ -158,6 +136,8 @@ export class IdentityTable extends Basic.AbstractTableContent {
       _forceSearchParameters = _forceSearchParameters.setFilter('treeTypeId', treeType.id);
     }
     //
+    const roleDisabled = _forceSearchParameters.getFilters().has('role');
+    //
     return (
       <div>
         <Basic.Confirm ref="confirm-deactivate" level="danger"/>
@@ -169,19 +149,24 @@ export class IdentityTable extends Basic.AbstractTableContent {
           uiKey={uiKey}
           manager={identityManager}
           showRowSelection={showRowSelection && SecurityManager.hasAuthority('IDENTITY_WRITE')}
-          rowClass={({rowIndex, data}) => { return Utils.Ui.getRowClass(data[rowIndex]); }}
           filter={
             <Advanced.Filter onSubmit={this.useFilter.bind(this)}>
-              <Basic.AbstractForm data={{ text, treeNodeId, recursively }} ref="filterForm">
+              <Basic.AbstractForm ref="filterForm">
                 <Basic.Row>
                   <div className="col-lg-6">
                     <Advanced.Filter.TextField
                       ref="text"
-                      placeholder={this.i18n('content.identities.filter.name.placeholder')}
-                      onChange={this._changeText.bind(this)}
+                      placeholder={this.i18n('filter.name.placeholder')}
                       help={filterHelp}/>
                   </div>
-                  <div className="col-lg-6 text-right">
+                  <div className="col-lg-3">
+                    <Advanced.Filter.SelectBox
+                      ref="role"
+                      placeholder={ this.i18n('filter.role.placeholder') }
+                      manager={ this.roleManager }
+                      rendered={ !roleDisabled }/>
+                  </div>
+                  <div className="col-lg-3 text-right">
                     <Advanced.Filter.FilterButtons cancelFilter={this.cancelFilter.bind(this)}/>
                   </div>
                 </Basic.Row>
@@ -189,16 +174,14 @@ export class IdentityTable extends Basic.AbstractTableContent {
                   <div className="col-lg-6">
                     <Advanced.Filter.SelectBox
                       ref="treeNodeId"
-                      placeholder={ this.i18n('content.identities.filter.organization.placeholder') }
+                      placeholder={ this.i18n('filter.organization.placeholder') }
                       forceSearchParameters={forceTreeNodeSearchParams}
-                      manager={this.treeNodeManager}
-                      onChange={this._changeTreeNode.bind(this)}/>
+                      manager={this.treeNodeManager}/>
                   </div>
                   <div className="col-lg-6">
                     <Advanced.Filter.BooleanSelectBox
                       ref="recursively"
-                      placeholder={ this.i18n('content.identities.filter.recursively.placeholder') }
-                      onChange={ this._changeRecursively.bind(this) }/>
+                      placeholder={ this.i18n('filter.recursively.placeholder') }/>
                   </div>
                 </Basic.Row>
               </Basic.AbstractForm>
@@ -209,9 +192,9 @@ export class IdentityTable extends Basic.AbstractTableContent {
           actions={
             [
               { value: 'delete', niceLabel: this.i18n('action.delete.action'), action: this.onDelete.bind(this), disabled: !deleteEnabled },
-              { value: 'activate', niceLabel: this.i18n('content.identities.action.activate.action'), action: this.onActivate.bind(this) },
-              { value: 'deactivate', niceLabel: this.i18n('content.identities.action.deactivate.action'), action: this.onActivate.bind(this) },
-              { value: 'password-reset', niceLabel: this.i18n('content.identities.action.reset.action'), action: this.onReset.bind(this), disabled: true }
+              { value: 'activate', niceLabel: this.i18n('action.activate.action'), action: this.onActivate.bind(this) },
+              { value: 'deactivate', niceLabel: this.i18n('action.deactivate.action'), action: this.onActivate.bind(this) },
+              { value: 'password-reset', niceLabel: this.i18n('action.reset.action'), action: this.onReset.bind(this), disabled: true }
             ]
           }
           buttons={

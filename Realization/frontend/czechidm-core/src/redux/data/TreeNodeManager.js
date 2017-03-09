@@ -1,7 +1,13 @@
-import EntityManager from './EntityManager';
+import FormableEntityManager from './FormableEntityManager';
 import { TreeNodeService } from '../../services';
 
-export default class TreeNodeManager extends EntityManager {
+/**
+ * Tree nodes - items of tree scructures
+ *
+ * @author Ondřej Kopr
+ * @author Radek Tomiška
+ */
+export default class TreeNodeManager extends FormableEntityManager {
 
   constructor() {
     super();

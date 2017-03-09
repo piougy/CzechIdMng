@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.idm.core.api.service.AbstractReadWriteEntityService;
 import eu.bcvsolutions.idm.core.api.service.EntityEventManager;
+import eu.bcvsolutions.idm.core.eav.service.api.FormService;
+import eu.bcvsolutions.idm.core.eav.service.impl.AbstractFormableService;
 import eu.bcvsolutions.idm.core.model.dto.filter.RoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
@@ -25,28 +26,29 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmRoleService;
  *
  */
 @Service
-public class DefaultIdmRoleService extends AbstractReadWriteEntityService<IdmRole, RoleFilter>  implements IdmRoleService {
+public class DefaultIdmRoleService extends AbstractFormableService<IdmRole, RoleFilter>  implements IdmRoleService {
 
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultIdmRoleService.class);
-	private final IdmRoleRepository roleRepository;
+	private final IdmRoleRepository repository;
 	private final EntityEventManager entityEventProcessorService;
 	
 	@Autowired
 	public DefaultIdmRoleService(
-			IdmRoleRepository roleRepository,
-			EntityEventManager entityEventProcessorService) {
-		super(roleRepository);
+			IdmRoleRepository repository,
+			EntityEventManager entityEventProcessorService,
+			FormService formService) {
+		super(repository, formService);
 		//
 		Assert.notNull(entityEventProcessorService);
 		//
-		this.roleRepository = roleRepository;
+		this.repository = repository;
 		this.entityEventProcessorService = entityEventProcessorService;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public IdmRole getByName(String name) {
-		return roleRepository.findOneByName(name);
+		return repository.findOneByName(name);
 	}
 	
 	@Override

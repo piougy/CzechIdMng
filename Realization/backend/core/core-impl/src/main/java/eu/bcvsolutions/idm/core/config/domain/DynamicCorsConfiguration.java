@@ -20,7 +20,7 @@ import eu.bcvsolutions.idm.core.model.service.api.IdmConfigurationService;
  */
 public class DynamicCorsConfiguration extends CorsConfiguration {
 	
-	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.core.security.allowed-origins";
+	public static final String PROPERTY_ALLOWED_ORIGIN = "idm.pub.security.allowed-origins";
 	public static final String PROPERTY_ALLOWED_ORIGIN_SEPARATOR = ",";
 	
 	@Autowired

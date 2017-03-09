@@ -159,7 +159,15 @@ export class TemplateTable extends Basic.AbstractContent {
                 }
               }
               sort={false}/>
-            <Advanced.Column property="name" sort/>
+            <Advanced.Column property="name" sort
+              cell={
+              ({ rowIndex, data }) => {
+                if (data[rowIndex].module) {
+                  return (data[rowIndex].name + ' ' + '(' + data[rowIndex].module + ')');
+                }
+                return (data[rowIndex].name);
+              }
+            }/>
             <Advanced.Column property="code" sort/>
             <Advanced.Column property="systemTemplate"
               header={this.i18n('entity.NotificationTemplate.systemTemplate.name')}

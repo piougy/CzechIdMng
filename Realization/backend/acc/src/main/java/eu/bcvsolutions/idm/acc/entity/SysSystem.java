@@ -51,12 +51,8 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 	private String name;
 	
 	@Audited
-	@NotNull
-	@Column(name = "disabled", nullable = false)
-	private boolean disabled;
-	
-	@Audited
-	@Column(name = "description")
+	@Size(max = DefaultFieldLengths.DESCRIPTION)
+	@Column(name = "description", length = DefaultFieldLengths.DESCRIPTION)
 	private String description;
 	
 	@Audited
@@ -133,14 +129,6 @@ public class SysSystem extends AbstractEntity implements IdentifiableByName, For
 
 	public void setPasswordPolicyGenerate(IdmPasswordPolicy passwordPolicyGenerate) {
 		this.passwordPolicyGenerate = passwordPolicyGenerate;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		this.disabled = disabled;
 	}
 
 	public String getDescription() {

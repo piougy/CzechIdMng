@@ -235,6 +235,7 @@ gulp.task('watchify', () => {
       .bundle()
       .on('error', notify.onError())
       .pipe(source(paths.bundle))
+      .pipe(buffer())
       .pipe(gulp.dest(paths.distJs))
       .pipe(reload({stream: true}));
   }

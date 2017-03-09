@@ -93,19 +93,26 @@ export default class RoleCatalogueDetail extends Basic.AbstractContent {
         <form onSubmit={this.save.bind(this)}>
           <Basic.PanelBody>
             <Basic.AbstractForm showLoading={showLoading} ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('ROLE_WRITE')} style={{ padding: 0 }} >
-              <Basic.TextField
-                ref="name"
-                label={this.i18n('entity.RoleCatalogue.name.name')}
-                helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
-                required
-                min={0}
-                max={255}/>
-              <Basic.TextField
-                ref="niceName"
-                label={this.i18n('entity.RoleCatalogue.niceName.name')}
-                helpBlock={this.i18n('entity.RoleCatalogue.niceName.help')}
-                min={0}
-                max={255}/>
+              <Basic.Row>
+                <div className="col-lg-2">
+                  <Basic.TextField
+                    ref="code"
+                    label={this.i18n('entity.RoleCatalogue.code.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.code.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+                <div className="col-lg-10">
+                  <Basic.TextField
+                    ref="name"
+                    label={this.i18n('entity.RoleCatalogue.name.name')}
+                    helpBlock={this.i18n('entity.RoleCatalogue.name.help')}
+                    required
+                    min={0}
+                    max={255}/>
+                </div>
+              </Basic.Row>
               <Basic.Row>
                 <div className="col-lg-4">
                   <Basic.TextField

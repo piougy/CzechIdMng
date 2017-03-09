@@ -1,3 +1,5 @@
+import Immutable from 'immutable';
+//
 import EntityManager from './EntityManager';
 import { TreeTypeService } from '../../services';
 import DataManager from './DataManager';
@@ -50,6 +52,54 @@ export default class TreeTypeManager extends EntityManager {
             // TODO: data uiKey
             dispatch(this.dataManager.receiveError(null, uiKey, error));
           }
+        });
+    };
+  }
+
+  /**
+   * Get given treeType's configuration properties
+   *
+   * @param  {string} treeTypeId
+   * @param  {string} uiKey
+   * @return {action}
+   */
+  fetchConfigurations(treeTypeId, uiKey) {
+    return (dispatch) => {
+      dispatch(this.dataManager.requestData(uiKey));
+      this.getService().getConfigurations(treeTypeId)
+        .then(json => {
+          let configurations = new Immutable.Map();
+          json.forEach(item => {
+            configurations = configurations.set(item.name.split('.').pop(), item);
+          });
+          dispatch(this.dataManager.receiveData(uiKey, configurations));
+        })
+        .catch(error => {
+          dispatch(this.receiveError(null, uiKey, error));
+        });
+    };
+  }
+
+  /**
+   * Rebuild forest index for given tree type
+   *
+   * @param  {string} treeTypeId
+   * @param  {string} uiKey
+   * @param {func} callback
+   * @return {action}
+   */
+  rebuildIndex(treeTypeId, uiKey) {
+    return (dispatch, getState) => {
+      dispatch(this.dataManager.requestData(`${uiKey}-rebuild`));
+      this.getService().rebuildIndex(treeTypeId)
+        .then(() => {
+          dispatch(this.dataManager.stopRequest(`${uiKey}-rebuild`));
+          dispatch(this.flashMessagesManager.addMessage({ message: this.i18n('content.tree.types.configuration.action.rebuild.success', { record: this.getNiceLabel(this.getEntity(getState(), treeTypeId)) }) }));
+          dispatch(this.fetchConfigurations(treeTypeId, uiKey));
+        })
+        .catch(error => {
+          // TODO: data uiKey
+          dispatch(this.dataManager.receiveError(null, `${uiKey}-rebuild`, error));
         });
     };
   }

@@ -6,6 +6,11 @@ import PasswordPolicyService from './PasswordPolicyService';
 
 const passwordPolicyService = new PasswordPolicyService();
 
+/**
+ * Identities endpoint
+ *
+ * @author Radek Tomiška
+ */
 class IdentityService extends AbstractService {
 
   getApiPath() {
@@ -172,6 +177,27 @@ class IdentityService extends AbstractService {
   getContracts(username) {
     return RestApiService
     .get(this.getApiPath() + `/${encodeURIComponent(username)}/identity-contracts`)
+    .then(response => {
+      return response.json();
+    })
+    .then(json => {
+      if (Utils.Response.hasError(json)) {
+        throw Utils.Response.getFirstError(json);
+      }
+      return json;
+    });
+  }
+
+  /**
+   * Get given identity's main position in organization
+   *
+   * @param username {string}
+   * @param token {string}
+   * @return {Promise}
+   */
+  getOrganizationPosition(username) {
+    return RestApiService
+    .get(this.getApiPath() + `/${encodeURIComponent(username)}/organization-position`)
     .then(response => {
       return response.json();
     })

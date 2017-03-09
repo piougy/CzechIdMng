@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -66,33 +67,33 @@ public class DefaultFormService implements FormService {
 		this.entityEventManager = entityEventManager;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(String type) {
 		return this.getDefinition(type, null);		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(String type, String name) {
 		return formDefinitionService.get(type, name);		
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	@Transactional(readOnly = true)
 	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass) {
+		return getDefinition(ownerClass, null);		
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public IdmFormDefinition getDefinition(Class<? extends FormableEntity> ownerClass, String name) {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
-		return formDefinitionService.get(getDefaultDefinitionType(ownerClass), IdmFormDefinitionService.DEFAULT_DEFINITION_NAME);		
+		if (StringUtils.isEmpty(name)) {
+			name = IdmFormDefinitionService.DEFAULT_DEFINITION_NAME;
+		}
+		return formDefinitionService.get(getDefaultDefinitionType(ownerClass), name);
 	}
 	
 	/**
@@ -111,10 +112,7 @@ public class DefaultFormService implements FormService {
 		}
 		return formDefinition;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
 	@Override
 	public String getDefaultDefinitionType(Class<? extends FormableEntity> ownerClass) {
 		Assert.notNull(ownerClass, "Owner class is required!");
@@ -131,9 +129,6 @@ public class DefaultFormService implements FormService {
 		return formAttributeService.findAttribute(getDefaultDefinitionType(ownerClass), IdmFormDefinitionService.DEFAULT_DEFINITION_NAME, attributeName);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public IdmFormDefinition createDefinition(String type, String name, List<IdmFormAttribute> formAttributes) {
@@ -161,15 +156,21 @@ public class DefaultFormService implements FormService {
 		return formDefinition;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, List<IdmFormAttribute> formAttributes) {
 		Assert.notNull(ownerClass, "Owner class is required!");
 		//
 		return createDefinition(getDefaultDefinitionType(ownerClass), null, formAttributes);
+	}
+
+	@Override
+	@Transactional
+	public IdmFormDefinition createDefinition(Class<? extends FormableEntity> ownerClass, String name,
+			List<IdmFormAttribute> formAttributes) {
+		Assert.notNull(ownerClass, "Owner class is required!");
+		//
+		return createDefinition(getDefaultDefinitionType(ownerClass), name, formAttributes);
 	}
 	
 	@Override
@@ -251,9 +252,6 @@ public class DefaultFormService implements FormService {
 		return results;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, String attributeName,
@@ -261,9 +259,6 @@ public class DefaultFormService implements FormService {
 		return saveValues(owner, null, attributeName, persistentValues);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner,
@@ -276,9 +271,6 @@ public class DefaultFormService implements FormService {
 		return saveValues(owner, formDefinition.getMappedAttributeByName(attributeName), persistentValues);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> List<E> saveValues(O owner, 
@@ -312,18 +304,12 @@ public class DefaultFormService implements FormService {
 		return results;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner) {		
 		return getValues(owner, (IdmFormDefinition) null);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition) {
@@ -336,9 +322,6 @@ public class DefaultFormService implements FormService {
 		return Lists.newArrayList(formValueService.getValues(owner, formDefinition));
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormAttribute attribute) {
@@ -350,18 +333,12 @@ public class DefaultFormService implements FormService {
 		return Lists.newArrayList(formValueService.getValues(owner, attribute));
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, String attributeName) {
 		return getValues(owner, null, attributeName);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional(readOnly = true)
 	public <O extends FormableEntity> List<AbstractFormValue<O>> getValues(O owner, IdmFormDefinition formDefinition, String attributeName) {
@@ -379,18 +356,12 @@ public class DefaultFormService implements FormService {
 		formAttributeService.delete(attribute);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner) {
 		deleteValues(owner, (IdmFormDefinition) null);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner, IdmFormDefinition formDefinition) {
@@ -401,9 +372,6 @@ public class DefaultFormService implements FormService {
 		formValueService.deleteValues(owner, formDefinition);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Transactional
 	public <O extends FormableEntity> void deleteValues(O owner, IdmFormAttribute attribute) {
@@ -415,9 +383,6 @@ public class DefaultFormService implements FormService {
 		formValueService.deleteValues(owner, attribute);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> Map<String, List<E>> toValueMap(final List<E> values) {
 		Assert.notNull(values);
@@ -490,9 +455,6 @@ public class DefaultFormService implements FormService {
 		return values.get(0).getValue();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getConfidentialStorageKey(FormableEntity owner, IdmFormAttribute attribute) {
 		Assert.notNull(owner, "Form values owner is required!");
@@ -505,9 +467,6 @@ public class DefaultFormService implements FormService {
 		return key;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public <O extends FormableEntity, E extends AbstractFormValue<O>> Serializable getConfidentialPersistentValue(E guardedValue) {
 		Assert.notNull(guardedValue);

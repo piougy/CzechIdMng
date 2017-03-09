@@ -59,7 +59,7 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	IdmConfiguration findOneByName(@Param("name") String name);
 	
 	/**
-	 * Returns pageable configurations based on current user authorities
+	 * Returns pageable configurations. Secured configurations are returned, if current user has appropriate authorities.
 	 * 
 	 * @param text
 	 * @param pageable
@@ -75,6 +75,15 @@ public interface IdmConfigurationRepository extends AbstractEntityRepository<Idm
 	        	+ "or e.secured = false"
 	        + ")")
 	Page<IdmConfiguration> find(QuickFilter filter, Pageable pageable);
+	
+	/**
+	 * Returns configurations by given keyPrefix.
+	 * 
+	 * @param keyPrefix
+	 * @param pageable
+	 * @return
+	 */
+	Page<IdmConfiguration> findByNameStartingWith(@Param("name") String keyPrefix, Pageable pageable);
 	
 	/**
 	 * Returns all configurations based on current user authorities

@@ -1,5 +1,9 @@
 package eu.bcvsolutions.idm.core.api.service;
 
+import java.util.List;
+
+import eu.bcvsolutions.idm.core.api.entity.BaseTreeEntity;
+
 /**
  * Defautl interface for implementation tree service.
  * 
@@ -9,7 +13,7 @@ package eu.bcvsolutions.idm.core.api.service;
  *
  * @param <E>
  */
-public interface BaseTreeService <E> {
+public interface BaseTreeService<E extends BaseTreeEntity<E>> {
 	
 	/**
 	 * Method validate parents of node. By 
@@ -20,6 +24,15 @@ public interface BaseTreeService <E> {
 	 * @return boolean - true if treenode is not himself parent
 	 */
 	@Deprecated
-	public boolean validateTreeNodeParents(E treeNode);
+	boolean validateTreeNodeParents(E treeNode);
+	
+	/**
+	 * For tree structure is important to unique NAME for all children of parent.
+	 * This method check names of tree nodes in list and check their unique.
+	 * 
+	 * @param treeNode
+	 * @return boolean true if name isn't unique
+	 */
+	boolean validateUniqueName(List<E> treeNodes, E newSavedNode);
 	
 }

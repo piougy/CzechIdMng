@@ -18,7 +18,7 @@ import eu.bcvsolutions.idm.core.model.event.IdentityEvent;
 import eu.bcvsolutions.idm.core.model.event.IdentityEvent.IdentityEventType;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent;
 import eu.bcvsolutions.idm.core.model.event.RoleEvent.RoleEventType;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Event processing tests
@@ -26,7 +26,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class EntityEvenProcessorUnitTest extends AbstractUnitTest {	
+public class EntityEvenProcessorUnitTest extends AbstractVerifiableUnitTest {	
 	
 	private static enum CustomType implements EventType {
 		SAVE, CUSTOM

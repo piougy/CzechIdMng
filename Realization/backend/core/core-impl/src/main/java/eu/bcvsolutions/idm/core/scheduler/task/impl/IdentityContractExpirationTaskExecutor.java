@@ -1,4 +1,4 @@
-package eu.bcvsolutions.idm.core.scheduler.service.impl;
+package eu.bcvsolutions.idm.core.scheduler.task.impl;
 
 import java.util.Map;
 
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
+import eu.bcvsolutions.idm.core.scheduler.service.impl.AbstractSchedulableTaskExecutor;
 
 /**
  * Delete expired identity contracts

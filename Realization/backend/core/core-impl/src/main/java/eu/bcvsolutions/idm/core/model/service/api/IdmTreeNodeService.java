@@ -6,18 +6,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.idm.core.api.service.ReadWriteEntityService;
 import eu.bcvsolutions.idm.core.model.dto.filter.TreeNodeFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmForestIndexEntity;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
 
 /**
  * Operations with IdmTreeNode
  * 
  * @author Ondrej Kopr <kopr@xyxy.cz>
+ * @author Radek Tomiška
  *
  */
 @Service
-public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter> {
+public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, TreeNodeFilter>, ForestContentService<IdmTreeNode, IdmForestIndexEntity, UUID> {
 	
 	/**
 	 * Method return all roots - @param treeType = null, or one root for treeType.
@@ -34,4 +38,13 @@ public interface IdmTreeNodeService extends ReadWriteEntityService<IdmTreeNode, 
 	 * @return Page of children
 	 */
 	Page<IdmTreeNode> findChildrenByParent(UUID parentId, Pageable pageable);
+	
+	
+	/**
+	 * Rebuild (drop and create) all indexes for given treeType.
+	 * 
+	 * @param treeType
+	 * @return long running task id
+	 */
+	UUID rebuildIndexes(IdmTreeType treeType);
 }

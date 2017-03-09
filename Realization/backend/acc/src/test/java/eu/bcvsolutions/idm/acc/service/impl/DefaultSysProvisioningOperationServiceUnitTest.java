@@ -27,7 +27,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.ConfidentialString;
 import eu.bcvsolutions.idm.core.security.api.domain.GuardedString;
 import eu.bcvsolutions.idm.ic.impl.IcAttributeImpl;
 import eu.bcvsolutions.idm.ic.impl.IcConnectorObjectImpl;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test GuardedString vs. ConfidentialString resolving 
@@ -35,7 +35,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška
  *
  */
-public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractUnitTest {
+public class DefaultSysProvisioningOperationServiceUnitTest extends AbstractVerifiableUnitTest {
 	
 	@Mock
 	SysProvisioningOperationRepository repository;

@@ -61,7 +61,15 @@
 		<surefire.version>2.18.1</surefire.version>
 		<camel.version>2.17.2</camel.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
+	
+	<repositories>
+		<repository>
+		    <id>nexus</id>
+		    <url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -253,7 +261,6 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
 		<!-- Mapper for DTO and Entity -->
 		<dependency>
 		    <groupId>org.modelmapper</groupId>
@@ -285,6 +292,13 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9-RC1</version>
+		</dependency>
+		
+		<!-- tree indexes -->
+		<dependency>
+			<groupId>eu.bcvsolutions.forest.index</groupId>
+			<artifactId>forest-index</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 

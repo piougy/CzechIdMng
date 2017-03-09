@@ -73,6 +73,21 @@ public class ParameterConverter {
 	}
 	
 	/**
+	 * Converts parameter to {@code boolean} from given parameters, or returns default value, if no value is given
+	 * 
+	 * @param parameters
+	 * @param parameterName
+	 * @param deafultValue
+	 * @return
+	 */
+	public boolean toBoolean(MultiValueMap<String, Object> parameters, String parameterName, boolean deafultValue) {
+		Assert.notNull(parameters);
+		//
+		Boolean result = toBoolean(parameters, parameterName);
+		return result == null ? deafultValue : result;
+	}
+	
+	/**
 	 * Converts parameter to {@code Boolean} from given parameters.
 	 * 
 	 * @param parameters

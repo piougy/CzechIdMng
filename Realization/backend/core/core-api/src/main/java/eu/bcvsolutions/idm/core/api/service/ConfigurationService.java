@@ -43,7 +43,15 @@ public interface ConfigurationService {
 	 * @param key
 	 * @param value
 	 */
-	void saveValue(String key, String value);
+	void setValue(String key, String value);
+	
+	/**
+	 * Deletes value by given key
+	 * 
+	 * @param key
+	 * @return removed value or null, if no value was removed
+	 */
+	String deleteValue(String key);
 	
 	/**
 	 * Set given configuration value. Creates new, if configuration with given key does not exist. 

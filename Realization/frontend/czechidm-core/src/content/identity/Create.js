@@ -207,15 +207,34 @@ class Profile extends Basic.AbstractContent {
 
               <Basic.AbstractForm ref="form" data={detail.entity}>
                 <div className="col-lg-7">
-                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={30}/>
-                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
+                  <Basic.TextField ref="username" label={this.i18n('content.identity.profile.username')} required min={3} max={255}/>
                   <Basic.TextField ref="firstName" label={this.i18n('content.identity.profile.firstName')} max={255}/>
-                  <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100}/>
-                  <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
-                  <Basic.TextField ref="email"
-                    label={this.i18n('content.identity.profile.email.label')}
-                    placeholder={this.i18n('content.identity.profile.email.placeholder')}
-                    validation={Joi.string().email()}/>
+                  <Basic.TextField ref="lastName" label={this.i18n('content.identity.profile.lastName')} required max={255}/>
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.TextField ref="titleBefore" label={this.i18n('entity.Identity.titleBefore')} max={100} />
+                    </div>
+                    <div className="col-lg-6">
+                      <Basic.TextField ref="titleAfter" label={this.i18n('entity.Identity.titleAfter')} max={100}/>
+                    </div>
+                  </Basic.Row>
+
+                  <Basic.Row>
+                    <div className="col-lg-6">
+                      <Basic.TextField
+                        ref="email"
+                        label={this.i18n('content.identity.profile.email.label')}
+                        placeholder={this.i18n('content.identity.profile.email.placeholder')}
+                        validation={Joi.string().email()}/>
+                    </div>
+                    <div className="col-lg-6">
+                      <Basic.TextField
+                        ref="phone"
+                        label={this.i18n('content.identity.profile.phone.label')}
+                        placeholder={this.i18n('content.identity.profile.phone.placeholder')}
+                        max={30} />
+                    </div>
+                  </Basic.Row>
                   <Basic.Checkbox ref="disabled" label={this.i18n('entity.Identity.disabled')}/>
                   <Basic.TextArea ref="description"
                     label={this.i18n('content.identity.profile.description.label')}

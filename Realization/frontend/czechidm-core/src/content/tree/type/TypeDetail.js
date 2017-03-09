@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+//
 import * as Basic from '../../../components/basic';
 import * as Utils from '../../../utils';
 import { TreeTypeManager, SecurityManager, TreeNodeManager } from '../../../redux';
@@ -86,7 +87,7 @@ export default class TypeDetail extends Basic.AbstractContent {
     //
     return (
       <div>
-        <form onSubmit={this.save.bind(this)}>
+        <form onSubmit={this.save.bind(this)} >
           <Basic.AbstractForm ref="form" uiKey={uiKey} readOnly={!SecurityManager.hasAuthority('TREETYPE_WRITE')} style={{ padding: '15px 15px 0px 15px' }} >
             <Basic.Row>
               <div className="col-lg-2">

@@ -30,7 +30,7 @@ import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.api.service.SecurityService;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultGrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test for {@link DefaultGrantedAuthoritiesFactory}
@@ -38,7 +38,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DefaultGrantedAuthoritiesFactoryTest extends AbstractUnitTest {
+public class DefaultGrantedAuthoritiesFactoryTest extends AbstractVerifiableUnitTest {
 	
 	private static final IdmRoleAuthority SUB_ROLE_AUTHORITY;
 	private static final IdmIdentity TEST_IDENTITY;

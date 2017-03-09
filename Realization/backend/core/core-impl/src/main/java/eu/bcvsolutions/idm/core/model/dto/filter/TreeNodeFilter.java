@@ -3,6 +3,7 @@ package eu.bcvsolutions.idm.core.model.dto.filter;
 import java.util.UUID;
 
 import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
+import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 
 /**
  * Filter for tree node
@@ -10,12 +11,15 @@ import eu.bcvsolutions.idm.core.api.dto.filter.QuickFilter;
  * @author Ondrej Kopr <kopr@xyxy.cz>
  *
  */
-
 public class TreeNodeFilter extends QuickFilter {
 	
 	private UUID treeTypeId;	
-	private UUID treeNodeId;	
+	private IdmTreeNode treeNode;	
 	private Boolean defaultTreeType; // default tree type wil be used
+	/**
+	 * Tree nodes by tree structure recursively down
+	 */
+	private boolean recursively = true;
 
 	public UUID getTreeTypeId() {
 		return treeTypeId;
@@ -24,13 +28,13 @@ public class TreeNodeFilter extends QuickFilter {
 	public void setTreeTypeId(UUID treeTypeId) {
 		this.treeTypeId = treeTypeId;
 	}
-
-	public UUID getTreeNodeId() {
-		return treeNodeId;
+	
+	public void setTreeNode(IdmTreeNode treeNode) {
+		this.treeNode = treeNode;
 	}
-
-	public void setTreeNodeId(UUID treeNodeId) {
-		this.treeNodeId = treeNodeId;
+	
+	public IdmTreeNode getTreeNode() {
+		return treeNode;
 	}
 	
 	public Boolean getDefaultTreeType() {
@@ -39,5 +43,13 @@ public class TreeNodeFilter extends QuickFilter {
 	
 	public void setDefaultTreeType(Boolean defaultTreeType) {
 		this.defaultTreeType = defaultTreeType;
+	}
+	
+	public boolean isRecursively() {
+		return recursively;
+	}
+	
+	public void setRecursively(boolean recursively) {
+		this.recursively = recursively;
 	}
 }

@@ -78,10 +78,17 @@ public interface IdmIdentityRepository extends AbstractEntityRepository<IdmIdent
 	  	    		+ "or (?#{[0].property} = 'lastName' and e.lastName = ?#{[0].value}) "
 	  	    		+ "or (?#{[0].property} = 'email' and e.email = ?#{[0].value}) "
 	        + " )"
+	        	// identities on selected structure recursively
 	        + " and"
 	        + "	("
-	        	+ " ?#{[0].treeNodeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.id = ?#{[0].treeNodeId})"
+	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == true ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.forestIndex.lft BETWEEN ?#{[0].treeNode == null ? null : [0].treeNode.lft} and ?#{[0].treeNode == null ? null : [0].treeNode.rgt})"
 	        + "	)"
+	        	// identities on selected structure only
+	        + " and"
+	        + "	("
+	        	+ " ?#{[0].treeNode} is null or ?#{[0].recursively == false ? 'true' : 'false'} = 'false' or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition = ?#{[0].treeNode})"
+	        + "	)"
+	        	// identities related to tree type structure
 	        + " and"
 	        + "	("
 	        	+ " ?#{[0].treeTypeId} is null or exists(from IdmIdentityContract ic where ic.identity = e and ic.workingPosition.treeType.id = ?#{[0].treeTypeId})"

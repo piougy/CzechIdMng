@@ -15,7 +15,8 @@ class SystemConnectorContent extends Basic.AbstractContent {
     super(props, context);
     this.state = {
       error: null,
-      emptyConnector: false // for first time is not choosen connector -> show alert block with info
+      emptyConnector: false, // for first time is not choosen connector -> show alert block with info
+      remoteConnectorError: false // dont show options for invalid password
     };
   }
 
@@ -28,7 +29,16 @@ class SystemConnectorContent extends Basic.AbstractContent {
     // load definition and values
     const { entityId } = this.props.params;
     this.context.store.dispatch(manager.fetchAvailableFrameworks());
-    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId));
+    this.context.store.dispatch(manager.fetchAvailableRemoteConnector(entityId, (remoteConnectors, error) => {
+      if (error) {
+        if (error.statusEnum === 'REMOTE_SERVER_INVALID_CREDENTIAL' ||
+                  error.statusEnum === 'REMOTE_SERVER_CANT_CONNECT') {
+          this.setState({
+            remoteConnectorError: true
+          });
+        }
+      }
+    }));
     this.context.store.dispatch(manager.fetchEntity(entityId));
     this.reloadConnectorConfiguration(entityId);
   }
@@ -70,43 +80,58 @@ class SystemConnectorContent extends Basic.AbstractContent {
       return;
     }
     //
-    const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
+    // modal window with confirm
+    this.refs[`confirm-change-connector`].show(
+      this.i18n(`action.changeConnector.message`),
+      this.i18n(`action.changeConnector.header`)
+    ).then(() => {
+      //
+      const { availableFrameworks, availableRemoteFrameworks, entity } = this.props;
 
-    const data = value.value;
+      const data = value.value;
 
-    if (data === null) {
-      return;
-    }
-
-    this.setState({
-      showLoading: true,
-      error: null
-    }, () => {
-      let connector = null;
-      if (entity.remote) {
-        connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
-      } else {
-        connector = availableFrameworks.get(data.split(':')[0]).get(data);
+      if (data === null) {
+        return;
       }
 
-      let saveEntity = { };
+      this.setState({
+        showLoading: true,
+        error: null
+      }, () => {
+        let connector = null;
+        if (entity.remote) {
+          connector = availableRemoteFrameworks.get(data.split(':')[0]).get(data);
+        } else {
+          connector = availableFrameworks.get(data.split(':')[0]).get(data);
+        }
 
-      if (connector !== null) {
-        saveEntity = {
-          ...entity,
-          connectorKey: {
-            framework: connector.connectorKey.framework,
-            connectorName: connector.connectorKey.connectorName,
-            bundleName: connector.connectorKey.bundleName,
-            bundleVersion: connector.connectorKey.bundleVersion
-          }
+        let saveEntity = { };
+
+        const connectorServer = {
+          ...entity.connectorServer,
+          password: null
         };
-      }
-      // we dont must check is new, on this component will be always old entity
-      this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
-        this.reloadConnectorConfiguration(patchedEntity.id);
-        this._afterSave(patchedEntity, newError);
-      }));
+        if (connector !== null) {
+          saveEntity = {
+            ...entity,
+            connectorKey: {
+              framework: connector.connectorKey.framework,
+              connectorName: connector.connectorKey.connectorName,
+              bundleName: connector.connectorKey.bundleName,
+              bundleVersion: connector.connectorKey.bundleVersion
+            },
+            connectorServer
+          };
+        }
+
+        // we dont must check is new, on this component will be always old entity
+        this.context.store.dispatch(manager.patchEntity(saveEntity, `${uiKey}-detail`, (patchedEntity, newError) => {
+          this.reloadConnectorConfiguration(patchedEntity.id);
+          this._afterSave(patchedEntity, newError);
+        }));
+      });
+    }, () => {
+      // Rejected
     });
   }
 
@@ -189,7 +214,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
 
   render() {
     const { formInstance, availableFrameworks, availableRemoteFrameworks, entity } = this.props;
-    const { error, showLoading } = this.state;
+    const { error, showLoading, remoteConnectorError } = this.state;
     const _showLoading = showLoading || this.props._showLoading;
     const _availableConnectors = this._getConnectorOptions(availableFrameworks, availableRemoteFrameworks, entity);
 
@@ -204,14 +229,9 @@ class SystemConnectorContent extends Basic.AbstractContent {
       content = (
         <Basic.Alert level="info">
           {this.i18n(`${error.module}:error.${error.statusEnum}.message`, error.parameters)}
-          <div style={{ marginTop: 15 }}>
-            <Basic.Button level="info" onClick={this.showDetail.bind(this)}>
-              {this.i18n('button.showBasicInfo')}
-            </Basic.Button>
-          </div>
         </Basic.Alert>
       );
-    } else if (!formInstance && !_showLoading) {
+    } else if (!formInstance && !_showLoading || remoteConnectorError) {
       // connector not found on BE
       content = null;
     } else {
@@ -235,6 +255,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
     return (
       <div>
         <Helmet title={this.i18n('title')} />
+        <Basic.Confirm ref="confirm-change-connector" level="danger"/>
 
         <Basic.ContentHeader style={{ marginBottom: 0 }}>
           <span dangerouslySetInnerHTML={{ __html: this.i18n('header') }}/>
@@ -255,6 +276,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                   placeholder={this.i18n('acc:entity.System.connectorKey.connectorName')}
                   value={pickConnector ? pickConnector.value : null}
                   options={_availableConnectors}
+                  readOnly={remoteConnectorError}
                   clearable={false}
                   onChange={this.saveConnector.bind(this)}/>
               </div>
@@ -262,7 +284,7 @@ class SystemConnectorContent extends Basic.AbstractContent {
                 <Basic.Button
                   style={{ width: '100%'}}
                   level="success"
-                  disabled={error}
+                  disabled={error || remoteConnectorError}
                   onClick={this.save.bind(this, true)}
                   rendered={Managers.SecurityManager.hasAuthority('SYSTEM_READ') && pickConnector !== undefined}
                   title={ this.i18n('button.checkSystemTooltip') }

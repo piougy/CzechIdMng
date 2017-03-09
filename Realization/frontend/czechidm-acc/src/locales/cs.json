@@ -206,6 +206,12 @@
         "checkSystem": {
           "success": "Test konektoru proběhl v pořádku.",
           "error": "Test konektoru neproběhl v pořádku!"
+        },
+        "action": {
+          "changeConnector": {
+            "message": "<b>Provede se okamžité uložení systému s novým konektorem.</b> Původní konektor již nebude aktivní a může dojít k nefunkčností systému.<br/><br/><b>Opravdu chcete změnit konektor?</b>",
+            "header": "Změna konektoru"
+          }
         }
       },
       "objectClassDetail": {

@@ -50,7 +50,11 @@ public class IdentityFilter extends QuickFilter {
 	/**
 	 * Identities for tree structure (by identity contract)
 	 */
-	private UUID treeNodeId;
+	private IdmTreeNode treeNode;
+	/**
+	 * Identities for tree structure recursively down
+	 */
+	private boolean recursively = true;
 	/**
 	 * Identities for tree structure (by identity contract)
 	 */
@@ -123,12 +127,12 @@ public class IdentityFilter extends QuickFilter {
 		this.value = value;
 	}
 	
-	public void setTreeNodeId(UUID treeNodeId) {
-		this.treeNodeId = treeNodeId;
+	public IdmTreeNode getTreeNode() {
+		return treeNode;
 	}
 	
-	public UUID getTreeNodeId() {
-		return treeNodeId;
+	public void setTreeNode(IdmTreeNode treeNode) {
+		this.treeNode = treeNode;
 	}
 	
 	public UUID getTreeTypeId() {
@@ -137,5 +141,13 @@ public class IdentityFilter extends QuickFilter {
 	
 	public void setTreeTypeId(UUID treeTypeId) {
 		this.treeTypeId = treeTypeId;
+	}
+	
+	public boolean isRecursively() {
+		return recursively;
+	}
+	
+	public void setRecursively(boolean recursively) {
+		this.recursively = recursively;
 	}
 }

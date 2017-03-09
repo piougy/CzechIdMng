@@ -59,25 +59,23 @@ class Organizations extends Basic.AbstractContent {
       <div>
         {this.renderPageHeader()}
 
-        <Basic.Panel>
-          {
-            !defaultTreeType
-            ?
-            <Basic.Alert
-              text={this.i18n('defaultTreeType.empty.message')}
-              buttons={[
-                <Basic.Button
-                  level="info"
-                  rendered={ SecurityManager.hasAuthority('TREETYPE_WRITE') }
-                  onClick={ this.showTreeTypes.bind(this) }>
-                  {this.i18n('defaultTreeType.empty.button')}
-                </Basic.Button>
-              ]}>
-            </Basic.Alert>
-            :
-            <NodeTable uiKey="organization-table" type={defaultTreeType} treeNodeManager={this.treeNodeManager} showTreeTypeSelect={false}/>
-          }
-        </Basic.Panel>
+        {
+          !defaultTreeType
+          ?
+          <Basic.Alert
+            text={this.i18n('defaultTreeType.empty.message')}
+            buttons={[
+              <Basic.Button
+                level="info"
+                rendered={ SecurityManager.hasAuthority('TREETYPE_WRITE') }
+                onClick={ this.showTreeTypes.bind(this) }>
+                {this.i18n('defaultTreeType.empty.button')}
+              </Basic.Button>
+            ]}>
+          </Basic.Alert>
+          :
+          <NodeTable uiKey="organization-table" type={defaultTreeType} treeNodeManager={this.treeNodeManager} showTreeTypeSelect={false}/>
+        }
 
       </div>
     );

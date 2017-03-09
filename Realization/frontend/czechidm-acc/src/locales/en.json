@@ -206,6 +206,12 @@
         "checkSystem": {
           "success": "Test konektoru proběhl v pořádku.",
           "error": "Test konektoru neproběhl v pořádku!"
+        },
+        "action": {
+          "changeConnector": {
+            "message": "<b>Immediate exectute save system with new connector.</b> Original connector will no longer be active and may cause malfunction of the system.<br/><br/><b>Do you really want to change the connector?</b>",
+            "header": "Connector change"
+          }
         }
       },
       "objectClassDetail": {

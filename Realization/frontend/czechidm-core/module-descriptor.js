@@ -132,7 +132,7 @@ module.exports = {
       },
       {
         'id': 'organizations',
-        'labelKey': 'content.organizations.header',
+        'labelKey': 'content.organizations.label',
         'titleKey': 'content.organizations.title',
         'icon': 'tree-deciduous',
         'order': 1020,
@@ -266,19 +266,6 @@ module.exports = {
             ]
           },
           {
-            'id': 'notification-templates',
-            'labelKey': 'content.notificationTemplate.title',
-            'icon': 'fa:envelope-square',
-            'order': 45,
-            'path': '/notification/templates',
-            'access': [
-              {
-                'type': 'HAS_ANY_AUTHORITY',
-                'authorities': ['NOTIFICATIONTEMPLATE_READ']
-              }
-            ]
-          },
-          {
             'id': 'notification-websockets',
             'labelKey': 'content.websockets.title',
             'order': 100,
@@ -287,6 +274,19 @@ module.exports = {
               {
                 'type': 'HAS_ANY_AUTHORITY',
                 'authorities': ['NOTIFICATION_READ']
+              }
+            ]
+          },
+          {
+            'id': 'notification-templates',
+            'labelKey': 'content.notificationTemplate.title',
+            'icon': 'fa:envelope-square',
+            'order': 900,
+            'path': '/notification/templates',
+            'access': [
+              {
+                'type': 'HAS_ANY_AUTHORITY',
+                'authorities': ['NOTIFICATIONTEMPLATE_READ']
               }
             ]
           },

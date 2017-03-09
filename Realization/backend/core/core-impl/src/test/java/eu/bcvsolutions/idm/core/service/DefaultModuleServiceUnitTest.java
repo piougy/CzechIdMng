@@ -28,7 +28,7 @@ import eu.bcvsolutions.idm.core.model.service.impl.DefaultModuleService;
 import eu.bcvsolutions.idm.core.notification.domain.NotificationGroupPermission;
 import eu.bcvsolutions.idm.core.security.api.domain.GroupPermission;
 import eu.bcvsolutions.idm.core.security.service.impl.DefaultSecurityService;
-import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
+import eu.bcvsolutions.idm.test.api.AbstractVerifiableUnitTest;
 
 /**
  * Test for {@link DefaultSecurityService}
@@ -36,7 +36,7 @@ import eu.bcvsolutions.idm.test.api.AbstractUnitTest;
  * @author Radek Tomiška 
  *
  */
-public class DefaultModuleServiceUnitTest extends AbstractUnitTest {
+public class DefaultModuleServiceUnitTest extends AbstractVerifiableUnitTest {
 
 	private static final List<List<GroupPermission>> ALL_PERMISSIONS;
 

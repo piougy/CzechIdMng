@@ -9,6 +9,8 @@ import Tooltip from '../Tooltip/Tooltip';
  * TODO: Improvent:
  * - add icon
  * - add button size (className is abused now)
+ *
+ * @author Radek Tomiška
  */
 class Button extends AbstractComponent {
 

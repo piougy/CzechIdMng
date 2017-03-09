@@ -166,23 +166,42 @@ module.exports = {
         'order': 999
       },
       {
-        'id': 'roles',
-        'type': 'DYNAMIC',
-        'labelKey': 'content.roles.header',
-        'titleKey': 'content.roles.title',
+        'id': 'roles-menu',
+        'labelKey': 'content.roles.menu-title',
+        'titleKey': 'content.roles.menu-title',
         'icon': 'fa:universal-access',
         'iconColor': '#eb9316',
         'order': 1030,
-        'path': '/roles',
         'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
         'items': [
           {
-            'id': 'role-detail',
-            'type': 'TAB',
-            'labelKey': 'content.roles.tabs.basic',
+            'id': 'roles',
+            'type': 'DYNAMIC',
+            'labelKey': 'content.roles.header',
+            'titleKey': 'content.roles.title',
+            'icon': 'fa:universal-access',
+            'iconColor': '#eb9316',
             'order': 10,
-            'path': '/role/:entityId/detail',
-            'icon': 'fa:newspaper-o'
+            'path': '/roles',
+            'access': [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_READ'] } ],
+            'items': [
+              {
+                'id': 'role-detail',
+                'type': 'TAB',
+                'labelKey': 'content.roles.tabs.basic',
+                'order': 10,
+                'path': '/role/:entityId/detail',
+                'icon': 'fa:newspaper-o'
+              },
+              {
+                'id': 'role-identities',
+                'type': 'TAB',
+                'labelKey': 'content.role.identities.title',
+                'order': 20,
+                'path': '/role/:entityId/identities',
+                'icon': 'fa:group'
+              }
+            ]
           },
           {
             'id': 'role-eav',
@@ -207,6 +226,12 @@ module.exports = {
             'titleKey': 'content.role.tree-nodes.title',
             'order': 30,
             'path': '/role/:entityId/tree-nodes'
+          },
+          {
+            'id': 'role-requests',
+            'labelKey': 'content.roleRequests.title',
+            'order': 20,
+            'path': '/request-roles'
           }
         ]
       },

@@ -399,6 +399,20 @@
       "CRITICAL": "Critical",
       "TRIVIAL": "Trivial"
     },
+    "RoleRequestStateEnum": {
+      "CREATED": "Created",
+      "EXECUTED": "Executed",
+      "CANCELED": "Canceled",
+      "APPROVED": "Approved",
+      "IN_PROGRESS": "In progress",
+      "EXCEPTION": "Exception",
+      "DUPLICATED": "Duplicated"
+    },
+    "ConceptRoleRequestStateEnum": {
+      "ADD": "Add",
+      "UPDATE": "Update",
+      "REMOVE": "Remove"
+    },
     "RecursionTypeEnum": {
       "NO": "Without recursion",
       "DOWN": "By structure down",
@@ -965,8 +979,9 @@
       }
     },
     "roles": {
-      "header": "Roles",
-      "title": "Roles",
+      "menu-title": "Roles",
+      "header": "Roles administration",
+      "title": "Roles administration",
       "edit": {
         "title": "Role details",
         "header": "{{name}} details"
@@ -1019,6 +1034,15 @@
           "message": "Role [{{role}}] is assign to users. Befor removing the role you need to take it from users."
         }
       }
+    },
+    "roleRequests": {
+      "header": "Requests for roles",
+      "title": "Requests for roles"
+    },
+    "roleRequestDetail": {
+      "header": "Request for change permissions",
+      "title": "Change permissions",
+      "conceptHeader": "Requested change of permissions"
     },
     "role": {
       "identities": {
@@ -2090,6 +2114,25 @@
           }
         }
       }
+    },
+    "RoleRequest": {
+      "applicant": "Applicant",
+      "state": "State",
+      "executeImmediately": "Execute without approval",
+      "log": "Log",
+      "created": "Created",
+      "modified": "Modified"
+    },
+    "ConceptRoleRequest": {
+      "identityContract": "Employment relationship",
+      "operation": "Operation",
+      "role": "Role",
+      "validFrom": "From",
+      "validTill": "Till",
+      "wfProcessId": "Id WF process",
+      "state": "State",
+      "created": "Created",
+      "modified": "Modified"
     }
   },
   "decision" : {

@@ -434,11 +434,6 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             property="_embedded.role.name"
             />
           <Basic.Column
-            header={this.i18n('entity.Role.description')}
-            property="_embedded.role.description"
-            rendered={false}
-            />
-          <Basic.Column
             property="validFrom"
             header={this.i18n('label.validFrom')}
             cell={this._conceptDateCell.bind(this)}/>

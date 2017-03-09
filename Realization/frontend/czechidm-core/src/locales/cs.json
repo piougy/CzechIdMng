@@ -399,6 +399,20 @@
       "CRITICAL": "Kritická",
       "TRIVIAL": "Triviální"
     },
+    "RoleRequestStateEnum": {
+      "CREATED": "Vytvořeno",
+      "EXECUTED": "Provedeno",
+      "CANCELED": "Zrušeno",
+      "APPROVED": "Schváleno",
+      "IN_PROGRESS": "Probíhá",
+      "EXCEPTION": "Chyba",
+      "DUPLICATED": "Duplicitní"
+    },
+    "ConceptRoleRequestStateEnum": {
+      "ADD": "Přidaní",
+      "UPDATE": "Úprava",
+      "REMOVE": "Odstranění"
+    },
     "RecursionTypeEnum": {
       "NO": "Bez šíření",
       "DOWN": "Šířit dle struktury dolů",
@@ -965,8 +979,9 @@
       }
     },
     "roles": {
-      "header": "Role",
-      "title": "Role",
+      "menu-title": "Role",
+      "header": "Správa rolí",
+      "title": "Správa rolí",
       "edit": {
         "title": "Detail role",
         "header": "{{name}} detail role"
@@ -1019,6 +1034,15 @@
           "message": "Role [{{role}}] je přiřazena uživatelům. Před odebráním role je nutné uživatelům roli odebrat."
         }
       }
+    },
+    "roleRequests": {
+      "header": "Žádosti o změnu oprávnění",
+      "title": "Žádosti o role"
+    },
+    "roleRequestDetail": {
+      "header": "Žádost o změnu oprávnění",
+      "title": "Změny oprávnění",
+      "conceptHeader": "Požadované změny oprávnění"
     },
     "role": {
       "identities": {
@@ -2083,7 +2107,27 @@
           }
         }
       }
+    },
+    "RoleRequest": {
+      "applicant": "Žadatel",
+      "state": "Stav",
+      "executeImmediately": "Provést bez schválení",
+      "log": "Log",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
+    },
+    "ConceptRoleRequest": {
+      "identityContract": "Vztah",
+      "operation": "Operace",
+      "role": "Role",
+      "validFrom": "Od",
+      "validTill": "Do",
+      "wfProcessId": "Id WF procesu",
+      "state": "Stav",
+      "created": "Vytvořeno",
+      "modified": "Upraveno"
     }
+
   },
   "decision" : {
     "approve": {

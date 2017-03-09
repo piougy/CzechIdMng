@@ -1,8 +1,6 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
-import java.util.UUID;
-
-import org.springframework.hateoas.Identifiable;
+import java.io.Serializable;
 
 /**
  * Any dto has identifier
@@ -10,20 +8,20 @@ import org.springframework.hateoas.Identifiable;
  * @author Radek Tomiška 
  *
  */
-public interface BaseDto extends Identifiable<UUID> {
+public interface BaseDto {
 	
 	/**
 	 * Returns indentifier
 	 *
 	 * @return
 	 */
-	UUID getId();
+	Serializable getId();
 
 	/**
 	 * Set indentifier
 	 *
 	 * @param id
 	 */
-	void setId(UUID id);
+	void setId(Serializable id);
 
 }

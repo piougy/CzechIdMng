@@ -26,6 +26,8 @@ import EntityEventProcessorManager from './EntityEventProcessorManager';
 import LongRunningTaskManager from './LongRunningTaskManager';
 import SchedulerManager from './SchedulerManager';
 import NotificationTemplateManager from './NotificationTemplateManager';
+import RoleRequestManager from './RoleRequestManager';
+import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 import RoleTreeNodeManager from './RoleTreeNodeManager';
 
 const ManagerRoot = {
@@ -57,6 +59,8 @@ const ManagerRoot = {
   LongRunningTaskManager,
   SchedulerManager,
   NotificationTemplateManager,
+  RoleRequestManager,
+  ConceptRoleRequestManager,
   RoleTreeNodeManager
 };
 

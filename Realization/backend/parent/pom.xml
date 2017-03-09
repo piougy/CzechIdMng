@@ -261,7 +261,12 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+		<!-- Mapper for DTO and Entity -->
+		<dependency>
+		    <groupId>org.modelmapper</groupId>
+		    <artifactId>modelmapper</artifactId>
+		    <version>0.7.4</version>
+		</dependency>
 		<!--IC dependency -->
 		<dependency>
 			<groupId>net.tirasa.connid</groupId>

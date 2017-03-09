@@ -11,9 +11,11 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import eu.bcvsolutions.idm.core.api.dto.BaseDto;
 import eu.bcvsolutions.idm.core.api.entity.BaseEntity;
 import eu.bcvsolutions.idm.core.api.rest.lookup.DefaultEntityLookup;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
+import eu.bcvsolutions.idm.core.api.service.ReadDtoService;
 import eu.bcvsolutions.idm.core.api.service.ReadEntityService;
 
 /**
@@ -29,16 +31,20 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(DefaultEntityLookupService.class);
 	private final PluginRegistry<EntityLookup<?>, Class<?>> entityLookups;
 	private final PluginRegistry<ReadEntityService<?, ?>, Class<?>> entityServices;
+	private final PluginRegistry<ReadDtoService<?, ?, ?>, Class<?>> dtoServices;
 	
 	@Autowired
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public DefaultEntityLookupService(
 			List<? extends EntityLookup<?>> entityLookups,
-			List<? extends ReadEntityService<?, ?>> entityServices) {
+			List<? extends ReadEntityService<?, ?>> entityServices,
+			List<? extends ReadDtoService<?, ?, ?>> dtoServices) {
 		Assert.notNull(entityLookups, "Entity lookups are required");
-		Assert.notNull(entityServices, "entity services are required");
+		Assert.notNull(entityServices, "Entity services are required");
+		Assert.notNull(dtoServices, "Dto services are required");
 		//
 		this.entityServices = OrderAwarePluginRegistry.create(entityServices);
+		this.dtoServices = OrderAwarePluginRegistry.create(dtoServices);
 		//
 		List entityLookupsWithDefault = new ArrayList<>(entityLookups);
 		this.entityServices.getPlugins().forEach(entityService -> {
@@ -57,6 +63,15 @@ public class DefaultEntityLookupService implements EntityLookupService {
 	@SuppressWarnings("unchecked")
 	public <E extends BaseEntity> ReadEntityService<E, ?> getEntityService(Class<E> entityClass) {
 		return (ReadEntityService<E, ?>)entityServices.getPluginFor(entityClass);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public  <DTO extends BaseDto> ReadDtoService<DTO, ?, ?> getDtoService(Class<DTO> dtoClass) {
+		return (ReadDtoService<DTO,?,?>)dtoServices.getPluginFor(dtoClass);
 	}
 	
 	/**

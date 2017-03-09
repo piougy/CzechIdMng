@@ -116,7 +116,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	        this.roleCatalogues = roleCatalogues;
 	    } else {
 	        this.roleCatalogues.clear();
-	        this.roleCatalogues.addAll(roleCatalogues);
+	        if(roleCatalogues != null){
+	        	this.roleCatalogues.addAll(roleCatalogues);
+	        }
 	    }
 	}
 
@@ -150,7 +152,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	        this.authorities = authorities;
 	    } else {
 	        this.authorities.clear();
-	        this.authorities.addAll(authorities);
+	        if(authorities != null){
+	        	this.authorities.addAll(authorities);
+	        }
 	    }
 	}
 	
@@ -167,7 +171,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	        this.subRoles = subRoles;
 	    } else {
 	        this.subRoles.clear();
-	        this.subRoles.addAll(subRoles);
+	        if(subRoles != null){
+	        	this.subRoles.addAll(subRoles);
+	        }
 	    }
 	}
 	
@@ -184,7 +190,9 @@ public class IdmRole extends AbstractEntity implements IdentifiableByName, Forma
 	        this.guarantees = guarantees;
 	    } else {
 	        this.guarantees.clear();
-	        this.guarantees.addAll(guarantees);
+	        if(guarantees != null){
+	        	this.guarantees.addAll(guarantees);
+	        }
 	    }
 	}
 

@@ -1,6 +1,8 @@
 package eu.bcvsolutions.idm.core.api.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.constraints.Size;
@@ -9,6 +11,10 @@ import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import eu.bcvsolutions.idm.core.api.domain.Auditable;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
@@ -19,10 +25,12 @@ import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
  * @author Radek Tomiška 
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	
 	private static final long serialVersionUID = 7512463222974374742L;
 	//
+	@JsonDeserialize(as = UUID.class)
 	private UUID id;
 	private DateTime created;
 	private DateTime modified;
@@ -38,6 +46,9 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	@Size(max = DefaultFieldLengths.NAME)
 	private String originalModifier;
 	private UUID originalModifierId;
+	private boolean trimmed = false;
+	@JsonProperty(value = "_embedded", access=Access.READ_ONLY)
+	private Map<String, AbstractDto> embedded;
 	@JsonIgnore
 	private UUID transactionId;
 
@@ -71,8 +82,11 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 	}
 
 	@Override
-	public void setId(UUID	 id) {
-		this.id = id;
+	public void setId(Serializable id) {
+		if (id != null) {
+			Assert.isInstanceOf(UUID.class, id, "AbstractDto supports only UUID identifier. For different identifier generalize BaseEntity.");
+		}
+		this.id = (UUID) id;
 	}
 
 	@Override
@@ -175,6 +189,27 @@ public abstract class AbstractDto implements Serializable, BaseDto, Auditable {
 		this.originalModifierId = originalModifierId;
 	}
 	
+	public boolean isTrimmed() {
+		return trimmed;
+	}
+
+	public void setTrimmed(boolean trimmed) {
+		this.trimmed = trimmed;
+	}
+	
+	
+
+	public Map<String, AbstractDto> getEmbedded() {
+		if(embedded == null){
+			embedded = new HashMap<>();
+		}
+		return embedded;
+	}
+
+	public void setEmbedded(Map<String, AbstractDto> emmbedded) {
+		this.embedded = emmbedded;
+	}
+
 	@Override
 	public UUID getTransactionId() {
 		return transactionId;

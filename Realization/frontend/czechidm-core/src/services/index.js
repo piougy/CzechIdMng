@@ -28,6 +28,8 @@ import EntityEventProcessorService from './EntityEventProcessorService';
 import LongRunningTaskService from './LongRunningTaskService';
 import SchedulerService from './SchedulerService';
 import NotificationTemplateService from './NotificationTemplateService';
+import RoleRequestService from './RoleRequestService';
+import ConceptRoleRequestService from './ConceptRoleRequestService';
 import RoleTreeNodeService from './RoleTreeNodeService';
 
 const ServiceRoot = {
@@ -61,6 +63,8 @@ const ServiceRoot = {
   LongRunningTaskService,
   SchedulerService,
   NotificationTemplateService,
+  RoleRequestService,
+  ConceptRoleRequestService,
   RoleTreeNodeService
 };
 

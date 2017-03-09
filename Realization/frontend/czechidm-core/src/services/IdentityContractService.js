@@ -1,7 +1,8 @@
 import moment from 'moment';
 //
-import AbstractService from './AbstractService';
+import FormableEntityService from './FormableEntityService';
 import TreeNodeService from './TreeNodeService';
+import IdentityService from './IdentityService';
 import SearchParameters from '../domain/SearchParameters';
 
 /**
@@ -9,11 +10,12 @@ import SearchParameters from '../domain/SearchParameters';
  *
  * @author Radek Tomiška
  */
-class IdentityContractService extends AbstractService {
+class IdentityContractService extends FormableEntityService {
 
   constructor() {
     super();
     this.treeNodeService = new TreeNodeService();
+    this.identityService = new IdentityService();
   }
 
   getApiPath() {
@@ -24,7 +26,18 @@ class IdentityContractService extends AbstractService {
     if (!entity) {
       return '';
     }
-    return entity._embedded && entity._embedded.workingPosition ? this.treeNodeService.getNiceLabel(entity._embedded.workingPosition) : entity.position;
+    if (!entity._embedded) {
+      return entity.position;
+    }
+    let niceLabel = null;
+    if (entity._embedded.identity) {
+      niceLabel = this.identityService.getNiceLabel(entity._embedded.identity);
+    }
+    let positionName = entity.position;
+    if (entity._embedded.workingPosition) {
+      positionName = this.treeNodeService.getNiceLabel(entity._embedded.workingPosition);
+    }
+    return niceLabel ? `${niceLabel} - ${positionName}` : positionName;
   }
 
   /**

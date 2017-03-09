@@ -67,6 +67,7 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
 
     //
     const panelClassNames = classNames(
+      'identity-info',
       { 'panel-success': _identity && !_identity.disabled },
       { 'panel-warning': _identity && _identity.disabled },
       className
@@ -75,12 +76,12 @@ export class IdentityInfo extends Basic.AbstractContextComponent {
       switch (face) {
         case 'link': {
           return (
-            <Basic.Icon value="refresh" showLoading className={panelClassNames} style={style}/>
+            <Basic.Icon value="refresh" showLoading className={className} style={style}/>
           );
         }
         default: {
           return (
-            <Basic.Well showLoading className={panelClassNames} style={style}/>
+            <Basic.Well showLoading className={`identity-info ${className}`} style={style}/>
           );
         }
       }

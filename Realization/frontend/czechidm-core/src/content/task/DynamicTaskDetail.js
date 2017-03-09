@@ -185,7 +185,7 @@ class DynamicTaskDetail extends Basic.AbstractContent {
           <Basic.AbstractForm className="panel-body" ref="form" data={task}>
             <Basic.TextField ref="taskDescription" readOnly label={this.i18n('description')}/>
             <Basic.LabelWrapper rendered={task.applicant} readOnly ref="applicant" label={this.i18n('applicant')}>
-              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin" style={{ width: '50%' }}/>
+              <Advanced.IdentityInfo username={task.applicant} showLoading={!task} className="no-margin"/>
             </Basic.LabelWrapper>
             <Basic.DateTimePicker ref="taskCreated" readOnly label={this.i18n('createdDate')}/>
           </Basic.AbstractForm>

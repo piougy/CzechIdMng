@@ -71,6 +71,25 @@ module.exports = {
       component: require('./src/content/identity/AuditDetail')
     },
     {
+      path: 'identity/:identityId/identity-contract/:entityId/',
+      component: require('./src/content/identity/contract/IdentityContract'),
+      childRoutes: [
+        {
+          path: 'detail',
+          component: require('./src/content/identity/contract/IdentityContractContent')
+        },
+        {
+          path: 'eav',
+          component: require('./src/content/identity/contract/IdentityContractEav')
+        }
+      ]
+    },
+    {
+      path: 'identity/:identityId/identity-contract/:entityId/new',
+      component: require('./src/content/identity/contract/IdentityContractContent'),
+      access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['APP_ADMIN'] } ]
+    },
+    {
       path: 'identities',
       component: require('./src/content/identity/Identities'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['IDENTITY_READ'] } ]
@@ -106,6 +125,10 @@ module.exports = {
               path: 'eav',
               component: require('./src/content/tree/node/NodeEav'),
               access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['TREENODE_READ'] } ]
+            },
+            {
+              path: 'roles',
+              component: require('./src/content/tree/node/TreeNodeRoles')
             }
           ]
         },

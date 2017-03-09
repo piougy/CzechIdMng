@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import uuid from 'uuid';
-import faker from 'faker';
 //
 import * as Basic from '../../../components/basic';
 import * as Advanced from '../../../components/advanced';
@@ -204,32 +203,6 @@ export default class NodeTable extends Basic.AbstractContent {
     }
   }
 
-  test() {
-    for (let i = 1; i <= 7896; i++) {
-      this._create(i, 1566);
-    }
-  }
-
-  _create(id, parent, cb) {
-    const { treeNodeManager } = this.props;
-    this.context.store.dispatch(treeNodeManager.createEntity({
-      code: `f-${id}`,
-      name: faker.company.companyName(),
-      treeTypeId: treeTypeManager.getSelfLink(this.state.type.id),
-      parent: !parent ? null : treeNodeManager.getSelfLink(parent)
-    },
-    `bulk-create`,
-    (createdEntity, error) => {
-      if (!error) {
-        if (cb) {
-          cb(createdEntity);
-        }
-      } else {
-        this.addError(error);
-      }
-    }));
-  }
-
   _onChangeSelectTabs(activeTab) {
     this.setState({activeTab});
   }
@@ -253,14 +226,6 @@ export default class NodeTable extends Basic.AbstractContent {
                   </h3>
                 </div>
                 <div className="pull-right">
-                  <Basic.Button
-                    level="success"
-                    className="btn-xs"
-                    style={{ marginRight: 3 }}
-                    onClick={this.test.bind(this)}
-                    rendered={false}>
-                    T
-                  </Basic.Button>
                   <Basic.Button
                     level="success"
                     title={this.i18n('addType')}

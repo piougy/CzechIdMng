@@ -68,7 +68,25 @@ module.exports = {
             'order': 50,
             'path': '/identity/:entityId/contracts',
             'icon': 'fa:building',
-            'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+            'access': [ { 'type': 'IS_AUTHENTICATED' } ],
+            'items': [
+              {
+                'id': 'identity-contract-detail',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.detail.label',
+                'order': 10,
+                'path': '/identity/:identityId/identity-contract/:entityId/detail',
+                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+              },
+              {
+                'id': 'identity-contract-eav',
+                'type': 'TAB',
+                'labelKey': 'content.identity-contract.eav.label',
+                'order': 20,
+                'path': '/identity/:identityId/identity-contract/:entityId/eav',
+                'access': [ { 'type': 'IS_AUTHENTICATED' } ]
+              }
+            ]
           },
           {
             'id': 'profile-audit',
@@ -434,9 +452,16 @@ module.exports = {
                     'id': 'tree-node-eav',
                     'type': 'TAB',
                     'labelKey': 'content.tree.node.eav.title',
-                    'order': 11,
-                    'priority': 0,
+                    'order': 20,
                     'path': '/tree/nodes/:entityId/eav',
+                  },
+                  {
+                    'id': 'tree-node-roles',
+                    'type': 'TAB',
+                    'labelKey': 'content.tree.node.roles.label',
+                    'titleKey': 'content.tree.node.roles.title',
+                    'order': 30,
+                    'path': '/tree/nodes/:entityId/roles'
                   }
                 ]
               },

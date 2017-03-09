@@ -185,6 +185,7 @@ public class IdmRoleCatalogue extends AbstractEntity implements BaseTreeEntity<I
 	 * 
 	 */
 	@Override
+	@JsonIgnore
 	public String getForestTreeType() {
 		return FOREST_TREE_TYPE;
 	}

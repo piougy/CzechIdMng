@@ -1,5 +1,6 @@
 package eu.bcvsolutions.idm.core.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,22 +40,22 @@ import eu.bcvsolutions.idm.core.api.rest.domain.ResourceWrapper;
 import eu.bcvsolutions.idm.core.api.service.EntityLookupService;
 import eu.bcvsolutions.idm.core.eav.rest.impl.IdmFormDefinitionController;
 import eu.bcvsolutions.idm.core.model.domain.IdmGroupPermission;
+import eu.bcvsolutions.idm.core.model.dto.WorkPosition;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityFilter;
 import eu.bcvsolutions.idm.core.model.dto.filter.IdentityRoleFilter;
 import eu.bcvsolutions.idm.core.model.entity.IdmAudit;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentity;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityContract;
-import eu.bcvsolutions.idm.core.model.entity.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.entity.IdmIdentityRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmRole;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeNode;
 import eu.bcvsolutions.idm.core.model.entity.IdmTreeType;
+import eu.bcvsolutions.idm.core.model.entity.eav.IdmIdentityFormValue;
 import eu.bcvsolutions.idm.core.model.service.api.IdmAuditService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityContractService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityRoleService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmIdentityService;
 import eu.bcvsolutions.idm.core.model.service.api.IdmTreeNodeService;
-import eu.bcvsolutions.idm.core.model.service.api.IdmTreeTypeService;
 import eu.bcvsolutions.idm.core.security.api.domain.Enabled;
 import eu.bcvsolutions.idm.core.security.service.GrantedAuthoritiesFactory;
 import eu.bcvsolutions.idm.core.workflow.model.dto.WorkflowFilterDto;
@@ -79,7 +80,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	private final WorkflowProcessInstanceService workflowProcessInstanceService;
 	private final IdmAuditService auditService; 	
 	private final IdmTreeNodeService treeNodeService;
-	private final IdmTreeTypeService treeTypeService;
 	//
 	private final IdmFormDefinitionController formDefinitionController;
 	
@@ -93,8 +93,7 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 			WorkflowTaskInstanceService workflowTaskInstanceService,
 			WorkflowProcessInstanceService workflowProcessInstanceService,
 			IdmAuditService auditService,
-			IdmTreeNodeService treeNodeService,
-			IdmTreeTypeService treeTypeService) {
+			IdmTreeNodeService treeNodeService) {
 		super(entityLookupService);
 		//
 		Assert.notNull(formDefinitionController);
@@ -105,7 +104,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		Assert.notNull(workflowProcessInstanceService);
 		Assert.notNull(auditService);
 		Assert.notNull(treeNodeService);
-		Assert.notNull(treeTypeService);
 		//
 		this.formDefinitionController = formDefinitionController;
 		this.grantedAuthoritiesFactory = grantedAuthoritiesFactory;
@@ -115,7 +113,6 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 		this.workflowProcessInstanceService = workflowProcessInstanceService;
 		this.auditService = auditService;
 		this.treeNodeService = treeNodeService;
-		this.treeTypeService = treeTypeService;
 	}
 	
 	@Override
@@ -219,40 +216,24 @@ public class IdmIdentityController extends DefaultReadWriteEntityController<IdmI
 	 * @return Positions from root to closest parent
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/{identityId}/organization-position", method = RequestMethod.GET)
-	public Resources<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {	
+	@RequestMapping(value = "/{identityId}/work-position", method = RequestMethod.GET)
+	public ResponseEntity<?> organizationPosition(@PathVariable String identityId, PersistentEntityResourceAssembler assembler) {
 		IdmIdentity identity = getEntity(identityId);
 		if (identity == null) {
 			throw new ResultCodeException(CoreResultCode.NOT_FOUND, ImmutableMap.of("entity", identityId));
 		}
-		// find all identity working position
-		List<IdmIdentityContract> contracts = identityContractService.getContracts(identity);
-		if (contracts.isEmpty()) {
-			return toResources((Iterable<?>) null, assembler, IdmTreeNode.class, null);
+		IdmIdentityContract primeContract = identityContractService.getPrimeContract(identity);
+		if (primeContract == null) {
+			return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 		}
-		IdmTreeNode workingPosition = null;
-		IdmTreeType defaultTreeType = treeTypeService.getDefaultTreeType();
-		for (IdmIdentityContract contract : contracts) {
-			// find first contract with working position
-			if (contract.getWorkingPosition() != null) { // TODO: prioritize identity contracts by external too
-				workingPosition = contract.getWorkingPosition();
-				//
-				if (defaultTreeType == null || defaultTreeType.equals(workingPosition.getTreeType())) {
-					break;
-				}
-			}
-		}
-		if (workingPosition == null) {
-			return toResources((Iterable<?>) null, assembler, IdmTreeNode.class, null);
-		}
-		List<IdmTreeNode> positions = treeNodeService.findAllParents(workingPosition, new Sort(Direction.ASC, "forestIndex.lft"));
-		positions.add(workingPosition);
-		//
-		return toResources((Iterable<?>)
-				positions, 
-				assembler, 
-				IdmTreeNode.class, 
-				null);		
+		WorkPosition position = new WorkPosition(identity, primeContract);
+		if (primeContract.getWorkingPosition() != null) {
+			List<IdmTreeNode> positions = new ArrayList<>();
+			positions = treeNodeService.findAllParents(primeContract.getWorkingPosition(), new Sort(Direction.ASC, "forestIndex.lft"));
+			positions.add(primeContract.getWorkingPosition());
+			position.setPath(positions);
+		}		
+		return new ResponseEntity<WorkPosition>(position, HttpStatus.OK);
 	}
 	
 	@ResponseBody

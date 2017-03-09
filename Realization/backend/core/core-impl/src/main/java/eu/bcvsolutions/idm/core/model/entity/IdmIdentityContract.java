@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.bcvsolutions.idm.core.api.domain.DefaultFieldLengths;
 import eu.bcvsolutions.idm.core.api.entity.AbstractEntity;
 import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
+import eu.bcvsolutions.idm.core.eav.api.entity.FormableEntity;
 
 /**
  * Identity contract - working position
@@ -35,7 +36,7 @@ import eu.bcvsolutions.idm.core.api.entity.ValidableEntity;
 		@Index(name = "idx_idm_identity_contract_gnt", columnList = "guarantee_id"),
 		@Index(name = "idx_idm_identity_contract_idnt", columnList = "identity_id"),
 		@Index(name = "idx_idm_identity_contract_wp", columnList = "working_position_id")})
-public class IdmIdentityContract extends AbstractEntity implements ValidableEntity {
+public class IdmIdentityContract extends AbstractEntity implements ValidableEntity, FormableEntity {
 
 	private static final long serialVersionUID = 328041550861866181L;
 

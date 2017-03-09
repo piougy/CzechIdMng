@@ -28,6 +28,7 @@ import LongRunningTaskService from './LongRunningTaskService';
 import SchedulerService from './SchedulerService';
 import NotificationTemplateService from './NotificationTemplateService';
 import RoleRequestService from './RoleRequestService';
+import ConceptRoleRequestService from './ConceptRoleRequestService';
 
 const ServiceRoot = {
   RestApiService,
@@ -59,7 +60,8 @@ const ServiceRoot = {
   LongRunningTaskService,
   SchedulerService,
   NotificationTemplateService,
-  RoleRequestService
+  RoleRequestService,
+  ConceptRoleRequestService
 };
 
 ServiceRoot.version = '0.0.1';

@@ -136,8 +136,12 @@ module.exports = {
     },
     {
       path: 'request-roles',
-      component: require('./src/content/requestrole/RequestRoles'),
+      component: require('./src/content/requestrole/RoleRequests'),
       access: [ { 'type': 'HAS_ANY_AUTHORITY', 'authorities': ['ROLE_REQUEST_READ'] } ]
+    },
+    {
+      path: 'request-roles/:entityId/detail',
+      component: require('./src/content/requestrole/RoleRequestDetail')
     },
     {
       path: 'role/:entityId/',

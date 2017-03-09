@@ -26,6 +26,7 @@ import LongRunningTaskManager from './LongRunningTaskManager';
 import SchedulerManager from './SchedulerManager';
 import NotificationTemplateManager from './NotificationTemplateManager';
 import RoleRequestManager from './RoleRequestManager';
+import ConceptRoleRequestManager from './ConceptRoleRequestManager';
 
 const ManagerRoot = {
   EntityManager,
@@ -55,7 +56,8 @@ const ManagerRoot = {
   LongRunningTaskManager,
   SchedulerManager,
   NotificationTemplateManager,
-  RoleRequestManager
+  RoleRequestManager,
+  ConceptRoleRequestManager
 };
 
 ManagerRoot.version = '0.0.1';

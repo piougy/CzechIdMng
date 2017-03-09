@@ -26,7 +26,7 @@ class RoleRequests extends Basic.AbstractTableContent {
   }
 
   getContentKey() {
-    return 'content.requestRoles';
+    return 'content.roleRequests';
   }
 
   componentDidMount() {
@@ -34,12 +34,11 @@ class RoleRequests extends Basic.AbstractTableContent {
   }
 
   showDetail(entity, add) {
-    const system = entity._embedded && entity._embedded.system ? entity._embedded.system.id : this.props.params.entityId;
     if (add) {
       const uuidId = uuid.v1();
-      this.context.router.push(`/system/${system}/object-classes/${uuidId}/new?new=1&systemId=${system}`);
+      this.context.router.push(`/request-roles/${uuidId}/new?new=1`);
     } else {
-      this.context.router.push(`/system/${system}/object-classes/${entity.id}/detail`);
+      this.context.router.push(`/request-roles/${entity.id}/detail`);
     }
   }
 
@@ -127,23 +126,22 @@ class RoleRequests extends Basic.AbstractTableContent {
                   );
                 }
               }/>
-              <Advanced.Column
-                property="applicant"
-                header={this.i18n('acc:entity.ProvisioningOperation.entity')}
-                face="text"
-                cell={
-                  ({ rowIndex, data }) => {
-                    const entity = data[rowIndex];
-                    return (
-                      <Advanced.IdentityInfo id={entity.applicant} face="link" />
-                    );
-                  }
-                }/>
             <Advanced.Column
               property="state"
               sort
               face="enum"
               enumClass={RoleRequestStateEnum}/>
+            <Advanced.Column
+              property="applicant"
+              face="text"
+              cell={
+                ({ rowIndex, data }) => {
+                  const entity = data[rowIndex];
+                  return (
+                    <Advanced.IdentityInfo id={entity.applicant} face="link" />
+                  );
+                }
+              }/>
             <Advanced.Column
               property="executeImmediately"
               sort

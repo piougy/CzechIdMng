@@ -5,10 +5,10 @@ import _ from 'lodash';
 import moment from 'moment';
 import uuid from 'uuid';
 //
-import * as Basic from '../../../components/basic';
-import * as Advanced from '../../../components/advanced';
-import { RoleManager, IdentityManager, IdentityContractManager } from '../../../redux';
-import SearchParameters from '../../../domain/SearchParameters';
+import * as Basic from '../../components/basic';
+import * as Advanced from '../../components/advanced';
+import { RoleManager, IdentityManager, IdentityContractManager } from '../../redux';
+import SearchParameters from '../../domain/SearchParameters';
 
 /**
 * Table for keep identity role concept. Input are all current assigned user's permissions
@@ -19,7 +19,7 @@ const roleManager = new RoleManager();
 const identityManager = new IdentityManager();
 const identityContractManager = new IdentityContractManager();
 
-export class IdentityRoleConceptTable extends Basic.AbstractContent {
+export class RoleConceptTable extends Basic.AbstractContent {
 
   constructor(props, context) {
     super(props, context);
@@ -282,7 +282,7 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
       }
       if (changedIdentityRoles) {
         for (const changedIdentityRole of changedIdentityRoles) {
-          if (changedIdentityRole.id === concept.id) {
+          if (changedIdentityRole.identityRole === concept.id) {
             concept._changed = true;
             for (const property in changedIdentityRole) {
               if (changedIdentityRole.hasOwnProperty(property)) {
@@ -421,17 +421,22 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
             sort={false}/>
           <Basic.Column
             header={this.i18n('entity.IdentityRole.identityContract.title')}
-            property="identityContract"
+            property="_embedded.identityContract"
             cell={
-              ({rowIndex, data, property}) => {
+              ({rowIndex, data}) => {
                 return (
-                  <span>{ identityContractManager.getNiceLabel(data[rowIndex][property]) }</span>
+                  <span>{ identityContractManager.getNiceLabel(data[rowIndex]._embedded.identityContract) }</span>
                 );
               }
             }/>
           <Basic.Column
             header={this.i18n('entity.IdentityRole.role')}
             property="_embedded.role.name"
+            />
+          <Basic.Column
+            header={this.i18n('entity.Role.description')}
+            property="_embedded.role.description"
+            rendered={false}
             />
           <Basic.Column
             property="validFrom"
@@ -519,15 +524,15 @@ export class IdentityRoleConceptTable extends Basic.AbstractContent {
   }
 }
 
-IdentityRoleConceptTable.propTypes = {
+RoleConceptTable.propTypes = {
   uiKey: PropTypes.string.isRequired,
   identityUsername: PropTypes.string.isRequired
 };
 
-IdentityRoleConceptTable.defaultProps = {
+RoleConceptTable.defaultProps = {
   filterOpened: false,
   _showLoading: false
 };
 
 
-export default IdentityRoleConceptTable;
+export default RoleConceptTable;

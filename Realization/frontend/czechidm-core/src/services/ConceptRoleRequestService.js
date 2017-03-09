@@ -1,18 +1,18 @@
 import AbstractService from './AbstractService';
 import SearchParameters from '../domain/SearchParameters';
 
-class RoleRequestService extends AbstractService {
+class ConceptRoleRequestService extends AbstractService {
 
   getApiPath() {
-    return '/role-requests';
+    return '/concept-role-requests';
   }
 
   getNiceLabel(request) {
     if (!request) {
       return '';
     }
-    if (request._embedded && request._embedded.identity) {
-      return `${request._embedded.identity.username} (${request.state})`;
+    if (request._embedded && request._embedded.role) {
+      return `${request._embedded.role.name}`;
     }
     return request.id;
   }
@@ -27,4 +27,4 @@ class RoleRequestService extends AbstractService {
   }
 }
 
-export default RoleRequestService;
+export default ConceptRoleRequestService;

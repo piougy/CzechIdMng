@@ -20,16 +20,18 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 
 	private Date expiration;
 	private Collection<GrantedAuthority> authorities;
+	private String fromModule;
 	
 	public IdmJwtAuthentication(IdentityDto currentIdentity, Date expiration,
-			Collection<GrantedAuthority> authorities) {
-		this(currentIdentity, currentIdentity, expiration, authorities);
+			Collection<GrantedAuthority> authorities, String fromModule) {
+		this(currentIdentity, currentIdentity, expiration, authorities, fromModule);
 	}
 
 	public IdmJwtAuthentication(IdentityDto currentIdentity, IdentityDto originalIdentity, Date expiration,
-			Collection<GrantedAuthority> authorities) {
+			Collection<GrantedAuthority> authorities, String fromModule) {
 		super(currentIdentity, originalIdentity);
-
+		//
+		this.fromModule = fromModule;
 		this.expiration = expiration;
 		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
 	}
@@ -48,5 +50,13 @@ public class IdmJwtAuthentication extends AbstractAuthentication {
 			return false;
 		}
 		return expiration.before(new Date());
+	}
+
+	public String getFromModule() {
+		return fromModule;
+	}
+
+	public void setFromModule(String fromModule) {
+		this.fromModule = fromModule;
 	}
 }

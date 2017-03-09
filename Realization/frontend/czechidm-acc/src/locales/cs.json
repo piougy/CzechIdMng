@@ -530,6 +530,10 @@
         "label": "Transformace ze systému",
         "help": "Umožňuje transformovat hodnotu z koncového systému do podoby vohodné pro IdM. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a list atributů objektu na koncovém systému 'icAttributes'."
       },
+      "authenticationAttribute": {
+        "label": "Autentizační atribut",
+        "help": "Atribut kterým bude provedena autentizace proti koncovému systému."
+      },
       "transformToResourceScript": {
         "label": "Transformace do systému",
         "help": "Umožňuje transformovat hodnotu z IdM do podoby vohodné pro koncový systém. Vstupním parametrem tohoto Groovy skriptu, je hodnota atributu 'attributeValue' a IdM entita 'entity'."

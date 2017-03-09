@@ -125,7 +125,8 @@ public class JwtAuthenticationMapper {
 				new IdentityDto(dto.getCurrentIdentityId(), dto.getCurrentUsername()),
 				new IdentityDto(dto.getOriginaIdentityId(), dto.getOriginalUsername()), 
 				dto.getExpiration(), 
-				grantedAuthorities);
+				grantedAuthorities,
+				dto.getFromModule());
 		return authentication;
 	}
 	
@@ -145,6 +146,7 @@ public class JwtAuthenticationMapper {
 		authenticationDto.setOriginalUsername(authentication.getOriginalUsername());
 		authenticationDto.setOriginaIdentityId(authentication.getOriginalIdentity() == null ? null : authentication.getOriginalIdentity().getId());
 		authenticationDto.setExpiration(authentication.getExpiration());
+		authenticationDto.setFromModule(authentication.getFromModule());
 		Collection<DefaultGrantedAuthority> authorities = (Collection<DefaultGrantedAuthority>) authentication
 				.getAuthorities();
 		List<DefaultGrantedAuthorityDto> grantedAuthorities = new ArrayList<>();

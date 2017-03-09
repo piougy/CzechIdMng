@@ -218,6 +218,10 @@ class SystemAttributeMappingDetail extends Basic.AbstractTableContent {
                 ref="confidentialAttribute"
                 label={this.i18n('acc:entity.SystemAttributeMapping.confidentialAttribute')}
                 readOnly = {_isDisabled || !_isRequiredIdmField}/>
+              <Basic.Checkbox
+                ref="authenticationAttribute"
+                label={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.label')}
+                helpBlock={this.i18n('acc:entity.SystemAttributeMapping.authenticationAttribute.help')}/>
               <Basic.Row>
                 <div className="col-lg-6">
                   <Basic.EnumSelectBox

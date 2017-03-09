@@ -50,7 +50,7 @@ public class DefaultSecurityService implements SecurityService {
 	
 	@Override
 	public void setSystemAuthentication() {
-		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAllAvailableAuthorities()));
+		this.setAuthentication(new IdmJwtAuthentication(new IdentityDto("[SYSTEM]"), null, getAllAvailableAuthorities(), null));
 	}
 	
 	@Override

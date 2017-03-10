@@ -12,7 +12,7 @@
 
 def identityRoleEntity = identityRoleService.get(identityRoleIdentifier);
 IdmIdentityRoleDto ir = new IdmIdentityRoleDto();
-ir.setIdentityContract(identityContractIdentifier);
+ir.setIdentityContract(UUID.fromString(identityContractIdentifier));
 ir.setRole(roleIdentifier);
 ir.setValidFrom(identityRoleEntity.getValidFrom());
 ir.setValidTill(identityRoleEntity.getValidTill());
